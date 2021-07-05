@@ -1,0 +1,51 @@
+version: '3.7'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+       - "2181:2182"
+  kafka:
+    image: wurstmeister/kafka
+    depends_on: 
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_CREATE_TOPICS: "v2xhub_in:1:1,v2xhub_out:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  db:
+    image: usdotfhwaops/mysql:carma-streets
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=IVP
+      - MYSQL_USER=IVP
+      - MYSQL_PASSWORD=ivp
+      - MYSQL_ROOT_PASSWORD=ivp
+      - username=${username}
+      - password=${password}
+    network_mode: host
+  php:
+    image: usdotfhwaops/php:carma-streets
+    container_name: php
+    network_mode: host
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+
+  v2xhub:
+    image: usdotfhwaops/v2xhubamd:carma-streets
+    container_name: v2xhub
+    network_mode: host
+    restart: always
+    depends_on:
+      - kafka
+      - php
+    volumes:
+      - ./logs:/var/log/tmx
+      - ./MAP:/var/www/plugins/MAP
+
