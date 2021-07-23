@@ -11,7 +11,8 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
       KAFKA_CREATE_TOPICS: "v2xhub_in:1:1,v2xhub_out:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
@@ -48,4 +49,18 @@ services:
     volumes:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
+  streets-examples:
+    image: carma-streets-examples:latest
+    build: 
+      context: .
+      dockerfile: examples/Dockerfile
+    container_name: examples
+    restart: always
+    network_mode: host
+    depends_on:  
+      - kafka
+    environment:
+      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+    volumes: 
+      - ./examples/manifest.json:/home/carma-streets-ws/carma-streets/examples/manifest.json
 

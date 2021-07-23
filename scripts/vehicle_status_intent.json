@@ -1,0 +1,140 @@
+{
+    "sample_data": 
+    [
+        {
+            "metadata": {
+            "timestamp": "1623677096"
+            },
+            "payload": {
+                "veh_id": "DOT-507",
+                "cur_loc": {
+                    "lat": 38.9545263,
+                    "lng": -77.1494462
+                },
+                "cur_speed": 15,
+                "cur_accel": 5,
+                "reaction_t": "1232324243",
+                "max_accel": 10,
+                "max_decel": 10,
+                "veh_length": 5,
+                "min_gap": 10,
+                "earliest_stop_t": "121222323",
+                "actual_stop_t": "21121212",
+                "actual_enter_t": "12121212",
+                "actual_depart_t": "12121212",
+                "depart_pos": 1,
+                "is_allowed_int": 0,
+                "cur_lane_idx": 201,
+                "enter_lane_idx": 209,
+                "dest_lane_idx": 211,
+                "link_lane_idx": 210,
+                "est_paths": [{
+                        "lat": 38.9546083 ,
+                        "lng":  -77.1495072,
+                        "timestamp": "212121212"
+                    },
+                    {
+                        "lat": 38.9549374,
+                        "lng":  -77.1492963,
+                        "timestamp": "312121212"
+                    },
+                    {
+                        "lat": 38.9549317 ,
+                        "lng": -77.1491257,
+                        "timestamp": "512121212"
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": "1623677096"
+            },
+            "payload": {
+                "veh_id": "DOT-508",
+                "cur_loc": {
+                    "lat": 38.9012,
+                    "lng": -77.21289
+                },
+                "cur_speed": 15,
+                "cur_accel": 5,
+                "reaction_t": "1232324243",
+                "max_accel": 10,
+                "max_decel": 10,
+                "veh_length": 5,
+                "min_gap": 10,
+                "earliest_stop_t": "121222323",
+                "actual_stop_t": "21121212",
+                "actual_enter_t": "12121212",
+                "actual_depart_t": "12121212",
+                "depart_pos": 1,
+                "is_allowed_int": 0,
+                "cur_lane_idx": 201,
+                "enter_lane_idx": 209,
+                "dest_lane_idx": 211,
+                "link_lane_idx": 210,
+                "est_paths": [{
+                        "lat": 38.955082,
+                        "lng": -77.1497302,
+                        "timestamp": "212121212"
+                    },
+                    {
+                        "lat": 38.9549675 ,
+                        "lng":  -77.1493419,
+                        "timestamp": "312121212"
+                    },
+                    {
+                        "lat": 38.9549188,
+                        "lng": -77.1490367,
+                        "timestamp": "512121212"
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": "1623677096"
+            },
+            "payload": {
+                "veh_id": "DOT-509",
+                "cur_loc": {
+                    "lat": 38.9012,
+                    "lng": -77.21289
+                },
+                "cur_speed": 15,
+                "cur_accel": 5,
+                "reaction_t": "1232324243",
+                "max_accel": 10,
+                "max_decel": 10,
+                "veh_length": 5,
+                "min_gap": 10,
+                "earliest_stop_t": "121222323",
+                "actual_stop_t": "21121212",
+                "actual_enter_t": "12121212",
+                "actual_depart_t": "12121212",
+                "depart_pos": 1,
+                "is_allowed_int": 0,
+                "cur_lane_idx": 201,
+                "enter_lane_idx": 209,
+                "dest_lane_idx": 211,
+                "link_lane_idx": 210,
+                "est_paths": [{
+                        "lat": 38.955082,
+                        "lng": -77.1497302,
+                        "timestamp": "212121212"
+                    },
+                    {
+                        "lat": 38.9549675 ,
+                        "lng":  -77.1493419,
+                        "timestamp": "312121212"
+                    },
+                    {
+                        "lat": 38.9549188,
+                        "lng": -77.1490367,
+                        "timestamp": "512121212"
+                    }
+                ]
+            }
+        }
+    ]
+}
