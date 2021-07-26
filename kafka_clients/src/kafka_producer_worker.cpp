@@ -147,16 +147,17 @@ namespace kafka_clients
         * waits for all messages to be delivered. */
         spdlog::critical("Stopping producer client.. ");
         spdlog::critical("Flushing final messages... ");
-        _producer->flush(10*1000 /* wait for max 10 seconds */);
-
-        if (_producer->outq_len() > 0)
-             spdlog::info("  {0} {1} message(s) were not delivered  ", _producer->name(), _producer->outq_len());
+        
        
         if (_topic) {
             delete _topic;
         }
 
         if (_producer) {
+            _producer->flush(10*1000 /* wait for max 10 seconds */);
+
+            if (_producer->outq_len() > 0)
+                spdlog::info("  {0} {1} message(s) were not delivered  ", _producer->name(), _producer->outq_len());
             delete _producer;
         }
     }

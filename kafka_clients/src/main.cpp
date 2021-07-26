@@ -34,7 +34,7 @@ void call_consumer_thread()
         
         consumer_worker->stop();
     }     
-    free(consumer_worker);
+    delete consumer_worker;
     return;    
 }
 
@@ -69,7 +69,7 @@ void call_producer_thread()
         }
         producer_worker->stop();
     }
-    free(producer_worker);
+   delete producer_worker;
     
     return;
 }

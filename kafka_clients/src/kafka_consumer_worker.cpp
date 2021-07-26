@@ -105,13 +105,12 @@ namespace kafka_clients
 
     void kafka_consumer_worker::stop()
     {        
-        _consumer->close();
-
         if (_topic) {
             delete _topic;
         }
 
         if (_consumer) {
+             _consumer->close();
             delete _consumer;
         }
         _run=false;
@@ -139,7 +138,7 @@ namespace kafka_clients
         RdKafka::Message *msg = NULL;
         msg = _consumer->consume(timeout_ms);      
         const char* msg_str= msg_consume(msg, NULL);
-        delete msg;
+        // delete msg; TODO delete me when it does not cause issues with 10HZ, 100HZ publish rate from producer
         return msg_str;
     }    
     
