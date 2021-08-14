@@ -163,7 +163,7 @@ jobs:
         command: |
        #   cd configuration/amd64/
           docker-compose up -d db
-          cd ../../
+          cd examples/
           docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets-${CIRCLE_BRANCH,,} .
     
      - run: 
@@ -183,7 +183,7 @@ jobs:
         command: |
        #   cd configuration/amd64/
           docker-compose up -d db
-          cd ../../
+          cd examples/
           docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets .
     
      - run: 
