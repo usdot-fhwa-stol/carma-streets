@@ -161,7 +161,6 @@ jobs:
         name: Docker Build
         # Run MYSQL image and build v2xhub docker image
         command: |
-       #   cd configuration/amd64/
           docker-compose up -d db
           cd examples/
           docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets-${CIRCLE_BRANCH,,} .
@@ -181,7 +180,6 @@ jobs:
         name: Docker Build
         # Run MYSQL image and build v2xhub docker image develop image
         command: |
-       #   cd configuration/amd64/
           docker-compose up -d db
           cd examples/
           docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets .
