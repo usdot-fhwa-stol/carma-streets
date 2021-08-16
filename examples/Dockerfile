@@ -49,7 +49,9 @@ RUN sudo make install
 
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
+RUN ls -lrt
 COPY ../ /home/carma-streets-ws/carma-streets
+RUN ls -lrt
 WORKDIR  /home/carma-streets-ws/carma-streets/kafka_clients
 RUN  rm -rf build && mkdir build
 WORKDIR  /home/carma-streets-ws/carma-streets/kafka_clients/build
