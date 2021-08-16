@@ -65,15 +65,15 @@ jobs:
             make 
             make install
             
-            cd /home/V2X-Hub-build/ext/server
-            cmake .
-            make
-            make install
+            #cd /home/V2X-Hub-build/ext/server
+            #cmake .
+            #make
+            #make install
 
-            cd /home/V2X-Hub-build/ext/ccserver
-            cmake .
-            make
-            make install
+            #cd /home/V2X-Hub-build/ext/ccserver
+            #cmake .
+            #make
+            #make install
             
             cd /usr/src/googletest
             mkdir build
