@@ -162,8 +162,7 @@ jobs:
         # Run MYSQL image and build v2xhub docker image
         command: |
           docker-compose up -d db
-          cd examples/
-          docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets-${CIRCLE_BRANCH,,} .
+          docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets-${CIRCLE_BRANCH,,} -f examples/Dockerfile .
     
      - run: 
         name: Docker Push
@@ -181,8 +180,7 @@ jobs:
         # Run MYSQL image and build v2xhub docker image develop image
         command: |
           docker-compose up -d db
-          cd examples/
-          docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets .
+          docker build --network=host -t usdotfhwaops/v2xhubamd:carma-streets -f examples/Dockerfile .
     
      - run: 
         name: Docker Push
