@@ -1,0 +1,7 @@
+.git*
+build/*
+devel/*
+install/*
+log/*
+coverage_/*
+examples/Dockerfile
