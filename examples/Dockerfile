@@ -75,6 +75,19 @@ RUN cd /usr/share/cmake-3.10/Modules && sudo curl -O https://raw.githubuserconte
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN sudo apt update && \
+    sudo apt install -y lsb-release && \
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+
+
+SHELL ["/bin/bash", "-c"]
+
+RUN sudo DEBIAN_FRONTEND=noninteractive apt update && \
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y ros-melodic-catkin && \
+    echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc && \
+    echo "source /home/carma-streets-ws/install/setup.bash" >> /root/.bashrc
+
 # Install CARMA Ready Lanelet2
 RUN echo " ------> Install Lanelet2..."
 WORKDIR  /home/carma-streets-ws/
@@ -83,24 +96,23 @@ RUN mkdir carma_lanelet2 && \
     mkdir src && \
     cd src && \
     git init && \
+    echo "temp" && \
     git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git && \
     git config core.sparsecheckout true	&& \
     echo "common/hardcoded_params/*" >> .git/info/sparse-checkout && \
     echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout && \
     echo "lanelet2/*" >> .git/info/sparse-checkout && \
+    echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout && \
     git pull --depth 1 origin refactor_lanelet2_extension && \
     git checkout refactor_lanelet2_extension
 
 WORKDIR  /home/carma-streets-ws/carma_lanelet2
 
-RUN sudo apt-get install lsb-release && \
-    sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
-    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+RUN source /opt/ros/melodic/setup.bash && \
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
+    ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
-RUN sudo apt-get update && \
-    sudo apt-get install -y catkin && \
-    LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install && \
-    echo "source /home/carma-streets-ws/install/setup.bash" >> ~/.bashrc
 
 # Install carma-streets-examples
 RUN echo " ------> compile examples..."
