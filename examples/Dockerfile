@@ -104,7 +104,9 @@ RUN mkdir carma_lanelet2 && \
     echo "lanelet2/*" >> .git/info/sparse-checkout && \
     echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout && \
     git pull --depth 1 origin refactor_lanelet2_extension && \
-    git checkout refactor_lanelet2_extension
+    git checkout refactor_lanelet2_extension && \
+    rm -r lanelet2/lanelet2_python && \
+    rm -r lanelet2/lanelet2_examples
 
 WORKDIR  /home/carma-streets-ws/carma_lanelet2
 
