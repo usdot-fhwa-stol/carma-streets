@@ -83,12 +83,18 @@ RUN sudo apt update && \
 
 SHELL ["/bin/bash", "-c"]
 
+# Install CARMA Ready Lanelet2
+# Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
+# First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
+# This means the ros source list must be added to sudo to allow this installation
+# Additionally, the python-rospkg package managment tool is required for catkin to work properly 
 RUN sudo DEBIAN_FRONTEND=noninteractive apt update && \
     sudo DEBIAN_FRONTEND=noninteractive apt install -y ros-melodic-catkin && \
     echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc && \
     echo "source /home/carma-streets-ws/install/setup.bash" >> /root/.bashrc
 
-# Install CARMA Ready Lanelet2
+# Once catkin is installed only the required lanelet2 packages will be pulled in from carma
+# NOTE: The lanelet2_python package requires additional dependencies that have not yet been installed so it is removed for now
 RUN echo " ------> Install Lanelet2..."
 WORKDIR  /home/carma-streets-ws/
 RUN mkdir carma_lanelet2 && \
@@ -110,6 +116,8 @@ RUN mkdir carma_lanelet2 && \
 
 WORKDIR  /home/carma-streets-ws/carma_lanelet2
 
+# In order to trick lanelet2 into building the ROS_VERSION environment variable must be set
+# In order to fully decouple lanelet2_extension from ros the LANELET2_EXTENSION_LOGGER_TYPE environment variable must be set
 RUN source /opt/ros/melodic/setup.bash && \
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
