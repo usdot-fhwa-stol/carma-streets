@@ -60,7 +60,7 @@ jobs:
             curl -sL https://deb.nodesource.com/setup_10.x | bash -
             sudo apt-get install -y nodejs
             mkdir /opt/jq
-            curl -O \"https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64\" -o /opt/jq/jq
+            curl -L "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -o /opt/jq/jq
             chmod +x /opt/jq/jq
             cd $SONAR_DIR
             unzip $SONAR_DIR/sonar-scanner.zip -d .
