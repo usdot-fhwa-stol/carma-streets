@@ -114,30 +114,13 @@ jobs:
         # Mysql Image and Build Carma-streets images
         command: |
           docker-compose up -d db
-          docker build --network=host -t usdotfhwastoldev/carma-streets:carma-streets-${CIRCLE_BRANCH,,} -f examples/Dockerfile .
+          docker build --network=host -t usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,} -f examples/Dockerfile .
      - run: 
         name: Docker Push
         # Push Carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,}
-  docker_build&push_develop :
-   machine:
-    image: ubuntu-1604:202004-01
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        # MYSQL image and build carma-streets docker image develop image
-        command: |
-          docker-compose up -d db
-          docker build --network=host -t usdotfhwastoldev/carma-streets:carma-streets -f examples/Dockerfile .
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker images to usdotfhwastoldev dockerhub
-        command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/carma-streets:latest
           
 workflows:
   version: 2
