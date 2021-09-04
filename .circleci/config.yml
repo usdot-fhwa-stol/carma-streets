@@ -120,7 +120,7 @@ jobs:
         # Push Carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/Carma-streets:${CIRCLE_BRANCH,,}
+          docker push usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,}
   docker_build&push_develop :
    machine:
     image: ubuntu-1604:202004-01
@@ -134,10 +134,10 @@ jobs:
           docker build --network=host -t usdotfhwastoldev/carma-streets:carma-streets -f examples/Dockerfile .
      - run: 
         name: Docker Push
-        # Push v2xhub and php docker images to usdotfhwastoldev dockerhub
+        # Push carma-streets docker images to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/Carma-streets:latest
+          docker push usdotfhwastoldev/carma-streets:latest
           
 workflows:
   version: 2
