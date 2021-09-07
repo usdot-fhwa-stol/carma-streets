@@ -54,7 +54,7 @@ jobs:
             mkdir .base-image
             SONAR_DIR=/opt/sonarqube
             mkdir $SONAR_DIR
-            curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip
+            curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
             curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
             curl -sL https://deb.nodesource.com/setup_10.x | bash -
             sudo apt-get install -y nodejs
@@ -111,17 +111,37 @@ jobs:
      - checkout
      - run: 
         name: Docker Build
-        # Mysql Image and Build Carma-streets images
+        # Run MYSQL image and build Carma-streets docker image
         command: |
           docker-compose up -d db
           docker build --network=host -t usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,} -f examples/Dockerfile .
+    
      - run: 
         name: Docker Push
         # Push Carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,}
-          
+    
+   
+  docker_build&push_develop :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
+     - checkout
+     - run: 
+        name: Docker Build
+        # Run MYSQL image and build carma-streets docker image develop image
+        command: |
+          docker-compose up -d db
+          docker build --network=host -t usdotfhwastoldev/carma-streets:latest -f examples/Dockerfile .
+    
+     - run: 
+        name: Docker Push
+        # Push Carma-streets docker image to usdotfhwastoldev dockerhub
+        command: | 
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+          docker push usdotfhwaops/v2xhubamd:latest
 workflows:
   version: 2
   build:
@@ -135,4 +155,3 @@ workflows:
            branches:
               ignore: develop
       - build
- 
