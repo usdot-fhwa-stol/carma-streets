@@ -18,12 +18,12 @@
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
-cd kafka_clients 
+cd ../kafka_clients 
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
 
-cd examples
+cd ../examples
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 
