@@ -75,6 +75,7 @@ jobs:
             set -x
             source /home/Carma-streets-build/.base-image/init-env.sh
             cd /home/Carma-streets-build/src
+            chmod 755 *
             build-wrapper-linux-x86-64 --out-dir ../bw-output ./build.sh
       #- run:
           #name: Run Tests & Generate Gcovr Reports
