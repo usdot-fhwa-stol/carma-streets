@@ -16,14 +16,14 @@
 # script executes all tmx and v2i build and coverage steps so that they can be singularly
 # wrapped by the sonarcloud build-wrapper
 
-COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
+#COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
-cd ../kafka_clients 
-cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
-make
-make install
+#cd ../kafka_clients 
+#cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
+#make
+#make install
 
-cd ../examples
-cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
-make
+#cd ../examples
+#cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
+#make
 
