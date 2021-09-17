@@ -1,8 +1,8 @@
 
 #include <string>
-#include <iostream>
 #include <vector>
-#include "json.hpp"
+#include <algorithm>
+#include <math.h>
 
 #include "configuration.h"
 #include "osm.h"
@@ -11,7 +11,6 @@
 #include "scheduling.h"
 
 using namespace std;
-using json = nlohmann::json;
 
 extern configuration config;
 extern osm localmap;
@@ -19,31 +18,6 @@ extern osm localmap;
 /* */
 scheduling::scheduling(unordered_map<string, vehicle> list_veh){
 
-	/*
-	veh_id.clear();
-	veh_index.clear();
-
-	time.clear();
-	lat.clear();
-	lng.clear();
-	speed.clear();
-	acceleration.clear();
-	lane_id.clear();
-	state.clear();
-
-	departurePosition_index.clear();
-	distance.clear();
-	clearance_time.clear();
-	est.clear();
-	st.clear();
-	et.clear();
-	dt.clear();
-
-	index_EVs.clear();
-	index_RDVs.clear();
-	index_DVs.clear();
-	index_LVs.clear();
-	*/
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (auto& element : list_veh){
 		
@@ -72,17 +46,20 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh){
 
 		/* estimate the vehicle location, speed, state, etc. at a given future timestamp! */
 		if (time.back() < config.get_curSchedulingT() + config.get_schedulingDelta()){
-			for (int i = 0; i < element.second.get_futureTime().size(); ++i){
-				if (element.second.get_futureTime()[i] >= config.get_curSchedulingT() + config.get_schedulingDelta() || 
-				i == element.second.get_futureTime().size() - 1){
+			
+			for (int i = 0; i < element.second.get_futureInfo().size(); ++i){
+				
+				if (element.second.get_futureInfo()[i].timestamp >= config.get_curSchedulingT() + config.get_schedulingDelta() || 
+					i == element.second.get_futureInfo().size() - 1){
+
 					
-					time.back() = element.second.get_futureTime()[i];
-					lat.back() = element.second.get_futureLat()[i];
-					lng.back() = element.second.get_futureLng()[i];
-					lane_id.back() = element.second.get_futureLaneID()[i];
-					distance.back() = element.second.get_futureDistance()[i];
-					speed.back() = element.second.get_futureSpeed()[i];
-					acceleration.back() = element.second.get_futureAccel()[i];
+					time.back() = element.second.get_futureInfo()[i].timestamp;
+					lat.back() = element.second.get_futureInfo()[i].lat;
+					lng.back() = element.second.get_futureInfo()[i].lng;
+					lane_id.back() = element.second.get_futureInfo()[i].lane_id;
+					distance.back() = element.second.get_futureInfo()[i].distance;
+					speed.back() = element.second.get_futureInfo()[i].speed;
+					acceleration.back() = element.second.get_futureInfo()[i].acceleration;
 
 					if (state.back() == "EV"){
 						if (lane_id.back() != element.second.get_entryLaneID()){
@@ -192,13 +169,14 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh){
 		int vehicle_index = index_DVs[n];
 		departurePosition_index[vehicle_index] = n + 1;
 	}
-	//sort(index_RDVs.begin(), index_RDVs.end(), sorting(), "asc"));
+	
 	sort(index_RDVs.begin(), index_RDVs.end(), sorting<double>(st, "asc"));
 	sort(index_RDVs.begin(), index_RDVs.end(), sorting<int>(departurePosition_index, "asc"));
 	for (int n = 0; n < index_RDVs.size(); ++n) {
 		int vehicle_index = index_RDVs[n];
 		departurePosition_index[vehicle_index] = index_DVs.size() + n + 1;
 	}
+	
 	for (int i = 0; i < index_EVs.size(); ++i) {
 		sort(index_EVs[i].begin(), index_EVs[i].end(), sorting<double>(distance, "asc"));
 	}
@@ -270,8 +248,6 @@ vector<bool> scheduling::get_accessList(){return access;}
 
 /* */
 vector<int> scheduling::get_linkPriorityList(){return link_priority;}
-
-
 
 /* */
 void scheduling::set_st(int v_index, double st_added){st[v_index] = st_added;}

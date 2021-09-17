@@ -1,32 +1,33 @@
 
 #include <string>
-#include <iostream>
 #include <vector>
-#include "json.hpp"
+#include <math.h>
+
+#include "rapidjson/document.h"
 
 #include "configuration.h"
 #include "osm.h"
 #include "vehicle.h"
 
 using namespace std;
-using json = nlohmann::json;
+using namespace rapidjson;
 
 extern configuration config;
 extern osm localmap;
 
 
 /* */
-void vehicle::update(json message){
+void vehicle::update(Document message){
+	
+	speed = message["payload"]["cur_speed"].GetDouble();
+	acceleration = message["payload"]["cur_accel"].GetDouble();
+	timestamp = message["payload"]["timestamp"].GetDouble();
 
-	speed = message["strategy_params"]["cur_speed"];
-	acceleration = message["strategy_params"]["cur_accel"];
-	timestamp = message["strategy_params"]["timestamp"];
-
-	lat = message["strategy_params"]["lat"];
-	lng = message["strategy_params"]["lng"];
-	lane_id = message["strategy_params"]["cur_lane_id"];
-	distance = message["strategy_params"]["cur_ds"];
-	access = message["strategy_params"]["is_allowed"];
+	lat = message["payload"]["lat"].GetDouble();
+	lng = message["payload"]["lng"].GetDouble();
+	lane_id = message["payload"]["cur_lane_id"].GetString();
+	distance = message["payload"]["cur_ds"].GetDouble();
+	access = message["payload"]["is_allowed"].GetBool();
 
 	st_actual = -1;
 	et_actual = -1;
@@ -34,18 +35,16 @@ void vehicle::update(json message){
 
 	if (id == ""){
 		
-		id = message["strategy_params"]["v_id"];
-		length = message["strategy_params"]["v_length"];
-		min_gap = message["strategy_params"]["min_gap"];
-		reaction_time = message["strategy_params"]["react_t"];	// !!!
-		accel_max = message["strategy_params"]["max_accel"];
-		decel_max = message["strategy_params"]["max_decel"];
+		id = message["payload"]["v_id"].GetString();
+		length = message["payload"]["v_length"].GetDouble();
+		min_gap = message["payload"]["min_gap"].GetDouble();
+		reaction_time = message["payload"]["react_t"].GetDouble();	// !!!
+		accel_max = message["payload"]["max_accel"].GetDouble();
+		decel_max = message["payload"]["max_decel"].GetDouble();
 
-		direction = message["strategy_params"]["direction"];
-		entryLane_id = message["strategy_params"]["entry_lane_id"];
-		link_id = message["strategy_params"]["link_lane_id"];
-		//entryLane_index;
-		//link_index;
+		direction = message["payload"]["direction"].GetString();
+		entryLane_id = message["payload"]["entry_lane_id"].GetString();
+		link_id = message["payload"]["link_lane_id"].GetString();
 		link_priority = localmap.get_lanePriority(link_id);
 
 		departurePosition_index = 1000;
@@ -108,29 +107,29 @@ void vehicle::update(json message){
 	}
 
 	// assuming the times in the future paths are actual times, not time interval from the previous time
-	time_future.clear();
-	lat_future.clear();
-	lng_future.clear();
-	lane_id_future.clear();
-	distance_future.clear();
-	for (int i = 0; i < message["strategy_params"]["est_paths"].size(); ++i){
-		time_future.push_back(message["strategy_params"]["est_paths"][i]["ts"]);
-		lat_future.push_back(message["strategy_params"]["est_paths"][i]["lat"]);
-		lng_future.push_back(message["strategy_params"]["est_paths"][i]["lng"]);
-		lane_id_future.push_back(message["strategy_params"]["est_paths"][i]["id"]);
-		distance_future.push_back(message["strategy_params"]["est_paths"][i]["ds"]);
-
+	future_info.clear();
+	for (SizeType i = 0; i < message["payload"]["est_paths"].Size(); ++i){
+		
+		future_information fi;
+		fi.timestamp = message["payload"]["est_paths"][i]["ts"].GetDouble();
+		fi.lat = message["payload"]["est_paths"][i]["lat"].GetDouble();
+		fi.lng = message["payload"]["est_paths"][i]["lng"].GetDouble();
+		fi.lane_id = message["payload"]["est_paths"][i]["id"].GetString();
+		fi.distance = message["payload"]["est_paths"][i]["ds"].GetDouble();
+		
 		double speed_c;
 		double accel_c;
 		if (i == 0){
-			speed_c = sqrt(pow(lng_future[i] - lat, 2) + pow(lng_future[i] - lng, 2)) / (time_future[i] - timestamp);
-			accel_c = speed_c - speed / (time_future[i] - timestamp);
+			speed_c = sqrt(pow(fi.lat - lat, 2) + pow(fi.lng - lng, 2)) / (fi.timestamp - timestamp);
+			accel_c = (speed_c - speed) / (fi.timestamp - timestamp);
 		} else{
-			speed_c = sqrt(pow(lng_future[i] - lng_future[i - 1], 2) + pow(lng_future[i] - lng_future[i - 1], 2)) / (time_future[i] - time_future[i - 1]);
-			accel_c = speed_c - speed_future[i - 1] / (time_future[i] - time_future[i - 1]);
+			speed_c = sqrt(pow(fi.lat - future_info[i - 1].lat, 2) + pow(fi.lng - future_info[i - 1].lng, 2)) / (fi.timestamp - future_info[i - 1].timestamp);
+			accel_c = (speed_c - future_info[i - 1].speed) / (fi.timestamp - future_info[i - 1].timestamp);
 		}
-		speed_future.push_back(speed_c);
-		accel_future.push_back(accel_c);
+		fi.speed = speed_c;
+		fi.acceleration = accel_c;
+
+		future_info.push_back(fi);
 	}
 
 }
@@ -208,25 +207,12 @@ string vehicle::get_curLaneID(){return lane_id;}
 string vehicle::get_curState(){return state;}
 
 /* */
-vector<double> vehicle::get_futureTime(){return time_future;}
+vector<future_information> vehicle::get_futureInfo(){return future_info;}
 
 /* */
-vector<string> vehicle::get_futureLaneID(){return lane_id_future;}
-
-/* */
-vector<double> vehicle::get_futureDistance(){return distance_future;}
-
-/* */
-vector<double> vehicle::get_futureLat(){return lat_future;}
-
-/* */
-vector<double> vehicle::get_futureLng(){return lng_future;}
-
-/* */
-vector<double> vehicle::get_futureSpeed(){return speed_future;}
-
-/* */
-vector<double> vehicle::get_futureAccel(){return accel_future;}
+void vehicle::set_departurePosition(int pos_index){
+	departurePosition_index = pos_index;
+}
 
 /* */
 void vehicle::set_flexEt(int new_flex_et){
@@ -237,3 +223,4 @@ void vehicle::set_flexEt(int new_flex_et){
 void vehicle::set_flexSt(double new_flex_st){
 	flexibility_ST = new_flex_st;	
 }
+

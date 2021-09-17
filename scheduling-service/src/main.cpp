@@ -1,46 +1,41 @@
 #include "kafka_client.h"
-#include <iostream>  
 #include <thread>    
 #include <chrono>  
 #include <vector>
 #include <unordered_map>
-//#include <condition_variable>
-//#include <mutex>
+
 #include "configuration.h"
 #include "osm.h"
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
 
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
 using namespace std;
-using json = nlohmann::json;
+using namespace rapidjson;
 using namespace chrono;
 
-/*
-mutex mtx_1;
-mutex mtx_2;
-condition_variable cv_1;
-condition_variable cv_2;
-//bool cv1_ready = true;
-bool is_schedule_ready = false;
-*/
 
-configuration config("configuration.json");
+//configuration config("configuration.json");
+configuration config;
 osm localmap("osm.json");
 unordered_map<string, vehicle> list_veh;
 
 
-
 void consumer_update(const char* paylod){
-
-    // assuming these two lines will successfully convert the const char* payload into a json object.
-    json message;
-    stringstream(paylod) >> message;
-
-    string veh_id = message["strategy_params"]["v_id"];
+    
+    Document message;
+    message.Parse(paylod);
+    
+    string veh_id = message["payload"]["v_id"].GetString();
 
     if (!list_veh.count(veh_id)){
-        string cur_lane_type = localmap.get_laneType(message["strategy_params"]["cur_lane_id"]);
+        string cur_lane_type = localmap.get_laneType(message["payload"]["cur_lane_id"].GetString());
         if (cur_lane_type == "entry" || cur_lane_type == "link"){
             list_veh[veh_id] = vehicle();
         }
@@ -55,27 +50,7 @@ void consumer_update(const char* paylod){
 
 }
 
-json scheduling_func(unordered_map<string, vehicle> list_veh){
-
-    /*
-    int vehicle_index;
-    int vehicle_index_1;
-    int lane_index;
-    int lane_index_1;
-    int link_index;
-    int link_index_1;
-    int count;
-    int break_indicator;
-    int index_opt;
-    int index_list_RDV;
-    string vehicle_id;
-    double est;
-    double st;
-    double et;
-    double et1;
-    double dt;
-    double delay;
-    */
+void scheduling_func(unordered_map<string, vehicle> list_veh, Document& document){
 
     scheduling schedule(list_veh);
 
@@ -275,7 +250,7 @@ json scheduling_func(unordered_map<string, vehicle> list_veh){
     sort(listS.begin(), listS.end(), sorting<double>(schedule.get_etList(), "dec"));
     sort(listS.begin(), listS.end(), sorting<double>(schedule.get_dtList(), "dec"));
     vector<vector<int>> listEV = schedule.get_indexEVs();
-	int count_EV = 0;
+    int count_EV = 0;
     for (int i = 0; i < localmap.get_laneIdEntry().size(); ++i){
         count_EV += listEV.size();
     }
@@ -353,7 +328,6 @@ json scheduling_func(unordered_map<string, vehicle> list_veh){
 
         int index_opt = listOptionsIndex[0];
 		int vehicle_index = listOptionsVehicleIndex[index_opt];
-		//lane_index = vehicles.entryLane_index[vehicle_index];
 		double st = listOptionsST[index_opt];
 		double et = listOptionsET[index_opt];
 		double dt = listOptionsDT[index_opt];
@@ -374,25 +348,22 @@ json scheduling_func(unordered_map<string, vehicle> list_veh){
 
     }
 
-
     /*
     * create the json file that includes the scheduling decision
     */
-    json msg_to_send;
-    msg_to_send["intersection_type"] = "stop_controlled";
     for (int n = 0; n < schedule.get_vehicleIdList().size(); ++n){
         string vehicle_id = schedule.get_vehicleIdList()[n];
-        msg_to_send["schedule"][vehicle_id]["st"] = schedule.get_stList()[n];
-        msg_to_send["schedule"][vehicle_id]["et"] = schedule.get_etList()[n];
-        msg_to_send["schedule"][vehicle_id]["dt"] = schedule.get_dtList()[n];
-        msg_to_send["schedule"][vehicle_id]["departure_position"] = schedule.get_departPosIndexList()[n];
+        document["schedule"].AddMember("v_id", vehicle_id, document.GetAllocator());
+        document["schedule"].AddMember("st", schedule.get_stList()[n], document.GetAllocator());
+        document["schedule"].AddMember("et", schedule.get_etList()[n], document.GetAllocator());
+        document["schedule"].AddMember("dt", schedule.get_dtList()[n], document.GetAllocator());
+        document["schedule"].AddMember("departure_position", schedule.get_departPosIndexList()[n], document.GetAllocator());
         if (schedule.get_accessList()[n] == true){
-            msg_to_send["schedule"][vehicle_id]["access"] = 1;
+            document["schedule"].AddMember("access", 1, document.GetAllocator());
         } 
         else{
-            msg_to_send["schedule"][vehicle_id]["access"] = 0;
+            document["schedule"].AddMember("access", 0, document.GetAllocator());
         }
-        
     }
     
 }
@@ -428,7 +399,7 @@ void call_consumer_thread()
             
             if(strlen(paylod) > 0)
             {
-                spdlog::info("Consumed message payload: {0}", paylod );
+                spdlog::info("Consumed message payload: {0}", paylod);
                 
                 
                 /* 
@@ -476,10 +447,18 @@ void call_scheduling_thread(){
                 unordered_map<string, vehicle> list_veh_copy = list_veh;
 
                 // run the scheduling service
-                json msg_to_send = scheduling_func(list_veh_copy);
+                Document document;
+                document.AddMember("intersection_type", "stop_controlled", document.GetAllocator());
+                document.AddMember("schedule", Value(kObjectType), document.GetAllocator());
+                if (list_veh_copy.size() > 0){
+                    scheduling_func(list_veh_copy, document);
+                }
+                StringBuffer buffer;
+                Writer<StringBuffer> writer(buffer);
+                document.Accept(writer);
+                string msg_to_send = buffer.GetString();
 
-                // produce the scheduling plan to kafka
-                
+                /* produce the scheduling plan to kafka */
                 //string msg_to_send = "\"This is a test\"";
                 //this_thread::sleep_for(std::chrono::seconds(5));
                 producer_worker->send(msg_to_send);

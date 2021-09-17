@@ -57,14 +57,14 @@ RUN cmake ..
 RUN make
 RUN sudo make install
 
-RUN echo " ------> compile examples..."
-WORKDIR  /home/carma-streets-ws/carma-streets/examples
+RUN echo " ------> compile scheduling-service..."
+WORKDIR  /home/carma-streets-ws/carma-streets/scheduling-service
 RUN  rm -rf build && mkdir build
-WORKDIR  /home/carma-streets-ws/carma-streets/examples/build
+WORKDIR  /home/carma-streets-ws/carma-streets/scheduling-service/build
 RUN cmake ..
 RUN make
 
-WORKDIR  /home/carma-streets-ws/carma-streets/examples/build/
+WORKDIR  /home/carma-streets-ws/carma-streets/scheduling-service/build/
 
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
@@ -78,4 +78,4 @@ LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
-CMD ["/home/carma-streets-ws/carma-streets/examples/build/examples"]
+CMD ["/home/carma-streets-ws/carma-streets/scheduling-service/build/examples"]

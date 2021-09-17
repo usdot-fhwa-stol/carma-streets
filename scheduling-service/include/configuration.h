@@ -2,39 +2,41 @@
 #define configuration_H
 
 #include <string>
-#include <fstream>
-#include <iostream>
-#include <chrono> 
-#include "json.hpp"
+#include <chrono>
+
 using namespace std;
-using json = nlohmann::json;
 using chrono::duration;
 
 class configuration{
 	private:
-		double consumer_delta;
-		double scheduling_delta;
-		string shutdown_switch;
 
+		/* the scheduling time interval */
+		double scheduling_delta = 1.0; // sec
+
+		/* the time point when the last schedule started */
 		double last_schedule_start_time = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
+
+		/* the time point when the current schedule started */
 		double cur_schedule_start_time;
 
 	public:
 
-		configuration(string json_file_name);
-
-		double get_consumerDelta();
+		/* get the scheduling time interval */
 		double get_schedulingDelta();
-		string get_shutdownSwitch();
+
+		/* get the time point when the last schedule started */
 		double get_lastSchedulingT();
+
+		/* get the time point when the current schedule started */
 		double get_curSchedulingT();
 
-		void start();
-		void shutDown();
+		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);
+
+		/* set the current schedule's start time point to t */
 		void set_curSchedulingT(double t);
 
-		void set_consumerDelta(double delta);
+		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);
 };
 
