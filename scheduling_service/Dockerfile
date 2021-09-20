@@ -14,7 +14,7 @@ RUN git clone https://github.com/google/googletest/
 WORKDIR /home/carma-streets-ws/carma-streets/ext/googletest/
 RUN cmake .
 RUN make
-RUN sudo make install
+RUN make install
 
 # Install librdkafka
 RUN echo " ------> Install librdkafka..."
@@ -23,7 +23,7 @@ RUN git clone https://github.com/edenhill/librdkafka
 WORKDIR /home/carma-streets-ws/carma-streets/ext/librdkafka/
 RUN ./configure --prefix=/usr
 RUN make
-RUN sudo make install
+RUN make install
 
 
 # Install spdlog
@@ -34,7 +34,7 @@ WORKDIR /home/carma-streets-ws/carma-streets/ext/spdlog/
 RUN mkdir build 
 WORKDIR /home/carma-streets-ws/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
-RUN sudo make install
+RUN make install
 
 
 # Install rapidjson
@@ -45,7 +45,7 @@ WORKDIR /home/carma-streets-ws/carma-streets/ext/rapidjson/
 RUN mkdir build
 WORKDIR /home/carma-streets-ws/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
-RUN sudo make install
+RUN make install
 
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
@@ -55,16 +55,16 @@ RUN  rm -rf build && mkdir build
 WORKDIR  /home/carma-streets-ws/carma-streets/kafka_clients/build
 RUN cmake ..
 RUN make
-RUN sudo make install
+RUN make install
 
-RUN echo " ------> compile scheduling-service..."
-WORKDIR  /home/carma-streets-ws/carma-streets/scheduling-service
+RUN echo " ------> compile scheduling_service..."
+WORKDIR  /home/carma-streets-ws/carma-streets/scheduling_service
 RUN  rm -rf build && mkdir build
-WORKDIR  /home/carma-streets-ws/carma-streets/scheduling-service/build
+WORKDIR  /home/carma-streets-ws/carma-streets/scheduling_service/build
 RUN cmake ..
 RUN make
 
-WORKDIR  /home/carma-streets-ws/carma-streets/scheduling-service/build/
+WORKDIR  /home/carma-streets-ws/carma-streets/scheduling_service/build/
 
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
@@ -78,4 +78,4 @@ LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
-CMD ["/home/carma-streets-ws/carma-streets/scheduling-service/build/examples"]
+CMD ["/home/carma-streets-ws/carma-streets/scheduling_service/build/scheduling_service"]
