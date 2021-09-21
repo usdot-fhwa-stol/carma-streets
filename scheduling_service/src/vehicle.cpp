@@ -17,7 +17,7 @@ extern osm localmap;
 
 
 /* */
-void vehicle::update(Document message){
+void vehicle::update(rapidjson::Document &message){
 	
 	speed = message["payload"]["cur_speed"].GetDouble();
 	acceleration = message["payload"]["cur_accel"].GetDouble();

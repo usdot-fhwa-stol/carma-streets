@@ -116,7 +116,7 @@ class vehicle{
 
 	public:
 
-		void update(Document message);
+		void update(Document &message);
 		
 		double get_length();
 		double get_minGap();

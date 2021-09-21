@@ -12,7 +12,6 @@
 
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
-#include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
@@ -29,7 +28,7 @@ unordered_map<string, vehicle> list_veh;
 
 void consumer_update(const char* paylod){
     
-    Document message;
+    rapidjson::Document message;
     message.Parse(paylod);
     
     string veh_id = message["payload"]["v_id"].GetString();
