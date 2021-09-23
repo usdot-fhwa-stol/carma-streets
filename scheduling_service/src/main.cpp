@@ -1,3 +1,4 @@
+#define RAPIDJSON_HAS_STDSTRING 1
 #include "kafka_client.h"
 #include <thread>    
 #include <chrono>  
@@ -49,7 +50,7 @@ void consumer_update(const char* paylod){
 
 }
 
-void scheduling_func(unordered_map<string, vehicle> list_veh, Document& document){
+rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document &document , Document::AllocatorType allocator){
 
     scheduling schedule(list_veh);
 
@@ -347,24 +348,35 @@ void scheduling_func(unordered_map<string, vehicle> list_veh, Document& document
 
     }
 
-    /*
-    * create the json file that includes the scheduling decision
-    */
+    // Create vehicle schedule plan : 
+    //  "schedule": [
+    //    {
+    //             "v_id": "DOT-508",
+    //             "st": "21121212",
+    //             "et": "12121212",
+    //             "dt": "12121212",
+    //             "dp": 2,
+    //             "access": 0
+    //         } , ... ]
+   Value schedule_plan(kArrayType);
     for (int n = 0; n < schedule.get_vehicleIdList().size(); ++n){
-        string vehicle_id = schedule.get_vehicleIdList()[n];
-        document["schedule"].AddMember("v_id", vehicle_id, document.GetAllocator());
-        document["schedule"].AddMember("st", schedule.get_stList()[n], document.GetAllocator());
-        document["schedule"].AddMember("et", schedule.get_etList()[n], document.GetAllocator());
-        document["schedule"].AddMember("dt", schedule.get_dtList()[n], document.GetAllocator());
-        document["schedule"].AddMember("departure_position", schedule.get_departPosIndexList()[n], document.GetAllocator());
+        std::string vehicle_id = schedule.get_vehicleIdList()[n];
+        Value veh_sched(kObjectType);
+        veh_sched.AddMember("v_id", vehicle_id, allocator);
+        veh_sched.AddMember("st", schedule.get_stList()[n], allocator);
+        veh_sched.AddMember("et", schedule.get_etList()[n], allocator);
+        veh_sched.AddMember("dt", schedule.get_dtList()[n], allocator);
+        veh_sched.AddMember("dp", schedule.get_departPosIndexList()[n], allocator);
         if (schedule.get_accessList()[n] == true){
-            document["schedule"].AddMember("access", 1, document.GetAllocator());
+            veh_sched.AddMember("access", 1, allocator);
         } 
         else{
-            document["schedule"].AddMember("access", 0, document.GetAllocator());
+            veh_sched.AddMember("access", 0, allocator);
         }
+        schedule_plan.PushBack(veh_sched,allocator);
     }
-    
+    return schedule_plan;
+      
 }
 
 
@@ -445,13 +457,28 @@ void call_scheduling_thread(){
                 // copy list_veh
                 unordered_map<string, vehicle> list_veh_copy = list_veh;
 
-                // run the scheduling service
+                // Create scheduling JSON
+                //  
+                //    {
+                //      "metadata": {
+                //          "timestamp": 123123123,
+                //          "intersection_type": "stop_controlled"
+                //       },
+                //       "payload": { "schedule": [ ..., ...]}    (see scheduling_func)
+                //     }
                 Document document;
-                document.AddMember("intersection_type", "stop_controlled", document.GetAllocator());
-                document.AddMember("schedule", Value(kObjectType), document.GetAllocator());
+                Document::AllocatorType &allocator = document.GetAllocator();
+                Value metadata(kObjectType);
+                auto timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                metadata.AddMember("timestamp", timestamp, allocator );
+                metadata.AddMember("intersection_type", "stop_controlled",allocator);
+                document.AddMember("metadata", metadata, allocator);
+                Value schedule;
                 if (list_veh_copy.size() > 0){
-                    scheduling_func(list_veh_copy, document);
+                    schedule = scheduling_func(list_veh_copy, document, allocator);
                 }
+                document.AddMember("payload", schedule, allocator);
+
                 StringBuffer buffer;
                 Writer<StringBuffer> writer(buffer);
                 document.Accept(writer);
@@ -484,5 +511,7 @@ int main(int argc,char** argv)
 
     thread consumer(call_consumer_thread);
     thread scheduling(call_scheduling_thread);
+    consumer.join();
+    scheduling.join();
 
 }
