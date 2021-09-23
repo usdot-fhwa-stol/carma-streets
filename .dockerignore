@@ -1,0 +1,13 @@
+# Files to be ignored by the Docker context
+# Any files mentioned here will not trigger Docker to force an image reuild
+# if they change
+.circleci
+.vscode
+/docs
+/examples
+/ext
+/scripts
+/kafka_clients/build
+/scheduling_service/build
+*.md
+*.git*
