@@ -1,0 +1,6 @@
+{
+    "BOOTSTRAP_SERVER": "127.0.0.1:9092", 
+    "PRODUCER_TOPIC": "v2xhub_in",
+    "CONSUMER_TOPIC": "v2xhub_out",
+    "GROUP_ID": "group_one"
+}
