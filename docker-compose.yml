@@ -18,19 +18,23 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   db:
-    image: usdotfhwaops/mysql:carma-streets
+    image: mysql:5.7
     container_name: mysql
     restart: always
     environment:
       - MYSQL_DATABASE=IVP
       - MYSQL_USER=IVP
-      - MYSQL_PASSWORD=ivp
-      - MYSQL_ROOT_PASSWORD=ivp
-      - username=${username}
-      - password=${password}
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
     network_mode: host
+    secrets:
+      - mysql_password
+      - mysql_root_password
+    volumes:
+      - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
+
   php:
-    image: usdotfhwaops/php:carma-streets
+    image: usdotfhwaops/php:latest
     container_name: php
     network_mode: host
     depends_on:
@@ -39,22 +43,25 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:carma-streets
+    image: usdotfhwaops/v2xhubamd:latest
     container_name: v2xhub
     network_mode: host
     restart: always
     depends_on:
-      - kafka
       - php
+    environment:
+      - MYSQL_PASSWORD=/run/secrets/mysql_password
+    secrets:
+      - mysql_password
     volumes:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
-  streets-examples:
-    image: carma-streets-examples:latest
+  scheduling_service:
+    image: scheduling_service:latest
     build: 
       context: .
-      dockerfile: examples/Dockerfile
-    container_name: examples
+      dockerfile: scheduling_service/Dockerfile
+    container_name: scheduling_service
     restart: always
     network_mode: host
     depends_on:  
@@ -62,5 +69,10 @@ services:
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
-      - ./examples/manifest.json:/home/carma-streets-ws/carma-streets/examples/manifest.json
+      - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
+secrets:
+    mysql_password:
+        file: ./secrets/mysql_password.txt
+    mysql_root_password:
+        file: ./secrets/mysql_root_password.txt
 

@@ -67,7 +67,7 @@ WORKDIR  /home/carma-streets/examples/build
 RUN cmake ..
 RUN make
 
-WORKDIR  /homecarma-streets/examples/build/
+WORKDIR  /home/carma-streets/examples/build/
 
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."

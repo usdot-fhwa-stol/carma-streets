@@ -63,7 +63,7 @@ WORKDIR  /home/carma-streets/scheduling_service/build
 RUN cmake ..
 RUN make
 
-WORKDIR  /home/carma-streets/scheduling-service/build/
+WORKDIR  /home/carma-streets/scheduling_service/build/
 
 # Set metadata labels
 # Set metadata labels
@@ -78,4 +78,4 @@ LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
-CMD ["/home/carma-streets/scheduling-service/build/scheduling-service"]
+CMD ["/home/carma-streets/scheduling_service/build/scheduling_service"]
