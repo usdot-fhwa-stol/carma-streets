@@ -47,7 +47,6 @@ namespace message_services
                             }
                         }
                         setHeader(header);
-                        spdlog::info("Header->timestamp : {0}", header.timestamp);
                     }
 
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("core_data")))
