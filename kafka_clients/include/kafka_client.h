@@ -1,4 +1,7 @@
-#pragma once
+#ifndef KAFKA_CLIENT_H
+#define KAFKA_CLIENT_H
+
+
 #include "kafka_producer_worker.h"
 #include "kafka_consumer_worker.h"
 #include <boost/thread.hpp>
@@ -29,3 +32,6 @@ namespace kafka_clients
    
     
 }
+
+
+#endif // !KAFKA_CLIENT_H

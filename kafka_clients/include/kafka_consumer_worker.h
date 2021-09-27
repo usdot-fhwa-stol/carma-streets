@@ -1,4 +1,6 @@
-#pragma once
+#ifndef KAFKA_CONSUMER_WORKER_H
+#define KAFKA_CONSUMER_WORKER_H
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -145,3 +147,5 @@ namespace kafka_clients
             bool is_running();
     };
 }
+
+#endif

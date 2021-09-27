@@ -1,4 +1,6 @@
-#pragma once
+#ifndef KAFKA_PRODUCER_WORKER_H
+#define KAFKA_PRODUCER_WORKER_H
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -87,3 +89,5 @@ namespace kafka_clients
             void printCurrConf();
         };
 }
+
+#endif
