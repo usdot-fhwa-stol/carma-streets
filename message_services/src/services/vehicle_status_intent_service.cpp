@@ -286,8 +286,8 @@ namespace message_services
                         mp_ptr->setTrajectory(mp_v_item.getTrajectory());
 
                         mp_w_ptr->pop_cur_element_from_list(mp_pos);
-                        mp_pos++;
                     }
+                    mp_pos++;
                 }
 
                 //checking timestamp for this bsm_id
@@ -301,8 +301,8 @@ namespace message_services
                         bsm_ptr->setHeader(bsm_v_item.getHeader());
                         bsm_ptr->setCore_data(bsm_v_item.getCore_data());
                         bsm_w_ptr->pop_cur_element_from_list(bsm_pos);
-                        bsm_pos++;
                     }
+                    bsm_pos++;
                 }
                 mo_pos++;
             }
