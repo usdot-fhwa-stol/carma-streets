@@ -1,0 +1,10 @@
+{
+    "BOOTSTRAP_SERVER": "127.0.0.1:9092",
+    "VSI_PRODUCER_TOPIC": "vehicle_status_intent_output",
+    "BSM_CONSUMER_TOPIC": "st_bsm_input",
+    "MP_CONSUMER_TOPIC": "st_mobilitypath_input",
+    "MO_CONSUMER_TOPIC": "st_mobilityoperation_input",
+    "BSM_GROUP_ID": "bsm_consumer",
+    "MP_GROUP_ID": "mobilitypath_consumer",
+    "MO_GROUP_ID": "mobilityoperation_consumer"
+}

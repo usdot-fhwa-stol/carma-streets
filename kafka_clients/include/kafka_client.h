@@ -1,3 +1,4 @@
+#pragma once
 #include "kafka_producer_worker.h"
 #include "kafka_consumer_worker.h"
 #include <boost/thread.hpp>
