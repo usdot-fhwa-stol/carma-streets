@@ -68,7 +68,6 @@ namespace message_services
             std::shared_ptr<models::bsm> bsm_ptr = std::make_shared<models::bsm>();
             std::shared_ptr<models::mobilityoperation> mo_ptr = std::make_shared<models::mobilityoperation>();
             std::shared_ptr<models::mobilitypath> mp_ptr = std::make_shared<models::mobilitypath>();
-            spdlog::info("vsi: {0}", vsi_ptr->asJson());
 
             std::thread vsi_t{[bsm_w_ptr, mo_w_ptr, mp_w_ptr, this, bsm_ptr, mo_ptr, mp_ptr, vsi_ptr]()
                               {
@@ -305,6 +304,7 @@ namespace message_services
                         bsm_pos++;
                     }
                 }
+                mo_pos++;
             }
         }
 
