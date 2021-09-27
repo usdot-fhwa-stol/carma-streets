@@ -26,7 +26,7 @@ add_library(${PROJECT_NAME}_lib
             src/models/mobilitypath.cpp
             src/models/mobilityoperation.cpp
             src/models/vehicle_status_intent.cpp
-            src/models/objBase.cpp)
+            src/models/baseMessage.cpp)
             
 foreach(_target  message_services )
     add_executable(${_target} "src/${_target}.cpp")

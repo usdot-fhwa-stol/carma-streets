@@ -1,4 +1,6 @@
-#pragma once
+#ifndef HEADER_H
+#define HEADER_H
+
 #include <iostream>
 namespace message_services
 {
@@ -12,3 +14,6 @@ namespace message_services
         } header_t;
     }
 }
+
+
+#endif 

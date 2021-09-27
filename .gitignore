@@ -6,3 +6,4 @@ crash.log
 .env
 # For built boxes
 *.box
+.vscode/

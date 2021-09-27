@@ -1,4 +1,6 @@
-#pragma once
+#ifndef VEHICLE_STATUS_INTENT_WORKER_H
+#define VEHICLE_STATUS_INTENT_WORKER_H
+
 #include <iostream>
 
 #include <vector>
@@ -33,3 +35,5 @@ namespace message_services
         };
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MOBILITYPATH_WORKER_H
+#define MOBILITYPATH_WORKER_H
+
 #include <iostream>
 
 #include "kafka_client.h"
@@ -25,3 +27,5 @@ namespace message_services
         };
     }
 }
+
+#endif

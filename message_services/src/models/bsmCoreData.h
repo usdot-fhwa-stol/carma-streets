@@ -1,7 +1,9 @@
-#pragma once
+#ifndef BSM_CORE_DATA_H
+#define BSM_CORE_DATA_H
+
 #include <spdlog/spdlog.h>
 #include <ctime>
-#include "objBase.h"
+#include "baseMessage.h"
 #include "header.h"
 
 namespace message_services
@@ -69,3 +71,5 @@ namespace message_services
     }
 
 }
+
+#endif

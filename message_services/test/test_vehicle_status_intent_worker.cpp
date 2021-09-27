@@ -31,12 +31,14 @@ TEST(test_vehicle_status_intent_worker, update_insert_by_incoming_mobilityoperat
     ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
 
     message_services::models::bsmCoreData_t core_data;
-    core_data.temprary_id = "bsmXXXId_2";
+    core_data.temprary_id = "bsmXXXId";
     core_data.speed = 15;
     bsm_obj.setCore_data(core_data);
     vsi_w_obj.update_by_incoming_bsm_msg(bsm_obj);
     ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
-    std::cout << vsi_w_obj.get_curr_map().find("DOT-507")->first << vsi_w_obj.get_curr_map().find("DOT-507")->second << std::endl;
+    ASSERT_EQ("DOT-507", vsi_w_obj.get_curr_map().find("DOT-507")->first);
+    ASSERT_EQ("bsmXXXId", vsi_w_obj.get_curr_map().find("DOT-507")->second.getBsm_id());
+    ASSERT_EQ(15, vsi_w_obj.get_curr_map().find("DOT-507")->second.getCur_speed());
 }
 
 TEST(test_vehicle_status_intent_worker, update_insert_by_incoming_mobilitypath_msg)

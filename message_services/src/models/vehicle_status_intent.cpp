@@ -145,7 +145,7 @@ namespace message_services
             }
             catch (std::exception &ex)
             {
-                std::cout << "vehicle_status_intent model: asJsonObject error. " << ex.what() << std::endl;
+                 spdlog::info("vehicle_status_intent model: asJsonObject error. ",  ex.what());
                 return false;
             }
         }

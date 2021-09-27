@@ -20,7 +20,10 @@ string  plan_id
 # Example: "9223372036854775807"
 uint64  timestamp
  * **/
-#pragma once
+
+#ifndef MOBILITYHEADER_H
+#define MOBILITYHEADER_H
+
 #include <iostream>
 
 namespace message_services
@@ -37,3 +40,5 @@ namespace message_services
         } mobility_header_t;
     }
 }
+
+#endif

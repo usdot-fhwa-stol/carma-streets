@@ -36,7 +36,7 @@ namespace message_services
                                 header.recipient_id = (header_itr->value.GetString());
                             }
 
-                             if (std::string(header_itr->name.GetString()) == std::string("sender_bsm_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("sender_bsm_id"))
                             {
                                 header.sender_bsm_id = (header_itr->value.GetString());
                             }
@@ -52,7 +52,7 @@ namespace message_services
                         }
                         setHeader(header);
                     }
-                       
+
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("trajectory")))
                     {
                         trajectory_t trajectory;
@@ -156,7 +156,7 @@ namespace message_services
             }
             catch (std::exception &ex)
             {
-                std::cout << "mobilitypath model: " << ex.what() << std::endl;
+                spdlog::critical("mobilitypath model: ", ex.what());
                 return false;
             }
         }

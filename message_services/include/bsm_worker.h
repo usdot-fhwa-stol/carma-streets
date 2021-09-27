@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BSM_WORKER_H
+#define BSM_WORKER_H
+
 #include <iostream>
 
 #include <vector>
@@ -43,3 +45,5 @@ namespace message_services
         };
     }
 }
+
+#endif

@@ -19,7 +19,9 @@ int16  offset_y
 int16  offset_z
 **/
 
-#pragma once
+#ifndef LOCATION_OFFSET_ECEF_H
+#define LOCATION_OFFSET_ECEF_H
+
 #include <iostream>
 
 namespace message_services
@@ -34,3 +36,5 @@ namespace message_services
         } locationOffsetECEF_t;
     }
 }
+
+#endif

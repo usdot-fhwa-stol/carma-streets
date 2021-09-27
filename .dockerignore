@@ -9,5 +9,6 @@
 /scripts
 /kafka_clients/build
 /scheduling_service/build
+/message_services/build
 *.md
 *.git*

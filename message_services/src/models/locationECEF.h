@@ -21,8 +21,9 @@ int32   ecef_z
 # GPS timestamp in milliseconds
 uint64  timestamp
 ***/
+#ifndef LOCATION_ECEF_H
+#define LOCATION_ECEF_H
 
-#pragma once
 #include <iostream>
 
 namespace message_services
@@ -38,3 +39,5 @@ namespace message_services
         } locationECEF_t;
     }
 }
+
+#endif

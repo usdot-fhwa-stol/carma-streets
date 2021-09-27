@@ -1,8 +1,11 @@
-#pragma once
+
+#ifndef VEHICLE_STATUS_INTENT_H
+#define VEHICLE_STATUS_INTENT_H
+
 #include <iostream>
 #include <vector>
 
-#include "objBase.h"
+#include "baseMessage.h"
 
 namespace message_services
 {
@@ -16,7 +19,7 @@ namespace message_services
             long timestamp = 0;
         } est_path_t;
 
-        class vehicle_status_intent : public objBase
+        class vehicle_status_intent : public baseMessage
         {
             friend std::ostream &operator<<(std::ostream &out, vehicle_status_intent &vehicle_status_intent_obj);
 
@@ -105,3 +108,5 @@ namespace message_services
     }
 
 }
+
+#endif

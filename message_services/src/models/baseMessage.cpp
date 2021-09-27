@@ -1,10 +1,10 @@
-#include "objBase.h"
+#include "baseMessage.h"
 namespace message_services
 {
     namespace models
     {
 
-        std::string objBase::asJson() const
+        std::string baseMessage::asJson() const
         {
             rapidjson::StringBuffer ss;
             rapidjson::Writer<rapidjson::StringBuffer> writer(ss);
@@ -13,7 +13,7 @@ namespace message_services
             return "";
         }
 
-        bool objBase::fromJson(const std::string &jsonString)
+        bool baseMessage::fromJson(const std::string &jsonString)
         {
             rapidjson::Document doc;
             bool has_parse_error = doc.Parse(jsonString.c_str()).HasParseError() ? true : false;

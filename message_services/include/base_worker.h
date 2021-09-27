@@ -1,8 +1,10 @@
-#pragma once
+#ifndef BASE_WORKER_H
+#define BASE_WORKER_H
+
 #include <iostream>
 #include <string>
 
-#include "objBase.h"
+#include "baseMessage.h"
 
 namespace message_services
 {
@@ -22,3 +24,5 @@ namespace message_services
         };
     }
 }
+
+#endif

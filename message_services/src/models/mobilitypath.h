@@ -1,8 +1,10 @@
-#pragma once
+#ifndef MOBILITYPATH_H
+#define MOBILITYPATH_H
+
 #include <spdlog/spdlog.h>
 #include <iomanip>
 
-#include "objBase.h"
+#include "baseMessage.h"
 #include "mobilityHeader.h"
 #include "trajectory.h"
 
@@ -12,7 +14,7 @@ namespace message_services
     namespace models
     {
 
-        class mobilitypath : public objBase
+        class mobilitypath : public baseMessage
         {
             friend std::ostream &operator<<(std::ostream &out, mobilitypath &mobilitypath_obj);
 
@@ -36,3 +38,5 @@ namespace message_services
     }
 
 }
+
+#endif

@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef BASE_MESSAGE_H
+#define BASE_MESSAGE_H
+
 #include <rapidjson/document.h>
 #include <string>
 #include <rapidjson/istreamwrapper.h>
@@ -17,7 +20,7 @@ namespace message_services
 
     namespace models
     {
-        class objBase
+        class baseMessage
         {
         public:
             virtual bool asJsonObject(rapidjson::Writer<rapidjson::StringBuffer> *writer) const = 0;
@@ -31,3 +34,5 @@ namespace message_services
 
     }
 }
+
+#endif

@@ -1,4 +1,7 @@
-#pragma once
+#ifndef VEHICLE_STATUS_INTENT_SERVICE_H
+#define VEHICLE_STATUS_INTENT_SERVICE_H
+
+
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -63,3 +66,5 @@ namespace message_services
         };
     }
 }
+
+#endif

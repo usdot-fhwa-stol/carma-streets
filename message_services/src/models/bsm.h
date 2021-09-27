@@ -1,9 +1,11 @@
-#pragma once
+#ifndef BSM_H
+#define BSM_H
+
 #include <spdlog/spdlog.h>
 #include <boost/algorithm/string.hpp>
 #include <iomanip>
 #include <ctime>
-#include "objBase.h"
+#include "baseMessage.h"
 #include "header.h"
 #include "bsmCoreData.h"
 
@@ -11,7 +13,7 @@ namespace message_services
 {
     namespace models
     {
-        class bsm : public objBase
+        class bsm : public baseMessage
         {
             friend std::ostream &operator<<(std::ostream &out, bsm &bsm_obj);
 
@@ -37,3 +39,5 @@ namespace message_services
     }
 
 }
+
+#endif

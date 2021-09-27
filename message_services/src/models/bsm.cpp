@@ -47,7 +47,7 @@ namespace message_services
                             }
                         }
                         setHeader(header);
-                        spdlog::info("Header->timestamp : {0}", header.timestamp);                        
+                        spdlog::info("Header->timestamp : {0}", header.timestamp);
                     }
 
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("core_data")))
@@ -153,7 +153,7 @@ namespace message_services
             }
             catch (std::exception &ex)
             {
-                std::cout << "BSM model: asJsonObject error.: " << ex.what() << std::endl;
+                spdlog::critical("BSM model: asJsonObject error.: ", ex.what());
                 return false;
             }
         }
