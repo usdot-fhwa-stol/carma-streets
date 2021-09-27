@@ -33,7 +33,7 @@ jobs:
           TERM: xterm
           
     # Set working directory
-    working_directory: "/home/Carma-streets-build"
+    working_directory: "/home/carma-streets"
     # Pull code and execute tests |
     # Name of each run command defines purpose use
     steps:
@@ -47,10 +47,9 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get -y install curl unzip sudo cmake gcovr gcc-7 g++-7 libboost1.65-dev libboost-thread1.65-dev libboost-regex1.65-dev libboost-log1.65-dev libboost-program-options1.65-dev libboost1.65-all-dev libxerces-c-dev libcurl4-openssl-dev libsnmp-dev libmysqlclient-dev libjsoncpp-dev uuid-dev libusb-dev libusb-1.0-0-dev libftdi-dev swig liboctave-dev gpsd libgps-dev portaudio19-dev libsndfile1-dev libglib2.0-dev libglibmm-2.4-dev libpcre3-dev libsigc++-2.0-dev libxml++2.6-dev libxml2-dev liblzma-dev dpkg-dev libmysqlcppconn-dev libev-dev libuv-dev git vim zip build-essential libssl-dev qtbase5-dev qtbase5-dev-tools curl libqhttpengine-dev libgtest-dev  libcpprest-dev librdkafka-dev
-            
-            cd ../../../../..
-            cd /home/Carma-streets-build
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev
+                     
+            cd /home/carma-streets
             mkdir .base-image
             SONAR_DIR=/opt/sonarqube
             mkdir $SONAR_DIR
@@ -68,29 +67,29 @@ jobs:
             rm $SONAR_DIR/build-wrapper.zip
             mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
-            echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/Carma-streets-build/.base-image/init-env.sh
+            echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
       - run:
           name: Build carma-streets
           command: |
             set -x
-            source /home/Carma-streets-build/.base-image/init-env.sh
-            cd /home/Carma-streets-build/src
+            source /home/carma-streets/.base-image/init-env.sh
+            cd /home/carma-streets/src
             chmod 755 *
             build-wrapper-linux-x86-64 --out-dir ../bw-output ./build.sh
       #- run:
           #name: Run Tests & Generate Gcovr Reports
           #command: |
             #set -x
-            #cd /home/Carma-streets-build/src
+            #cd /home/carma-streets/src
             #./coverage.sh
       - run:
           name: Run Sonar Scanner
           command: |
             set -x
-            source /home/Carma-streets-build/.base-image/init-env.sh
+            source /home/carma-streets/.base-image/init-env.sh
             if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
               echo "Non-PR Build Detected. Running analysis on ${CIRCLE_BRANCH}"
-              cd /home/Carma-streets-build
+              cd /home/carma-streets
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN}
               exit 0;
             else
@@ -112,14 +111,14 @@ jobs:
      - checkout
      - run: 
         name: Docker Build
-        # Run MYSQL image and build Carma-streets docker image
+        # Run MYSQL image and build carma-streets docker image
         command: |
           docker-compose up -d db
           docker build --network=host -t usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
     
      - run: 
         name: Docker Push
-        # Push Carma-streets docker image to usdotfhwastoldev dockerhub
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,}
@@ -139,7 +138,7 @@ jobs:
     
      - run: 
         name: Docker Push
-        # Push Carma-streets docker image to usdotfhwastoldev dockerhub
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwaops/v2xhubamd:latest
