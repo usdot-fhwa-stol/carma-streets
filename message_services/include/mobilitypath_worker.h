@@ -21,8 +21,25 @@ namespace message_services
             ~mobilitypath_worker();
 
             std::mutex worker_mtx;
-            std::deque<models::mobilitypath>& get_curr_list();
+
+            /**
+             * @brief Return the vector of mobilitypath stored in the mobilitypath_worker
+             * ***/
+            std::deque<models::mobilitypath> &get_curr_list();
+
+            /***
+            * @brief process incoming mobilitypath json string and create mobilitypath object.
+              Appending the mobilitypath object to the mobilitypath_list
+              @param std::string json_string
+            */
             void process_incoming_msg(const std::string json_str);
+
+            /**
+             * @brief Remove an element from mobilitypath vector based on the element position.
+             * If the position is greater than the deque current size, the last element is removed
+             * @param long Current element position in the mobilitypath deque. 
+             * 
+             * ***/
             void pop_cur_element_from_list(long element_position);
         };
     }
