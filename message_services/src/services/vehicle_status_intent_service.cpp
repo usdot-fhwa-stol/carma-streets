@@ -86,35 +86,7 @@ namespace message_services
 
                                       std::string msg_to_pub = vsi_ptr->asJson();
                                       this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
-                                      sleep(1);
-
-                                      // if (bsm_w_ptr->get_curr_list().size() > 0)
-                                      // {
-                                      //     std::string msg_to_pub = bsm_w_ptr->get_curr_list().front().asJson();
-                                      //     this->publish_msg<const char *>(msg_to_pub.c_str(), vsi_topic_pub);
-                                      //     std::unique_lock<std::mutex> lck(worker_mtx);
-                                      //     spdlog::info("vsi_t msg_to_pub: {0}", msg_to_pub);
-
-                                      //     bsm_w_ptr->pop_front_from_list();
-                                      // }
-
-                                      // if (mo_w_ptr->get_curr_list().size() > 0)
-                                      // {
-                                      //     std::string msg_to_pub = mo_w_ptr->get_curr_list().front().asJson();
-                                      //     this->publish_msg<const char *>(msg_to_pub.c_str(), vsi_topic_pub);
-                                      //     std::unique_lock<std::mutex> lck(worker_mtx);
-                                      //     spdlog::info("vsi_t msg_to_pub: {0}", msg_to_pub);
-                                      //     mo_w_ptr->pop_front_from_list();
-                                      // }
-
-                                      // if (mp_w_ptr->get_curr_list().size() > 0)
-                                      // {
-                                      //     std::string msg_to_pub = mp_w_ptr->get_curr_list().front().asJson();
-                                      //     this->publish_msg<const char *>(msg_to_pub.c_str(), vsi_topic_pub);
-                                      //     std::unique_lock<std::mutex> lck(worker_mtx);
-                                      //     spdlog::info("vsi_t msg_to_pub: {0} ", msg_to_pub);
-                                      //     mp_w_ptr->pop_front_from_list();
-                                      // }
+                                      sleep(0.1);
                                   }
                               }};
 
@@ -277,7 +249,7 @@ namespace message_services
                                               ++itr;
                                           }
                                       }
-                                      sleep(1);
+                                      sleep(0.1);
                                   }
                               }};
 
