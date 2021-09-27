@@ -28,7 +28,7 @@ namespace message_services
 
                 this->mo_topic_name = client->get_value_by_doc(doc, "MO_CONSUMER_TOPIC");
                 this->mo_group_id = client->get_value_by_doc(doc, "MO_GROUP_ID");
-                
+
                 //producer topics
                 this->vsi_topic_name = client->get_value_by_doc(doc, "VSI_PRODUCER_TOPIC");
 
@@ -74,18 +74,16 @@ namespace message_services
                               {
                                   while (true)
                                   {
-                                      //comparing timestamp; comparing vehicle id; comparing bsm_id
-                                      spdlog::info("vsi_t get_curr_bsm_list: {0}", bsm_w_ptr->get_curr_list().size());
-                                      spdlog::info("vsi_t get_curr_mobilityoperation_list: ", mo_w_ptr->get_curr_list().size());
-                                      spdlog::info("vsi_t get_curr_mobilitypath_list: ", mp_w_ptr->get_curr_list().size());
+                                      if (mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr->get_curr_list().size() > 0)
+                                      {
+                                          std::unique_lock<std::mutex> lck(worker_mtx);
+                                          identify_latest_mapping_bsm_mo_mp(bsm_w_ptr, mo_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr);
 
-                                      std::unique_lock<std::mutex> lck(worker_mtx);
-                                      identify_latest_mapping_bsm_mo_mp(bsm_w_ptr, mo_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr);
+                                          *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
 
-                                      *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
-
-                                      std::string msg_to_pub = vsi_ptr->asJson();
-                                      this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
+                                          std::string msg_to_pub = vsi_ptr->asJson();
+                                          this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
+                                      }
                                       sleep(0.1);
                                   }
                               }};
@@ -234,9 +232,6 @@ namespace message_services
                               {
                                   while (true)
                                   {
-                                      //comparing timestamp; comparing vehicle id; comparing bsm_id
-                                      spdlog::info("vsi_t get_curr_map size: {0}", vsi_w_ptr->get_curr_map().size());
-
                                       if (vsi_w_ptr->get_curr_map().size() > 0)
                                       {
                                           std::unique_lock<std::mutex> lck(worker_mtx);

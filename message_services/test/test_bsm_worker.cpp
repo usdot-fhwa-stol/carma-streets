@@ -16,8 +16,8 @@ TEST(test_bsm_worker, process_incoming_msg)
     std::string bsm_json_str = "{\"header\": {\"timestamp\" : 1632679657},\"core_data\": {\"temprary_id\": \"bsmid1\",\"sec_mark\": 1632369320}}";
     bsm_w_obj.process_incoming_msg(bsm_json_str);
     ASSERT_EQ(1632679657, bsm_w_obj.get_curr_list().front().getHeader().timestamp);
-    // ASSERT_EQ(1632369320, bsm_w_obj.get_curr_list().front().getCore_data().sec_mark);
-    // ASSERT_EQ("bsmid1", bsm_w_obj.get_curr_list().front().getCore_data().temprary_id);
+    ASSERT_EQ(1632369320, bsm_w_obj.get_curr_list().front().getCore_data().sec_mark);
+    ASSERT_EQ("bsmid1", bsm_w_obj.get_curr_list().front().getCore_data().temprary_id);
     ASSERT_EQ(1, bsm_w_obj.get_curr_list().size());
 }
 

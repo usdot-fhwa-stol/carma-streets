@@ -61,20 +61,19 @@ TEST(test_vehicle_status_intent_worker, update_insert_by_incoming_mobilitypath_m
     vsi_w_obj.update_by_incoming_bsm_msg(bsm_obj);
     ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
 
-    // mp_header.sender_bsm_id = "bsmXXXId_3";
-    // mp_header.sender_id = "DOT-507";
-    // mp_header.timestamp = 3239293904;
-    // mp_obj.setHeader(mp_header);
-    // vsi_w_obj.update_insert_by_incoming_mobilityoperation_msg(mp_obj);
-    // ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
+    mp_header.sender_bsm_id = "bsmXXXId_3";
+    mp_header.sender_id = "DOT-507";
+    mp_header.timestamp = 3239293904;
+    mp_obj.setHeader(mp_header);
+    vsi_w_obj.update_insert_by_incoming_mobilityoperation_msg(mp_obj);
+    ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
 
-    // core_data.temprary_id = "bsmXXXId_3";
-    // core_data.speed = 20;
-    // bsm_obj.setCore_data(core_data);
-    // vsi_w_obj.update_by_incoming_bsm_msg(bsm_obj);
-    // ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
+    core_data.temprary_id = "bsmXXXId_3";
+    core_data.speed = 20;
+    bsm_obj.setCore_data(core_data);
+    vsi_w_obj.update_by_incoming_bsm_msg(bsm_obj);
+    ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
 
-    std::cout << vsi_w_obj.get_curr_map().find("DOT-507")->first << vsi_w_obj.get_curr_map().find("DOT-507")->second << std::endl;
 }
 
 TEST(test_vehicle_status_intent_worker, pop_element_from_map)
@@ -90,7 +89,6 @@ TEST(test_vehicle_status_intent_worker, pop_element_from_map)
     mp_obj.setHeader(mp_header);
     vsi_w_obj.update_insert_by_incoming_mobilitypath_msg(mp_obj);
     ASSERT_EQ(1, vsi_w_obj.get_curr_map().size());
-    std::cout << vsi_w_obj.get_curr_map().find("DOT-507")->first << vsi_w_obj.get_curr_map().find("DOT-507")->second << std::endl;
 
     vsi_w_obj.pop_element_from_map("DOT-507");
     ASSERT_EQ(0, vsi_w_obj.get_curr_map().size());

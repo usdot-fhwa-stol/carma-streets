@@ -33,13 +33,4 @@ TEST(test_mobilityoperation_worker, pop_cur_element_from_list)
     ASSERT_EQ(3, mobilityoperation_w_obj.get_curr_list().size());
     mobilityoperation_w_obj.pop_cur_element_from_list(2);
     ASSERT_EQ(2, mobilityoperation_w_obj.get_curr_list().size());
-
-    std::deque<message_services::models::mobilityoperation>::iterator itr = mobilityoperation_w_obj.get_curr_list().begin();
-    std::deque<message_services::models::mobilityoperation> ptr = mobilityoperation_w_obj.get_curr_list();
-
-    while (itr != mobilityoperation_w_obj.get_curr_list().end())
-    {
-       ASSERT_FALSE(itr->getHeader().sender_id == "DOT-509");
-       itr++;
-    }
 }
