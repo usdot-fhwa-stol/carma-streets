@@ -47,7 +47,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl
                      
             cd /home/carma-streets
             mkdir .base-image
