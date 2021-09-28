@@ -113,7 +113,7 @@ jobs:
         name: Docker Build
         # Run MYSQL image and build carma-streets docker image
         command: |
-          docker-compose up -d db
+          #docker-compose up -d db
           docker build --network=host -t usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
     
      - run: 
@@ -133,7 +133,7 @@ jobs:
         name: Docker Build
         # Run MYSQL image and build carma-streets docker image develop image
         command: |
-          docker-compose up -d db
+          #docker-compose up -d db
           docker build --network=host -t usdotfhwastoldev/carma-streets:latest -f scheduling_service/Dockerfile .
     
      - run: 
