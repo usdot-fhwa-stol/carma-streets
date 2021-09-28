@@ -48,7 +48,39 @@ jobs:
             set -x
             apt-get update
             apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip
-                     
+            
+            mkdir -p /home/carma-streets/ext
+            cd /home/carma-streets/ext
+            git clone https://github.com/google/googletest/
+            cd /home/carma-streets/ext/googletest/
+            cmake .
+            make
+            make install
+            
+            cd /home/carma-streets/ext
+            git clone https://github.com/edenhill/librdkafka
+            cd /home/carma-streets/ext/librdkafka/
+            ./configure --prefix=/usr
+            make
+            make install
+            
+            cd /home/carma-streets/ext
+            git clone https://github.com/gabime/spdlog.git
+            cd /home/carma-streets/ext/spdlog/
+            mkdir build 
+            cd /home/carma-streets/ext/spdlog/build
+            cmake .. && make -j
+            make install
+            
+            cd /home/carma-streets/ext
+            git clone  https://github.com/Tencent/rapidjson
+            cd /home/carma-streets/ext/rapidjson/
+            mkdir build
+            cd /home/carma-streets/ext/rapidjson/build
+            cmake .. && make -j
+            make install
+
+            
             cd /home/carma-streets
             mkdir .base-image
             SONAR_DIR=/opt/sonarqube
