@@ -75,13 +75,23 @@ namespace message_services
                                   {
                                       if (mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr->get_curr_list().size() > 0)
                                       {
-                                          std::unique_lock<std::mutex> lck(worker_mtx);
-                                          identify_latest_mapping_bsm_mo_mp(bsm_w_ptr, mo_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr);
+                                          //Iterate mobililityoperation list with vehicle ids for all vehicles
+                                          std::deque<models::mobilityoperation>::iterator itr;
+                                          for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
+                                          {
+                                              std::unique_lock<std::mutex> lck(worker_mtx);
+                                              mo_ptr->setHeader((*itr).getHeader());
+                                              mo_ptr->setStrategy((*itr).getStrategy());
+                                              mo_ptr->setStrategy_params((*itr).getStrategy_params());
+                                              mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
 
-                                          *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
+                                              identify_latest_mapping_bsm_mp_by_mo(bsm_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr);
 
-                                          std::string msg_to_pub = vsi_ptr->asJson();
-                                          this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
+                                              *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
+
+                                              std::string msg_to_pub = vsi_ptr->asJson();
+                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
+                                          }
                                       }
                                       sleep(0.1);
                                   }
@@ -253,58 +263,41 @@ namespace message_services
             vsi_bsm_t.join();
         }
 
-        void vehicle_status_intent_service::identify_latest_mapping_bsm_mo_mp(std::shared_ptr<workers::bsm_worker> bsm_w_ptr,
-                                                                              std::shared_ptr<workers::mobilityoperation_worker> mo_w_ptr,
-                                                                              std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr,
-                                                                              std::shared_ptr<models::bsm> bsm_ptr,
-                                                                              std::shared_ptr<models::mobilityoperation> mo_ptr,
-                                                                              std::shared_ptr<models::mobilitypath> mp_ptr)
+        void vehicle_status_intent_service::identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr,
+                                                                                 std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr,
+                                                                                 std::shared_ptr<models::bsm> bsm_ptr,
+                                                                                 std::shared_ptr<models::mobilityoperation> mo_ptr,
+                                                                                 std::shared_ptr<models::mobilitypath> mp_ptr)
         {
-            //Identify which vehicle by vehicle id to find mobililityoperation
-            std::deque<models::mobilityoperation>::iterator itr;
-            long mo_pos = 0;
-            for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
+            //Checking timestamp for this vehicle id to find mobilitypath
+            long mp_pos = 0;
+            while (mp_pos < mp_w_ptr->get_curr_list().size())
             {
-                std::string strategy_params = (*itr).getStrategy_params().c_str();
-                std::string mo_vehicle_id = (*itr).getHeader().sender_id;
-                uint64_t mo_timestamp = (*itr).getHeader().timestamp;
-                std::string mo_bsm_id = (*itr).getHeader().sender_bsm_id;
-                mo_ptr->setHeader((*itr).getHeader());
-                mo_ptr->setStrategy((*itr).getStrategy());
-                mo_ptr->setStrategy_params((*itr).getStrategy_params());
-                mo_w_ptr->pop_cur_element_from_list(mo_pos);
-
-                //Checking timestamp for this vehicle id to find mobilitypath
-                long mp_pos = 0;
-                for (auto mp_v_item : mp_w_ptr->get_curr_list())
+                std::string mp_vehicle_id = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().sender_id;
+                uint64_t mp_timestamp = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().timestamp;
+                if (mp_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mp_ptr->getHeader().timestamp - (long)mp_timestamp) < 100)
                 {
-                    std::string mp_vehicle_id = mp_v_item.getHeader().sender_id;
-                    uint64_t mp_timestamp = mp_v_item.getHeader().timestamp;
-                    if (mo_vehicle_id == mp_vehicle_id && std::abs((long)mo_timestamp - (long)mp_timestamp) < 100)
-                    {
-                        mp_ptr->setHeader(mp_v_item.getHeader());
-                        mp_ptr->setTrajectory(mp_v_item.getTrajectory());
+                    mp_ptr->setHeader(mp_w_ptr->get_curr_list().at(mp_pos).getHeader());
+                    mp_ptr->setTrajectory(mp_w_ptr->get_curr_list().at(mp_pos).getTrajectory());
 
-                        mp_w_ptr->pop_cur_element_from_list(mp_pos);
-                    }
-                    mp_pos++;
+                    mp_w_ptr->pop_cur_element_from_list(mp_pos); //The deque size shrik every time we call a pop element
+                    continue;
                 }
+                mp_pos++;
+            }
 
-                //checking timestamp for this bsm_id
-                long bsm_pos = 0;
-                for (auto bsm_v_item : bsm_w_ptr->get_curr_list())
+            //checking timestamp for this bsm_id
+            long bsm_pos = 0;
+            while (bsm_pos < bsm_w_ptr->get_curr_list().size())
+            {
+                if (mp_ptr->getHeader().sender_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs((long)mp_ptr->getHeader().timestamp - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getHeader().timestamp) < 100)
                 {
-                    std::string bsm_id = bsm_v_item.getCore_data().temprary_id;
-                    uint64_t bsm_timestamp = bsm_v_item.getHeader().timestamp;
-                    if (mo_bsm_id == bsm_id && std::abs((long)mo_timestamp - (long)bsm_timestamp) < 100)
-                    {
-                        bsm_ptr->setHeader(bsm_v_item.getHeader());
-                        bsm_ptr->setCore_data(bsm_v_item.getCore_data());
-                        bsm_w_ptr->pop_cur_element_from_list(bsm_pos);
-                    }
-                    bsm_pos++;
+                    bsm_ptr->setHeader(bsm_w_ptr->get_curr_list().at(bsm_pos).getHeader());
+                    bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
+                    bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
+                    continue;
                 }
-                mo_pos++;
+                bsm_pos++;
             }
         }
 
