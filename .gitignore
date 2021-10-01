@@ -1,8 +1,9 @@
 # Cache objects
 packer_cache/
-
+message_services/build/
 # Crash log
 crash.log
 .env
 # For built boxes
 *.box
+.vscode/
