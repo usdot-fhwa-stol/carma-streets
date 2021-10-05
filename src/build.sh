@@ -13,7 +13,7 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-# script executes all tmx and v2i build and coverage steps so that they can be singularly
+# script executes all kafka_clients and scheduling service build and coverage steps so that they can be singularly
 # wrapped by the sonarcloud build-wrapper
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"

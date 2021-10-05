@@ -31,7 +31,7 @@ jobs:
       - image: ubuntu:bionic-20190807
         environment:
           TERM: xterm
-          
+          INIT_ENV: /home/V2X-Hub/.base-image/init-env.sh
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
@@ -47,7 +47,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr
             
             mkdir -p /home/carma-streets/ext
             cd /home/carma-streets/ext
@@ -101,27 +101,26 @@ jobs:
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
       - run:
-          name: Build carma-streets
+          name: Build scheduling_service
           command: |
-            set -x
-            source /home/carma-streets/.base-image/init-env.sh
+            source ${INIT_ENV}
             cd /home/carma-streets/src
             chmod 755 *
-            build-wrapper-linux-x86-64 --out-dir ../bw-output ./build.sh
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
       #- run:
           #name: Run Tests & Generate Gcovr Reports
           #command: |
-            #set -x
+            #source ${INIT_ENV}
             #cd /home/carma-streets/src
+            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             #./coverage.sh
       - run:
           name: Run Sonar Scanner
           command: |
-            set -x
-            source /home/carma-streets/.base-image/init-env.sh
+            source ${INIT_ENV}
             if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
               echo "Non-PR Build Detected. Running analysis on ${CIRCLE_BRANCH}"
-              cd /home/carma-streets
+              cd /home/carma-streets/
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN}
               exit 0;
             else
@@ -133,27 +132,26 @@ jobs:
               export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
               export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
               echo "Target Branch = ${TARGET_BRANCH}"
-              git merge origin/${TARGET_BRANCH}
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
             fi 
-  docker_build&push :
-   machine:
-    image: ubuntu-1604:202004-01
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
+  #docker_build&push :
+   #machine:
+    #image: ubuntu-1604:202004-01
+   #steps:
+     #- checkout
+     #- run: 
+        #name: Docker Build
         # Run MYSQL image and build carma-streets docker image
-        command: |
-          docker-compose up -d db
-          docker build --network=host -t usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
+        #command: |
+         #docker-compose up -d db
+          #docker build --network=host -t usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
     
-     - run: 
-        name: Docker Push
+     #- run: 
+        #name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,}
+        #command: | 
+         #echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+          #docker push usdotfhwastoldev/carma-streets:${CIRCLE_BRANCH,,}
     
    
   docker_build&push_develop :
@@ -163,9 +161,7 @@ jobs:
      - checkout
      - run: 
         name: Docker Build
-        # Run MYSQL image and build carma-streets docker image develop image
         command: |
-          docker-compose up -d db
           docker build --network=host -t usdotfhwastoldev/carma-streets:latest -f scheduling_service/Dockerfile .
     
      - run: 
@@ -182,8 +178,8 @@ workflows:
           filters:
             branches:
               only: develop
-      - docker_build&push:
-          filters:
-           branches:
-              ignore: develop
+      #- docker_build&push:
+          #filters:
+           #branches:
+              #ignore: develop
       - build
