@@ -107,13 +107,13 @@ jobs:
             cd /home/carma-streets/src
             chmod 755 *
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
-      #- run:
-          #name: Run Tests & Generate Gcovr Reports
-          #command: |
-            #source ${INIT_ENV}
-            #cd /home/carma-streets/src
-            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
-            #./coverage.sh
+      - run:
+          name: Run Tests & Generate Gcovr Reports
+          command: |
+            source ${INIT_ENV}
+            cd /home/carma-streets/src
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
+            ./coverage.sh
       - run:
           name: Run Sonar Scanner
           command: |
