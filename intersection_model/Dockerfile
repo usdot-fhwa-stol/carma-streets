@@ -3,7 +3,7 @@ FROM ubuntu:bionic-20210702
 # Avoid interactive prompts during the building of this docker image
 ARG DEBIAN_FRONTEND="noninteractive"
 
-RUN apt-get update  && apt-get install -y sudo cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev
+RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -17,7 +17,7 @@ RUN git clone https://github.com/google/googletest/
 WORKDIR /home/carma-streets/ext/googletest/
 RUN cmake .
 RUN make
-RUN sudo make install
+RUN make install
 
 # Install librdkafka
 RUN echo " ------> Install librdkafka..."
@@ -26,7 +26,7 @@ RUN git clone https://github.com/edenhill/librdkafka
 WORKDIR /home/carma-streets/ext/librdkafka/
 RUN ./configure --prefix=/usr
 RUN make
-RUN sudo make install
+RUN make install
 
 
 # Install spdlog
@@ -37,7 +37,7 @@ WORKDIR /home/carma-streets/ext/spdlog/
 RUN mkdir build 
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
-RUN sudo make install
+RUN make install
 
 
 # Install rapidjson
@@ -48,37 +48,35 @@ WORKDIR /home/carma-streets/ext/rapidjson/
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
-RUN sudo make install
+RUN make install
 
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
-RUN ls -lrt
 COPY ./ /home/carma-streets
-RUN ls -lrt
 WORKDIR  /home/carma-streets/kafka_clients
-RUN  rm -rf build && mkdir build
+RUN mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
 RUN cmake ..
 RUN make
-RUN sudo make install
+RUN make install
 
 # Install PROJ, a package for coordinate transformations
-RUN sudo git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
+RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
         cd /home/carma-streets/PROJ && \
-        sudo ./autogen.sh && \
-        sudo ./configure && \
-        sudo make && \
-        sudo make install
+        ./autogen.sh && \
+        ./configure && \
+        make && \
+        make install
         
 # Download a cmake module for PROJ
-RUN cd /usr/share/cmake-3.10/Modules && sudo curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
+RUN cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN sudo apt update && \
-    sudo apt install -y lsb-release && \
-    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
-    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+RUN apt update && \
+    apt install -y lsb-release && \
+    sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 
 
 SHELL ["/bin/bash", "-c"]
@@ -86,10 +84,10 @@ SHELL ["/bin/bash", "-c"]
 # Install CARMA Ready Lanelet2
 # Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
 # First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
-# This means the ros source list must be added to sudo to allow this installation
+# This means the ros source list must be added to to allow this installation
 # Additionally, the python-rospkg package managment tool is required for catkin to work properly 
-RUN sudo DEBIAN_FRONTEND=noninteractive apt update && \
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y ros-melodic-catkin && \
+RUN DEBIAN_FRONTEND=noninteractive apt update && \
+    DEBIAN_FRONTEND=noninteractive apt install -y ros-melodic-catkin && \
     echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc && \
     echo "source /home/carma-streets/install/setup.bash" >> /root/.bashrc
 
@@ -119,15 +117,15 @@ WORKDIR  /home/carma-streets/carma_lanelet2
 # In order to trick lanelet2 into building the ROS_VERSION environment variable must be set
 # In order to fully decouple lanelet2_extension from ros the LANELET2_EXTENSION_LOGGER_TYPE environment variable must be set
 RUN source /opt/ros/melodic/setup.bash && \
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
 
 # Install intersection_model
 RUN echo " ------> compile examples..."
 WORKDIR  /home/carma-streets/intersection_model
-RUN  rm -rf build && mkdir build
+RUN mkdir build
 WORKDIR  /home/carma-streets/intersection_model/build
 RUN cmake ..
 RUN make
