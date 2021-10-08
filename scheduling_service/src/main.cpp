@@ -30,6 +30,7 @@ unordered_map<string, vehicle> list_veh;
 void consumer_update(const char* paylod){
     
     rapidjson::Document message;
+    message.SetObject();
     message.Parse(paylod);
     
     string veh_id = message["payload"]["v_id"].GetString();
@@ -40,17 +41,21 @@ void consumer_update(const char* paylod){
             list_veh[veh_id] = vehicle();
         }
     }
-    
+
     if (list_veh.count(veh_id)){
-        list_veh[veh_id].update(message);
+        list_veh[veh_id].update(message);       
         if (list_veh[veh_id].get_curState() == "LV"){
             list_veh.erase(veh_id);
         }
     }
-
 }
 
-rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document &document , Document::AllocatorType allocator){
+rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
+
+    /* This is needed in case a vehicle update is missing */
+    for (auto& element : list_veh){
+        element.second.update_state();
+    }
 
     scheduling schedule(list_veh);
 
@@ -95,7 +100,6 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         listS_minET[vehicle_index1] = et;
         listS_minDT[vehicle_index1] = dt;
     }
-
 
     /* scheduling RDVs */
 	vector<int> listOptionsIndex;
@@ -153,8 +157,8 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
             if (break_indicator == 0) {
 
                 double st1 = schedule.get_stList()[vehicle_index1];
-                double et1 = schedule.get_etList()[vehicle_index1];
-                double dt1 = schedule.get_dtList()[vehicle_index1];
+                double et1 = listS_minET[vehicle_index1];
+                double dt1 = listS_minDT[vehicle_index1];
                 double delay = et1 - st1;
                 for (int m = 0; m < listRDV.size(); ++m){
                     int vehicle_index2 = listRDV[m];
@@ -220,25 +224,25 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 			}
 		}
 
-        /*  */
+        /* !!! revise it !!! */
         if (et <= config.get_curSchedulingT() + config.get_schedulingDelta()){
-            schedule.set_access(vehicle_index, "true");
+            bool conflict_indicator = true;
             for (int n = 0; n < schedule.get_indexDVs().size(); ++n){
                 int vehicle_index1 = schedule.get_indexDVs()[n];
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
                 if (localmap.hasConflict(link_id, link_id1) == true){
-                    schedule.set_access(vehicle_index, "false");
+                    conflict_indicator = false;
                     break;
                 }
             }
+            schedule.set_access(vehicle_index, conflict_indicator);    
         }
 
 		listRDV.erase(listRDV.begin() + index_list_RDV);
 		count_RDV -= 1;
 
     }
-
 
     /* scheduling EVs */
     for (int n = 0; n < listRDV.size(); ++n) {
@@ -252,10 +256,11 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     vector<vector<int>> listEV = schedule.get_indexEVs();
     int count_EV = 0;
     for (int i = 0; i < localmap.get_laneIdEntry().size(); ++i){
-        count_EV += listEV.size();
+        count_EV += listEV[i].size();
     }
 
     while (count_EV > 0){
+        
         /*
 		* for each entry lane, estimate the earliest stopping time of the preceding unscheduled EV. pick the one with the earliest estimated stopping time.
 		* estimate its entering and departure times, and remove the vehicle from the EV list. 
@@ -269,6 +274,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		listOptionsLaneIndex.clear();
 		count_options = 0;
         for (int i = 0; i < localmap.get_laneIdEntry().size(); ++i){
+
             string lane_id = localmap.get_laneIdEntry()[i];
             if (listEV[i].size() > 0){
                 
@@ -276,7 +282,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
 
-                double st = schedule.get_estList()[vehicle_index1];
+                double st = max(schedule.get_estList()[vehicle_index1], config.get_curSchedulingT() + config.get_schedulingDelta());
                 if (listS.size() > 0){
                     for (int n = 0; n < listS.size(); ++n){
                         int vehicle_index2 = listS[n];
@@ -305,7 +311,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                         }
                     }     
                 }
-
+                
                 double dt = et + schedule.get_clearTimeList()[vehicle_index1];
 
 				listOptionsIndex.push_back(count_options);
@@ -332,7 +338,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		double et = listOptionsET[index_opt];
 		double dt = listOptionsDT[index_opt];
 		int lane_list_index = listOptionsLaneIndex[index_opt];
-		
+
         schedule.set_st(vehicle_index, st);
         schedule.set_et(vehicle_index, et);
         schedule.set_dt(vehicle_index, dt);
@@ -358,7 +364,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     //             "dp": 2,
     //             "access": 0
     //         } , ... ]
-   Value schedule_plan(kArrayType);
+    Value schedule_plan(kArrayType);
     for (int n = 0; n < schedule.get_vehicleIdList().size(); ++n){
         std::string vehicle_id = schedule.get_vehicleIdList()[n];
         Value veh_sched(kObjectType);
@@ -373,8 +379,9 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         else{
             veh_sched.AddMember("access", 0, allocator);
         }
-        schedule_plan.PushBack(veh_sched,allocator);
+        schedule_plan.PushBack(veh_sched, allocator);
     }
+
     return schedule_plan;
       
 }
@@ -383,7 +390,8 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
 void call_consumer_thread()
 {
-   kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
+    
+    kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
     std::string file_name= "../manifest.json";
     rapidjson::Document doc_json = client->read_json_file(file_name); 
     std::string bootstrap_server = client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
@@ -391,7 +399,7 @@ void call_consumer_thread()
     std::string topic = client->get_value_by_doc(doc_json, "CONSUMER_TOPIC");
     kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(bootstrap_server,topic,group_id);
     delete client;
-    
+
     if(!consumer_worker->init())
     {
         spdlog::critical("kafka consumer initialize error");
@@ -406,12 +414,13 @@ void call_consumer_thread()
         
         while (consumer_worker->is_running()) 
         {
+
             const char* paylod= consumer_worker->consume(1000);
-            
+
             if(strlen(paylod) > 0)
             {
-                spdlog::info("Consumed message payload: {0}", paylod);
-                
+
+                spdlog::info("Consumed message payload: {0}", paylod);   
                 
                 /* 
                 * update function for updating the stored vehicle status and intents:
@@ -419,17 +428,20 @@ void call_consumer_thread()
                 *   
                 */
                 consumer_update(paylod);
+
+                
             }
         }
         
         consumer_worker->stop();
     }     
-    free(consumer_worker);
+    //free(consumer_worker);
+    delete consumer_worker;
     return;    
 }
 
 void call_scheduling_thread(){
-    
+
     kafka_clients::kafka_client *client = new kafka_clients::kafka_client(); 
                   
     std::string file_name="../manifest.json";
@@ -446,11 +458,15 @@ void call_scheduling_thread(){
     }
     else
     {        
+        
+        int sch_count = 0;
         while (true) 
         {   
             
             if (duration<double>(system_clock::now().time_since_epoch()).count() - config.get_lastSchedulingT() >= config.get_schedulingDelta()){
                 
+                spdlog::info("schedule number #" + to_string(sch_count));
+
                 config.set_curSchedulingT(duration<double>(system_clock::now().time_since_epoch()).count());
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
 
@@ -467,15 +483,20 @@ void call_scheduling_thread(){
                 //       "payload": { "schedule": [ ..., ...]}    (see scheduling_func)
                 //     }
                 Document document;
+                document.SetObject();
                 Document::AllocatorType &allocator = document.GetAllocator();
+
                 Value metadata(kObjectType);
-                auto timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                //auto timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                auto timestamp = duration<double>(system_clock::now().time_since_epoch()).count();
+
                 metadata.AddMember("timestamp", timestamp, allocator );
                 metadata.AddMember("intersection_type", "stop_controlled",allocator);
                 document.AddMember("metadata", metadata, allocator);
+                
                 Value schedule;
                 if (list_veh_copy.size() > 0){
-                    schedule = scheduling_func(list_veh_copy, document, allocator);
+                    schedule = scheduling_func(list_veh_copy, allocator);
                 }
                 document.AddMember("payload", schedule, allocator);
 
@@ -494,13 +515,18 @@ void call_scheduling_thread(){
                 if (system_clock::now() < t){
                     this_thread::sleep_until(t);
                 }
+
+                sch_count += 1;
+
             }
 
         }
         producer_worker->stop();
+
     }
-    free(producer_worker);
-    
+    //free(producer_worker);
+    delete producer_worker;
+
     return;
 
 }
@@ -509,9 +535,10 @@ void call_scheduling_thread(){
 int main(int argc,char** argv)
 {
 
-    thread consumer(call_consumer_thread);
-    thread scheduling(call_scheduling_thread);
+    boost::thread consumer{call_consumer_thread};
+    boost::thread scheduling{call_scheduling_thread};
     consumer.join();
     scheduling.join();
+    return 0;
 
 }

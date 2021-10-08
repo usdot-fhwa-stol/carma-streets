@@ -57,7 +57,7 @@ services:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
   scheduling_service:
-    image: scheduling_service:latest
+    image: test:attempt1
     build: 
       context: .
       dockerfile: scheduling_service/Dockerfile

@@ -5,6 +5,8 @@
 #include <vector>
 
 #include "rapidjson/document.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -85,7 +87,7 @@ class vehicle{
 		double dt_actual;
 
 		/* the timestamp of the last update */
-		double timestamp;
+		double timestamp = -1;
 
 		/* the vehicle's latitude in the last update */
 		double lat;
@@ -116,8 +118,10 @@ class vehicle{
 
 	public:
 
-		void update(Document &message);
+		void update(const Document& message);
 		
+		void update_state();
+
 		double get_length();
 		double get_minGap();
 		double get_reactionT();

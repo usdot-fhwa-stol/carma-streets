@@ -1,0 +1,377 @@
+{
+    "sample_data": 
+    [
+        {
+            "metadata": {
+                "timestamp": 1623677096.000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 10,
+                "max_decel": 10,
+
+                "cur_speed": 5.0,
+                "cur_accel": 0.0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": "entry_lane_0",
+                "cur_ds": 7.0,
+                "direction": "straight",
+                "entry_lane_id": "entry_lane_0",
+                "link_lane_id": "link_0",
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677096.200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 6
+                    },
+                    {
+                        "ts": 1623677096.400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 5
+                    },
+                    {
+                        "ts": 1623677096.600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 4
+                    },
+                    {
+                        "ts": 1623677096.800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 3
+                    },
+                    {
+                        "ts": 1623677097.000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 2
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096.000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 10,
+                "max_decel": 10,
+
+                "cur_speed": 5.0,
+                "cur_accel": 0.0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": "entry_lane_1",
+                "cur_ds": 7.0,
+                "direction": "straight",
+                "entry_lane_id": "entry_lane_1",
+                "link_lane_id": "link_1",
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677096.200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 6
+                    },
+                    {
+                        "ts": 1623677096.400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 5
+                    },
+                    {
+                        "ts": 1623677096.600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 4
+                    },
+                    {
+                        "ts": 1623677096.800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 3
+                    },
+                    {
+                        "ts": 1623677097.000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 2
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677097.000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 10,
+                "max_decel": 10,
+
+                "cur_speed": 2,
+                "cur_accel": -3,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": "entry_lane_0",
+                "cur_ds": 2,
+                "direction": "straight",
+                "entry_lane_id": "entry_lane_0",
+                "link_lane_id": "link_0",
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677097.200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 2
+                    },
+                    {
+                        "ts": 1623677097.400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 1.5
+                    },
+                    {
+                        "ts": 1623677097.600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 1.0
+                    },
+                    {
+                        "ts": 1623677097.800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0.5
+                    },
+                    {
+                        "ts": 1623677098.000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677097.000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 10,
+                "max_decel": 10,
+
+                "cur_speed": 2,
+                "cur_accel": -3,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": "entry_lane_1",
+                "cur_ds": 2,
+                "direction": "straight",
+                "entry_lane_id": "entry_lane_1",
+                "link_lane_id": "link_1",
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677097.200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 2
+                    },
+                    {
+                        "ts": 1623677097.400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 1.5
+                    },
+                    {
+                        "ts": 1623677097.600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 1.0
+                    },
+                    {
+                        "ts": 1623677097.800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0.5
+                    },
+                    {
+                        "ts": 1623677098.000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677098.000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 10,
+                "max_decel": 10,
+
+                "cur_speed": 0,
+                "cur_accel": -2,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": "entry_lane_0",
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": "entry_lane_0",
+                "link_lane_id": "link_0",
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677098.200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098.400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098.600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098.800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099.000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_0",
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677098.000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 10,
+                "max_decel": 10,
+
+                "cur_speed": 0,
+                "cur_accel": -2,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": "entry_lane_1",
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": "entry_lane_1",
+                "link_lane_id": "link_1",
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677098.200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098.400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098.600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098.800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099.000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": "entry_lane_1",
+                        "ds": 0.0
+                    }
+                ]
+            }
+        }
+    ]
+}
