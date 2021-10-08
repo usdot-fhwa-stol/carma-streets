@@ -128,7 +128,7 @@ namespace message_services
                     key_value_v.clear();
                 }
             }
-            return "";
+            return strategy_params_stream;
         }
 
         std::ostream &operator<<(std::ostream &out, mobilityoperation &mobilityoperation_obj)
