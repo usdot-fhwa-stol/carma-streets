@@ -57,7 +57,7 @@ services:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
   scheduling_service:
-    image: scheduling_service:latest
+    image: test:attempt1
     build: 
       context: .
       dockerfile: scheduling_service/Dockerfile
@@ -70,6 +70,20 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
+  message_services:
+    image: message_services:latest
+    build: 
+      context: .
+      dockerfile: message_services/Dockerfile
+    container_name: message_services
+    restart: always
+    network_mode: host
+    depends_on:  
+      - kafka
+    environment:
+      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+    volumes: 
+      - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
 secrets:
     mysql_password:
         file: ./secrets/mysql_password.txt
