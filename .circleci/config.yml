@@ -143,14 +143,14 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-         docker build --network=host -t usdotfhwastoldev/carma-streets/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
+         docker build --network=host -t usdotfhwastoldev/carma-streets:scheduling_service-${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
     
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/carma-streets/scheduling_service:${CIRCLE_BRANCH,,}
+         docker push usdotfhwastoldev/carma-streets:scheduling_service-${CIRCLE_BRANCH,,}
     
    
   docker_build&push_develop :
@@ -161,14 +161,14 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-          docker build --network=host -t usdotfhwastoldev/carma-streets/scheduling_service:latest -f scheduling_service/Dockerfile .
+          docker build --network=host -t usdotfhwastoldev/carma-streets:scheduling_service -f scheduling_service/Dockerfile .
     
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/carma-streets/scheduling_service:${CIRCLE_BRANCH,,}
+          docker push usdotfhwastoldev/carma-streets:scheduling_service-${CIRCLE_BRANCH,,}
 workflows:
   version: 2
   build:
