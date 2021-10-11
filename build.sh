@@ -18,11 +18,11 @@
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
-cd ../kafka_clients 
+cd /home/carma-streets/kafka_clients 
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
 
-cd ../scheduling_service
+cd /home/carma-streets/scheduling_service
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
