@@ -104,14 +104,14 @@ jobs:
           name: Build scheduling_service
           command: |
             source ${INIT_ENV}
-            cd /home/carma-streets/src
+            cd /home/carma-streets/
             chmod 755 *
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
             source ${INIT_ENV}
-            cd /home/carma-streets/src
+            cd /home/carma-streets/
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
       - run:
