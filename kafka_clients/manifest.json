@@ -1,6 +1,0 @@
-{
-    "BOOTSTRAP_SERVER": "127.0.0.1:9092",
-    "PRODUCER_TOPIC": "test",
-    "CONSUMER_TOPIC": "test",
-    "GROUP_ID": "group_one"
-}
