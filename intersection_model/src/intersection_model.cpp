@@ -37,8 +37,8 @@ namespace intersection_model
         gps.lon = lon;
         lanelet::BasicPoint3d point = projector->forward(gps);
 
-        lanelet::BasicPoint2d point2d = {point.x(), point.y()};
-
+        lanelet::BasicPoint2d point2d = lanelet::utils::to2D(point );
+        
         std::vector<lanelet::Lanelet> lanelets = map->laneletLayer.nearest(point2d,1);
         return lanelets.front();
     }
@@ -46,6 +46,7 @@ namespace intersection_model
     void intersection_model::set_intersection( lanelet::BoundingBox2d box) {
         // sudo code:
         // -> find all regulatory elements and lanelet objects in bounding box
-        // -> Save relevant intersection objects
+        // -> Save relevant intersection objects entry_lanes & link_lanes
+
     }
 }

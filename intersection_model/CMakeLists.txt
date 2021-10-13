@@ -22,7 +22,6 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
                                         ${catkin_INCLUDE_DIRS}
                                         ${catkin_LIBRARY_DIRS} )
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC  
-                                        ${catkin_LIBRARY_DIRS}
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_core.so" 
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_projection.so" 
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_io.so" 
@@ -32,7 +31,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
                                         spdlog::spdlog
                                         Eigen3::Eigen
                                         ${catkin_LIBRARIES}) 
-message(STATUS "Building Executable.")
+message(STATUS "Building Executable." )
 add_executable(${PROJECT_NAME} 
                     src/main.cpp
                     src/intersection_model.cpp)
@@ -41,7 +40,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                                         ${catkin_INCLUDE_DIRS}
                                         ${catkin_LIBRARY_DIRS} )
 target_link_libraries(${PROJECT_NAME} PUBLIC
-                                        ${catkin_LIBRARY_DIRS}
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_core.so" 
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_projection.so" 
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_io.so" 
@@ -63,7 +61,6 @@ add_executable(${BINARY} ${TEST_SOURCES}
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_link_libraries(${BINARY} PUBLIC
                                         ${PROJECT_NAME}_lib
-                                        ${catkin_LIBRARY_DIRS}
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_core.so" 
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_projection.so" 
                                         "${catkin_LIBRARY_DIRS}/liblanelet2_io.so" 

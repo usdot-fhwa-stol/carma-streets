@@ -86,10 +86,10 @@ SHELL ["/bin/bash", "-c"]
 # First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
 # This means the ros source list must be added to to allow this installation
 # Additionally, the python-rospkg package managment tool is required for catkin to work properly 
-RUN DEBIAN_FRONTEND=noninteractive apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -y ros-melodic-catkin && \
-    echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc && \
-    echo "source /home/carma-streets/install/setup.bash" >> /root/.bashrc
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin && \
+    echo "source /opt/ros/melodic/setup.bash" >> /home/.bashrc && \
+    echo "source /home/carma-streets/carma_lanelte2/install/setup.bash" >> /home/.bashrc
 
 # Once catkin is installed only the required lanelet2 packages will be pulled in from carma
 # NOTE: The lanelet2_python package requires additional dependencies that have not yet been installed so it is removed for now
@@ -127,16 +127,15 @@ RUN echo " ------> compile examples..."
 WORKDIR  /home/carma-streets/intersection_model
 RUN mkdir build
 WORKDIR  /home/carma-streets/intersection_model/build
-RUN cmake ..
-RUN make
+RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
+RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
 WORKDIR  /home/carma-streets/intersection_model/build/
-
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
 LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="carma-streets-SonarCloud"
-LABEL org.label-schema.description="Base image for CARMA CI testing using SonarCloud"
+LABEL org.label-schema.name="intersection_model"
+LABEL org.label-schema.description="Base image for intersection_model"
 LABEL org.label-schema.vendor="Leidos"
 LABEL org.label-schema.version="${VERSION}"
 LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/operations"
@@ -144,4 +143,5 @@ LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
-CMD ["/home/carma-streets/examples/build/intersection_model"]
+ENTRYPOINT [ "/home/carma-streets/intersection_model/entrypoint.sh" ]
+CMD ["/home/carma-streets/intersection_model/build/intersection_model"]

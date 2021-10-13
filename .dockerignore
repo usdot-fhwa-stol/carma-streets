@@ -3,6 +3,7 @@
 # if they change
 .circleci
 .vscode
+/intersection_model/Dockerfile
 /docs
 /examples
 /ext
