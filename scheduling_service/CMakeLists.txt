@@ -18,3 +18,4 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
                             "/usr/local/include/gtest")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC kafka_clients_lib rdkafka++ Boost::system  Boost::thread spdlog::spdlog)
+
