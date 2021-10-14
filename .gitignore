@@ -7,3 +7,5 @@ crash.log
 # For built boxes
 *.box
 .vscode/
+intersection_model/*.osm
+intersection_model/build/
