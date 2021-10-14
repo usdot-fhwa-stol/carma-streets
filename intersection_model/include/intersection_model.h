@@ -45,8 +45,6 @@ namespace intersection_model
         private:
         lanelet::LaneletMapPtr map;
         lanelet::projection::LocalFrameProjector *projector;
-        std::vector<lanelet::Lanelet> entry_lanes;
-        std::vector<lanelet::Lanelet> link_lanes;
 
         
         /**
@@ -56,11 +54,6 @@ namespace intersection_model
          */
         void read_lanelet2_map( std::string filename );
 
-        /**
-         * Method to set intersection
-         * 
-         * @param bounds bounding box for intersection
-         */
-        void set_intersection( lanelet::BoundingBox2d bounds );
+
     };
 }

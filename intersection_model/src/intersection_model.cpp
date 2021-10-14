@@ -43,10 +43,4 @@ namespace intersection_model
         return lanelets.front();
     }
 
-    void intersection_model::set_intersection( lanelet::BoundingBox2d box) {
-        // sudo code:
-        // -> find all regulatory elements and lanelet objects in bounding box
-        // -> Save relevant intersection objects entry_lanes & link_lanes
-
-    }
 }

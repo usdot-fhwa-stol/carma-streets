@@ -115,4 +115,12 @@ cd build
 RUN cmake ..
 RUN make
 
+
 ```
+## Steps to Build intersection_model using Docker
+
+```
+Navigate to /carma-streets/ directory
+docker build -t intersection_model -f intersection_model/Dockerfile .
+```
+
