@@ -32,11 +32,11 @@ TEST(intersection_model_test, read_json_file)
     }
 }
 
-TEST(intersection_model_test, update_routing_graph)
+TEST(intersection_model_test, update_vehicle_routing_graph)
 {
     intersection_model::intersection_model model("../TFHRC_03.01.21.xodr_all_way_stop_active.osm");
     ASSERT_FALSE(model.get_vehicleGraph_ptr());
-    model.update_routing_graph();
+    model.update_vehicle_routing_graph();
     ASSERT_TRUE(model.get_vehicleGraph_ptr());
 }
 

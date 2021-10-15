@@ -13,5 +13,6 @@
 /message_services/build
 /carma_lanelet2
 /intersection_model/build
+/intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc
 *.md
 *.git*
