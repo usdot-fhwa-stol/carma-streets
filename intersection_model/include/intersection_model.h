@@ -66,8 +66,15 @@ namespace intersection_model
         std::int64_t intersection_id  = 0;
 
         //In the context of OSM map, the link/bridge lanelet within an intersection is to connect the entry lanelet and departure lanelet.
-        std::vector<lanelet_info_t> link_lanelets;          
+        std::vector<lanelet_info_t> link_lanelets;
+
+        //The entering lanelet is an atomic lane segment where vehicles need to take, stop and wait for infrastructure signal before entering the intersection.         
         std::vector<lanelet_info_t> entering_lanelets;
+
+        /**
+        * The departure lanelet is an atomic lane segment where vehicles have already safely exited the intersection, 
+        * and is allowed to ignore any further signals from infrastructure.         
+        **/
         std::set<lanelet_info_t>    departure_lanelets;
     };
 
