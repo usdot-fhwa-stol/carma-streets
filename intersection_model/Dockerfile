@@ -39,17 +39,6 @@ WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install
 
-
-# Install rapidjson
-RUN echo " ------> Install rapidjson..."
-WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
-WORKDIR /home/carma-streets/ext/rapidjson/
-RUN mkdir build
-WORKDIR /home/carma-streets/ext/rapidjson/build
-RUN cmake .. && make -j
-RUN make install
-
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
