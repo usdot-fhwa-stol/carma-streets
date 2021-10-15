@@ -104,9 +104,9 @@ namespace intersection_model
             lanelet::Lanelet get_lanelet(double lat, double lon );
 
             /**
-             * @brief Read the OSM map, project the map, and initialize all the intersection related info including metadata, 
+             * @brief Read the OSM map, project the map, and initialize all the intersection related info including: intersection id, intersection name, 
              * entry_lanelet_ids, link_lanelet_ids and departure_lanelet_ids
-             * @return routing graph for vehicle participant 
+             * @return if the intersection information is updated successfully, return true. Otherwise false.
             **/
             bool update_intersection_info();
 
@@ -130,7 +130,7 @@ namespace intersection_model
 
             /**
              * @brief Get list of conflict lanelet ids relative to the given link lanelet id
-             * @param Input parameter is validated, and has to be link lanelet within an intersection
+             * @param sub_link_lanelet_id is validated, and has to be link lanelet within an intersection
              * @return A vector of lanelet information struct
              * **/
             std::vector<lanelet_info_t> get_conflict_lanelets(int64_t sub_link_lanelet_id);
@@ -144,7 +144,7 @@ namespace intersection_model
             /**
              * @brief Comparing the given lanelet id with all link lanelet ids in the current intersection information 
              * to determin if a lanelet id is a link lanelet id.
-             * @param int64_t lanelet id
+             * @param lanelet_id
              * @return true if the lanelet id belongs to a link lanelet at the intersection
              **/
             bool is_valid_link_lanelet_id(int64_t lanelet_id);
@@ -174,8 +174,8 @@ namespace intersection_model
             bool update_intersection_info_by_all_way_stop_reg(const lanelet::RegulatoryElement * all_way_stop_reg_elem_ptr);
 
             /**
-             * @brief Get the following lanelets from the entering lanelet. The result following lanelets are link lanelets.
-             * Based on the link lanelets, it updates the depature lanelet list
+             * @brief Get the following link lanelets from the entering lanelet. 
+             * Based on the link lanelets, it retrieves the following depature lanelets
              * @return true if the update for link lanelet and departure lanelet is successful.
              * */
             bool update_link_departure_lanelets_by_entry_lanelet(const lanelet::Lanelet &entry_lanelet);
@@ -196,8 +196,8 @@ namespace intersection_model
             const std::shared_ptr<lanelet::routing::RoutingGraph> get_vehicleGraph_ptr() const ;
 
             /**
-            * @brief Initialize vehicle routing graph pointer
-            * @return true if the vehicle routing graph is updated, otherwise false.
+            * @brief Initialize vehicle routing graph
+            * @return true if the routing graph for vehicle participant  is updated, otherwise false.
             */
             bool update_vehicle_routing_graph();
 
