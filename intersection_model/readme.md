@@ -124,3 +124,5 @@ Navigate to /carma-streets/ directory
 docker build -t intersection_model -f intersection_model/Dockerfile .
 ```
 
+## Notes
+When running unit test for the intersection model, making sure the correct osm file is upload under the intersection_model directory.

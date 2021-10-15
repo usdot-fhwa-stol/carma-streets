@@ -1,4 +1,4 @@
-prefix=/home/ode/carma_streets_ws/repos/carma-streets/intersection_model/src/server/external
+prefix=/home/ode/carma_streets_ws/carma-streets/intersection_model/src/server/external
 libdir=${prefix}/lib
 includedir=${prefix}/include
 

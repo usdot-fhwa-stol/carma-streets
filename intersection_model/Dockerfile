@@ -143,4 +143,4 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 
-CMD ["/home/carma-streets/intersection_model/build/intersection_model"]
+CMD ["/home/carma-streets/intersection_model/build/intersection_model/src/server/src/intersection-server"]

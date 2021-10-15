@@ -17,6 +17,12 @@ namespace intersection_model
         std::string manifest_json_file_name = "../manifest.json";
         rapidjson::Document doc = read_json_file(manifest_json_file_name);
 
+        if(doc.HasParseError())
+        {
+            spdlog::error("{0}: Initialization Failure! Cannot read {1} file.", __FILE__ , manifest_json_file_name);
+            exit(1);
+        }
+
         //Update the intersection name based on the value set in the manifest configuration file
         if(doc.HasMember(this->intersection_name_key))
         {
@@ -38,10 +44,11 @@ namespace intersection_model
             read_lanelet2_map(osm_file_path);
         }
         
-        if (!map->empty())
+        if (map && !map->empty())
         {
             spdlog::info("{0} Map is loaded ...", __FILE__);
-            if(load_intersection_info())
+
+            if(update_intersection_info())
             {
                 spdlog::info("{0}: Intersection information is initialized ...", __FILE__);
             }
@@ -66,8 +73,8 @@ namespace intersection_model
             std::ifstream ifs {json_file_name};
             if(!ifs.is_open())
             {
-                spdlog::critical("Could not open file: {0}",json_file_name.c_str());
-                exit(1);
+                spdlog::critical("{0}: Could not open file: {1}" , __FILE__, json_file_name.c_str());
+                // exit(1);
             }
             rapidjson::IStreamWrapper isw{ifs};
             doc.ParseStream(isw);
@@ -77,27 +84,34 @@ namespace intersection_model
             if(doc.HasParseError())
             {
                 spdlog::critical("Read JSON file error  : {0} Offset: {1} ", doc.GetParseError() ,doc.GetErrorOffset());
-                exit(1);
             }          
-        }
-        catch(...)
-        {
-            std::exception_ptr p = std::current_exception();
-            spdlog::critical("Read JSON file failure: {0}",(p ? p.__cxa_exception_type()->name() : "null"));
-            exit(1);
+        }        
+        catch(std::exception ex)
+        {         
+            spdlog::critical("Read JSON file failure: {0}", ex.what());
+            // exit(1);
         }        
         return doc;
     }
 
     void intersection_model::read_lanelet2_map( std::string filename ) 
     {
-        int projector_type = 1;
-        std::string target_frame;
-        lanelet::ErrorMessages errors;
-        // Parse geo reference info from the lanelet map (.osm)
-        lanelet::io_handlers::AutowareOsmParser::parseMapParams(filename, &projector_type, &target_frame);
-        projector = new lanelet::projection::LocalFrameProjector(target_frame.c_str());
-        map = lanelet::load(filename, *projector, &errors);
+        try
+        {
+            int projector_type = 1;
+            std::string target_frame;
+            lanelet::ErrorMessages errors;
+
+            // Parse geo reference info from the lanelet map (.osm)
+            lanelet::io_handlers::AutowareOsmParser::parseMapParams(filename, &projector_type, &target_frame);
+            projector = new lanelet::projection::LocalFrameProjector(target_frame.c_str());
+            map = lanelet::load(filename, *projector, &errors);
+        }
+        catch(std::exception ex)
+        {         
+            spdlog::critical("{0}: Cannot read osm file {1}. Error message: {2} " , __FILE__, filename,ex.what());
+            exit(1);
+        }
     }
 
     lanelet::LaneletMapPtr intersection_model::get_lanelet2_map() {
@@ -123,26 +137,30 @@ namespace intersection_model
         return lanelets.front();
     }
 
-    bool intersection_model::load_intersection_info()
+    bool intersection_model::update_vehicle_routing_graph()
+    {
+        //get routingGraph from map
+        lanelet::traffic_rules::TrafficRulesPtr trafficRules{
+            lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany,
+                                                        lanelet::Participants::Vehicle,
+                                                        lanelet::traffic_rules::TrafficRules::Configuration())};
+        lanelet::routing::RoutingCostPtrs costPtrs{
+            std::make_shared<lanelet::routing::RoutingCostDistance>(this->laneChangeCost, this->minLaneChangeLength),
+            std::make_shared<lanelet::routing::RoutingCostTravelTime>(this->laneChangeCost)};
+        lanelet::routing::RoutingGraph::Configuration configuration;
+        configuration.insert(std::make_pair(lanelet::routing::RoutingGraph::ParticipantHeight, this->participantHeight));
+        this->vehicleGraph_ptr = lanelet::routing::RoutingGraph::build(*this->map, *trafficRules, costPtrs, configuration);
+        if ( !this->vehicleGraph_ptr )
+        {
+            return false;
+        }
+        return true;
+    }
+
+    bool intersection_model::update_intersection_info()
     {
         try
-        {
-            //get routingGraph from map
-            lanelet::traffic_rules::TrafficRulesPtr trafficRules{
-                lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany,
-                                                            lanelet::Participants::Vehicle,
-                                                            lanelet::traffic_rules::TrafficRules::Configuration())};
-            lanelet::routing::RoutingCostPtrs costPtrs{
-                std::make_shared<lanelet::routing::RoutingCostDistance>(this->laneChangeCost, this->minLaneChangeLength),
-                std::make_shared<lanelet::routing::RoutingCostTravelTime>(this->laneChangeCost)};
-            lanelet::routing::RoutingGraph::Configuration configuration;
-            configuration.insert(std::make_pair(lanelet::routing::RoutingGraph::ParticipantHeight, this->participantHeight));
-            this->vehicleGraph_ptr = lanelet::routing::RoutingGraph::build(*this->map, *trafficRules, costPtrs, configuration);
-            if (vehicleGraph_ptr == nullptr)
-            {
-                return false;
-            }
-
+        {         
             //Define a vector of link lanelet ids;
             std::vector<lanelet::Id> all_link_lanelet_ids_per_intersection; //use all_way_stop reg to update this
 
@@ -154,7 +172,7 @@ namespace intersection_model
 
                 if (reg_element_ptr->attribute(lanelet::AttributeName::Subtype) == lanelet::AttributeValueString::AllWayStop)
                 {
-                    if (!load_intersection_info_by_all_way_stop_reg(reg_element_ptr))
+                    if (!update_intersection_info_by_all_way_stop_reg(reg_element_ptr))
                     {
                          spdlog::debug("{0}: Failed to load intersection information based on all_way_stop regultory element. ",__FILE__);
                     };
@@ -170,7 +188,7 @@ namespace intersection_model
         return true;
     }
 
-    bool intersection_model::load_intersection_info_by_all_way_stop_reg(const lanelet::RegulatoryElement *all_way_stop_reg_elem_ptr)
+    bool intersection_model::update_intersection_info_by_all_way_stop_reg(const lanelet::RegulatoryElement *all_way_stop_reg_elem_ptr)
     {
         try
         {
@@ -214,7 +232,17 @@ namespace intersection_model
     }
 
     bool intersection_model::update_link_departure_lanelets_by_entry_lanelet(const lanelet::Lanelet &entry_lanelet)
-    {       
+    {    
+        //making sure the vehicle routing graph is not null
+        if( !this->vehicleGraph_ptr )
+        { 
+            if( !update_vehicle_routing_graph() ) 
+            { 
+                return false;
+            }
+        }
+
+        //Retrieve all the possible link lanelets for the entry lane
         lanelet::ConstLanelets link_lanelets_per_entering_lanelet = this->vehicleGraph_ptr->following(entry_lanelet, false);
 
         //Every entry lanelet at the intersection has tt most three link lanelets
@@ -278,15 +306,21 @@ namespace intersection_model
     }
 
     std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets(int64_t sub_link_lanelet_id)
-    {
+    {       
         //Check the subject link_lanelet conflict by comparing it to all link lanelets at the intersection
         lanelet::Id subject_link_lanelet_id{sub_link_lanelet_id};
         lanelet::Points2d intersectionPts;
         std::vector<lanelet_info_t> conflict_lanelets;
 
+        if ( !is_valid_link_lanelet_id(sub_link_lanelet_id) )
+        {
+            spdlog::error("Not a valid link lanelet. {0}", sub_link_lanelet_id);
+            return conflict_lanelets;
+        }
+
         //Get the vector of link lanelets at the intersection that share the same entry lanelet. 
         //The vector of link lanelets can be skipped.
-        std::vector<int> lanelet_ids_to_skip = get_previous_lanelet_ids(sub_link_lanelet_id);
+        std::vector<int> lanelet_ids_to_skip = get_shared_entry_link_lanelet_ids(sub_link_lanelet_id);
 
         //get lanelets from map
         lanelet::LaneletLayer &lanelets = this->map->laneletLayer;
@@ -322,22 +356,39 @@ namespace intersection_model
         return conflict_lanelets;
     }
 
-    std::vector<int> intersection_model::get_previous_lanelet_ids(int64_t subject_link_lanelet_id)
+    std::vector<int> intersection_model::get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id)
     {
-        //Skip the conflict lanelet ids that share the same entry lanelet
-        std::vector<int> lanelet_ids_to_skip;
-        lanelet::ConstLanelet lanelet_prev = this->vehicleGraph_ptr->previous(this->map->laneletLayer.get(subject_link_lanelet_id)).front();
-        lanelet::ConstLanelets shared_entry_link_lanelets = vehicleGraph_ptr->following(lanelet_prev);
+        std::vector<int> lanelet_ids;
+
+        //If routing graph is not initialized, it will return zero number of lanelet ids.
+        if( !this->vehicleGraph_ptr )
+        {
+            if( !update_vehicle_routing_graph() )
+            {
+                return lanelet_ids;
+            };
+        }
+
+        lanelet::ConstLanelet  lanelet_entry = this->vehicleGraph_ptr->previous(this->map->laneletLayer.get(subject_link_lanelet_id)).front();
+        lanelet::ConstLanelets shared_entry_link_lanelets = vehicleGraph_ptr->following(lanelet_entry);
+        
         for (auto ele_ptr = shared_entry_link_lanelets.begin(); ele_ptr != shared_entry_link_lanelets.end(); ele_ptr++)
         {
-            lanelet_ids_to_skip.push_back(ele_ptr->id());
+            lanelet_ids.push_back(ele_ptr->id());
         }
-        return lanelet_ids_to_skip;
+        return lanelet_ids;
     }
 
     bool intersection_model::is_valid_link_lanelet_id(int64_t lanelet_id)
     {
         bool is_link_lanelet_id = false;
+
+        if(this->int_info.link_lanelets.size() == 0)
+        {
+            spdlog::error("{0} Intersection information contains zero number of link lanelets." , __FILE__);
+            return is_link_lanelet_id;
+        }
+
         for (auto link_lanelet_info : this->int_info.link_lanelets)
         {
             if (lanelet_id == link_lanelet_info.id)
@@ -345,6 +396,7 @@ namespace intersection_model
                 is_link_lanelet_id = true;
             }
         }
+
         return is_link_lanelet_id;
     }
 
@@ -352,7 +404,12 @@ namespace intersection_model
     {
         return this->int_info.departure_lanelets;
     }
-    
+     
+    const std::shared_ptr<lanelet::routing::RoutingGraph> intersection_model::get_vehicleGraph_ptr()  const
+    {
+        return this->vehicleGraph_ptr;
+    }
+
     intersection_model::~intersection_model()
     {
         int_info.link_lanelets.clear();

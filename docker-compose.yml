@@ -70,7 +70,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
-   message_services:
+  message_services:
     image: message_services:latest
     build: 
       context: .
@@ -84,6 +84,16 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
+  intersection_model:
+    image: intersection_model:latest
+    build: 
+      context: .
+      dockerfile: intersection_model/Dockerfile
+    container_name: intersection_model
+    restart: always
+    network_mode: host
+    volumes: 
+      - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
 secrets:
     mysql_password:
         file: ./secrets/mysql_password.txt
