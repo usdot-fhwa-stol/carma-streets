@@ -73,7 +73,7 @@ namespace intersection_model
             std::ifstream ifs {json_file_name};
             if(!ifs.is_open())
             {
-                spdlog::critical("{0}: Could not open file: {1}" , __FILE__, json_file_name.c_str());
+                spdlog::error("{0}: Could not open file: {1}" , __FILE__, json_file_name.c_str());
                 // exit(1);
             }
             rapidjson::IStreamWrapper isw{ifs};
@@ -83,7 +83,7 @@ namespace intersection_model
             doc.Accept(writer);
             if(doc.HasParseError())
             {
-                spdlog::critical("Read JSON file error  : {0} Offset: {1} ", doc.GetParseError() ,doc.GetErrorOffset());
+                spdlog::error("Read JSON file error  : {0} Offset: {1} ", doc.GetParseError() ,doc.GetErrorOffset());
             }          
         }        
         catch(std::exception ex)
@@ -109,7 +109,7 @@ namespace intersection_model
         }
         catch(std::exception ex)
         {         
-            spdlog::critical("{0}: Cannot read osm file {1}. Error message: {2} " , __FILE__, filename,ex.what());
+            spdlog::error("{0}: Cannot read osm file {1}. Error message: {2} " , __FILE__, filename,ex.what());
             exit(1);
         }
     }
@@ -174,7 +174,7 @@ namespace intersection_model
                 {
                     if (!update_intersection_info_by_all_way_stop_reg(reg_element_ptr))
                     {
-                         spdlog::debug("{0}: Failed to load intersection information based on all_way_stop regultory element. ",__FILE__);
+                         spdlog::critical("{0}: Failed to load intersection information based on all_way_stop regultory element. ",__FILE__);
                     };
                 }
             }
@@ -314,7 +314,7 @@ namespace intersection_model
 
         if ( !is_valid_link_lanelet_id(sub_link_lanelet_id) )
         {
-            spdlog::error("Not a valid link lanelet. {0}", sub_link_lanelet_id);
+            spdlog::error("{0}: Not a valid input link lanelet id. {0}", __FILE__, sub_link_lanelet_id);
             return conflict_lanelets;
         }
 
@@ -350,7 +350,7 @@ namespace intersection_model
         }
         catch (...)
         {
-            spdlog::debug("{0}: Failed to lookup element with id {1} . ",__FILE__,sub_link_lanelet_id);
+            spdlog::debug("{0}: Failed to lookup element with id {1} . " ,__FILE__ ,sub_link_lanelet_id);
             conflict_lanelets.clear();
         }
         return conflict_lanelets;

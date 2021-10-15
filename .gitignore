@@ -6,6 +6,7 @@ crash.log
 .env
 # For built boxes
 *.box
+gmon.out
 .vscode/
 intersection_model/*.osm
 intersection_model/build/
