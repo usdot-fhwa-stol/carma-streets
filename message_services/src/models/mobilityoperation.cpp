@@ -166,6 +166,6 @@ namespace message_services
         {
             this->strategy = strategy;
         }
-
+        
     }
 }
