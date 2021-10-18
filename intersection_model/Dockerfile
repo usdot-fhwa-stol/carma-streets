@@ -3,7 +3,7 @@ FROM ubuntu:bionic-20210702
 # Avoid interactive prompts during the building of this docker image
 ARG DEBIAN_FRONTEND="noninteractive"
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev
+RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -142,4 +142,4 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 
-CMD ["./src/server/src/intersection-server"]
+CMD ["/home/carma-streets/intersection_model/build/src/server/src/intersection-server"]
