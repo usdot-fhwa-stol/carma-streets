@@ -57,7 +57,7 @@ services:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
   scheduling_service:
-    image: test:attempt1
+    image: carma-streets-scheduling-service:latest
     build: 
       context: .
       dockerfile: scheduling_service/Dockerfile

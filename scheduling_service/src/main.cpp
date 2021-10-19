@@ -224,19 +224,19 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 			}
 		}
 
-        /* !!! revise it !!! */
+        /* if the vehicle's entering time is set to the next scheduling time step, give access to the vehicle */
         if (et <= config.get_curSchedulingT() + config.get_schedulingDelta()){
-            bool conflict_indicator = true;
+            bool vehicle_access_indicator = true;
             for (int n = 0; n < schedule.get_indexDVs().size(); ++n){
                 int vehicle_index1 = schedule.get_indexDVs()[n];
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
                 if (localmap.hasConflict(link_id, link_id1) == true){
-                    conflict_indicator = false;
+                    vehicle_access_indicator = false;
                     break;
                 }
             }
-            schedule.set_access(vehicle_index, conflict_indicator);    
+            schedule.set_access(vehicle_index, vehicle_access_indicator);    
         }
 
 		listRDV.erase(listRDV.begin() + index_list_RDV);
@@ -262,7 +262,8 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     while (count_EV > 0){
         
         /*
-		* for each entry lane, estimate the earliest stopping time of the preceding unscheduled EV. pick the one with the earliest estimated stopping time.
+		* for each entry lane, estimate the earliest feasible stopping time of the preceding unscheduled EV. 
+        * pick the one with the earliest estimated stopping time.
 		* estimate its entering and departure times, and remove the vehicle from the EV list. 
 		*/
 		listOptionsIndex.clear();
