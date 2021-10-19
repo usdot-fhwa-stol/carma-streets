@@ -21,7 +21,6 @@ using namespace rapidjson;
 using namespace chrono;
 
 
-//configuration config("configuration.json");
 configuration config;
 osm localmap("osm.json");
 unordered_map<string, vehicle> list_veh;
@@ -33,29 +32,35 @@ void consumer_update(const char* paylod){
     message.SetObject();
     message.Parse(paylod);
     
-    string veh_id = message["payload"]["v_id"].GetString();
+    if (message["payload"].HasMember("v_id")){
+        string veh_id = message["payload"]["v_id"].GetString();
 
-    if (!list_veh.count(veh_id)){
-        string cur_lane_type = localmap.get_laneType(message["payload"]["cur_lane_id"].GetString());
-        if (cur_lane_type == "entry" || cur_lane_type == "link"){
-            list_veh[veh_id] = vehicle();
+        if (!list_veh.count(veh_id)){
+
+            if (message["payload"].HasMember("cur_lane_id")){
+                string cur_lane_type = localmap.get_laneType(to_string(message["payload"]["cur_lane_id"].GetInt()));
+                if (cur_lane_type == "entry" || cur_lane_type == "link"){
+                    list_veh[veh_id] = vehicle();
+                }
+            }
+            else{
+                spdlog::critical("Vehicle {0}'s current lane id is missing in the received status and intent update!", veh_id);
+            }
+        }
+
+        if (list_veh.count(veh_id)){
+            list_veh[veh_id].update(message);       
+            if (list_veh[veh_id].get_curState() == "LV"){
+                list_veh.erase(veh_id);
+            }
         }
     }
-
-    if (list_veh.count(veh_id)){
-        list_veh[veh_id].update(message);       
-        if (list_veh[veh_id].get_curState() == "LV"){
-            list_veh.erase(veh_id);
-        }
+    else{
+        spdlog::critical("vehicle id is missing in the received status and intent update!");
     }
 }
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
-
-    /* This is needed in case a vehicle update is missing */
-    for (auto& element : list_veh){
-        element.second.update_state();
-    }
 
     scheduling schedule(list_veh);
 
@@ -418,7 +423,7 @@ void call_consumer_thread()
             if(strlen(paylod) > 0)
             {
 
-                spdlog::info("Consumed message payload: {0}", paylod);   
+                //spdlog::info("Consumed message payload: {0}", paylod);   
                 
                 /* 
                 * update function for updating the stored vehicle status and intents:
@@ -433,7 +438,6 @@ void call_consumer_thread()
         
         consumer_worker->stop();
     }     
-    //free(consumer_worker);
     delete consumer_worker;
     return;    
 }
@@ -462,7 +466,7 @@ void call_scheduling_thread(){
             
             if (duration<double>(system_clock::now().time_since_epoch()).count() - config.get_lastSchedulingT() >= config.get_schedulingDelta()){
                 
-                spdlog::info("schedule number #" + to_string(sch_count));
+                spdlog::info("schedule number #{0}", sch_count);
 
                 config.set_curSchedulingT(duration<double>(system_clock::now().time_since_epoch()).count());
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
@@ -484,10 +488,11 @@ void call_scheduling_thread(){
                 Document::AllocatorType &allocator = document.GetAllocator();
 
                 Value metadata(kObjectType);
-                //auto timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                
+                /* all unit of timestamp is second with decimals */
                 auto timestamp = duration<double>(system_clock::now().time_since_epoch()).count();
 
-                metadata.AddMember("timestamp", timestamp, allocator );
+                metadata.AddMember("timestamp", timestamp, allocator);
                 metadata.AddMember("intersection_type", "stop_controlled",allocator);
                 document.AddMember("metadata", metadata, allocator);
                 
@@ -503,8 +508,6 @@ void call_scheduling_thread(){
                 string msg_to_send = buffer.GetString();
 
                 /* produce the scheduling plan to kafka */
-                //string msg_to_send = "\"This is a test\"";
-                //this_thread::sleep_for(std::chrono::seconds(5));
                 producer_worker->send(msg_to_send);
 
                 // update the previous scheduling time and sleep until next schedule
@@ -521,7 +524,6 @@ void call_scheduling_thread(){
         producer_worker->stop();
 
     }
-    //free(producer_worker);
     delete producer_worker;
 
     return;

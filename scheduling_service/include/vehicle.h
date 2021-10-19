@@ -87,7 +87,7 @@ class vehicle{
 		double dt_actual;
 
 		/* the timestamp of the last update */
-		double timestamp = -1;
+		double timestamp = 0;
 
 		/* the vehicle's latitude in the last update */
 		double lat;
@@ -119,8 +119,6 @@ class vehicle{
 	public:
 
 		void update(const Document& message);
-		
-		void update_state();
 
 		double get_length();
 		double get_minGap();
