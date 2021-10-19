@@ -3,6 +3,7 @@
 # if they change
 .circleci
 .vscode
+/intersection_model/Dockerfile
 /docs
 /examples
 /ext
@@ -10,5 +11,7 @@
 /kafka_clients/build
 /scheduling_service/build
 /message_services/build
+/carma_lanelet2
+/intersection_model/build
 *.md
 *.git*
