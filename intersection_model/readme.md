@@ -6,7 +6,7 @@ This library will read and lanelet2 osm map and take in a configurable bounding 
 ## Steps to Build intersection_model locally
 
 ```
-apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev
+apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 # Clone and install googletest, librdkafka, spdlog and rapidjson in the ext/ directory
 cd carma-streets root directory
