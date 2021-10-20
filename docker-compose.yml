@@ -57,7 +57,7 @@ services:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
   scheduling_service:
-    image: scheduling_service:latest
+    image: carma-streets-scheduling-service:latest
     build: 
       context: .
       dockerfile: scheduling_service/Dockerfile
@@ -70,7 +70,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
-   message_services:
+  message_services:
     image: message_services:latest
     build: 
       context: .

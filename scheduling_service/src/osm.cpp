@@ -24,7 +24,8 @@ osm::osm(string json_file_name){
 	for (int i = 0; i < 4; ++i){
 		
 		lane_information li;
-		li.id = "entry_lane_" + to_string(i);
+		//li.id = "entry_lane_" + to_string(i);
+		li.id = to_string(count);
 		li.index = count;
 		li.type = "entry";
 		li.direction = "straight";
@@ -46,7 +47,8 @@ osm::osm(string json_file_name){
 	for (int i = 0; i < 4; ++i){
 		
 		lane_information li;
-		li.id = "exit_lane_" + to_string(i);
+		//li.id = "exit_lane_" + to_string(i);
+		li.id = to_string(count);
 		li.index = count;
 		li.type = "exit";
 		li.direction = "straight";
@@ -68,7 +70,8 @@ osm::osm(string json_file_name){
 	for (int i = 0; i < 4; ++i){
 		
 		lane_information li;
-		li.id = "link_" + to_string(i);
+		//li.id = "link_" + to_string(i);
+		li.id = to_string(count);
 		li.index = count;
 		li.type = "link";
 		li.direction = "straight";
