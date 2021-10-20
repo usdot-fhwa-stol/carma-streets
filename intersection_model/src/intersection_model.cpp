@@ -161,9 +161,6 @@ namespace intersection_model
     {
         try
         {         
-            //Define a vector of link lanelet ids;
-            std::vector<lanelet::Id> all_link_lanelet_ids_per_intersection; //use all_way_stop reg to update this
-
             //Find the all_way_stop regulatory element
             lanelet::RegulatoryElementLayer &reg_layer = this->map->regulatoryElementLayer;
             for (auto reg_element_itr = reg_layer.begin(); reg_element_itr != reg_layer.end(); reg_element_itr++)
@@ -262,12 +259,12 @@ namespace intersection_model
         }
     }
 
-    intersection_info_t intersection_model::get_intersection_info()
+    const intersection_info_t intersection_model::get_intersection_info() const 
     {
         return this->int_info;
     }
 
-    std::vector<lanelet_info_t> intersection_model::get_entry_lanelets()
+   const  std::vector<lanelet_info_t> intersection_model::get_entry_lanelets() const 
     {
         return this->int_info.entering_lanelets;
     }
@@ -300,12 +297,12 @@ namespace intersection_model
         return speed_limit_result;
     }
 
-    std::vector<lanelet_info_t> intersection_model::get_link_lanelets()
+   const  std::vector<lanelet_info_t> intersection_model::get_link_lanelets() const 
     {
         return this->int_info.link_lanelets;
     }
 
-    std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets(int64_t sub_link_lanelet_id)
+    const std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets(int64_t sub_link_lanelet_id)
     {       
         //Check the subject link_lanelet conflict by comparing it to all link lanelets at the intersection
         lanelet::Id subject_link_lanelet_id{sub_link_lanelet_id};
@@ -400,7 +397,7 @@ namespace intersection_model
         return is_link_lanelet_id;
     }
 
-    std::set<lanelet_info_t> intersection_model::get_departure_lanelets()
+    const  std::set<lanelet_info_t> intersection_model::get_departure_lanelets() const 
     {
         return this->int_info.departure_lanelets;
     }

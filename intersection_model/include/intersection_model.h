@@ -114,32 +114,32 @@ namespace intersection_model
              * @brief Get intersection metadata
              * @return intersection information struct 
              * **/
-            intersection_info_t get_intersection_info();
+            const  intersection_info_t get_intersection_info() const ;
 
             /**
              * @brief Get list of entry lanelet ids
              * @return A vector of lanelet information struct
              * **/
-            std::vector<lanelet_info_t> get_entry_lanelets();
+            const std::vector<lanelet_info_t> get_entry_lanelets() const ;
 
             /**
              * @brief Get list of link lanelet ids
              * @return A vector of lanelet information struct
              * **/
-            std::vector<lanelet_info_t> get_link_lanelets();
+            const std::vector<lanelet_info_t> get_link_lanelets() const ;
 
             /**
              * @brief Get list of conflict lanelet ids relative to the given link lanelet id
              * @param sub_link_lanelet_id is validated, and has to be link lanelet within an intersection
              * @return A vector of lanelet information struct
              * **/
-            std::vector<lanelet_info_t> get_conflict_lanelets(int64_t sub_link_lanelet_id);
+            const  std::vector<lanelet_info_t> get_conflict_lanelets(int64_t sub_link_lanelet_id);
 
             /**
              * @brief Get list of departure lanelet ids
              * @return A vector of lanelet information struct
              * **/
-            std::set<lanelet_info_t> get_departure_lanelets();
+            const std::set<lanelet_info_t> get_departure_lanelets() const;
 
             /**
              * @brief Comparing the given lanelet id with all link lanelet ids in the current intersection information 

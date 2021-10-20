@@ -59,6 +59,16 @@ RUN cmake ..
 RUN make
 RUN make install
 
+# Install qhttpengine
+RUN echo " ------> Install qhttpengine..."
+WORKDIR /home/carma-streets/ext
+RUN git clone https://github.com/etherealjoy/qhttpengine.git
+WORKDIR /home/carma-streets/ext/qhttpengine/
+RUN mkdir build
+WORKDIR /home/carma-streets/ext/qhttpengine/build
+RUN cmake .. && make -j
+RUN make install
+
 # Install PROJ, a package for coordinate transformations
 RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
         cd /home/carma-streets/PROJ && \
