@@ -54,3 +54,4 @@ target_link_libraries(${BINARY} PUBLIC
                                         )
 
 
+add_subdirectory(src/server)

@@ -6,4 +6,8 @@ crash.log
 .env
 # For built boxes
 *.box
+gmon.out
 .vscode/
+intersection_model/*.osm
+intersection_model/build/
+intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc

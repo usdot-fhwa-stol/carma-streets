@@ -3,7 +3,7 @@ FROM ubuntu:bionic-20210702
 # Avoid interactive prompts during the building of this docker image
 ARG DEBIAN_FRONTEND="noninteractive"
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev
+RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -39,7 +39,6 @@ WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install
 
-
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
@@ -58,6 +57,16 @@ RUN mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
 RUN cmake ..
 RUN make
+RUN make install
+
+# Install qhttpengine
+RUN echo " ------> Install qhttpengine..."
+WORKDIR /home/carma-streets/ext
+RUN git clone https://github.com/etherealjoy/qhttpengine.git
+WORKDIR /home/carma-streets/ext/qhttpengine/
+RUN mkdir build
+WORKDIR /home/carma-streets/ext/qhttpengine/build
+RUN cmake .. && make -j
 RUN make install
 
 # Install PROJ, a package for coordinate transformations
@@ -127,8 +136,7 @@ WORKDIR  /home/carma-streets/intersection_model/build
 RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
 RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
-# Source /opt/ros/melodic/setup.bash and /home/carma-streets/carma_lanelet2/install/setup.bash
-ENTRYPOINT [ "/home/carma-streets/intersection_model/entrypoint.sh" ]
+
 WORKDIR  /home/carma-streets/intersection_model/build/
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
@@ -143,4 +151,4 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 
-CMD ["/home/carma-streets/intersection_model/build/intersection_model"]
+CMD ["/home/carma-streets/intersection_model/build/src/server/src/intersection-server"]
