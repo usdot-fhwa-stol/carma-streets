@@ -126,8 +126,7 @@ WORKDIR  /home/carma-streets/intersection_model/build
 RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
 RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
-# Source /opt/ros/melodic/setup.bash and /home/carma-streets/carma_lanelet2/install/setup.bash
-# ENTRYPOINT [ "/home/carma-streets/intersection_model/entrypoint.sh" ]
+
 WORKDIR  /home/carma-streets/intersection_model/build/
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
