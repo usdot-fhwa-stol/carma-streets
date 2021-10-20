@@ -44,9 +44,6 @@ protected:
         if (socket->bytesAvailable() >= socket->contentLength()) {
             emit requestReceived(socket);
         } else {
-            // connect(socket, &Socket::readChannelFinished, [this, socket, m]() {
-            //     emit requestReceived(socket);
-            // });
         }
     }
 };

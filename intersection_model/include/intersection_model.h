@@ -156,10 +156,7 @@ namespace intersection_model
             uint32_t get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
 
             /**
-             * @brief When an intersection determines whether there are conflict for vehicles entering the intersection at the same time,
-             * it checks all the vehicles entering from different directions. If other vehicles entering or come behind from the same entry lane,
-             * This vehicle shall ignore the conflicts associate with this entry lane. It is assuming that the subject vehicle is the first vehicle
-             * at the entering lane and is waiting to enter the intersection. 
+             * @brief Get the list of link lanelets that has the same entry lanelet
              * @return A vector of link lanelet ids
              **/
             std::vector<int> get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id);
