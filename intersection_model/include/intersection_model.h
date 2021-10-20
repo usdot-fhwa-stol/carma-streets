@@ -156,7 +156,7 @@ namespace intersection_model
             uint32_t get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
 
             /**
-             * @brief Get the list of link lanelets that has the same entry lanelet
+             * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet
              * @return A vector of link lanelet ids
              **/
             std::vector<int> get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id);
