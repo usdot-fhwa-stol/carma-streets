@@ -23,6 +23,8 @@ include_directories("/usr/local/include")
 
 ## Additiona notes:
 ### generate qt client
+```
 git clone https://github.com/OpenAPITools/openapi-generator
 ./run-in-docker.sh generate -i modules/openapi-generator/src/test/resources/3_0/your_yaml_file_name.yaml \
     -g cpp-qt-client -o /gen/out/folder_name --package-name=package_name # generates cpp qt client, outputs locally to ./out/folder_name
+```
