@@ -216,3 +216,7 @@ components:
           type: integer
         speed_limit:
           type: number
+        conflict_lanelet_ids:
+          type: array
+          items:
+            type: integer

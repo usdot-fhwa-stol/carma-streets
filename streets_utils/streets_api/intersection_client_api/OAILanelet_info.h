@@ -20,6 +20,7 @@
 
 #include <QJsonObject>
 
+#include <QList>
 
 #include "OAIEnum.h"
 #include "OAIObject.h"
@@ -47,6 +48,11 @@ public:
     bool is_speed_limit_Set() const;
     bool is_speed_limit_Valid() const;
 
+    QList<qint32> getConflictLaneletIds() const;
+    void setConflictLaneletIds(const QList<qint32> &conflict_lanelet_ids);
+    bool is_conflict_lanelet_ids_Set() const;
+    bool is_conflict_lanelet_ids_Valid() const;
+
     virtual bool isSet() const override;
     virtual bool isValid() const override;
 
@@ -60,6 +66,10 @@ private:
     double speed_limit;
     bool m_speed_limit_isSet;
     bool m_speed_limit_isValid;
+
+    QList<qint32> conflict_lanelet_ids;
+    bool m_conflict_lanelet_ids_isSet;
+    bool m_conflict_lanelet_ids_isValid;
 };
 
 } // namespace OpenAPI

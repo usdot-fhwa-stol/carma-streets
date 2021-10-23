@@ -38,6 +38,9 @@ void OAILanelet_info::initializeModel() {
 
     m_speed_limit_isSet = false;
     m_speed_limit_isValid = false;
+
+    m_conflict_lanelet_ids_isSet = false;
+    m_conflict_lanelet_ids_isValid = false;
 }
 
 void OAILanelet_info::fromJson(QString jsonString) {
@@ -54,6 +57,9 @@ void OAILanelet_info::fromJsonObject(QJsonObject json) {
 
     m_speed_limit_isValid = ::OpenAPI::fromJsonValue(speed_limit, json[QString("speed_limit")]);
     m_speed_limit_isSet = !json[QString("speed_limit")].isNull() && m_speed_limit_isValid;
+
+    m_conflict_lanelet_ids_isValid = ::OpenAPI::fromJsonValue(conflict_lanelet_ids, json[QString("conflict_lanelet_ids")]);
+    m_conflict_lanelet_ids_isSet = !json[QString("conflict_lanelet_ids")].isNull() && m_conflict_lanelet_ids_isValid;
 }
 
 QString OAILanelet_info::asJson() const {
@@ -70,6 +76,9 @@ QJsonObject OAILanelet_info::asJsonObject() const {
     }
     if (m_speed_limit_isSet) {
         obj.insert(QString("speed_limit"), ::OpenAPI::toJsonValue(speed_limit));
+    }
+    if (conflict_lanelet_ids.size() > 0) {
+        obj.insert(QString("conflict_lanelet_ids"), ::OpenAPI::toJsonValue(conflict_lanelet_ids));
     }
     return obj;
 }
@@ -106,6 +115,22 @@ bool OAILanelet_info::is_speed_limit_Valid() const{
     return m_speed_limit_isValid;
 }
 
+QList<qint32> OAILanelet_info::getConflictLaneletIds() const {
+    return conflict_lanelet_ids;
+}
+void OAILanelet_info::setConflictLaneletIds(const QList<qint32> &conflict_lanelet_ids) {
+    this->conflict_lanelet_ids = conflict_lanelet_ids;
+    this->m_conflict_lanelet_ids_isSet = true;
+}
+
+bool OAILanelet_info::is_conflict_lanelet_ids_Set() const{
+    return m_conflict_lanelet_ids_isSet;
+}
+
+bool OAILanelet_info::is_conflict_lanelet_ids_Valid() const{
+    return m_conflict_lanelet_ids_isValid;
+}
+
 bool OAILanelet_info::isSet() const {
     bool isObjectUpdated = false;
     do {
@@ -115,6 +140,11 @@ bool OAILanelet_info::isSet() const {
         }
 
         if (m_speed_limit_isSet) {
+            isObjectUpdated = true;
+            break;
+        }
+
+        if (conflict_lanelet_ids.size() > 0) {
             isObjectUpdated = true;
             break;
         }

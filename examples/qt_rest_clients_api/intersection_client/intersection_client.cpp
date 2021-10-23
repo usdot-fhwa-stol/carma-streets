@@ -7,11 +7,11 @@
 
 void intersection_client::call()
 {
-        OAIDefaultApi apiInstance;
+      OAIDefaultApi apiInstance;
 
-        QEventLoop loop;
-        connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignal, [&](OAIIntersection_info int_info)
-          {
+      QEventLoop loop;
+      connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignal, [&](OAIIntersection_info int_info)
+              {
                 qDebug() << "Intersection name: " <<  int_info.getName();
                 qDebug() << "Intersection id: "   << int_info.getId();
 
@@ -19,21 +19,23 @@ void intersection_client::call()
                 QList<OpenAPI::OAILanelet_info>::iterator begin = link_lanelets.begin();
                 for(QList<OpenAPI::OAILanelet_info>::iterator itr = begin; itr != link_lanelets.end(); itr++ )
                 {
-                qDebug() << "Json: " << itr->asJson();
-                qDebug() << "ID: "   << itr->getId();
-                qDebug() << "Speed Limit: " << itr->getSpeedLimit();
+                  qDebug() << "link lanelet ID: "   << itr->getId();
+                  qDebug() << "Speed Limit: " << itr->getSpeedLimit();
+                  qDebug() << "Conflict lanelets: ";
+                  for(auto inner_itr = itr->getConflictLaneletIds().begin(); inner_itr != itr->getConflictLaneletIds().end(); inner_itr++ )
+                  {
+                        qDebug() <<  *inner_itr;
+                  }
                 }
-                loop.quit(); 
-          });
+                loop.quit(); });
 
-         connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignalE, [&](OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
-          {
+      connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignalE, [&](OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
+              {
                 qDebug() << "Error happened while issuing request : " << error_str;
-                loop.quit(); 
-          });
+                loop.quit(); });
 
-        apiInstance.getIntersectionInfo();
+      apiInstance.getIntersectionInfo();
 
-  QTimer::singleShot(5000, &loop, &QEventLoop::quit);
-  loop.exec();
+      QTimer::singleShot(5000, &loop, &QEventLoop::quit);
+      loop.exec();
 }

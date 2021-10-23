@@ -79,6 +79,15 @@ void OAIDefaultApiHandler::getIntersectionInfo() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
+            
+            //Update the llink lanelet_info with the list of conflict lanelets
+            std::vector<intersection_model::lanelet_info_t> conflict_lanelet_info_v = int_worker->get_conflict_lanelets(itr->id);
+            QList<qint32> conflict_lanelet_ids;
+            for(auto conflict_itr = conflict_lanelet_info_v.begin(); conflict_itr != conflict_lanelet_info_v.end(); conflict_itr++)
+            {
+                conflict_lanelet_ids.push_back(conflict_itr->id);
+            }
+            lanelet_info.setConflictLaneletIds(conflict_lanelet_ids);
             link_lanlets.push_back(lanelet_info);
         }
         res.setLinkLanelets(link_lanlets);
