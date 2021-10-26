@@ -64,7 +64,9 @@ WORKDIR  /home/carma-streets/scheduling_service/build
 RUN cmake ..
 RUN make
 
-WORKDIR  /home/carma-streets/scheduling_service/build/
+WORKDIR  /home/carma-streets/scheduling_service/build
+
+RUN sudo mkdir /home/carma-streets/.base-image
 
 ENV SONAR_DIR=/opt/sonarqube
 
