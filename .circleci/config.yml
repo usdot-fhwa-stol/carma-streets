@@ -28,7 +28,7 @@ jobs:
     # Pull docker image 
     # XTERM used for better make output
     docker:
-      - image: ubuntu:bionic-20190807
+      - image: usdotfhwastoldev/scheduling_service:ci_setup
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
@@ -42,64 +42,6 @@ jobs:
           docker_layer_caching: false
       # Checkout PR branch
       - checkout:
-      - run: 
-          name: Install Sonar & Dependencies
-          command: |
-            set -x
-            apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr
-            
-            mkdir -p /home/carma-streets/ext
-            cd /home/carma-streets/ext
-            git clone https://github.com/google/googletest/
-            cd /home/carma-streets/ext/googletest/
-            cmake .
-            make
-            make install
-            
-            cd /home/carma-streets/ext
-            git clone https://github.com/edenhill/librdkafka
-            cd /home/carma-streets/ext/librdkafka/
-            ./configure --prefix=/usr
-            make
-            make install
-            
-            cd /home/carma-streets/ext
-            git clone https://github.com/gabime/spdlog.git
-            cd /home/carma-streets/ext/spdlog/
-            mkdir build 
-            cd /home/carma-streets/ext/spdlog/build
-            cmake .. && make -j
-            make install
-            
-            cd /home/carma-streets/ext
-            git clone  https://github.com/Tencent/rapidjson
-            cd /home/carma-streets/ext/rapidjson/
-            mkdir build
-            cd /home/carma-streets/ext/rapidjson/build
-            cmake .. && make -j
-            make install
-
-            
-            cd /home/carma-streets
-            mkdir .base-image
-            SONAR_DIR=/opt/sonarqube
-            mkdir $SONAR_DIR
-            curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
-            curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-            curl -sL https://deb.nodesource.com/setup_10.x | bash -
-            apt-get install -y nodejs
-            mkdir /opt/jq
-            curl -L "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -o /opt/jq/jq
-            chmod +x /opt/jq/jq
-            cd $SONAR_DIR
-            unzip $SONAR_DIR/sonar-scanner.zip -d .
-            unzip $SONAR_DIR/build-wrapper.zip -d .
-            rm $SONAR_DIR/sonar-scanner.zip
-            rm $SONAR_DIR/build-wrapper.zip
-            mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
-            mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
-            echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
       - run:
           name: Build scheduling_service
           command: |
@@ -112,7 +54,6 @@ jobs:
           command: |
             source ${INIT_ENV}
             cd /home/carma-streets/
-            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
       - run:
           name: Run Sonar Scanner
