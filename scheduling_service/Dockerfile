@@ -1,7 +1,7 @@
 FROM ubuntu:bionic-20210702
 
 RUN apt-get update
-RUN apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr 
+RUN apt-get update  && apt-get install -y sudo cmake git build-essential libboost1.65-all-dev curl unzip gcovr 
 
 RUN mkdir -p /home/carma-streets/
 
