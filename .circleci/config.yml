@@ -38,6 +38,7 @@ jobs:
     # Name of each run command defines purpose use
     steps:
       #setup remote docker
+      - checkout:
       - setup_remote_docker :
           docker_layer_caching: false
       - run:
@@ -48,7 +49,7 @@ jobs:
             chmod 755 *
             ls -lrt
             pwd
-            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/build.sh
+            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
