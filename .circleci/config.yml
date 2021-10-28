@@ -46,6 +46,8 @@ jobs:
             source ${INIT_ENV}
             cd /home/carma-streets/
             chmod 755 *
+            ls -lrt
+            pwd
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
