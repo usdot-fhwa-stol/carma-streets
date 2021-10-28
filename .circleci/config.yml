@@ -40,10 +40,11 @@ jobs:
       #setup remote docker
       - setup_remote_docker :
           docker_layer_caching: false
+      - checkout    
       - run:
           name: Build scheduling_service
           command: |
-            git clone https://github.com/usdot-fhwa-stol/carma-streets.git
+            #git clone https://github.com/usdot-fhwa-stol/carma-streets.git
             source ${INIT_ENV}
             cd /home/carma-streets/
             chmod 755 *
