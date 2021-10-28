@@ -38,7 +38,7 @@ jobs:
     # Name of each run command defines purpose use
     steps:
       #setup remote docker
-      - checkout:
+      - checkout
       - setup_remote_docker :
           docker_layer_caching: false
       - run:
