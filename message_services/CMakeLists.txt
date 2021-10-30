@@ -6,7 +6,13 @@ project(message_services LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-link_directories("/usr/lib"  "/usr/local/lib" )
+link_directories("/usr/lib"  "/usr/local/lib"  ${catkin_LIBRARY_DIRS} ${catkin_INCLUDE_DIRS})
+find_package(PROJ4)
+find_package(Eigen3 3.3 NO_MODULE)
+find_package(catkin COMPONENTS REQUIRED
+                lanelet2_core 
+                lanelet2_projection 
+                lanelet2_io )
 message(STATUS ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
@@ -15,7 +21,7 @@ include_directories("/usr/local/include")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src/models)
 
-add_library(${PROJECT_NAME}_lib 
+add_library(${PROJECT_NAME}_lib STATIC
             src/services/vehicle_status_intent_service.cpp 
             src/workers/bsm_worker.cpp 
             src/workers/mobilitypath_worker.cpp  
@@ -26,8 +32,24 @@ add_library(${PROJECT_NAME}_lib
             src/models/mobilitypath.cpp
             src/models/mobilityoperation.cpp
             src/models/vehicle_status_intent.cpp
-            src/models/baseMessage.cpp)
-            
+            src/models/baseMessage.cpp
+            lib/custom_lanelet_translation.cpp)
+
+target_include_directories(${PROJECT_NAME}_lib PUBLIC 
+            ${PROJECT_SOURCE_DIR}/include 
+            ${catkin_INCLUDE_DIRS}
+            ${catkin_LIBRARY_DIRS} )
+
+target_link_libraries(${PROJECT_NAME}_lib PUBLIC  
+                        "${catkin_LIBRARY_DIRS}/liblanelet2_core.so" 
+                        "${catkin_LIBRARY_DIRS}/liblanelet2_projection.so" 
+                        "${catkin_LIBRARY_DIRS}/liblanelet2_io.so" 
+                        "${catkin_LIBRARY_DIRS}/liblanelet2_traffic_rules.so"
+                        "${catkin_LIBRARY_DIRS}/liblanelet2_routing.so"
+                        "${catkin_LIBRARY_DIRS}/liblanelet2_extension_lib.so"
+                        Eigen3::Eigen
+                        ${catkin_LIBRARIES}) 
+
 foreach(_target  message_services )
     add_executable(${_target} "src/${_target}.cpp")
     target_link_libraries(${_target} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system  Boost::thread   spdlog::spdlog )
