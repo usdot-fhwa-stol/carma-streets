@@ -1,21 +1,21 @@
-#include "custom_lanelet_translation.h"
+#include "message_lanelet2_translation.h"
 
 namespace message_services
 {
     namespace message_translations
     {
-        custom_lanelet_translation::custom_lanelet_translation(/* args */) {}
+        message_lanelet2_translation::message_lanelet2_translation(/* args */) {}
 
-        custom_lanelet_translation::custom_lanelet_translation(std::string filename)
+        message_lanelet2_translation::message_lanelet2_translation(std::string filename)
         {
             read_lanelet2_map(filename);
         }
 
-        custom_lanelet_translation::~custom_lanelet_translation()
+        message_lanelet2_translation::~message_lanelet2_translation()
         {
         }
 
-        bool custom_lanelet_translation::read_lanelet2_map(std::string filename) 
+        bool message_lanelet2_translation::read_lanelet2_map(std::string filename)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace message_services
             return false;
         }
 
-        bool custom_lanelet_translation::update_vehicle_routing_graph()
+        bool message_lanelet2_translation::update_vehicle_routing_graph()
         {
             // get routingGraph from map
             lanelet::traffic_rules::TrafficRulesPtr trafficRules{
@@ -59,16 +59,25 @@ namespace message_services
             return true;
         }
 
-        std::int64_t custom_lanelet_translation::get_lanelet_id_by_pos(double lat, double lon, double elev, std::string turn_direction) const
-        {
-            // construct a GPS point
-            lanelet::GPSPoint subj_gps_pos;
-            subj_gps_pos.lat = lat;
-            subj_gps_pos.lon = lon;
-            subj_gps_pos.ele = elev;
-
+        std::int64_t message_lanelet2_translation::get_cur_lanelet_id_by_pos(double lat, double lon, double elev, std::string turn_direction) const
+        {          
+            lanelet::BasicPoint3d subj_point3d;
+            try
+            {
+                // construct a GPS point
+                lanelet::GPSPoint subj_gps_pos;
+                subj_gps_pos.lat = lat;
+                subj_gps_pos.lon = lon;
+                subj_gps_pos.ele = elev;
+                subj_point3d = local_projector->forward(subj_gps_pos);
+            }
+            catch (...)
+            {
+                spdlog::error("Cannot project the GPS position: Latitude: {0} , Longitude: {1}, Elevation: {2}", lat, lon, elev);
+                return 0;
+            }
+            
             // project the GPS point to (x,y,z)
-            lanelet::BasicPoint3d subj_point3d = local_projector->forward(subj_gps_pos);
             lanelet::BasicPoint2d subj_point2d = lanelet::utils::to2D(subj_point3d);
 
             // Find the nearest lanelets with maximum number (=3) of return lanelets
@@ -107,7 +116,7 @@ namespace message_services
                     }
                     else
                     {
-                        spdlog::error("Cannot determine the current lanelet with this turn direction = {0} for position = ({1} , {2})", turn_direction, lat, lon);
+                        spdlog::error("{0}: Cannot determine the current lanelet with this turn direction = {1} for position = ({2} , {3})", __FILE__, turn_direction, lat, lon);
                     }
                 }
                 else
@@ -115,14 +124,20 @@ namespace message_services
                     return cur_lanelet.id();
                 }
             }
+
             return 0;
         }
 
-        double custom_lanelet_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction) const
+        double message_lanelet2_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction) const
         {
             double total_length = 0.0;
             bool start_accumulate = false;
-            std::int64_t id = get_lanelet_id_by_pos(lat, lon, elev, turn_direction);
+            std::int64_t id = get_cur_lanelet_id_by_pos(lat, lon, elev, turn_direction);
+            if(id == 0)
+            {
+                spdlog::error("{0}: Get invalid lanelet id = {1} from position: ({2}, {3} , {4}) and turn direction: {5}", __FILE__,id, lat, lon, elev, turn_direction);
+                return -1;
+            }
 
             lanelet::Lanelet subj_lanelet = this->map_ptr->laneletLayer.get(id);
             auto sub_lanelet_centerline = subj_lanelet.centerline2d();

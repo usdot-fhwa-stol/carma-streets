@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME}_lib STATIC
             src/models/mobilityoperation.cpp
             src/models/vehicle_status_intent.cpp
             src/models/baseMessage.cpp
-            lib/custom_lanelet_translation.cpp)
+            lib/message_lanelet2_translation.cpp)
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC 
             ${PROJECT_SOURCE_DIR}/include 

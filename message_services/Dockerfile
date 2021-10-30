@@ -1,6 +1,6 @@
 FROM ubuntu:bionic-20210702
 
-RUN apt-get update  && apt-get install -y sudo cmake gcc-7 g++-7 libboost1.65-dev libboost-thread1.65-dev libboost-regex1.65-dev libboost-log1.65-dev libboost-program-options1.65-dev libboost1.65-all-dev libxerces-c-dev libcurl4-openssl-dev libsnmp-dev libmysqlclient-dev libjsoncpp-dev uuid-dev libusb-dev libusb-1.0-0-dev libftdi-dev swig liboctave-dev gpsd libgps-dev portaudio19-dev libsndfile1-dev libglib2.0-dev libglibmm-2.4-dev libpcre3-dev libsigc++-2.0-dev libxml++2.6-dev libxml2-dev liblzma-dev dpkg-dev libmysqlcppconn-dev libev-dev libuv-dev git vim zip build-essential libssl-dev qtbase5-dev qtbase5-dev-tools curl libqhttpengine-dev libgtest-dev libcpprest-dev 
+RUN apt-get update  && apt-get install -y sudo cmake gcc-7 g++-7 libboost1.65-dev libboost-thread1.65-dev libboost-regex1.65-dev libboost-log1.65-dev libboost-program-options1.65-dev libboost1.65-all-dev libxerces-c-dev libcurl4-openssl-dev  autotools-dev automake  sqlite3 libsqlite3-dev libpugixml-dev libmysqlclient-dev libgeographic-dev libjsoncpp-dev uuid-dev libusb-dev libusb-1.0-0-dev libftdi-dev swig liboctave-dev gpsd libgps-dev portaudio19-dev libsndfile1-dev libglib2.0-dev libglibmm-2.4-dev libpcre3-dev libsigc++-2.0-dev libxml++2.6-dev libxml2-dev liblzma-dev dpkg-dev libmysqlcppconn-dev libev-dev libuv-dev git build-essential libssl-dev qtbase5-dev qtbase5-dev-tools curl libqhttpengine-dev libgtest-dev libcpprest-dev 
 
 RUN mkdir -p /home/
 
@@ -116,16 +116,14 @@ RUN source /opt/ros/melodic/setup.bash && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
-RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
-RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
 RUN echo " ------> compile message_services..."
 COPY ./message_services /home/carma-streets/message_services
 WORKDIR  /home/carma-streets/message_services
 RUN  rm -rf build && mkdir build
 WORKDIR  /home/carma-streets/message_services/build
-RUN cmake ..
-RUN make
+RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
+RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
 WORKDIR  /home/carma-streets/message_services/build/
 
