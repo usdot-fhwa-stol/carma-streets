@@ -65,14 +65,51 @@ namespace message_services
                                               mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
                                           }
                                       }
-
-                                      std::cout << "Get Strategy Params: " << mo_ptr->getStrategy_params() << std::endl;
-
                                       sleep(0.1);
                                   }
                               }};
 
             mo_t.join();
+        }
+
+        template <typename T>
+        void mobility_operation_service::msg_consumer(std::shared_ptr<T> msg_w_ptr, std::string topic, std::string group_id)
+        {
+            kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
+            kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(this->bootstrap_server, topic, group_id);
+            delete client;
+
+            if (!consumer_worker->init())
+            {
+                spdlog::critical("kafka consumer initialize error");
+            }
+            else
+            {
+                consumer_worker->subscribe();
+                if (!consumer_worker->is_running())
+                {
+                    spdlog::critical("consumer_worker is not running");
+                }
+
+                while (consumer_worker->is_running())
+                {
+                    const char *payload = consumer_worker->consume(1000);
+                    // spdlog::info("bsm message payload: {0}", payload);
+                    if (std::strlen(payload) != 0 && msg_w_ptr)
+                    {
+                        std::unique_lock<std::mutex> lck(worker_mtx);
+                        msg_w_ptr->process_incoming_msg(payload);
+                    }
+
+                    if (!msg_w_ptr)
+                    {
+                        spdlog::critical("Message worker is not initialized");
+                    }
+                }
+                consumer_worker->stop();
+            }
+            delete consumer_worker;
+            return;
         }
 
     }
