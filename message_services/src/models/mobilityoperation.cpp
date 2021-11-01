@@ -25,28 +25,30 @@ namespace message_services
             {
                 for (rapidjson::Value::ConstMemberIterator obj_itr = obj.MemberBegin(); obj_itr != obj.MemberEnd(); obj_itr++)
                 {
-                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("header")))
+
+                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("metadata")))
                     {
                         mobility_header_t header;
 
                         for (rapidjson::Value::ConstMemberIterator header_itr = obj_itr->value.MemberBegin(); header_itr != obj_itr->value.MemberEnd(); header_itr++)
                         {
-                            if (std::string(header_itr->name.GetString()) == std::string("sender_id"))
+
+                            if (std::string(header_itr->name.GetString()) == std::string("hostBSMId"))
                             {
                                 header.sender_id = header_itr->value.GetString();
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("sender_bsm_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("hostStaticId"))
                             {
                                 header.sender_bsm_id = header_itr->value.GetString();
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("recipient_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("planId"))
                             {
                                 header.recipient_id = (header_itr->value.GetString());
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("plan_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("targetStaticId"))
                             {
                                 header.plan_id = (header_itr->value.GetString());
                             }
@@ -168,6 +170,6 @@ namespace message_services
         {
             this->strategy = strategy;
         }
-
+        
     }
 }
