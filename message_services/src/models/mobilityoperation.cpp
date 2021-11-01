@@ -115,20 +115,22 @@ namespace message_services
 
                 while (std::getline(key_value_str_stream, key_or_value, *(delimiter + 1)))
                 {
-
                     key_value_v.push_back(key_or_value);
-                    if (key_or_value == key)
-                    {
-                        return key_value_v.back();
-                    }
                 }
 
+                if (key_value_v.size() > 0 && key_value_v.front() == key)
+                {
+                    return key_value_v.back();
+                }
+                
                 if (key_value_v.size() > 0)
                 {
                     key_value_v.clear();
                 }
+
+                key_value_str = "";
             }
-            return strategy_params_stream;
+            return key_value_str;
         }
 
         std::ostream &operator<<(std::ostream &out, mobilityoperation &mobilityoperation_obj)
