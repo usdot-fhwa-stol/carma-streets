@@ -31,7 +31,7 @@ jobs:
       - image: usdotfhwastoldev/scheduling_service:base
         environment:
           TERM: xterm
-          INIT_ENV: /home/carma-streets/.base-image/init-env.sh
+          INIT_ENV: /home/carma-streets/app/.base-image/init-env.sh
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
@@ -44,21 +44,20 @@ jobs:
       - run:
           name: Build scheduling_service
           command: |
-            rm -rf /home/carma-streets
-            git clone https://github.com/usdot-fhwa-stol/carma-streets.git
+            git clone https://github.com/usdot-fhwa-stol/carma-streets.git app
             ls -lrt;pwd
             source ${INIT_ENV}
-            cd /home/carma-streets/
+            cd /home/carma-streets/app
             ls -lrt;pwd
             chmod 755 *
             ls -lrt
             pwd
-            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/build.sh
+            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/app/build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
             source ${INIT_ENV}
-            cd /home/carma-streets/
+            cd /home/carma-streets/app/
             ./coverage.sh
       - run:
           name: Run Sonar Scanner
@@ -66,7 +65,7 @@ jobs:
             source ${INIT_ENV}
             if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
               echo "Non-PR Build Detected. Running analysis on ${CIRCLE_BRANCH}"
-              cd /home/carma-streets/
+              cd /home/carma-streets/app/
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN}
               exit 0;
             else
@@ -78,7 +77,7 @@ jobs:
               export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
               export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
               echo "Target Branch = ${TARGET_BRANCH}"
-              cd /home/carma-streets/
+              cd /home/carma-streets/app/
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
             fi 
   docker_build&push :
