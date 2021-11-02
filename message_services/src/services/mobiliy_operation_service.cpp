@@ -7,7 +7,7 @@ namespace message_services
 {
     namespace services
     {
-        std::mutex worker_mtx;
+        std::mutex worker_mtx_mo;
 
         mobility_operation_service::mobility_operation_service() {}
 
@@ -58,7 +58,7 @@ namespace message_services
                                           std::deque<models::mobilityoperation>::iterator itr;
                                           for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
                                           {
-                                              std::unique_lock<std::mutex> lck(worker_mtx);
+                                              std::unique_lock<std::mutex> lck(worker_mtx_mo);
                                               mo_ptr->setHeader((*itr).getHeader());
                                               mo_ptr->setStrategy((*itr).getStrategy());
                                               mo_ptr->setStrategy_params((*itr).getStrategy_params());
@@ -97,7 +97,7 @@ namespace message_services
                     // spdlog::info("bsm message payload: {0}", payload);
                     if (std::strlen(payload) != 0 && msg_w_ptr)
                     {
-                        std::unique_lock<std::mutex> lck(worker_mtx);
+                        std::unique_lock<std::mutex> lck(worker_mtx_mo);
                         msg_w_ptr->process_incoming_msg(payload);
                     }
 
