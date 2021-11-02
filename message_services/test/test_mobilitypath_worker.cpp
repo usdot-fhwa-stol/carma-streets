@@ -27,11 +27,23 @@ TEST(test_mobilitypath_worker, pop_cur_element_from_list)
     ASSERT_EQ(0, mobilitypath_w_obj.get_curr_list().size());
     std::string mobilitypath_json_str_1 = "{\"metadata\": {\"timestamp\" : \"1632679657\",\"hostStaticId\": \"DOT-507\",\"hostBSMId\": \"bsmXXXid\"}, \"trajectory\": { \"location\": {\"ecef_x\": 122, \"ecef_y\": 1,\"ecef_z\": 0,\"timestamp\": \"1632679657\"}}}";
     std::string mobilitypath_json_str_2 = "{\"metadata\": {\"timestamp\" : \"1632679658\",\"hostStaticId\": \"DOT-508\",\"hostBSMId\": \"bsmXXXid\"}, \"trajectory\": { \"location\": {\"ecef_x\": 122, \"ecef_y\": 1,\"ecef_z\": 0,\"timestamp\": \"1632679657\"}}}";
-    std::string mobilitypath_json_str_3 = "{\"metadata\": {\"timestamp\" : \"1632679659\",\"hostStaticId\": \"DOT-509\",\"hostBSMId\": \"bsmXXXid\", \"targetStaticId\": \"NA\"}, \"trajectory\": { \"location\": {\"ecef_x\": 122, \"ecef_y\": 1,\"ecef_z\": 0,\"timestamp\": \"1632679657\"}, \"offsets\": {\"offset_x\": 122, \"offset_y\": 1,\"offset_z\": 0}}}";
+    std::string mobilitypath_json_str_3 = "{\"metadata\": {\"timestamp\" : \"1632679659\",\"hostStaticId\": \"DOT-509\" ,\"planId\" : \"00000000-0000-0000-0000-000000000000\",\"hostBSMId\": \"bsmXXXid\", \"targetStaticId\": \"NA\"}, \"trajectory\": { \"location\": {\"ecef_x\": 122, \"ecef_y\": 1,\"ecef_z\": 0,\"timestamp\": \"1632679657\"}, \"offsets\": [{\"offset_x\": 122, \"offset_y\": 1,\"offset_z\": 0}]}}";
     mobilitypath_w_obj.process_incoming_msg(mobilitypath_json_str_1);
     mobilitypath_w_obj.process_incoming_msg(mobilitypath_json_str_2);
     mobilitypath_w_obj.process_incoming_msg(mobilitypath_json_str_3);
     ASSERT_EQ(3, mobilitypath_w_obj.get_curr_list().size());
     mobilitypath_w_obj.pop_cur_element_from_list(0);
     ASSERT_EQ(2, mobilitypath_w_obj.get_curr_list().size());
+    ASSERT_EQ("00000000-0000-0000-0000-000000000000", mobilitypath_w_obj.get_curr_list().at(1).getHeader().plan_id);
+    ASSERT_EQ("DOT-509", mobilitypath_w_obj.get_curr_list().at(1).getHeader().sender_id);
+    ASSERT_EQ("bsmXXXid", mobilitypath_w_obj.get_curr_list().at(1).getHeader().sender_bsm_id);
+    ASSERT_EQ("NA", mobilitypath_w_obj.get_curr_list().at(1).getHeader().recipient_id);
+    ASSERT_EQ(1632679659, mobilitypath_w_obj.get_curr_list().at(1).getHeader().timestamp);
+    ASSERT_EQ(122, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().offsets.back().offset_x);
+    ASSERT_EQ(1, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().offsets.back().offset_y);
+    ASSERT_EQ(0, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().offsets.back().offset_z);
+    ASSERT_EQ(122, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().location.ecef_x);
+    ASSERT_EQ(1, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().location.ecef_y);
+    ASSERT_EQ(0, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().location.ecef_z);
+    ASSERT_EQ(1632679657, mobilitypath_w_obj.get_curr_list().at(1).getTrajectory().location.timestamp);
 }

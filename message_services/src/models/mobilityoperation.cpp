@@ -117,6 +117,7 @@ namespace message_services
 
                 while (std::getline(key_value_str_stream, key_or_value, *(delimiter + 1)))
                 {
+                    boost::algorithm::trim(key_or_value);
                     key_value_v.push_back(key_or_value);
                 }
 

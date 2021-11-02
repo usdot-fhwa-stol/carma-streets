@@ -55,7 +55,7 @@ namespace message_services
 
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("trajectory")))
                     {
-                        trajectory_t trajectory;
+                        // trajectory_t trajectory;
 
                         for (rapidjson::Value::ConstMemberIterator tr_itr = obj_itr->value.MemberBegin(); tr_itr != obj_itr->value.MemberEnd(); tr_itr++)
                         {
@@ -65,49 +65,52 @@ namespace message_services
                                 {
                                     if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
                                     {
-                                        trajectory.location.ecef_x = (loc_itr->value.GetInt64());
+                                        this->trajectory.location.ecef_x = (loc_itr->value.GetInt64());
                                     }
 
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_y"))
                                     {
-                                        trajectory.location.ecef_y = (loc_itr->value.GetInt64());
+                                        this->trajectory.location.ecef_y = (loc_itr->value.GetInt64());
                                     }
 
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_z"))
                                     {
-                                        trajectory.location.ecef_z = (loc_itr->value.GetInt64());
+                                        this->trajectory.location.ecef_z = (loc_itr->value.GetInt64());
                                     }
 
                                     if (std::string(loc_itr->name.GetString()) == std::string("timestamp"))
                                     {
-                                        trajectory.location.timestamp = std::stol(loc_itr->value.GetString());
+                                        this->trajectory.location.timestamp = std::stol(loc_itr->value.GetString());
                                     }
                                 }
                             }
-                            if (tr_itr->value.IsObject() && boost::iequals(std::string(tr_itr->name.GetString()), std::string("offsets")))
+                            if (boost::iequals(std::string(tr_itr->name.GetString()), std::string("offsets")) && tr_itr->value.IsArray())
                             {
-                                for (rapidjson::Value::ConstMemberIterator offset_itr = tr_itr->value.MemberBegin(); offset_itr != tr_itr->value.MemberEnd(); offset_itr++)
+                                for (rapidjson::Value::ConstValueIterator offset_itr = tr_itr->value.Begin(); offset_itr != tr_itr->value.End(); offset_itr++)
                                 {
                                     models::locationOffsetECEF offset;
-                                    if (std::string(offset_itr->name.GetString()) == std::string("offset_x"))
+                                    const rapidjson::Value &offset_value = *offset_itr;
+                                    for (rapidjson::Value::ConstMemberIterator each_offset_itr = offset_value.MemberBegin(); each_offset_itr != offset_value.MemberEnd(); each_offset_itr++)
                                     {
-                                        offset.offset_x = (offset_itr->value.GetInt());
-                                    }
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_x"))
+                                        {
+                                            offset.offset_x = (each_offset_itr->value.GetInt());
+                                        }
 
-                                    if (std::string(offset_itr->name.GetString()) == std::string("offset_y"))
-                                    {
-                                        offset.offset_y = (offset_itr->value.GetInt());
-                                    }
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_y"))
+                                        {
+                                            offset.offset_y = (each_offset_itr->value.GetInt());
+                                        }
 
-                                    if (std::string(offset_itr->name.GetString()) == std::string("offset_z"))
-                                    {
-                                        offset.offset_z = (offset_itr->value.GetInt());
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_z"))
+                                        {
+                                            offset.offset_z = (each_offset_itr->value.GetInt());
+                                        }
                                     }
-                                    trajectory.offsets.push_back(offset);
+                                    this->trajectory.offsets.push_back(offset);
                                 }
                             }
                         }
-                        setTrajectory(trajectory);
                     }
                 }
             }
