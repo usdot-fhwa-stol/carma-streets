@@ -28,7 +28,7 @@ jobs:
     # Pull docker image 
     # XTERM used for better make output
     docker:
-      - image: usdotfhwastoldev/scheduling_service:base
+      - image: usdotfhwastoldev/scheduling_service:carma-streets_base
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
