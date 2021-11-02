@@ -224,7 +224,6 @@ namespace message_services
             lanelet::BasicPoint3d basic_point3d_dest  = ecef_2_map_point((trajectory.location.ecef_x + trajectory.offsets.back().offset_x),
                                                                         (trajectory.location.ecef_y + trajectory.offsets.back().offset_y),
                                                                         (trajectory.location.ecef_z + trajectory.offsets.back().offset_z));
-            // lanelet::BasicPoint3d basic_point3d_start_2 = this->local_projector->projectECEF(this->local_projector->projectECEF(point3d.basicPoint(), 1), -1);
             int64_t start_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_start, turn_direction);
             spdlog::info("start lanelet id = {0}", start_lanelet_id);
 
@@ -247,6 +246,8 @@ namespace message_services
             lanelet::BasicPoint3d basic_point3d = this->local_projector->projectECEF({((double)ecef_x) / 100, ((double)ecef_y) / 100, ((double)ecef_z) / 100}, -1);
             return basic_point3d;
         }
+
+
         std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id) const
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
