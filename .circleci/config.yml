@@ -44,7 +44,10 @@ jobs:
       - run:
           name: Build scheduling_service
           command: |
+            ls -lrth;pwd
             git clone https://github.com/usdot-fhwa-stol/carma-streets.git .
+            ls -lrth;pwd
+            cd /home/carma-streets/
             ls -lrt;pwd
             source ${INIT_ENV}
             cd /home/carma-streets/
