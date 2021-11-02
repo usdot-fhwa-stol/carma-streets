@@ -31,7 +31,7 @@ namespace message_services
         {
             std::uint64_t MAX_POINTS_IN_MESSAGE = 60;
             locationECEF_t location;
-            locationOffsetECEF_t offsets;
+            std::vector<locationOffsetECEF_t> offsets ;
         } trajectory_t;
     }
 }

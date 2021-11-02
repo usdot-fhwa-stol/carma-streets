@@ -47,6 +47,7 @@
 #include <rapidjson/writer.h>
 #include <map>
 #include <intersection_lanelet_type.h>
+#include <trajectory.h>
 
 namespace message_services
 {
@@ -61,6 +62,9 @@ namespace message_services
             double participantHeight = 2.;
             double minLaneChangeLength = 0.;
             int projector_type = 0;
+
+            //Assume that within intersection radius, the vehicle trajectory maximum cover 4 lanelets.
+            const std::uint16_t _maximum_num_lanelets_per_trajectory = 4;
 
             // Routing graph is used to store the possible routing set
             lanelet::routing::RoutingGraphPtr vehicleGraph_ptr;
@@ -82,10 +86,14 @@ namespace message_services
              * @param latitude 
              * @param longtitude
              * @param elevation
-             * @param turn_direction (Optional if position is not in intersection bridge/link lanelet).* 
+             * @param turn_direction (Optional if position is not in intersection bridge/link lanelet).
              * @return Signed Integer lanelet id; \n Return 0 if cannot find the current lanelet.
              **/
-            std::int64_t get_cur_lanelet_id_by_pos(double lat, double lon, double elev, std::string turn_direction) const;
+            std::int64_t get_cur_lanelet_id_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction) const;
+
+            std::int64_t get_cur_lanelet_id_by_point_and_direction(lanelet::BasicPoint3d subj_point3d, std::string turn_direction) const;
+
+            std::vector<lanelet::Lanelet> get_cur_lanelets_by_point(lanelet::BasicPoint3d subj_point3d) const;
 
             /***
              * @brief The distance between the vehicle’s current position and the end of its current lane with the given vehicle geo-loc and vehicle turn direction.
@@ -98,17 +106,6 @@ namespace message_services
              **/
             double distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction) const;
 
-            /***
-             * @brief The distance between the vehicle’s current position and the end of its current lane with the given vehicle geo-loc and vehicle turn direction.
-             * @param latitude 
-             * @param longtitude
-             * @param elevation
-             * @param lanelet_path_ids (Future lanelet path of the subject vehicle. It can be identified by the subject vehicle's trajectory).
-             * @return Decimal distance to the end of the current lanelet (unit of meters). 
-             * \n Return -1 if cannot determine the current lanelet
-             **/
-            double distance2_cur_lanelet_end(double lat, double lon, double elev, std::vector<std::int64_t>) const;
-
             /**
              * @brief Initialize vehicle routing graph.
              * @return true if the routing graph for vehicle participant  is updated, otherwise false.
@@ -118,16 +115,29 @@ namespace message_services
             /***
              * @brief Vehicle broadcast mobilitypath message that contains current vehicle trajectory within the next 6 secs.
              * Determine the subject vehicle future lanelet ids along the vehicle route with the start point to the end point of the trajectory. 
-             * @param start_x
-             * @param start_y
-             * @param start_z
-             * @param dest_x
-             * @param dest_y
-             * @param dest_z
+             * @param subj_vehicle_trajectory
+             * @param offset_size allow to choose the number of points from mobilitypath messages
+             * @param turn_direction
              * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
              * **/
-            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_path_by_vehicle_trajectory(double start_x, double start_y, double start_z, double dest_x, double dest_y, double dest_z);
+            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory subj_vehicle_trajectory, std::uint64_t offset_size, std::string turn_direction);
 
+            /***
+             * @brief Vehicle broadcast mobilitypath message that contains current vehicle trajectory within the next 6 secs.
+             * Determine the subject vehicle future lanelet ids along the vehicle route with the start point to the end point of the trajectory. 
+             * @param start_lanelet_id
+             * @param dest_lanelet_id
+             * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
+             * **/
+            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id) const;
+
+            /**
+            * @brief Function to convert ecef location to a 2d point in map frame
+            * @param ecef_point ecef location point
+            * @return 2d point in map frame
+            */
+            lanelet::BasicPoint3d ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z);
+            
         };
     }
 }

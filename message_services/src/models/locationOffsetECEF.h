@@ -30,9 +30,9 @@ namespace message_services
     {
         typedef struct locationOffsetECEF
         {
-            std::int16_t offset_x;
-            std::int16_t offset_y;
-            std::int16_t offset_z;
+            std::int16_t offset_x = 0 ;
+            std::int16_t offset_y = 0;
+            std::int16_t offset_z = 0;
         } locationOffsetECEF_t;
     }
 }
