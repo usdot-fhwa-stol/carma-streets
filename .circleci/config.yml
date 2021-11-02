@@ -46,8 +46,10 @@ jobs:
           command: |
             rm -rf /home/carma-streets
             git clone https://github.com/usdot-fhwa-stol/carma-streets.git
+            ls -lrt;pwd
             source ${INIT_ENV}
             cd /home/carma-streets/
+            ls -lrt;pwd
             chmod 755 *
             ls -lrt
             pwd
