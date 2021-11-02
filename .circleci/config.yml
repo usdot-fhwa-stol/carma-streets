@@ -48,11 +48,12 @@ jobs:
             ls -lrt;pwd
             source ${INIT_ENV}
             cd /home/carma-streets/app
+            git checkout ci_setup
             ls -lrt;pwd
             chmod 755 *
             ls -lrt
             pwd
-            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/app/build.sh
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/app/build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
