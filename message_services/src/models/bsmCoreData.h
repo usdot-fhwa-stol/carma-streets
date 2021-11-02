@@ -4,7 +4,6 @@
 #include <spdlog/spdlog.h>
 #include <ctime>
 #include "baseMessage.h"
-#include "header.h"
 
 namespace message_services
 {

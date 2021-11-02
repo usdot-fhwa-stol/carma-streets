@@ -9,5 +9,6 @@ crash.log
 gmon.out
 .vscode/
 intersection_model/*.osm
+message_services/*.osm
 intersection_model/build/
 intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc

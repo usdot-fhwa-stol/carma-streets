@@ -32,10 +32,10 @@ namespace message_services
     {
         typedef struct locationECEF
         {
-            std::int32_t ecef_x;
-            std::int32_t ecef_y;
-            std::int32_t ecef_z;
-            std::uint64_t timestamp;
+            std::int32_t ecef_x = 0;
+            std::int32_t ecef_y = 0;
+            std::int32_t ecef_z = 0;
+            std::uint64_t timestamp = 0;
         } locationECEF_t;
     }
 }
