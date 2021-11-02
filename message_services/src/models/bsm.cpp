@@ -11,7 +11,7 @@ namespace message_services
     namespace models
     {
 
-        bsm::bsm() : core_data(), header()
+        bsm::bsm() : core_data()
         {
         }
 
@@ -24,30 +24,7 @@ namespace message_services
             if (obj.IsObject())
             {
                 for (rapidjson::Value::ConstMemberIterator obj_itr = obj.MemberBegin(); obj_itr != obj.MemberEnd(); obj_itr++)
-                {
-                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("header")))
-                    {
-                        header_t header;
-
-                        for (rapidjson::Value::ConstMemberIterator header_itr = obj_itr->value.MemberBegin(); header_itr != obj_itr->value.MemberEnd(); header_itr++)
-                        {
-                            if (std::string(header_itr->name.GetString()) == std::string("year"))
-                            {
-                                header.year = header_itr->value.GetUint64();
-                            }
-
-                            if (std::string(header_itr->name.GetString()) == std::string("timestamp"))
-                            {
-                                header.timestamp = (header_itr->value.GetUint64());
-                            }
-
-                            if (std::string(header_itr->name.GetString()) == std::string("sec_mark"))
-                            {
-                                header.sec_mark = (header_itr->value.GetUint64());
-                            }
-                        }
-                        setHeader(header);
-                    }
+                {                    
 
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("core_data")))
                     {
@@ -61,7 +38,7 @@ namespace message_services
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("sec_mark"))
                             {
-                                core_data.sec_mark = (core_data_itr->value.GetInt64());
+                                core_data.sec_mark = std::stol(core_data_itr->value.GetString());
                             }
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("latitude"))
@@ -117,17 +94,7 @@ namespace message_services
         {
             try
             {
-                rapidjson::Value val_core_data;
-                writer->StartObject();
-                writer->Key("header");
-                writer->StartObject();
-                writer->Key("year");
-                writer->String(std::to_string(this->getHeader().year).c_str());
-                writer->Key("sec_mark");
-                writer->String(std::to_string(this->getHeader().sec_mark).c_str());
-                writer->Key("timestamp");
-                writer->Uint64(this->getHeader().timestamp);
-                writer->EndObject();
+                rapidjson::Value val_core_data;               
                 writer->Key("bsmCoreData");
                 writer->StartObject();
                 writer->Key("temprary_id");
@@ -161,23 +128,11 @@ namespace message_services
         {
             std::cout << std::fixed;
             std::cout << std::setprecision(6);
-            std::cout << "bsm model: year =  " << bsm_obj.header.year
-                      << ", secMark =" << bsm_obj.header.sec_mark
-                      << ", timestamp = " << bsm_obj.header.timestamp
-                      << ", core_data: { temprary_id = " << bsm_obj.core_data.temprary_id << ", sec_mark = " << bsm_obj.core_data.sec_mark
+            std::cout << "bsm model: core_data: { temprary_id = " << bsm_obj.core_data.temprary_id << ", sec_mark = " << bsm_obj.core_data.sec_mark
                       << ", latitude= " << bsm_obj.core_data.latitude << ", longitude = " << bsm_obj.core_data.longitude
                       << ", size: {length = " << bsm_obj.core_data.size.length << "}, speed = " << bsm_obj.core_data.speed << "}" << std::endl;
         }
-
-        header_t bsm::getHeader() const
-        {
-            return this->header;
-        }
-
-        void bsm::setHeader(header_t header)
-        {
-            this->header = header;
-        }
+       
 
         bsmCoreData_t bsm::getCore_data() const
         {

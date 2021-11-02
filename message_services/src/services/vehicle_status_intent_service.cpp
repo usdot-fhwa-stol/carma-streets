@@ -290,9 +290,8 @@ namespace message_services
             long bsm_pos = 0;
             while (bsm_pos < bsm_w_ptr->get_curr_list().size())
             {
-                if (mp_ptr->getHeader().sender_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs((long)mp_ptr->getHeader().timestamp - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getHeader().timestamp) < 100)
-                {
-                    bsm_ptr->setHeader(bsm_w_ptr->get_curr_list().at(bsm_pos).getHeader());
+                if (mo_ptr->getHeader().sender_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs( std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count))
+                {                    
                     bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
                     bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
                     continue;
@@ -309,7 +308,6 @@ namespace message_services
             vsi.setVehicle_id(mo.getHeader().sender_id);
             vsi.setVehicle_length(bsm.getCore_data().size.length);
             vsi.setCur_speed(bsm.getCore_data().speed);
-            vsi.setCur_timestamp(bsm.getHeader().timestamp);
 
             //Todo: fill out other info from bsm, mobilitypath and mobilityoperation
             return vsi;

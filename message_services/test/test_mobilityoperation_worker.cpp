@@ -13,7 +13,7 @@ TEST(test_mobilityoperation_worker, process_incoming_msg)
 {
     message_services::workers::mobilityoperation_worker mobilityoperation_w_obj;
     ASSERT_EQ(0, mobilityoperation_w_obj.get_curr_list().size());
-    std::string mobilityoperation_json_str = "{\"header\": {\"timestamp\" : 1632679657,\"sender_id\": \"DOT-507\",\"sender_bsm_id\": \"bsmXXXid1\"}}";
+    std::string mobilityoperation_json_str = "{\"metadata\": {\"timestamp\" : \"1632679657\",\"hostStaticId\": \"DOT-507\",\"hostBSMId\": \"bsmXXXid1\"}}";
     mobilityoperation_w_obj.process_incoming_msg(mobilityoperation_json_str);
     ASSERT_EQ(1632679657, mobilityoperation_w_obj.get_curr_list().front().getHeader().timestamp);
     ASSERT_EQ("bsmXXXid1", mobilityoperation_w_obj.get_curr_list().front().getHeader().sender_bsm_id);
