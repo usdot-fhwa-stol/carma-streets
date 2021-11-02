@@ -31,7 +31,7 @@ jobs:
       - image: usdotfhwastoldev/scheduling_service:base
         environment:
           TERM: xterm
-          INIT_ENV: /home/carma-streets/app/.base-image/init-env.sh
+          INIT_ENV: /home/carma-streets/.base-image/init-env.sh
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
