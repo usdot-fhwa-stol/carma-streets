@@ -31,9 +31,14 @@ namespace message_services
                         bsmCoreData_t core_data;
                         for (rapidjson::Value::ConstMemberIterator core_data_itr = obj_itr->value.MemberBegin(); core_data_itr != obj_itr->value.MemberEnd(); core_data_itr++)
                         {
-                            if (std::string(core_data_itr->name.GetString()) == std::string("temprary_id"))
+                            if (std::string(core_data_itr->name.GetString()) == std::string("id"))
                             {
                                 core_data.temprary_id = (core_data_itr->value.GetString());
+                            }
+
+                            if (std::string(core_data_itr->name.GetString()) == std::string("angle"))
+                            {
+                                core_data.angle = std::stof(core_data_itr->value.GetString());
                             }
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("sec_mark"))
@@ -41,24 +46,29 @@ namespace message_services
                                 core_data.sec_mark = std::stol(core_data_itr->value.GetString());
                             }
 
-                            if (std::string(core_data_itr->name.GetString()) == std::string("latitude"))
+                            if (std::string(core_data_itr->name.GetString()) == std::string("lat"))
                             {
-                                core_data.latitude = (core_data_itr->value.GetDouble());
+                                core_data.latitude = std::stod(core_data_itr->value.GetString());
                             }
 
-                            if (std::string(core_data_itr->name.GetString()) == std::string("longitude"))
+                            if (std::string(core_data_itr->name.GetString()) == std::string("msg_count"))
                             {
-                                core_data.longitude = (core_data_itr->value.GetDouble());
+                                core_data.msg_count = std::stol(core_data_itr->value.GetString());
+                            }
+
+                            if (std::string(core_data_itr->name.GetString()) == std::string("long"))
+                            {
+                                core_data.longitude = std::stod(core_data_itr->value.GetString());
                             }
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("elev"))
                             {
-                                core_data.elev = (core_data_itr->value.GetDouble());
+                                core_data.elev = std::stof(core_data_itr->value.GetString());
                             }
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("heading"))
                             {
-                                core_data.heading = (core_data_itr->value.GetDouble());
+                                core_data.heading = std::stof(core_data_itr->value.GetString());
                             }
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("transmission"))
@@ -68,7 +78,7 @@ namespace message_services
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("speed"))
                             {
-                                core_data.speed = (core_data_itr->value.GetDouble());
+                                core_data.speed = std::stof(core_data_itr->value.GetString());
                             }
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("size"))
@@ -77,12 +87,86 @@ namespace message_services
                                 {
                                     if (boost::iequals(std::string(size_itr->name.GetString()), std::string("length")))
                                     {
-                                        core_data.size.length = (size_itr->value.GetUint64());
+                                        core_data.size.length = std::stol(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("width")))
+                                    {
+                                        core_data.size.length = std::stol(size_itr->value.GetString());
                                     }
                                 }
                             }
 
-                            //Todo: Complete my other fields
+                            if (std::string(core_data_itr->name.GetString()) == std::string("accuracy"))
+                            {
+                                for (rapidjson::Value::ConstMemberIterator size_itr = core_data_itr->value.MemberBegin(); size_itr != core_data_itr->value.MemberEnd(); size_itr++)
+                                {
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("orientation")))
+                                    {
+                                        core_data.accuracy.orientation = std::stof(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("semi_major")))
+                                    {
+                                        core_data.accuracy.semiMajor = std::stof(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("semi_minor")))
+                                    {
+                                        core_data.accuracy.semiMinor = std::stof(size_itr->value.GetString());
+                                    }
+                                }
+                            }
+
+                             if (std::string(core_data_itr->name.GetString()) == std::string("accel_set"))
+                            {
+                                for (rapidjson::Value::ConstMemberIterator size_itr = core_data_itr->value.MemberBegin(); size_itr != core_data_itr->value.MemberEnd(); size_itr++)
+                                {
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("lat")))
+                                    {
+                                       core_data.accelSet.lat = std::stof(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("long")))
+                                    {
+                                        core_data.accelSet.Long = std::stof(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("vert")))
+                                    {
+                                        core_data.accelSet.vert = std::stof(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("yaw")))
+                                    {
+                                        core_data.accelSet.yaw = std::stof(size_itr->value.GetString());
+                                    }
+                                }
+                            }
+
+
+                            if (std::string(core_data_itr->name.GetString()) == std::string("brakes"))
+                            {
+                                for (rapidjson::Value::ConstMemberIterator size_itr = core_data_itr->value.MemberBegin(); size_itr != core_data_itr->value.MemberEnd(); size_itr++)
+                                {
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("abs")))
+                                    {
+                                        core_data.brakes.abs = std::stol(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("aux_brakes")))
+                                    {
+                                        core_data.brakes.auxBrakes = std::stol(size_itr->value.GetString());
+                                    }
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("brake_boost")))
+                                    {
+                                        core_data.brakes.brakeBoost = std::stol(size_itr->value.GetString());
+                                    }
+
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("scs")))
+                                    {
+                                        core_data.brakes.scs = std::stol(size_itr->value.GetString());
+                                    }
+
+                                    if (boost::iequals(std::string(size_itr->name.GetString()), std::string("traction")))
+                                    {
+                                        core_data.brakes.traction = std::stol(size_itr->value.GetString());
+                                    }
+                                }
+                            }
                         }
                         setCore_data(core_data);
                     }

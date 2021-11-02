@@ -52,8 +52,8 @@ namespace message_services
             std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr = std::make_shared<message_services::workers::mobilitypath_worker>();
             std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr = std::make_shared<message_services::workers::mobilityoperation_worker>();
             std::shared_ptr<message_services::workers::vehicle_status_intent_worker> vsi_w_ptr = std::make_shared<message_services::workers::vehicle_status_intent_worker>();
-            // run(bsm_w_ptr, mp_w_ptr, mo_w_ptr);
-            run(vsi_w_ptr, bsm_w_ptr, mp_w_ptr, mo_w_ptr);
+            run(bsm_w_ptr, mp_w_ptr, mo_w_ptr);
+            // run(vsi_w_ptr, bsm_w_ptr, mp_w_ptr, mo_w_ptr);
         }
 
         void vehicle_status_intent_service::run(std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr,
@@ -75,6 +75,7 @@ namespace message_services
                                   {
                                       if (mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr->get_curr_list().size() > 0)
                                       {
+                                          spdlog::info("Processing the BSM, mobilityOperation and MP from list" );
                                           //Iterate mobililityoperation list with vehicle ids for all vehicles
                                           std::deque<models::mobilityoperation>::iterator itr;
                                           for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
