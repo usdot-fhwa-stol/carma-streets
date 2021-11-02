@@ -17,6 +17,7 @@ namespace message_services
         {
             rapidjson::Document doc;
             bool has_parse_error = doc.Parse(jsonString.c_str()).HasParseError() ? true : false;
+
             if (has_parse_error)
             {
                 return false;
