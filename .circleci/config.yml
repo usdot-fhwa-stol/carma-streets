@@ -44,21 +44,21 @@ jobs:
       - run:
           name: Build scheduling_service
           command: |
-            git clone https://github.com/usdot-fhwa-stol/carma-streets.git app
+            git clone https://github.com/usdot-fhwa-stol/carma-streets.git
             ls -lrt;pwd
             source ${INIT_ENV}
-            cd /home/carma-streets/app
+            cd /home/carma-streets/
             git checkout ci_setup
             ls -lrt;pwd
             chmod 755 *
             ls -lrt
             pwd
-            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/app/build.sh
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash /home/carma-streets/build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
             source ${INIT_ENV}
-            cd /home/carma-streets/app/
+            cd /home/carma-streets/
             ./coverage.sh
       - run:
           name: Run Sonar Scanner
@@ -78,7 +78,7 @@ jobs:
               export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
               export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
               echo "Target Branch = ${TARGET_BRANCH}"
-              cd /home/carma-streets/app/
+              cd /home/carma-streets/
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
             fi 
   docker_build&push :
