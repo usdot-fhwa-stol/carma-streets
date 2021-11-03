@@ -52,8 +52,8 @@ namespace message_services
             std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr = std::make_shared<message_services::workers::mobilitypath_worker>();
             std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr = std::make_shared<message_services::workers::mobilityoperation_worker>();
             std::shared_ptr<message_services::workers::vehicle_status_intent_worker> vsi_w_ptr = std::make_shared<message_services::workers::vehicle_status_intent_worker>();
-            // run(bsm_w_ptr, mp_w_ptr, mo_w_ptr);
-            run(vsi_w_ptr, bsm_w_ptr, mp_w_ptr, mo_w_ptr);
+            run(bsm_w_ptr, mp_w_ptr, mo_w_ptr);
+            // run(vsi_w_ptr, bsm_w_ptr, mp_w_ptr, mo_w_ptr);
         }
 
         void vehicle_status_intent_service::run(std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr,
@@ -73,8 +73,13 @@ namespace message_services
                               {
                                   while (true)
                                   {
+                                      //Change spdlog from debug to info for printing output in terminal
+                                      spdlog::debug("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_list().size());
+                                      spdlog::debug("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
+                                      spdlog::debug("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_list().size());
                                       if (mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr->get_curr_list().size() > 0)
                                       {
+                                          spdlog::info("Processing the BSM, mobilityOperation and MP from list");
                                           //Iterate mobililityoperation list with vehicle ids for all vehicles
                                           std::deque<models::mobilityoperation>::iterator itr;
                                           for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
@@ -290,9 +295,8 @@ namespace message_services
             long bsm_pos = 0;
             while (bsm_pos < bsm_w_ptr->get_curr_list().size())
             {
-                if (mp_ptr->getHeader().sender_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs((long)mp_ptr->getHeader().timestamp - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getHeader().timestamp) < 100)
+                if (mo_ptr->getHeader().sender_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count))
                 {
-                    bsm_ptr->setHeader(bsm_w_ptr->get_curr_list().at(bsm_pos).getHeader());
                     bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
                     bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
                     continue;
@@ -309,7 +313,6 @@ namespace message_services
             vsi.setVehicle_id(mo.getHeader().sender_id);
             vsi.setVehicle_length(bsm.getCore_data().size.length);
             vsi.setCur_speed(bsm.getCore_data().speed);
-            vsi.setCur_timestamp(bsm.getHeader().timestamp);
 
             //Todo: fill out other info from bsm, mobilitypath and mobilityoperation
             return vsi;

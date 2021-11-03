@@ -33,28 +33,28 @@ namespace message_services
                         for (rapidjson::Value::ConstMemberIterator header_itr = obj_itr->value.MemberBegin(); header_itr != obj_itr->value.MemberEnd(); header_itr++)
                         {
 
-                            if (std::string(header_itr->name.GetString()) == std::string("hostBSMId"))
+                            if (std::string(header_itr->name.GetString()) == std::string("hostStaticId"))
                             {
                                 header.sender_id = header_itr->value.GetString();
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("hostStaticId"))
+                            if (std::string(header_itr->name.GetString()) == std::string("hostBSMId"))
                             {
                                 header.sender_bsm_id = header_itr->value.GetString();
                             }
 
                             if (std::string(header_itr->name.GetString()) == std::string("planId"))
                             {
-                                header.recipient_id = (header_itr->value.GetString());
+                                header.plan_id = (header_itr->value.GetString());
                             }
 
                             if (std::string(header_itr->name.GetString()) == std::string("targetStaticId"))
                             {
-                                header.plan_id = (header_itr->value.GetString());
+                                header.recipient_id = (header_itr->value.GetString());
                             }
                             if (std::string(header_itr->name.GetString()) == std::string("timestamp"))
                             {
-                                header.timestamp = (header_itr->value.GetUint64());
+                                header.timestamp = std::stol(header_itr->value.GetString());
                             }
                         }
                         setHeader(header);
@@ -117,6 +117,7 @@ namespace message_services
 
                 while (std::getline(key_value_str_stream, key_or_value, *(delimiter + 1)))
                 {
+                    boost::algorithm::trim(key_or_value);
                     key_value_v.push_back(key_or_value);
                 }
 

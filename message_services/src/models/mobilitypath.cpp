@@ -20,34 +20,34 @@ namespace message_services
             {
                 for (rapidjson::Value::ConstMemberIterator obj_itr = obj.MemberBegin(); obj_itr != obj.MemberEnd(); obj_itr++)
                 {
-                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("header")))
+                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("metadata")))
                     {
                         mobility_header_t header;
 
                         for (rapidjson::Value::ConstMemberIterator header_itr = obj_itr->value.MemberBegin(); header_itr != obj_itr->value.MemberEnd(); header_itr++)
                         {
-                            if (std::string(header_itr->name.GetString()) == std::string("sender_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("hostStaticId"))
                             {
                                 header.sender_id = header_itr->value.GetString();
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("recipient_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("targetStaticId"))
                             {
                                 header.recipient_id = (header_itr->value.GetString());
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("sender_bsm_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("hostBSMId"))
                             {
                                 header.sender_bsm_id = (header_itr->value.GetString());
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("plan_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("planId"))
                             {
                                 header.plan_id = (header_itr->value.GetString());
                             }
                             if (std::string(header_itr->name.GetString()) == std::string("timestamp"))
                             {
-                                header.timestamp = (header_itr->value.GetUint64());
+                                header.timestamp = std::stol(header_itr->value.GetString());
                             }
                         }
                         setHeader(header);
@@ -55,7 +55,7 @@ namespace message_services
 
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("trajectory")))
                     {
-                        trajectory_t trajectory;
+                        // trajectory_t trajectory;
 
                         for (rapidjson::Value::ConstMemberIterator tr_itr = obj_itr->value.MemberBegin(); tr_itr != obj_itr->value.MemberEnd(); tr_itr++)
                         {
@@ -65,47 +65,52 @@ namespace message_services
                                 {
                                     if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
                                     {
-                                        trajectory.location.ecef_x = (loc_itr->value.GetInt64());
+                                        this->trajectory.location.ecef_x = (loc_itr->value.GetInt64());
                                     }
 
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_y"))
                                     {
-                                        trajectory.location.ecef_y = (loc_itr->value.GetInt64());
+                                        this->trajectory.location.ecef_y = (loc_itr->value.GetInt64());
                                     }
 
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_z"))
                                     {
-                                        trajectory.location.ecef_z = (loc_itr->value.GetInt64());
+                                        this->trajectory.location.ecef_z = (loc_itr->value.GetInt64());
                                     }
 
                                     if (std::string(loc_itr->name.GetString()) == std::string("timestamp"))
                                     {
-                                        trajectory.location.timestamp = (loc_itr->value.GetUint64());
+                                        this->trajectory.location.timestamp = std::stol(loc_itr->value.GetString());
                                     }
                                 }
                             }
-                            if (tr_itr->value.IsObject() && boost::iequals(std::string(tr_itr->name.GetString()), std::string("offsets")))
+                            if (boost::iequals(std::string(tr_itr->name.GetString()), std::string("offsets")) && tr_itr->value.IsArray())
                             {
-                                for (rapidjson::Value::ConstMemberIterator offset_itr = tr_itr->value.MemberBegin(); offset_itr != tr_itr->value.MemberEnd(); offset_itr++)
+                                for (rapidjson::Value::ConstValueIterator offset_itr = tr_itr->value.Begin(); offset_itr != tr_itr->value.End(); offset_itr++)
                                 {
-                                    if (std::string(offset_itr->name.GetString()) == std::string("offset_x"))
+                                    models::locationOffsetECEF offset;
+                                    const rapidjson::Value &offset_value = *offset_itr;
+                                    for (rapidjson::Value::ConstMemberIterator each_offset_itr = offset_value.MemberBegin(); each_offset_itr != offset_value.MemberEnd(); each_offset_itr++)
                                     {
-                                        trajectory.offsets.offset_x = (offset_itr->value.GetInt());
-                                    }
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_x"))
+                                        {
+                                            offset.offset_x = (each_offset_itr->value.GetInt());
+                                        }
 
-                                    if (std::string(offset_itr->name.GetString()) == std::string("offset_y"))
-                                    {
-                                        trajectory.offsets.offset_y = (offset_itr->value.GetInt());
-                                    }
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_y"))
+                                        {
+                                            offset.offset_y = (each_offset_itr->value.GetInt());
+                                        }
 
-                                    if (std::string(offset_itr->name.GetString()) == std::string("offset_z"))
-                                    {
-                                        trajectory.offsets.offset_z = (offset_itr->value.GetInt());
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_z"))
+                                        {
+                                            offset.offset_z = (each_offset_itr->value.GetInt());
+                                        }
                                     }
+                                    this->trajectory.offsets.push_back(offset);
                                 }
                             }
                         }
-                        setTrajectory(trajectory);
                     }
                 }
             }
@@ -141,14 +146,18 @@ namespace message_services
                 writer->Uint64(this->getTrajectory().location.timestamp);
                 writer->EndObject();
                 writer->Key("offsets");
-                writer->StartObject();
-                writer->Key("offset_x");
-                writer->Uint64(this->getTrajectory().offsets.offset_z);
-                writer->Key("offset_y");
-                writer->Uint64(this->getTrajectory().offsets.offset_z);
-                writer->Key("offset_z");
-                writer->Uint64(this->getTrajectory().offsets.offset_z);
-                writer->EndObject();
+                for (int i = 0; i < this->getTrajectory().MAX_POINTS_IN_MESSAGE; i++)
+                {
+                    writer->StartObject();
+                    writer->Key("offset_x");
+                    writer->Uint64(this->getTrajectory().offsets[i].offset_z);
+                    writer->Key("offset_y");
+                    writer->Uint64(this->getTrajectory().offsets[i].offset_z);
+                    writer->Key("offset_z");
+                    writer->Uint64(this->getTrajectory().offsets[i].offset_z);
+                    writer->EndObject();
+                }
+
                 writer->EndObject();
                 writer->EndObject();
 
@@ -169,8 +178,8 @@ namespace message_services
                       << ", sender_bsm_id =" << mobilitypath_obj.header.sender_bsm_id
                       << ", timestamp = " << mobilitypath_obj.header.timestamp
                       << ", location = { ecef_x= " << mobilitypath_obj.trajectory.location.ecef_x << ", ecef_y= "
-                      << mobilitypath_obj.trajectory.location.ecef_y << ", ecef_z= " << mobilitypath_obj.trajectory.offsets.offset_x << ", offsets = { offset_x= " << mobilitypath_obj.trajectory.location.ecef_x << ", ecef_y= "
-                      << mobilitypath_obj.trajectory.offsets.offset_y << ", offset_z= " << mobilitypath_obj.trajectory.offsets.offset_z << "}" << std::endl;
+                      << mobilitypath_obj.trajectory.location.ecef_y << ", ecef_z= " << mobilitypath_obj.trajectory.offsets[0].offset_x << ", offsets = { offset_x= " << mobilitypath_obj.trajectory.location.ecef_x << ", ecef_y= "
+                      << mobilitypath_obj.trajectory.offsets[0].offset_y << ", offset_z= " << mobilitypath_obj.trajectory.offsets[0].offset_z << "}" << std::endl;
         }
 
         mobility_header_t mobilitypath::getHeader() const
