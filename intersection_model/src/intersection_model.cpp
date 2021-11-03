@@ -208,8 +208,9 @@ namespace intersection_model
                         {
                             auto entry_lanelet = lanelet_apply_rule.lock();
                             lanelet_info_t lanelet_info_entry;
-                            lanelet_info_entry.id = entry_lanelet.id();
-                            lanelet_info_entry.speed_limit = get_speed_limit_by_lanelet(entry_lanelet);
+                            lanelet_info_entry.id           = entry_lanelet.id();
+                            lanelet_info_entry.speed_limit  = get_speed_limit_by_lanelet(entry_lanelet);
+                            lanelet_info_entry.length       = lanelet::geometry::length3d(entry_lanelet);
                             this->int_info.entering_lanelets.push_back(lanelet_info_entry);
 
                             update_link_departure_lanelets_by_entry_lanelet(entry_lanelet);                           
@@ -248,6 +249,7 @@ namespace intersection_model
             lanelet_info_t lanelet_info_link;
             lanelet_info_link.id = link_lanelet.id();
             lanelet_info_link.speed_limit = get_speed_limit_by_lanelet(link_lanelet);
+            lanelet_info_link.length      = lanelet::geometry::length3d(link_lanelet);
             this->int_info.link_lanelets.push_back(lanelet_info_link);
 
             //Only one departure lanelet per link lanelet
@@ -255,6 +257,7 @@ namespace intersection_model
             lanelet::ConstLanelet depart_lanelet = this->vehicleGraph_ptr->following(link_lanelet, false).front();
             lanelet_info_depart.id = depart_lanelet.id();
             lanelet_info_depart.speed_limit = get_speed_limit_by_lanelet(depart_lanelet);
+            lanelet_info_depart.length      = lanelet::geometry::length3d(depart_lanelet);
             this->int_info.departure_lanelets.insert(lanelet_info_depart);
         }
     }
