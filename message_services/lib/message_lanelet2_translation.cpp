@@ -276,7 +276,9 @@ namespace message_services
                 lanelet::ConstLanelet entry_lanelet;
                 lanelet::ConstLanelet link_lanelet;
                 lanelet::ConstLanelet departure_lanelet;
-                bool is_found = false;
+
+                //Link lanelet and entry lanelet are required, and departure lanelet can be optional
+                bool is_link_lanelet_found = false;
 
                 //Get the list of lanelet ids along the route and identify the intersection lanelet types using the all_way_stop regulatory element
                 for (auto ll_itr = lp.begin(); ll_itr != lp.end(); ll_itr++)
@@ -288,7 +290,7 @@ namespace message_services
                      * Checking whether the current lanelet is link lanelet. 
                      * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
                      * **/
-                    if (!is_found && vehicleGraph_ptr->previous(*ll_itr).front().regulatoryElements().size() > 0)
+                    if (!is_link_lanelet_found && vehicleGraph_ptr->previous(*ll_itr).front().regulatoryElements().size() > 0)
                     {
                         lanelet::RegulatoryElementConstPtrs reg_ptrs = vehicleGraph_ptr->previous(*ll_itr).front().regulatoryElements();
                         for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
@@ -300,7 +302,7 @@ namespace message_services
                                 entry_lanelet = vehicleGraph_ptr->previous(*ll_itr).front();
                                 link_lanelet = *ll_itr;
                                 departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
-                                is_found = true;
+                                is_link_lanelet_found = true;
                             }
                         }
                     }
@@ -308,7 +310,7 @@ namespace message_services
                     /***
                      * Checking whether the current lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
                      * **/
-                    if (!is_found && !ll_itr->regulatoryElements().empty())
+                    if (!is_link_lanelet_found && !ll_itr->regulatoryElements().empty())
                     {
                         lanelet::RegulatoryElementConstPtrs reg_ptrs = ll_itr->regulatoryElements();
                         for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
@@ -322,14 +324,13 @@ namespace message_services
                                 if (!route->following(entry_lanelet).empty())
                                 {
                                     link_lanelet = route->following(entry_lanelet).front();
+                                    is_link_lanelet_found = true;
                                 }
 
                                 if (!route->following(link_lanelet).empty())
                                 {
                                     departure_lanelet = route->following(link_lanelet).front();
                                 }
-
-                                is_found = true;
                             }
                         }
                     }
