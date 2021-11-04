@@ -39,7 +39,7 @@ namespace message_services
             const std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
 
             //Mapping MobilityOperation and MobilityPath timestamp duration within 100 ms.
-            const std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 0; 
+            const std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 100; 
 
             //add lanelet2 translation object
             std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
