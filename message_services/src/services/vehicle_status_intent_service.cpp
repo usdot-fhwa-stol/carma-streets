@@ -11,13 +11,16 @@ namespace message_services
         std::mutex worker_mtx;
         vehicle_status_intent_service::vehicle_status_intent_service() {}
 
-        bool vehicle_status_intent_service::initialize()
+        bool vehicle_status_intent_service::initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_lanelet2_translate_ptr)
         {
             try
             {
                 kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
                 std::string file_path = std::string(MANIFEST_CONFIG_FILE_PATH);
                 rapidjson::Document doc = client->read_json_file(file_path);
+
+                //kafka config
+                this->bootstrap_server = client->get_value_by_doc(doc, "BOOTSTRAP_SERVER");
 
                 //consumer topics
                 this->bsm_topic_name = client->get_value_by_doc(doc, "BSM_CONSUMER_TOPIC");
@@ -32,10 +35,38 @@ namespace message_services
                 //producer topics
                 this->vsi_topic_name = client->get_value_by_doc(doc, "VSI_PRODUCER_TOPIC");
 
-                //kafka config
-                this->bootstrap_server = client->get_value_by_doc(doc, "BOOTSTRAP_SERVER");
+                _bsm_consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
+                _mp_consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
+                _mo_consumer_worker = client->create_consumer(this->bootstrap_server, this->mo_topic_name, this->mo_group_id);
+
+                if (!_bsm_consumer_worker->init() || !_mp_consumer_worker->init() || !_mo_consumer_worker->init())
+                {
+                    spdlog::critical("kafka consumers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) initialize error");
+                }
+                else
+                {
+                    _bsm_consumer_worker->subscribe();
+                    _mp_consumer_worker->subscribe();
+                    _mo_consumer_worker->subscribe();
+                    if (!_bsm_consumer_worker->is_running() || !_mp_consumer_worker->is_running() || !_mo_consumer_worker->is_running())
+                    {
+                        spdlog::critical("consumer_workers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) is not running");
+                    }
+                }
+
+                this->_vsi_producer_worker = client->create_producer(this->bootstrap_server, this->vsi_topic_name);
+                if (!_vsi_producer_worker->init())
+                {
+                    spdlog::critical("kafka producer (_vsi_producer_worker) initialize error");
+                    exit(-1);
+                }
+
+                this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
 
                 delete client;
+
+                this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
+
                 return true;
             }
             catch (std::exception ex)
@@ -44,7 +75,27 @@ namespace message_services
                 return false;
             }
         }
-        vehicle_status_intent_service::~vehicle_status_intent_service() {}
+
+        vehicle_status_intent_service::~vehicle_status_intent_service()
+        {
+            if (_bsm_consumer_worker)
+            {
+                _bsm_consumer_worker->stop();
+                delete _bsm_consumer_worker;
+            }
+
+            if (_mo_consumer_worker)
+            {
+                _mo_consumer_worker->stop();
+                delete _mo_consumer_worker;
+            }
+
+            if (_mp_consumer_worker)
+            {
+                _mp_consumer_worker->stop();
+                delete _mp_consumer_worker;
+            }
+        }
 
         void vehicle_status_intent_service::start()
         {
@@ -60,9 +111,9 @@ namespace message_services
                                                 std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr,
                                                 std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr)
         {
-            std::thread mp_t(&vehicle_status_intent_service::msg_consumer<workers::mobilitypath_worker>, this, std::ref(mp_w_ptr), this->mp_topic_name, this->mp_group_id);
-            std::thread bsm_t(&vehicle_status_intent_service::msg_consumer<workers::bsm_worker>, this, std::ref(bsm_w_ptr), this->bsm_topic_name, this->bsm_group_id);
-            std::thread mo_t(&vehicle_status_intent_service::msg_consumer<workers::mobilityoperation_worker>, this, std::ref(mo_w_ptr), this->mo_topic_name, this->mo_group_id);
+            std::thread mp_t(&vehicle_status_intent_service::msg_consumer<workers::mobilitypath_worker>, this, std::ref(mp_w_ptr), this->_mp_consumer_worker);
+            std::thread bsm_t(&vehicle_status_intent_service::msg_consumer<workers::bsm_worker>, this, std::ref(bsm_w_ptr), this->_bsm_consumer_worker);
+            std::thread mo_t(&vehicle_status_intent_service::msg_consumer<workers::mobilityoperation_worker>, this, std::ref(mo_w_ptr), this->_mo_consumer_worker);
 
             std::shared_ptr<models::vehicle_status_intent> vsi_ptr = std::make_shared<models::vehicle_status_intent>();
             std::shared_ptr<models::bsm> bsm_ptr = std::make_shared<models::bsm>();
@@ -79,12 +130,15 @@ namespace message_services
                                       spdlog::debug("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_list().size());
                                       if (mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr->get_curr_list().size() > 0)
                                       {
+                                          
                                           spdlog::info("Processing the BSM, mobilityOperation and MP from list");
+
                                           //Iterate mobililityoperation list with vehicle ids for all vehicles
                                           std::deque<models::mobilityoperation>::iterator itr;
                                           for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
                                           {
-                                              std::unique_lock<std::mutex> lck(worker_mtx);
+                                            //   std::unique_lock<std::mutex> lck(worker_mtx);
+                                              spdlog::debug("Current mobilityOperation list SIZE = {0}", mo_w_ptr->get_curr_list().size());
                                               mo_ptr->setHeader((*itr).getHeader());
                                               mo_ptr->setStrategy((*itr).getStrategy());
                                               mo_ptr->setStrategy_params((*itr).getStrategy_params());
@@ -95,7 +149,7 @@ namespace message_services
                                               *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
 
                                               std::string msg_to_pub = vsi_ptr->asJson();
-                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
+                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
                                           }
                                       }
                                       sleep(0.1);
@@ -143,7 +197,7 @@ namespace message_services
                                              // spdlog::info("bsm message payload: {0}", payload);
                                              if (std::strlen(payload) != 0 && mp_w_ptr)
                                              {
-                                                 std::unique_lock<std::mutex> lck(worker_mtx);
+                                                //  std::unique_lock<std::mutex> lck(worker_mtx);
                                                  mp_w_ptr->process_incoming_msg(payload);
                                                  vsi_w_ptr->update_insert_by_incoming_mobilitypath_msg(mp_w_ptr->get_curr_list().back());
                                                  mp_w_ptr->pop_cur_element_from_list(0);
@@ -253,7 +307,7 @@ namespace message_services
                                           while (itr != vsi_w_ptr->get_curr_map().end())
                                           {
                                               std::string msg_to_pub = itr->second.asJson();
-                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->vsi_topic_name);
+                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
                                               spdlog::info("vsi_t msg_to_pub: {0} ", msg_to_pub);
                                               ++itr;
                                           }
@@ -274,13 +328,15 @@ namespace message_services
                                                                                  std::shared_ptr<models::mobilityoperation> mo_ptr,
                                                                                  std::shared_ptr<models::mobilitypath> mp_ptr)
         {
-            //Checking timestamp for this vehicle id to find mobilitypath
+            //Checking timestamp and vehicle id to find mobilitypath
             long mp_pos = 0;
             while (mp_pos < mp_w_ptr->get_curr_list().size())
             {
                 std::string mp_vehicle_id = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().sender_id;
                 uint64_t mp_timestamp = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().timestamp;
-                if (mp_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mp_ptr->getHeader().timestamp - (long)mp_timestamp) < 100)
+
+                //Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
+                if (mo_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mo_ptr->getHeader().timestamp - (long)mp_timestamp) <= MOBILITY_OPERATION_PATH_MAX_DURATION)
                 {
                     mp_ptr->setHeader(mp_w_ptr->get_curr_list().at(mp_pos).getHeader());
                     mp_ptr->setTrajectory(mp_w_ptr->get_curr_list().at(mp_pos).getTrajectory());
@@ -291,11 +347,12 @@ namespace message_services
                 mp_pos++;
             }
 
-            //checking timestamp for this bsm_id
+            //checking msg_count and BSM ID for this BSM
             long bsm_pos = 0;
             while (bsm_pos < bsm_w_ptr->get_curr_list().size())
             {
-                if (mo_ptr->getHeader().sender_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count))
+                //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
+                if (mo_ptr->getHeader().sender_bsm_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count) <= MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET)
                 {
                     bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
                     bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
@@ -311,73 +368,112 @@ namespace message_services
         {
             models::vehicle_status_intent vsi;
             vsi.setVehicle_id(mo.getHeader().sender_id);
+            vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
+            vsi.setCur_timestamp(mo.getHeader().timestamp);
+
+            //Update vehicle status intent with BSM
             vsi.setVehicle_length(bsm.getCore_data().size.length);
             vsi.setCur_speed(bsm.getCore_data().speed);
+            vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
+            std::string turn_direction = mo.get_value_from_strategy_params("turn_direction");
+            double cur_lat = bsm.getCore_data().latitude / 10000000;
+            double cur_lon = bsm.getCore_data().longitude / 10000000;
+            double cur_elev = bsm.getCore_data().elev;
+            spdlog::debug("cur_lat = {0}", cur_lat);
+            spdlog::debug("cur_lon = {0}", cur_lon);
+            spdlog::debug("cur_elev = {0}", cur_elev);
+            vsi.setCur_lanelet_id(_msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction));
+            vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, turn_direction));
 
-            //Todo: fill out other info from bsm, mobilitypath and mobilityoperation
+            //Update vehicle status intent with MobilityPath
+            models::est_path_t est_path;
+            std::vector<models::est_path_t> est_path_v;
+            int32_t ecef_x = mp.getTrajectory().location.ecef_x;
+            int32_t ecef_y = mp.getTrajectory().location.ecef_y;
+            int32_t ecef_z = mp.getTrajectory().location.ecef_z;
+            long timestamp = mp.getHeader().timestamp;
+
+            spdlog::debug("MobilityPath location ecef_x: {0}", ecef_x);
+            spdlog::debug("MobilityPath location ecef_y: {0}", ecef_y);
+            spdlog::debug("MobilityPath location ecef_z: {0}", ecef_z);
+
+            est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+            est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+            est_path.timestamp = timestamp;
+            est_path_v.push_back(est_path);
+
+            spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
+            int32_t count = 1;
+            for (auto offset_itr = mp.getTrajectory().offsets.begin(); offset_itr != mp.getTrajectory().offsets.end(); offset_itr++)
+            {
+                count++;
+
+                //Allow to configure the number of mobilityPath offsets sent as part of VSI (vehicle status and intent)
+                if (this->vsi_est_path_point_count != 0 && count > this->vsi_est_path_point_count)
+                {
+                    break;
+                }
+
+                ecef_x += offset_itr->offset_x;
+                ecef_y += offset_itr->offset_y;
+                ecef_z += offset_itr->offset_z;
+
+                est_path.timestamp += 100; //The duration between two points is 0.1 sec
+                est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                est_path_v.push_back(est_path);
+            }
+
+            vsi.setEst_path_v(est_path_v);
+            std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(mp.getTrajectory(), vsi_est_path_point_count, turn_direction);
+            for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
+            {
+                if (itr->second == models::intersection_lanelet_type::link)
+                {
+                    vsi.setLink_lanelet_id(itr->first);
+                }
+                if (itr->second == models::intersection_lanelet_type::departure)
+                {
+                    vsi.setDest_lanelet_id(itr->first);
+                }
+                if (itr->second == models::intersection_lanelet_type::entry)
+                {
+                    vsi.setEnter_lanelet_id(itr->first);
+                }
+            }
             return vsi;
         }
 
         template <typename T>
-        void vehicle_status_intent_service::msg_consumer(std::shared_ptr<T> msg_w_ptr, std::string topic, std::string group_id)
+        void vehicle_status_intent_service::msg_consumer(std::shared_ptr<T> msg_w_ptr, kafka_clients::kafka_consumer_worker *consumer_worker)
         {
-            kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
-            kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(this->bootstrap_server, topic, group_id);
-            delete client;
-
-            if (!consumer_worker->init())
+            while (consumer_worker->is_running())
             {
-                spdlog::critical("kafka consumer initialize error");
-            }
-            else
-            {
-                consumer_worker->subscribe();
-                if (!consumer_worker->is_running())
+                const char *payload = consumer_worker->consume(1000);
+                // spdlog::info("bsm message payload: {0}", payload);
+                if (std::strlen(payload) != 0 && msg_w_ptr)
                 {
-                    spdlog::critical("consumer_worker is not running");
+                   // std::unique_lock<std::mutex> lck(worker_mtx);
+                    msg_w_ptr->process_incoming_msg(payload);
                 }
 
-                while (consumer_worker->is_running())
+                if (!msg_w_ptr)
                 {
-                    const char *payload = consumer_worker->consume(1000);
-                    // spdlog::info("bsm message payload: {0}", payload);
-                    if (std::strlen(payload) != 0 && msg_w_ptr)
-                    {
-                        std::unique_lock<std::mutex> lck(worker_mtx);
-                        msg_w_ptr->process_incoming_msg(payload);
-                    }
-
-                    if (!msg_w_ptr)
-                    {
-                        spdlog::critical("Message worker is not initialized");
-                    }
+                    spdlog::critical("Message worker is not initialized");
                 }
-                consumer_worker->stop();
             }
-            delete consumer_worker;
             return;
         }
 
         template <typename T>
-        void vehicle_status_intent_service::publish_msg(T msg, std::string topic)
+        void vehicle_status_intent_service::publish_msg(T msg, kafka_clients::kafka_producer_worker *producer_worker)
         {
-            kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
-            kafka_clients::kafka_producer_worker *producer_worker = client->create_producer(this->bootstrap_server, topic);
-            delete client;
-
             std::string msg_to_send = "";
             msg_to_send = (char *)msg;
-            if (!producer_worker->init())
+
+            if (msg_to_send.length() > 0)
             {
-                spdlog::critical("kafka producer initialize error");
-            }
-            else
-            {
-                if (msg_to_send.length() > 0)
-                {
-                    producer_worker->send(msg_to_send);
-                    delete producer_worker;
-                }
+                producer_worker->send(msg_to_send);
             }
             return;
         }

@@ -12,6 +12,7 @@
 #include "vehicle_status_intent_worker.h"
 #include "vehicle_status_intent.h"
 #include "kafka_client.h"
+#include "message_lanelet2_translation.h"
 
 namespace message_services
 {
@@ -28,6 +29,20 @@ namespace message_services
             std::string mp_group_id;
             std::string mp_topic_name;
             std::string vsi_topic_name;
+            kafka_clients::kafka_producer_worker *_vsi_producer_worker;
+            kafka_clients::kafka_consumer_worker *_mo_consumer_worker;
+            kafka_clients::kafka_consumer_worker *_mp_consumer_worker;
+            kafka_clients::kafka_consumer_worker *_bsm_consumer_worker;
+            std::int64_t vsi_est_path_point_count = 0;
+
+            //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
+            const std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
+
+            //Mapping MobilityOperation and MobilityPath timestamp duration within 100 ms.
+            const std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 0; 
+
+            //add lanelet2 translation object
+            std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
 
         public:
             vehicle_status_intent_service();
@@ -37,11 +52,10 @@ namespace message_services
              * @brief configuration file name
              * **/
             const std::string MANIFEST_CONFIG_FILE_PATH = "../manifest.json";
-
             /**
              * @brief read configuration file and determine the producer and consumer topics, bootstrap server
              * **/
-            bool initialize();
+            bool initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_translate_ptr);
 
             /**
              * @brief initialize variables and call run() methods to spin up threads.
@@ -83,14 +97,14 @@ namespace message_services
              * @param pointers to object that will store the message consumed. topic from which the message is from. The group id of the consumer
              * **/
             template <class T>
-            void msg_consumer(std::shared_ptr<T> msg_ptr, std::string topic, std::string group_id);
+            void msg_consumer(std::shared_ptr<T> msg_ptr, kafka_clients::kafka_consumer_worker * consumer_worker);
 
             /**
              * @brief Producer a message to a topic
              * @param pointer to object that will be published, and a topic name
              * **/
             template <typename T>
-            void publish_msg(T msg, std::string topic);
+            void publish_msg(T msg, kafka_clients::kafka_producer_worker* producer_worker);
         };
     }
 }

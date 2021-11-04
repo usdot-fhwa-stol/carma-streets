@@ -6,5 +6,6 @@
     "MO_CONSUMER_TOPIC": "v2xhub_mobility_operation_in",
     "BSM_GROUP_ID": "bsm_consumer",
     "MP_GROUP_ID": "mobilitypath_consumer",
-    "MO_GROUP_ID": "mobilityoperation_consumer"
+    "MO_GROUP_ID": "mobilityoperation_consumer",
+    "VSI_EST_PATH_COUNT": "2"
 }

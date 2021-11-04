@@ -100,8 +100,6 @@ namespace message_services
                 writer->String(std::to_string(this->getMax_accel()).c_str());
                 writer->String("max_decel");
                 writer->String(std::to_string(this->getMax_decel()).c_str());
-                writer->String("v_length");
-                writer->String(std::to_string(this->getVehicle_length()).c_str());
                 writer->String("min_gap");
                 writer->String(std::to_string(this->getMinimum_gap()).c_str());
                 writer->String("depart_pos");
@@ -109,7 +107,7 @@ namespace message_services
                 writer->String("is_allowed_int");
                 writer->String(std::to_string(this->getIs_allowed()).c_str());
                 writer->String("cur_lanelet_id");
-                writer->String(std::to_string(this->getCur_accel()).c_str());
+                writer->String(std::to_string(this->getCur_lanelet_id()).c_str());
                 writer->String("cur_ds");
                 writer->String(std::to_string(this->getCur_distance()).c_str());
                 writer->String("cur_timestamp");
@@ -128,31 +126,37 @@ namespace message_services
                 writer->String(std::to_string(this->getActual_enter_timestamp()).c_str());
                 writer->String("actual_depart_t");
                 writer->String(std::to_string(this->getActual_depart_timestamp()).c_str());
-                for (auto est_path_item : this->getEst_path_v())
-                {
+                if (this->est_path_v.size() > 0)
+                {           
                     writer->String("est_path");
-                    writer->StartObject();
-                    writer->String("lanelet_id");
-                    writer->String(std::to_string(est_path_item.lanelet_id).c_str());
-                    writer->String("ds_end_lanelet");
-                    writer->String(std::to_string(est_path_item.distance_to_end_of_lanelet).c_str());
-                    writer->String("timestamp");
-                    writer->String(std::to_string(est_path_item.timestamp).c_str());
-                    writer->EndObject();
+                    writer->StartArray();         
+                    for (auto est_path_item : this->getEst_path_v())
+                    {
+                        writer->StartObject();
+                        writer->String("lanelet_id");
+                        writer->String(std::to_string(est_path_item.lanelet_id).c_str());
+                        writer->String("ds_end_lanelet");
+                        writer->String(std::to_string(est_path_item.distance_to_end_of_lanelet).c_str());
+                        writer->String("timestamp");
+                        writer->String(std::to_string(est_path_item.timestamp).c_str());
+                        writer->EndObject();
+                    }
+                    writer->EndArray();
                 }
+
                 writer->EndObject();
                 return true;
             }
             catch (std::exception &ex)
             {
-                 spdlog::info("vehicle_status_intent model: asJsonObject error. ",  ex.what());
+                spdlog::info("vehicle_status_intent model: asJsonObject error. ", ex.what());
                 return false;
             }
         }
 
         std::ostream &operator<<(std::ostream &out, vehicle_status_intent &vehicle_status_intent_obj)
         {
-            std::cout << "vehicle_status_intent model: vehicle_id  = " << vehicle_status_intent_obj.vehicle_id << ", current_timestamp = " << vehicle_status_intent_obj.cur_timestamp << ", bsm_id =" << vehicle_status_intent_obj.bsm_id << ", current speed= "<<vehicle_status_intent_obj.cur_speed << std::endl;
+            std::cout << "vehicle_status_intent model: vehicle_id  = " << vehicle_status_intent_obj.vehicle_id << ", current_timestamp = " << vehicle_status_intent_obj.cur_timestamp << ", bsm_id =" << vehicle_status_intent_obj.bsm_id << ", current speed= " << vehicle_status_intent_obj.cur_speed << std::endl;
         }
 
         //getters and setters

@@ -105,7 +105,16 @@ namespace message_services
              * \n Return -1 if cannot determine the current lanelet
              **/
             double distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction) const;
-
+            
+            /***
+             * @brief The distance between the vehicle’s current position and the end of its current lane with the given vehicle geo-loc and vehicle turn direction.
+             * @param BasicPoint3d
+             * @param turn_direction (Optional if position is not in intersection bridge/link lanelet).
+             * @return Decimal distance to the end of the current lanelet (unit of meters). 
+             * \n Return -1 if cannot determine the current lanelet
+             **/
+            double distance2_cur_lanelet_end(lanelet::BasicPoint3d point, std::string turn_direction) const;
+            
             /**
              * @brief Initialize vehicle routing graph.
              * @return true if the routing graph for vehicle participant  is updated, otherwise false.

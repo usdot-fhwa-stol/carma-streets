@@ -1,0 +1,264 @@
+{
+    "metadata": {
+        "hostBSMId": "2405821416",
+        "hostStaticId": "DOT-45254",
+        "planId": "312a8bbb-b31e-4e2b-a940-940-ae7c64e761ec",
+        "targetStaticId": "UNSET",
+        "timestamp": "0000001635885863959"
+    },
+    "trajectory": {
+        "location": {
+            "ecef_x": 110456509,
+            "ecef_y": -484207708,
+            "ecef_z": 398843923,
+            "timestamp": "0000000000000000000"
+        },
+        "offsets": [
+            {
+                "offset_x": 31,
+                "offset_y": 8,
+                "offset_z": 0
+            },
+            {
+                "offset_x": 31,
+                "offset_y": 8,
+                "offset_z": 0
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 98,
+                "offset_y": -2,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 98,
+                "offset_y": -2,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 98,
+                "offset_y": -2,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 98,
+                "offset_y": -2,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -2,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -29
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 98,
+                "offset_y": -2,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": -1,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 98,
+                "offset_y": 0,
+                "offset_z": -28
+            },
+            {
+                "offset_x": 97,
+                "offset_y": 0,
+                "offset_z": -27
+            },
+            {
+                "offset_x": 98,
+                "offset_y": 0,
+                "offset_z": -27
+            },
+            {
+                "offset_x": 98,
+                "offset_y": 0,
+                "offset_z": -26
+            },
+            {
+                "offset_x": 98,
+                "offset_y": 1,
+                "offset_z": -26
+            },
+            {
+                "offset_x": 98,
+                "offset_y": 2,
+                "offset_z": -25
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 2,
+                "offset_z": -24
+            },
+            {
+                "offset_x": 98,
+                "offset_y": 3,
+                "offset_z": -23
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 4,
+                "offset_z": -23
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 4,
+                "offset_z": -22
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 5,
+                "offset_z": -22
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 5,
+                "offset_z": -21
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 6,
+                "offset_z": -20
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 7,
+                "offset_z": -19
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 7,
+                "offset_z": -19
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 8,
+                "offset_z": -18
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 8,
+                "offset_z": -17
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 9,
+                "offset_z": -17
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 9,
+                "offset_z": -16
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 10,
+                "offset_z": -16
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 10,
+                "offset_z": -15
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 10,
+                "offset_z": -15
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 11,
+                "offset_z": -15
+            },
+            {
+                "offset_x": 100,
+                "offset_y": 10,
+                "offset_z": -14
+            },
+            {
+                "offset_x": 99,
+                "offset_y": 11,
+                "offset_z": -15
+            }
+        ]
+    }
+}
