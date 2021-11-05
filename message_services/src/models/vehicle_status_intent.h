@@ -14,7 +14,7 @@ namespace message_services
     {
         typedef struct est_path
         {
-            uint32_t lanelet_id = 0;
+            int64_t lanelet_id = 0;
             double distance_to_end_of_lanelet = 0.0;
             long timestamp = 0;
         } est_path_t;
@@ -42,11 +42,11 @@ namespace message_services
             double minimum_gap;
             long depart_position;
             bool is_allowed;
-            uint32_t cur_lanelet_id;
+            int64_t cur_lanelet_id;
             double cur_distance;
-            uint32_t enter_lanelet_id;
-            uint32_t dest_lanelet_id;
-            uint32_t link_lanelet_id;
+            int64_t enter_lanelet_id;
+            int64_t dest_lanelet_id;
+            int64_t link_lanelet_id;
             long earliest_stop_timestamp;
             long actual_stop_timestamp;
             long actual_enter_timestamp;
@@ -75,16 +75,16 @@ namespace message_services
             void setActual_stop_timestamp(long actual_stop_timestamp);
             long getEarliest_stop_timestamp() const;
             void setEarliest_stop_timestamp(long earliest_stop_timestamp);
-            uint32_t getLink_lanelet_id() const;
-            void setLink_lanelet_id(uint32_t link_lanelet_id);
-            uint32_t getDest_lanelet_id() const;
-            void setDest_lanelet_id(uint32_t dest_lanelet_id);
-            uint32_t getEnter_lanelet_id() const;
-            void setEnter_lanelet_id(uint32_t enter_lanelet_id);
+            int64_t getLink_lanelet_id() const;
+            void setLink_lanelet_id(int64_t link_lanelet_id);
+            int64_t getDest_lanelet_id() const;
+            void setDest_lanelet_id(int64_t dest_lanelet_id);
+            int64_t getEnter_lanelet_id() const;
+            void setEnter_lanelet_id(int64_t enter_lanelet_id);
             double getCur_distance() const;
             void setCur_distance(double cur_distance);
-            uint32_t getCur_lanelet_id() const;
-            void setCur_lanelet_id(uint32_t cur_lanelet_id);
+            int64_t getCur_lanelet_id() const;
+            void setCur_lanelet_id(int64_t cur_lanelet_id);
             bool getIs_allowed() const;
             void setIs_allowed(bool is_allowed);
             long getDepart_position() const;
