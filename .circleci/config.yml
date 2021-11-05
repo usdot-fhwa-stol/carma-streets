@@ -47,12 +47,6 @@ jobs:
           #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
       - checkout:
       - run:
-          name: Build scheduling_service
-          command: |
-            cd /home/carma-streets/
-            chmod 755 *
-            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
-      - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
             cd /home/carma-streets/
