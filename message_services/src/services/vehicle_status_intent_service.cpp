@@ -51,6 +51,7 @@ namespace message_services
                     if (!_bsm_consumer_worker->is_running() || !_mp_consumer_worker->is_running() || !_mo_consumer_worker->is_running())
                     {
                         spdlog::critical("consumer_workers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) is not running");
+                        exit(-1);
                     }
                 }
 
@@ -128,28 +129,40 @@ namespace message_services
                                       spdlog::debug("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_list().size());
                                       spdlog::debug("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
                                       spdlog::debug("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_list().size());
-                                      if (mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr->get_curr_list().size() > 0)
+                                      if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_list().size() > 0)
                                       {
+                                          spdlog::debug("Processing the BSM, mobilityOperation and MP from list...");
+                                          std::unique_lock<std::mutex> lck(worker_mtx);
                                           
-                                          spdlog::info("Processing the BSM, mobilityOperation and MP from list");
-
                                           //Iterate mobililityoperation list with vehicle ids for all vehicles
-                                          std::deque<models::mobilityoperation>::iterator itr;
-                                          for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
+                                          for (auto itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
                                           {
-                                            //   std::unique_lock<std::mutex> lck(worker_mtx);
                                               spdlog::debug("Current mobilityOperation list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                                              mo_ptr->setHeader((*itr).getHeader());
-                                              mo_ptr->setStrategy((*itr).getStrategy());
-                                              mo_ptr->setStrategy_params((*itr).getStrategy_params());
-                                              mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
+                                              if (mo_w_ptr && mo_ptr && !mo_w_ptr->get_curr_list().empty())
+                                              {
+                                                  mo_ptr->setHeader((*itr).getHeader());
+                                                  mo_ptr->setStrategy((*itr).getStrategy());
+                                                  mo_ptr->setStrategy_params((*itr).getStrategy_params());
+                                                  mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
 
-                                              identify_latest_mapping_bsm_mp_by_mo(bsm_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr);
+                                                  if (identify_latest_mapping_bsm_mp_by_mo(bsm_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr))
+                                                  {
+                                                      spdlog::info("Done mapping BSM, MobilityPath messages using MobilityOperation");
 
-                                              *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
-
-                                              std::string msg_to_pub = vsi_ptr->asJson();
-                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
+                                                      *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
+                                                      if (vsi_ptr)
+                                                      {
+                                                          spdlog::debug("Done composing vehicle_status_intent");
+                                                          std::string msg_to_pub = vsi_ptr->asJson();
+                                                          this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
+                                                      }
+                                                  }
+                                              }
+                                              else
+                                              {
+                                                  //Checking mobilityoperation message list. If there is no more mobilityoperation message, break the current for loop
+                                                  break;
+                                              }
                                           }
                                       }
                                       sleep(0.1);
@@ -197,7 +210,7 @@ namespace message_services
                                              // spdlog::info("bsm message payload: {0}", payload);
                                              if (std::strlen(payload) != 0 && mp_w_ptr)
                                              {
-                                                //  std::unique_lock<std::mutex> lck(worker_mtx);
+                                                 //  std::unique_lock<std::mutex> lck(worker_mtx);
                                                  mp_w_ptr->process_incoming_msg(payload);
                                                  vsi_w_ptr->update_insert_by_incoming_mobilitypath_msg(mp_w_ptr->get_curr_list().back());
                                                  mp_w_ptr->pop_cur_element_from_list(0);
@@ -322,43 +335,64 @@ namespace message_services
             vsi_bsm_t.join();
         }
 
-        void vehicle_status_intent_service::identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr,
+        bool vehicle_status_intent_service::identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr,
                                                                                  std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr,
                                                                                  std::shared_ptr<models::bsm> bsm_ptr,
                                                                                  std::shared_ptr<models::mobilityoperation> mo_ptr,
                                                                                  std::shared_ptr<models::mobilitypath> mp_ptr)
         {
-            //Checking timestamp and vehicle id to find mobilitypath
-            long mp_pos = 0;
-            while (mp_pos < mp_w_ptr->get_curr_list().size())
+            try
             {
-                std::string mp_vehicle_id = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().sender_id;
-                uint64_t mp_timestamp = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().timestamp;
-
-                //Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
-                if (mo_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mo_ptr->getHeader().timestamp - (long)mp_timestamp) <= MOBILITY_OPERATION_PATH_MAX_DURATION)
+                //Checking timestamp and vehicle id to find mobilitypath
+                long mp_pos = 0;
+                bool is_mp_mapping_found = false;
+                bool is_bsm_mapping_found = false;
+                spdlog::debug("Current mobilityPath list SIZE = {0}", mp_w_ptr->get_curr_list().size());
+                spdlog::debug("Current BSM list SIZE = {0}", bsm_w_ptr->get_curr_list().size());
+                while (mp_w_ptr && mp_ptr && mo_ptr && !mp_w_ptr->get_curr_list().empty() && mp_pos < mp_w_ptr->get_curr_list().size())
                 {
-                    mp_ptr->setHeader(mp_w_ptr->get_curr_list().at(mp_pos).getHeader());
-                    mp_ptr->setTrajectory(mp_w_ptr->get_curr_list().at(mp_pos).getTrajectory());
+                    spdlog::debug("debug mp start {0}", mp_w_ptr->get_curr_list().size());
+                    std::string mp_vehicle_id = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().sender_id;
+                    uint64_t mp_timestamp = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().timestamp;
 
-                    mp_w_ptr->pop_cur_element_from_list(mp_pos); //The deque size shrik every time we call a pop element
-                    continue;
+                    //Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
+                    if (mo_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mo_ptr->getHeader().timestamp - (long)mp_timestamp) <= MOBILITY_OPERATION_PATH_MAX_DURATION)
+                    {
+                        spdlog::debug("debug mp during {0}", mp_w_ptr->get_curr_list().size());
+                        mp_ptr->setHeader(mp_w_ptr->get_curr_list().at(mp_pos).getHeader());
+                        mp_ptr->setTrajectory(mp_w_ptr->get_curr_list().at(mp_pos).getTrajectory());
+                        mp_w_ptr->pop_cur_element_from_list(mp_pos); //The deque size shrik every time we call a pop element
+                        is_mp_mapping_found = true;
+                        spdlog::debug("debug mp end {0}", mp_w_ptr->get_curr_list().size());
+                        continue;
+                    }
+                    mp_pos++;
                 }
-                mp_pos++;
+
+                //checking msg_count and BSM ID for this BSM
+                long bsm_pos = 0;
+                while (is_mp_mapping_found && bsm_w_ptr && bsm_ptr && mo_ptr && !bsm_w_ptr->get_curr_list().empty() && bsm_pos < bsm_w_ptr->get_curr_list().size())
+                {
+                    spdlog::debug("debug bsm start {0}", bsm_w_ptr->get_curr_list().size());
+
+                    //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
+                    if (mo_ptr->getHeader().sender_bsm_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count) <= MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET)
+                    {
+                        spdlog::debug("debug bsm during {0}", bsm_w_ptr->get_curr_list().size());
+                        bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
+                        bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
+                        is_bsm_mapping_found = true;
+                        spdlog::debug("debug bsm end {0}", bsm_w_ptr->get_curr_list().size());
+                        continue;
+                    }
+                    bsm_pos++;
+                }
+                return is_bsm_mapping_found && is_mp_mapping_found;
             }
-
-            //checking msg_count and BSM ID for this BSM
-            long bsm_pos = 0;
-            while (bsm_pos < bsm_w_ptr->get_curr_list().size())
+            catch (...)
             {
-                //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
-                if (mo_ptr->getHeader().sender_bsm_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count) <= MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET)
-                {
-                    bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
-                    bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
-                    continue;
-                }
-                bsm_pos++;
+                spdlog::critical("Identify latest mapping bsm mp and mo throw exception");
+                return false;
             }
         }
 
@@ -367,81 +401,89 @@ namespace message_services
                                                                                                    models::mobilitypath &mp)
         {
             models::vehicle_status_intent vsi;
-            vsi.setVehicle_id(mo.getHeader().sender_id);
-            vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
-            vsi.setCur_timestamp(mo.getHeader().timestamp);
-
-            //Update vehicle status intent with BSM
-            vsi.setVehicle_length(bsm.getCore_data().size.length);
-            vsi.setCur_speed(bsm.getCore_data().speed);
-            vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
-            std::string turn_direction = mo.get_value_from_strategy_params("turn_direction");
-            double cur_lat = bsm.getCore_data().latitude / 10000000;
-            double cur_lon = bsm.getCore_data().longitude / 10000000;
-            double cur_elev = bsm.getCore_data().elev;
-            spdlog::debug("cur_lat = {0}", cur_lat);
-            spdlog::debug("cur_lon = {0}", cur_lon);
-            spdlog::debug("cur_elev = {0}", cur_elev);
-            vsi.setCur_lanelet_id(_msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction));
-            vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, turn_direction));
-
-            //Update vehicle status intent with MobilityPath
-            models::est_path_t est_path;
-            std::vector<models::est_path_t> est_path_v;
-            int32_t ecef_x = mp.getTrajectory().location.ecef_x;
-            int32_t ecef_y = mp.getTrajectory().location.ecef_y;
-            int32_t ecef_z = mp.getTrajectory().location.ecef_z;
-            long timestamp = mp.getHeader().timestamp;
-
-            spdlog::debug("MobilityPath location ecef_x: {0}", ecef_x);
-            spdlog::debug("MobilityPath location ecef_y: {0}", ecef_y);
-            spdlog::debug("MobilityPath location ecef_z: {0}", ecef_z);
-
-            est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
-            est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
-            est_path.timestamp = timestamp;
-            est_path_v.push_back(est_path);
-
-            spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
-            int32_t count = 1;
-            for (auto offset_itr = mp.getTrajectory().offsets.begin(); offset_itr != mp.getTrajectory().offsets.end(); offset_itr++)
+            try
             {
-                count++;
+                vsi.setVehicle_id(mo.getHeader().sender_id);
+                vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
+                vsi.setCur_timestamp(mo.getHeader().timestamp);
 
-                //Allow to configure the number of mobilityPath offsets sent as part of VSI (vehicle status and intent)
-                if (this->vsi_est_path_point_count != 0 && count > this->vsi_est_path_point_count)
-                {
-                    break;
-                }
+                //Update vehicle status intent with BSM
+                vsi.setVehicle_length(bsm.getCore_data().size.length);
+                vsi.setCur_speed(bsm.getCore_data().speed);
+                vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
+                std::string turn_direction = mo.get_value_from_strategy_params("turn_direction");
+                double cur_lat = bsm.getCore_data().latitude / 10000000;
+                double cur_lon = bsm.getCore_data().longitude / 10000000;
+                double cur_elev = bsm.getCore_data().elev;
+                spdlog::debug("cur_lat = {0}", cur_lat);
+                spdlog::debug("cur_lon = {0}", cur_lon);
+                spdlog::debug("cur_elev = {0}", cur_elev);
+                vsi.setCur_lanelet_id(_msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction));
+                vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, turn_direction));
 
-                ecef_x += offset_itr->offset_x;
-                ecef_y += offset_itr->offset_y;
-                ecef_z += offset_itr->offset_z;
+                //Update vehicle status intent with MobilityPath
+                models::est_path_t est_path;
+                std::vector<models::est_path_t> est_path_v;
+                int32_t ecef_x = mp.getTrajectory().location.ecef_x;
+                int32_t ecef_y = mp.getTrajectory().location.ecef_y;
+                int32_t ecef_z = mp.getTrajectory().location.ecef_z;
+                long timestamp = mp.getHeader().timestamp;
 
-                est_path.timestamp += 100; //The duration between two points is 0.1 sec
+                spdlog::debug("MobilityPath location ecef_x: {0}", ecef_x);
+                spdlog::debug("MobilityPath location ecef_y: {0}", ecef_y);
+                spdlog::debug("MobilityPath location ecef_z: {0}", ecef_z);
+
                 est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
                 est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                est_path.timestamp = timestamp;
                 est_path_v.push_back(est_path);
-            }
 
-            vsi.setEst_path_v(est_path_v);
-            std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(mp.getTrajectory(), vsi_est_path_point_count, turn_direction);
-            for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
-            {
-                if (itr->second == models::intersection_lanelet_type::link)
+                spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
+                int32_t count = 1;
+                for (auto offset_itr = mp.getTrajectory().offsets.begin(); offset_itr != mp.getTrajectory().offsets.end(); offset_itr++)
                 {
-                    vsi.setLink_lanelet_id(itr->first);
+                    count++;
+
+                    //Allow to configure the number of mobilityPath offsets sent as part of VSI (vehicle status and intent)
+                    if (this->vsi_est_path_point_count != 0 && count > this->vsi_est_path_point_count)
+                    {
+                        break;
+                    }
+
+                    ecef_x += offset_itr->offset_x;
+                    ecef_y += offset_itr->offset_y;
+                    ecef_z += offset_itr->offset_z;
+
+                    est_path.timestamp += 100; //The duration between two points is 0.1 sec
+                    est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                    est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                    est_path_v.push_back(est_path);
                 }
-                if (itr->second == models::intersection_lanelet_type::departure)
+
+                vsi.setEst_path_v(est_path_v);
+                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(mp.getTrajectory(), vsi_est_path_point_count, turn_direction);
+                for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
-                    vsi.setDest_lanelet_id(itr->first);
+                    if (itr->second == models::intersection_lanelet_type::link)
+                    {
+                        vsi.setLink_lanelet_id(itr->first);
+                    }
+                    if (itr->second == models::intersection_lanelet_type::departure)
+                    {
+                        vsi.setDest_lanelet_id(itr->first);
+                    }
+                    if (itr->second == models::intersection_lanelet_type::entry)
+                    {
+                        vsi.setEnter_lanelet_id(itr->first);
+                    }
                 }
-                if (itr->second == models::intersection_lanelet_type::entry)
-                {
-                    vsi.setEnter_lanelet_id(itr->first);
-                }
+                return vsi;
             }
-            return vsi;
+            catch (...)
+            {
+                spdlog::critical("Compose vehicle status intent Exception occur");
+                return vsi;
+            }
         }
 
         template <typename T>
@@ -453,7 +495,7 @@ namespace message_services
                 // spdlog::info("bsm message payload: {0}", payload);
                 if (std::strlen(payload) != 0 && msg_w_ptr)
                 {
-                   // std::unique_lock<std::mutex> lck(worker_mtx);
+                    std::unique_lock<std::mutex> lck(worker_mtx);
                     msg_w_ptr->process_incoming_msg(payload);
                 }
 

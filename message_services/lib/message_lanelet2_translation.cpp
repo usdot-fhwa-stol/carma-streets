@@ -179,7 +179,7 @@ namespace message_services
 
             return distance2_cur_lanelet_end(subj_point3d, turn_direction);
         }
-        
+
         double message_lanelet2_translation::distance2_cur_lanelet_end(lanelet::BasicPoint3d subj_point3d, std::string turn_direction) const
         {
             double total_length = 0.0;
@@ -222,24 +222,36 @@ namespace message_services
         std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory trajectory, std::uint64_t offset_size, std::string turn_direction)
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
-
-            lanelet::BasicPoint3d basic_point3d_start = ecef_2_map_point(trajectory.location.ecef_x, trajectory.location.ecef_y, trajectory.location.ecef_z);
-            lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point((trajectory.location.ecef_x + trajectory.offsets.back().offset_x),
-                                                                        (trajectory.location.ecef_y + trajectory.offsets.back().offset_y),
-                                                                        (trajectory.location.ecef_z + trajectory.offsets.back().offset_z));
-            int64_t start_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_start, turn_direction);
-            spdlog::debug("start lanelet id = {0}", start_lanelet_id);
-
-            int64_t dest_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_dest, turn_direction);
-            spdlog::debug("dest lanelet id = {0}", dest_lanelet_id);
-
-            if (start_lanelet_id == 0L || dest_lanelet_id == 0L)
+            try
             {
-                spdlog::error("{0}: Empty start or end lanelets. ", __FILE__);
-                return lanelet_id_type_m;
-            }
+                lanelet::BasicPoint3d basic_point3d_start = ecef_2_map_point(trajectory.location.ecef_x, trajectory.location.ecef_y, trajectory.location.ecef_z);
+                if (trajectory.offsets.empty())
+                {
+                    spdlog::error("{0}: Cannot determine lanelet type and ids with vehicle trajectory offset size = 0. ", __FILE__);
+                    return lanelet_id_type_m;
+                }
+                lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point((trajectory.location.ecef_x + trajectory.offsets.back().offset_x),
+                                                                            (trajectory.location.ecef_y + trajectory.offsets.back().offset_y),
+                                                                            (trajectory.location.ecef_z + trajectory.offsets.back().offset_z));
+                int64_t start_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_start, turn_direction);
+                spdlog::debug("start lanelet id = {0}", start_lanelet_id);
 
-            lanelet_id_type_m = get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id);
+                int64_t dest_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_dest, turn_direction);
+                spdlog::debug("dest lanelet id = {0}", dest_lanelet_id);
+
+                if (start_lanelet_id == 0L || dest_lanelet_id == 0L)
+                {
+                    spdlog::error("{0}: Empty start or end lanelets. ", __FILE__);
+                    return lanelet_id_type_m;
+                }
+
+                lanelet_id_type_m = get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id);
+            }
+            catch (...)
+            {
+                spdlog::error("{0}: Cannot determine lanelet type and ids with vehicle trajectory. ", __FILE__);
+                lanelet_id_type_m.clear();
+            }
 
             return lanelet_id_type_m;
         }

@@ -36,10 +36,10 @@ namespace message_services
             std::int64_t vsi_est_path_point_count = 0;
 
             //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
-            const std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
+            std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
 
-            //Mapping MobilityOperation and MobilityPath timestamp duration within 100 ms.
-            const std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 100; 
+            //Mapping MobilityOperation and MobilityPath timestamp duration within 0 ms.
+            std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 0; 
 
             //add lanelet2 translation object
             std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
@@ -83,8 +83,9 @@ namespace message_services
              * @brief Identify the latest bsm , MobilityOperation and MobilityPath messages from the workers based on MobilityOperation. Mapping those messages based on 
              * vehicle id, bsm_id and timestamp is less than 100 ms.
              * @param pointers to object that will store the latest messages
+             * @return true if can find a mapping for mobilityOperation messages; false if no mapping found for any mobilityoperation messages in the mobilityoperation message list
              * **/
-            void identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr, std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr, std::shared_ptr<models::bsm> bsm_ptr,
+            bool identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr, std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr, std::shared_ptr<models::bsm> bsm_ptr,
                                                       std::shared_ptr<models::mobilityoperation> mo_ptr, std::shared_ptr<models::mobilitypath> mp_ptr);
             /**
              * @brief Generate the vehicle status and intent message based on the latest bsm , MobilityOperation and MobilityPath objects.
