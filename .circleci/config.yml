@@ -151,4 +151,4 @@ workflows:
               ignore: develop
       - build:
           requires:
-            - docker_build_push
+            - docker_build&push
