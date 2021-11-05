@@ -20,6 +20,7 @@
 
 #include <QJsonObject>
 
+#include <QList>
 
 #include "OAIEnum.h"
 #include "OAIObject.h"
@@ -47,6 +48,11 @@ public:
     bool is_speed_limit_Set() const;
     bool is_speed_limit_Valid() const;
 
+    double getLength() const;
+    void setLength(const double &length);
+    bool is_length_Set() const;
+    bool is_length_Valid() const;
+
     virtual bool isSet() const override;
     virtual bool isValid() const override;
 
@@ -60,6 +66,10 @@ private:
     double speed_limit;
     bool m_speed_limit_isSet;
     bool m_speed_limit_isValid;
+
+    double length;
+    bool m_length_isSet;
+    bool m_length_isValid;
 };
 
 } // namespace OpenAPI

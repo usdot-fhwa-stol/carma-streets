@@ -1,0 +1,11 @@
+{
+    "metadata": {
+        "hostBSMId": "2405821416",
+        "hostStaticId": "DOT-45254",
+        "planId": "312a8bbb-b31e-4e2b-a940-940-ae7c64e761ec",
+        "targetStaticId": "UNSET",
+        "timestamp": "0000001635885863959"
+    },
+    "strategy": "Carma/stop_controlled_intersection",
+    "strategy_params": "msg_count:1,access: 0, max_accel: 1.500000, max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: 9999, turn_direction:straight"
+}

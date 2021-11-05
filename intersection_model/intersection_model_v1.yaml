@@ -216,3 +216,5 @@ components:
           type: integer
         speed_limit:
           type: number
+        length:
+          type: number
