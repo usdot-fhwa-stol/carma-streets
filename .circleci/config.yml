@@ -41,12 +41,17 @@ jobs:
       - setup_remote_docker :
           docker_layer_caching: false
       # Checkout PR branch
+     - run: 
+        name: Clone Repo
+        command: |
+         rm -rf /home/carma-streets
+         #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
       - checkout:
 
   docker_build&push :
    machine:
-    image: ubuntu-1604:202004-01
-   steps:
+    image: usdotfhwastoldev/scheduling_service:ci_setup
+   steps:  
      - checkout
      - run: 
         name: Docker Build
@@ -63,7 +68,7 @@ jobs:
    
   docker_build&push_develop :
    machine:
-    image: ubuntu-1604:202004-01
+    image: usdotfhwastoldev/scheduling_service:ci_setup
    steps:
      - checkout
      - run: 
