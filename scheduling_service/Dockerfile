@@ -66,8 +66,8 @@ RUN make
 
 WORKDIR  /home/carma-streets/scheduling_service/build
 
-COPY ./build.sh/ /home/carma-streets/scheduling_service/
-COPY ./coverage.sh/ /home/carma-streets/scheduling_service/
+COPY ./build.sh /home/carma-streets/
+COPY ./coverage.sh /home/carma-streets/
 # Set metadata labels
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
