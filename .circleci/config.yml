@@ -50,7 +50,7 @@ jobs:
 
   docker_build&push :
    machine:
-    image: usdotfhwastoldev/scheduling_service:ci_setup
+    image: ubuntu-1604:202004-01
    steps:  
      - checkout
      - run: 
@@ -68,7 +68,7 @@ jobs:
    
   docker_build&push_develop :
    machine:
-    image: usdotfhwastoldev/scheduling_service:ci_setup
+    image: ubuntu-1604:202004-01
    steps:
      - checkout
      - run: 
