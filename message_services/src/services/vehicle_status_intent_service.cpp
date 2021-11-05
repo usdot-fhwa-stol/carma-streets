@@ -412,6 +412,7 @@ namespace message_services
                 vsi.setCur_speed(bsm.getCore_data().speed);
                 vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
                 std::string turn_direction = mo.get_value_from_strategy_params("turn_direction");
+                vsi.SetTurn_direction(turn_direction);
                 double cur_lat = bsm.getCore_data().latitude / 10000000;
                 double cur_lon = bsm.getCore_data().longitude / 10000000;
                 double cur_elev = bsm.getCore_data().elev;

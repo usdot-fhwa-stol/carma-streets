@@ -31,6 +31,7 @@ namespace message_services
              * It is used to connect BSM with MobilityPath and MobilityOperation message
             */
             std::string bsm_id;
+            std::string turn_direction = "NA";
             double cur_speed;
             double cur_accel;
             long cur_timestamp;
@@ -104,6 +105,8 @@ namespace message_services
             void setCur_timestamp(long cur_timestamp);
             std::string getBsm_id();
             void setBsm_id(std::string bsm_id);
+            std::string GetTurn_direction() const;
+            void SetTurn_direction(std::string turn_direction);
         };
     }
 
