@@ -41,9 +41,9 @@ jobs:
       - setup_remote_docker :
           docker_layer_caching: false
       # Checkout PR branch
-     - run: 
-        name: Clone Repo
-        command: |
+      - run: 
+         name: Clone Repo
+         command: |
          rm -rf /home/carma-streets
          #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
       - checkout:
