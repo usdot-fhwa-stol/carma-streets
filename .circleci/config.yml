@@ -44,8 +44,8 @@ jobs:
       - run: 
          name: Clone Repo
          command: |
-         rm -rf /home/carma-streets
-         #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
+          rm -rf /home/carma-streets
+          #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
       - checkout:
 
   docker_build&push :
