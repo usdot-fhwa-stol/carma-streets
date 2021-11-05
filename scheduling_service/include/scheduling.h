@@ -3,6 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <math.h>
+#include <set>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
 
 #include "configuration.h"
 #include "osm.h"
@@ -26,12 +32,6 @@ class scheduling{
 
 		/* list of vehicle latest timestamps */
 		vector<double> time;
-
-		/* list of vehicle latitudes */
-		vector<double> lat;
-
-		/* list of vehicle longtitudes */
-		vector<double> lng;
 
 		/* list of vehicle speeds */
 		vector<double> speed;
@@ -94,14 +94,12 @@ class scheduling{
 
 	public:
 
-		scheduling(unordered_map<string, vehicle> list_veh);
+		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap);
 
 		vector<string> get_vehicleIdList();
 		unordered_map<string, int> get_vehicleIndexList();
 
 		vector<double> get_timeList();
-		vector<double> get_latList();
-		vector<double> get_lngList();
 		vector<double> get_speedList();
 		vector<double> get_accelList();
 		vector<string> get_laneIdList();

@@ -3,10 +3,14 @@
 
 #include <string>
 #include <vector>
+#include <math.h>
 
 #include "rapidjson/document.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
+
+#include "configuration.h"
+#include "osm.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -14,10 +18,6 @@ using namespace rapidjson;
 struct future_information {
 
 	double timestamp;
-
-	double lat;
-
-	double lng;
 
 	string lane_id;
 
@@ -89,12 +89,6 @@ class vehicle{
 		/* the timestamp of the last update */
 		double timestamp = 0;
 
-		/* the vehicle's latitude in the last update */
-		double lat;
-
-		/* the vehicle's longitude in the last update */
-		double lng;
-
 		/* the distance between the vehicle and the end of its lane in the last update */
 		double distance;
 
@@ -118,7 +112,9 @@ class vehicle{
 
 	public:
 
-		void update(const Document& message);
+		void update(const Document& message, osm& localmap);
+
+		string get_id();
 
 		double get_length();
 		double get_minGap();
@@ -141,8 +137,6 @@ class vehicle{
 		double get_actualDT();
 
 		double get_curTime();
-		double get_curLat();
-		double get_curLng();
 		double get_curDistance();
 		double get_curSpeed();
 		double get_curAccel();

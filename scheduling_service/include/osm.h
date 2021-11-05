@@ -2,8 +2,15 @@
 #define osm_H
 
 #include <string>
+#include <fstream>
 #include <vector>
 #include <unordered_map>
+#include <math.h>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 
 using namespace std;
 

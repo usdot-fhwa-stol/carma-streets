@@ -1,0 +1,1121 @@
+{
+    "sample_data": 
+    [
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 2.0,
+                "cur_accel": -3.0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 0,
+                "cur_ds": 2.0,
+                "direction": "straight",
+                "entry_lane_id": 0,
+                "link_lane_id": 8,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677096200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 1.6
+                    },
+                    {
+                        "ts": 1623677096400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 1.2
+                    },
+                    {
+                        "ts": 1623677096600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0.8
+                    },
+                    {
+                        "ts": 1623677096800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0.4
+                    },
+                    {
+                        "ts": 1623677097000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 5.0,
+                "cur_accel": 0.0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 1,
+                "cur_ds": 7.0,
+                "direction": "straight",
+                "entry_lane_id": 1,
+                "link_lane_id": 9,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677096200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 6
+                    },
+                    {
+                        "ts": 1623677096400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 5
+                    },
+                    {
+                        "ts": 1623677096600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 4
+                    },
+                    {
+                        "ts": 1623677096800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 3
+                    },
+                    {
+                        "ts": 1623677097000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 2
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 5.0,
+                "cur_accel": 0.0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 3,
+                "cur_ds": 7.0,
+                "direction": "straight",
+                "entry_lane_id": 3,
+                "link_lane_id": 11,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677096200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 6
+                    },
+                    {
+                        "ts": 1623677096400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 5
+                    },
+                    {
+                        "ts": 1623677096600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 4
+                    },
+                    {
+                        "ts": 1623677096800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 3
+                    },
+                    {
+                        "ts": 1623677097000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 2
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677097000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": -2,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 0,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 0,
+                "link_lane_id": 8,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677097200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677097400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677097600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677097800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677097000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 2,
+                "cur_accel": -3,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 1,
+                "cur_ds": 2,
+                "direction": "straight",
+                "entry_lane_id": 1,
+                "link_lane_id": 9,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677097200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 1.6
+                    },
+                    {
+                        "ts": 1623677097400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 1.2
+                    },
+                    {
+                        "ts": 1623677097600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0.8
+                    },
+                    {
+                        "ts": 1623677097800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0.4
+                    },
+                    {
+                        "ts": 1623677098000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677097000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 2,
+                "cur_accel": -3,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 3,
+                "cur_ds": 2,
+                "direction": "straight",
+                "entry_lane_id": 3,
+                "link_lane_id": 11,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677097200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 1.6
+                    },
+                    {
+                        "ts": 1623677097400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 1.2
+                    },
+                    {
+                        "ts": 1623677097600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0.8
+                    },
+                    {
+                        "ts": 1623677097800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0.4
+                    },
+                    {
+                        "ts": 1623677098000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677098000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 0,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 0,
+                "link_lane_id": 8,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677098200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677098000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": -2,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 1,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 1,
+                "link_lane_id": 9,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677098200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677098000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": -2,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 3,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 3,
+                "link_lane_id": 11,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677098200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677098800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677099000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 0,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 0,
+                "link_lane_id": 8,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677099200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 0,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677099000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 1,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 1,
+                "link_lane_id": 9,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677099200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677099000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 3,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 3,
+                "link_lane_id": 11,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677099200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677099800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677100000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 2,
+                "cur_accel": 2,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 8,
+                "cur_ds": 18,
+                "direction": "straight",
+                "entry_lane_id": 0,
+                "link_lane_id": 8,
+
+                "is_allowed": true,
+
+                "est_paths": [{
+                        "ts": 1623677100200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 8,
+                        "ds": 17
+                    },
+                    {
+                        "ts": 1623677100400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 8,
+                        "ds": 16
+                    },
+                    {
+                        "ts": 1623677100600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 8,
+                        "ds": 15
+                    },
+                    {
+                        "ts": 1623677100800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 8,
+                        "ds": 14
+                    },
+                    {
+                        "ts": 1623677101000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 8,
+                        "ds": 13
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677100000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 1,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 1,
+                "link_lane_id": 9,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677100200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677100000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 3,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 3,
+                "link_lane_id": 11,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677100200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677100800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677101000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 10,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 4,
+                "cur_ds": 200,
+                "direction": "straight",
+                "entry_lane_id": 0,
+                "link_lane_id": 8,
+
+                "is_allowed": true,
+
+                "est_paths": [{
+                        "ts": 1623677101200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 4,
+                        "ds": 198
+                    },
+                    {
+                        "ts": 1623677101400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 4,
+                        "ds": 196
+                    },
+                    {
+                        "ts": 1623677101600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 4,
+                        "ds": 194
+                    },
+                    {
+                        "ts": 1623677101800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 4,
+                        "ds": 192
+                    },
+                    {
+                        "ts": 1623677102000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 4,
+                        "ds": 190
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677101000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 1,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 1,
+                "link_lane_id": 9,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677101200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677102000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 1,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+            "timestamp": 1623677101000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 5,
+                "min_gap": 10,
+                "react_t": 1.5,
+                "max_accel": 5,
+                "max_decel": 5,
+
+                "cur_speed": 0,
+                "cur_accel": 0,
+                "lat": 38.9012,
+                "lng": -77.21289,
+                "cur_lane_id": 3,
+                "cur_ds": 0,
+                "direction": "straight",
+                "entry_lane_id": 3,
+                "link_lane_id": 11,
+
+                "is_allowed": false,
+
+                "est_paths": [{
+                        "ts": 1623677101200,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101400,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101600,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677101800,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0
+                    },
+                    {
+                        "ts": 1623677102000,
+                        "lat": 38.9012,
+                        "lng": -77.21289,
+                        "id": 3,
+                        "ds": 0.0
+                    }
+                ]
+            }
+        }
+    ]
+}
