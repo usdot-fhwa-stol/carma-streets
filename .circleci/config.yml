@@ -31,7 +31,6 @@ jobs:
       - image: usdotfhwastoldev/scheduling_service:ci_setup
         environment:
           TERM: xterm
-          INIT_ENV: /home/carma-streets/.base-image/init-env.sh
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
@@ -50,21 +49,18 @@ jobs:
       - run:
           name: Build scheduling_service
           command: |
-            source ${INIT_ENV}
             cd /home/carma-streets/
             chmod 755 *
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
-            source ${INIT_ENV}
             cd /home/carma-streets/
             #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
       - run:
           name: Run Sonar Scanner
           command: |
-            source ${INIT_ENV}
             if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
               echo "Non-PR Build Detected. Running analysis on ${CIRCLE_BRANCH}"
               cd /home/carma-streets/
