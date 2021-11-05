@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 #  Copyright (C) 2019-2020 LEIDOS.
 # 
@@ -47,6 +47,33 @@ jobs:
           #rm -rf /home/carma-streets
           #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
       #- checkout:
+      
+      - run: 
+          name: Install Sonar scanner
+          command: |
+            apt-get update
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr
+          
+            cd /home/carma-streets
+            mkdir .base-image
+            SONAR_DIR=/opt/sonarqube
+            mkdir $SONAR_DIR
+            curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
+            curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+            curl -sL https://deb.nodesource.com/setup_10.x | bash -
+            apt-get install -y nodejs
+            mkdir /opt/jq
+            curl -L "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -o /opt/jq/jq
+            chmod +x /opt/jq/jq
+            cd $SONAR_DIR
+            unzip $SONAR_DIR/sonar-scanner.zip -d .
+            unzip $SONAR_DIR/build-wrapper.zip -d .
+            rm $SONAR_DIR/sonar-scanner.zip
+            rm $SONAR_DIR/build-wrapper.zip
+            mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
+            mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
+            echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh  
+        
       - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
@@ -122,4 +149,6 @@ workflows:
           filters:
            branches:
               ignore: develop
-      - build
+      - build:
+          requires:
+            - docker_build_push
