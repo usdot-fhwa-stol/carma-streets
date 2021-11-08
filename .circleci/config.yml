@@ -44,7 +44,7 @@ jobs:
          #command: |
           #rm -rf /home/carma-streets
           #git clone -b ${CIRCLE_BRANCH,,} https://github.com/usdot-fhwa-stol/carma-streets.git      
-      #- checkout:
+      - checkout:
       - run:
           name: Install Sonar scanner
           command: |
