@@ -1,23 +1,25 @@
-version: 2.1
+version: 2
+
 #  Copyright (C) 2019-2020 LEIDOS.
-#
+# 
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
-#
+# 
 #  http://www.apache.org/licenses/LICENSE-2.0
-#
+# 
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations under
 #  the License.
-#
-# Configuration file for Circle CI
+# 
+
+# Configuration file for Circle CI 
 # CI will report failure if any executed command returns and error status
 # Operations performed are as follows
 # Build source code
-# Run unit tests for C++
+# Run unit tests for C++ 
 # Run static code analyzer for SourceCloud
 # Upload test results
 # Every run command should start with source ${INIT_ENV} to ensure all default dependencies are available
@@ -84,7 +86,7 @@ jobs:
             mkdir $SONAR_DIR
             curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
             curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-            curl -sL https://deb.nodesource.com/setup_14.x | bash -
+            curl -sL https://deb.nodesource.com/setup_10.x | bash -
             apt-get install -y nodejs
             mkdir /opt/jq
             curl -L "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -o /opt/jq/jq
@@ -98,11 +100,18 @@ jobs:
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
       - run:
+          name: Build scheduling_service
+          command: |
+            source ${INIT_ENV}
+            cd /home/carma-streets/
+            chmod 755 *
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
+      - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
             source ${INIT_ENV}
             cd /home/carma-streets/
-            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
+            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
       - run:
           name: Run Sonar Scanner
@@ -120,53 +129,55 @@ jobs:
               export PR_NUM=`echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f7`
               echo "PR number ${PR_NUM}"
               export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
-              export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"')
+              export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
               echo "Target Branch = ${TARGET_BRANCH}"
               cd /home/carma-streets/
-              /opt/sonarqube/sonar-scanner/bin/sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
-            fi      
-  docker_build_push :
-    machine:
-      image: ubuntu-1604:202004-01
-    steps:  
+              sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
+            fi 
+  docker_build&push :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
      - checkout
-     - run:
+     - run: 
         name: Docker Build
         command: |
          docker build --network=host -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
-     - run:
+    
+     - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: |
+        command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}  
-  docker_build_push_develop :
-    machine:
-      image: ubuntu-1604:202004-01
-    steps:
+         docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}
+    
+   
+  docker_build&push_develop :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
      - checkout
-     - run:
+     - run: 
         name: Docker Build
         command: |
           docker build --network=host -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
-     - run:
+    
+     - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: |
+        command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}
 workflows:
   version: 2
   build:
     jobs:
-      - docker_build_push_develop:
+      - docker_build&push_develop:
           filters:
             branches:
               only: develop
-      - docker_build_push:
+      - docker_build&push:
           filters:
            branches:
               ignore: develop
-      - build:
-          requires:
-            - docker_build_push
+      - build
