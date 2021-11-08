@@ -133,7 +133,7 @@ namespace message_services
                                       {
                                           spdlog::debug("Processing the BSM, mobilityOperation and MP from list...");
                                           std::unique_lock<std::mutex> lck(worker_mtx);
-                                          
+
                                           //Iterate mobililityoperation list with vehicle ids for all vehicles
                                           for (auto itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
                                           {
@@ -143,11 +143,11 @@ namespace message_services
                                                   mo_ptr->setHeader((*itr).getHeader());
                                                   mo_ptr->setStrategy((*itr).getStrategy());
                                                   mo_ptr->setStrategy_params((*itr).getStrategy_params());
-                                                  mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
 
                                                   if (identify_latest_mapping_bsm_mp_by_mo(bsm_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr))
                                                   {
                                                       spdlog::info("Done mapping BSM, MobilityPath messages using MobilityOperation");
+                                                      mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
 
                                                       *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
                                                       if (vsi_ptr)
@@ -412,6 +412,7 @@ namespace message_services
                 vsi.setCur_speed(bsm.getCore_data().speed);
                 vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
                 std::string turn_direction = mo.get_value_from_strategy_params("turn_direction");
+                vsi.SetTurn_direction(turn_direction);
                 double cur_lat = bsm.getCore_data().latitude / 10000000;
                 double cur_lon = bsm.getCore_data().longitude / 10000000;
                 double cur_elev = bsm.getCore_data().elev;

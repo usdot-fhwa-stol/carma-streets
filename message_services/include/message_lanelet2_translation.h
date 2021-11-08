@@ -91,8 +91,19 @@ namespace message_services
              **/
             std::int64_t get_cur_lanelet_id_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction) const;
 
+            /***
+             * @brief Identify the current lanelet with the given vehicle geo-loc (convert into map point) and vehicle turn direction.
+             * @param BasicPoint3d 
+             * @param turn_direction (Optional if position is not in intersection bridge/link lanelet).
+             * @return Signed Integer lanelet id; \n Return 0 if cannot find the current lanelet.
+             **/
             std::int64_t get_cur_lanelet_id_by_point_and_direction(lanelet::BasicPoint3d subj_point3d, std::string turn_direction) const;
-
+            
+             /***
+             * @brief Identify the current lanelet with the given vehicle geo-loc (convert into map point).
+             * @param BasicPoint3d 
+             * @return a vector of lanelets; \n Return empty vetor if cannot find the current lanelets.
+             **/
             std::vector<lanelet::Lanelet> get_cur_lanelets_by_point(lanelet::BasicPoint3d subj_point3d) const;
 
             /***

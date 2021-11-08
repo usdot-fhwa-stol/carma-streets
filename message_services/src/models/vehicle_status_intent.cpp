@@ -86,64 +86,67 @@ namespace message_services
             try
             {
                 writer->StartObject();
+                writer->String("metadata");
+                writer->StartObject();
+                writer->String("timestamp");
+                writer->Uint64(this->getCur_timestamp());
+                writer->EndObject();
+                writer->String("payload");
+                writer->StartObject();
                 writer->String("v_id");
                 writer->String(this->getVehicle_id().c_str());
                 writer->String("v_length");
-                writer->String(std::to_string(this->getVehicle_length()).c_str());
+                writer->Uint64(this->getVehicle_length());
                 writer->String("cur_speed");
-                writer->String(std::to_string(this->getCur_speed()).c_str());
+                writer->Double(this->getCur_speed());
                 writer->String("cur_accel");
-                writer->String(std::to_string(this->getCur_accel()).c_str());
+                writer->Double(this->getCur_accel());
                 writer->String("react_t");
-                writer->String(std::to_string(this->getReact_timestamp()).c_str());
+                writer->Uint64(this->getReact_timestamp());
                 writer->String("max_accel");
-                writer->String(std::to_string(this->getMax_accel()).c_str());
+                writer->Double(this->getMax_accel());
                 writer->String("max_decel");
-                writer->String(std::to_string(this->getMax_decel()).c_str());
+                writer->Double(this->getMax_decel());
                 writer->String("min_gap");
-                writer->String(std::to_string(this->getMinimum_gap()).c_str());
+                writer->Double(this->getMinimum_gap());
                 writer->String("depart_pos");
-                writer->String(std::to_string(this->getDepart_position()).c_str());
-                writer->String("is_allowed_int");
-                writer->String(std::to_string(this->getIs_allowed()).c_str());
+                writer->Uint64(this->getDepart_position());
+                writer->String("is_allowed");
+                writer->Bool(this->getIs_allowed());
                 writer->String("cur_lanelet_id");
-                writer->String(std::to_string(this->getCur_lanelet_id()).c_str());
+                writer->Int64(this->getCur_lanelet_id());
                 writer->String("cur_ds");
-                writer->String(std::to_string(this->getCur_distance()).c_str());
-                writer->String("cur_timestamp");
-                writer->String(std::to_string(this->getCur_timestamp()).c_str());
-                writer->String("enter_lanelet_id");
-                writer->String(std::to_string(this->getEnter_lanelet_id()).c_str());
+                writer->Double(this->getCur_distance());
+                writer->String("entry_lane_id");
+                writer->Int64(this->getEnter_lanelet_id());
                 writer->String("dest_lane_id");
-                writer->String(std::to_string(this->getDest_lanelet_id()).c_str());
+                writer->Int64(this->getDest_lanelet_id());
                 writer->String("link_lanelet_id");
-                writer->String(std::to_string(this->getLink_lanelet_id()).c_str());
-                writer->String("earliest_stop_t");
-                writer->String(std::to_string(this->getEarliest_stop_timestamp()).c_str());
-                writer->String("actual_stop_t");
-                writer->String(std::to_string(this->getActual_stop_timestamp()).c_str());
-                writer->String("actual_enter_t");
-                writer->String(std::to_string(this->getActual_enter_timestamp()).c_str());
-                writer->String("actual_depart_t");
-                writer->String(std::to_string(this->getActual_depart_timestamp()).c_str());
+                writer->Int64(this->getLink_lanelet_id());
+                //Vehicle turn direction at the intersection
+                writer->String("direction");
+                writer->String(this->GetTurn_direction().c_str());
                 if (this->est_path_v.size() > 0)
-                {           
-                    writer->String("est_path");
-                    writer->StartArray();         
+                {
+                    writer->String("est_paths");
+                    writer->StartArray();
                     for (auto est_path_item : this->getEst_path_v())
                     {
                         writer->StartObject();
-                        writer->String("lanelet_id");
-                        writer->String(std::to_string(est_path_item.lanelet_id).c_str());
-                        writer->String("ds_end_lanelet");
-                        writer->String(std::to_string(est_path_item.distance_to_end_of_lanelet).c_str());
-                        writer->String("timestamp");
-                        writer->String(std::to_string(est_path_item.timestamp).c_str());
+                        //Lanelet id
+                        writer->String("id");
+                        writer->Int64(est_path_item.lanelet_id);
+                        //Distance to the end of the lanelet where the future position is
+                        writer->String("ds");
+                        writer->Double(est_path_item.distance_to_end_of_lanelet);
+                        //Timestamp when the future position is
+                        writer->String("ts");
+                        writer->Uint64(est_path_item.timestamp);
                         writer->EndObject();
                     }
                     writer->EndArray();
                 }
-
+                writer->EndObject();
                 writer->EndObject();
                 return true;
             }
@@ -230,11 +233,11 @@ namespace message_services
             this->earliest_stop_timestamp = earliest_stop_timestamp;
         }
 
-        uint32_t vehicle_status_intent::getLink_lanelet_id() const
+        int64_t vehicle_status_intent::getLink_lanelet_id() const
         {
             return this->link_lanelet_id;
         }
-        void vehicle_status_intent::setLink_lanelet_id(uint32_t link_lanelet_id)
+        void vehicle_status_intent::setLink_lanelet_id(int64_t link_lanelet_id)
         {
             this->link_lanelet_id = link_lanelet_id;
         }
@@ -246,20 +249,20 @@ namespace message_services
         {
             this->cur_timestamp = cur_timestamp;
         }
-        uint32_t vehicle_status_intent::getDest_lanelet_id() const
+        int64_t vehicle_status_intent::getDest_lanelet_id() const
         {
             return this->dest_lanelet_id;
         }
-        void vehicle_status_intent::setDest_lanelet_id(uint32_t dest_lanelet_id)
+        void vehicle_status_intent::setDest_lanelet_id(int64_t dest_lanelet_id)
         {
             this->dest_lanelet_id = dest_lanelet_id;
         }
 
-        uint32_t vehicle_status_intent::getEnter_lanelet_id() const
+        int64_t vehicle_status_intent::getEnter_lanelet_id() const
         {
             return this->enter_lanelet_id;
         }
-        void vehicle_status_intent::setEnter_lanelet_id(uint32_t enter_lanelet_id)
+        void vehicle_status_intent::setEnter_lanelet_id(int64_t enter_lanelet_id)
         {
             this->enter_lanelet_id = enter_lanelet_id;
         }
@@ -273,11 +276,11 @@ namespace message_services
             this->cur_distance = cur_distance;
         }
 
-        uint32_t vehicle_status_intent::getCur_lanelet_id() const
+        int64_t vehicle_status_intent::getCur_lanelet_id() const
         {
             return this->cur_lanelet_id;
         }
-        void vehicle_status_intent::setCur_lanelet_id(uint32_t cur_lanelet_id)
+        void vehicle_status_intent::setCur_lanelet_id(int64_t cur_lanelet_id)
         {
             this->cur_lanelet_id = cur_lanelet_id;
         }
@@ -355,5 +358,14 @@ namespace message_services
             this->bsm_id = bsm_id;
         }
 
+        std::string vehicle_status_intent::GetTurn_direction() const
+        {
+            return this->turn_direction;
+        }
+
+        void vehicle_status_intent::SetTurn_direction(std::string turn_direction)
+        {
+            this->turn_direction = turn_direction;
+        }
     }
 }
