@@ -39,7 +39,7 @@ jobs:
       - setup_remote_docker :
           docker_layer_caching: false
       # Checkout PR branch      
-      - checkout:
+      #- checkout:
       - run:
           name: Install Sonar scanner
           command: |
