@@ -17,8 +17,12 @@ void vehicle::update(const rapidjson::Document& message, osm& localmap){
 
 	if (message["metadata"].HasMember("timestamp") && (double)message["metadata"]["timestamp"].GetInt64() / 1000.0 >= timestamp){
 		
+		/* the unit of the received speed from the message is mile per hour
+		*  but the unit of the speed defined in the vehicle class is meter per second. 
+		*  Therefore, a conversion has been added here.
+		*/
 		if (message["payload"].HasMember("cur_speed")){
-			speed = message["payload"]["cur_speed"].GetDouble();
+			speed = message["payload"]["cur_speed"].GetDouble() * 0.44704;
 		} else{
 			spdlog::critical("the current speed of Vehicle {0} is missing in the received update!", veh_id);
 		}
@@ -54,8 +58,12 @@ void vehicle::update(const rapidjson::Document& message, osm& localmap){
 			
 			id = message["payload"]["v_id"].GetString();
 			
+			/* the unit of the received vehicle length from the message is centimeter without decimal places
+			*  but the unit of the vehicle length defined in the vehicle class is meter with decimal places. 
+			*  Therefore, a conversion has been added here.
+			*/
 			if (message["payload"].HasMember("v_length")){
-				length = message["payload"]["v_length"].GetDouble();
+				length = (double)message["payload"]["v_length"].GetInt() / 100;
 			} else{
 				spdlog::critical("the length of Vehicle {0} is missing in the received update!", veh_id);
 			}

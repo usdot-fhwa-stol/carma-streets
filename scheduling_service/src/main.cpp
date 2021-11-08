@@ -34,10 +34,12 @@ void consumer_update(const char* paylod){
     message.SetObject();
     message.Parse(paylod);
     
+    /* if the received message does not have payload, it cannot be processed! */
     if (message.HasMember("payload")){
         if (message["payload"].HasMember("v_id")){
             string veh_id = message["payload"]["v_id"].GetString();
 
+            /* check if the vehicle is included in the list_veh. if not, include it. */
             if (!list_veh.count(veh_id)){
 
                 if (message["payload"].HasMember("cur_lane_id")){
@@ -51,6 +53,7 @@ void consumer_update(const char* paylod){
                 }
             }
 
+            /* update the vehicle status and intent information */
             if (list_veh.count(veh_id)){
                 list_veh[veh_id].update(message, localmap);       
                 if (list_veh[veh_id].get_curState() == "LV"){
@@ -380,9 +383,13 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         std::string vehicle_id = schedule.get_vehicleIdList()[n];
         Value veh_sched(kObjectType);
         veh_sched.AddMember("v_id", vehicle_id, allocator);
-        veh_sched.AddMember("st", int64_t(schedule.get_stList()[n]*1000), allocator);
-        veh_sched.AddMember("et", int64_t(schedule.get_etList()[n]*1000), allocator);
-        veh_sched.AddMember("dt", int64_t(schedule.get_dtList()[n]*1000), allocator);
+
+        /* the units of the critical time points (i.e., st, et, dt) in the scheduling service is second,
+        *  but each vehicle need to receive these time points in milisecond. Therefore, a conversion from second to milisecond is added here!
+         */
+        veh_sched.AddMember("st", u_int64_t(schedule.get_stList()[n]*1000), allocator);
+        veh_sched.AddMember("et", u_int64_t(schedule.get_etList()[n]*1000), allocator);
+        veh_sched.AddMember("dt", u_int64_t(schedule.get_dtList()[n]*1000), allocator);
         veh_sched.AddMember("dp", schedule.get_departPosIndexList()[n], allocator);
         if (schedule.get_accessList()[n] == true){
             veh_sched.AddMember("access", 1, allocator);
@@ -499,8 +506,8 @@ void call_scheduling_thread(){
 
                 Value metadata(kObjectType);
                 
-                /* all unit of timestamp is second with decimals */
-                auto timestamp = int64_t(duration<double>(system_clock::now().time_since_epoch()).count()*1000);
+                /* the unit of timestamp here is milliseconds without decimal places */
+                auto timestamp = u_int64_t(duration<double>(system_clock::now().time_since_epoch()).count()*1000);
 
                 metadata.AddMember("timestamp", timestamp, allocator);
                 metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
