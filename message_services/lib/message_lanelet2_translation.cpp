@@ -219,7 +219,7 @@ namespace message_services
             return total_length;
         }
 
-        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory trajectory, std::uint64_t offset_size, std::string turn_direction)
+        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory& trajectory, std::uint64_t offset_size, std::string turn_direction)
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
             try
@@ -230,9 +230,18 @@ namespace message_services
                     spdlog::error("{0}: Cannot determine lanelet type and ids with vehicle trajectory offset size = 0. ", __FILE__);
                     return lanelet_id_type_m;
                 }
-                lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point((trajectory.location.ecef_x + trajectory.offsets.back().offset_x),
-                                                                            (trajectory.location.ecef_y + trajectory.offsets.back().offset_y),
-                                                                            (trajectory.location.ecef_z + trajectory.offsets.back().offset_z));
+                
+                std::int32_t dest_x = trajectory.location.ecef_x;
+                std::int32_t dest_y = trajectory.location.ecef_y;
+                std::int32_t dest_z = trajectory.location.ecef_z;
+                for(auto offset_itr = trajectory.offsets.begin(); offset_itr!= trajectory.offsets.end(); offset_itr++)
+                {
+                    dest_x += offset_itr->offset_x;
+                    dest_y += offset_itr->offset_y;
+                    dest_z += offset_itr->offset_z;
+                }
+
+                lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x,dest_y,dest_z);
                 int64_t start_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_start, turn_direction);
                 spdlog::debug("start lanelet id = {0}", start_lanelet_id);
 

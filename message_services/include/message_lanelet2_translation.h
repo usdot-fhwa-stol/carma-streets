@@ -140,7 +140,7 @@ namespace message_services
              * @param turn_direction
              * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
              * **/
-            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory subj_vehicle_trajectory, std::uint64_t offset_size, std::string turn_direction);
+            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory& subj_vehicle_trajectory, std::uint64_t offset_size, std::string turn_direction);
 
             /***
              * @brief Vehicle broadcast mobilitypath message that contains current vehicle trajectory within the next 6 secs.
