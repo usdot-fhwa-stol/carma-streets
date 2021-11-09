@@ -35,7 +35,7 @@ namespace message_services
             double cur_speed;
             double cur_accel;
             long cur_timestamp;
-            long react_timestamp;
+            double react_timestamp;
             double max_accel;
             double max_decel;
             uint32_t vehicle_length;
@@ -97,8 +97,8 @@ namespace message_services
             void setMax_decel(double max_decel);
             double getMax_accel() const;
             void setMax_accel(double max_accel);
-            long getReact_timestamp() const;
-            void setReact_timestamp(long react_timestamp);
+            double getReact_timestamp() const;
+            void setReact_timestamp(double react_timestamp);
             long getActual_depart_timestamp() const;
             void setActual_depart_timestamp(long actual_depart_timestamp);
             long getCur_timestamp() const;

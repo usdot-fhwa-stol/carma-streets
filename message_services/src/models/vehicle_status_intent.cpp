@@ -102,7 +102,7 @@ namespace message_services
                 writer->String("cur_accel");
                 writer->Double(this->getCur_accel());
                 writer->String("react_t");
-                writer->Uint64(this->getReact_timestamp());
+                writer->Double(this->getReact_timestamp());
                 writer->String("max_accel");
                 writer->Double(this->getMax_accel());
                 writer->String("max_decel");
@@ -339,11 +339,11 @@ namespace message_services
             this->max_accel = max_accel;
         }
 
-        long vehicle_status_intent::getReact_timestamp() const
+        double vehicle_status_intent::getReact_timestamp() const
         {
             return this->react_timestamp;
         }
-        void vehicle_status_intent::setReact_timestamp(long react_timestamp)
+        void vehicle_status_intent::setReact_timestamp(double react_timestamp)
         {
             this->react_timestamp = react_timestamp;
         }

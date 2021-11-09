@@ -406,6 +406,12 @@ namespace message_services
                 vsi.setVehicle_id(mo.getHeader().sender_id);
                 vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
                 vsi.setCur_timestamp(mo.getHeader().timestamp);
+                vsi.setIs_allowed(std::stol(mo.get_value_from_strategy_params("access")));
+                vsi.setMax_accel(std::stod(mo.get_value_from_strategy_params("max_accel")));
+                vsi.setMax_decel(std::stod(mo.get_value_from_strategy_params("max_decel")));
+                vsi.setReact_timestamp(std::stod(mo.get_value_from_strategy_params("react_time")));
+                vsi.setMinimum_gap(std::stod(mo.get_value_from_strategy_params("min_gap")));
+                vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
 
                 //Update vehicle status intent with BSM
                 vsi.setVehicle_length(bsm.getCore_data().size.length);
@@ -440,8 +446,9 @@ namespace message_services
                 est_path_v.push_back(est_path);
 
                 spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
+                message_services::models::trajectory trajectory = mp.getTrajectory();
                 int32_t count = 1;
-                for (auto offset_itr = mp.getTrajectory().offsets.begin(); offset_itr != mp.getTrajectory().offsets.end(); offset_itr++)
+                for (auto offset_itr = trajectory.offsets.begin(); offset_itr != trajectory.offsets.end(); offset_itr++)
                 {
                     count++;
 
@@ -462,7 +469,7 @@ namespace message_services
                 }
 
                 vsi.setEst_path_v(est_path_v);
-                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(mp.getTrajectory(), vsi_est_path_point_count, turn_direction);
+                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(trajectory, vsi_est_path_point_count, turn_direction);
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
                     if (itr->second == models::intersection_lanelet_type::link)
