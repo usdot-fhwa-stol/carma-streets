@@ -21,13 +21,13 @@ do
     echo ""
     echo $d
     if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*Tests ; then
-            TESTS="./`ls $d | grep run[a-zA-Z]*Tests`"
+        if ls $d | grep run[a-zA-Z]*_test ; then
+            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
             echo "$TESTS built"
             cd $d
             $TESTS
             mkdir coverage
-	        gcovr -k -r .
+	    gcovr -k -r .
             mv *.gcov coverage
             cd ../..
         else
@@ -40,7 +40,7 @@ do
     echo ""
     echo $d
     if [[ -d $d ]]; then
-        if ls $d | grep [a-zA-Z]*_test ; then
+        if ls $d | grep run[a-zA-Z]*_test ; then
             TESTS="./`ls $d | grep [a-zA-Z]*_test`"
             echo "$TESTS built"
             cd $d
