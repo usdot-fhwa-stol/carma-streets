@@ -3,6 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <math.h>
+#include <set>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
 
 #include "configuration.h"
 #include "osm.h"
@@ -24,14 +30,10 @@ class scheduling{
 		*/
 		unordered_map<string, int> veh_index;
 
-		/* list of vehicle latest timestamps */
+		/*** list of vehicle latest timestamps 
+		* @brief the unit of timestamp here is second with decimal places.
+		*/
 		vector<double> time;
-
-		/* list of vehicle latitudes */
-		vector<double> lat;
-
-		/* list of vehicle longtitudes */
-		vector<double> lng;
 
 		/* list of vehicle speeds */
 		vector<double> speed;
@@ -62,24 +64,32 @@ class scheduling{
 		/* list of vehicle link priorities */
 		vector<int> link_priority;
 
-		/* list of vehicle earliest stopping times */
+		/*** list of vehicle earliest stopping times 
+		* @brief the unit of timestamp here is second with decimal places.
+		*/
 		vector<double> est;
 
-		/* list of vehicle stopping times */ 
+		/*** list of vehicle stopping times 
+		* @brief the unit of timestamp here is second with decimal places.
+		*/ 
 		vector<double> st;
 
-		/* list of vehicle entering times */
+		/*** list of vehicle entering times 
+		* @brief the unit of timestamp here is second with decimal places.
+		*/
 		vector<double> et;
 
-		/* list of vehicle departure times */
+		/*** list of vehicle departure times 
+		* @brief the unit of timestamp here is second with decimal places.
+		*/
 		vector<double> dt;
 		
 		/* note: the sequence of information in the above vectors will always remain the same.
 		*        therefore, the ith element in any of the above vectors corresponds to the vehicle with index i!
 		*/
 
-		/* list of entering vehice (EV) indexes.
-		*  note: EVs are seperated based on their entry lanes
+		/*** list of entering vehice (EV) indexes.
+		*  @brief EVs are seperated based on their entry lanes
 		*/
 		vector<vector<int>> index_EVs;
 
@@ -94,14 +104,12 @@ class scheduling{
 
 	public:
 
-		scheduling(unordered_map<string, vehicle> list_veh);
+		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap);
 
 		vector<string> get_vehicleIdList();
 		unordered_map<string, int> get_vehicleIndexList();
 
 		vector<double> get_timeList();
-		vector<double> get_latList();
-		vector<double> get_lngList();
 		vector<double> get_speedList();
 		vector<double> get_accelList();
 		vector<string> get_laneIdList();

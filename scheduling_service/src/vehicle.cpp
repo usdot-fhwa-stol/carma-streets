@@ -1,25 +1,14 @@
 
-#include <string>
-#include <vector>
-#include <math.h>
-
-#include "rapidjson/document.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-
-#include "configuration.h"
-#include "osm.h"
 #include "vehicle.h"
 
 using namespace std;
 using namespace rapidjson;
 
 extern configuration config;
-extern osm localmap;
-
+//extern osm localmap;
 
 /* */
-void vehicle::update(const rapidjson::Document& message){	
+void vehicle::update(const rapidjson::Document& message, osm& localmap){	
 	
 	/* the main function will check whether veh_id is included in the message or not
 	*  if it is not included, this function cannot be executed!
@@ -28,8 +17,12 @@ void vehicle::update(const rapidjson::Document& message){
 
 	if (message["metadata"].HasMember("timestamp") && (double)message["metadata"]["timestamp"].GetInt64() / 1000.0 >= timestamp){
 		
+		/* the unit of the received speed from the message is mile per hour
+		*  but the unit of the speed defined in the vehicle class is meter per second. 
+		*  Therefore, a conversion has been added here.
+		*/
 		if (message["payload"].HasMember("cur_speed")){
-			speed = message["payload"]["cur_speed"].GetDouble();
+			speed = message["payload"]["cur_speed"].GetDouble() * 0.44704;
 		} else{
 			spdlog::critical("the current speed of Vehicle {0} is missing in the received update!", veh_id);
 		}
@@ -41,18 +34,6 @@ void vehicle::update(const rapidjson::Document& message){
 		}
 
 		timestamp = (double)message["metadata"]["timestamp"].GetInt64() / 1000.0;
-
-		if (message["payload"].HasMember("lat")){
-			lat = message["payload"]["lat"].GetDouble();
-		} else{
-			spdlog::critical("the current latitude of Vehicle {0} is missing in the received update!", veh_id);
-		}
-
-		if (message["payload"].HasMember("lng")){
-			lng = message["payload"]["lng"].GetDouble();
-		} else{
-			spdlog::critical("the current longitude of Vehicle {0} is missing in the received update!", veh_id);
-		}
 	
 		if (message["payload"].HasMember("cur_lane_id")){
 			lane_id = to_string(message["payload"]["cur_lane_id"].GetInt());
@@ -72,17 +53,17 @@ void vehicle::update(const rapidjson::Document& message){
 			spdlog::critical("the access status of Vehicle {0} is missing in the received update!", veh_id);
 		}
 
-		st_actual = -1;
-		et_actual = -1;
-		dt_actual = -1;
-
 		/* this if condition checks whether the vehicle has been seen before or not */
 		if (id == ""){
-
+			
 			id = message["payload"]["v_id"].GetString();
 			
+			/* the unit of the received vehicle length from the message is centimeter without decimal places
+			*  but the unit of the vehicle length defined in the vehicle class is meter with decimal places. 
+			*  Therefore, a conversion has been added here.
+			*/
 			if (message["payload"].HasMember("v_length")){
-				length = message["payload"]["v_length"].GetDouble();
+				length = (double)message["payload"]["v_length"].GetInt() / 100;
 			} else{
 				spdlog::critical("the length of Vehicle {0} is missing in the received update!", veh_id);
 			}
@@ -136,6 +117,9 @@ void vehicle::update(const rapidjson::Document& message){
 			access = false;
 
 			/* vehicle state determination */
+			st_actual = -1;
+			et_actual = -1;
+			dt_actual = -1;
 			if (lane_id == entryLane_id){
 				if (distance <= 2 && speed <= 0.1){
 					state = "RDV";
@@ -172,8 +156,10 @@ void vehicle::update(const rapidjson::Document& message){
 					lane_id = entryLane_id;
 					distance = 0.1;
 				} else{
-					lane_id = link_id;
-					distance = localmap.get_laneLength(lane_id);
+					if (lane_id != link_id){
+						lane_id = link_id;
+						distance = localmap.get_laneLength(lane_id);
+					}
 					state = "DV";
 					et_actual = timestamp;
 				}
@@ -204,18 +190,6 @@ void vehicle::update(const rapidjson::Document& message){
 				} else{
 					spdlog::critical("the timestamp in the future path of Vehicle {0} is missing in the received update!", veh_id);
 				}
-	
-				if (message["payload"]["est_paths"][i].HasMember("lat")){
-					fi.lat = message["payload"]["est_paths"][i]["lat"].GetDouble();
-				} else{
-					spdlog::critical("the latitude in the future path of Vehicle {0} is missing in the received update!", veh_id);
-				}
-				
-				if (message["payload"]["est_paths"][i].HasMember("lng")){
-					fi.lng = message["payload"]["est_paths"][i]["lng"].GetDouble();
-				} else{
-					spdlog::critical("the longitude in the future path of Vehicle {0} is missing in the received update!", veh_id);
-				}
 
 				if (message["payload"]["est_paths"][i].HasMember("id")){
 					fi.lane_id = to_string(message["payload"]["est_paths"][i]["id"].GetInt());
@@ -232,10 +206,10 @@ void vehicle::update(const rapidjson::Document& message){
 				double speed_c;
 				double accel_c;
 				if (i == 0){
-					speed_c = sqrt(pow(fi.lat - lat, 2) + pow(fi.lng - lng, 2)) / (fi.timestamp - timestamp);
+					speed_c = (distance - fi.distance) / (fi.timestamp - timestamp);
 					accel_c = (speed_c - speed) / (fi.timestamp - timestamp);
 				} else{
-					speed_c = sqrt(pow(fi.lat - future_info[i - 1].lat, 2) + pow(fi.lng - future_info[i - 1].lng, 2)) / (fi.timestamp - future_info[i - 1].timestamp);
+					speed_c = (fi.distance - future_info[i - 1].distance) / (fi.timestamp - future_info[i - 1].timestamp);
 					accel_c = (speed_c - future_info[i - 1].speed) / (fi.timestamp - future_info[i - 1].timestamp);
 				}
 				fi.speed = speed_c;
@@ -254,6 +228,9 @@ void vehicle::update(const rapidjson::Document& message){
 
 }
 
+
+/* */
+string vehicle::get_id(){return id;};
 
 /* */
 double vehicle::get_length(){return length;}
@@ -305,12 +282,6 @@ double vehicle::get_actualDT(){return dt_actual;}
 
 /* */
 double vehicle::get_curTime(){return timestamp;}
-
-/* */
-double vehicle::get_curLat(){return lat;}
-
-/* */
-double vehicle::get_curLng(){return lng;}
 
 /* */
 double vehicle::get_curDistance(){return distance;}
