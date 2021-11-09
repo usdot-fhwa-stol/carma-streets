@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 #  Copyright (C) 2019-2020 LEIDOS.
 # 
@@ -100,18 +100,11 @@ jobs:
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
       - run:
-          name: Build scheduling_service
-          command: |
-            source ${INIT_ENV}
-            cd /home/carma-streets/
-            chmod 755 *
-            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
-      - run:
           name: Run Tests & Generate Gcovr Reports
           command: |
             source ${INIT_ENV}
             cd /home/carma-streets/
-            #build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
       - run:
           name: Run Sonar Scanner
