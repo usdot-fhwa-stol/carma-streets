@@ -1,10 +1,11 @@
 
+
 #include "osm.h"
 
 using namespace std;
 using namespace rapidjson;
 
-/* !!! must be revised !!! */
+/* !!! Currently, an example intersection is created here in the osm file. But the example intersection and the osm file will be replaced by the intersection model !!! */
 osm::osm(string json_file_name){
 	
 	/* dummy intersection */
@@ -90,7 +91,7 @@ osm::osm(string json_file_name){
 		lane_info[lane_id_exit[i]].from_id.push_back(lane_id_link[i]);
 
 		for (int j = 0; j < 4; ++j){
-			if (i == j || j%2 != i%2){
+			if (i == j || i%2 != j%2){
 				lane_info[lane_id_link[i]].conflicting_lane_id.push_back(lane_id_link[j]);
 			}
 		}
