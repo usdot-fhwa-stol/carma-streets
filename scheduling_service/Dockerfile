@@ -1,6 +1,5 @@
 FROM ubuntu:bionic-20210702
 
-RUN apt-get update
 RUN apt-get update  && apt-get install -y sudo cmake git build-essential libboost1.65-all-dev curl unzip gcovr 
 
 RUN mkdir -p /home/carma-streets/
@@ -66,8 +65,6 @@ RUN make
 
 WORKDIR  /home/carma-streets/scheduling_service/build
 
-#COPY ./build.sh /home/carma-streets/
-#COPY ./coverage.sh /home/carma-streets/
 
 # Set metadata labels
 # Set metadata labels
