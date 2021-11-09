@@ -1,22 +1,14 @@
 
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <math.h>
 
-#include "configuration.h"
-#include "osm.h"
-#include "vehicle.h"
-#include "sorting.h"
 #include "scheduling.h"
 
 using namespace std;
 
 extern configuration config;
-extern osm localmap;
+//extern osm localmap;
 
 /* */
-scheduling::scheduling(unordered_map<string, vehicle> list_veh){
+scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap){
 
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (auto& element : list_veh){
@@ -26,8 +18,6 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh){
 		veh_index[element.first] = vehicle_index;
 		
 		time.push_back(element.second.get_curTime());
-		lat.push_back(element.second.get_curLat());
-		lng.push_back(element.second.get_curLng());
 		speed.push_back(element.second.get_curSpeed());
 		acceleration.push_back(element.second.get_curAccel());
 		lane_id.push_back(element.second.get_curLaneID());
@@ -44,6 +34,20 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh){
 		access.push_back(element.second.get_access());
 		link_priority.push_back(element.second.get_linkPriority());
 
+		/* for those vehicles that got access from the previous schedules but did not confirm yet, please check */
+		if (list_veh_confirmation.find(veh_id.back()) != list_veh_confirmation.end()){
+			/* if CARMA Streets received the confirmation from the vehicle updates, it will remove the vehicle ID from the waiting list */
+			if (access[access.size() - 1] == true){
+				list_veh_confirmation.erase(veh_id.back());
+			}
+			/* if CARMA Streets did not receive the confirmation from the vehicle updates yet, it will consider the vehicle as a DV for now */
+			else{
+				state[state.size() - 1] = "DV";
+				et[et.size() - 1] = config.get_curSchedulingT();
+				access[access.size() - 1] = true;
+			}
+		}
+
 		/* estimate the vehicle location, speed, state, etc. at a given future timestamp! */
 		if (time.back() < config.get_curSchedulingT() + config.get_schedulingDelta()){
 			
@@ -54,8 +58,6 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh){
 
 					
 					time.back() = element.second.get_futureInfo()[i].timestamp;
-					lat.back() = element.second.get_futureInfo()[i].lat;
-					lng.back() = element.second.get_futureInfo()[i].lng;
 					lane_id.back() = element.second.get_futureInfo()[i].lane_id;
 					distance.back() = element.second.get_futureInfo()[i].distance;
 					speed.back() = element.second.get_futureInfo()[i].speed;
@@ -191,12 +193,6 @@ unordered_map<string, int> scheduling::get_vehicleIndexList(){return veh_index;}
 
 /* */
 vector<double> scheduling::get_timeList(){return time;}
-
-/* */
-vector<double> scheduling::get_latList(){return lat;}
-
-/* */
-vector<double> scheduling::get_lngList(){return lng;}
 
 /* */
 vector<double> scheduling::get_speedList(){return speed;}

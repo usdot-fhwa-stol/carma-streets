@@ -51,7 +51,8 @@ namespace intersection_model
     struct lanelet_info_t
     {
         int64_t id           = 0;    //Uniquely identify the lanelet id within an OSM file
-        uint32_t speed_limit = 0.0;  //Unit of measure MPH
+        uint32_t speed_limit = 0;    //Unit of measure MPH
+        double length        = 0.0;  //Unit of meter
 
         //Override comparison operator
         friend bool operator<(const lanelet_info_t &l, const lanelet_info_t &r)

@@ -4,6 +4,7 @@
 #include <chrono>  
 #include <vector>
 #include <unordered_map>
+#include <set>
 
 #include "configuration.h"
 #include "osm.h"
@@ -24,6 +25,7 @@ using namespace chrono;
 configuration config;
 osm localmap("osm.json");
 unordered_map<string, vehicle> list_veh;
+set<string> list_veh_confirmation;
 
 
 void consumer_update(const char* paylod){
@@ -32,37 +34,45 @@ void consumer_update(const char* paylod){
     message.SetObject();
     message.Parse(paylod);
     
-    if (message["payload"].HasMember("v_id")){
-        string veh_id = message["payload"]["v_id"].GetString();
+    /* if the received message does not have payload, it cannot be processed! */
+    if (message.HasMember("payload")){
+        if (message["payload"].HasMember("v_id")){
+            string veh_id = message["payload"]["v_id"].GetString();
 
-        if (!list_veh.count(veh_id)){
+            /* check if the vehicle is included in the list_veh. if not, include it. */
+            if (!list_veh.count(veh_id)){
 
-            if (message["payload"].HasMember("cur_lane_id")){
-                string cur_lane_type = localmap.get_laneType(to_string(message["payload"]["cur_lane_id"].GetInt()));
-                if (cur_lane_type == "entry" || cur_lane_type == "link"){
-                    list_veh[veh_id] = vehicle();
+                if (message["payload"].HasMember("cur_lane_id")){
+                    string cur_lane_type = localmap.get_laneType(to_string(message["payload"]["cur_lane_id"].GetInt()));
+                    if (cur_lane_type == "entry" || cur_lane_type == "link"){
+                        list_veh[veh_id] = vehicle();
+                    }
+                }
+                else{
+                    spdlog::critical("Vehicle {0}'s current lane id is missing in the received status and intent update!", veh_id);
                 }
             }
-            else{
-                spdlog::critical("Vehicle {0}'s current lane id is missing in the received status and intent update!", veh_id);
+
+            /* update the vehicle status and intent information */
+            if (list_veh.count(veh_id)){
+                list_veh[veh_id].update(message, localmap);       
+                if (list_veh[veh_id].get_curState() == "LV"){
+                    list_veh.erase(veh_id);
+                }
             }
         }
-
-        if (list_veh.count(veh_id)){
-            list_veh[veh_id].update(message);       
-            if (list_veh[veh_id].get_curState() == "LV"){
-                list_veh.erase(veh_id);
-            }
+        else{
+            spdlog::critical("vehicle id is missing in the received status and intent update!");
         }
     }
     else{
-        spdlog::critical("vehicle id is missing in the received status and intent update!");
+        spdlog::critical("payload is missing in the received status and intent update!");
     }
 }
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
 
-    scheduling schedule(list_veh);
+    scheduling schedule(list_veh, list_veh_confirmation, localmap);
 
     /* estimate the departure times (DTs) of DVs */
     for (auto & vehicle_index : schedule.get_indexDVs()){
@@ -373,12 +383,19 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         std::string vehicle_id = schedule.get_vehicleIdList()[n];
         Value veh_sched(kObjectType);
         veh_sched.AddMember("v_id", vehicle_id, allocator);
-        veh_sched.AddMember("st", schedule.get_stList()[n], allocator);
-        veh_sched.AddMember("et", schedule.get_etList()[n], allocator);
-        veh_sched.AddMember("dt", schedule.get_dtList()[n], allocator);
+
+        /* the units of the critical time points (i.e., st, et, dt) in the scheduling service is second,
+        *  but each vehicle need to receive these time points in milisecond. Therefore, a conversion from second to milisecond is added here!
+         */
+        veh_sched.AddMember("st", u_int64_t(schedule.get_stList()[n]*1000), allocator);
+        veh_sched.AddMember("et", u_int64_t(schedule.get_etList()[n]*1000), allocator);
+        veh_sched.AddMember("dt", u_int64_t(schedule.get_dtList()[n]*1000), allocator);
         veh_sched.AddMember("dp", schedule.get_departPosIndexList()[n], allocator);
         if (schedule.get_accessList()[n] == true){
             veh_sched.AddMember("access", 1, allocator);
+            if (list_veh[vehicle_id].get_access() == false){
+                list_veh_confirmation.insert(vehicle_id);
+            }
         } 
         else{
             veh_sched.AddMember("access", 0, allocator);
@@ -438,7 +455,7 @@ void call_consumer_thread()
         
         consumer_worker->stop();
     }     
-    delete consumer_worker;
+    // delete consumer_worker;
     return;    
 }
 
@@ -489,13 +506,13 @@ void call_scheduling_thread(){
 
                 Value metadata(kObjectType);
                 
-                /* all unit of timestamp is second with decimals */
-                auto timestamp = duration<double>(system_clock::now().time_since_epoch()).count();
+                /* the unit of timestamp here is milliseconds without decimal places */
+                auto timestamp = u_int64_t(duration<double>(system_clock::now().time_since_epoch()).count()*1000);
 
                 metadata.AddMember("timestamp", timestamp, allocator);
-                metadata.AddMember("intersection_type", "stop_controlled",allocator);
+                metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
                 document.AddMember("metadata", metadata, allocator);
-                
+
                 Value schedule;
                 if (list_veh_copy.size() > 0){
                     schedule = scheduling_func(list_veh_copy, allocator);
@@ -524,7 +541,7 @@ void call_scheduling_thread(){
         producer_worker->stop();
 
     }
-    delete producer_worker;
+    // delete producer_worker;
 
     return;
 

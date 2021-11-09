@@ -4,7 +4,6 @@
 #include <spdlog/spdlog.h>
 #include <ctime>
 #include "baseMessage.h"
-#include "header.h"
 
 namespace message_services
 {
@@ -47,8 +46,8 @@ namespace message_services
 
         typedef struct VehicleSize
         {
-            long width = 0;
-            long length = 0;
+            long width = 0; //#VehicleWidth ::= INTEGER (0..1023) -- LSB units are 1 cm with a range of >10 meters
+            long length = 0; //#VehicleLength ::= INTEGER (0.. 4095) -- LSB units of 1 cm with a range of >40 meters
         } VehicleSize_t;
 
         typedef struct bsmCoreData

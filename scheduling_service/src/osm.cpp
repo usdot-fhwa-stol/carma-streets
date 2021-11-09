@@ -1,20 +1,11 @@
 
-#include <string>
-#include <fstream>
-#include <vector>
-#include <unordered_map>
-
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
 
 #include "osm.h"
 
 using namespace std;
 using namespace rapidjson;
 
-/* !!! must be revised !!! */
+/* !!! Currently, an example intersection is created here in the osm file. But the example intersection and the osm file will be replaced by the intersection model !!! */
 osm::osm(string json_file_name){
 	
 	/* dummy intersection */
@@ -100,7 +91,9 @@ osm::osm(string json_file_name){
 		lane_info[lane_id_exit[i]].from_id.push_back(lane_id_link[i]);
 
 		for (int j = 0; j < 4; ++j){
-			lane_info[lane_id_link[i]].conflicting_lane_id.push_back(lane_id_link[j]);
+			if (i == j || i%2 != j%2){
+				lane_info[lane_id_link[i]].conflicting_lane_id.push_back(lane_id_link[j]);
+			}
 		}
 	}
 

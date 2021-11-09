@@ -29,6 +29,7 @@ namespace message_services
             {
                 spdlog::critical("mobilityoperation_worker: Document parse error");
             }
+
         }
         void mobilityoperation_worker::pop_cur_element_from_list(long element_position)
         {

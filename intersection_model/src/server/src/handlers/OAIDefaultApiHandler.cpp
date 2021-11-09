@@ -44,6 +44,7 @@ void OAIDefaultApiHandler::getConflictLanelets(qint32 link_lanelet_id) {
                 OAILanelet_info lanelet_info;
                 lanelet_info.setId (itr->id);
                 lanelet_info.setSpeedLimit(itr->speed_limit);
+                lanelet_info.setLength(itr->length);
                 res.push_back(lanelet_info);
             }        
             reqObj->getConflictLaneletsResponse(res);            
@@ -69,6 +70,7 @@ void OAIDefaultApiHandler::getIntersectionInfo() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
+            lanelet_info.setLength(itr->length);
             departure_lanlets.push_back(lanelet_info);
         }
         res.setDepartureLanelets(departure_lanlets);
@@ -79,7 +81,7 @@ void OAIDefaultApiHandler::getIntersectionInfo() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
-            
+           
             //Update the llink lanelet_info with the list of conflict lanelets
             std::vector<intersection_model::lanelet_info_t> conflict_lanelet_info_v = int_worker->get_conflict_lanelets(itr->id);
             QList<qint32> conflict_lanelet_ids;
@@ -88,6 +90,7 @@ void OAIDefaultApiHandler::getIntersectionInfo() {
                 conflict_lanelet_ids.push_back(conflict_itr->id);
             }
             lanelet_info.setConflictLaneletIds(conflict_lanelet_ids);
+            lanelet_info.setLength(itr->length);
             link_lanlets.push_back(lanelet_info);
         }
         res.setLinkLanelets(link_lanlets);
@@ -98,6 +101,7 @@ void OAIDefaultApiHandler::getIntersectionInfo() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
+            lanelet_info.setLength(itr->length);
             entry_lanlets.push_back(lanelet_info);
         }
         res.setEntryLanelets(entry_lanlets);
@@ -115,6 +119,7 @@ void OAIDefaultApiHandler::listDepartureLanelets() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
+            lanelet_info.setLength(itr->length);
             res.push_back(lanelet_info);
         }
         reqObj->listDepartureLaneletsResponse(res);
@@ -131,6 +136,7 @@ void OAIDefaultApiHandler::listEntryLanelets() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
+            lanelet_info.setLength(itr->length);
             res.push_back(lanelet_info);
         }
         reqObj->listEntryLaneletsResponse(res);
@@ -147,6 +153,7 @@ void OAIDefaultApiHandler::listLinkLanelets() {
             OAILanelet_info lanelet_info;
             lanelet_info.setId (itr->id);
             lanelet_info.setSpeedLimit(itr->speed_limit);
+            lanelet_info.setLength(itr->length);
             res.push_back(lanelet_info);
         }
         reqObj->listLinkLaneletsResponse(res);

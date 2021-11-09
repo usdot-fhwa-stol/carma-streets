@@ -25,34 +25,36 @@ namespace message_services
             {
                 for (rapidjson::Value::ConstMemberIterator obj_itr = obj.MemberBegin(); obj_itr != obj.MemberEnd(); obj_itr++)
                 {
-                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("header")))
+
+                    if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("metadata")))
                     {
                         mobility_header_t header;
 
                         for (rapidjson::Value::ConstMemberIterator header_itr = obj_itr->value.MemberBegin(); header_itr != obj_itr->value.MemberEnd(); header_itr++)
                         {
-                            if (std::string(header_itr->name.GetString()) == std::string("sender_id"))
+
+                            if (std::string(header_itr->name.GetString()) == std::string("hostStaticId"))
                             {
                                 header.sender_id = header_itr->value.GetString();
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("sender_bsm_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("hostBSMId"))
                             {
                                 header.sender_bsm_id = header_itr->value.GetString();
                             }
 
-                            if (std::string(header_itr->name.GetString()) == std::string("recipient_id"))
-                            {
-                                header.recipient_id = (header_itr->value.GetString());
-                            }
-
-                            if (std::string(header_itr->name.GetString()) == std::string("plan_id"))
+                            if (std::string(header_itr->name.GetString()) == std::string("planId"))
                             {
                                 header.plan_id = (header_itr->value.GetString());
                             }
+
+                            if (std::string(header_itr->name.GetString()) == std::string("targetStaticId"))
+                            {
+                                header.recipient_id = (header_itr->value.GetString());
+                            }
                             if (std::string(header_itr->name.GetString()) == std::string("timestamp"))
                             {
-                                header.timestamp = (header_itr->value.GetUint64());
+                                header.timestamp = std::stol(header_itr->value.GetString());
                             }
                         }
                         setHeader(header);
@@ -115,20 +117,23 @@ namespace message_services
 
                 while (std::getline(key_value_str_stream, key_or_value, *(delimiter + 1)))
                 {
-
+                    boost::algorithm::trim(key_or_value);
                     key_value_v.push_back(key_or_value);
-                    if (key_or_value == key)
-                    {
-                        return key_value_v.back();
-                    }
                 }
 
+                if (key_value_v.size() > 0 && key_value_v.front() == key)
+                {
+                    return key_value_v.back();
+                }
+                
                 if (key_value_v.size() > 0)
                 {
                     key_value_v.clear();
                 }
+
+                key_value_str = "";
             }
-            return strategy_params_stream;
+            return key_value_str;
         }
 
         std::ostream &operator<<(std::ostream &out, mobilityoperation &mobilityoperation_obj)
@@ -166,6 +171,6 @@ namespace message_services
         {
             this->strategy = strategy;
         }
-
+        
     }
 }

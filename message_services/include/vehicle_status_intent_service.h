@@ -12,6 +12,7 @@
 #include "vehicle_status_intent_worker.h"
 #include "vehicle_status_intent.h"
 #include "kafka_client.h"
+#include "message_lanelet2_translation.h"
 
 namespace message_services
 {
@@ -28,6 +29,20 @@ namespace message_services
             std::string mp_group_id;
             std::string mp_topic_name;
             std::string vsi_topic_name;
+            kafka_clients::kafka_producer_worker *_vsi_producer_worker;
+            kafka_clients::kafka_consumer_worker *_mo_consumer_worker;
+            kafka_clients::kafka_consumer_worker *_mp_consumer_worker;
+            kafka_clients::kafka_consumer_worker *_bsm_consumer_worker;
+            std::int64_t vsi_est_path_point_count = 0;
+
+            //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
+            std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
+
+            //Mapping MobilityOperation and MobilityPath timestamp duration within 0 ms.
+            std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 0; 
+
+            //add lanelet2 translation object
+            std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
 
         public:
             vehicle_status_intent_service();
@@ -37,11 +52,10 @@ namespace message_services
              * @brief configuration file name
              * **/
             const std::string MANIFEST_CONFIG_FILE_PATH = "../manifest.json";
-
             /**
              * @brief read configuration file and determine the producer and consumer topics, bootstrap server
              * **/
-            bool initialize();
+            bool initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_translate_ptr);
 
             /**
              * @brief initialize variables and call run() methods to spin up threads.
@@ -69,8 +83,9 @@ namespace message_services
              * @brief Identify the latest bsm , MobilityOperation and MobilityPath messages from the workers based on MobilityOperation. Mapping those messages based on 
              * vehicle id, bsm_id and timestamp is less than 100 ms.
              * @param pointers to object that will store the latest messages
+             * @return true if can find a mapping for mobilityOperation messages; false if no mapping found for any mobilityoperation messages in the mobilityoperation message list
              * **/
-            void identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr, std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr, std::shared_ptr<models::bsm> bsm_ptr,
+            bool identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr, std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr, std::shared_ptr<models::bsm> bsm_ptr,
                                                       std::shared_ptr<models::mobilityoperation> mo_ptr, std::shared_ptr<models::mobilitypath> mp_ptr);
             /**
              * @brief Generate the vehicle status and intent message based on the latest bsm , MobilityOperation and MobilityPath objects.
@@ -83,14 +98,14 @@ namespace message_services
              * @param pointers to object that will store the message consumed. topic from which the message is from. The group id of the consumer
              * **/
             template <class T>
-            void msg_consumer(std::shared_ptr<T> msg_ptr, std::string topic, std::string group_id);
+            void msg_consumer(std::shared_ptr<T> msg_ptr, kafka_clients::kafka_consumer_worker * consumer_worker);
 
             /**
              * @brief Producer a message to a topic
              * @param pointer to object that will be published, and a topic name
              * **/
             template <typename T>
-            void publish_msg(T msg, std::string topic);
+            void publish_msg(T msg, kafka_clients::kafka_producer_worker* producer_worker);
         };
     }
 }

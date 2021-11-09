@@ -6,7 +6,6 @@
 #include <iomanip>
 #include <ctime>
 #include "baseMessage.h"
-#include "header.h"
 #include "bsmCoreData.h"
 
 namespace message_services
@@ -19,7 +18,6 @@ namespace message_services
 
         private:
             bsmCoreData_t core_data;
-            header_t header;
 
         public:
             //constructors
@@ -27,8 +25,6 @@ namespace message_services
 
             //desctructor
             virtual ~bsm();
-            header_t getHeader() const;
-            void setHeader(header_t header);
             void setCore_data(bsmCoreData_t core_data);
             bsmCoreData_t getCore_data() const;
 

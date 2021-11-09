@@ -220,3 +220,5 @@ components:
           type: array
           items:
             type: integer
+        length:
+          type: number
