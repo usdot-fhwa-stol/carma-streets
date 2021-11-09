@@ -406,6 +406,12 @@ namespace message_services
                 vsi.setVehicle_id(mo.getHeader().sender_id);
                 vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
                 vsi.setCur_timestamp(mo.getHeader().timestamp);
+                vsi.setIs_allowed(std::stol(mo.get_value_from_strategy_params("access")));
+                vsi.setMax_accel(std::stod(mo.get_value_from_strategy_params("max_accel")));
+                vsi.setMax_decel(std::stod(mo.get_value_from_strategy_params("max_decel")));
+                vsi.setReact_timestamp(std::stod(mo.get_value_from_strategy_params("react_time")));
+                vsi.setMinimum_gap(std::stod(mo.get_value_from_strategy_params("min_gap")));
+                vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
 
                 //Update vehicle status intent with BSM
                 vsi.setVehicle_length(bsm.getCore_data().size.length);
