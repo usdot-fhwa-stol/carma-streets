@@ -1,3 +1,7 @@
+| CicleCI Build Status | Sonar Code Quality |
+|----------------------|---------------------|
+[![CircleCI](https://circleci.com/gh/usdot-fhwa-stol/carma-streets.svg?style=svg)](https://circleci.com/gh/usdot-fhwa-stol/carma-streets) | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_carma-streets&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_carma-streets)
+
 # carma-streets
 
 CARMA Streets is a component of CARMA ecosystem, which enables such a coordination among different transportation users. This component provides an interface for CDA participants to interact with the road infrastructure. CARMA Streets is also an edge-computing unit that improves the efficiency and performance of the Transportation Systems Management and Operations (TSMO) strategies.
