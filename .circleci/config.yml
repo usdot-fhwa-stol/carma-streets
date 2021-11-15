@@ -136,6 +136,8 @@ jobs:
         name: Docker Build
         command: |
          docker build --network=host -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
+         docker build --network=host -t usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,} -f message_services/Dockerfile .
+         docker build --network=host -t usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .
     
      - run: 
         name: Docker Push
@@ -143,6 +145,8 @@ jobs:
         command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
          docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}
+         docker push usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,}
+         docker push usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,}
     
    
   docker_build_push_develop :
@@ -154,6 +158,8 @@ jobs:
         name: Docker Build
         command: |
           docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .
+          docker build -t usdotfhwastoldev/message_services:latest -f message_services/Dockerfile .
+          docker build -t usdotfhwastoldev/intersection_model:latest -f intersection_model/Dockerfile .
     
      - run: 
         name: Docker Push
@@ -161,6 +167,8 @@ jobs:
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/scheduling_service:latest
+          docker push usdotfhwastoldev/message_services:latest
+          docker push usdotfhwastoldev/intersection_model:latest
 workflows:
   version: 2
   build:
