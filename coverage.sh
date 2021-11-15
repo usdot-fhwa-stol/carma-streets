@@ -54,3 +54,22 @@ do
         fi
     fi
 done
+for d in message_services/*
+do
+    echo ""
+    echo $d
+    if [[ -d $d ]]; then
+        if ls $d | grep run[a-zA-Z]*_test ; then
+            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
+            echo "$TESTS built"
+            cd $d
+            $TESTS
+            mkdir coverage
+            gcovr -k -r .
+            mv *.gcov coverage
+            cd ../..
+        else
+            echo "no tests built"
+        fi
+    fi
+done
