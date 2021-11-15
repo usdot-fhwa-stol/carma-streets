@@ -41,8 +41,6 @@ void OAILanelet_info::initializeModel() {
 
     m_conflict_lanelet_ids_isSet = false;
     m_conflict_lanelet_ids_isValid = false;
-    m_length_isSet = false;
-    m_length_isValid = false;
 }
 
 void OAILanelet_info::fromJson(QString jsonString) {
@@ -62,8 +60,6 @@ void OAILanelet_info::fromJsonObject(QJsonObject json) {
 
     m_conflict_lanelet_ids_isValid = ::OpenAPI::fromJsonValue(conflict_lanelet_ids, json[QString("conflict_lanelet_ids")]);
     m_conflict_lanelet_ids_isSet = !json[QString("conflict_lanelet_ids")].isNull() && m_conflict_lanelet_ids_isValid;
-    m_length_isValid = ::OpenAPI::fromJsonValue(length, json[QString("length")]);
-    m_length_isSet = !json[QString("length")].isNull() && m_length_isValid;
 }
 
 QString OAILanelet_info::asJson() const {
@@ -83,8 +79,6 @@ QJsonObject OAILanelet_info::asJsonObject() const {
     }
     if (conflict_lanelet_ids.size() > 0) {
         obj.insert(QString("conflict_lanelet_ids"), ::OpenAPI::toJsonValue(conflict_lanelet_ids));
-    if (m_length_isSet) {
-        obj.insert(QString("length"), ::OpenAPI::toJsonValue(length));
     }
     return obj;
 }
@@ -135,20 +129,6 @@ bool OAILanelet_info::is_conflict_lanelet_ids_Set() const{
 
 bool OAILanelet_info::is_conflict_lanelet_ids_Valid() const{
     return m_conflict_lanelet_ids_isValid;
-double OAILanelet_info::getLength() const {
-    return length;
-}
-void OAILanelet_info::setLength(const double &length) {
-    this->length = length;
-    this->m_length_isSet = true;
-}
-
-bool OAILanelet_info::is_length_Set() const{
-    return m_length_isSet;
-}
-
-bool OAILanelet_info::is_length_Valid() const{
-    return m_length_isValid;
 }
 
 bool OAILanelet_info::isSet() const {
@@ -164,11 +144,7 @@ bool OAILanelet_info::isSet() const {
             break;
         }
 
-        if (conflict_lanelet_ids.size() > 0) {  
-          isObjectUpdated = true;
-            break;
-        }
-        if (m_length_isSet) {
+        if (conflict_lanelet_ids.size() > 0) {
             isObjectUpdated = true;
             break;
         }

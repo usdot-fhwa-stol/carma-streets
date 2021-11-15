@@ -52,10 +52,6 @@ public:
     void setConflictLaneletIds(const QList<qint32> &conflict_lanelet_ids);
     bool is_conflict_lanelet_ids_Set() const;
     bool is_conflict_lanelet_ids_Valid() const;
-    double getLength() const;
-    void setLength(const double &length);
-    bool is_length_Set() const;
-    bool is_length_Valid() const;
 
     virtual bool isSet() const override;
     virtual bool isValid() const override;
@@ -74,9 +70,6 @@ private:
     QList<qint32> conflict_lanelet_ids;
     bool m_conflict_lanelet_ids_isSet;
     bool m_conflict_lanelet_ids_isValid;
-    double length;
-    bool m_length_isSet;
-    bool m_length_isValid;
 };
 
 } // namespace OpenAPI
