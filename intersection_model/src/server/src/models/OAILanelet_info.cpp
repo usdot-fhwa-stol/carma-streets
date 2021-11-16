@@ -83,6 +83,7 @@ QJsonObject OAILanelet_info::asJsonObject() const {
     }
     if (conflict_lanelet_ids.size() > 0) {
         obj.insert(QString("conflict_lanelet_ids"), ::OpenAPI::toJsonValue(conflict_lanelet_ids));
+    }
     if (m_length_isSet) {
         obj.insert(QString("length"), ::OpenAPI::toJsonValue(length));
     }
@@ -135,6 +136,7 @@ bool OAILanelet_info::is_conflict_lanelet_ids_Set() const{
 
 bool OAILanelet_info::is_conflict_lanelet_ids_Valid() const{
     return m_conflict_lanelet_ids_isValid;
+}
 double OAILanelet_info::getLength() const {
     return length;
 }
