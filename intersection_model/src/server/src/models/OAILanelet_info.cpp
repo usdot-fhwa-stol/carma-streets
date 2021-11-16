@@ -83,11 +83,11 @@ QJsonObject OAILanelet_info::asJsonObject() const {
     }
     if (conflict_lanelet_ids.size() > 0) {
         obj.insert(QString("conflict_lanelet_ids"), ::OpenAPI::toJsonValue(conflict_lanelet_ids));
+    }
     if (m_length_isSet) {
         obj.insert(QString("length"), ::OpenAPI::toJsonValue(length));
     }
     return obj;
-}
 }
 
 qint32 OAILanelet_info::getId() const {
