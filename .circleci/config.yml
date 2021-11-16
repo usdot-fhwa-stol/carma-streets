@@ -41,11 +41,6 @@ jobs:
       - setup_remote_docker :
           docker_layer_caching: false
       # Checkout PR branch
-      - run: 
-          name: Cat Known_host
-          command: |
-            set -x
-            cat ~/.ssh/known_hosts
       - checkout
       - run: 
           name: Install Sonar & Dependencies
@@ -142,7 +137,7 @@ jobs:
         command: |
          docker build --network=host -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
          docker build --network=host -t usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,} -f message_services/Dockerfile .
-         docker build --network=host -t usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .
+         docker build --network=host -t usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .         
     
      - run: 
         name: Docker Push
@@ -151,8 +146,7 @@ jobs:
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
          docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}
          docker push usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,}
-         docker push usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,}
-    
+         docker push usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,}    
    
   docker_build_push_develop :
    machine:
@@ -164,8 +158,7 @@ jobs:
         command: |
           docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .
           docker build -t usdotfhwastoldev/message_services:latest -f message_services/Dockerfile .
-          docker build -t usdotfhwastoldev/intersection_model:latest -f intersection_model/Dockerfile .
-    
+          docker build -t usdotfhwastoldev/intersection_model:latest -f intersection_model/Dockerfile .    
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
@@ -173,7 +166,7 @@ jobs:
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/scheduling_service:latest
           docker push usdotfhwastoldev/message_services:latest
-          docker push usdotfhwastoldev/intersection_model:latest
+          docker push usdotfhwastoldev/intersection_model:latest          
 workflows:
   version: 2
   build:
