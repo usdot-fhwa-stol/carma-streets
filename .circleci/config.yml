@@ -41,6 +41,11 @@ jobs:
       - setup_remote_docker :
           docker_layer_caching: false
       # Checkout PR branch
+      - run: 
+          name: Cat Known_host
+          command: |
+            set -x
+            cat ~/.ssh/known_hosts
       - checkout
       - run: 
           name: Install Sonar & Dependencies
