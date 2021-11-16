@@ -47,7 +47,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 libboost1.65-dev libboost-thread1.65-dev libboost-regex1.65-dev libboost-log1.65-dev libboost-program-options1.65-dev libboost1.65-all-dev libxerces-c-dev libcurl4-openssl-dev  autotools-dev automake  sqlite3 libsqlite3-dev libpugixml-dev libmysqlclient-dev libgeographic-dev libjsoncpp-dev uuid-dev libusb-dev libusb-1.0-0-dev libftdi-dev swig liboctave-dev gpsd libgps-dev portaudio19-dev libsndfile1-dev libglib2.0-dev libglibmm-2.4-dev libpcre3-dev libsigc++-2.0-dev libxml++2.6-dev libxml2-dev liblzma-dev dpkg-dev libmysqlcppconn-dev libev-dev libuv-dev libssl-dev qtbase5-dev qtbase5-dev-tools curl libqhttpengine-dev libgtest-dev libcpprest-dev
             
             mkdir -p /home/carma-streets/ext
             cd /home/carma-streets/ext
@@ -79,6 +79,21 @@ jobs:
             cd /home/carma-streets/ext/rapidjson/build
             cmake .. && make -j
             make install
+
+            # Install PROJ, a package for coordinate transformations
+            git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
+            cd /home/carma-streets/PROJ && \
+            ./autogen.sh && \
+            ./configure && \
+            make && \
+            make install
+            
+            # Download a cmake module for PROJ
+            cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
+            apt update && \
+            apt install -y lsb-release && \
+            sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
+            curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -            
             
             cd /home/carma-streets
             mkdir .base-image
