@@ -88,6 +88,7 @@ QJsonObject OAILanelet_info::asJsonObject() const {
     }
     return obj;
 }
+}
 
 qint32 OAILanelet_info::getId() const {
     return id;
@@ -135,6 +136,7 @@ bool OAILanelet_info::is_conflict_lanelet_ids_Set() const{
 
 bool OAILanelet_info::is_conflict_lanelet_ids_Valid() const{
     return m_conflict_lanelet_ids_isValid;
+}
 double OAILanelet_info::getLength() const {
     return length;
 }
