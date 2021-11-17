@@ -1,4 +1,0 @@
-/home/ode/carma_streets_ws/carma-streets/examples/qt_rest_clients_api/intersection_client/build/CMakeFiles/rebuild_cache.dir
-/home/ode/carma_streets_ws/carma-streets/examples/qt_rest_clients_api/intersection_client/build/CMakeFiles/intersection_client.dir
-/home/ode/carma_streets_ws/carma-streets/examples/qt_rest_clients_api/intersection_client/build/CMakeFiles/edit_cache.dir
-/home/ode/carma_streets_ws/carma-streets/examples/qt_rest_clients_api/intersection_client/build/CMakeFiles/intersection_client_autogen.dir
