@@ -15,80 +15,9 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
-
-for d in kafka_clients/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-	    gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
-for d in scheduling_service/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep [a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-            gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
-for d in message_services/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-            gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
-for d in intersection_model/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-            gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
+pwd
+mkdir coverage
+gcovr -k -r .
+mv *.gcov coverage
+#cd ../..
+pwd
