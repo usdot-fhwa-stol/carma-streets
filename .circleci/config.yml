@@ -47,7 +47,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake gpsd libgps-dev portaudio19-dev ros-melodic-catkin python-rospkg libeigen3-dev
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake gpsd libgps-dev portaudio19-dev libeigen3-dev
             
             mkdir -p /home/carma-streets/ext
             cd /home/carma-streets/ext
@@ -94,6 +94,32 @@ jobs:
             apt install -y lsb-release && \
             sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
             curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+
+            apt-get install -y ros-melodic-catkin
+
+            cd /home/carma-streets/
+            mkdir carma_lanelet2 && \
+            cd carma_lanelet2 && \
+            mkdir src && \
+            cd src && \
+            git init && \
+            echo "temp" && \
+            git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git && \
+            git config core.sparsecheckout true	&& \
+            echo "common/hardcoded_params/*" >> .git/info/sparse-checkout && \
+            echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout && \
+            echo "lanelet2/*" >> .git/info/sparse-checkout && \
+            echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout && \
+            git pull --depth 1 origin refactor_lanelet2_extension && \
+            git checkout refactor_lanelet2_extension && \
+            rm -r lanelet2/lanelet2_python && \
+            rm -r lanelet2/lanelet2_examples
+
+            cd /home/carma-streets/carma_lanelet2
+            source /opt/ros/melodic/setup.bash && \
+            DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
+            DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
+            ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
             cd /home/carma-streets
             mkdir .base-image
