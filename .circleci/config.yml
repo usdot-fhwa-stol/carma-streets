@@ -146,7 +146,6 @@ jobs:
           name: Build source code & Run Tests & Generate Gcovr Reports
           command: |
             source ${INIT_ENV}
-            source /home/carma-streets/carma_lanelet2/install/setup.bash
             cd /home/carma-streets/
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
