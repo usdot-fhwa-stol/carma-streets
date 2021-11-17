@@ -95,7 +95,8 @@ jobs:
             sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
             curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 
-            
+            export DEBIAN_FRONTEND=noninteractive apt-get update && \
+            export DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin
 
             cd /home/carma-streets/
             mkdir carma_lanelet2 && \
@@ -121,6 +122,7 @@ jobs:
             DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
+            
             cd /home/carma-streets
             mkdir .base-image
             SONAR_DIR=/opt/sonarqube
