@@ -13,7 +13,11 @@
 #include "configuration.h"
 #include "vehicle.h"
 #include "sorting.h"
+<<<<<<< HEAD
 #include "intersection_client.h"
+=======
+// #include "intersection_client.h"
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 
 using namespace std;
 
@@ -104,7 +108,12 @@ class scheduling{
 
 	public:
 
+<<<<<<< HEAD
 		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, configuration& config);
+=======
+		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap);
+		// scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap);
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 
 		vector<string> get_vehicleIdList();
 		unordered_map<string, int> get_vehicleIndexList();

@@ -11,6 +11,14 @@
 
 #include "intersection_client.h"
 
+// #include "OAIDefaultApi.h"
+// #include <QTimer>
+// #include "intersection_client.h"
+// #include <QEventLoop>
+// #include <QCoreApplication>
+// #include "OAIHelpers.h"
+// using namespace OpenAPI;
+
 using namespace std;
 using namespace rapidjson;
 
@@ -122,7 +130,12 @@ class vehicle{
 
 	public:
 
+<<<<<<< HEAD
 		void update(const Document& message, intersection_client& localmap);
+=======
+		void update(const Document& message, osm& localmap);
+		// void update(const Document& message, intersection_client& localmap);
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 
 		string get_id();
 

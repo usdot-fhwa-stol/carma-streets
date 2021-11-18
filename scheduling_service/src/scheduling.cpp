@@ -6,7 +6,12 @@ using namespace std;
 
 
 /* */
+<<<<<<< HEAD
 scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, configuration& config){
+=======
+scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap){
+// scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap){
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (auto& element : list_veh){
