@@ -5,6 +5,8 @@
 using namespace std;
 using namespace rapidjson;
 
+/* !!! This header file will be removed! */
+
 /* !!! Currently, an example intersection is created here in the osm file. But the example intersection and the osm file will be replaced by the intersection model !!! */
 osm::osm(string json_file_name){
 	
@@ -14,7 +16,7 @@ osm::osm(string json_file_name){
 	// entry lanes
 	for (int i = 0; i < 4; ++i){
 		
-		lane_information li;
+		lane_information1 li;
 		//li.id = "entry_lane_" + to_string(i);
 		li.id = to_string(count);
 		li.index = count;
@@ -37,7 +39,7 @@ osm::osm(string json_file_name){
 	// exit lanes
 	for (int i = 0; i < 4; ++i){
 		
-		lane_information li;
+		lane_information1 li;
 		//li.id = "exit_lane_" + to_string(i);
 		li.id = to_string(count);
 		li.index = count;
@@ -60,7 +62,7 @@ osm::osm(string json_file_name){
 	// connection links
 	for (int i = 0; i < 4; ++i){
 		
-		lane_information li;
+		lane_information1 li;
 		//li.id = "link_" + to_string(i);
 		li.id = to_string(count);
 		li.index = count;

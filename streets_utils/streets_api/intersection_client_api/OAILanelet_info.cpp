@@ -174,6 +174,10 @@ bool OAILanelet_info::isSet() const {
             isObjectUpdated = true;
             break;
         }
+        if (m_length_isSet) {
+            isObjectUpdated = true;
+            break;
+        }
     } while (false);
     return isObjectUpdated;
 }

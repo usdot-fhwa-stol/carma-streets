@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(scheduling_service)
 
+set(CMAKE_AUTOMOC ON)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wno-unused-variable")
+
 link_directories("/usr/lib"  "/usr/local/lib" )
 
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
 
 add_library(${PROJECT_NAME}_lib STATIC 
             src/configuration.cpp 
@@ -21,14 +27,17 @@ add_executable(${PROJECT_NAME}  src/main.cpp
                                 src/configuration.cpp
                                 src/osm.cpp
                                 src/scheduling.cpp
-                                src/vehicle.cpp    )
+                                src/vehicle.cpp
+                                src/intersection_client.cpp )
+                                
 target_include_directories( ${PROJECT_NAME} PUBLIC
                             ${PROJECT_SOURCE_DIR}/include 
                             "/usr/local/include"
                             "/usr/local/include/librdkafka"
                             "/usr/local/include/gtest")
 
-target_link_libraries(${PROJECT_NAME} PUBLIC kafka_clients_lib rdkafka++ Boost::system  Boost::thread spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PUBLIC kafka_clients_lib rdkafka++ Boost::system  Boost::thread spdlog::spdlog intersection_client_api_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network )
 
 
 ########################

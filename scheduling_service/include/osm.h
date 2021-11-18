@@ -14,7 +14,10 @@
 
 using namespace std;
 
-struct lane_information {
+/* !!! This header file will be removed! */
+
+
+struct lane_information1 {
 
 	/* lane id */
 	string id;
@@ -59,7 +62,7 @@ class osm{
 		int lane_count;
 
 		/* list of lanes and their information */
-		unordered_map<string, lane_information> lane_info;
+		unordered_map<string, lane_information1> lane_info;
 
 		/* list of all lane ids */
 		vector<string> lane_id_all;

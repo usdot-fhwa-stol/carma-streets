@@ -12,6 +12,14 @@
 #include "configuration.h"
 #include "osm.h"
 
+// #include "OAIDefaultApi.h"
+// #include <QTimer>
+// #include "intersection_client.h"
+// #include <QEventLoop>
+// #include <QCoreApplication>
+// #include "OAIHelpers.h"
+// using namespace OpenAPI;
+
 using namespace std;
 using namespace rapidjson;
 
@@ -124,6 +132,7 @@ class vehicle{
 	public:
 
 		void update(const Document& message, osm& localmap);
+		// void update(const Document& message, intersection_client& localmap);
 
 		string get_id();
 

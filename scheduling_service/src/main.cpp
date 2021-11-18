@@ -17,13 +17,21 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+#include "OAIDefaultApi.h"
+#include <QTimer>
+#include "intersection_client.h"
+#include <QEventLoop>
+#include <QCoreApplication>
+#include "OAIHelpers.h"
+
 using namespace std;
 using namespace rapidjson;
 using namespace chrono;
-
+using namespace OpenAPI;
 
 configuration config;
 osm localmap("osm.json");
+// intersection_client localmap_client;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 
@@ -550,6 +558,9 @@ void call_scheduling_thread(){
 
 int main(int argc,char** argv)
 {
+    QCoreApplication a(argc, argv);
+    intersection_client localmap_client;
+    localmap_client.call();
 
     boost::thread consumer{call_consumer_thread};
     boost::thread scheduling{call_scheduling_thread};
