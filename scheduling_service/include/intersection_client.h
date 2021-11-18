@@ -92,8 +92,11 @@ class intersection_client : public QObject
         ~intersection_client(){};
         void call();
 
+<<<<<<< HEAD
         string get_intersectionName();
         int get_intersectionId();
+=======
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
         int get_laneCount();
 
 		vector<string> get_laneIdAll();
@@ -103,6 +106,10 @@ class intersection_client : public QObject
 		
 		int get_laneIndex(string lane_id);
 		string get_laneType(string lane_id);
+<<<<<<< HEAD
+=======
+		string get_laneDirection(string lane_id);
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 		double get_laneLength(string lane_id);
 		double get_laneSpeedLimit(string lane_id);
 

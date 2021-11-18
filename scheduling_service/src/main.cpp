@@ -29,7 +29,12 @@ using namespace chrono;
 using namespace OpenAPI;
 
 configuration config;
+<<<<<<< HEAD
 intersection_client localmap;
+=======
+osm localmap("osm.json");
+// intersection_client localmap_client;
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 set<string> list_veh_removal;
@@ -574,7 +579,12 @@ void call_scheduling_thread(){
 int main(int argc,char** argv)
 {
     QCoreApplication a(argc, argv);
+<<<<<<< HEAD
     localmap.call();
+=======
+    intersection_client localmap_client;
+    localmap_client.call();
+>>>>>>> the intersection_client class has been added. the osm class must be removed!
 
     boost::thread consumer{call_consumer_thread};
     boost::thread scheduling{call_scheduling_thread};
