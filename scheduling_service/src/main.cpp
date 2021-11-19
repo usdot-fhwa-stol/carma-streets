@@ -30,11 +30,15 @@ using namespace OpenAPI;
 
 configuration config;
 <<<<<<< HEAD
+<<<<<<< HEAD
 intersection_client localmap;
 =======
 osm localmap("osm.json");
 // intersection_client localmap_client;
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+intersection_client localmap;
+>>>>>>> adding intersection_client header file and removing osm header file.
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 
@@ -563,11 +567,15 @@ int main(int argc,char** argv)
 {
     QCoreApplication a(argc, argv);
 <<<<<<< HEAD
+<<<<<<< HEAD
     localmap.call();
 =======
     intersection_client localmap_client;
     localmap_client.call();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+    localmap.call();
+>>>>>>> adding intersection_client header file and removing osm header file.
 
     boost::thread consumer{call_consumer_thread};
     boost::thread scheduling{call_scheduling_thread};

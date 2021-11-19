@@ -93,10 +93,15 @@ class intersection_client : public QObject
         void call();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         string get_intersectionName();
         int get_intersectionId();
 =======
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+        string get_intersectionName();
+        int get_intersectionId();
+>>>>>>> adding intersection_client header file and removing osm header file.
         int get_laneCount();
 
 		vector<string> get_laneIdAll();

@@ -14,6 +14,7 @@ void intersection_client::call()
           {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             intersection_name = int_info.getName().toStdString();
             intersection_id = int_info.getId();
             spdlog::debug("intersection name: {0}", intersection_name);
@@ -21,6 +22,10 @@ void intersection_client::call()
 =======
             qDebug() << "Intersection name: " <<  int_info.getName();
             qDebug() << "Intersection id: "   << int_info.getId();
+=======
+            // qDebug() << "Intersection name: " <<  int_info.getName();
+            // qDebug() << "Intersection id: "   << int_info.getId();
+>>>>>>> adding intersection_client header file and removing osm header file.
             intersection_name = int_info.getName().toStdString();
             intersection_id = int_info.getId();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
@@ -31,10 +36,16 @@ void intersection_client::call()
             for(QList<OpenAPI::OAILanelet_info>::iterator itr = entry_lanelets.begin(); itr != entry_lanelets.end(); itr++ )
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
               qDebug() << "entry lanelet ID: "   << itr->getId();
               qDebug() << "Speed Limit: " << itr->getSpeedLimit();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+              // qDebug() << "entry lanelet ID: "   << itr->getId();
+              // qDebug() << "Speed Limit (m/s): " << itr->getSpeedLimit() * 0.44704;
+              // qDebug() << "Length (m): " << itr->getLength();
+>>>>>>> adding intersection_client header file and removing osm header file.
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
@@ -48,8 +59,12 @@ void intersection_client::call()
 =======
               li.direction = "straight";
               li.length = itr->getLength();
+<<<<<<< HEAD
               li.speed_limit = itr->getSpeedLimit();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+              li.speed_limit = itr->getSpeedLimit() * 0.44704;
+>>>>>>> adding intersection_client header file and removing osm header file.
               li.priority = -1;
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
@@ -69,10 +84,16 @@ void intersection_client::call()
             for(QList<OpenAPI::OAILanelet_info>::iterator itr = departure_lanelets.begin(); itr != departure_lanelets.end(); itr++ )
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
               qDebug() << "departure lanelet ID: "   << itr->getId();
               qDebug() << "Speed Limit: " << itr->getSpeedLimit();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+              // qDebug() << "departure lanelet ID: "   << itr->getId();
+              // qDebug() << "Speed Limit (m/s): " << itr->getSpeedLimit() * 0.44704;
+              // qDebug() << "Length (m): " << itr->getLength();
+>>>>>>> adding intersection_client header file and removing osm header file.
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
@@ -86,8 +107,12 @@ void intersection_client::call()
 =======
               li.direction = "straight";
               li.length = itr->getLength();
+<<<<<<< HEAD
               li.speed_limit = itr->getSpeedLimit();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+              li.speed_limit = itr->getSpeedLimit() * 0.44704;
+>>>>>>> adding intersection_client header file and removing osm header file.
               li.priority = -1;
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
@@ -105,6 +130,7 @@ void intersection_client::call()
             /* link lanes */
             QList<OpenAPI::OAILanelet_info> link_lanelets = int_info.getLinkLanelets(); 
 <<<<<<< HEAD
+<<<<<<< HEAD
             for(QList<OpenAPI::OAILanelet_info>::iterator itr = link_lanelets.begin(); itr != link_lanelets.end(); itr++ )
             {
 =======
@@ -113,10 +139,18 @@ void intersection_client::call()
               qDebug() << "departure lanelet ID: "   << itr->getId();
               qDebug() << "Speed Limit: " << itr->getSpeedLimit();
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+            for(QList<OpenAPI::OAILanelet_info>::iterator itr = link_lanelets.begin(); itr != link_lanelets.end(); itr++ )
+            {
+              // qDebug() << "link lanelet ID: "   << itr->getId();
+              // qDebug() << "Speed Limit (m/s): " << itr->getSpeedLimit() * 0.44704;
+              // qDebug() << "Length (m): " << itr->getLength();
+>>>>>>> adding intersection_client header file and removing osm header file.
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "link";
+<<<<<<< HEAD
 <<<<<<< HEAD
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
@@ -138,9 +172,12 @@ void intersection_client::call()
                     li.conflicting_lane_id.push_back(to_string(*inner_itr));
                     spdlog::debug("lanelet {0}", li.conflicting_lane_id.back());
 =======
+=======
+              li.direction = "unknown";
+>>>>>>> adding intersection_client header file and removing osm header file.
               // li.direction = itr->getDirection();
               li.length = itr->getLength();
-              li.speed_limit = itr->getSpeedLimit();
+              li.speed_limit = itr->getSpeedLimit() * 0.44704;
 
               li.priority = 1;
               // if (li.direction == "straight"){
@@ -153,10 +190,11 @@ void intersection_client::call()
               //   li.priority = 3;
               // }
               
-              qDebug() << "Conflict lanelets: ";
-              for(auto inner_itr = itr->getConflictLaneletIds().begin(); inner_itr != itr->getConflictLaneletIds().end(); inner_itr++ )
+              // qDebug() << "Conflict lanelets: ";
+              QList<qint32> conflict_lanelets = itr->getConflictLaneletIds();
+              for(QList<qint32>::iterator inner_itr = conflict_lanelets.begin(); inner_itr != conflict_lanelets.end(); inner_itr++ )
               {
-                    qDebug() <<  *inner_itr;
+                    // qDebug() <<  *inner_itr;
                     li.conflicting_lane_id.push_back(to_string(*inner_itr));
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
               }
@@ -171,12 +209,18 @@ void intersection_client::call()
             lane_conflict_status.resize(lane_count, vector<int>(lane_count));
             for (string lane_id1 : lane_id_link){
 <<<<<<< HEAD
+<<<<<<< HEAD
               // qDebug() << "lane ID: " << QString::fromStdString(lane_id1);
               for (string lane_id2 : lane_info[lane_id1].conflicting_lane_id){
                 // qDebug() << "has conflict with: " << QString::fromStdString(lane_id2);
 =======
               for (string lane_id2 : lane_info[lane_id1].conflicting_lane_id){
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+              // qDebug() << "lane ID: " << QString::fromStdString(lane_id1);
+              for (string lane_id2 : lane_info[lane_id1].conflicting_lane_id){
+                // qDebug() << "has conflict with: " << QString::fromStdString(lane_id2);
+>>>>>>> adding intersection_client header file and removing osm header file.
                 lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id2].index] = 1;
               }
               lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id1].index] = 1;
@@ -201,13 +245,19 @@ void intersection_client::call()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> adding intersection_client header file and removing osm header file.
 /* */
 string intersection_client::get_intersectionName(){return intersection_name;}
 
 /* */
 int intersection_client::get_intersectionId(){return intersection_id;}
+<<<<<<< HEAD
 =======
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+>>>>>>> adding intersection_client header file and removing osm header file.
 
 /* */
 int intersection_client::get_laneCount(){return lane_count;}
