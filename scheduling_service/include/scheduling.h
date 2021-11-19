@@ -11,10 +11,9 @@
 #include "spdlog/cfg/env.h"
 
 #include "configuration.h"
-#include "osm.h"
 #include "vehicle.h"
 #include "sorting.h"
-// #include "intersection_client.h"
+#include "intersection_client.h"
 
 using namespace std;
 
@@ -105,8 +104,7 @@ class scheduling{
 
 	public:
 
-		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap);
-		// scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap);
+		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, configuration& config);
 
 		vector<string> get_vehicleIdList();
 		unordered_map<string, int> get_vehicleIndexList();

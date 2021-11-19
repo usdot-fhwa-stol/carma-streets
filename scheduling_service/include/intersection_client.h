@@ -92,6 +92,8 @@ class intersection_client : public QObject
         ~intersection_client(){};
         void call();
 
+        string get_intersectionName();
+        int get_intersectionId();
         int get_laneCount();
 
 		vector<string> get_laneIdAll();

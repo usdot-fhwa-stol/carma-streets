@@ -13,8 +13,8 @@ void intersection_client::call()
   connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignal, [&](OAIIntersection_info int_info)
           {
 
-            qDebug() << "Intersection name: " <<  int_info.getName();
-            qDebug() << "Intersection id: "   << int_info.getId();
+            // qDebug() << "Intersection name: " <<  int_info.getName();
+            // qDebug() << "Intersection id: "   << int_info.getId();
             intersection_name = int_info.getName().toStdString();
             intersection_id = int_info.getId();
 
@@ -23,15 +23,16 @@ void intersection_client::call()
             QList<OpenAPI::OAILanelet_info> entry_lanelets = int_info.getEntryLanelets(); 
             for(QList<OpenAPI::OAILanelet_info>::iterator itr = entry_lanelets.begin(); itr != entry_lanelets.end(); itr++ )
             {
-              qDebug() << "entry lanelet ID: "   << itr->getId();
-              qDebug() << "Speed Limit: " << itr->getSpeedLimit();
+              // qDebug() << "entry lanelet ID: "   << itr->getId();
+              // qDebug() << "Speed Limit (m/s): " << itr->getSpeedLimit() * 0.44704;
+              // qDebug() << "Length (m): " << itr->getLength();
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "entry";
               li.direction = "straight";
               li.length = itr->getLength();
-              li.speed_limit = itr->getSpeedLimit();
+              li.speed_limit = itr->getSpeedLimit() * 0.44704;
               li.priority = -1;
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
@@ -43,15 +44,16 @@ void intersection_client::call()
             QList<OpenAPI::OAILanelet_info> departure_lanelets = int_info.getDepartureLanelets();
             for(QList<OpenAPI::OAILanelet_info>::iterator itr = departure_lanelets.begin(); itr != departure_lanelets.end(); itr++ )
             {
-              qDebug() << "departure lanelet ID: "   << itr->getId();
-              qDebug() << "Speed Limit: " << itr->getSpeedLimit();
+              // qDebug() << "departure lanelet ID: "   << itr->getId();
+              // qDebug() << "Speed Limit (m/s): " << itr->getSpeedLimit() * 0.44704;
+              // qDebug() << "Length (m): " << itr->getLength();
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "exit";
               li.direction = "straight";
               li.length = itr->getLength();
-              li.speed_limit = itr->getSpeedLimit();
+              li.speed_limit = itr->getSpeedLimit() * 0.44704;
               li.priority = -1;
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
@@ -61,17 +63,19 @@ void intersection_client::call()
 
             /* link lanes */
             QList<OpenAPI::OAILanelet_info> link_lanelets = int_info.getLinkLanelets(); 
-            for(QList<OpenAPI::OAILanelet_info>::iterator itr = departure_lanelets.begin(); itr != departure_lanelets.end(); itr++ )
+            for(QList<OpenAPI::OAILanelet_info>::iterator itr = link_lanelets.begin(); itr != link_lanelets.end(); itr++ )
             {
-              qDebug() << "departure lanelet ID: "   << itr->getId();
-              qDebug() << "Speed Limit: " << itr->getSpeedLimit();
+              // qDebug() << "link lanelet ID: "   << itr->getId();
+              // qDebug() << "Speed Limit (m/s): " << itr->getSpeedLimit() * 0.44704;
+              // qDebug() << "Length (m): " << itr->getLength();
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "link";
+              li.direction = "unknown";
               // li.direction = itr->getDirection();
               li.length = itr->getLength();
-              li.speed_limit = itr->getSpeedLimit();
+              li.speed_limit = itr->getSpeedLimit() * 0.44704;
 
               li.priority = 1;
               // if (li.direction == "straight"){
@@ -84,10 +88,11 @@ void intersection_client::call()
               //   li.priority = 3;
               // }
               
-              qDebug() << "Conflict lanelets: ";
-              for(auto inner_itr = itr->getConflictLaneletIds().begin(); inner_itr != itr->getConflictLaneletIds().end(); inner_itr++ )
+              // qDebug() << "Conflict lanelets: ";
+              QList<qint32> conflict_lanelets = itr->getConflictLaneletIds();
+              for(QList<qint32>::iterator inner_itr = conflict_lanelets.begin(); inner_itr != conflict_lanelets.end(); inner_itr++ )
               {
-                    qDebug() <<  *inner_itr;
+                    // qDebug() <<  *inner_itr;
                     li.conflicting_lane_id.push_back(to_string(*inner_itr));
               }
               lane_info[li.id] = li;
@@ -100,7 +105,9 @@ void intersection_client::call()
 
             lane_conflict_status.resize(lane_count, vector<int>(lane_count));
             for (string lane_id1 : lane_id_link){
+              // qDebug() << "lane ID: " << QString::fromStdString(lane_id1);
               for (string lane_id2 : lane_info[lane_id1].conflicting_lane_id){
+                // qDebug() << "has conflict with: " << QString::fromStdString(lane_id2);
                 lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id2].index] = 1;
               }
               lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id1].index] = 1;
@@ -119,6 +126,11 @@ void intersection_client::call()
   loop.exec();
 }
 
+/* */
+string intersection_client::get_intersectionName(){return intersection_name;}
+
+/* */
+int intersection_client::get_intersectionId(){return intersection_id;}
 
 /* */
 int intersection_client::get_laneCount(){return lane_count;}

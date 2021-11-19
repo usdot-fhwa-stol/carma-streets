@@ -12,20 +12,8 @@ find_package(spdlog REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 
-add_library(${PROJECT_NAME}_lib STATIC 
-            src/configuration.cpp 
-            src/vehicle.cpp            
-            src/osm.cpp
-            src/scheduling.cpp )
-
-include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/include 
-                    "/usr/local/include/librdkafka"
-                    "/usr/local/include/gtest"  
-                    "/usr/local/include")
-
 add_executable(${PROJECT_NAME}  src/main.cpp
                                 src/configuration.cpp
-                                src/osm.cpp
                                 src/scheduling.cpp
                                 src/vehicle.cpp
                                 src/intersection_client.cpp )
@@ -47,6 +35,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
-add_executable(${BINARY} ${TEST_SOURCES})
+add_executable(${BINARY} ${TEST_SOURCES}
+                        src/configuration.cpp
+                        src/scheduling.cpp
+                        src/vehicle.cpp
+                        src/intersection_client.cpp )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
-target_link_libraries(${BINARY} PUBLIC  ${PROJECT_NAME}_lib Boost::system kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest)
+target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include  "/usr/local/include" "/usr/local/include/librdkafka" "/usr/local/include/gtest")
+target_link_libraries(${BINARY} PUBLIC  Boost::system kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network)
