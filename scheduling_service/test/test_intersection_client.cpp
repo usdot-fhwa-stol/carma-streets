@@ -210,7 +210,7 @@ TEST(test_intersection_client, call)
     localmap.call();
 
     ASSERT_EQ(9001, localmap.get_intersectionId());
-    // ASSERT_EQ("West Intersection", localmap.get_intersectionId());
+    ASSERT_EQ("West Intersection", localmap.get_intersectionName());
     ASSERT_EQ(20, localmap.get_laneCount());
     ASSERT_EQ(20, localmap.get_laneIdAll().size());
     ASSERT_EQ(4, localmap.get_laneIdEntry().size());
