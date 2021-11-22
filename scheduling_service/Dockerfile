@@ -1,10 +1,14 @@
 FROM ubuntu:bionic-20210702
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 =======
 RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+>>>>>>> circleci update
 
 RUN mkdir -p /home/carma-streets/
 
