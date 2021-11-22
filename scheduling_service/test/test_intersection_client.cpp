@@ -214,10 +214,14 @@ TEST(test_intersection_client, call)
 
     ASSERT_EQ(9001, localmap.get_intersectionId());
 <<<<<<< HEAD
+<<<<<<< HEAD
     ASSERT_EQ("West Intersection", localmap.get_intersectionName());
 =======
     // ASSERT_EQ("West Intersection", localmap.get_intersectionId());
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+    ASSERT_EQ("West Intersection", localmap.get_intersectionName());
+>>>>>>> CMake update
     ASSERT_EQ(20, localmap.get_laneCount());
     ASSERT_EQ(20, localmap.get_laneIdAll().size());
     ASSERT_EQ(4, localmap.get_laneIdEntry().size());
