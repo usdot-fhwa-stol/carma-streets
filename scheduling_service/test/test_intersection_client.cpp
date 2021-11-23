@@ -2,9 +2,12 @@
 #include "gtest/gtest.h"
 #include <vector>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include "rapidjson/document.h"
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
 

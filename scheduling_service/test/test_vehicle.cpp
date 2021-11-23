@@ -43,12 +43,18 @@ TEST(test_vehicle, update)
     ASSERT_EQ(1623677096.000, test_veh.get_curTime());
     ASSERT_EQ(7, test_veh.get_curDistance());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     /* the unit of the received speed from the message is mile per hour
     *  but the unit of the speed defined in the vehicle class is meter per second. 
     *  Therefore, a conversion has been added here.
     */
+<<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(5 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(0, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -58,6 +64,7 @@ TEST(test_vehicle, update)
     EXPECT_EQ(-1, test_veh.get_actualET());
     EXPECT_EQ(-1, test_veh.get_actualDT());
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     // if (test_veh.get_curLaneID() == test_veh.get_entryLaneID()){
@@ -90,6 +97,8 @@ TEST(test_vehicle, update)
     // }
 
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(4, test_veh.get_futureInfo().size());
     for (int i = 0; i < (int)test_veh.get_futureInfo().size(); ++i){
         ASSERT_EQ(1623677096.000 + i*0.2, test_veh.get_futureInfo()[i].timestamp);
@@ -106,12 +115,18 @@ TEST(test_vehicle, update)
     ASSERT_EQ(1623677097.000, test_veh.get_curTime());
     ASSERT_EQ(2, test_veh.get_curDistance());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     /* the unit of the received speed from the message is mile per hour
     *  but the unit of the speed defined in the vehicle class is meter per second. 
     *  Therefore, a conversion has been added here.
     */
+<<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(2 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(-3, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -126,12 +141,18 @@ TEST(test_vehicle, update)
     ASSERT_EQ(1623677097.000, test_veh.get_curTime());
     ASSERT_EQ(2, test_veh.get_curDistance());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     /* the unit of the received speed from the message is mile per hour
     *  but the unit of the speed defined in the vehicle class is meter per second. 
     *  Therefore, a conversion has been added here.
     */
+<<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(2 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(-3, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -146,12 +167,18 @@ TEST(test_vehicle, update)
     ASSERT_EQ(1623677098.000, test_veh.get_curTime());
     ASSERT_EQ(0, test_veh.get_curDistance());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     /* the unit of the received speed from the message is mile per hour
     *  but the unit of the speed defined in the vehicle class is meter per second. 
     *  Therefore, a conversion has been added here.
     */
+<<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(0 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(-2, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -184,12 +211,18 @@ TEST(test_vehicle, update)
     ASSERT_EQ(1623677101.000, test_veh.get_curTime());
     ASSERT_EQ(18, test_veh.get_curDistance());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     /* the unit of the received speed from the message is mile per hour
     *  but the unit of the speed defined in the vehicle class is meter per second. 
     *  Therefore, a conversion has been added here.
     */
+<<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(2 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(2, test_veh.get_curAccel());
     ASSERT_EQ("23016", test_veh.get_curLaneID());
@@ -206,12 +239,18 @@ TEST(test_vehicle, update)
     ASSERT_EQ(1623677105.000, test_veh.get_curTime());
     ASSERT_EQ(295, test_veh.get_curDistance());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     /* the unit of the received speed from the message is mile per hour
     *  but the unit of the speed defined in the vehicle class is meter per second. 
     *  Therefore, a conversion has been added here.
     */
+<<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+=======
+>>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
     ASSERT_EQ(10 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(0, test_veh.get_curAccel());
     ASSERT_EQ("11899", test_veh.get_curLaneID());
