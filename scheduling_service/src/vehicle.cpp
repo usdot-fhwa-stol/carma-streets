@@ -31,6 +31,10 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			spdlog::critical("the current acceleration of Vehicle {0} is missing in the received update!", veh_id);
 		}
 
+		/* the unit of the received timestamp from the message is milisecond without decimal places
+		*  but the unit of the speed defined in the vehicle class is second with decimal places. 
+		*  Therefore, a conversion has been added here.
+		*/
 		timestamp = (double)message["metadata"]["timestamp"].GetInt64() / 1000.0;
 	
 		if (message["payload"].HasMember("cur_lane_id")){

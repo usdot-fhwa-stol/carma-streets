@@ -1,7 +1,6 @@
 
 #include "gtest/gtest.h"
 #include <vector>
-#include "rapidjson/document.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
 

@@ -42,6 +42,10 @@ TEST(test_vehicle, update)
 
     ASSERT_EQ(1623677096.000, test_veh.get_curTime());
     ASSERT_EQ(7, test_veh.get_curDistance());
+    /* the unit of the received speed from the message is mile per hour
+    *  but the unit of the speed defined in the vehicle class is meter per second. 
+    *  Therefore, a conversion has been added here.
+    */
     ASSERT_EQ(5 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(0, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -50,35 +54,6 @@ TEST(test_vehicle, update)
     EXPECT_EQ(-1, test_veh.get_actualST());
     EXPECT_EQ(-1, test_veh.get_actualET());
     EXPECT_EQ(-1, test_veh.get_actualDT());
-
-    // if (test_veh.get_curLaneID() == test_veh.get_entryLaneID()){
-    //     if (test_veh.get_curDistance() < 2 && test_veh.get_curSpeed() <= 0.1){
-    //         ASSERT_EQ("RDV", test_veh.get_curState());
-    //         ASSERT_EQ(1623677096.000, test_veh.get_actualST());
-    //         EXPECT_EQ(-1, test_veh.get_actualET());
-    //         EXPECT_EQ(-1, test_veh.get_actualDT());
-    //     } else{
-    //         ASSERT_EQ("EV", test_veh.get_curState());
-    //         EXPECT_EQ(-1, test_veh.get_actualST());
-    //         EXPECT_EQ(-1, test_veh.get_actualET());
-    //         EXPECT_EQ(-1, test_veh.get_actualDT());
-    //     }
-    // }
-    // else if (test_veh.get_curLaneID() == test_veh.get_linkID()){
-    //     ASSERT_EQ("DV", test_veh.get_curState());
-    //     ASSERT_EQ(1623677096.000, test_veh.get_actualET());
-    //     ASSERT_LE(test_veh.get_actualST(), test_veh.get_actualET());
-    //     ASSERT_GT(test_veh.get_actualST(), -1);
-    //     EXPECT_EQ(-1, test_veh.get_actualDT());
-    // }
-    // else{
-    //     ASSERT_EQ("LV", test_veh.get_curState());
-    //     ASSERT_EQ(1623677096.000, test_veh.get_actualDT());
-    //     ASSERT_LE(test_veh.get_actualET(), test_veh.get_actualDT());
-    //     ASSERT_LE(test_veh.get_actualST(), test_veh.get_actualET());
-    //     ASSERT_GT(test_veh.get_actualET(), -1);
-    //     ASSERT_GT(test_veh.get_actualST(), -1);
-    // }
 
     ASSERT_EQ(4, test_veh.get_futureInfo().size());
     for (int i = 0; i < (int)test_veh.get_futureInfo().size(); ++i){
@@ -95,6 +70,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap);
     ASSERT_EQ(1623677097.000, test_veh.get_curTime());
     ASSERT_EQ(2, test_veh.get_curDistance());
+    /* the unit of the received speed from the message is mile per hour
+    *  but the unit of the speed defined in the vehicle class is meter per second. 
+    *  Therefore, a conversion has been added here.
+    */
     ASSERT_EQ(2 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(-3, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -108,6 +87,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap);
     ASSERT_EQ(1623677097.000, test_veh.get_curTime());
     ASSERT_EQ(2, test_veh.get_curDistance());
+    /* the unit of the received speed from the message is mile per hour
+    *  but the unit of the speed defined in the vehicle class is meter per second. 
+    *  Therefore, a conversion has been added here.
+    */
     ASSERT_EQ(2 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(-3, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -121,6 +104,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap);
     ASSERT_EQ(1623677098.000, test_veh.get_curTime());
     ASSERT_EQ(0, test_veh.get_curDistance());
+    /* the unit of the received speed from the message is mile per hour
+    *  but the unit of the speed defined in the vehicle class is meter per second. 
+    *  Therefore, a conversion has been added here.
+    */
     ASSERT_EQ(0 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(-2, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
@@ -152,6 +139,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap);
     ASSERT_EQ(1623677101.000, test_veh.get_curTime());
     ASSERT_EQ(18, test_veh.get_curDistance());
+    /* the unit of the received speed from the message is mile per hour
+    *  but the unit of the speed defined in the vehicle class is meter per second. 
+    *  Therefore, a conversion has been added here.
+    */
     ASSERT_EQ(2 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(2, test_veh.get_curAccel());
     ASSERT_EQ("23016", test_veh.get_curLaneID());
@@ -167,6 +158,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap);
     ASSERT_EQ(1623677105.000, test_veh.get_curTime());
     ASSERT_EQ(295, test_veh.get_curDistance());
+    /* the unit of the received speed from the message is mile per hour
+    *  but the unit of the speed defined in the vehicle class is meter per second. 
+    *  Therefore, a conversion has been added here.
+    */
     ASSERT_EQ(10 * 0.44704, test_veh.get_curSpeed());
     ASSERT_EQ(0, test_veh.get_curAccel());
     ASSERT_EQ("11899", test_veh.get_curLaneID());
