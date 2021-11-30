@@ -34,11 +34,20 @@ make
 make install
 
 cd /home/carma-streets/message_services
+rm -rf build && mkdir build
+WORKDIR  /home/carma-streets/message_services/build
+source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
+source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
 
 cd /home/carma-streets/intersection_model
+WORKDIR  /home/carma-streets/intersection_model
+mkdir build
+WORKDIR  /home/carma-streets/intersection_model/build
+source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
+source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
