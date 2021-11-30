@@ -25,9 +25,13 @@ make install
 
 cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
 <<<<<<< HEAD
+<<<<<<< HEAD
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 =======
 make -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
+>>>>>>> fixing circleci issues
+=======
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 >>>>>>> fixing circleci issues
 make
 make install
