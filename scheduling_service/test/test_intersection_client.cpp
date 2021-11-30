@@ -217,13 +217,11 @@ TEST(test_intersection_client, call)
     ASSERT_EQ(12, localmap.get_laneIdLink().size());
 
     vector<string> lane_types{"entry", "exit", "link"};
-    vector<string> lane_directions{"straight", "right", "left", "unknown"};
     for (int i = 0; i < (int)localmap.get_laneIdAll().size(); ++i){
         string lane_id = localmap.get_laneIdAll()[i];
         ASSERT_LT(0, stoi(lane_id));
         ASSERT_EQ(i, localmap.get_laneIndex(lane_id));
         ASSERT_TRUE(find(lane_types.begin(), lane_types.end(), localmap.get_laneType(lane_id)) != lane_types.end());
-        ASSERT_TRUE(find(lane_directions.begin(), lane_directions.end(), localmap.get_laneDirection(lane_id)) != lane_directions.end());
         ASSERT_LT(0.0, localmap.get_laneLength(lane_id));
         ASSERT_LT(0.0, localmap.get_laneSpeedLimit(lane_id));
         if (localmap.get_laneType(lane_id) == "entry" || localmap.get_laneType(lane_id) == "exit"){

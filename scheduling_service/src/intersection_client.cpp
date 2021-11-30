@@ -27,7 +27,6 @@ void intersection_client::call()
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "entry";
-              li.direction = "straight";
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -52,7 +51,6 @@ void intersection_client::call()
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "exit";
-              li.direction = "straight";
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -77,8 +75,6 @@ void intersection_client::call()
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "link";
-              li.direction = "unknown";
-              // li.direction = itr->getDirection();
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -87,15 +83,6 @@ void intersection_client::call()
 
               /* each link's priority depends on its direction. but since currently the lane directions are not available, all links are assumed to have the same priority 1 */
               li.priority = 1;
-              // if (li.direction == "straight"){
-              //   li.priority = 1;
-              // }
-              // else if (li.direction == "left"){
-              //   li.priority = 2;
-              // }
-              // else if (li.direction == "right"){
-              //   li.priority = 3;
-              // }
               spdlog::debug("departure lanelet ID: {0}", li.id);
               spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
               spdlog::debug("Length (m): {0}", li.length);
@@ -167,8 +154,6 @@ int intersection_client::get_laneIndex(string lane_id){return lane_info[lane_id]
 /* */
 string intersection_client::get_laneType(string lane_id){return lane_info[lane_id].type;}
 
-/* */
-string intersection_client::get_laneDirection(string lane_id){return lane_info[lane_id].direction;}
 
 /* */
 double intersection_client::get_laneLength(string lane_id){return lane_info[lane_id].length;}

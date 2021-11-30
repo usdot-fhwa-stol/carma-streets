@@ -103,7 +103,6 @@ class intersection_client : public QObject
 		
 		int get_laneIndex(string lane_id);
 		string get_laneType(string lane_id);
-		string get_laneDirection(string lane_id);
 		double get_laneLength(string lane_id);
 		double get_laneSpeedLimit(string lane_id);
 
