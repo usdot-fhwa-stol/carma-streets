@@ -51,6 +51,7 @@ jobs:
             
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
+            cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
             cmake .. && make
             make install
             rm -r build
