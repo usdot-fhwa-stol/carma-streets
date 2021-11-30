@@ -57,11 +57,6 @@ public:
     bool is_length_Set() const;
     bool is_length_Valid() const;
 
-    double getLength() const;
-    void setLength(const double &length);
-    bool is_length_Set() const;
-    bool is_length_Valid() const;
-
     virtual bool isSet() const override;
     virtual bool isValid() const override;
 
