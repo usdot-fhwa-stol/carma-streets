@@ -61,6 +61,7 @@ void intersection_client::call()
               li.index = count;
               li.type = "entry";
 <<<<<<< HEAD
+<<<<<<< HEAD
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -68,6 +69,8 @@ void intersection_client::call()
               li.speed_limit = itr->getSpeedLimit() * 0.44704;
 =======
               li.direction = "straight";
+=======
+>>>>>>> removing lane directions from the intersection_client class
               li.length = itr->getLength();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -124,6 +127,7 @@ void intersection_client::call()
               li.index = count;
               li.type = "exit";
 <<<<<<< HEAD
+<<<<<<< HEAD
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -131,6 +135,8 @@ void intersection_client::call()
               li.speed_limit = itr->getSpeedLimit() * 0.44704;
 =======
               li.direction = "straight";
+=======
+>>>>>>> removing lane directions from the intersection_client class
               li.length = itr->getLength();
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -192,6 +198,7 @@ void intersection_client::call()
               li.type = "link";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -216,6 +223,8 @@ void intersection_client::call()
               li.direction = "unknown";
 >>>>>>> adding intersection_client header file and removing osm header file.
               // li.direction = itr->getDirection();
+=======
+>>>>>>> removing lane directions from the intersection_client class
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -224,15 +233,6 @@ void intersection_client::call()
 
               /* each link's priority depends on its direction. but since currently the lane directions are not available, all links are assumed to have the same priority 1 */
               li.priority = 1;
-              // if (li.direction == "straight"){
-              //   li.priority = 1;
-              // }
-              // else if (li.direction == "left"){
-              //   li.priority = 2;
-              // }
-              // else if (li.direction == "right"){
-              //   li.priority = 3;
-              // }
               spdlog::debug("departure lanelet ID: {0}", li.id);
               spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
               spdlog::debug("Length (m): {0}", li.length);
@@ -337,10 +337,13 @@ int intersection_client::get_laneIndex(string lane_id){return lane_info[lane_id]
 string intersection_client::get_laneType(string lane_id){return lane_info[lane_id].type;}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /* */
 string intersection_client::get_laneDirection(string lane_id){return lane_info[lane_id].direction;}
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
+=======
+>>>>>>> removing lane directions from the intersection_client class
 
 /* */
 double intersection_client::get_laneLength(string lane_id){return lane_info[lane_id].length;}
