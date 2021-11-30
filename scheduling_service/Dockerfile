@@ -1,6 +1,6 @@
 FROM ubuntu:bionic-20210702
 
-RUN apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev 
+RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -54,6 +54,16 @@ WORKDIR  /home/carma-streets/kafka_clients/build
 RUN cmake ..
 RUN make
 RUN make install
+
+RUN echo " ------> Install intersection client library from carma-utils..."
+COPY ./streets_utils/ /home/carma-streets/streets_utils
+WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
+RUN cmake ..
+RUN make
+RUN make install
+
 
 RUN echo " ------> compile scheduling-service..."
 COPY ./scheduling_service/ /home/carma-streets/scheduling_service/

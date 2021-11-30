@@ -4,11 +4,9 @@
 
 using namespace std;
 
-extern configuration config;
-//extern osm localmap;
 
 /* */
-scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, osm& localmap){
+scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, configuration& config){
 
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (auto& element : list_veh){
@@ -51,10 +49,10 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 		/* estimate the vehicle location, speed, state, etc. at a given future timestamp! */
 		if (time.back() < config.get_curSchedulingT() + config.get_schedulingDelta()){
 			
-			for (int i = 0; i < element.second.get_futureInfo().size(); ++i){
+			for (int i = 0; i < (int)element.second.get_futureInfo().size(); ++i){
 				
 				if (element.second.get_futureInfo()[i].timestamp >= config.get_curSchedulingT() + config.get_schedulingDelta() || 
-					i == element.second.get_futureInfo().size() - 1){
+					i == (int)element.second.get_futureInfo().size() - 1){
 
 					
 					time.back() = element.second.get_futureInfo()[i].timestamp;
@@ -147,7 +145,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 
 		/* create the EV, RDV, DV, and LV lists */
 		if (state.back() == "EV"){
-			for (int i = 0; i < index_EVs.size(); ++i){
+			for (int i = 0; i < (int)index_EVs.size(); ++i){
 				if (lane_id.back() == localmap.get_laneIdEntry()[i]){
 					index_EVs[i].push_back(vehicle_index);
 					break;
@@ -167,19 +165,19 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 	}
 
 	sort(index_DVs.begin(), index_DVs.end(), sorting<int>(departurePosition_index, "asc"));
-	for (int n = 0; n < index_DVs.size(); ++n){
+	for (int n = 0; n < (int)index_DVs.size(); ++n){
 		int vehicle_index = index_DVs[n];
 		departurePosition_index[vehicle_index] = n + 1;
 	}
 	
 	sort(index_RDVs.begin(), index_RDVs.end(), sorting<double>(st, "asc"));
 	sort(index_RDVs.begin(), index_RDVs.end(), sorting<int>(departurePosition_index, "asc"));
-	for (int n = 0; n < index_RDVs.size(); ++n) {
+	for (int n = 0; n < (int)index_RDVs.size(); ++n) {
 		int vehicle_index = index_RDVs[n];
 		departurePosition_index[vehicle_index] = index_DVs.size() + n + 1;
 	}
 	
-	for (int i = 0; i < index_EVs.size(); ++i) {
+	for (int i = 0; i < (int)index_EVs.size(); ++i) {
 		sort(index_EVs[i].begin(), index_EVs[i].end(), sorting<double>(distance, "asc"));
 	}
 

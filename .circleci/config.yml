@@ -47,8 +47,14 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
             
+            cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
+            mkdir build
+            cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
+            cmake .. && make
+            make install
+
             mkdir -p /home/carma-streets/ext
             cd /home/carma-streets/ext
             git clone https://github.com/google/googletest/
