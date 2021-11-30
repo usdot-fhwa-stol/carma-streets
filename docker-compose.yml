@@ -66,6 +66,7 @@ services:
     network_mode: host
     depends_on:  
       - kafka
+      - intersection_model
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 

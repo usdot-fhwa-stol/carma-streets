@@ -5,7 +5,8 @@ using namespace OpenAPI;
 
 class intersection_client : public QObject
 {
-    Q_OBJECT
-public slots:
+    public:
+    intersection_client(/* args */){};
+    ~intersection_client(){};
     void call();
 };

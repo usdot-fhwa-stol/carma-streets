@@ -19,7 +19,10 @@ struct sorting
 	    }
 	    else if (operator_sign == "dec"){
 	        return value_vector[i1] > value_vector[i2];
-	    }
+	    } 
+		else{
+			return 0;
+		}
 	}
 };
 

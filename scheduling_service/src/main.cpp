@@ -7,7 +7,6 @@
 #include <set>
 
 #include "configuration.h"
-#include "osm.h"
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
@@ -17,13 +16,20 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+#include "OAIDefaultApi.h"
+#include <QTimer>
+#include "intersection_client.h"
+#include <QEventLoop>
+#include <QCoreApplication>
+#include "OAIHelpers.h"
+
 using namespace std;
 using namespace rapidjson;
 using namespace chrono;
-
+using namespace OpenAPI;
 
 configuration config;
-osm localmap("osm.json");
+intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 
@@ -72,7 +78,7 @@ void consumer_update(const char* paylod){
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
 
-    scheduling schedule(list_veh, list_veh_confirmation, localmap);
+    scheduling schedule(list_veh, list_veh_confirmation, localmap, config);
 
     /* estimate the departure times (DTs) of DVs */
     for (auto & vehicle_index : schedule.get_indexDVs()){
@@ -93,17 +99,17 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     /* estimate earliest entering and departure times for RDV */
 	vector<double> listS_minET(schedule.get_vehicleIdList().size());
 	vector<double> listS_minDT(schedule.get_vehicleIdList().size());
-    for (int n = 0; n < listS.size(); ++n){
+    for (int n = 0; n < (int)listS.size(); ++n){
         int vehicle_index = listS[n];
         listS_minET[vehicle_index] = schedule.get_etList()[vehicle_index];
 		listS_minDT[vehicle_index] = schedule.get_dtList()[vehicle_index];
     }
-    for (int n = 0; n < listRDV.size(); ++n){
+    for (int n = 0; n < (int)listRDV.size(); ++n){
         int vehicle_index1 = listRDV[n];
         string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
         string link_id1 = list_veh[vehicle_id1].get_linkID();
         double et = config.get_curSchedulingT() + config.get_schedulingDelta();
-        for (int m = 0; m < listS.size(); ++m){
+        for (int m = 0; m < (int)listS.size(); ++m){
             int vehicle_index2 = listS[m];
             string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
             string link_id2 = list_veh[vehicle_id2].get_linkID();
@@ -146,7 +152,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		* calculate the delay caused by fixing an RDV in the departure sequence. pick the one that causes the least delay. 
 		*/
 		count_options = 0;
-		for (int n = 0; n < listRDV.size(); ++n){
+		for (int n = 0; n < (int)listRDV.size(); ++n){
 
             int vehicle_index1 = listRDV[n];
             string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
@@ -154,7 +160,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
             
             int break_indicator = 0;
 			listQ.clear();
-            for (int m = 0; m < listRDV.size(); ++m) {
+            for (int m = 0; m < (int)listRDV.size(); ++m) {
 				int vehicle_index2 = listRDV[m];
                 string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
 				if (vehicle_index1 != vehicle_index2) {
@@ -162,7 +168,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 				}
 			}
             sort(listQ.begin(), listQ.end());
-			for (int m = 0; m < listRDV.size() - 1; ++m) {
+			for (int m = 0; m < (int)listRDV.size() - 1; ++m) {
 				if (listQ[m] < m) {
 					break_indicator = 1;
 					break;
@@ -175,7 +181,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 double et1 = listS_minET[vehicle_index1];
                 double dt1 = listS_minDT[vehicle_index1];
                 double delay = et1 - st1;
-                for (int m = 0; m < listRDV.size(); ++m){
+                for (int m = 0; m < (int)listRDV.size(); ++m){
                     int vehicle_index2 = listRDV[m];
                     string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
                     string link_id2 = list_veh[vehicle_id2].get_linkID();
@@ -224,7 +230,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
 
         /* update unscheduled RDVs' earliest entering and departure time */
-		for (int n = 0; n < listRDV.size(); ++n) {
+		for (int n = 0; n < (int)listRDV.size(); ++n) {
 			int vehicle_index1 = listRDV[n];
 			if (vehicle_index1 != vehicle_index) {
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
@@ -242,7 +248,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         /* if the vehicle's entering time is set to the next scheduling time step, give access to the vehicle */
         if (et <= config.get_curSchedulingT() + config.get_schedulingDelta()){
             bool vehicle_access_indicator = true;
-            for (int n = 0; n < schedule.get_indexDVs().size(); ++n){
+            for (int n = 0; n < (int)schedule.get_indexDVs().size(); ++n){
                 int vehicle_index1 = schedule.get_indexDVs()[n];
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
@@ -260,7 +266,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     }
 
     /* scheduling EVs */
-    for (int n = 0; n < listRDV.size(); ++n) {
+    for (int n = 0; n < (int)listRDV.size(); ++n) {
 		int vehicle_index = listRDV[n];
 		listS.push_back(vehicle_index);
 	}
@@ -270,7 +276,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     sort(listS.begin(), listS.end(), sorting<double>(schedule.get_dtList(), "dec"));
     vector<vector<int>> listEV = schedule.get_indexEVs();
     int count_EV = 0;
-    for (int i = 0; i < localmap.get_laneIdEntry().size(); ++i){
+    for (int i = 0; i < (int)localmap.get_laneIdEntry().size(); ++i){
         count_EV += listEV[i].size();
     }
 
@@ -289,7 +295,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		listOptionsLinkPriority.clear();
 		listOptionsLaneIndex.clear();
 		count_options = 0;
-        for (int i = 0; i < localmap.get_laneIdEntry().size(); ++i){
+        for (int i = 0; i < (int)localmap.get_laneIdEntry().size(); ++i){
             string lane_id = localmap.get_laneIdEntry()[i];
             if (listEV[i].size() > 0){
                 
@@ -299,7 +305,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
                 double st = max(schedule.get_estList()[vehicle_index1], config.get_curSchedulingT() + config.get_schedulingDelta());
                 if (listS.size() > 0){
-                    for (int n = 0; n < listS.size(); ++n){
+                    for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
                         string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
                         //string link_id2 = list_veh[vehicle_id2].get_linkID();
@@ -312,7 +318,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
                 double et = st + 0.1;
                 if (listS.size() > 0){
-                    for (int n = 0; n < listS.size(); ++n){
+                    for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
                         if (st < schedule.get_dtList()[vehicle_index2]){
                             string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
@@ -379,7 +385,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     //             "access": 0
     //         } , ... ]
     Value schedule_plan(kArrayType);
-    for (int n = 0; n < schedule.get_vehicleIdList().size(); ++n){
+    for (int n = 0; n < (int)schedule.get_vehicleIdList().size(); ++n){
         std::string vehicle_id = schedule.get_vehicleIdList()[n];
         Value veh_sched(kObjectType);
         veh_sched.AddMember("v_id", vehicle_id, allocator);
@@ -550,6 +556,8 @@ void call_scheduling_thread(){
 
 int main(int argc,char** argv)
 {
+    QCoreApplication a(argc, argv);
+    localmap.call();
 
     boost::thread consumer{call_consumer_thread};
     boost::thread scheduling{call_scheduling_thread};
