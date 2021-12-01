@@ -12,6 +12,8 @@ void intersection_client::call()
   QEventLoop loop;
   connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignal, [&](OAIIntersection_info int_info)
           {
+            
+            is_running_indicator = true;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -285,6 +287,7 @@ void intersection_client::call()
 <<<<<<< HEAD
             string error_str_print = error_str.toStdString();
             spdlog::critical("Error happened while issuing request : {0}", error_str_print);
+<<<<<<< HEAD
 =======
             qDebug() << "Error happened while issuing request : " << error_str;
 >>>>>>> the intersection_client class has been added. the osm class must be removed!
@@ -292,6 +295,9 @@ void intersection_client::call()
             string error_str_print = error_str.toStdString();
             spdlog::critical("Error happened while issuing request : {0}", error_str_print);
 >>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
+=======
+            is_running_indicator = false;
+>>>>>>> adding and revising unit tests
             loop.quit(); });
 
   apiInstance.getIntersectionInfo();
@@ -304,6 +310,9 @@ void intersection_client::call()
 <<<<<<< HEAD
 =======
 >>>>>>> adding intersection_client header file and removing osm header file.
+/* */
+bool intersection_client::is_running(){return is_running_indicator;}
+
 /* */
 string intersection_client::get_intersectionName(){return intersection_name;}
 

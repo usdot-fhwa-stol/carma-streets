@@ -262,7 +262,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			spdlog::critical("the future paths of Vehicle {0} is missing in the received update!", veh_id);
 		}
 
-		spdlog::info("At timestamp {0}, vehicle {1} from lane {2} is in state {3} with speed {4} m/s and is {5} m far from the end of the lane!", timestamp, id, lane_id, state, speed, distance);
+		spdlog::debug("At timestamp {0}, vehicle {1} from lane {2} is in state {3} with speed {4} m/s and is {5} m far from the end of the lane!", timestamp, id, lane_id, state, speed, distance);
 
 	}
 
