@@ -58,6 +58,8 @@ class intersection_client : public QObject
 {
     private:
         
+        bool is_running_indicator;
+
         /* intersection name */
         string intersection_name;
 
@@ -94,6 +96,10 @@ class intersection_client : public QObject
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        bool is_running();
+>>>>>>> adding and revising unit tests
         string get_intersectionName();
         int get_intersectionId();
 =======
