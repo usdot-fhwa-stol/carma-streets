@@ -86,6 +86,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
+      - ./MAP/vector_map.osm:/home/carma-streets/message_services/vector_map.osm
   intersection_model:
     image: usdotfhwastoldev/intersection_model:latest
     build: 
@@ -96,7 +97,7 @@ services:
     network_mode: host
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
-      - ./intersection_model/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
+      - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
 secrets:
     mysql_password:
         file: ./secrets/mysql_password.txt
