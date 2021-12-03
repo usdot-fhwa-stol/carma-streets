@@ -38,17 +38,18 @@ services:
     container_name: php
     network_mode: host
     depends_on:
-      - db
+      - v2xhub
     stdin_open: true
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:latest
+    image: usdotfhwaops/v2xhubamd:carma-streets
     container_name: v2xhub
     network_mode: host
     restart: always
     depends_on:
-      - php
+      - db
+      - kafka
     environment:
       - MYSQL_PASSWORD=/run/secrets/mysql_password
     secrets:
@@ -57,7 +58,7 @@ services:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
   scheduling_service:
-    image: carma-streets-scheduling-service:latest
+    image: usdotfhwastoldev/scheduling_service:latest
     build: 
       context: .
       dockerfile: scheduling_service/Dockerfile
@@ -72,7 +73,7 @@ services:
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
   message_services:
-    image: message_services:latest
+    image: usdotfhwastoldev/message_services:latest
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -86,7 +87,7 @@ services:
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
   intersection_model:
-    image: intersection_model:latest
+    image: usdotfhwastoldev/intersection_model:latest
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
