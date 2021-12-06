@@ -113,7 +113,7 @@ namespace message_services
                 writer->Uint64(this->getDepart_position());
                 writer->String("is_allowed");
                 writer->Bool(this->getIs_allowed());
-                writer->String("cur_lanelet_id");
+                writer->String("cur_lane_id");
                 writer->Int64(this->getCur_lanelet_id());
                 writer->String("cur_ds");
                 writer->Double(this->getCur_distance());
@@ -121,7 +121,7 @@ namespace message_services
                 writer->Int64(this->getEnter_lanelet_id());
                 writer->String("dest_lane_id");
                 writer->Int64(this->getDest_lanelet_id());
-                writer->String("link_lanelet_id");
+                writer->String("link_lane_id");
                 writer->Int64(this->getLink_lanelet_id());
                 //Vehicle turn direction at the intersection
                 writer->String("direction");
