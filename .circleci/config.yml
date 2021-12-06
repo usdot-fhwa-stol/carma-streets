@@ -51,22 +51,9 @@ jobs:
             
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
-<<<<<<< HEAD
-<<<<<<< HEAD
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
             cmake .. && make
             make install
-<<<<<<< HEAD
-=======
-=======
-            cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
->>>>>>> fixing circleci issues
-            cmake .. && make
-            make install
-            rm -r build
->>>>>>> fixing circleci issues
-=======
->>>>>>> fixing circleci issues
 
             mkdir -p /home/carma-streets/ext
             cd /home/carma-streets/ext

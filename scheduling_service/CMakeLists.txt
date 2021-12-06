@@ -12,16 +12,9 @@ find_package(spdlog REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 include_directories("/usr/local/include")
 
-=======
->>>>>>> adding intersection_client header file and removing osm header file.
-=======
-include_directories("/usr/local/include")
-
->>>>>>> CMake update
 add_executable(${PROJECT_NAME}  src/main.cpp
                                 src/configuration.cpp
                                 src/scheduling.cpp
@@ -48,13 +41,5 @@ add_executable(${BINARY} ${TEST_SOURCES}
                         src/vehicle.cpp
                         src/intersection_client.cpp )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
-<<<<<<< HEAD
-<<<<<<< HEAD
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-=======
-target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include  "/usr/local/include" "/usr/local/include/librdkafka" "/usr/local/include/gtest")
->>>>>>> adding intersection_client header file and removing osm header file.
-=======
-target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
->>>>>>> CMake update
 target_link_libraries(${BINARY} PUBLIC  Boost::system kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network)
