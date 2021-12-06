@@ -7,6 +7,6 @@
     "BSM_GROUP_ID": "bsm_consumer",
     "MP_GROUP_ID": "mobilitypath_consumer",
     "MO_GROUP_ID": "mobilityoperation_consumer",
-    "VSI_EST_PATH_COUNT": "0",
+    "VSI_EST_PATH_COUNT": "20",
     "MO_MP_MAX_TIMESTAMP_DURATION": "100"
 }
