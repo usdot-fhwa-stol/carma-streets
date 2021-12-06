@@ -1,13 +1,6 @@
 
 #include "gtest/gtest.h"
 #include <vector>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-#include "rapidjson/document.h"
->>>>>>> adding intersection_client header file and removing osm header file.
-=======
->>>>>>> replacing qDebug with spdlog and adding comments where unit conversions happen
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
 
@@ -216,53 +209,6 @@ TEST(test_intersection_client, call)
     intersection_client localmap;   
     localmap.call();
 
-<<<<<<< HEAD
-    ASSERT_EQ(9001, localmap.get_intersectionId());
-<<<<<<< HEAD
-<<<<<<< HEAD
-    ASSERT_EQ("West Intersection", localmap.get_intersectionName());
-=======
-    // ASSERT_EQ("West Intersection", localmap.get_intersectionId());
->>>>>>> adding intersection_client header file and removing osm header file.
-=======
-    ASSERT_EQ("West Intersection", localmap.get_intersectionName());
->>>>>>> CMake update
-    ASSERT_EQ(20, localmap.get_laneCount());
-    ASSERT_EQ(20, localmap.get_laneIdAll().size());
-    ASSERT_EQ(4, localmap.get_laneIdEntry().size());
-    ASSERT_EQ(4, localmap.get_laneIdExit().size());
-    ASSERT_EQ(12, localmap.get_laneIdLink().size());
-
-    vector<string> lane_types{"entry", "exit", "link"};
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    vector<string> lane_directions{"straight", "right", "left", "unknown"};
->>>>>>> adding intersection_client header file and removing osm header file.
-=======
->>>>>>> removing lane directions from the intersection_client class
-    for (int i = 0; i < (int)localmap.get_laneIdAll().size(); ++i){
-        string lane_id = localmap.get_laneIdAll()[i];
-        ASSERT_LT(0, stoi(lane_id));
-        ASSERT_EQ(i, localmap.get_laneIndex(lane_id));
-        ASSERT_TRUE(find(lane_types.begin(), lane_types.end(), localmap.get_laneType(lane_id)) != lane_types.end());
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        ASSERT_TRUE(find(lane_directions.begin(), lane_directions.end(), localmap.get_laneDirection(lane_id)) != lane_directions.end());
->>>>>>> adding intersection_client header file and removing osm header file.
-=======
->>>>>>> removing lane directions from the intersection_client class
-        ASSERT_LT(0.0, localmap.get_laneLength(lane_id));
-        ASSERT_LT(0.0, localmap.get_laneSpeedLimit(lane_id));
-        if (localmap.get_laneType(lane_id) == "entry" || localmap.get_laneType(lane_id) == "exit"){
-            ASSERT_EQ(-1, localmap.get_lanePriority(lane_id));
-        } 
-        else if (localmap.get_laneType(lane_id) == "link"){
-            ASSERT_LT(0, localmap.get_lanePriority(lane_id));
-        }
-    }
-=======
     try{
 
         if (localmap.is_running() == true){
@@ -301,7 +247,6 @@ TEST(test_intersection_client, call)
 
                 ASSERT_TRUE(find(lane_types.begin(), lane_types.end(), localmap.get_laneType(lane_id)) != lane_types.end());
                 spdlog::info("lanelet type: {0}", localmap.get_laneType(lane_id));
->>>>>>> adding and revising unit tests
 
                 ASSERT_LT(0.0, localmap.get_laneLength(lane_id));
                 spdlog::info("lanelet length: {0}", localmap.get_laneLength(lane_id));

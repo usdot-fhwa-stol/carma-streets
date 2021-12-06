@@ -6,16 +6,9 @@ using namespace rapidjson;
 
 
 /* */
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 void vehicle::update(const rapidjson::Document& message, intersection_client& localmap){
-=======
-void vehicle::update(const rapidjson::Document& message, osm& localmap){
-// void vehicle::update(const rapidjson::Document& message, intersection_client& localmap){
->>>>>>> the intersection_client class has been added. the osm class must be removed!
-=======
-void vehicle::update(const rapidjson::Document& message, intersection_client& localmap){
->>>>>>> adding intersection_client header file and removing osm header file.
+
 	
 	/* the main function will check whether veh_id is included in the message or not
 	*  if it is not included, this function cannot be executed!

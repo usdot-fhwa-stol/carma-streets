@@ -10,7 +10,6 @@
 #include "spdlog/cfg/env.h"
 
 #include "intersection_client.h"
-<<<<<<< HEAD
 
 // #include "OAIDefaultApi.h"
 // #include <QTimer>
@@ -19,8 +18,6 @@
 // #include <QCoreApplication>
 // #include "OAIHelpers.h"
 // using namespace OpenAPI;
-=======
->>>>>>> adding intersection_client header file and removing osm header file.
 
 using namespace std;
 using namespace rapidjson;
@@ -133,16 +130,7 @@ class vehicle{
 
 	public:
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 		void update(const Document& message, intersection_client& localmap);
-=======
-		void update(const Document& message, osm& localmap);
-		// void update(const Document& message, intersection_client& localmap);
->>>>>>> the intersection_client class has been added. the osm class must be removed!
-=======
-		void update(const Document& message, intersection_client& localmap);
->>>>>>> adding intersection_client header file and removing osm header file.
 
 		string get_id();
 
