@@ -63,6 +63,10 @@ namespace message_services
             //Tracking last message expired timestamp
             std::time_t prev_msg_expired_timestamp_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();                      
 
+
+            //Publish vehicle status intent thread sleep time.
+            unsigned int VSI_TH_SLEEP_MILLI_SEC = 100; 
+
             //add lanelet2 translation object
             std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
 
