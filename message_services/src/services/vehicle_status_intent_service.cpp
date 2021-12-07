@@ -454,24 +454,36 @@ namespace message_services
                 spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
                 message_services::models::trajectory trajectory = mp.getTrajectory();
                 int32_t count = 1;
-                for (int offset_index = 0; offset_index < trajectory.offsets.size(); offset_index +=  this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION)
+                size_t next_index = 0;
+                for (size_t offset_index = 0; offset_index < trajectory.offsets.size(); offset_index++)
                 {
-                    count++;
+                    ecef_x += trajectory.offsets.at(offset_index).offset_x;
+                    ecef_y += trajectory.offsets.at(offset_index).offset_y;
+                    ecef_z += trajectory.offsets.at(offset_index).offset_z;
+                    est_path.timestamp += 100; //The duration between two points is 0.1 sec
 
+                    if(next_index != offset_index)
+                    {
+                        continue;
+                    }
+                    next_index += this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION;
+
+                    //Skip the first point
+                    if(offset_index == 0)
+                    {
+                        continue;
+                    }
+
+                    est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                    est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
+                    est_path_v.push_back(est_path);
+                    count++; 
+                    
                     //Allow to configure the number of mobilityPath offsets sent as part of VSI (vehicle status and intent)
                     if (this->vsi_est_path_point_count != 0 && count > this->vsi_est_path_point_count)
                     {
                         break;
                     }
-
-                    ecef_x += trajectory.offsets.at(offset_index).offset_x;
-                    ecef_y += trajectory.offsets.at(offset_index).offset_y;
-                    ecef_z += trajectory.offsets.at(offset_index).offset_z;
-
-                    est_path.timestamp += 100 * MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION; //The duration between two points is 0.1 sec
-                    est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
-                    est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
-                    est_path_v.push_back(est_path);
                 }
 
                 vsi.setEst_path_v(est_path_v);
