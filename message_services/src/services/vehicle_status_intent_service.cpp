@@ -65,6 +65,7 @@ namespace message_services
                 this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
                 this->MOBILITY_OPERATION_PATH_MAX_DURATION = std::stoi(client->get_value_by_doc(doc, "MO_MP_MAX_TIMESTAMP_DURATION"));
                 this->MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = std::stoi(client->get_value_by_doc(doc, "MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET"));
+                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = std::stoi(client->get_value_by_doc(doc,"MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION"));
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc,"VSI_TH_SLEEP_MILLI_SEC"));
 
                 delete client;
@@ -453,7 +454,7 @@ namespace message_services
                 spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
                 message_services::models::trajectory trajectory = mp.getTrajectory();
                 int32_t count = 1;
-                for (auto offset_itr = trajectory.offsets.begin(); offset_itr != trajectory.offsets.end(); offset_itr++)
+                for (int offset_index = 0; offset_index < trajectory.offsets.size(); offset_index +=  this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION)
                 {
                     count++;
 
@@ -463,11 +464,11 @@ namespace message_services
                         break;
                     }
 
-                    ecef_x += offset_itr->offset_x;
-                    ecef_y += offset_itr->offset_y;
-                    ecef_z += offset_itr->offset_z;
+                    ecef_x += trajectory.offsets.at(offset_index).offset_x;
+                    ecef_y += trajectory.offsets.at(offset_index).offset_y;
+                    ecef_z += trajectory.offsets.at(offset_index).offset_z;
 
-                    est_path.timestamp += 100; //The duration between two points is 0.1 sec
+                    est_path.timestamp += 100 * MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION; //The duration between two points is 0.1 sec
                     est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
                     est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
                     est_path_v.push_back(est_path);
