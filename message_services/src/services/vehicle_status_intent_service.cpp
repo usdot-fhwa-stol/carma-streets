@@ -64,6 +64,7 @@ namespace message_services
 
                 this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
                 this->MOBILITY_OPERATION_PATH_MAX_DURATION = std::stoi(client->get_value_by_doc(doc, "MO_MP_MAX_TIMESTAMP_DURATION"));
+                this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc,"VSI_TH_SLEEP_MILLI_SEC"));
 
                 delete client;
 
@@ -138,7 +139,7 @@ namespace message_services
                                           //Iterate mobililityoperation list with vehicle ids for all vehicles
                                           for (auto itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
                                           {
-                                              spdlog::debug("Current mobilityOperation list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                                              spdlog::info("Current mobilityOperation list SIZE = {0}", mo_w_ptr->get_curr_list().size());
                                               if (mo_w_ptr && mo_ptr && !mo_w_ptr->get_curr_list().empty())
                                               {
                                                   mo_ptr->setHeader((*itr).getHeader());
@@ -166,7 +167,7 @@ namespace message_services
                                               }
                                           }
                                       }
-                                      sleep(0.1);
+                                      std::this_thread::sleep_for(std::chrono::milliseconds(this->VSI_TH_SLEEP_MILLI_SEC));
                                   }
                               }};
 
@@ -348,13 +349,15 @@ namespace message_services
                 long mp_pos = 0;
                 bool is_mp_mapping_found = false;
                 bool is_bsm_mapping_found = false;
-                spdlog::debug("Current mobilityPath list SIZE = {0}", mp_w_ptr->get_curr_list().size());
-                spdlog::debug("Current BSM list SIZE = {0}", bsm_w_ptr->get_curr_list().size());
+                spdlog::info("Current mobilityPath list SIZE = {0}", mp_w_ptr->get_curr_list().size());
+                spdlog::info("Current BSM list SIZE = {0}", bsm_w_ptr->get_curr_list().size());
                 while (mp_w_ptr && mp_ptr && mo_ptr && !mp_w_ptr->get_curr_list().empty() && mp_pos < mp_w_ptr->get_curr_list().size())
                 {
                     spdlog::debug("debug mp start {0}", mp_w_ptr->get_curr_list().size());
                     std::string mp_vehicle_id = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().sender_id;
                     uint64_t mp_timestamp = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().timestamp;
+                    spdlog::debug("mo_timestamp {0}", (long)mo_ptr->getHeader().timestamp);
+                    spdlog::debug("mp_timestamp {0}", (long)mp_timestamp);
 
                     //Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
                     if (mo_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mo_ptr->getHeader().timestamp - (long)mp_timestamp) <= MOBILITY_OPERATION_PATH_MAX_DURATION)
