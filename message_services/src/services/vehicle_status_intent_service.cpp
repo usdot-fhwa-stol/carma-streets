@@ -64,6 +64,7 @@ namespace message_services
 
                 this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
                 this->MOBILITY_OPERATION_PATH_MAX_DURATION = std::stoi(client->get_value_by_doc(doc, "MO_MP_MAX_TIMESTAMP_DURATION"));
+                this->MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = std::stoi(client->get_value_by_doc(doc, "MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET"));
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc,"VSI_TH_SLEEP_MILLI_SEC"));
 
                 delete client;
