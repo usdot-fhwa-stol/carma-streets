@@ -41,6 +41,10 @@ namespace message_services
             //Mapping MobilityOperation and MobilityPath timestamp duration within 0 ms.
             std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 0; 
 
+
+            //Publish vehicle status intent thread sleep time.
+            unsigned int VSI_TH_SLEEP_MILLI_SEC = 100; 
+
             //add lanelet2 translation object
             std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
 
