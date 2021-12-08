@@ -118,7 +118,9 @@ namespace message_services
 
             // Only interested in the nearest lanelets with first = 0
             for (auto itr = nearest_lanelets.begin(); itr != nearest_lanelets.end(); itr++)
-            {
+            {    
+                spdlog::error("No nearest lanelet to the vehicle in map point: nearest lanelet id = {0}",itr->second.id());
+            
                 if (itr->first == 0)
                 {
                     current_total_lanelets.push_back(itr->second);
@@ -254,7 +256,7 @@ namespace message_services
                     return lanelet_id_type_m;
                 }
 
-                lanelet_id_type_m = get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id);
+                lanelet_id_type_m = get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, turn_direction);
             }
             catch (...)
             {
@@ -271,7 +273,7 @@ namespace message_services
             return basic_point3d;
         }
 
-        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id) const
+        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id,  std::string turn_direction) const
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
 
@@ -319,7 +321,7 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
-                                spdlog::debug("Found link lanelet id :{0}  ", ll_itr->id());
+                                spdlog::info("Found link lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = vehicleGraph_ptr->previous(*ll_itr).front();
                                 link_lanelet = *ll_itr;
                                 departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
@@ -339,7 +341,8 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
-                                spdlog::debug("Found entry lanelet id :{0}  ", ll_itr->id());
+                                //Checking route
+                                spdlog::info("Found entry lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = *ll_itr;
 
                                 if (!route->following(entry_lanelet).empty())
@@ -351,6 +354,23 @@ namespace message_services
                                 if (!route->following(link_lanelet).empty())
                                 {
                                     departure_lanelet = route->following(link_lanelet).front();
+                                }
+
+                                //Checking routing graph if cannot find link lanelet based on Route itself                               
+                                if(!is_link_lanelet_found)
+                                {
+                                    lanelet::ConstLanelets possible_link_lanelets = vehicleGraph_ptr->following(*ll_itr);
+
+                                    //Check turn_direction to determine the link lanelet for subject vehicle
+                                    for(auto itr = possible_link_lanelets.begin(); itr != possible_link_lanelets.end() ; itr++)
+                                    {
+                                        if(itr->hasAttribute("turn_direction") && itr->attribute("turn_direction").value() == turn_direction)
+                                        {
+                                            link_lanelet = *itr;
+                                            departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
+                                            is_link_lanelet_found = true;
+                                        }
+                                    }
                                 }
                             }
                         }

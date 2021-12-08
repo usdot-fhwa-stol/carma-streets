@@ -149,7 +149,7 @@ namespace message_services
              * @param dest_lanelet_id
              * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
              * **/
-            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id) const;
+            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id,  std::string turn_direction) const;
 
             /**
             * @brief Function to convert ecef location to a 2d point in map frame
