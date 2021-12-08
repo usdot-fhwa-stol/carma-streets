@@ -28,8 +28,6 @@ namespace message_services
             if (bsm_obj.fromJson(json_str.c_str()))
             {
                 std::unique_lock<std::mutex> lck(worker_mtx);
-                // this->bsm_v.push_back(bsm_obj);
-                spdlog::info("BSM hash id = {0}",bsm_obj.generate_hash_bsm_msg_id(bsm_obj.getCore_data().temprary_id, bsm_obj.getCore_data().msg_count));
                 this->bsm_m.insert({bsm_obj.generate_hash_bsm_msg_id(bsm_obj.getCore_data().temprary_id, bsm_obj.getCore_data().msg_count), bsm_obj});
             }
             else
