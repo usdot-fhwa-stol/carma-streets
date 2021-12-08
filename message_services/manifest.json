@@ -8,8 +8,6 @@
     "MP_GROUP_ID": "mobilitypath_consumer",
     "MO_GROUP_ID": "mobilityoperation_consumer",
     "VSI_EST_PATH_COUNT": "20",
-    "MO_MP_MAX_TIMESTAMP_DURATION": "100",
-    "MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET": "0",
     "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION": "20",
-    "VSI_TH_SLEEP_MILLI_SEC": "1000"
+    "VSI_TH_SLEEP_MILLI_SEC": "100"
 }

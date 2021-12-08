@@ -24,7 +24,7 @@ namespace message_services
             if (obj.IsObject())
             {
                 for (rapidjson::Value::ConstMemberIterator obj_itr = obj.MemberBegin(); obj_itr != obj.MemberEnd(); obj_itr++)
-                {                    
+                {
 
                     if (obj_itr->value.IsObject() && boost::iequals(std::string(obj_itr->name.GetString()), std::string("core_data")))
                     {
@@ -115,13 +115,13 @@ namespace message_services
                                 }
                             }
 
-                             if (std::string(core_data_itr->name.GetString()) == std::string("accel_set"))
+                            if (std::string(core_data_itr->name.GetString()) == std::string("accel_set"))
                             {
                                 for (rapidjson::Value::ConstMemberIterator size_itr = core_data_itr->value.MemberBegin(); size_itr != core_data_itr->value.MemberEnd(); size_itr++)
                                 {
                                     if (boost::iequals(std::string(size_itr->name.GetString()), std::string("lat")))
                                     {
-                                       core_data.accelSet.lat = std::stof(size_itr->value.GetString());
+                                        core_data.accelSet.lat = std::stof(size_itr->value.GetString());
                                     }
                                     if (boost::iequals(std::string(size_itr->name.GetString()), std::string("long")))
                                     {
@@ -137,7 +137,6 @@ namespace message_services
                                     }
                                 }
                             }
-
 
                             if (std::string(core_data_itr->name.GetString()) == std::string("brakes"))
                             {
@@ -178,7 +177,7 @@ namespace message_services
         {
             try
             {
-                rapidjson::Value val_core_data;               
+                rapidjson::Value val_core_data;
                 writer->Key("bsmCoreData");
                 writer->StartObject();
                 writer->Key("temprary_id");
@@ -216,7 +215,13 @@ namespace message_services
                       << ", latitude= " << bsm_obj.core_data.latitude << ", longitude = " << bsm_obj.core_data.longitude
                       << ", size: {length = " << bsm_obj.core_data.size.length << "}, speed = " << bsm_obj.core_data.speed << "}" << std::endl;
         }
-       
+
+        std::string bsm::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count)
+        {
+            std::stringstream hash_ss;
+            hash_ss << temprary_id << msg_count;
+            return hash_ss.str();
+        }      
 
         bsmCoreData_t bsm::getCore_data() const
         {
@@ -227,5 +232,6 @@ namespace message_services
         {
             this->core_data = core_data;
         }
+
     }
 }

@@ -28,6 +28,7 @@ namespace message_services
 
             virtual void fromJsonObject(const rapidjson::Value &obj);
             virtual bool asJsonObject(rapidjson::Writer<rapidjson::StringBuffer> *writer) const;
+            std::string generate_hash_sender_timestamp_id( std::string sender_bsm_id, uint64_t timestamp );
 
             trajectory_t getTrajectory() const;
             void setTrajectory(trajectory_t trajectory);

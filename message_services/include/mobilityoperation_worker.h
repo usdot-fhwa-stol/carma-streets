@@ -14,6 +14,7 @@ namespace message_services
         {
         private:
             std::deque<message_services::models::mobilityoperation> mobilityoperation_v;
+            std::map<std::string ,message_services::models::mobilityoperation> mobilityoperation_m;
 
         public:
             mobilityoperation_worker();

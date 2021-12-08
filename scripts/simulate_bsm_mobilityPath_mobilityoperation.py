@@ -16,7 +16,7 @@ def read_json(json_name):
 def produce_bsm():
     producer = KafkaProducer(bootstrap_servers=["127.0.0.1:9092"],
                              value_serializer=lambda x: json.dumps(x).encode('utf-8'))
-    count = 10000
+    count = 100
     i = 0
     while(i < count):
         data = read_json('bsm_12_06.json')
@@ -32,7 +32,7 @@ def produce_bsm():
 def produce_operation():
     producer = KafkaProducer(bootstrap_servers=["127.0.0.1:9092"],
                              value_serializer=lambda x: json.dumps(x).encode('utf-8'))
-    count = 10000
+    count = 100
     i = 0
     while(i < count):
         data = read_json('mobilityoperation_12_06.json')
@@ -53,7 +53,7 @@ def produce_mobility_path():
     producer = KafkaProducer(bootstrap_servers=["127.0.0.1:9092"],
                              value_serializer=lambda x: json.dumps(x).encode('utf-8'))
     i = 0
-    count = 10000
+    count = 100
     while(i < count):
         data = read_json('mobilitypath_12_06.json')
         timestamp = int(data["metadata"]["timestamp"]) + i * 100 + 20

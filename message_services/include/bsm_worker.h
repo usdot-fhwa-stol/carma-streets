@@ -18,6 +18,7 @@ namespace message_services
         {
         private:
             std::deque<message_services::models::bsm> bsm_v;
+            std::map<std::string ,message_services::models::bsm> bsm_m;
 
         public:
             bsm_worker();
@@ -26,6 +27,7 @@ namespace message_services
              * @brief Return the vector of bsm stored in the bsm_worker
              * ***/
             std::deque<models::bsm>& get_curr_list();
+            std::map<std::string ,message_services::models::bsm> &get_curr_map();
             
             std::mutex worker_mtx;
             /***
