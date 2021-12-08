@@ -31,6 +31,10 @@ namespace message_services
 
             std::string get_value_from_strategy_params(std::string key) const;
 
+            std::string generate_hash_bsm_msg_id( std::string temprary_id, long msg_count);
+
+            std::string generate_hash_sender_timestamp_id( std::string sender_bsm_id, uint64_t timestamp );
+
             std::string getStrategy_params() const;
             void setStrategy_params(std::string strategy_params);
             std::string getStrategy() const;

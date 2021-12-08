@@ -19,10 +19,10 @@ namespace message_services
                 std::string file_path = std::string(MANIFEST_CONFIG_FILE_PATH);
                 rapidjson::Document doc = client->read_json_file(file_path);
 
-                //kafka config
+                // kafka config
                 this->bootstrap_server = client->get_value_by_doc(doc, "BOOTSTRAP_SERVER");
 
-                //consumer topics
+                // consumer topics
                 this->bsm_topic_name = client->get_value_by_doc(doc, "BSM_CONSUMER_TOPIC");
                 this->bsm_group_id = client->get_value_by_doc(doc, "BSM_GROUP_ID");
 
@@ -32,7 +32,7 @@ namespace message_services
                 this->mo_topic_name = client->get_value_by_doc(doc, "MO_CONSUMER_TOPIC");
                 this->mo_group_id = client->get_value_by_doc(doc, "MO_GROUP_ID");
 
-                //producer topics
+                // producer topics
                 this->vsi_topic_name = client->get_value_by_doc(doc, "VSI_PRODUCER_TOPIC");
 
                 _bsm_consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
@@ -63,10 +63,8 @@ namespace message_services
                 }
 
                 this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
-                this->MOBILITY_OPERATION_PATH_MAX_DURATION = std::stoi(client->get_value_by_doc(doc, "MO_MP_MAX_TIMESTAMP_DURATION"));
-                this->MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = std::stoi(client->get_value_by_doc(doc, "MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET"));
-                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = std::stoi(client->get_value_by_doc(doc,"MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION"));
-                this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc,"VSI_TH_SLEEP_MILLI_SEC"));
+                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = std::stoi(client->get_value_by_doc(doc, "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION"));
+                this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
 
                 delete client;
 
@@ -121,57 +119,68 @@ namespace message_services
             std::thread mo_t(&vehicle_status_intent_service::msg_consumer<workers::mobilityoperation_worker>, this, std::ref(mo_w_ptr), this->_mo_consumer_worker);
 
             std::shared_ptr<models::vehicle_status_intent> vsi_ptr = std::make_shared<models::vehicle_status_intent>();
-            std::shared_ptr<models::bsm> bsm_ptr = std::make_shared<models::bsm>();
-            std::shared_ptr<models::mobilityoperation> mo_ptr = std::make_shared<models::mobilityoperation>();
-            std::shared_ptr<models::mobilitypath> mp_ptr = std::make_shared<models::mobilitypath>();
 
-            std::thread vsi_t{[bsm_w_ptr, mo_w_ptr, mp_w_ptr, this, bsm_ptr, mo_ptr, mp_ptr, vsi_ptr]()
-                              {
-                                  while (true)
-                                  {
-                                      //Change spdlog from debug to info for printing output in terminal
-                                      spdlog::debug("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_list().size());
-                                      spdlog::debug("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
-                                      spdlog::debug("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_list().size());
-                                      if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_list().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_list().size() > 0)
-                                      {
-                                          spdlog::debug("Processing the BSM, mobilityOperation and MP from list...");
-                                          std::unique_lock<std::mutex> lck(worker_mtx);
+            std::thread vsi_t{
+                [bsm_w_ptr, mo_w_ptr, mp_w_ptr, this, vsi_ptr]()
+                {
+                    while (true)
+                    {
+                        // Change spdlog from debug to info for printing output in terminal
+                        spdlog::debug("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
+                        spdlog::debug("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
+                        spdlog::debug("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
+                        if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_map().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_map().size() > 0)
+                        {
+                            spdlog::debug("Processing the BSM, mobilityOperation and MP from list...");
+                            std::unique_lock<std::mutex> lck(worker_mtx);
+                            while (mo_w_ptr && !mo_w_ptr->get_curr_list().empty())
+                            {
+                                spdlog::info("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                                spdlog::info("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                                spdlog::info("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+                                message_services::models::mobilityoperation subj_mo = mo_w_ptr->get_curr_list().front();
+                                mo_w_ptr->get_curr_list().pop_front();
 
-                                          //Iterate mobililityoperation list with vehicle ids for all vehicles
-                                          for (auto itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
-                                          {
-                                              spdlog::info("Current mobilityOperation list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                                              if (mo_w_ptr && mo_ptr && !mo_w_ptr->get_curr_list().empty())
-                                              {
-                                                  mo_ptr->setHeader((*itr).getHeader());
-                                                  mo_ptr->setStrategy((*itr).getStrategy());
-                                                  mo_ptr->setStrategy_params((*itr).getStrategy_params());
+                                message_services::models::mobilitypath subj_mp;
+                                message_services::models::bsm subj_bsm;
+                                bool is_bsm_msg_count_id_found = false;
 
-                                                  if (identify_latest_mapping_bsm_mp_by_mo(bsm_w_ptr, mp_w_ptr, bsm_ptr, mo_ptr, mp_ptr))
-                                                  {
-                                                      spdlog::info("Done mapping BSM, MobilityPath messages using MobilityOperation");
-                                                      mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
+                                std::string bsm_msg_id = subj_mo.generate_hash_bsm_msg_id(subj_mo.getHeader().sender_bsm_id, std::stol(subj_mo.get_value_from_strategy_params("msg_count")));
+                                if (bsm_w_ptr->get_curr_map().find(bsm_msg_id) != bsm_w_ptr->get_curr_map().end())
+                                {
+                                    is_bsm_msg_count_id_found = true;
+                                    subj_bsm = bsm_w_ptr->get_curr_map()[bsm_msg_id];
+                                }
+                                else
+                                {
+                                    continue;
+                                }
 
-                                                      *vsi_ptr = compose_vehicle_status_intent(*bsm_ptr, *mo_ptr, *mp_ptr);
-                                                      if (vsi_ptr)
-                                                      {
-                                                          spdlog::debug("Done composing vehicle_status_intent");
-                                                          std::string msg_to_pub = vsi_ptr->asJson();
-                                                          this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
-                                                      }
-                                                  }
-                                              }
-                                              else
-                                              {
-                                                  //Checking mobilityoperation message list. If there is no more mobilityoperation message, break the current for loop
-                                                  break;
-                                              }
-                                          }
-                                      }
-                                      std::this_thread::sleep_for(std::chrono::milliseconds(this->VSI_TH_SLEEP_MILLI_SEC));
-                                  }
-                              }};
+                                std::string sender_timestamp_msg_id = subj_mo.generate_hash_sender_timestamp_id(subj_mo.getHeader().sender_id, subj_mo.getHeader().timestamp / this->MOBILITY_OPERATION_PATH_MAX_DURATION);
+
+                                if (is_bsm_msg_count_id_found && mp_w_ptr->get_curr_map().find(sender_timestamp_msg_id) != mp_w_ptr->get_curr_map().end())
+                                {
+                                    subj_mp = mp_w_ptr->get_curr_map()[sender_timestamp_msg_id];
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                                *vsi_ptr = compose_vehicle_status_intent(subj_bsm, subj_mo, subj_mp);
+                                if (vsi_ptr)
+                                {
+                                    spdlog::debug("Done composing vehicle_status_intent");
+                                    std::string msg_to_pub = vsi_ptr->asJson();
+                                    this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
+                                }
+                                mp_w_ptr->get_curr_map().erase(sender_timestamp_msg_id);
+                                bsm_w_ptr->get_curr_map().erase(bsm_msg_id);
+                            }
+                        }
+                        std::this_thread::sleep_for(std::chrono::milliseconds(this->VSI_TH_SLEEP_MILLI_SEC));
+                    }
+                }};
 
             vsi_t.join();
             mp_t.join();
@@ -180,7 +189,7 @@ namespace message_services
         }
 
         /**
-         * //a global Map key vehicle id, if (timestamp diff)_> update with bsm id to correlate messages. 
+         * //a global Map key vehicle id, if (timestamp diff)_> update with bsm id to correlate messages.
          * Only add when the vehicle id does not exist
             //Pull at 10HZ and publish leave all entries; have not yet updated (timestamp now -> bsm timestamp) in 10 secs
         ***/
@@ -189,7 +198,7 @@ namespace message_services
                                                 std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr,
                                                 std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr)
         {
-            //Consuming MobilityPath messages
+            // Consuming MobilityPath messages
             std::thread vsi_mp_t{[mp_w_ptr, vsi_w_ptr, this]()
                                  {
                                      kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
@@ -230,7 +239,7 @@ namespace message_services
                                      delete consumer_worker;
                                  }};
 
-            //Consuming MobilityOperation messages
+            // Consuming MobilityOperation messages
             std::thread vsi_mo_t{[mo_w_ptr, vsi_w_ptr, this]()
                                  {
                                      kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
@@ -271,7 +280,7 @@ namespace message_services
                                      delete consumer_worker;
                                  }};
 
-            //Consuming BSM messages
+            // Consuming BSM messages
             std::thread vsi_bsm_t{[bsm_w_ptr, vsi_w_ptr, this]()
                                   {
                                       kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
@@ -312,7 +321,7 @@ namespace message_services
                                       delete consumer_worker;
                                   }};
 
-            //Publishing Vehicle Status and Intent messages
+            // Publishing Vehicle Status and Intent messages
             std::thread vsi_t{[vsi_w_ptr, this]()
                               {
                                   while (true)
@@ -347,7 +356,7 @@ namespace message_services
         {
             try
             {
-                //Checking timestamp and vehicle id to find mobilitypath
+                // Checking timestamp and vehicle id to find mobilitypath
                 long mp_pos = 0;
                 bool is_mp_mapping_found = false;
                 bool is_bsm_mapping_found = false;
@@ -361,13 +370,13 @@ namespace message_services
                     spdlog::debug("mo_timestamp {0}", (long)mo_ptr->getHeader().timestamp);
                     spdlog::debug("mp_timestamp {0}", (long)mp_timestamp);
 
-                    //Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
+                    // Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
                     if (mo_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mo_ptr->getHeader().timestamp - (long)mp_timestamp) <= MOBILITY_OPERATION_PATH_MAX_DURATION)
                     {
                         spdlog::debug("debug mp during {0}", mp_w_ptr->get_curr_list().size());
                         mp_ptr->setHeader(mp_w_ptr->get_curr_list().at(mp_pos).getHeader());
                         mp_ptr->setTrajectory(mp_w_ptr->get_curr_list().at(mp_pos).getTrajectory());
-                        mp_w_ptr->pop_cur_element_from_list(mp_pos); //The deque size shrik every time we call a pop element
+                        mp_w_ptr->pop_cur_element_from_list(mp_pos); // The deque size shrik every time we call a pop element
                         is_mp_mapping_found = true;
                         spdlog::debug("debug mp end {0}", mp_w_ptr->get_curr_list().size());
                         continue;
@@ -375,18 +384,18 @@ namespace message_services
                     mp_pos++;
                 }
 
-                //checking msg_count and BSM ID for this BSM
+                // checking msg_count and BSM ID for this BSM
                 long bsm_pos = 0;
                 while (is_mp_mapping_found && bsm_w_ptr && bsm_ptr && mo_ptr && !bsm_w_ptr->get_curr_list().empty() && bsm_pos < bsm_w_ptr->get_curr_list().size())
                 {
                     spdlog::debug("debug bsm start {0}", bsm_w_ptr->get_curr_list().size());
 
-                    //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
+                    // Mapping MobilityOperation and BSM msg_count maximum allowed differences.
                     if (mo_ptr->getHeader().sender_bsm_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count) <= MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET)
                     {
                         spdlog::debug("debug bsm during {0}", bsm_w_ptr->get_curr_list().size());
                         bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
-                        bsm_w_ptr->pop_cur_element_from_list(bsm_pos); //The deque size shrik every time we call a pop element
+                        bsm_w_ptr->pop_cur_element_from_list(bsm_pos); // The deque size shrik every time we call a pop element
                         is_bsm_mapping_found = true;
                         spdlog::debug("debug bsm end {0}", bsm_w_ptr->get_curr_list().size());
                         continue;
@@ -419,7 +428,7 @@ namespace message_services
                 vsi.setMinimum_gap(std::stod(mo.get_value_from_strategy_params("min_gap")));
                 vsi.setDepart_position(std::stol(mo.get_value_from_strategy_params("depart_pos")));
 
-                //Update vehicle status intent with BSM
+                // Update vehicle status intent with BSM
                 vsi.setVehicle_length(bsm.getCore_data().size.length);
                 vsi.setCur_speed(bsm.getCore_data().speed);
                 vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
@@ -434,7 +443,7 @@ namespace message_services
                 vsi.setCur_lanelet_id(_msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction));
                 vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, turn_direction));
 
-                //Update vehicle status intent with MobilityPath
+                // Update vehicle status intent with MobilityPath
                 models::est_path_t est_path;
                 std::vector<models::est_path_t> est_path_v;
                 int32_t ecef_x = mp.getTrajectory().location.ecef_x;
@@ -460,16 +469,16 @@ namespace message_services
                     ecef_x += trajectory.offsets.at(offset_index).offset_x;
                     ecef_y += trajectory.offsets.at(offset_index).offset_y;
                     ecef_z += trajectory.offsets.at(offset_index).offset_z;
-                    est_path.timestamp += 100; //The duration between two points is 0.1 sec
+                    est_path.timestamp += 100; // The duration between two points is 0.1 sec
 
-                    if(next_index != offset_index)
+                    if (next_index != offset_index)
                     {
                         continue;
                     }
                     next_index += this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION;
 
-                    //Skip the first point
-                    if(offset_index == 0)
+                    // Skip the first point
+                    if (offset_index == 0)
                     {
                         continue;
                     }
@@ -477,9 +486,9 @@ namespace message_services
                     est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
                     est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction);
                     est_path_v.push_back(est_path);
-                    count++; 
-                    
-                    //Allow to configure the number of mobilityPath offsets sent as part of VSI (vehicle status and intent)
+                    count++;
+
+                    // Allow to configure the number of mobilityPath offsets sent as part of VSI (vehicle status and intent)
                     if (this->vsi_est_path_point_count != 0 && count > this->vsi_est_path_point_count)
                     {
                         break;

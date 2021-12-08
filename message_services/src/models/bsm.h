@@ -27,6 +27,7 @@ namespace message_services
             virtual ~bsm();
             void setCore_data(bsmCoreData_t core_data);
             bsmCoreData_t getCore_data() const;
+            std::string generate_hash_bsm_msg_id( std::string temprary_id, long msg_count);
 
             //json string object converter with rapidjson
             virtual void fromJsonObject(const rapidjson::Value &obj);

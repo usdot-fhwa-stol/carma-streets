@@ -182,6 +182,12 @@ namespace message_services
                       << mobilitypath_obj.trajectory.offsets[0].offset_y << ", offset_z= " << mobilitypath_obj.trajectory.offsets[0].offset_z << "}" << std::endl;
         }
 
+        std::string mobilitypath::generate_hash_sender_timestamp_id(std::string sender_bsm_id, uint64_t timestamp)
+        {
+            std::stringstream hash_ss;
+            hash_ss << sender_bsm_id << timestamp;
+            return hash_ss.str();
+        }
         mobility_header_t mobilitypath::getHeader() const
         {
             return this->header;

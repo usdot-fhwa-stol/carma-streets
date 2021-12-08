@@ -15,17 +15,20 @@ namespace message_services
         {
         private:
             std::deque<message_services::models::mobilitypath> mobilitypath_v;
+            std::map<std::string ,message_services::models::mobilitypath> mobilitypath_m;
 
         public:
             mobilitypath_worker();
             ~mobilitypath_worker();
 
             std::mutex worker_mtx;
+            uint16_t MOBILITY_OPERATION_PATH_MAX_DURATION = 100;
 
             /**
              * @brief Return the vector of mobilitypath stored in the mobilitypath_worker
              * ***/
             std::deque<models::mobilitypath> &get_curr_list();
+            std::map<std::string ,message_services::models::mobilitypath> &get_curr_map();
 
             /***
             * @brief process incoming mobilitypath json string and create mobilitypath object.
