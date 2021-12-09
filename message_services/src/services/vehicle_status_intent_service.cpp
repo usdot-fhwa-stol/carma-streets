@@ -469,6 +469,10 @@ namespace message_services
                     ecef_x += trajectory.offsets.at(offset_index).offset_x;
                     ecef_y += trajectory.offsets.at(offset_index).offset_y;
                     ecef_z += trajectory.offsets.at(offset_index).offset_z;
+
+                    spdlog::debug("MobilityPath location offset_x: {0}", trajectory.offsets.at(offset_index).offset_x);
+                    spdlog::debug("MobilityPath location offset_y: {0}", trajectory.offsets.at(offset_index).offset_y);
+                    spdlog::debug("MobilityPath location offset_z: {0}", trajectory.offsets.at(offset_index).offset_z);
                     est_path.timestamp += 100; // The duration between two points is 0.1 sec
 
                     if (next_index != offset_index)
