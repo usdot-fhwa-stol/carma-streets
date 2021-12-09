@@ -119,7 +119,7 @@ namespace message_services
             // Only interested in the nearest lanelets with first = 0
             for (auto itr = nearest_lanelets.begin(); itr != nearest_lanelets.end(); itr++)
             {    
-                spdlog::error("No nearest lanelet to the vehicle in map point: nearest lanelet id = {0}",itr->second.id());
+                spdlog::debug("Nearest lanelet to the vehicle in map point: x = {0} y = {1}, z = {2}. Nearest lanelet id = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(),itr->second.id());
             
                 if (itr->first == 0)
                 {
@@ -241,6 +241,8 @@ namespace message_services
                     dest_x += offset_itr->offset_x;
                     dest_y += offset_itr->offset_y;
                     dest_z += offset_itr->offset_z;
+                    spdlog::debug("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x,offset_itr->offset_y,offset_itr->offset_z);
+                    spdlog::debug("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x,dest_y,dest_z);
                 }
 
                 lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x,dest_y,dest_z);
@@ -321,7 +323,7 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
-                                spdlog::info("Found link lanelet id :{0}  ", ll_itr->id());
+                                spdlog::debug("Found link lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = vehicleGraph_ptr->previous(*ll_itr).front();
                                 link_lanelet = *ll_itr;
                                 departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
@@ -342,7 +344,7 @@ namespace message_services
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
                                 //Checking route
-                                spdlog::info("Found entry lanelet id :{0}  ", ll_itr->id());
+                                spdlog::debug("Found entry lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = *ll_itr;
 
                                 if (!route->following(entry_lanelet).empty())
