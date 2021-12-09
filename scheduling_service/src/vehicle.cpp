@@ -17,12 +17,11 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 
 	if (message["metadata"].HasMember("timestamp") && (double)message["metadata"]["timestamp"].GetInt64() / 1000.0 >= timestamp){
 		
-		/* the unit of the received speed from the message is mile per hour
-		*  but the unit of the speed defined in the vehicle class is meter per second. 
-		*  Therefore, a conversion has been added here.
+		/* the unit of the received speed from the message is meter per second
+		*  the unit of the speed defined in the vehicle class is meter per second. 
 		*/
 		if (message["payload"].HasMember("cur_speed")){
-			speed = message["payload"]["cur_speed"].GetDouble() * 0.44704;
+			speed = message["payload"]["cur_speed"].GetDouble();
 		} else{
 			spdlog::critical("the current speed of Vehicle {0} is missing in the received update!", veh_id);
 		}
@@ -91,7 +90,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			}
 
 			if (message["payload"].HasMember("max_decel")){
-				decel_max = -message["payload"]["max_decel"].GetDouble();
+				decel_max = message["payload"]["max_decel"].GetDouble();
 			} else{
 				spdlog::critical("the maximum decelration of Vehicle {0} is missing in the received update!", veh_id);
 			}
