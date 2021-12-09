@@ -19,6 +19,18 @@ namespace message_services
         {
         }
 
+        std::string mobilityoperation::generate_hash_sender_timestamp_id(std::string sender_bsm_id, uint64_t timestamp)
+        {
+            std::stringstream hash_ss;
+            hash_ss << sender_bsm_id << timestamp;
+            return hash_ss.str();
+        }
+        std::string mobilityoperation::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count)
+        {
+            std::stringstream hash_ss;
+            hash_ss << temprary_id << msg_count;
+            return hash_ss.str();
+        }
         void mobilityoperation::fromJsonObject(const rapidjson::Value &obj)
         {
             if (obj.IsObject())
@@ -109,7 +121,7 @@ namespace message_services
             std::string key_value_str = "";
             std::vector<std::string> key_value_v = {};
             std::stringstream strategy_params_stream(this->strategy_params);
-            //strategy_params are key value pairs separate by comma
+            // strategy_params are key value pairs separate by comma
             while (std::getline(strategy_params_stream, key_value_str, *delimiter))
             {
                 std::stringstream key_value_str_stream(key_value_str);
@@ -125,7 +137,7 @@ namespace message_services
                 {
                     return key_value_v.back();
                 }
-                
+
                 if (key_value_v.size() > 0)
                 {
                     key_value_v.clear();
@@ -171,6 +183,6 @@ namespace message_services
         {
             this->strategy = strategy;
         }
-        
+
     }
 }

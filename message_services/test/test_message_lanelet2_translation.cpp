@@ -134,34 +134,34 @@ TEST(test_message_lanelet2_translation, get_lanelet_types_ids_by_route)
     //From lanelet id = 19252  (entry lanelet) to lanelet id = 19252 (entry lanelet)
     std::int64_t start_lanelet_id = 19252;
     std::int64_t dest_lanelet_id = 19252;
-    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).size());
-    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(start_lanelet_id));
+    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
+    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(start_lanelet_id));
 
     //From lanelet id = 19252 (entry lanelet) to 22414 (link lanelet) to lanelet id = 12459 (departure lanelet)
     start_lanelet_id = 19252;
     dest_lanelet_id = 12459;
-    ASSERT_EQ(3, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).size());
-    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(start_lanelet_id));
-    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(dest_lanelet_id));
+    ASSERT_EQ(3, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
+    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(start_lanelet_id));
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(dest_lanelet_id));
 
     //From lanelet id = 22414 (link lanelet) to lanelet id = 22414 (link lanelet)
     start_lanelet_id = 22414;
     dest_lanelet_id = 22414;
-    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).size());
-    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(dest_lanelet_id));
+    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
+    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(dest_lanelet_id));
 
     //From lanelet id = 22414 (link lanelet) to lanelet id = 12459 (departure lanelet)
     start_lanelet_id = 22414;
     dest_lanelet_id = 12459;
-    ASSERT_EQ(2, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).size());
-    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(start_lanelet_id));
-    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(dest_lanelet_id));
+    ASSERT_EQ(2, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
+    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(start_lanelet_id));
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(dest_lanelet_id));
 
     //From lanelet id = 12459 (departure lanelet) to lanelet id = 12459 (departure lanelet)
     start_lanelet_id = 12459;
     dest_lanelet_id = 12459;
-    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).size());
-    ASSERT_EQ(message_services::models::unknown, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id).at(dest_lanelet_id));
+    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
+    ASSERT_EQ(message_services::models::unknown, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(dest_lanelet_id));
 }
 
 TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_trajectory)

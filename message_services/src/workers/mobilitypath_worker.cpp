@@ -16,14 +16,17 @@ namespace message_services
         {
             return this->mobilitypath_v;
         }
-
+        std::map<std::string, message_services::models::mobilitypath> &mobilitypath_worker::get_curr_map()
+        {
+            return this->mobilitypath_m;
+        }
         void mobilitypath_worker::process_incoming_msg(const std::string json_str)
         {
             message_services::models::mobilitypath mobilitypath_obj;
             if (mobilitypath_obj.fromJson(json_str.c_str()))
             {
                 std::unique_lock<std::mutex> lck(worker_mtx);
-                this->mobilitypath_v.push_back(mobilitypath_obj);
+                this->mobilitypath_m.insert({mobilitypath_obj.generate_hash_sender_timestamp_id(mobilitypath_obj.getHeader().sender_id, mobilitypath_obj.getHeader().timestamp/this->MOBILITY_OPERATION_PATH_MAX_DURATION), mobilitypath_obj});
             }
             else
             {

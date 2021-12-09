@@ -1,0 +1,269 @@
+{
+	"metadata" : 
+	{
+		"hostBSMId" : "f03ad610",
+		"hostStaticId" : "DOT-45254",
+		"planId" : "54081fb7-86f8-401e-9a36-0f9934657f9c",
+		"targetStaticId" : "UNSET",
+		"timestamp" : "0000001638832082270"
+	},
+    "trajectory": {
+        "location": {
+            "ecefX": 110451562,
+            "ecefY": -484206781,
+            "ecefZ": 398846401,
+            "timestamp": "0000000000000000000"
+        },
+        "offsets": [
+            {
+                "offsetX": -6,
+                "offsetY": -38,
+                "offsetZ": -43
+          },{
+                "offsetX": 77,
+                "offsetY": -29,
+                "offsetZ": -58
+          },{
+                "offsetX": 78,
+                "offsetY": -30,
+                "offsetZ": -57
+          },{
+                "offsetX": 78,
+                "offsetY": -29,
+                "offsetZ": -56
+          },{
+                "offsetX": 79,
+                "offsetY": -29,
+                "offsetZ": -57
+          },{
+                "offsetX": 79,
+                "offsetY": -29,
+                "offsetZ": -56
+          },{
+                "offsetX": 80,
+                "offsetY": -28,
+                "offsetZ": -56
+          },{
+                "offsetX": 80,
+                "offsetY": -27,
+                "offsetZ": -55
+          },{
+                "offsetX": 80,
+                "offsetY": -27,
+                "offsetZ": -55
+          },{
+                "offsetX": 81,
+                "offsetY": -27,
+                "offsetZ": -54
+          },{
+                "offsetX": 81,
+                "offsetY": -26,
+                "offsetZ": -54
+          },{
+                "offsetX": 82,
+                "offsetY": -25,
+                "offsetZ": -53
+          },{
+                "offsetX": 83,
+                "offsetY": -25,
+                "offsetZ": -53
+          },{
+                "offsetX": 83,
+                "offsetY": -25,
+                "offsetZ": -52
+          },{
+                "offsetX": 83,
+                "offsetY": -23,
+                "offsetZ": -52
+          },{
+                "offsetX": 84,
+                "offsetY": -24,
+                "offsetZ": -51
+          },{
+                "offsetX": 84,
+                "offsetY": -23,
+                "offsetZ": -51
+          },{
+                "offsetX": 85,
+                "offsetY": -22,
+                "offsetZ": -50
+          },{
+                "offsetX": 86,
+                "offsetY": -22,
+                "offsetZ": -49
+          },{
+                "offsetX": 85,
+                "offsetY": -21,
+                "offsetZ": -49
+          },{
+                "offsetX": 86,
+                "offsetY": -20,
+                "offsetZ": -49
+          },{
+                "offsetX": 87,
+                "offsetY": -20,
+                "offsetZ": -48
+          },{
+                "offsetX": 87,
+                "offsetY": -20,
+                "offsetZ": -48
+          },{
+                "offsetX": 87,
+                "offsetY": -19,
+                "offsetZ": -46
+          },{
+                "offsetX": 88,
+                "offsetY": -18,
+                "offsetZ": -47
+          },{
+                "offsetX": 89,
+                "offsetY": -18,
+                "offsetZ": -45
+          },{
+                "offsetX": 88,
+                "offsetY": -17,
+                "offsetZ": -45
+          },{
+                "offsetX": 90,
+                "offsetY": -17,
+                "offsetZ": -45
+          },{
+                "offsetX": 89,
+                "offsetY": -15,
+                "offsetZ": -44
+          },{
+                "offsetX": 90,
+                "offsetY": -16,
+                "offsetZ": -43
+          },{
+                "offsetX": 91,
+                "offsetY": -14,
+                "offsetZ": -42
+          },{
+                "offsetX": 91,
+                "offsetY": -14,
+                "offsetZ": -42
+          },{
+                "offsetX": 91,
+                "offsetY": -14,
+                "offsetZ": -41
+          },{
+                "offsetX": 91,
+                "offsetY": -13,
+                "offsetZ": -41
+          },{
+                "offsetX": 92,
+                "offsetY": -12,
+                "offsetZ": -40
+          },{
+                "offsetX": 93,
+                "offsetY": -11,
+                "offsetZ": -40
+          },{
+                "offsetX": 92,
+                "offsetY": -11,
+                "offsetZ": -38
+          },{
+                "offsetX": 93,
+                "offsetY": -11,
+                "offsetZ": -39
+          },{
+                "offsetX": 93,
+                "offsetY": -10,
+                "offsetZ": -37
+          },{
+                "offsetX": 94,
+                "offsetY": -9,
+                "offsetZ": -37
+          },{
+                "offsetX": 94,
+                "offsetY": -9,
+                "offsetZ": -37
+          },{
+                "offsetX": 94,
+                "offsetY": -9,
+                "offsetZ": -36
+          },{
+                "offsetX": 94,
+                "offsetY": -8,
+                "offsetZ": -35
+          },{
+                "offsetX": 94,
+                "offsetY": -7,
+                "offsetZ": -35
+          },{
+                "offsetX": 95,
+                "offsetY": -7,
+                "offsetZ": -35
+          },{
+                "offsetX": 95,
+                "offsetY": -6,
+                "offsetZ": -34
+          },{
+                "offsetX": 95,
+                "offsetY": -6,
+                "offsetZ": -33
+          },{
+                "offsetX": 95,
+                "offsetY": -6,
+                "offsetZ": -33
+          },{
+                "offsetX": 96,
+                "offsetY": -5,
+                "offsetZ": -32
+          },{
+                "offsetX": 96,
+                "offsetY": -5,
+                "offsetZ": -33
+          },{
+                "offsetX": 95,
+                "offsetY": -4,
+                "offsetZ": -31
+          },{
+                "offsetX": 96,
+                "offsetY": -4,
+                "offsetZ": -31
+          },{
+                "offsetX": 96,
+                "offsetY": -4,
+                "offsetZ": -31
+          },{
+                "offsetX": 97,
+                "offsetY": -3,
+                "offsetZ": -31
+          },{
+                "offsetX": 96,
+                "offsetY": -3,
+                "offsetZ": -30
+          },{
+                "offsetX": 97,
+                "offsetY": -3,
+                "offsetZ": -30
+          },{
+                "offsetX": 96,
+                "offsetY": -3,
+                "offsetZ": -29
+          },{
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
+          },{
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
+          },{
+                "offsetX": 96,
+                "offsetY": -1,
+                "offsetZ": -29
+          },{
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -28
+          },{
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -28
+          }
+        ]
+    }
+}

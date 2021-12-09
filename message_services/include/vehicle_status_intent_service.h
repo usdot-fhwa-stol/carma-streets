@@ -18,6 +18,13 @@ namespace message_services
 {
     namespace services
     {
+        typedef struct vsi_message_bucket
+        {
+            models::mobilityoperation mo;
+            models::bsm bsm;
+            models::mobilitypath mp;
+        } vsi_message_bucket_t;
+
         class vehicle_status_intent_service
         {
         private:
@@ -38,8 +45,14 @@ namespace message_services
             //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
             std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
 
-            //Mapping MobilityOperation and MobilityPath timestamp duration within 0 ms.
-            std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 0; 
+            //Mapping MobilityOperation and MobilityPath timestamp duration within 100 ms.
+            std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 100; 
+
+            //The duration between the offset points in mobilitypath message. Default duration is MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION * 100 (milliseconds)
+            std::uint32_t MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = 1;
+
+            //Publish vehicle status intent thread sleep time.
+            unsigned int VSI_TH_SLEEP_MILLI_SEC = 100; 
 
             //add lanelet2 translation object
             std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;

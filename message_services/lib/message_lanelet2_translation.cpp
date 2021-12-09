@@ -118,7 +118,9 @@ namespace message_services
 
             // Only interested in the nearest lanelets with first = 0
             for (auto itr = nearest_lanelets.begin(); itr != nearest_lanelets.end(); itr++)
-            {
+            {    
+                spdlog::debug("Nearest lanelet to the vehicle in map point: x = {0} y = {1}, z = {2}. Nearest lanelet id = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(),itr->second.id());
+            
                 if (itr->first == 0)
                 {
                     current_total_lanelets.push_back(itr->second);
@@ -239,6 +241,8 @@ namespace message_services
                     dest_x += offset_itr->offset_x;
                     dest_y += offset_itr->offset_y;
                     dest_z += offset_itr->offset_z;
+                    spdlog::debug("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x,offset_itr->offset_y,offset_itr->offset_z);
+                    spdlog::debug("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x,dest_y,dest_z);
                 }
 
                 lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x,dest_y,dest_z);
@@ -254,7 +258,7 @@ namespace message_services
                     return lanelet_id_type_m;
                 }
 
-                lanelet_id_type_m = get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id);
+                lanelet_id_type_m = get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, turn_direction);
             }
             catch (...)
             {
@@ -271,7 +275,7 @@ namespace message_services
             return basic_point3d;
         }
 
-        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id) const
+        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id,  std::string turn_direction) const
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
 
@@ -304,9 +308,6 @@ namespace message_services
                 //Get the list of lanelet ids along the route and identify the intersection lanelet types using the all_way_stop regulatory element
                 for (auto ll_itr = lp.begin(); ll_itr != lp.end(); ll_itr++)
                 {
-                    lanelet_id_type_m.insert(std::make_pair(ll_itr->id(), models::intersection_lanelet_type::unknown));
-                    // spdlog::error("insert lanelet id :{0}  ", ll_itr->id());
-
                     /***
                      * Checking whether the current lanelet is link lanelet. 
                      * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
@@ -339,12 +340,14 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
+                                //Checking route
                                 spdlog::debug("Found entry lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = *ll_itr;
 
                                 if (!route->following(entry_lanelet).empty())
                                 {
                                     link_lanelet = route->following(entry_lanelet).front();
+                                    spdlog::debug("Found link lanelet id :{0}  ", link_lanelet.id());
                                     is_link_lanelet_found = true;
                                 }
 
@@ -352,26 +355,43 @@ namespace message_services
                                 {
                                     departure_lanelet = route->following(link_lanelet).front();
                                 }
+
+                                //Checking routing graph if cannot find link lanelet based on Route itself                               
+                                if(!is_link_lanelet_found)
+                                {
+                                    lanelet::ConstLanelets possible_link_lanelets = vehicleGraph_ptr->following(*ll_itr);
+
+                                    //Check turn_direction to determine the link lanelet for subject vehicle
+                                    for(auto itr = possible_link_lanelets.begin(); itr != possible_link_lanelets.end() ; itr++)
+                                    {
+                                        if(itr->hasAttribute("turn_direction") && itr->attribute("turn_direction").value() == turn_direction)
+                                        {
+                                            link_lanelet = *itr;
+                                            spdlog::debug("Found link lanelet id :{0}  ", itr->id());
+                                            departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
+                                            is_link_lanelet_found = true;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
-                //update the type for each lanelet id in the list of lanelet ids
-                for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
+                //insert the type for each lanelet id in the list of lanelet ids
+                if(entry_lanelet.id() != lanelet::InvalId)
                 {
-                    if (itr->first == entry_lanelet.id())
-                    {
-                        itr->second = models::intersection_lanelet_type::entry;
-                    }
-                    else if (itr->first == link_lanelet.id())
-                    {
-                        itr->second = models::intersection_lanelet_type::link;
-                    }
-                    else if (itr->first == departure_lanelet.id())
-                    {
-                        itr->second = models::intersection_lanelet_type::departure;
-                    }
+                    lanelet_id_type_m.insert(std::make_pair(entry_lanelet.id(), models::intersection_lanelet_type::entry));
+                }
+
+                if(link_lanelet.id() != lanelet::InvalId)
+                {
+                    lanelet_id_type_m.insert(std::make_pair(link_lanelet.id(), models::intersection_lanelet_type::link));
+                }
+
+                if(departure_lanelet.id() != lanelet::InvalId)
+                {
+                    lanelet_id_type_m.insert(std::make_pair(departure_lanelet.id(), models::intersection_lanelet_type::departure));
                 }
             }
             else

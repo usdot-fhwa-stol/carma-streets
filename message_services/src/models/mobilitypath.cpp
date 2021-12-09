@@ -63,17 +63,17 @@ namespace message_services
                             {
                                 for (rapidjson::Value::ConstMemberIterator loc_itr = tr_itr->value.MemberBegin(); loc_itr != tr_itr->value.MemberEnd(); loc_itr++)
                                 {
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_x"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecefX"))
                                     {
                                         this->trajectory.location.ecef_x = (loc_itr->value.GetInt64());
                                     }
 
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_y"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecefY"))
                                     {
                                         this->trajectory.location.ecef_y = (loc_itr->value.GetInt64());
                                     }
 
-                                    if (std::string(loc_itr->name.GetString()) == std::string("ecef_z"))
+                                    if (std::string(loc_itr->name.GetString()) == std::string("ecefZ"))
                                     {
                                         this->trajectory.location.ecef_z = (loc_itr->value.GetInt64());
                                     }
@@ -92,17 +92,17 @@ namespace message_services
                                     const rapidjson::Value &offset_value = *offset_itr;
                                     for (rapidjson::Value::ConstMemberIterator each_offset_itr = offset_value.MemberBegin(); each_offset_itr != offset_value.MemberEnd(); each_offset_itr++)
                                     {
-                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_x"))
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offsetX"))
                                         {
                                             offset.offset_x = (each_offset_itr->value.GetInt());
                                         }
 
-                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_y"))
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offsetY"))
                                         {
                                             offset.offset_y = (each_offset_itr->value.GetInt());
                                         }
 
-                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offset_z"))
+                                        if (std::string(each_offset_itr->name.GetString()) == std::string("offsetZ"))
                                         {
                                             offset.offset_z = (each_offset_itr->value.GetInt());
                                         }
@@ -182,6 +182,12 @@ namespace message_services
                       << mobilitypath_obj.trajectory.offsets[0].offset_y << ", offset_z= " << mobilitypath_obj.trajectory.offsets[0].offset_z << "}" << std::endl;
         }
 
+        std::string mobilitypath::generate_hash_sender_timestamp_id(std::string sender_bsm_id, uint64_t timestamp)
+        {
+            std::stringstream hash_ss;
+            hash_ss << sender_bsm_id << timestamp;
+            return hash_ss.str();
+        }
         mobility_header_t mobilitypath::getHeader() const
         {
             return this->header;

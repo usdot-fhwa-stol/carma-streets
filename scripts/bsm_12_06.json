@@ -1,0 +1,40 @@
+{	"core_data" : 
+	{
+		"accel_set" : 
+		{
+			"lat" : "2001",
+			"long" : "2001",
+			"vert" : "-127",
+			"yaw" : "0"
+		},
+		"accuracy" : 
+		{
+			"orientation" : "65535",
+			"semi_major" : "255",
+			"semi_minor" : "255"
+		},
+		"angle" : "127",
+		"brakes" : 
+		{
+			"abs" : "0",
+			"aux_brakes" : "0",
+			"brake_boost" : "0",
+			"scs" : "0",
+			"traction" : "0"
+		},
+		"elev" : "356",
+		"heading" : "28800",
+		"id" : "f03ad610",
+		"lat" : "389564281",
+		"long" : "-771500417",
+		"msg_count" : "117",
+		"sec_mark" : "2178",
+		"size" : 
+		{
+			"length" : "500",
+			"width" : "200"
+		},
+		"speed" : "8191",
+		"transmission" : "0"
+	}
+}

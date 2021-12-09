@@ -4,260 +4,260 @@
         "hostStaticId": "DOT-45254",
         "planId": "312a8bbb-b31e-4e2b-a940-940-ae7c64e761ec",
         "targetStaticId": "UNSET",
-        "timestamp": "0000001635885863959"
+        "timestamp": "0000001638981850925"
     },
     "trajectory": {
         "location": {
-            "ecef_x": 110456509,
-            "ecef_y": -484207708,
-            "ecef_z": 398843923,
+            "ecefX": 110456509,
+            "ecefY": -484207708,
+            "ecefZ": 398843923,
             "timestamp": "0000000000000000000"
         },
         "offsets": [
             {
-                "offset_x": 31,
-                "offset_y": 8,
-                "offset_z": 0
+                "offsetX": 31,
+                "offsetY": 8,
+                "offsetZ": 0
             },
             {
-                "offset_x": 31,
-                "offset_y": 8,
-                "offset_z": 0
+                "offsetX": 31,
+                "offsetY": 8,
+                "offsetZ": 0
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -28
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -29
             },
             {
-                "offset_x": 98,
-                "offset_y": -2,
-                "offset_z": -28
+                "offsetX": 98,
+                "offsetY": -2,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -28
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -28
             },
             {
-                "offset_x": 98,
-                "offset_y": -2,
-                "offset_z": -28
+                "offsetX": 98,
+                "offsetY": -2,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -28
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -29
             },
             {
-                "offset_x": 98,
-                "offset_y": -2,
-                "offset_z": -29
+                "offsetX": 98,
+                "offsetY": -2,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -28
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -29
             },
             {
-                "offset_x": 98,
-                "offset_y": -2,
-                "offset_z": -28
+                "offsetX": 98,
+                "offsetY": -2,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -2,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -2,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -29
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -29
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -28
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -28
             },
             {
-                "offset_x": 98,
-                "offset_y": -2,
-                "offset_z": -28
+                "offsetX": 98,
+                "offsetY": -2,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": -1,
-                "offset_z": -28
+                "offsetX": 97,
+                "offsetY": -1,
+                "offsetZ": -28
             },
             {
-                "offset_x": 98,
-                "offset_y": 0,
-                "offset_z": -28
+                "offsetX": 98,
+                "offsetY": 0,
+                "offsetZ": -28
             },
             {
-                "offset_x": 97,
-                "offset_y": 0,
-                "offset_z": -27
+                "offsetX": 97,
+                "offsetY": 0,
+                "offsetZ": -27
             },
             {
-                "offset_x": 98,
-                "offset_y": 0,
-                "offset_z": -27
+                "offsetX": 98,
+                "offsetY": 0,
+                "offsetZ": -27
             },
             {
-                "offset_x": 98,
-                "offset_y": 0,
-                "offset_z": -26
+                "offsetX": 98,
+                "offsetY": 0,
+                "offsetZ": -26
             },
             {
-                "offset_x": 98,
-                "offset_y": 1,
-                "offset_z": -26
+                "offsetX": 98,
+                "offsetY": 1,
+                "offsetZ": -26
             },
             {
-                "offset_x": 98,
-                "offset_y": 2,
-                "offset_z": -25
+                "offsetX": 98,
+                "offsetY": 2,
+                "offsetZ": -25
             },
             {
-                "offset_x": 99,
-                "offset_y": 2,
-                "offset_z": -24
+                "offsetX": 99,
+                "offsetY": 2,
+                "offsetZ": -24
             },
             {
-                "offset_x": 98,
-                "offset_y": 3,
-                "offset_z": -23
+                "offsetX": 98,
+                "offsetY": 3,
+                "offsetZ": -23
             },
             {
-                "offset_x": 99,
-                "offset_y": 4,
-                "offset_z": -23
+                "offsetX": 99,
+                "offsetY": 4,
+                "offsetZ": -23
             },
             {
-                "offset_x": 99,
-                "offset_y": 4,
-                "offset_z": -22
+                "offsetX": 99,
+                "offsetY": 4,
+                "offsetZ": -22
             },
             {
-                "offset_x": 99,
-                "offset_y": 5,
-                "offset_z": -22
+                "offsetX": 99,
+                "offsetY": 5,
+                "offsetZ": -22
             },
             {
-                "offset_x": 99,
-                "offset_y": 5,
-                "offset_z": -21
+                "offsetX": 99,
+                "offsetY": 5,
+                "offsetZ": -21
             },
             {
-                "offset_x": 99,
-                "offset_y": 6,
-                "offset_z": -20
+                "offsetX": 99,
+                "offsetY": 6,
+                "offsetZ": -20
             },
             {
-                "offset_x": 99,
-                "offset_y": 7,
-                "offset_z": -19
+                "offsetX": 99,
+                "offsetY": 7,
+                "offsetZ": -19
             },
             {
-                "offset_x": 100,
-                "offset_y": 7,
-                "offset_z": -19
+                "offsetX": 100,
+                "offsetY": 7,
+                "offsetZ": -19
             },
             {
-                "offset_x": 99,
-                "offset_y": 8,
-                "offset_z": -18
+                "offsetX": 99,
+                "offsetY": 8,
+                "offsetZ": -18
             },
             {
-                "offset_x": 100,
-                "offset_y": 8,
-                "offset_z": -17
+                "offsetX": 100,
+                "offsetY": 8,
+                "offsetZ": -17
             },
             {
-                "offset_x": 99,
-                "offset_y": 9,
-                "offset_z": -17
+                "offsetX": 99,
+                "offsetY": 9,
+                "offsetZ": -17
             },
             {
-                "offset_x": 100,
-                "offset_y": 9,
-                "offset_z": -16
+                "offsetX": 100,
+                "offsetY": 9,
+                "offsetZ": -16
             },
             {
-                "offset_x": 100,
-                "offset_y": 10,
-                "offset_z": -16
+                "offsetX": 100,
+                "offsetY": 10,
+                "offsetZ": -16
             },
             {
-                "offset_x": 99,
-                "offset_y": 10,
-                "offset_z": -15
+                "offsetX": 99,
+                "offsetY": 10,
+                "offsetZ": -15
             },
             {
-                "offset_x": 100,
-                "offset_y": 10,
-                "offset_z": -15
+                "offsetX": 100,
+                "offsetY": 10,
+                "offsetZ": -15
             },
             {
-                "offset_x": 100,
-                "offset_y": 11,
-                "offset_z": -15
+                "offsetX": 100,
+                "offsetY": 11,
+                "offsetZ": -15
             },
             {
-                "offset_x": 100,
-                "offset_y": 10,
-                "offset_z": -14
+                "offsetX": 100,
+                "offsetY": 10,
+                "offsetZ": -14
             },
             {
-                "offset_x": 99,
-                "offset_y": 11,
-                "offset_z": -15
+                "offsetX": 99,
+                "offsetY": 11,
+                "offsetZ": -15
             }
         ]
     }

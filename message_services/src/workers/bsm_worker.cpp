@@ -17,13 +17,18 @@ namespace message_services
         {
             return this->bsm_v;
         }
+
+        std::map<std::string, message_services::models::bsm> &bsm_worker::get_curr_map()
+        {
+            return this->bsm_m;
+        }
         void bsm_worker::process_incoming_msg(const std::string json_str)
         {
             message_services::models::bsm bsm_obj;
             if (bsm_obj.fromJson(json_str.c_str()))
             {
                 std::unique_lock<std::mutex> lck(worker_mtx);
-                this->bsm_v.push_back(bsm_obj);
+                this->bsm_m.insert({bsm_obj.generate_hash_bsm_msg_id(bsm_obj.getCore_data().temprary_id, bsm_obj.getCore_data().msg_count), bsm_obj});
             }
             else
             {
