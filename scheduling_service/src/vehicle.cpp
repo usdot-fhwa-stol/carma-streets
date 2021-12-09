@@ -15,9 +15,8 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 
 	if (message["metadata"].HasMember("timestamp") && (double)message["metadata"]["timestamp"].GetInt64() / 1000.0 >= timestamp){
 		
-		/* the unit of the received speed from the message is mile per hour
-		*  but the unit of the speed defined in the vehicle class is meter per second. 
-		*  Therefore, a conversion has been added here.
+		/* the unit of the received speed from the message is meter per second
+		*  the unit of the speed defined in the vehicle class is meter per second. 
 		*/
 		if (message["payload"].HasMember("cur_speed")){
 			speed = message["payload"]["cur_speed"].GetDouble();
