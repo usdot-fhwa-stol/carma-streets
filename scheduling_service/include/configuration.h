@@ -19,6 +19,11 @@ class configuration{
 		/* the time point when the current schedule started */
 		double cur_schedule_start_time;
 
+		/* If the last update of the vehicle is update_expiration_delta seconds older than the current time, the vehicle will not be included in the schedule
+		*  Unit: second
+		 */
+		double update_expiration_delta = 300;
+
 	public:
 
 		/* get the scheduling time interval */
@@ -30,6 +35,9 @@ class configuration{
 		/* get the time point when the current schedule started */
 		double get_curSchedulingT();
 
+		/* get the vehicle status and intent update expiration time interval */
+		double get_expDelta();
+
 		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);
 
@@ -38,6 +46,9 @@ class configuration{
 
 		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);
+
+		/* set the vehicle status and intent update expiration time interval to delta*/
+		void set_expDelta(double delta);
 };
 
 #endif
