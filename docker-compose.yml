@@ -57,8 +57,10 @@ services:
     volumes:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
+      
   scheduling_service:
     image: usdotfhwastoldev/scheduling_service:latest
+    command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
       dockerfile: scheduling_service/Dockerfile
@@ -70,8 +72,13 @@ services:
       - intersection_model
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      WAIT_HOSTS: kafka:29092, message_services:8081
+      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_SLEEP_INTERVAL: 30
+      WAIT_HOST_CONNECT_TIMEOUT: 30
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
+      
   message_services:
     image: usdotfhwastoldev/message_services:latest
     build: 
