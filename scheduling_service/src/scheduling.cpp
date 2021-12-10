@@ -11,6 +11,9 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (auto& element : list_veh){
 		
+		/* if the vehicle update is not older than update_expiration_delta seconds ago, include the vehicle in the schedule
+		*  if the vehicle update is older than update_expiration_delta seconds ago, do not include the vehicle in the schedule
+		*/
 		if (config.get_curSchedulingT() - element.second.get_curTime() <= config.get_expDelta()){
 
 			veh_id.push_back(element.first);
