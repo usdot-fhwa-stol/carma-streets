@@ -2,5 +2,6 @@
     "BOOTSTRAP_SERVER": "127.0.0.1:9092", 
     "PRODUCER_TOPIC": "v2xhub_scheduling_plan_sub",
     "CONSUMER_TOPIC": "vehicle_status_intent_output",
-    "GROUP_ID": "group_one"
+    "GROUP_ID": "group_one",
+    "EXPIRATION_DELTA": 300
 }
