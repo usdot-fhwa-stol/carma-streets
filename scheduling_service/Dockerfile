@@ -88,4 +88,9 @@ LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
+# Add docker-compose-wait tool -------------------
+ENV WAIT_VERSION 2.7.2
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
+RUN chmod +x /wait
+
 CMD ["/home/carma-streets/scheduling_service/build/scheduling_service"]
