@@ -384,29 +384,32 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     //             "dp": 2,
     //             "access": 0
     //         } , ... ]
-    Value schedule_plan(kArrayType);
-    for (int n = 0; n < (int)schedule.get_vehicleIdList().size(); ++n){
-        std::string vehicle_id = schedule.get_vehicleIdList()[n];
-        Value veh_sched(kObjectType);
-        veh_sched.AddMember("v_id", vehicle_id, allocator);
+    Value schedule_plan;
+    if ((int)schedule.get_vehicleIdList().size() > 0) {
+        schedule_plan.SetArray();
+        for (int n = 0; n < (int)schedule.get_vehicleIdList().size(); ++n){
+            std::string vehicle_id = schedule.get_vehicleIdList()[n];
+            Value veh_sched(kObjectType);
+            veh_sched.AddMember("v_id", vehicle_id, allocator);
 
-        /* the units of the critical time points (i.e., st, et, dt) in the scheduling service is second,
-        *  but each vehicle need to receive these time points in milisecond. Therefore, a conversion from second to milisecond is added here!
-         */
-        veh_sched.AddMember("st", u_int64_t(schedule.get_stList()[n]*1000), allocator);
-        veh_sched.AddMember("et", u_int64_t(schedule.get_etList()[n]*1000), allocator);
-        veh_sched.AddMember("dt", u_int64_t(schedule.get_dtList()[n]*1000), allocator);
-        veh_sched.AddMember("dp", schedule.get_departPosIndexList()[n], allocator);
-        if (schedule.get_accessList()[n] == true){
-            veh_sched.AddMember("access", 1, allocator);
-            if (list_veh[vehicle_id].get_access() == false){
-                list_veh_confirmation.insert(vehicle_id);
+            /* the units of the critical time points (i.e., st, et, dt) in the scheduling service is second,
+            *  but each vehicle need to receive these time points in milisecond. Therefore, a conversion from second to milisecond is added here!
+            */
+            veh_sched.AddMember("st", u_int64_t(schedule.get_stList()[n]*1000), allocator);
+            veh_sched.AddMember("et", u_int64_t(schedule.get_etList()[n]*1000), allocator);
+            veh_sched.AddMember("dt", u_int64_t(schedule.get_dtList()[n]*1000), allocator);
+            veh_sched.AddMember("dp", schedule.get_departPosIndexList()[n], allocator);
+            if (schedule.get_accessList()[n] == true){
+                veh_sched.AddMember("access", 1, allocator);
+                if (list_veh[vehicle_id].get_access() == false){
+                    list_veh_confirmation.insert(vehicle_id);
+                }
+            } 
+            else{
+                veh_sched.AddMember("access", 0, allocator);
             }
-        } 
-        else{
-            veh_sched.AddMember("access", 0, allocator);
+            schedule_plan.PushBack(veh_sched, allocator);
         }
-        schedule_plan.PushBack(veh_sched, allocator);
     }
 
     return schedule_plan;

@@ -3,6 +3,13 @@
 
 #include <string>
 #include <chrono>
+#include "spdlog/spdlog.h"
+#include "spdlog/cfg/env.h"
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <fstream>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 using namespace std;
 using chrono::duration;
@@ -19,7 +26,15 @@ class configuration{
 		/* the time point when the current schedule started */
 		double cur_schedule_start_time;
 
+		/* If the last update of the vehicle is update_expiration_delta seconds older than the current time, the vehicle will not be included in the schedule
+		*  Unit: second
+		 */
+		double update_expiration_delta;
+
 	public:
+
+		/* initialization: reading the EXPIRATION_DELTA from ../manifest.json */
+		configuration();
 
 		/* get the scheduling time interval */
 		double get_schedulingDelta();
@@ -30,6 +45,9 @@ class configuration{
 		/* get the time point when the current schedule started */
 		double get_curSchedulingT();
 
+		/* get the vehicle status and intent update expiration time interval */
+		double get_expDelta();
+
 		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);
 
@@ -38,6 +56,9 @@ class configuration{
 
 		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);
+
+		/* set the vehicle status and intent update expiration time interval to delta*/
+		void set_expDelta(double delta);
 };
 
 #endif
