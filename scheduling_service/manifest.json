@@ -3,5 +3,7 @@
     "PRODUCER_TOPIC": "v2xhub_scheduling_plan_sub",
     "CONSUMER_TOPIC": "vehicle_status_intent_output",
     "GROUP_ID": "group_one",
-    "EXPIRATION_DELTA": 300
+    "EXPIRATION_DELTA": 300,
+    "STOP_DISTANCE": 3,
+    "STOP_SPEED": 0.1 
 }

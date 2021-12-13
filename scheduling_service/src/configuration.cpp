@@ -40,6 +40,22 @@ configuration::configuration(){
         exit(1);
     }
 
+    if(doc.HasMember("STOP_DISTANCE")){
+        stopping_distance = doc["STOP_DISTANCE"].GetDouble();
+        spdlog::info("stopping_distance :  {0}", stopping_distance);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "STOP_DISTANCE");
+        exit(1);
+    }
+
+    if(doc.HasMember("STOP_SPEED")){
+        stopping_speed = doc["STOP_SPEED"].GetDouble();
+        spdlog::info("stopping_speed :  {0}", stopping_speed);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "STOP_SPEED");
+        exit(1);
+    }
+
 }
 
 /* */
@@ -55,6 +71,12 @@ double configuration::get_curSchedulingT(){return cur_schedule_start_time;}
 double configuration::get_expDelta(){return update_expiration_delta;}
 
 /* */
+double configuration::get_stopDistance(){return stopping_distance;}
+
+/* */
+double configuration::get_stopSpeed(){return stopping_speed;}
+
+/* */
 void configuration::set_lastSchedulingT(double t){last_schedule_start_time = t;}
 
 /* */
@@ -65,4 +87,10 @@ void configuration::set_schedulingDelta(double delta){scheduling_delta = delta;}
 
 /* */
 void configuration::set_expDelta(double delta){update_expiration_delta = delta;}
+
+/* */
+void configuration::set_stopDistance(double ds){stopping_distance = ds;}
+
+/* */
+void configuration::set_stopSpeed(double speed){stopping_speed = speed;}
 

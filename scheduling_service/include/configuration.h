@@ -31,6 +31,16 @@ class configuration{
 		 */
 		double update_expiration_delta;
 
+		/* stopping distance paramter 
+		*  unit: meter 
+		*/
+		double stopping_distance;
+
+		/* stopping speed parameter 
+		*  unit: meter/sec
+		*/
+		double stopping_speed;
+
 	public:
 
 		/* initialization: reading the EXPIRATION_DELTA from ../manifest.json */
@@ -48,6 +58,12 @@ class configuration{
 		/* get the vehicle status and intent update expiration time interval */
 		double get_expDelta();
 
+		/* get the stopping distance condition */
+		double get_stopDistance();
+
+		/* get the stopping speed condition */
+		double get_stopSpeed();
+
 		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);
 
@@ -59,6 +75,12 @@ class configuration{
 
 		/* set the vehicle status and intent update expiration time interval to delta*/
 		void set_expDelta(double delta);
+		
+		/* set the stopping distance condition to ds */
+		void set_stopDistance(double ds);
+
+		/* set the stopping speed condition to speed */
+		void set_stopSpeed(double speed);
 };
 
 #endif
