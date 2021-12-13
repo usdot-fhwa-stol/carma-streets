@@ -91,7 +91,7 @@ namespace message_services
                                     }
                                     if (boost::iequals(std::string(size_itr->name.GetString()), std::string("width")))
                                     {
-                                        core_data.size.length = std::stol(size_itr->value.GetString());
+                                        core_data.size.width = std::stol(size_itr->value.GetString());
                                     }
                                 }
                             }
