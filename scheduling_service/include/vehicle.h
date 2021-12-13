@@ -9,6 +9,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
 
+#include "configuration.h"
 #include "intersection_client.h"
 
 using namespace std;
@@ -122,7 +123,7 @@ class vehicle{
 
 	public:
 
-		void update(const Document& message, intersection_client& localmap);
+		void update(const Document& message, intersection_client& localmap, configuration& config);
 
 		string get_id();
 

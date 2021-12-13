@@ -61,7 +61,7 @@ void consumer_update(const char* paylod){
 
             /* update the vehicle status and intent information */
             if (list_veh.count(veh_id)){
-                list_veh[veh_id].update(message, localmap);       
+                list_veh[veh_id].update(message, localmap, config);       
                 if (list_veh[veh_id].get_curState() == "LV"){
                     list_veh.erase(veh_id);
                 }

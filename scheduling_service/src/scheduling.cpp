@@ -27,7 +27,12 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 			state.push_back(element.second.get_curState());
 
 			departurePosition_index.push_back(element.second.get_departurePosition());
-			distance.push_back(element.second.get_curDistance());
+			if (state.back() == "EV" && element.second.get_curDistance() >= element.second.get_length()){
+				distance.push_back(element.second.get_curDistance() - element.second.get_length());
+			}
+			else{
+				distance.push_back(0.1);
+			}
 			clearance_time.push_back(-1);							// !!!
 			est.push_back(-1);										// !!!
 			st.push_back(element.second.get_actualST());
@@ -62,7 +67,12 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 						
 						time.back() = element.second.get_futureInfo()[i].timestamp;
 						lane_id.back() = element.second.get_futureInfo()[i].lane_id;
-						distance.back() = element.second.get_futureInfo()[i].distance;
+						if (state.back() == "EV" && element.second.get_futureInfo()[i].distance >= element.second.get_length()){
+							distance.back() = element.second.get_futureInfo()[i].distance - element.second.get_length();
+						}
+						else{
+							distance.back() = 0.1;
+						}
 						speed.back() = element.second.get_futureInfo()[i].speed;
 						acceleration.back() = element.second.get_futureInfo()[i].acceleration;
 
@@ -96,7 +106,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 			/* if the vehicle is in the EV state, estimate its earliest stopping time */
 			if (state.back() == "EV"){
 
-				double dx1 = max(distance.back(), 0.01);
+				double dx1 = max(distance.back(), 0.1);
 				double dx2 = -pow(speed.back(), 2) / (2 * element.second.get_decelMax());
 				double dx3 = ((pow(localmap.get_laneSpeedLimit(lane_id.back()), 2) - pow(speed.back(), 2)) / (2 * element.second.get_accelMax())) - 
 					(pow(localmap.get_laneSpeedLimit(lane_id.back()), 2) / (2 * element.second.get_decelMax()));
