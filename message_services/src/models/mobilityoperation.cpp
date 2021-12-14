@@ -25,10 +25,10 @@ namespace message_services
             hash_ss << sender_bsm_id << timestamp;
             return hash_ss.str();
         }
-        std::string mobilityoperation::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count)
+        std::string mobilityoperation::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count, long sec_mark)
         {
             std::stringstream hash_ss;
-            hash_ss << temprary_id << msg_count;
+            hash_ss << temprary_id << msg_count << sec_mark;
             return hash_ss.str();
         }
         void mobilityoperation::fromJsonObject(const rapidjson::Value &obj)

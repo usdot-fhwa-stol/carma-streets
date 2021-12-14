@@ -145,7 +145,7 @@ namespace message_services
                                 message_services::models::bsm subj_bsm;
                                 bool is_bsm_msg_count_id_found = false;
 
-                                std::string bsm_msg_id = subj_mo.generate_hash_bsm_msg_id(subj_mo.getHeader().sender_bsm_id, std::stol(subj_mo.get_value_from_strategy_params("msg_count")));
+                                std::string bsm_msg_id = subj_mo.generate_hash_bsm_msg_id(subj_mo.getHeader().sender_bsm_id, std::stol(subj_mo.get_value_from_strategy_params("msg_count")), std::stol(subj_mo.get_value_from_strategy_params("sec_mark")));
                                 if (bsm_w_ptr->get_curr_map().find(bsm_msg_id) != bsm_w_ptr->get_curr_map().end())
                                 {
                                     is_bsm_msg_count_id_found = true;

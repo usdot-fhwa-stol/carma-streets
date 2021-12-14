@@ -1,5 +1,5 @@
 {
-    "core_data" : 
+	"core_data" : 
 	{
 		"accel_set" : 
 		{
@@ -23,13 +23,13 @@
 			"scs" : "0",
 			"traction" : "0"
 		},
-		"elev" : "0",
+		"elev" : "372",
 		"heading" : "28800",
 		"id" : "f03ad610",
-		"lat" : "389553567",
-		"long" : "-771502284",
-		"msg_count" : "99",
-		"sec_mark" : "2953",
+		"lat" : "389549455",
+		"long" : "-771492154",
+		"msg_count" : "111",
+		"sec_mark" : "37056",
 		"size" : 
 		{
 			"length" : "500",
