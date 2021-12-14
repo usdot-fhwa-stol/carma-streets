@@ -21,7 +21,7 @@ def produce_bsm():
     while(i < count):
         data = read_json('bsm_12_8.json')
         # data["core_data"]["msg_count"] = str(i)
-        data["core_data"]["speed"] = str(i)
+        # data["core_data"]["speed"] = str(i)
         producer.send('v2xhub_bsm_in', value=data)
         print('Sent a bsm.')
         i += 1
@@ -36,9 +36,9 @@ def produce_operation():
     i = 0
     while(i < count):
         data = read_json('mobilityoperation_12_8.json')
-        strategy_params = "msg_count:" + \
-            str(i) + ",access: 0,max_accel:1.500000,max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: " \
-            + str(i)
+        # strategy_params = "msg_count:" + \
+        #     str(i) + ",access: 0,max_accel:1.500000,max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: " \
+        #     + str(i)
         # data["strategy_params"] = strategy_params
         timestamp = int(data["metadata"]["timestamp"]) + i*100
         data["metadata"]["timestamp"] = str(timestamp)

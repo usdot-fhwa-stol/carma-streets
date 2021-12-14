@@ -7,5 +7,5 @@
         "timestamp": "0000001635885863959"
     },
     "strategy": "Carma/stop_controlled_intersection",
-    "strategy_params": "msg_count:1,access: 0, max_accel: 1.500000, max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: 9999, turn_direction:straight"
+    "strategy_params": "msg_count:1,access: 0, max_accel: 1.500000, max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: 9999, turn_direction:straight, sec_mark:4032"
 }
