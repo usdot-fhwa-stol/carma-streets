@@ -104,6 +104,12 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			} else{
 				spdlog::critical("the entry lane id of Vehicle {0} is missing in the received update!", veh_id);
 			}
+
+			if (message["payload"].HasMember("dest_lane_id")){
+				exitLane_id = to_string(message["payload"]["dest_lane_id"].GetInt());
+			} else{
+				spdlog::critical("the exit lane id of Vehicle {0} is missing in the received update!", veh_id);
+			}
 			
 			if (message["payload"].HasMember("link_lane_id")){
 				link_id = to_string(message["payload"]["link_lane_id"].GetInt());
@@ -144,8 +150,10 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			/* vehicle state update */
 			if (state == "EV"){
 				if (lane_id != entryLane_id){
+					if (lane_id == link_id){
+						distance = 0.1;
+					}
 					lane_id = entryLane_id;
-					distance = 0.1;
 				}
 				if (distance <= config.get_stopDistance() + length && speed <= config.get_stopSpeed()){
 					state = "RDV";
@@ -246,6 +254,67 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 
 }
 
+/* */
+bool vehicle::message_hasError(const Document& message, intersection_client& localmap){
+
+
+	if (!message.HasMember("payload")){
+		spdlog::critical("payload is missing in the received status and intent update!");
+		return true;
+	}
+
+	if (!message["payload"].HasMember("v_id")){
+		spdlog::critical("vehicle id is missing in the received status and intent update!");
+		return true;
+	}
+	string veh_id = message["payload"]["v_id"].GetString();
+
+	string cur_lane_id;
+	string entry_lane_id;
+	string exit_lane_id;
+	string link_lane_id;
+
+	if (message["payload"].HasMember("cur_lane_id")){
+		cur_lane_id = to_string(message["payload"]["cur_lane_id"].GetInt());
+	}
+	else{
+		spdlog::critical("the current lane id of Vehicle {0} is missing in the received update!", veh_id);
+		return true;
+	}
+		
+	if (message["payload"].HasMember("entry_lane_id")){
+		entry_lane_id = to_string(message["payload"]["entry_lane_id"].GetInt());
+	}
+	else{
+		spdlog::critical("the entry lane id of Vehicle {0} is missing in the received update!", veh_id);
+		return true;
+	}
+
+	if (message["payload"].HasMember("dest_lane_id")){
+		exit_lane_id = to_string(message["payload"]["dest_lane_id"].GetInt());
+	}
+	else{
+		spdlog::critical("the exit lane id of Vehicle {0} is missing in the received update!", veh_id);
+		return true;
+	}
+	
+	if (message["payload"].HasMember("link_lane_id")){
+		link_lane_id = to_string(message["payload"]["link_lane_id"].GetInt());
+	}
+	else{
+		spdlog::critical("the link lane id of Vehicle {0} is missing in the received update!", veh_id);
+		return true;
+	}
+
+	if (cur_lane_id == entry_lane_id || cur_lane_id == link_lane_id || cur_lane_id == exit_lane_id){
+		return false;
+	} 
+	else{
+		spdlog::critical("the current lane id of Vehicle {0} is not correct! entry_lane_id: {1}, link_lane_id: {2}, exit_lane_id: {3}, cur_lane_id: {4}", veh_id, entry_lane_id, link_lane_id, exit_lane_id, cur_lane_id);
+		return true;
+	}
+
+}
 
 /* */
 string vehicle::get_id(){return id;};
@@ -270,6 +339,9 @@ string vehicle::get_direction(){return direction;}
 
 /* */
 string vehicle::get_entryLaneID(){return entryLane_id;}
+
+/* */
+string vehicle::get_exitLaneID(){return exitLane_id;}
 
 /* */
 string vehicle::get_linkID(){return link_id;}
