@@ -54,6 +54,15 @@ namespace message_services
             //Publish vehicle status intent thread sleep time.
             unsigned int VSI_TH_SLEEP_MILLI_SEC = 100; 
 
+            //Expire BSM message from the queue after duration. Default value is 6 seconds
+            unsigned long BSM_MSG_EXPIRE_IN_SEC = 6; 
+
+            //Clean the queue every CLEAN_QUEUE_IN_MINS; Default value is 5;
+            std::int32_t CLEAN_QUEUE_IN_MINS = 5;
+
+            //Tracking last message expired timestamp
+            std::time_t prev_msg_expired_timestamp_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();                      
+
             //add lanelet2 translation object
             std::shared_ptr<message_translations::message_lanelet2_translation> _msg_lanelet2_translate_ptr;
 

@@ -65,6 +65,8 @@ namespace message_services
                 this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
                 this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = std::stoi(client->get_value_by_doc(doc, "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION"));
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
+                this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
+                this->CLEAN_QUEUE_IN_MINS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_MINS"));
 
                 delete client;
 
@@ -144,12 +146,19 @@ namespace message_services
                                 message_services::models::mobilitypath subj_mp;
                                 message_services::models::bsm subj_bsm;
                                 bool is_bsm_msg_count_id_found = false;
-
+                                std::time_t cur_local_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                                 std::string bsm_msg_id = subj_mo.generate_hash_bsm_msg_id(subj_mo.getHeader().sender_bsm_id, std::stol(subj_mo.get_value_from_strategy_params("msg_count")), std::stol(subj_mo.get_value_from_strategy_params("sec_mark")));
                                 if (bsm_w_ptr->get_curr_map().find(bsm_msg_id) != bsm_w_ptr->get_curr_map().end())
                                 {
-                                    is_bsm_msg_count_id_found = true;
                                     subj_bsm = bsm_w_ptr->get_curr_map()[bsm_msg_id];
+
+                                    if (std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_) > (this->BSM_MSG_EXPIRE_IN_SEC * 1000))
+                                    {
+                                        spdlog::info("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
+                                        bsm_w_ptr->get_curr_map().erase(bsm_msg_id);
+                                        continue;
+                                    }
+                                    is_bsm_msg_count_id_found = true;
                                 }
                                 else
                                 {
@@ -177,6 +186,53 @@ namespace message_services
                                 mp_w_ptr->get_curr_map().erase(sender_timestamp_msg_id);
                                 bsm_w_ptr->get_curr_map().erase(bsm_msg_id);
                             }
+                        }
+
+                        std::time_t cur_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_MINS * 60 * 1000))
+                        {
+                            spdlog::info("Clean the BSM and MP...");
+                            spdlog::debug("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                            spdlog::debug("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                            spdlog::debug("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+
+                            if (mp_w_ptr && !mp_w_ptr->get_curr_map().empty())
+                            {
+                                spdlog::info("Clean the MP...");
+                                for (auto itr = mp_w_ptr->get_curr_map().cbegin(); itr != mp_w_ptr->get_curr_map().cend();)
+                                {
+                                    if (mp_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_MINS * 60 * 1000))
+                                    {
+                                        std::unique_lock<std::mutex> lck(worker_mtx);
+                                        mp_w_ptr->get_curr_map().erase(itr++);
+                                    }
+                                    else
+                                    {
+                                        ++itr;
+                                    }
+                                }
+                                spdlog::info("Cleaned the MP.");
+                            }
+
+                            if (bsm_w_ptr && !bsm_w_ptr->get_curr_map().empty())
+                            {
+                                spdlog::info("Clean the BSM...");
+                                for (auto itr = bsm_w_ptr->get_curr_map().cbegin(); itr != bsm_w_ptr->get_curr_map().cend();)
+                                {
+                                    if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_MINS * 60 * 1000))
+                                    {
+                                        std::unique_lock<std::mutex> lck(worker_mtx);
+                                        bsm_w_ptr->get_curr_map().erase(itr++);
+                                    }
+                                    else
+                                    {
+                                        ++itr;
+                                    }
+                                }
+                                spdlog::info("Cleaned the BSM.");
+                            }
+
+                            prev_msg_expired_timestamp_ = cur_timestamp;
                         }
                         std::this_thread::sleep_for(std::chrono::milliseconds(this->VSI_TH_SLEEP_MILLI_SEC));
                     }

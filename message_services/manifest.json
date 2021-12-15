@@ -9,5 +9,7 @@
     "MO_GROUP_ID": "mobilityoperation_consumer",
     "VSI_EST_PATH_COUNT": "20",
     "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION": "19",
-    "VSI_TH_SLEEP_MILLI_SEC": "100"
+    "VSI_TH_SLEEP_MILLI_SEC": "100",
+    "BSM_MSG_EXPIRE_IN_SEC": "60",
+    "CLEAN_QUEUE_IN_MINS": "1"
 }
