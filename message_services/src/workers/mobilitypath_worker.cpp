@@ -26,7 +26,12 @@ namespace message_services
             if (mobilitypath_obj.fromJson(json_str.c_str()))
             {
                 std::unique_lock<std::mutex> lck(worker_mtx);
-                this->mobilitypath_m.insert({mobilitypath_obj.generate_hash_sender_timestamp_id(mobilitypath_obj.getHeader().sender_id, mobilitypath_obj.getHeader().timestamp/this->MOBILITY_OPERATION_PATH_MAX_DURATION), mobilitypath_obj});
+                std::string mp_msg_id = mobilitypath_obj.generate_hash_sender_timestamp_id(mobilitypath_obj.getHeader().sender_id, mobilitypath_obj.getHeader().timestamp/this->MOBILITY_OPERATION_PATH_MAX_DURATION);
+                if(!this->mobilitypath_m.empty() && this->mobilitypath_m.find(mp_msg_id) != this->mobilitypath_m.end())
+                {
+                    this->mobilitypath_m.erase(mp_msg_id);
+                }
+                this->mobilitypath_m.insert({mp_msg_id, mobilitypath_obj});
             }
             else
             {

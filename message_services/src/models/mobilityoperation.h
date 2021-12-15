@@ -26,6 +26,9 @@ namespace message_services
             mobilityoperation(/* args */);
             virtual ~mobilityoperation();
 
+            //Current timestamp in unit of milliseconds
+            std::time_t msg_received_timestamp_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
             virtual void fromJsonObject(const rapidjson::Value &obj);
             virtual bool asJsonObject(rapidjson::Writer<rapidjson::StringBuffer> *writer) const;
 
