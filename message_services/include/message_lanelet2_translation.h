@@ -89,7 +89,7 @@ namespace message_services
              * @param turn_direction (Optional if position is not in intersection bridge/link lanelet).
              * @return Signed Integer lanelet id; \n Return 0 if cannot find the current lanelet.
              **/
-            std::int64_t get_cur_lanelet_id_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction) const;
+            std::int64_t get_cur_lanelet_id_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction, models::trajectory& trajectory) const;
 
             /***
              * @brief Identify the current lanelet with the given vehicle geo-loc (convert into map point) and vehicle turn direction.
@@ -97,7 +97,7 @@ namespace message_services
              * @param turn_direction (Optional if position is not in intersection bridge/link lanelet).
              * @return Signed Integer lanelet id; \n Return 0 if cannot find the current lanelet.
              **/
-            std::int64_t get_cur_lanelet_id_by_point_and_direction(lanelet::BasicPoint3d subj_point3d, std::string turn_direction) const;
+            std::int64_t get_cur_lanelet_id_by_point_and_direction(lanelet::BasicPoint3d subj_point3d, std::string turn_direction, models::trajectory& trajectory) const;
             
              /***
              * @brief Identify the current lanelet with the given vehicle geo-loc (convert into map point).
@@ -115,7 +115,7 @@ namespace message_services
              * @return Decimal distance to the end of the current lanelet (unit of meters). 
              * \n Return -1 if cannot determine the current lanelet
              **/
-            double distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction) const;
+            double distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction, models::trajectory& trajectory) const;
             
             /***
              * @brief The distance between the vehicle’s current position and the end of its current lane with the given vehicle geo-loc and vehicle turn direction.
@@ -124,7 +124,7 @@ namespace message_services
              * @return Decimal distance to the end of the current lanelet (unit of meters). 
              * \n Return -1 if cannot determine the current lanelet
              **/
-            double distance2_cur_lanelet_end(lanelet::BasicPoint3d point, std::string turn_direction) const;
+            double distance2_cur_lanelet_end(lanelet::BasicPoint3d point, std::string turn_direction, models::trajectory& trajectory) const;
             
             /**
              * @brief Initialize vehicle routing graph.
@@ -140,7 +140,7 @@ namespace message_services
              * @param turn_direction
              * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
              * **/
-            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory& subj_vehicle_trajectory, std::uint64_t offset_size, std::string turn_direction);
+            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory& subj_vehicle_trajectory, std::uint64_t offset_size, std::string turn_direction) const;
 
             /***
              * @brief Vehicle broadcast mobilitypath message that contains current vehicle trajectory within the next 6 secs.
@@ -156,7 +156,7 @@ namespace message_services
             * @param ecef_point ecef location point
             * @return 2d point in map frame
             */
-            lanelet::BasicPoint3d ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z);
+            lanelet::BasicPoint3d ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z) const;
             
         };
     }
