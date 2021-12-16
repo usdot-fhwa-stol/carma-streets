@@ -66,7 +66,7 @@ namespace message_services
                 this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = std::stoi(client->get_value_by_doc(doc, "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION"));
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
                 this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
-                this->CLEAN_QUEUE_IN_MINS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_MINS"));
+                this->CLEAN_QUEUE_IN_SECS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_SECS"));
 
                 delete client;
 
@@ -189,7 +189,7 @@ namespace message_services
                         }
 
                         std::time_t cur_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                        if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_MINS * 60 * 1000))
+                        if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                         {
                             spdlog::info("Clean the BSM and MP...");
                             spdlog::debug("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
@@ -201,7 +201,7 @@ namespace message_services
                                 spdlog::info("Clean the MP...");
                                 for (auto itr = mp_w_ptr->get_curr_map().cbegin(); itr != mp_w_ptr->get_curr_map().cend();)
                                 {
-                                    if (mp_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_MINS * 60 * 1000))
+                                    if (mp_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                                     {
                                         std::unique_lock<std::mutex> lck(worker_mtx);
                                         mp_w_ptr->get_curr_map().erase(itr++);
