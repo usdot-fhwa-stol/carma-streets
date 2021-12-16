@@ -184,8 +184,10 @@ namespace message_services
                         spdlog::debug("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
                         spdlog::debug("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
                     }
-                    
+
                     lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x, dest_y, dest_z);
+                    int64_t result_lanelet_id = lanelet::InvalId;
+                    double smaller_distance_sum = 0;
                     for (auto itr = result_lanelets.begin(); itr != result_lanelets.end(); itr++)
                     {
                         const lanelet::Lanelet cur_lanelet = *itr;
@@ -195,12 +197,15 @@ namespace message_services
                         double dest_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_dest), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
                         spdlog::info("{0} cur_lanelet = {1} to trajectory dest point distance = {2}", __FILE__, cur_lanelet.id(), dest_distance2_ctl);
 
-                        const lanelet::Attribute attr = cur_lanelet.attribute("turn_direction");
-                        if (attr.value() == turn_direction && dest_distance2_ctl < 0.01 && start_distance2_ctl < 0.01)
+                        double cur_distance_sum = start_distance2_ctl + dest_distance2_ctl;
+
+                        if (smaller_distance_sum >= cur_distance_sum || smaller_distance_sum == 0)
                         {
-                            return cur_lanelet.id();
+                            smaller_distance_sum = cur_distance_sum;
+                            result_lanelet_id = cur_lanelet.id();
                         }
                     }
+                    return result_lanelet_id;
                 }
                 spdlog::error("{0}: Cannot determine the current lanelet with this turn direction = {1} for point = (x = {2} , y = {3}, z= {4})", __FILE__, turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
             }
