@@ -27,7 +27,10 @@ namespace message_services
             virtual ~bsm();
             void setCore_data(bsmCoreData_t core_data);
             bsmCoreData_t getCore_data() const;
-            std::string generate_hash_bsm_msg_id( std::string temprary_id, long msg_count);
+            std::string generate_hash_bsm_msg_id( std::string temprary_id, long msg_count, long sec_mark);
+
+            //Current timestamp in unit of milliseconds
+            std::time_t msg_received_timestamp_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
             //json string object converter with rapidjson
             virtual void fromJsonObject(const rapidjson::Value &obj);

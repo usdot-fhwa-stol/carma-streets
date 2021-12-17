@@ -16,7 +16,7 @@ def read_json(json_name):
 def produce_bsm():
     producer = KafkaProducer(bootstrap_servers=["127.0.0.1:9092"],
                              value_serializer=lambda x: json.dumps(x).encode('utf-8'))
-    count = 1
+    count = 100
     i = 0
     while(i < count):
         data = read_json('bsm_12_8.json')
@@ -32,15 +32,15 @@ def produce_bsm():
 def produce_operation():
     producer = KafkaProducer(bootstrap_servers=["127.0.0.1:9092"],
                              value_serializer=lambda x: json.dumps(x).encode('utf-8'))
-    count = 1
+    count = 100
     i = 0
     while(i < count):
         data = read_json('mobilityoperation_12_8.json')
-        strategy_params = "msg_count:" + \
-            str(i) + ",access: 0,max_accel:1.500000,max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: " \
-            + str(i)
+        # strategy_params = "msg_count:" + \
+        #     str(i) + ",access: 0,max_accel:1.500000,max_decel: -1.000000,react_time: 4.500000, min_gap: 5.000000, depart_pos: " \
+        #     + str(i)
         # data["strategy_params"] = strategy_params
-        timestamp = int(data["metadata"]["timestamp"]) + i*100
+        timestamp = int(time.time())*1000 + i*100
         data["metadata"]["timestamp"] = str(timestamp)
         producer.send('v2xhub_mobility_operation_in', value=data)
         print('Sent a mobilityoperation.')
@@ -53,10 +53,10 @@ def produce_mobility_path():
     producer = KafkaProducer(bootstrap_servers=["127.0.0.1:9092"],
                              value_serializer=lambda x: json.dumps(x).encode('utf-8'))
     i = 0
-    count = 1
+    count = 100
     while(i < count):
         data = read_json('mobilitypath_12_8.json')
-        timestamp = int(data["metadata"]["timestamp"]) 
+        timestamp = int(time.time())*1000 + i*100
         data["metadata"]["timestamp"] = str(timestamp)
         producer.send('v2xhub_mobility_path_in', value=data)
         print('Sent a mobilitypath.')

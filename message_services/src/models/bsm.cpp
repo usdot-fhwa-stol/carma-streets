@@ -216,10 +216,10 @@ namespace message_services
                       << ", size: {length = " << bsm_obj.core_data.size.length << "}, speed = " << bsm_obj.core_data.speed << "}" << std::endl;
         }
 
-        std::string bsm::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count)
+        std::string bsm::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count, long sec_mark)
         {
             std::stringstream hash_ss;
-            hash_ss << temprary_id << msg_count;
+            hash_ss << temprary_id << msg_count << sec_mark;
             return hash_ss.str();
         }      
 

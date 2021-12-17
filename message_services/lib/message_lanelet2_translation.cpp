@@ -80,7 +80,7 @@ namespace message_services
             return true;
         }
 
-        std::int64_t message_lanelet2_translation::get_cur_lanelet_id_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction) const
+        std::int64_t message_lanelet2_translation::get_cur_lanelet_id_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction, models::trajectory &trajectory) const
         {
             lanelet::BasicPoint3d subj_point3d;
             try
@@ -99,7 +99,7 @@ namespace message_services
                 spdlog::error("Cannot project the GPS position: Latitude: {0} , Longitude: {1}, Elevation: {2}", lat, lon, elev);
                 return lanelet::InvalId;
             }
-            return get_cur_lanelet_id_by_point_and_direction(subj_point3d, turn_direction);
+            return get_cur_lanelet_id_by_point_and_direction(subj_point3d, turn_direction, trajectory);
         }
 
         std::vector<lanelet::Lanelet> message_lanelet2_translation::get_cur_lanelets_by_point(lanelet::BasicPoint3d subj_point3d) const
@@ -118,9 +118,9 @@ namespace message_services
 
             // Only interested in the nearest lanelets with first = 0
             for (auto itr = nearest_lanelets.begin(); itr != nearest_lanelets.end(); itr++)
-            {    
-                spdlog::debug("Nearest lanelet to the vehicle in map point: x = {0} y = {1}, z = {2}. Nearest lanelet id = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(),itr->second.id());
-            
+            {
+                spdlog::debug("Nearest lanelet to the vehicle in map point: x = {0} y = {1}, z = {2}. Nearest lanelet id = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), itr->second.id());
+
                 if (itr->first == 0)
                 {
                     current_total_lanelets.push_back(itr->second);
@@ -129,9 +129,10 @@ namespace message_services
             return current_total_lanelets;
         }
 
-        std::int64_t message_lanelet2_translation::get_cur_lanelet_id_by_point_and_direction(lanelet::BasicPoint3d subj_point3d, std::string turn_direction) const
+        std::int64_t message_lanelet2_translation::get_cur_lanelet_id_by_point_and_direction(lanelet::BasicPoint3d subj_point3d, std::string turn_direction, models::trajectory &trajectory) const
         {
             std::vector<lanelet::Lanelet> current_total_lanelets = get_cur_lanelets_by_point(subj_point3d);
+            std::vector<lanelet::Lanelet> result_lanelets;
             if (current_total_lanelets.empty())
             {
                 spdlog::error("No current lanelets to the vehicle in map point: x = {0}, y = {1}, z = {2}, and turn direction = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
@@ -147,15 +148,64 @@ namespace message_services
                 for (auto itr = current_total_lanelets.begin(); itr != current_total_lanelets.end(); itr++)
                 {
                     const lanelet::Lanelet cur_lanelet = *itr;
-
                     if (cur_lanelet.hasAttribute("turn_direction"))
                     {
                         const lanelet::Attribute attr = cur_lanelet.attribute("turn_direction");
                         if (attr.value() == turn_direction)
                         {
-                            return cur_lanelet.id();
+                            result_lanelets.push_back(cur_lanelet);
                         }
                     }
+                }
+
+                if (result_lanelets.size() == 1)
+                {
+                    return result_lanelets.front().id();
+                }
+
+                // If there are more than two current lanelets return, check the trajectory
+                if (result_lanelets.size() > 1)
+                {
+                    lanelet::BasicPoint3d basic_point3d_start = this->ecef_2_map_point(trajectory.location.ecef_x, trajectory.location.ecef_y, trajectory.location.ecef_z);
+                    if (trajectory.offsets.empty())
+                    {
+                        spdlog::error("{0}: Cannot determine current lanelet and ids with vehicle trajectory offset size = 0. ", __FILE__);
+                        return lanelet::InvalId;
+                    }
+
+                    std::int32_t dest_x = trajectory.location.ecef_x;
+                    std::int32_t dest_y = trajectory.location.ecef_y;
+                    std::int32_t dest_z = trajectory.location.ecef_z;
+                    for (auto offset_itr = trajectory.offsets.begin(); offset_itr != trajectory.offsets.end(); offset_itr++)
+                    {
+                        dest_x += offset_itr->offset_x;
+                        dest_y += offset_itr->offset_y;
+                        dest_z += offset_itr->offset_z;
+                        spdlog::debug("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
+                        spdlog::debug("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
+                    }
+
+                    lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x, dest_y, dest_z);
+                    int64_t result_lanelet_id = lanelet::InvalId;
+                    double smaller_distance_sum = 0;
+                    for (auto itr = result_lanelets.begin(); itr != result_lanelets.end(); itr++)
+                    {
+                        const lanelet::Lanelet cur_lanelet = *itr;
+                        double start_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_start), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
+                        spdlog::info("{0} cur_lanelet = {1} to trajectory start point distance = {2}", __FILE__, cur_lanelet.id(), start_distance2_ctl);
+
+                        double dest_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_dest), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
+                        spdlog::info("{0} cur_lanelet = {1} to trajectory dest point distance = {2}", __FILE__, cur_lanelet.id(), dest_distance2_ctl);
+
+                        double cur_distance_sum = start_distance2_ctl + dest_distance2_ctl;
+
+                        if (smaller_distance_sum >= cur_distance_sum || smaller_distance_sum == 0)
+                        {
+                            smaller_distance_sum = cur_distance_sum;
+                            result_lanelet_id = cur_lanelet.id();
+                        }
+                    }
+                    return result_lanelet_id;
                 }
                 spdlog::error("{0}: Cannot determine the current lanelet with this turn direction = {1} for point = (x = {2} , y = {3}, z= {4})", __FILE__, turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
             }
@@ -167,7 +217,7 @@ namespace message_services
             return lanelet::InvalId;
         }
 
-        double message_lanelet2_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction) const
+        double message_lanelet2_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, std::string turn_direction, models::trajectory &trajectory) const
         {
 
             // construct a GPS point
@@ -179,14 +229,14 @@ namespace message_services
             // project the GPS point to (x,y,z)
             lanelet::BasicPoint3d subj_point3d = local_projector->forward(subj_gps_pos);
 
-            return distance2_cur_lanelet_end(subj_point3d, turn_direction);
+            return distance2_cur_lanelet_end(subj_point3d, turn_direction, trajectory);
         }
 
-        double message_lanelet2_translation::distance2_cur_lanelet_end(lanelet::BasicPoint3d subj_point3d, std::string turn_direction) const
+        double message_lanelet2_translation::distance2_cur_lanelet_end(lanelet::BasicPoint3d subj_point3d, std::string turn_direction, models::trajectory &trajectory) const
         {
             double total_length = 0.0;
             bool start_accumulate = false;
-            std::int64_t id = get_cur_lanelet_id_by_point_and_direction(subj_point3d, turn_direction);
+            std::int64_t id = get_cur_lanelet_id_by_point_and_direction(subj_point3d, turn_direction, trajectory);
             if (id == lanelet::InvalId)
             {
                 spdlog::error("{0}: Get invalid lanelet id = {1} from position: ({2}, {3} , {4}) and turn direction: {5}", __FILE__, subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
@@ -198,15 +248,15 @@ namespace message_services
             lanelet::ConstHybridLineString2d lsHybrid = lanelet::utils::toHybrid(sub_lanelet_centerline);
             lanelet::BasicPoint2d subj_point2d = lanelet::utils::to2D(subj_point3d);
 
-            //Get the distance between the subject point to the centerline.
+            // Get the distance between the subject point to the centerline.
             auto dP2Line2d = lanelet::geometry::distance(subj_point2d, lsHybrid);
 
             for (size_t i = 0; i < sub_lanelet_centerline.numSegments(); i++)
             {
-                //Get the distance btween the subject point to a point on the centerline
+                // Get the distance btween the subject point to a point on the centerline
                 double p2p_d = lanelet::geometry::distance2d(subj_point2d, sub_lanelet_centerline.segment(i).first);
 
-                //Start from the closest point on the centerline to the subject point, and accumulate the closest point to the end of centerline
+                // Start from the closest point on the centerline to the subject point, and accumulate the closest point to the end of centerline
                 if (p2p_d <= (dP2Line2d + 0.1))
                 {
                     start_accumulate = true;
@@ -221,7 +271,7 @@ namespace message_services
             return total_length;
         }
 
-        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory& trajectory, std::uint64_t offset_size, std::string turn_direction)
+        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_vehicle_trajectory(models::trajectory &trajectory, std::uint64_t offset_size, std::string turn_direction) const
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
             try
@@ -232,24 +282,24 @@ namespace message_services
                     spdlog::error("{0}: Cannot determine lanelet type and ids with vehicle trajectory offset size = 0. ", __FILE__);
                     return lanelet_id_type_m;
                 }
-                
+
                 std::int32_t dest_x = trajectory.location.ecef_x;
                 std::int32_t dest_y = trajectory.location.ecef_y;
                 std::int32_t dest_z = trajectory.location.ecef_z;
-                for(auto offset_itr = trajectory.offsets.begin(); offset_itr!= trajectory.offsets.end(); offset_itr++)
+                for (auto offset_itr = trajectory.offsets.begin(); offset_itr != trajectory.offsets.end(); offset_itr++)
                 {
                     dest_x += offset_itr->offset_x;
                     dest_y += offset_itr->offset_y;
                     dest_z += offset_itr->offset_z;
-                    spdlog::debug("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x,offset_itr->offset_y,offset_itr->offset_z);
-                    spdlog::debug("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x,dest_y,dest_z);
+                    spdlog::debug("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
+                    spdlog::debug("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
                 }
 
-                lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x,dest_y,dest_z);
-                int64_t start_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_start, turn_direction);
+                lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x, dest_y, dest_z);
+                int64_t start_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_start, turn_direction, trajectory);
                 spdlog::debug("start lanelet id = {0}", start_lanelet_id);
 
-                int64_t dest_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_dest, turn_direction);
+                int64_t dest_lanelet_id = get_cur_lanelet_id_by_point_and_direction(basic_point3d_dest, turn_direction, trajectory);
                 spdlog::debug("dest lanelet id = {0}", dest_lanelet_id);
 
                 if (start_lanelet_id == 0L || dest_lanelet_id == 0L)
@@ -269,13 +319,13 @@ namespace message_services
             return lanelet_id_type_m;
         }
 
-        lanelet::BasicPoint3d message_lanelet2_translation::ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z)
+        lanelet::BasicPoint3d message_lanelet2_translation::ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z) const
         {
             lanelet::BasicPoint3d basic_point3d = this->local_projector->projectECEF({((double)ecef_x) / 100, ((double)ecef_y) / 100, ((double)ecef_z) / 100}, -1);
             return basic_point3d;
         }
 
-        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id,  std::string turn_direction) const
+        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids_by_route(int64_t start_lanelet_id, int64_t dest_lanelet_id, std::string turn_direction) const
         {
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
 
@@ -290,7 +340,7 @@ namespace message_services
             {
                 const lanelet::routing::LaneletPath &lp = route->shortestPath();
 
-                //Assume that within intersection radius, the vehicle trajectory maximum cover 4 lanelets (entry. link, departure lanelets etc).
+                // Assume that within intersection radius, the vehicle trajectory maximum cover 4 lanelets (entry. link, departure lanelets etc).
                 if (lp.size() > _maximum_num_lanelets_per_trajectory)
                 {
                     spdlog::error("{0}: Cannot identify the lanelets along the subject vehicle route. The subject vehicle trajectory should cover maximum {1} number of lanelets. ", __FILE__, _maximum_num_lanelets_per_trajectory);
@@ -302,14 +352,14 @@ namespace message_services
                 lanelet::ConstLanelet link_lanelet;
                 lanelet::ConstLanelet departure_lanelet;
 
-                //Link lanelet and entry lanelet are required, and departure lanelet can be optional
+                // Link lanelet and entry lanelet are required, and departure lanelet can be optional
                 bool is_link_lanelet_found = false;
 
-                //Get the list of lanelet ids along the route and identify the intersection lanelet types using the all_way_stop regulatory element
+                // Get the list of lanelet ids along the route and identify the intersection lanelet types using the all_way_stop regulatory element
                 for (auto ll_itr = lp.begin(); ll_itr != lp.end(); ll_itr++)
                 {
                     /***
-                     * Checking whether the current lanelet is link lanelet. 
+                     * Checking whether the current lanelet is link lanelet.
                      * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
                      * **/
                     if (!is_link_lanelet_found && vehicleGraph_ptr->previous(*ll_itr).front().regulatoryElements().size() > 0)
@@ -340,7 +390,7 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
-                                //Checking route
+                                // Checking route
                                 spdlog::debug("Found entry lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = *ll_itr;
 
@@ -356,15 +406,15 @@ namespace message_services
                                     departure_lanelet = route->following(link_lanelet).front();
                                 }
 
-                                //Checking routing graph if cannot find link lanelet based on Route itself                               
-                                if(!is_link_lanelet_found)
+                                // Checking routing graph if cannot find link lanelet based on Route itself
+                                if (!is_link_lanelet_found)
                                 {
                                     lanelet::ConstLanelets possible_link_lanelets = vehicleGraph_ptr->following(*ll_itr);
 
-                                    //Check turn_direction to determine the link lanelet for subject vehicle
-                                    for(auto itr = possible_link_lanelets.begin(); itr != possible_link_lanelets.end() ; itr++)
+                                    // Check turn_direction to determine the link lanelet for subject vehicle
+                                    for (auto itr = possible_link_lanelets.begin(); itr != possible_link_lanelets.end(); itr++)
                                     {
-                                        if(itr->hasAttribute("turn_direction") && itr->attribute("turn_direction").value() == turn_direction)
+                                        if (itr->hasAttribute("turn_direction") && itr->attribute("turn_direction").value() == turn_direction)
                                         {
                                             link_lanelet = *itr;
                                             spdlog::debug("Found link lanelet id :{0}  ", itr->id());
@@ -378,18 +428,18 @@ namespace message_services
                     }
                 }
 
-                //insert the type for each lanelet id in the list of lanelet ids
-                if(entry_lanelet.id() != lanelet::InvalId)
+                // insert the type for each lanelet id in the list of lanelet ids
+                if (entry_lanelet.id() != lanelet::InvalId)
                 {
                     lanelet_id_type_m.insert(std::make_pair(entry_lanelet.id(), models::intersection_lanelet_type::entry));
                 }
 
-                if(link_lanelet.id() != lanelet::InvalId)
+                if (link_lanelet.id() != lanelet::InvalId)
                 {
                     lanelet_id_type_m.insert(std::make_pair(link_lanelet.id(), models::intersection_lanelet_type::link));
                 }
 
-                if(departure_lanelet.id() != lanelet::InvalId)
+                if (departure_lanelet.id() != lanelet::InvalId)
                 {
                     lanelet_id_type_m.insert(std::make_pair(departure_lanelet.id(), models::intersection_lanelet_type::departure));
                 }
