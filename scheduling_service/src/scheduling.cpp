@@ -204,64 +204,64 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 }
 
 /* */
-vector<string> scheduling::get_vehicleIdList(){return veh_id;}
+vector<string> scheduling::get_vehicleIdList() const {return veh_id;}
 
 /* */
-unordered_map<string, int> scheduling::get_vehicleIndexList(){return veh_index;}
+unordered_map<string, int> scheduling::get_vehicleIndexList() const {return veh_index;}
 
 /* */
-vector<double> scheduling::get_timeList(){return time;}
+vector<double> scheduling::get_timeList() const {return time;}
 
 /* */
-vector<double> scheduling::get_speedList(){return speed;}
+vector<double> scheduling::get_speedList() const {return speed;}
 
 /* */
-vector<double> scheduling::get_accelList(){return acceleration;}
+vector<double> scheduling::get_accelList() const {return acceleration;}
 
 /* */
-vector<string> scheduling::get_laneIdList(){return lane_id;}
+vector<string> scheduling::get_laneIdList() const {return lane_id;}
 
 /* */
-vector<string> scheduling::get_stateList(){return state;}
+vector<string> scheduling::get_stateList() const {return state;}
 
 /* */
-vector<int> scheduling::get_departPosIndexList(){return departurePosition_index;}
+vector<int> scheduling::get_departPosIndexList() const {return departurePosition_index;}
 
 /* */
-vector<double> scheduling::get_distanceList(){return distance;}
+vector<double> scheduling::get_distanceList() const {return distance;}
 
 /* */
-vector<double> scheduling::get_clearTimeList(){return clearance_time;}
+vector<double> scheduling::get_clearTimeList() const {return clearance_time;}
 
 /* */
-vector<double> scheduling::get_estList(){return est;}
+vector<double> scheduling::get_estList() const {return est;}
 
 /* */
-vector<double> scheduling::get_stList(){return st;}
+vector<double> scheduling::get_stList() const {return st;}
 
 /* */
-vector<double> scheduling::get_etList(){return et;}
+vector<double> scheduling::get_etList() const {return et;}
 
 /* */
-vector<double> scheduling::get_dtList(){return dt;}
+vector<double> scheduling::get_dtList() const {return dt;}
 
 /* */
-vector<vector<int>> scheduling::get_indexEVs(){return index_EVs;}
+vector<vector<int>> scheduling::get_indexEVs() const {return index_EVs;}
 
 /* */
-vector<int> scheduling::get_indexRDVs(){return index_RDVs;}
+vector<int> scheduling::get_indexRDVs() const {return index_RDVs;}
 
 /* */
-vector<int> scheduling::get_indexDVs(){return index_DVs;}
+vector<int> scheduling::get_indexDVs() const {return index_DVs;}
 
 /* */
-vector<int> scheduling::get_indexLVs(){return index_LVs;}
+vector<int> scheduling::get_indexLVs() const {return index_LVs;}
 
 /* */
-vector<bool> scheduling::get_accessList(){return access;}
+vector<bool> scheduling::get_accessList() const {return access;}
 
 /* */
-vector<int> scheduling::get_linkPriorityList(){return link_priority;}
+vector<int> scheduling::get_linkPriorityList() const {return link_priority;}
 
 /* */
 void scheduling::set_st(int v_index, double st_added){st[v_index] = st_added;}

@@ -308,7 +308,6 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                     for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
                         string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
-                        //string link_id2 = list_veh[vehicle_id2].get_linkID();
                         if (list_veh[vehicle_id1].get_entryLaneID() == list_veh[vehicle_id2].get_entryLaneID()){
                             st = ceil(max(st, schedule.get_dtList()[vehicle_index2]));
                             break;
@@ -449,7 +448,6 @@ void call_consumer_thread()
             if(strlen(paylod) > 0)
             {
 
-                //spdlog::info("Consumed message payload: {0}", paylod);   
                 
                 /* 
                 * update function for updating the stored vehicle status and intents:
@@ -464,7 +462,6 @@ void call_consumer_thread()
         
         consumer_worker->stop();
     }     
-    // delete consumer_worker;
     return;    
 }
 
@@ -550,7 +547,6 @@ void call_scheduling_thread(){
         producer_worker->stop();
 
     }
-    // delete producer_worker;
 
     return;
 

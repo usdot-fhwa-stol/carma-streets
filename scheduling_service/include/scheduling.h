@@ -106,30 +106,30 @@ class scheduling{
 
 		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, configuration& config);
 
-		vector<string> get_vehicleIdList();
-		unordered_map<string, int> get_vehicleIndexList();
+		vector<string> get_vehicleIdList() const;
+		unordered_map<string, int> get_vehicleIndexList() const;
 
-		vector<double> get_timeList();
-		vector<double> get_speedList();
-		vector<double> get_accelList();
-		vector<string> get_laneIdList();
-		vector<string> get_stateList();
+		vector<double> get_timeList() const;
+		vector<double> get_speedList() const;
+		vector<double> get_accelList() const;
+		vector<string> get_laneIdList() const;
+		vector<string> get_stateList() const;
 
-		vector<int> get_departPosIndexList();
-		vector<double> get_distanceList();
-		vector<double> get_clearTimeList();
-		vector<double> get_estList();
-		vector<double> get_stList();
-		vector<double> get_etList();
-		vector<double> get_dtList();
+		vector<int> get_departPosIndexList() const;
+		vector<double> get_distanceList() const;
+		vector<double> get_clearTimeList() const;
+		vector<double> get_estList() const;
+		vector<double> get_stList() const;
+		vector<double> get_etList() const;
+		vector<double> get_dtList() const;
 
-		vector<vector<int>> get_indexEVs();
-		vector<int> get_indexRDVs();
-		vector<int> get_indexDVs();
-		vector<int> get_indexLVs();
+		vector<vector<int>> get_indexEVs() const;
+		vector<int> get_indexRDVs() const;
+		vector<int> get_indexDVs() const;
+		vector<int> get_indexLVs() const;
 
-		vector<bool> get_accessList();
-		vector<int> get_linkPriorityList();
+		vector<bool> get_accessList() const;
+		vector<int> get_linkPriorityList() const;
 
 
 		void set_st(int v_index, double st_added);

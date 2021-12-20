@@ -105,9 +105,7 @@ void intersection_client::call()
 
             lane_conflict_status.resize(lane_count, vector<int>(lane_count));
             for (string lane_id1 : lane_id_link){
-              // qDebug() << "lane ID: " << QString::fromStdString(lane_id1);
               for (string lane_id2 : lane_info[lane_id1].conflicting_lane_id){
-                // qDebug() << "has conflict with: " << QString::fromStdString(lane_id2);
                 lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id2].index] = 1;
               }
               lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id1].index] = 1;
@@ -128,28 +126,28 @@ void intersection_client::call()
 }
 
 /* */
-string intersection_client::get_intersectionName(){return intersection_name;}
+string intersection_client::get_intersectionName() const {return intersection_name;}
 
 /* */
-int intersection_client::get_intersectionId(){return intersection_id;}
+int intersection_client::get_intersectionId() const {return intersection_id;}
 
 /* */
-int intersection_client::get_laneCount(){return lane_count;}
+int intersection_client::get_laneCount() const {return lane_count;}
 
 /* */
-vector<string> intersection_client::get_laneIdAll(){return lane_id_all;}
+vector<string> intersection_client::get_laneIdAll() const {return lane_id_all;}
 
 /* */
-vector<string> intersection_client::get_laneIdEntry(){return lane_id_entry;}
+vector<string> intersection_client::get_laneIdEntry() const {return lane_id_entry;}
 
 /* */
-vector<string> intersection_client::get_laneIdExit(){return lane_id_exit;}
+vector<string> intersection_client::get_laneIdExit() const {return lane_id_exit;}
 
 /* */
-vector<string> intersection_client::get_laneIdLink(){return lane_id_link;}
+vector<string> intersection_client::get_laneIdLink() const {return lane_id_link;}
 
 /* */
-int intersection_client::get_laneIndex(string lane_id){return lane_info[lane_id].index;}
+int intersection_client::get_laneIndex(string lane_id) {return lane_info[lane_id].index;}
 
 /* */
 string intersection_client::get_laneType(string lane_id){return lane_info[lane_id].type;}

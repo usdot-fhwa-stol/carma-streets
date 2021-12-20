@@ -92,21 +92,21 @@ class intersection_client : public QObject
         ~intersection_client(){};
         void call();
 
-        string get_intersectionName();
-        int get_intersectionId();
-        int get_laneCount();
+        string get_intersectionName() const;
+        int get_intersectionId() const;
+        int get_laneCount() const;
 
-		vector<string> get_laneIdAll();
-		vector<string> get_laneIdEntry();
-		vector<string> get_laneIdExit();
-		vector<string> get_laneIdLink();
+		vector<string> get_laneIdAll() const;
+		vector<string> get_laneIdEntry() const;
+		vector<string> get_laneIdExit() const;
+		vector<string> get_laneIdLink() const;
 		
-		int get_laneIndex(string lane_id);
-		string get_laneType(string lane_id);
-		double get_laneLength(string lane_id);
-		double get_laneSpeedLimit(string lane_id);
+		int get_laneIndex(string lane_id) const;
+		string get_laneType(string lane_id) const;
+		double get_laneLength(string lane_id) const;
+		double get_laneSpeedLimit(string lane_id) const;
 
-		bool hasConflict(string lane_id1, string lane_id2);
+		bool hasConflict(string lane_id1, string lane_id2) const;
 
         int get_lanePriority(string lane_id);
 };
