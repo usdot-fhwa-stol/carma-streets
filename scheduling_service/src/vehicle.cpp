@@ -15,22 +15,22 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 
 	if (message["metadata"].HasMember("timestamp") && (double)message["metadata"]["timestamp"].GetInt64() / 1000.0 >= timestamp){
 		
-		/* the unit of the received speed from the message is centimeter per second
+		/* the unit of the received speed from the message is 0.02 of meter per second
 		*  the unit of the speed defined in the vehicle class is meter per second. 
 		*/
 		if (message["payload"].HasMember("cur_speed")){
-			if (message["payload"]["cur_speed"].GetDouble() / 100.0 > config.get_maxValidSpeed() && id != "" && message["payload"].HasMember("cur_ds") && message["payload"].HasMember("cur_lane_id")){
+			if (message["payload"]["cur_speed"].GetDouble() * 0.02 > config.get_maxValidSpeed() && id != "" && message["payload"].HasMember("cur_ds") && message["payload"].HasMember("cur_lane_id")){
 				if (to_string(message["payload"]["cur_lane_id"].GetInt()) == lane_id){
 					speed = (distance - message["payload"]["cur_ds"].GetDouble()) / (((double)message["metadata"]["timestamp"].GetInt64() / 1000.0) - timestamp);
 				}
 				else{
 					speed = (distance + (localmap.get_laneLength(to_string(message["payload"]["cur_lane_id"].GetInt())) - message["payload"]["cur_ds"].GetDouble())) / (((double)message["metadata"]["timestamp"].GetInt64() / 1000.0) - timestamp);
 				}
-				double invalid_speed = message["payload"]["cur_speed"].GetDouble() / 100.0;
+				double invalid_speed = message["payload"]["cur_speed"].GetDouble() * 0.02;
 				spdlog::info("Invalid speed in the message received from {0}: {1}", veh_id, invalid_speed);
 			}
 			else{
-				speed = message["payload"]["cur_speed"].GetDouble() / 100.0;
+				speed = message["payload"]["cur_speed"].GetDouble() * 0.02;
 				spdlog::info("valid speed in the message received from {0}: {1}", veh_id, speed);
 			}
 		} else{

@@ -44,10 +44,10 @@ TEST(test_vehicle, update)
 
     ASSERT_EQ(1623677096.000, test_veh.get_curTime());
     ASSERT_EQ(12, test_veh.get_curDistance());
-    /* the unit of the received speed from the message is centimeter per second
+    /* the unit of the received speed from the message is 0.02 of meter per second
     *  the unit of the speed defined in the vehicle class is meter per second. 
     */
-    ASSERT_EQ(500 / 100, test_veh.get_curSpeed());
+    ASSERT_EQ(500 * 0.02, test_veh.get_curSpeed());
     ASSERT_EQ(0, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
 
@@ -71,10 +71,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap, config);
     ASSERT_EQ(1623677097.000, test_veh.get_curTime());
     ASSERT_EQ(7, test_veh.get_curDistance());
-    /* the unit of the received speed from the message is centimeter per second
+    /* the unit of the received speed from the message is 0.02 of meter per second
     *  the unit of the speed defined in the vehicle class is meter per second. 
     */
-    ASSERT_EQ(200 / 100, test_veh.get_curSpeed());
+    ASSERT_EQ(200 * 0.02, test_veh.get_curSpeed());
     ASSERT_EQ(-3, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
     ASSERT_EQ("EV", test_veh.get_curState());
@@ -87,10 +87,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap, config);
     ASSERT_EQ(1623677097.000, test_veh.get_curTime());
     ASSERT_EQ(7, test_veh.get_curDistance());
-    /* the unit of the received speed from the message is centimeter per second
+    /* the unit of the received speed from the message is 0.02 of meter per second
     *  the unit of the speed defined in the vehicle class is meter per second. 
     */
-    ASSERT_EQ(200 / 100, test_veh.get_curSpeed());
+    ASSERT_EQ(200 * 0.02, test_veh.get_curSpeed());
     ASSERT_EQ(-3, test_veh.get_curAccel());
     ASSERT_EQ("5894", test_veh.get_curLaneID());
     ASSERT_EQ("EV", test_veh.get_curState());
@@ -103,7 +103,7 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap, config);
     ASSERT_EQ(1623677098.000, test_veh.get_curTime());
     ASSERT_EQ(5, test_veh.get_curDistance());
-    /* the unit of the received speed from the message is centimeter per second
+    /* the unit of the received speed from the message is 0.02 of meter per second
     *  the unit of the speed defined in the vehicle class is meter per second. 
     */
     ASSERT_EQ(0, test_veh.get_curSpeed());
@@ -137,10 +137,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap, config);
     ASSERT_EQ(1623677101.000, test_veh.get_curTime());
     ASSERT_EQ(18, test_veh.get_curDistance());
-    /* the unit of the received speed from the message is centimeter per second
+    /* the unit of the received speed from the message is 0.02 of meter per second
     *  the unit of the speed defined in the vehicle class is meter per second. 
     */
-    ASSERT_EQ(200 / 100, test_veh.get_curSpeed());
+    ASSERT_EQ(200 * 0.02, test_veh.get_curSpeed());
     ASSERT_EQ(2, test_veh.get_curAccel());
     ASSERT_EQ("23016", test_veh.get_curLaneID());
     ASSERT_EQ("DV", test_veh.get_curState());
@@ -155,10 +155,10 @@ TEST(test_vehicle, update)
     test_veh.update(message, localmap, config);
     ASSERT_EQ(1623677105.000, test_veh.get_curTime());
     ASSERT_EQ(295, test_veh.get_curDistance());
-    /* the unit of the received speed from the message is centimeter per second
+    /* the unit of the received speed from the message is 0.02 of meter per second
     *  the unit of the speed defined in the vehicle class is meter per second. 
     */
-    ASSERT_EQ(1000 / 100, test_veh.get_curSpeed());
+    ASSERT_EQ(1000 * 0.02, test_veh.get_curSpeed());
     ASSERT_EQ(0, test_veh.get_curAccel());
     ASSERT_EQ("11899", test_veh.get_curLaneID());
     ASSERT_EQ("LV", test_veh.get_curState());
