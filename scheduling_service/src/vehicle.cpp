@@ -19,7 +19,20 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 		*  the unit of the speed defined in the vehicle class is meter per second. 
 		*/
 		if (message["payload"].HasMember("cur_speed")){
-			speed = message["payload"]["cur_speed"].GetDouble() / 100.0;
+			if (message["payload"]["cur_speed"].GetDouble() / 100.0 > config.get_maxValidSpeed() && id != "" && message["payload"].HasMember("cur_ds") && message["payload"].HasMember("cur_lane_id")){
+				if (to_string(message["payload"]["cur_lane_id"].GetInt()) == lane_id){
+					speed = (distance - message["payload"]["cur_ds"].GetDouble()) / (((double)message["metadata"]["timestamp"].GetInt64() / 1000.0) - timestamp);
+				}
+				else{
+					speed = (distance + (localmap.get_laneLength(to_string(message["payload"]["cur_lane_id"].GetInt())) - message["payload"]["cur_ds"].GetDouble())) / (((double)message["metadata"]["timestamp"].GetInt64() / 1000.0) - timestamp);
+				}
+				double invalid_speed = message["payload"]["cur_speed"].GetDouble() / 100.0;
+				spdlog::info("Invalid speed in the message received from {0}: {1}", veh_id, invalid_speed);
+			}
+			else{
+				speed = message["payload"]["cur_speed"].GetDouble() / 100.0;
+				spdlog::info("valid speed in the message received from {0}: {1}", veh_id, speed);
+			}
 		} else{
 			spdlog::critical("the current speed of Vehicle {0} is missing in the received update!", veh_id);
 		}
@@ -164,7 +177,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			} else if (state == "RDV"){
 				if (access == false){
 					lane_id = entryLane_id;
-					distance = 0.1;
+					// distance = 0.1;
 				} else{
 					if (lane_id != link_id){
 						lane_id = link_id;
@@ -294,7 +307,7 @@ bool vehicle::message_hasError(const Document& message, intersection_client& loc
 	/* if a vehicle update has been succesfully processed before, the vehicle cur_lane_id must be the same as entry_lane_id, link_lane_id, or depart_lane_id . */
 	else{
 		string veh_id = message["payload"]["v_id"].GetString();
-		if (to_string(message["payload"]["cur_lane_id"].GetInt()) != entryLane_id && to_string(message["payload"]["cur_lane_id"].GetInt()) != link_id && to_string(message["payload"]["cur_lane_id"].GetSInt()) != exitLane_id){
+		if (to_string(message["payload"]["cur_lane_id"].GetInt()) != entryLane_id && to_string(message["payload"]["cur_lane_id"].GetInt()) != link_id && to_string(message["payload"]["cur_lane_id"].GetInt()) != exitLane_id){
 			
 			spdlog::critical("the current lane id of Vehicle {0} is not correct! entry_lane_id: {1}, link_lane_id: {2}, exit_lane_id: {3}, cur_lane_id: {4}", veh_id, entryLane_id, link_id, exitLane_id, to_string(message["payload"]["cur_lane_id"].GetInt()));
 			return true;
