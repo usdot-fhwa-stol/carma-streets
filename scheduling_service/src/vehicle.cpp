@@ -291,10 +291,10 @@ bool vehicle::message_hasError(const Document& message, intersection_client& loc
 			return false;
 		}
 	} 
-	/* if it is not the first time processing the vehicle update, the vehicle cur_lane_id must be the same as entry_lane_id, link_lane_id, or depart_lane_id . */
+	/* if a vehicle update has been succesfully processed before, the vehicle cur_lane_id must be the same as entry_lane_id, link_lane_id, or depart_lane_id . */
 	else{
 		string veh_id = message["payload"]["v_id"].GetString();
-		if (to_string(message["payload"]["cur_lane_id"].GetInt()) != entryLane_id && to_string(message["payload"]["cur_lane_id"].GetInt()) != link_id && to_string(message["payload"]["cur_lane_id"].GetInt()) != exitLane_id){
+		if (to_string(message["payload"]["cur_lane_id"].GetInt()) != entryLane_id && to_string(message["payload"]["cur_lane_id"].GetInt()) != link_id && to_string(message["payload"]["cur_lane_id"].GetSInt()) != exitLane_id){
 			
 			spdlog::critical("the current lane id of Vehicle {0} is not correct! entry_lane_id: {1}, link_lane_id: {2}, exit_lane_id: {3}, cur_lane_id: {4}", veh_id, entryLane_id, link_id, exitLane_id, to_string(message["payload"]["cur_lane_id"].GetInt()));
 			return true;
