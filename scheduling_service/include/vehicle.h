@@ -123,7 +123,7 @@ class vehicle{
 
 	public:
 
-		void update(const Document& message, intersection_client& localmap, configuration& config);
+		void update(const Document& message, intersection_client& localmap, const configuration& config);
 
 		string get_id() const;
 

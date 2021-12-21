@@ -6,10 +6,10 @@ using namespace std;
 
 
 /* */
-scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, configuration& config){
+scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, const configuration& config){
 
 	index_EVs.resize(localmap.get_laneIdEntry().size());
-	for (auto& element : list_veh){
+	for (const auto& element : list_veh){
 		
 		/* if the vehicle update is not older than update_expiration_delta seconds ago, include the vehicle in the schedule
 		*  if the vehicle update is older than update_expiration_delta seconds ago, do not include the vehicle in the schedule
@@ -17,7 +17,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 		if (config.get_curSchedulingT() - element.second.get_curTime() <= config.get_expDelta()){
 
 			veh_id.push_back(element.first);
-			int vehicle_index = (int)veh_id.size() - 1;
+			auto vehicle_index = (int)veh_id.size() - 1;
 			veh_index[element.first] = vehicle_index;
 			
 			time.push_back(element.second.get_curTime());

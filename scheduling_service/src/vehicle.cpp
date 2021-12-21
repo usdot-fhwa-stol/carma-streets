@@ -6,7 +6,7 @@ using namespace rapidjson;
 
 
 /* */
-void vehicle::update(const rapidjson::Document& message, intersection_client& localmap, configuration& config){
+void vehicle::update(const rapidjson::Document& message, intersection_client& localmap, const configuration& config){
 	
 	/* the main function will check whether veh_id is included in the message or not
 	*  if it is not included, this function cannot be executed!

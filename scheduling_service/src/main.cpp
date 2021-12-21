@@ -93,7 +93,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
     /* create a list of RDVs and sort them based on their departure sequence index */
     vector<int> listRDV = schedule.get_indexRDVs();
-    int count_RDV = (int)listRDV.size();
+    auto count_RDV = (int)listRDV.size();
     sort(listRDV.begin(), listRDV.end(), sorting<int>(schedule.get_departPosIndexList(), "asc"));
 
     /* estimate earliest entering and departure times for RDV */
@@ -135,7 +135,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 	vector<double> listOptionsDelay;
 	vector<int> listQ;
 	int count_options;
-    int count = (int)listS.size();
+    auto count = (int)listS.size();
     while(count_RDV > 0){
 
         count += 1;
