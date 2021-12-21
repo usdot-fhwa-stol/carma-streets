@@ -101,14 +101,14 @@ class intersection_client : public QObject
 		vector<string> get_laneIdExit() const;
 		vector<string> get_laneIdLink() const;
 		
-		int get_laneIndex(string lane_id) const;
-		string get_laneType(string lane_id) const;
-		double get_laneLength(string lane_id) const;
-		double get_laneSpeedLimit(string lane_id) const;
+		int get_laneIndex(string const & lane_id);
+		string get_laneType(string const & lane_id);
+		double get_laneLength(string const & lane_id);
+		double get_laneSpeedLimit(string const & lane_id);
 
-		bool hasConflict(string lane_id1, string lane_id2) const;
+		bool hasConflict(string const & lane_id1, string const & lane_id2);
 
-        int get_lanePriority(string lane_id);
+        int get_lanePriority(string const & lane_id);
 };
 
 #endif

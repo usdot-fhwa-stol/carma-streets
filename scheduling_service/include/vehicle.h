@@ -125,36 +125,36 @@ class vehicle{
 
 		void update(const Document& message, intersection_client& localmap, configuration& config);
 
-		string get_id();
+		string get_id() const;
 
-		double get_length();
-		double get_minGap();
-		double get_reactionT();
-		double get_accelMax();
-		double get_decelMax();
+		double get_length() const;
+		double get_minGap() const;
+		double get_reactionT() const;
+		double get_accelMax() const;
+		double get_decelMax() const;
 		
-		string get_direction();
-		string get_entryLaneID();
-		string get_linkID();
-		int get_linkPriority();
+		string get_direction() const;
+		string get_entryLaneID() const;
+		string get_linkID() const;
+		int get_linkPriority() const;
 		
-		int get_departurePosition();
-		int get_flexET();
-		double get_flexST();
-		bool get_access();
+		int get_departurePosition() const;
+		int get_flexET() const;
+		double get_flexST() const;
+		bool get_access() const;
 
-		double get_actualST();
-		double get_actualET();
-		double get_actualDT();
+		double get_actualST() const;
+		double get_actualET() const;
+		double get_actualDT() const;
 
-		double get_curTime();
-		double get_curDistance();
-		double get_curSpeed();
-		double get_curAccel();
-		string get_curLaneID();
-		string get_curState();
+		double get_curTime() const;
+		double get_curDistance() const;
+		double get_curSpeed() const;
+		double get_curAccel() const;
+		string get_curLaneID() const;
+		string get_curState() const;
 
-		vector<future_information> get_futureInfo();
+		vector<future_information> get_futureInfo() const;
 
 		void set_departurePosition(int pos_index);
 		void set_flexEt(int new_flex_et);

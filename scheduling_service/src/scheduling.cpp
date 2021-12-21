@@ -17,7 +17,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 		if (config.get_curSchedulingT() - element.second.get_curTime() <= config.get_expDelta()){
 
 			veh_id.push_back(element.first);
-			int vehicle_index = veh_id.size() - 1;
+			int vehicle_index = (int)veh_id.size() - 1;
 			veh_index[element.first] = vehicle_index;
 			
 			time.push_back(element.second.get_curTime());
@@ -194,7 +194,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string> list
 	sort(index_RDVs.begin(), index_RDVs.end(), sorting<int>(departurePosition_index, "asc"));
 	for (int n = 0; n < (int)index_RDVs.size(); ++n) {
 		int vehicle_index = index_RDVs[n];
-		departurePosition_index[vehicle_index] = index_DVs.size() + n + 1;
+		departurePosition_index[vehicle_index] = (int)index_DVs.size() + n + 1;
 	}
 	
 	for (int i = 0; i < (int)index_EVs.size(); ++i) {
