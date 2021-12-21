@@ -58,6 +58,9 @@ class vehicle{
 		/* vehicle's entry lane id */
 		string entryLane_id;
 
+		/* vehicle's departure lane id */
+		string exitLane_id;
+
 		/* vehicle's connection link id */
 		string link_id;
 
@@ -125,7 +128,11 @@ class vehicle{
 
 		void update(const Document& message, intersection_client& localmap, const configuration& config);
 
+
 		string get_id() const;
+		bool message_hasError(const Document& message, intersection_client& localmap);
+
+
 
 		double get_length() const;
 		double get_minGap() const;
@@ -137,6 +144,7 @@ class vehicle{
 		string get_entryLaneID() const;
 		string get_linkID() const;
 		int get_linkPriority() const;
+
 		
 		int get_departurePosition() const;
 		int get_flexET() const;

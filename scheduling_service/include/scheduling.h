@@ -104,8 +104,7 @@ class scheduling{
 
 	public:
 
-		scheduling(unordered_map<string, vehicle> list_veh, set<string> list_veh_confirmation, intersection_client& localmap, const configuration& config);
-
+		scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, const configuration& config, set<string>& list_veh_removal);
 		vector<string> get_vehicleIdList() const;
 		unordered_map<string, int> get_vehicleIndexList() const;
 
