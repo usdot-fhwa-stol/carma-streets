@@ -1,6 +1,8 @@
 # Cache objects
 packer_cache/
 message_services/build/
+kafka_clients/build/
+scheduling_service/build/
 # Crash log
 crash.log
 .env

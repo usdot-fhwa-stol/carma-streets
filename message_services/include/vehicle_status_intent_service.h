@@ -36,10 +36,10 @@ namespace message_services
             std::string mp_group_id;
             std::string mp_topic_name;
             std::string vsi_topic_name;
-            kafka_clients::kafka_producer_worker *_vsi_producer_worker;
-            kafka_clients::kafka_consumer_worker *_mo_consumer_worker;
-            kafka_clients::kafka_consumer_worker *_mp_consumer_worker;
-            kafka_clients::kafka_consumer_worker *_bsm_consumer_worker;
+            std::shared_ptr<kafka_clients::kafka_producer_worker> _vsi_producer_worker;
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> _mo_consumer_worker;
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> _mp_consumer_worker;
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> _bsm_consumer_worker;
             std::int64_t vsi_est_path_point_count = 0;
 
             //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
@@ -120,14 +120,14 @@ namespace message_services
              * @param pointers to object that will store the message consumed. topic from which the message is from. The group id of the consumer
              * **/
             template <class T>
-            void msg_consumer(std::shared_ptr<T> msg_ptr, kafka_clients::kafka_consumer_worker * consumer_worker);
+            void msg_consumer(std::shared_ptr<T> msg_ptr,  std::shared_ptr<kafka_clients::kafka_consumer_worker>  consumer_worker);
 
             /**
              * @brief Producer a message to a topic
              * @param pointer to object that will be published, and a topic name
              * **/
             template <typename T>
-            void publish_msg(T msg, kafka_clients::kafka_producer_worker* producer_worker);
+            void publish_msg(T msg,  std::shared_ptr<kafka_clients::kafka_producer_worker>  producer_worker);
         };
     }
 }

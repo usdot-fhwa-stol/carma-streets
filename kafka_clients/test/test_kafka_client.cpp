@@ -4,7 +4,7 @@
 TEST(test_kafka_client, read_json_file_get_value_by_doc)
 {
     std::string expect_val = "localhost:9092";
-    kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
+    auto client = std::make_shared<kafka_clients::kafka_client>();
     std::string input_bootstrap_server_param1 = "BOOTSTRAP_SERVER";
     std::string file_name = "../test/manifest_test.json";
     rapidjson::Document doc = client->read_json_file(file_name);
@@ -21,6 +21,4 @@ TEST(test_kafka_client, read_json_file_get_value_by_doc)
     expect_val = "group_one";
     std::string input_group_id_param1 = "GROUP_ID";
     EXPECT_EQ(expect_val, client->get_value_by_doc(doc, input_group_id_param1.c_str()));
-
-    delete client;
 }
