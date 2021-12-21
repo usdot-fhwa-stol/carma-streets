@@ -56,6 +56,14 @@ configuration::configuration(){
         exit(1);
     }
 
+    if(doc.HasMember("MAX_VALID_SPEED")){
+        max_valid_speed = doc["MAX_VALID_SPEED"].GetDouble();
+        spdlog::info("max_valid_speed :  {0}", max_valid_speed);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "MAX_VALID_SPEED");
+        exit(1);
+    }
+
 }
 
 /* */
@@ -77,6 +85,9 @@ double configuration::get_stopDistance(){return stopping_distance;}
 double configuration::get_stopSpeed(){return stopping_speed;}
 
 /* */
+double configuration::get_maxValidSpeed(){return max_valid_speed;}
+
+/* */
 void configuration::set_lastSchedulingT(double t){last_schedule_start_time = t;}
 
 /* */
@@ -93,4 +104,7 @@ void configuration::set_stopDistance(double ds){stopping_distance = ds;}
 
 /* */
 void configuration::set_stopSpeed(double speed){stopping_speed = speed;}
+
+/* */
+void configuration::set_maxValidSpeed(double speed){max_valid_speed = speed;}
 
