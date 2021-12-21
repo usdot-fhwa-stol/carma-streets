@@ -427,14 +427,13 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 void call_consumer_thread()
 {
     
-    kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
+    auto client = std::make_shared<kafka_clients::kafka_client>();
     std::string file_name= "../manifest.json";
     rapidjson::Document doc_json = client->read_json_file(file_name); 
     std::string bootstrap_server = client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
     std::string group_id = client->get_value_by_doc(doc_json, "GROUP_ID");
     std::string topic = client->get_value_by_doc(doc_json, "CONSUMER_TOPIC");
-    kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(bootstrap_server,topic,group_id);
-    delete client;
+    auto consumer_worker = client->create_consumer(bootstrap_server,topic,group_id);
     if(!consumer_worker->init())
     {
         spdlog::critical("kafka consumer initialize error");
@@ -483,14 +482,13 @@ void call_consumer_thread()
 }
 
 void call_scheduling_thread(){
-    kafka_clients::kafka_client *client = new kafka_clients::kafka_client(); 
+    auto client = std::make_shared<kafka_clients::kafka_client>();
                   
     std::string file_name="../manifest.json";
     rapidjson::Document doc_json = client->read_json_file(file_name);           
     std::string bootstrap_server =  client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
     std::string topic = client->get_value_by_doc(doc_json, "PRODUCER_TOPIC");
-    kafka_clients::kafka_producer_worker *producer_worker  = client->create_producer(bootstrap_server, topic);
-    delete client;
+    auto producer_worker  = client->create_producer(bootstrap_server, topic);
 
     char str_msg[]="";           
     if(!producer_worker->init())

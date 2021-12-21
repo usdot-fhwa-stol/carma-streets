@@ -15,18 +15,17 @@ namespace message_services
         {
             try
             {
-                kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
+                auto client = std::make_shared<kafka_clients::kafka_client>();
                 std::string file_path = std::string(MANIFEST_CONFIG_FILE_PATH);
                 rapidjson::Document doc = client->read_json_file(file_path);
 
-                //consumer topics
+                // consumer topics
                 this->mo_topic_name = client->get_value_by_doc(doc, "MO_CONSUMER_TOPIC");
                 this->mo_group_id = client->get_value_by_doc(doc, "MO_GROUP_ID");
 
-                //kafka config
+                // kafka config
                 this->bootstrap_server = client->get_value_by_doc(doc, "BOOTSTRAP_SERVER");
 
-                delete client;
                 return true;
             }
             catch (std::exception ex)
@@ -54,7 +53,7 @@ namespace message_services
                                   {
                                       if (mo_w_ptr->get_curr_list().size() > 0)
                                       {
-                                          //Iterate mobililityoperation list with vehicle ids for all vehicles
+                                          // Iterate mobililityoperation list with vehicle ids for all vehicles
                                           std::deque<models::mobilityoperation>::iterator itr;
                                           for (itr = mo_w_ptr->get_curr_list().begin(); itr != mo_w_ptr->get_curr_list().end(); itr++)
                                           {
@@ -62,7 +61,7 @@ namespace message_services
                                               mo_ptr->setHeader((*itr).getHeader());
                                               mo_ptr->setStrategy((*itr).getStrategy());
                                               mo_ptr->setStrategy_params((*itr).getStrategy_params());
-                                              mo_w_ptr->pop_cur_element_from_list(0); //The deque size shrik every time we call a pop element
+                                              mo_w_ptr->pop_cur_element_from_list(0); // The deque size shrik every time we call a pop element
                                           }
                                       }
                                       sleep(0.1);
@@ -75,9 +74,8 @@ namespace message_services
         template <typename T>
         void mobility_operation_service::msg_consumer(std::shared_ptr<T> msg_w_ptr, std::string topic, std::string group_id)
         {
-            kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
-            kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(this->bootstrap_server, topic, group_id);
-            delete client;
+            auto client = std::make_shared<kafka_clients::kafka_client>();
+            auto consumer_worker = client->create_consumer(this->bootstrap_server, topic, group_id);
 
             if (!consumer_worker->init())
             {
@@ -108,7 +106,6 @@ namespace message_services
                 }
                 consumer_worker->stop();
             }
-            delete consumer_worker;
             return;
         }
 
