@@ -12,14 +12,6 @@
 #include "configuration.h"
 #include "intersection_client.h"
 
-// #include "OAIDefaultApi.h"
-// #include <QTimer>
-// #include "intersection_client.h"
-// #include <QEventLoop>
-// #include <QCoreApplication>
-// #include "OAIHelpers.h"
-// using namespace OpenAPI;
-
 using namespace std;
 using namespace rapidjson;
 
