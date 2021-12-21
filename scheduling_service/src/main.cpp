@@ -87,7 +87,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
 
     /* estimate the departure times (DTs) of DVs */
-    for (auto & vehicle_index : schedule.get_indexDVs()){
+    for (const auto vehicle_index : schedule.get_indexDVs()){
         double dt = schedule.get_timeList()[vehicle_index] + schedule.get_clearTimeList()[vehicle_index];
         schedule.set_dt(vehicle_index, dt);
     }
@@ -99,7 +99,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
     /* create a list of RDVs and sort them based on their departure sequence index */
     vector<int> listRDV = schedule.get_indexRDVs();
-    int count_RDV = listRDV.size();
+    auto count_RDV = (int)listRDV.size();
     sort(listRDV.begin(), listRDV.end(), sorting<int>(schedule.get_departPosIndexList(), "asc"));
 
     /* estimate earliest entering and departure times for RDV */
@@ -141,7 +141,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 	vector<double> listOptionsDelay;
 	vector<int> listQ;
 	int count_options;
-    int count = listS.size();
+    auto count = (int)listS.size();
     while(count_RDV > 0){
 
         count += 1;
@@ -310,11 +310,10 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
 
                 double st = max(schedule.get_estList()[vehicle_index1], config.get_curSchedulingT() + config.get_schedulingDelta());
-                if (listS.size() > 0){
+                if (!listS.empty()){
                     for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
                         string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
-                        //string link_id2 = list_veh[vehicle_id2].get_linkID();
                         if (list_veh[vehicle_id1].get_entryLaneID() == list_veh[vehicle_id2].get_entryLaneID()){
                             st = ceil(max(st, schedule.get_dtList()[vehicle_index2]));
                             break;
@@ -323,7 +322,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 }
 
                 double et = st + 0.1;
-                if (listS.size() > 0){
+                if (!listS.empty()){
                     for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
                         if (st < schedule.get_dtList()[vehicle_index2]){
@@ -426,7 +425,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 
 void call_consumer_thread()
 {
-    
+  
     auto client = std::make_shared<kafka_clients::kafka_client>();
     std::string file_name= "../manifest.json";
     rapidjson::Document doc_json = client->read_json_file(file_name); 
@@ -462,7 +461,6 @@ void call_consumer_thread()
             if(strlen(paylod) > 0)
             {
 
-                //spdlog::info("Consumed message payload: {0}", paylod);   
                 
                 /* 
                 * update function for updating the stored vehicle status and intents:
@@ -477,13 +475,12 @@ void call_consumer_thread()
         
         consumer_worker->stop();
     }     
-    // delete consumer_worker;
     return;    
 }
 
 void call_scheduling_thread(){
-    auto client = std::make_shared<kafka_clients::kafka_client>();
-                  
+
+    auto client = std::make_shared<kafka_clients::kafka_client>();         
     std::string file_name="../manifest.json";
     rapidjson::Document doc_json = client->read_json_file(file_name);           
     std::string bootstrap_server =  client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
@@ -535,7 +532,7 @@ void call_scheduling_thread(){
                 document.AddMember("metadata", metadata, allocator);
 
                 Value schedule;
-                if (list_veh_copy.size() > 0){
+                if (!list_veh_copy.empty()){
                     schedule = scheduling_func(list_veh_copy, allocator);
                 }
                 document.AddMember("payload", schedule, allocator);
@@ -562,7 +559,6 @@ void call_scheduling_thread(){
         producer_worker->stop();
 
     }
-    // delete producer_worker;
 
     return;
 
