@@ -5,8 +5,8 @@ namespace kafka_clients
 
     kafka_consumer_worker::kafka_consumer_worker(const std::string &broker_str, const std::string &topic_str,
                                                  const std::string &group_id_str, int64_t cur_offset, int32_t partition)
-        :_topics_str(topic_str), _broker_str(broker_str), _group_id_str(group_id_str), _last_offset(0), _cur_offet(cur_offset),
-          _partition(partition), _run(false)
+        :_topics_str(topic_str), _broker_str(broker_str), _group_id_str(group_id_str), _cur_offet(cur_offset),
+          _partition(partition)
     {
     }
 

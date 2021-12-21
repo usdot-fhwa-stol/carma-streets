@@ -107,8 +107,7 @@ namespace kafka_clients
             }
             else
             {
-                std::cerr << _producer->name() << " Produced message ( " << msg.size() << " bytes )"
-                          << " , message content: " << msg.c_str() << std::endl;
+                spdlog::critical(" {0} Produced message ( {1}  bytes ) , message content:  {2}", _producer->name(), msg.size(), msg.c_str());
             }
 
             // break the loop regardless of sucessfully sent or failed
