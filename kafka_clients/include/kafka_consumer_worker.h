@@ -122,23 +122,21 @@ namespace kafka_clients
             //maximum size for pulling message from a single partition at a time
             std::string STR_FETCH_NUM = "10240000";
             
-            std::string _topics_str;
-            std::string _broker_str;
-            std::string _group_id_str;
-            int64_t _last_offset;
-            RdKafka::KafkaConsumer *_consumer;
-            RdKafka::Topic *_topic;
-            int64_t _cur_offet;
-            int32_t _partition;
-            bool _run;
+            std::string _topics_str = "";
+            std::string _broker_str = "";
+            std::string _group_id_str = "";
+            int64_t _last_offset = 0;
+            RdKafka::KafkaConsumer *_consumer = nullptr;
+            RdKafka::Topic *_topic = nullptr;
+            int64_t _cur_offet =  RdKafka::Topic::OFFSET_BEGINNING;
+            int32_t _partition = 0;
+            bool _run = false;
             consumer_event_cb _consumer_event_cb;
             consumer_rebalance_cb _consumer_rebalance_cb;
             const char* msg_consume(RdKafka::Message *message, void *opaque);
 
         public:
-            kafka_consumer_worker();
-            kafka_consumer_worker(const std::string &broker_str, const std::string &topic_str, std::string & group_id, int32_t partition = 0, int64_t cur_offset = 0);
-            virtual ~kafka_consumer_worker();
+            kafka_consumer_worker(const std::string &broker_str, const std::string &topic_str, const std::string & group_id, int64_t cur_offset = 0, int32_t partition = 0);
             bool init();
             const char* consume(int timeout_ms);
             void subscribe();

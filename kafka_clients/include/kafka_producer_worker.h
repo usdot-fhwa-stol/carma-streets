@@ -70,19 +70,17 @@ namespace kafka_clients
             const std::string DR_CB="dr_cb";
             const std::string EVENT_CB="event_cb";
 
-            RdKafka::Producer *_producer;
-            RdKafka::Topic *_topic;
-            std::string _topics_str;
-            std::string _broker_str;
+            RdKafka::Producer *_producer = nullptr;
+            RdKafka::Topic *_topic = nullptr;
+            std::string _topics_str = "";
+            std::string _broker_str = "";
             bool _run = false;
             int _partition = 0;
             producer_delivery_report_cb _producer_delivery_report_cb;
             producer_event_cb _producer_event_cb;
 
         public:
-            kafka_producer_worker();
             kafka_producer_worker(const std::string &brokers, const std::string &topics, int n_partition = 0);
-            virtual ~kafka_producer_worker();
             bool init();
             void send(const std::string &msg);
             void stop();
