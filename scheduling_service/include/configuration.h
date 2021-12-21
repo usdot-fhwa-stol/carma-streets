@@ -41,6 +41,11 @@ class configuration{
 		*/
 		double stopping_speed;
 
+		/* maximum valid speed (a speed higher than this parameter will count as an invalid speed)
+		*  unit: meter/sec
+		*/
+		double max_valid_speed;
+
 	public:
 
 		/* initialization: reading the EXPIRATION_DELTA from ../manifest.json */
@@ -64,6 +69,9 @@ class configuration{
 		/* get the stopping speed condition */
 		double get_stopSpeed();
 
+		/* get the max valid speed */
+		double get_maxValidSpeed();
+
 		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);
 
@@ -81,6 +89,9 @@ class configuration{
 
 		/* set the stopping speed condition to speed */
 		void set_stopSpeed(double speed);
+
+		/* set the max valid speed to speed */
+		void set_maxValidSpeed(double speed);
 };
 
 #endif

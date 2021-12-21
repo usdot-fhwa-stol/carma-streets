@@ -32,6 +32,7 @@ configuration config;
 intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
+set<string> list_veh_removal;
 
 
 void consumer_update(const char* paylod){
@@ -61,9 +62,13 @@ void consumer_update(const char* paylod){
 
             /* update the vehicle status and intent information */
             if (list_veh.count(veh_id)){
-                list_veh[veh_id].update(message, localmap, config);       
-                if (list_veh[veh_id].get_curState() == "LV"){
-                    list_veh.erase(veh_id);
+                /* adding a check to not read the messages with wrong BSM */
+                if (list_veh[veh_id].message_hasError(message, localmap) == false){
+                    list_veh[veh_id].update(message, localmap, config);       
+                    if (list_veh[veh_id].get_curState() == "LV"){
+                        spdlog::info("Vehicle {0} has departed the intersection box (i.e., is in LV state) and been removed from list_veh", veh_id);
+                        list_veh.erase(veh_id);
+                    }
                 }
             }
         }
@@ -74,11 +79,12 @@ void consumer_update(const char* paylod){
     else{
         spdlog::critical("payload is missing in the received status and intent update!");
     }
+
 }
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
 
-    scheduling schedule(list_veh, list_veh_confirmation, localmap, config);
+    scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
 
     /* estimate the departure times (DTs) of DVs */
     for (auto & vehicle_index : schedule.get_indexDVs()){
@@ -443,6 +449,14 @@ void call_consumer_thread()
         
         while (consumer_worker->is_running()) 
         {
+            
+            /* remove those vehicles with old updates */
+            if (list_veh_removal.size() > 0){
+                for (auto veh_id : list_veh_removal){
+                    list_veh.erase(veh_id);
+                }
+                list_veh_removal.clear();
+            } 
 
             const char* paylod= consumer_worker->consume(1000);
 
