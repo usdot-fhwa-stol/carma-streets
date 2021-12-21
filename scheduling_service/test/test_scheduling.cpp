@@ -21,6 +21,7 @@ TEST(test_scheduling, scheduling)
     localmap.call();
     unordered_map<string, vehicle> list_veh;
     set<string> list_veh_confirmation;
+    set<string> list_veh_removal;
 
     try{
 
@@ -33,14 +34,14 @@ TEST(test_scheduling, scheduling)
 
             string veh_id_1 = "DOT-501";
             list_veh[veh_id_1] = vehicle();
-            const char* paylod_1 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-501\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 5894, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 5894, \"link_lane_id\": 23016, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 5894, \"ds\": 7},{\"ts\": 1623677096200, \"id\": 5894, \"ds\": 6}, {\"ts\": 1623677096400, \"id\": 5894, \"ds\": 5}, {\"ts\": 1623677096600, \"id\": 5894, \"ds\": 4}]}}";
+            const char* paylod_1 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-501\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 500.0, \"cur_accel\": 0.0, \"cur_lane_id\": 5894, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 5894, \"dest_lane_id\": 12459, \"link_lane_id\": 23016, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 5894, \"ds\": 7},{\"ts\": 1623677096200, \"id\": 5894, \"ds\": 6}, {\"ts\": 1623677096400, \"id\": 5894, \"ds\": 5}, {\"ts\": 1623677096600, \"id\": 5894, \"ds\": 4}]}}";
             rapidjson::Document message;
             message.SetObject();
             message.Parse(paylod_1);
-            list_veh[veh_id_1].update(message, localmap);
+            list_veh[veh_id_1].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_ds"].SetDouble(2);
-            message["payload"]["cur_speed"].SetDouble(2);
+            message["payload"]["cur_speed"].SetDouble(200);
             message["payload"]["cur_accel"].SetDouble(-3);
             message["payload"]["est_paths"][0]["ts"].SetInt64(1623677097000);
             message["payload"]["est_paths"][0]["ds"].SetDouble(2);
@@ -50,14 +51,14 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(1.2);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(0.8);
-            list_veh[veh_id_1].update(message, localmap);
+            list_veh[veh_id_1].update(message, localmap, config);
 
 
             string veh_id_2 = "DOT-502";
             list_veh[veh_id_2] = vehicle();
-            const char* paylod_2 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-502\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 5894, \"cur_ds\": 30.0, \"direction\": \"straight\", \"entry_lane_id\": 5894, \"link_lane_id\": 23016, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 5894, \"ds\": 30},{\"ts\": 1623677096200, \"id\": 5894, \"ds\": 29}, {\"ts\": 1623677096400, \"id\": 5894, \"ds\": 28}, {\"ts\": 1623677096600, \"id\": 5894, \"ds\": 27}]}}";
+            const char* paylod_2 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-502\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 500.0, \"cur_accel\": 0.0, \"cur_lane_id\": 5894, \"cur_ds\": 30.0, \"direction\": \"straight\", \"entry_lane_id\": 5894, \"dest_lane_id\": 12459, \"link_lane_id\": 23016, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 5894, \"ds\": 30},{\"ts\": 1623677096200, \"id\": 5894, \"ds\": 29}, {\"ts\": 1623677096400, \"id\": 5894, \"ds\": 28}, {\"ts\": 1623677096600, \"id\": 5894, \"ds\": 27}]}}";
             message.Parse(paylod_2);
-            list_veh[veh_id_2].update(message, localmap);
+            list_veh[veh_id_2].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_ds"].SetDouble(25);
             message["payload"]["est_paths"][0]["ts"].SetInt64(1623677097000);
@@ -68,16 +69,16 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(23);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(22);
-            list_veh[veh_id_2].update(message, localmap);
+            list_veh[veh_id_2].update(message, localmap, config);
 
             string veh_id_3 = "DOT-503";
             list_veh[veh_id_3] = vehicle();
-            const char* paylod_3 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-503\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 19252, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 19252, \"link_lane_id\": 22878, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 19252, \"ds\": 7},{\"ts\": 1623677096200, \"id\": 19252, \"ds\": 6}, {\"ts\": 1623677096400, \"id\": 19252, \"ds\": 5}, {\"ts\": 1623677096600, \"id\": 19252, \"ds\": 4}]}}";
+            const char* paylod_3 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-503\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 500.0, \"cur_accel\": 0.0, \"cur_lane_id\": 19252, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 19252, \"dest_lane_id\": 12459, \"link_lane_id\": 22878, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 19252, \"ds\": 7},{\"ts\": 1623677096200, \"id\": 19252, \"ds\": 6}, {\"ts\": 1623677096400, \"id\": 19252, \"ds\": 5}, {\"ts\": 1623677096600, \"id\": 19252, \"ds\": 4}]}}";
             message.Parse(paylod_3);
-            list_veh[veh_id_3].update(message, localmap);
+            list_veh[veh_id_3].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_ds"].SetDouble(2);
-            message["payload"]["cur_speed"].SetDouble(2);
+            message["payload"]["cur_speed"].SetDouble(200);
             message["payload"]["cur_accel"].SetDouble(-3);
             message["payload"]["est_paths"][0]["ts"].SetInt64(1623677097000);
             message["payload"]["est_paths"][0]["ds"].SetDouble(2);
@@ -87,13 +88,13 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(1.2);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(0.8);
-            list_veh[veh_id_3].update(message, localmap);
+            list_veh[veh_id_3].update(message, localmap, config);
 
             string veh_id_4 = "DOT-504";
             list_veh[veh_id_4] = vehicle();
-            const char* paylod_4 = "{\"metadata\": {\"timestamp\": 1623677095000}, \"payload\": {\"v_id\": \"DOT-504\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 2.0, \"cur_accel\": 0.0, \"cur_lane_id\": 13021, \"cur_ds\": 2.0, \"direction\": \"straight\", \"entry_lane_id\": 13021, \"link_lane_id\": 22414, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677095000, \"id\": 13021, \"ds\": 2},{\"ts\": 1623677095200, \"id\": 13021, \"ds\": 1.6}, {\"ts\": 1623677095400, \"id\": 13021, \"ds\": 1.2}, {\"ts\": 1623677095600, \"id\": 13021, \"ds\": 0.8}]}}";
+            const char* paylod_4 = "{\"metadata\": {\"timestamp\": 1623677095000}, \"payload\": {\"v_id\": \"DOT-504\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 100.0, \"cur_accel\": 0.0, \"cur_lane_id\": 13021, \"cur_ds\": 2.0, \"direction\": \"straight\", \"entry_lane_id\": 13021, \"dest_lane_id\": 12459, \"link_lane_id\": 22414, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677095000, \"id\": 13021, \"ds\": 2},{\"ts\": 1623677095200, \"id\": 13021, \"ds\": 1.6}, {\"ts\": 1623677095400, \"id\": 13021, \"ds\": 1.2}, {\"ts\": 1623677095600, \"id\": 13021, \"ds\": 0.8}]}}";
             message.Parse(paylod_4);
-            list_veh[veh_id_4].update(message, localmap);
+            list_veh[veh_id_4].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677096000);
             message["payload"]["cur_ds"].SetDouble(0);
             message["payload"]["cur_speed"].SetDouble(0);
@@ -106,20 +107,20 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(0);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677096600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(0);
-            list_veh[veh_id_4].update(message, localmap);
+            list_veh[veh_id_4].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_accel"].SetDouble(0);
             message["payload"]["est_paths"][0]["ts"].SetInt64(1623677097000);
             message["payload"]["est_paths"][1]["ts"].SetInt64(1623677097200);
             message["payload"]["est_paths"][2]["ts"].SetInt64(1623677097400);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
-            list_veh[veh_id_4].update(message, localmap);
+            list_veh[veh_id_4].update(message, localmap, config);
 
             string veh_id_5 = "DOT-505";
             list_veh[veh_id_5] = vehicle();
-            const char* paylod_5 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-505\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 2.0, \"cur_accel\": 0.0, \"cur_lane_id\": 16392, \"cur_ds\": 2.0, \"direction\": \"straight\", \"entry_lane_id\": 16392, \"link_lane_id\": 22284, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 16392, \"ds\": 2},{\"ts\": 1623677096200, \"id\": 16392, \"ds\": 1.6}, {\"ts\": 1623677096400, \"id\": 16392, \"ds\": 1.2}, {\"ts\": 1623677096600, \"id\": 16392, \"ds\": 0.8}]}}";
+            const char* paylod_5 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-505\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 100.0, \"cur_accel\": 0.0, \"cur_lane_id\": 16392, \"cur_ds\": 2.0, \"direction\": \"straight\", \"entry_lane_id\": 16392, \"dest_lane_id\": 12459, \"link_lane_id\": 22284, \"is_allowed\": false, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 16392, \"ds\": 2},{\"ts\": 1623677096200, \"id\": 16392, \"ds\": 1.6}, {\"ts\": 1623677096400, \"id\": 16392, \"ds\": 1.2}, {\"ts\": 1623677096600, \"id\": 16392, \"ds\": 0.8}]}}";
             message.Parse(paylod_5);
-            list_veh[veh_id_5].update(message, localmap);
+            list_veh[veh_id_5].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_ds"].SetDouble(0);
             message["payload"]["cur_speed"].SetDouble(0);
@@ -132,13 +133,13 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(0);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(0);
-            list_veh[veh_id_5].update(message, localmap);
+            list_veh[veh_id_5].update(message, localmap, config);
 
             string veh_id_6 = "DOT-506";
             list_veh[veh_id_6] = vehicle();
-            const char* paylod_6 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-506\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 23578, \"cur_ds\": 18.0, \"direction\": \"straight\", \"entry_lane_id\": 19252, \"link_lane_id\": 23578, \"is_allowed\": true, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 23578, \"ds\": 18},{\"ts\": 1623677096200, \"id\": 23578, \"ds\": 17}, {\"ts\": 1623677096400, \"id\": 23578, \"ds\": 16}, {\"ts\": 1623677096600, \"id\": 23578, \"ds\": 15}]}}";
+            const char* paylod_6 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-506\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 500.0, \"cur_accel\": 0.0, \"cur_lane_id\": 23578, \"cur_ds\": 18.0, \"direction\": \"straight\", \"entry_lane_id\": 19252, \"dest_lane_id\": 12459, \"link_lane_id\": 23578, \"is_allowed\": true, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 23578, \"ds\": 18},{\"ts\": 1623677096200, \"id\": 23578, \"ds\": 17}, {\"ts\": 1623677096400, \"id\": 23578, \"ds\": 16}, {\"ts\": 1623677096600, \"id\": 23578, \"ds\": 15}]}}";
             message.Parse(paylod_6);
-            list_veh[veh_id_6].update(message, localmap);
+            list_veh[veh_id_6].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_ds"].SetDouble(13);
             message["payload"]["est_paths"][0]["ts"].SetInt64(1623677097000);
@@ -149,14 +150,14 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(11);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(10);
-            list_veh[veh_id_6].update(message, localmap);
+            list_veh[veh_id_6].update(message, localmap, config);
             list_veh_confirmation.insert(veh_id_6);
 
             string veh_id_7 = "DOT-507";
             list_veh[veh_id_7] = vehicle();
-            const char* paylod_7 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-507\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": 5, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 22284, \"cur_ds\": 18.0, \"direction\": \"straight\", \"entry_lane_id\": 5894, \"link_lane_id\": 22284, \"is_allowed\": true, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 22284, \"ds\": 18},{\"ts\": 1623677096200, \"id\": 22284, \"ds\": 17}, {\"ts\": 1623677096400, \"id\": 22284, \"ds\": 16}, {\"ts\": 1623677096600, \"id\": 22284, \"ds\": 15}]}}";
+            const char* paylod_7 = "{\"metadata\": {\"timestamp\": 1623677096000}, \"payload\": {\"v_id\": \"DOT-507\", \"v_length\": 500, \"min_gap\": 10, \"react_t\": 1.5, \"max_accel\": 5, \"max_decel\": -5, \"cur_speed\": 500.0, \"cur_accel\": 0.0, \"cur_lane_id\": 22284, \"cur_ds\": 18.0, \"direction\": \"straight\", \"entry_lane_id\": 5894, \"dest_lane_id\": 12459, \"link_lane_id\": 22284, \"is_allowed\": true, \"est_paths\": [{\"ts\": 1623677096000, \"id\": 22284, \"ds\": 18},{\"ts\": 1623677096200, \"id\": 22284, \"ds\": 17}, {\"ts\": 1623677096400, \"id\": 22284, \"ds\": 16}, {\"ts\": 1623677096600, \"id\": 22284, \"ds\": 15}]}}";
             message.Parse(paylod_7);
-            list_veh[veh_id_7].update(message, localmap);
+            list_veh[veh_id_7].update(message, localmap, config);
             message["metadata"]["timestamp"].SetInt64(1623677097000);
             message["payload"]["cur_ds"].SetDouble(13);
             message["payload"]["est_paths"][0]["ts"].SetInt64(1623677097000);
@@ -167,13 +168,13 @@ TEST(test_scheduling, scheduling)
             message["payload"]["est_paths"][2]["ds"].SetDouble(11);
             message["payload"]["est_paths"][3]["ts"].SetInt64(1623677097600);
             message["payload"]["est_paths"][3]["ds"].SetDouble(10);
-            list_veh[veh_id_7].update(message, localmap);
+            list_veh[veh_id_7].update(message, localmap, config);
             list_veh_confirmation.insert(veh_id_7);
 
             config.set_lastSchedulingT(1623677096.000);
             config.set_curSchedulingT(1623677097.000);
 
-            scheduling schedule_1(list_veh, list_veh_confirmation, localmap, config);
+            scheduling schedule_1(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
 
             ASSERT_EQ(7, schedule_1.get_vehicleIdList().size());
             ASSERT_EQ(7, schedule_1.get_vehicleIndexList().size());
