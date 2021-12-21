@@ -52,25 +52,25 @@ class configuration{
 		configuration();
 
 		/* get the scheduling time interval */
-		double get_schedulingDelta();
+		double get_schedulingDelta() const;
 
 		/* get the time point when the last schedule started */
-		double get_lastSchedulingT();
+		double get_lastSchedulingT() const;
 
 		/* get the time point when the current schedule started */
-		double get_curSchedulingT();
+		double get_curSchedulingT() const;
 
 		/* get the vehicle status and intent update expiration time interval */
-		double get_expDelta();
+		double get_expDelta() const;
 
 		/* get the stopping distance condition */
-		double get_stopDistance();
+		double get_stopDistance() const;
 
 		/* get the stopping speed condition */
-		double get_stopSpeed();
+		double get_stopSpeed() const;
 
 		/* get the max valid speed */
-		double get_maxValidSpeed();
+		double get_maxValidSpeed() const;
 
 		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);

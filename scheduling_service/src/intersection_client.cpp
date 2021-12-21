@@ -21,7 +21,7 @@ void intersection_client::call()
             /* entry lanes */
             int count = 0;
             QList<OpenAPI::OAILanelet_info> entry_lanelets = int_info.getEntryLanelets(); 
-            for(QList<OpenAPI::OAILanelet_info>::iterator itr = entry_lanelets.begin(); itr != entry_lanelets.end(); itr++ )
+            for(auto itr = entry_lanelets.begin(); itr != entry_lanelets.end(); itr++ )
             {
               lane_information li;
               li.id = to_string(itr->getId());
@@ -45,7 +45,7 @@ void intersection_client::call()
 
             /* exit\departure lanes */
             QList<OpenAPI::OAILanelet_info> departure_lanelets = int_info.getDepartureLanelets();
-            for(QList<OpenAPI::OAILanelet_info>::iterator itr = departure_lanelets.begin(); itr != departure_lanelets.end(); itr++ )
+            for(auto itr = departure_lanelets.begin(); itr != departure_lanelets.end(); itr++ )
             {
               lane_information li;
               li.id = to_string(itr->getId());
@@ -69,7 +69,7 @@ void intersection_client::call()
 
             /* link lanes */
             QList<OpenAPI::OAILanelet_info> link_lanelets = int_info.getLinkLanelets(); 
-            for(QList<OpenAPI::OAILanelet_info>::iterator itr = link_lanelets.begin(); itr != link_lanelets.end(); itr++ )
+            for(auto itr = link_lanelets.begin(); itr != link_lanelets.end(); itr++ )
             {
               lane_information li;
               li.id = to_string(itr->getId());
@@ -90,7 +90,7 @@ void intersection_client::call()
               
               spdlog::debug("conflict lanelets of lanelet {0}:", li.id);
               QList<qint32> conflict_lanelets = itr->getConflictLaneletIds();
-              for(QList<qint32>::iterator inner_itr = conflict_lanelets.begin(); inner_itr != conflict_lanelets.end(); inner_itr++ )
+              for(auto inner_itr = conflict_lanelets.begin(); inner_itr != conflict_lanelets.end(); inner_itr++ )
               {
                     li.conflicting_lane_id.push_back(to_string(*inner_itr));
                     spdlog::debug("lanelet {0}", li.conflicting_lane_id.back());
@@ -105,9 +105,7 @@ void intersection_client::call()
 
             lane_conflict_status.resize(lane_count, vector<int>(lane_count));
             for (string lane_id1 : lane_id_link){
-              // qDebug() << "lane ID: " << QString::fromStdString(lane_id1);
               for (string lane_id2 : lane_info[lane_id1].conflicting_lane_id){
-                // qDebug() << "has conflict with: " << QString::fromStdString(lane_id2);
                 lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id2].index] = 1;
               }
               lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id1].index] = 1;
@@ -128,41 +126,41 @@ void intersection_client::call()
 }
 
 /* */
-string intersection_client::get_intersectionName(){return intersection_name;}
+string intersection_client::get_intersectionName() const {return intersection_name;}
 
 /* */
-int intersection_client::get_intersectionId(){return intersection_id;}
+int intersection_client::get_intersectionId() const {return intersection_id;}
 
 /* */
-int intersection_client::get_laneCount(){return lane_count;}
+int intersection_client::get_laneCount() const {return lane_count;}
 
 /* */
-vector<string> intersection_client::get_laneIdAll(){return lane_id_all;}
+vector<string> intersection_client::get_laneIdAll() const {return lane_id_all;}
 
 /* */
-vector<string> intersection_client::get_laneIdEntry(){return lane_id_entry;}
+vector<string> intersection_client::get_laneIdEntry() const {return lane_id_entry;}
 
 /* */
-vector<string> intersection_client::get_laneIdExit(){return lane_id_exit;}
+vector<string> intersection_client::get_laneIdExit() const {return lane_id_exit;}
 
 /* */
-vector<string> intersection_client::get_laneIdLink(){return lane_id_link;}
+vector<string> intersection_client::get_laneIdLink() const {return lane_id_link;}
 
 /* */
-int intersection_client::get_laneIndex(string lane_id){return lane_info[lane_id].index;}
+int intersection_client::get_laneIndex(string const & lane_id) {return lane_info[lane_id].index;}
 
 /* */
-string intersection_client::get_laneType(string lane_id){return lane_info[lane_id].type;}
+string intersection_client::get_laneType(string const & lane_id) {return lane_info[lane_id].type;}
 
 
 /* */
-double intersection_client::get_laneLength(string lane_id){return lane_info[lane_id].length;}
+double intersection_client::get_laneLength(string const & lane_id) {return lane_info[lane_id].length;}
 
 /* */
-double intersection_client::get_laneSpeedLimit(string lane_id){return lane_info[lane_id].speed_limit;}
+double intersection_client::get_laneSpeedLimit(string const & lane_id) {return lane_info[lane_id].speed_limit;}
 
 /* */
-bool intersection_client::hasConflict(string lane_id1, string lane_id2){
+bool intersection_client::hasConflict(string const & lane_id1, string const & lane_id2){
 	if(lane_conflict_status[lane_info[lane_id1].index][lane_info[lane_id2].index] == 1){
 		return true;
 	} else{
@@ -171,4 +169,4 @@ bool intersection_client::hasConflict(string lane_id1, string lane_id2){
 }
 
 /* */
-int intersection_client::get_lanePriority(string lane_id){return lane_info[lane_id].priority;}
+int intersection_client::get_lanePriority(string const & lane_id) {return lane_info[lane_id].priority;}
