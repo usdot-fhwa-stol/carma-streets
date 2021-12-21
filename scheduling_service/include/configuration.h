@@ -70,7 +70,7 @@ class configuration{
 		double get_stopSpeed() const;
 
 		/* get the max valid speed */
-		double get_maxValidSpeed();
+		double get_maxValidSpeed() const;
 
 		/* set the last schedule's start time point to t */
 		void set_lastSchedulingT(double t);

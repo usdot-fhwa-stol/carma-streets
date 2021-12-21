@@ -85,7 +85,7 @@ double configuration::get_stopDistance() const {return stopping_distance;}
 double configuration::get_stopSpeed() const {return stopping_speed;}
 
 /* */
-double configuration::get_maxValidSpeed(){return max_valid_speed;}
+double configuration::get_maxValidSpeed() const {return max_valid_speed;}
 
 /* */
 void configuration::set_lastSchedulingT(double t){last_schedule_start_time = t;}

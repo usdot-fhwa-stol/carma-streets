@@ -142,6 +142,7 @@ class vehicle{
 		
 		string get_direction() const;
 		string get_entryLaneID() const;
+		string get_exitLaneID() const;
 		string get_linkID() const;
 		int get_linkPriority() const;
 
