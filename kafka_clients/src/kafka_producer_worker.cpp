@@ -3,7 +3,7 @@
 namespace kafka_clients
 {
     kafka_producer_worker::kafka_producer_worker(const std::string &brokers, const std::string &topics, int partition)
-        : _broker_str(brokers), _topics_str(topics), _partition(partition), _run(true)
+        : _topics_str(topics), _broker_str(brokers), _run(true), _partition(partition)
     {
         spdlog::info("kafka_producer_worker init()... ");
     }
@@ -88,7 +88,6 @@ namespace kafka_clients
                                                          NULL);
             if (resp != RdKafka::ERR_NO_ERROR)
             {
-                // std::cerr << _producer->name()<< " Produce failed: " << RdKafka::err2str(resp) << std::endl;
                 spdlog::critical(" {0} Produce failed:  {1} ", _producer->name(), RdKafka::err2str(resp));
                 if (resp == RdKafka::ERR__QUEUE_FULL)
                 {
@@ -145,7 +144,6 @@ namespace kafka_clients
 
                 if (_producer->outq_len() > 0)
                     spdlog::info("  {0} {1} message(s) were not delivered  ", _producer->name(), _producer->outq_len());
-            //  delete _producer;
             }
         }
         catch (...)

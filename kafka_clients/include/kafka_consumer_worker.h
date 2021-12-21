@@ -142,7 +142,7 @@ namespace kafka_clients
             void subscribe();
             void stop();
             void printCurrConf();
-            bool is_running();
+            bool is_running() const;
     };
 }
 
