@@ -208,7 +208,6 @@ TEST(test_vehicle, update)
     catch(...){
         spdlog::critical("the intersection model is not running");
     }
-
 }
 
 
