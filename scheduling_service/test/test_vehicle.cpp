@@ -11,9 +11,8 @@
 TEST(test_vehicle, update)
 {
 
-
     configuration config;
-    intersection_client localmap;        
+    intersection_client localmap;
     localmap.call();
 
     try{
@@ -208,7 +207,6 @@ TEST(test_vehicle, update)
     catch(...){
         spdlog::critical("the intersection model is not running");
     }
-
 }
 
 
