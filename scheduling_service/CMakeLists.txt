@@ -12,6 +12,7 @@ find_package(spdlog REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 
+
 include_directories("/usr/local/include")
 
 add_executable(${PROJECT_NAME}  src/main.cpp

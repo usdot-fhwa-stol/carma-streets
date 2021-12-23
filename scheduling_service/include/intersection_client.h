@@ -58,6 +58,8 @@ class intersection_client : public QObject
 {
     private:
         
+        bool is_running_indicator;
+
         /* intersection name */
         string intersection_name;
 
@@ -92,6 +94,7 @@ class intersection_client : public QObject
         ~intersection_client(){};
         void call();
 
+        bool is_running();
         string get_intersectionName();
         int get_intersectionId();
         int get_laneCount();

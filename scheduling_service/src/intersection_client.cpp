@@ -12,7 +12,8 @@ void intersection_client::call()
   QEventLoop loop;
   connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignal, [&](OAIIntersection_info int_info)
           {
-
+            
+            is_running_indicator = true;
             intersection_name = int_info.getName().toStdString();
             intersection_id = int_info.getId();
             spdlog::debug("intersection name: {0}", intersection_name);
@@ -27,16 +28,22 @@ void intersection_client::call()
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "entry";
+
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
               */
               li.speed_limit = itr->getSpeedLimit() * 0.44704;
+
+              /* the unit of received speed limit from the intersection model is mile/hr
+              *  but the unit of speed limit used in the scheduling_service is meter/sec
+              */
               li.priority = -1;
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
 	          	lane_id_entry.push_back(li.id);
               count += 1;
+
 
               spdlog::debug("entry lanelet ID: {0}", li.id);
               spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
@@ -51,11 +58,17 @@ void intersection_client::call()
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "exit";
+
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
               */
               li.speed_limit = itr->getSpeedLimit() * 0.44704;
+
+              /* the unit of received speed limit from the intersection model is mile/hr
+              *  but the unit of speed limit used in the scheduling_service is meter/sec
+              */
+
               li.priority = -1;
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
@@ -65,16 +78,19 @@ void intersection_client::call()
               spdlog::debug("departure lanelet ID: {0}", li.id);
               spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
               spdlog::debug("Length (m): {0}", li.length);
+
             } 
 
             /* link lanes */
             QList<OpenAPI::OAILanelet_info> link_lanelets = int_info.getLinkLanelets(); 
             for(QList<OpenAPI::OAILanelet_info>::iterator itr = link_lanelets.begin(); itr != link_lanelets.end(); itr++ )
             {
+
               lane_information li;
               li.id = to_string(itr->getId());
               li.index = count;
               li.type = "link";
+
               li.length = itr->getLength();
               /* the unit of received speed limit from the intersection model is mile/hr
               *  but the unit of speed limit used in the scheduling_service is meter/sec
@@ -119,6 +135,7 @@ void intersection_client::call()
           {
             string error_str_print = error_str.toStdString();
             spdlog::critical("Error happened while issuing request : {0}", error_str_print);
+            is_running_indicator = false;
             loop.quit(); });
 
   apiInstance.getIntersectionInfo();
@@ -126,6 +143,9 @@ void intersection_client::call()
   QTimer::singleShot(5000, &loop, &QEventLoop::quit);
   loop.exec();
 }
+
+/* */
+bool intersection_client::is_running(){return is_running_indicator;}
 
 /* */
 string intersection_client::get_intersectionName(){return intersection_name;}
@@ -153,7 +173,6 @@ int intersection_client::get_laneIndex(string lane_id){return lane_info[lane_id]
 
 /* */
 string intersection_client::get_laneType(string lane_id){return lane_info[lane_id].type;}
-
 
 /* */
 double intersection_client::get_laneLength(string lane_id){return lane_info[lane_id].length;}

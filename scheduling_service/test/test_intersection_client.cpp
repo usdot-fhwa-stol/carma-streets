@@ -205,37 +205,86 @@ TEST(test_intersection_client, call)
 {
 
     /* this unit test is conducted for the west intersection at TFHRC */
-    intersection_client localmap;
+    spdlog::info("* this unit test is conducted for the west intersection at TFHRC *");
+    intersection_client localmap;   
     localmap.call();
 
-    ASSERT_EQ(9001, localmap.get_intersectionId());
-    ASSERT_EQ("West Intersection", localmap.get_intersectionName());
-    ASSERT_EQ(20, localmap.get_laneCount());
-    ASSERT_EQ(20, localmap.get_laneIdAll().size());
-    ASSERT_EQ(4, localmap.get_laneIdEntry().size());
-    ASSERT_EQ(4, localmap.get_laneIdExit().size());
-    ASSERT_EQ(12, localmap.get_laneIdLink().size());
+    try{
 
-    vector<string> lane_types{"entry", "exit", "link"};
-    for (int i = 0; i < (int)localmap.get_laneIdAll().size(); ++i){
-        string lane_id = localmap.get_laneIdAll()[i];
-        ASSERT_LT(0, stoi(lane_id));
-        ASSERT_EQ(i, localmap.get_laneIndex(lane_id));
-        ASSERT_TRUE(find(lane_types.begin(), lane_types.end(), localmap.get_laneType(lane_id)) != lane_types.end());
-        ASSERT_LT(0.0, localmap.get_laneLength(lane_id));
-        ASSERT_LT(0.0, localmap.get_laneSpeedLimit(lane_id));
-        if (localmap.get_laneType(lane_id) == "entry" || localmap.get_laneType(lane_id) == "exit"){
-            ASSERT_EQ(-1, localmap.get_lanePriority(lane_id));
-        } 
-        else if (localmap.get_laneType(lane_id) == "link"){
-            ASSERT_LT(0, localmap.get_lanePriority(lane_id));
+        if (localmap.is_running() == true){
+            
+            ASSERT_EQ(9001, localmap.get_intersectionId());
+            spdlog::info("intersection id: {0}", localmap.get_intersectionId());
+
+            ASSERT_EQ("West Intersection", localmap.get_intersectionName());
+            spdlog::info("intersection name: {0}", localmap.get_intersectionName());
+
+            ASSERT_EQ(20, localmap.get_laneCount());
+            spdlog::info("total number of lanelets: {0}", localmap.get_laneCount());
+            
+            ASSERT_EQ(20, localmap.get_laneIdAll().size());
+            spdlog::info("total number of lanelets: {0}", localmap.get_laneIdAll().size());
+
+            ASSERT_EQ(4, localmap.get_laneIdEntry().size());
+            spdlog::info("number of entry lanelets: {0}", localmap.get_laneIdEntry().size());
+
+            ASSERT_EQ(4, localmap.get_laneIdExit().size());
+            spdlog::info("number of exit lanelets: {0}", localmap.get_laneIdExit().size());
+
+            ASSERT_EQ(12, localmap.get_laneIdLink().size());
+            spdlog::info("number of link lanelets: {0}", localmap.get_laneIdLink().size());
+
+            spdlog::info("");
+            spdlog::info("* each lanelet info *");
+            vector<string> lane_types{"entry", "exit", "link"};
+            for (int i = 0; i < (int)localmap.get_laneIdAll().size(); ++i){
+                string lane_id = localmap.get_laneIdAll()[i];
+                spdlog::info("lanelet id: {0}", lane_id);
+
+                ASSERT_LT(0, stoi(lane_id));
+                ASSERT_EQ(i, localmap.get_laneIndex(lane_id));
+                spdlog::info("lanelet index: {0}", localmap.get_laneIndex(lane_id));
+
+                ASSERT_TRUE(find(lane_types.begin(), lane_types.end(), localmap.get_laneType(lane_id)) != lane_types.end());
+                spdlog::info("lanelet type: {0}", localmap.get_laneType(lane_id));
+
+                ASSERT_LT(0.0, localmap.get_laneLength(lane_id));
+                spdlog::info("lanelet length: {0}", localmap.get_laneLength(lane_id));
+
+                ASSERT_LT(0.0, localmap.get_laneSpeedLimit(lane_id));
+                spdlog::info("lanelet speed limit: {0}", localmap.get_laneSpeedLimit(lane_id));
+
+                if (localmap.get_laneType(lane_id) == "entry" || localmap.get_laneType(lane_id) == "exit"){
+                    ASSERT_EQ(-1, localmap.get_lanePriority(lane_id));
+                } 
+                else if (localmap.get_laneType(lane_id) == "link"){
+                    ASSERT_LT(0, localmap.get_lanePriority(lane_id));
+                }
+                spdlog::info("lanelet speed limit: {0}", localmap.get_laneSpeedLimit(lane_id));
+                spdlog::info("");
+
+            }
+
+            spdlog::info("* conflict status check *");
+            // test the conflict status. the used example links are: 23016, 22878, and 22528
+            ASSERT_EQ(true, localmap.hasConflict("23016", "23016"));
+            spdlog::info("lanelet {0} and lanelet {1} has conflicts: {2}", "23016", "23016", localmap.hasConflict("23016", "23016"));
+
+            ASSERT_EQ(true, localmap.hasConflict("23016", "22878"));
+            spdlog::info("lanelet {0} and lanelet {1} has conflicts: {2}", "23016", "22878", localmap.hasConflict("23016", "22878"));
+
+            ASSERT_EQ(true, localmap.hasConflict("23016", "22528"));
+            spdlog::info("lanelet {0} and lanelet {1} has conflicts: {2}", "23016", "22528", localmap.hasConflict("23016", "22528"));
+
+            ASSERT_EQ(false, localmap.hasConflict("22878", "22528"));
+            spdlog::info("lanelet {0} and lanelet {1} has conflicts: {2}", "22878", "22528", localmap.hasConflict("22878", "22528"));
+
+        }
+        else{
+            throw("the intersection model is not running");
         }
     }
-
-    // test the conflict status. the used example links are: 23016, 22878, and 22528
-    ASSERT_EQ(true, localmap.hasConflict("23016", "23016"));
-    ASSERT_EQ(true, localmap.hasConflict("23016", "22878"));
-    ASSERT_EQ(true, localmap.hasConflict("23016", "22528"));
-    ASSERT_EQ(false, localmap.hasConflict("22878", "22528"));
-
+    catch(...){
+        spdlog::critical("the intersection model is not running");
+    }
 }
