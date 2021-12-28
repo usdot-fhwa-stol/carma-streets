@@ -125,6 +125,7 @@ jobs:
 
             cd /home/carma-streets/carma_lanelet2
             source /opt/ros/melodic/setup.bash && \
+            source /home/carma-streets/carma_lanelet2/install/setup.bash \
             DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
             DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
