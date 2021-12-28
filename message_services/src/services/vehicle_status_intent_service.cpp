@@ -192,9 +192,9 @@ namespace message_services
                         if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                         {
                             spdlog::info("Clean the BSM and MP...");
-                            spdlog::debug("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                            spdlog::debug("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
-                            spdlog::debug("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+                            spdlog::info("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                            spdlog::info("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                            spdlog::info("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
 
                             if (mp_w_ptr && !mp_w_ptr->get_curr_map().empty())
                             {
@@ -219,7 +219,7 @@ namespace message_services
                                 spdlog::info("Clean the BSM...");
                                 for (auto itr = bsm_w_ptr->get_curr_map().cbegin(); itr != bsm_w_ptr->get_curr_map().cend();)
                                 {
-                                    if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 60 * 1000))
+                                    if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                                     {
                                         std::unique_lock<std::mutex> lck(worker_mtx);
                                         bsm_w_ptr->get_curr_map().erase(itr++);
