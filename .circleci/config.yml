@@ -47,7 +47,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake gpsd libgps-dev portaudio19-dev libeigen3-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+            apt-get update  && apt-get install -y cat cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake gpsd libgps-dev portaudio19-dev libeigen3-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
             
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
@@ -150,6 +150,10 @@ jobs:
             mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
+            echo "source /opt/ros/melodic/setup.bash" > /home/carma-streets/.base-image/init-env.sh
+            echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" > /home/carma-streets/.base-image/init-env.sh
+            cat /home/carma-streets/.base-image/init-env.sh
+
       - run:
           name: Build source code & Run Tests & Generate Gcovr Reports
           command: |
