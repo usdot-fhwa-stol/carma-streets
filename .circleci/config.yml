@@ -111,27 +111,27 @@ jobs:
             
 
             cd /home/carma-streets/
-            mkdir carma_lanelet2 
-            cd carma_lanelet2
-            mkdir src 
-            cd src 
-            git init 
-            echo "temp"
-            git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git
-            git config core.sparsecheckout true	
-            echo "common/hardcoded_params/*" >> .git/info/sparse-checkout 
-            echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout
-            echo "lanelet2/*" >> .git/info/sparse-checkout 
-            echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout
-            git pull --depth 1 origin refactor_lanelet2_extension
-            git checkout refactor_lanelet2_extension
-            rm -r lanelet2/lanelet2_python 
+            mkdir carma_lanelet2 && \
+            cd carma_lanelet2 && \
+            mkdir src && \
+            cd src && \
+            git init && \
+            echo "temp" && \
+            git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git && \
+            git config core.sparsecheckout true	&& \
+            echo "common/hardcoded_params/*" >> .git/info/sparse-checkout && \
+            echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout && \
+            echo "lanelet2/*" >> .git/info/sparse-checkout && \
+            echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout && \
+            git pull --depth 1 origin refactor_lanelet2_extension && \
+            git checkout refactor_lanelet2_extension && \
+            rm -r lanelet2/lanelet2_python && \
             rm -r lanelet2/lanelet2_examples
 
             cd /home/carma-streets/carma_lanelet2
-            source /opt/ros/melodic/setup.bash 
-            apt-get install -y python-rospkg 
-            apt-get install -y libeigen3-dev
+            source /opt/ros/melodic/setup.bash && \
+            apt-get install -y python-rospkg && \
+            apt-get install -y libeigen3-dev && \
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
             cd /home/carma-streets/carma_lanelet2/install/
