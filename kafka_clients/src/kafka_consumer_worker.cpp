@@ -5,8 +5,8 @@ namespace kafka_clients
 
     kafka_consumer_worker::kafka_consumer_worker(const std::string &broker_str, const std::string &topic_str,
                                                  const std::string &group_id_str, int64_t cur_offset, int32_t partition)
-        : _broker_str(broker_str), _topics_str(topic_str), _group_id_str(group_id_str), _cur_offet(cur_offset),
-          _partition(partition), _last_offset(0), _run(false)
+        :_topics_str(topic_str), _broker_str(broker_str), _group_id_str(group_id_str), _cur_offet(cur_offset),
+          _partition(partition)
     {
     }
 
@@ -20,7 +20,6 @@ namespace kafka_clients
         {
             spdlog::critical("RDKafka create global conf failed ");
             return false;
-            ;
         }
 
         // set bootstrap server
@@ -28,7 +27,6 @@ namespace kafka_clients
         {
             spdlog::critical("RDKafka conf set bootstrap server failed: {0} ", errstr.c_str());
             return false;
-            ;
         }
 
         conf->set("rebalance_cb", &_consumer_rebalance_cb, errstr);
@@ -37,14 +35,12 @@ namespace kafka_clients
         {
             spdlog::critical("RDKafka conf set event call back failed:  {0} ", errstr.c_str());
             return false;
-            ;
         }
 
         if (conf->set(ENABLE_PARTITION_END_OF, "true", errstr) != RdKafka::Conf::CONF_OK)
         {
             spdlog::critical("RDKafka conf set partition end of failed: {0} ", errstr.c_str());
             return false;
-            ;
         }
 
         // set consumer group
@@ -52,7 +48,6 @@ namespace kafka_clients
         {
             spdlog::critical("RDKafka conf set group id failed:  {0} ", errstr.c_str());
             return false;
-            ;
         }
 
         if (conf->set(MAX_PARTITION_FETCH_SIZE, STR_FETCH_NUM, errstr) != RdKafka::Conf::CONF_OK)
@@ -66,7 +61,6 @@ namespace kafka_clients
         {
             spdlog::critical("failed to create consumer:  {0}", errstr.c_str());
             return false;
-            ;
         }
 
         spdlog::info("created consumer: {0} ", _consumer->name());
@@ -121,7 +115,7 @@ namespace kafka_clients
         return msg_str;
     }
 
-    bool kafka_consumer_worker::is_running()
+    bool kafka_consumer_worker::is_running() const
     {
         return _run;
     }
