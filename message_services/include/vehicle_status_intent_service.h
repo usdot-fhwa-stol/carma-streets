@@ -91,24 +91,6 @@ namespace message_services
             void run(std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr,
                      std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr,
                      std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr);
-
-            /**
-             * @brief Creating and running threads. Each thread is acting as consumer or producer to consume or produce messages to topics
-             * @param pointers to workers that will be used to work on messages that are consumed
-             * **/
-            void run(std::shared_ptr<workers::vehicle_status_intent_worker> vsi_w_ptr,
-                     std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr,
-                     std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr,
-                     std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr);
-
-            /**
-             * @brief Identify the latest bsm , MobilityOperation and MobilityPath messages from the workers based on MobilityOperation. Mapping those messages based on 
-             * vehicle id, bsm_id and timestamp is less than 100 ms.
-             * @param pointers to object that will store the latest messages
-             * @return true if can find a mapping for mobilityOperation messages; false if no mapping found for any mobilityoperation messages in the mobilityoperation message list
-             * **/
-            bool identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr, std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr, std::shared_ptr<models::bsm> bsm_ptr,
-                                                      std::shared_ptr<models::mobilityoperation> mo_ptr, std::shared_ptr<models::mobilitypath> mp_ptr);
             /**
              * @brief Generate the vehicle status and intent message based on the latest bsm , MobilityOperation and MobilityPath objects.
              * @param pointers to object that will store the latest messages
