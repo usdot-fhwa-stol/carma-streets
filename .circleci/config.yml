@@ -153,6 +153,7 @@ jobs:
             echo "source /opt/ros/melodic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             cat /home/carma-streets/.base-image/init-env.sh
+            source /home/carma-streets/.base-image/init-env.sh
             cd /home/carma-streets/
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
@@ -188,6 +189,7 @@ jobs:
   docker_build_push :
    machine:
     image: ubuntu-1604:202004-01
+   resource_class: large 
    steps:
      - checkout
      - run: 
