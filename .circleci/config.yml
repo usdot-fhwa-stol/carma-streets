@@ -32,6 +32,7 @@ jobs:
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
+    resource_class: large 
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
