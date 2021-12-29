@@ -109,8 +109,7 @@ jobs:
 
             cd /opt/ros/melodic/
             ls -a
-            cd /home/carma-streets/carma_lanelet2/install/
-            ls -a
+            
 
             cd /home/carma-streets/
             mkdir carma_lanelet2 
@@ -136,7 +135,9 @@ jobs:
             apt-get install -y python-rospkg 
             apt-get install -y libeigen3-dev
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
-
+            
+            cd /home/carma-streets/carma_lanelet2/install/
+            ls -a
             
             cd /home/carma-streets
             mkdir .base-image
