@@ -95,14 +95,15 @@ class intersection_client : public QObject
         void call();
 
         bool is_running();
-        string get_intersectionName();
-        int get_intersectionId();
-        int get_laneCount();
+	string get_intersectionName() const;
+        int get_intersectionId() const;
+        int get_laneCount() const;
 
-		vector<string> get_laneIdAll();
-		vector<string> get_laneIdEntry();
-		vector<string> get_laneIdExit();
-		vector<string> get_laneIdLink();
+
+		vector<string> get_laneIdAll() const;
+		vector<string> get_laneIdEntry() const;
+		vector<string> get_laneIdExit() const;
+		vector<string> get_laneIdLink() const;
 		
 		int get_laneIndex(string const & lane_id);
 		string get_laneType(string const & lane_id);
