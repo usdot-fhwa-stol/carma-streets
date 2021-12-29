@@ -590,7 +590,7 @@ namespace message_services
             {
                 const char *payload = consumer_worker->consume(1000);
                 // spdlog::info("bsm message payload: {0}", payload);
-                if (std::strlen(payload) != 0 && msg_w_ptr)
+                if (payload != NULL && std::strlen(payload) != 0 && msg_w_ptr)
                 {
                     std::unique_lock<std::mutex> lck(worker_mtx);
                     msg_w_ptr->process_incoming_msg(payload);
