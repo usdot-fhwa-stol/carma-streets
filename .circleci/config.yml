@@ -150,9 +150,12 @@ jobs:
             mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
-            echo "source /opt/ros/melodic/setup.bash" > /home/carma-streets/.base-image/init-env.sh
-            echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" > /home/carma-streets/.base-image/init-env.sh
+            echo "source /opt/ros/melodic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
+            echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             cat /home/carma-streets/.base-image/init-env.sh
+            cd /home/carma-streets/
+            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
+            ./coverage.sh
 
       - run:
           name: Build source code & Run Tests & Generate Gcovr Reports

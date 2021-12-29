@@ -15,9 +15,33 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
-pwd
+
+cd /home/carma-streets/kafka_clients
+ls -a
 mkdir coverage
 gcovr -k -r .
 mv *.gcov coverage
-#cd ../..
-pwd
+
+cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
+ls -a
+mkdir coverage
+gcovr -k -r .
+mv *.gcov coverage
+
+cd /home/carma-streets/scheduling_service
+ls -a
+mkdir coverage
+gcovr -k -r .
+mv *.gcov coverage
+
+cd /home/carma-streets/message_services
+ls -a
+mkdir coverage
+gcovr -k -r .
+mv *.gcov coverage
+
+cd /home/carma-streets/intersection_model
+ls -a
+mkdir coverage
+gcovr -k -r .
+mv *.gcov coverage
