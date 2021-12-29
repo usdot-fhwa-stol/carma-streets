@@ -460,7 +460,7 @@ void call_consumer_thread()
 
             const char* paylod= consumer_worker->consume(1000);
 
-            if(strlen(paylod) > 0)
+            if(paylod != nullptr && strlen(paylod) > 0)
             {
 
                 //spdlog::info("Consumed message payload: {0}", paylod);   
