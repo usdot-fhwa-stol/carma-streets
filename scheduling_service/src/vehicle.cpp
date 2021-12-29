@@ -27,11 +27,10 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 					speed = (distance + (localmap.get_laneLength(to_string(message["payload"]["cur_lane_id"].GetInt())) - message["payload"]["cur_ds"].GetDouble())) / (((double)message["metadata"]["timestamp"].GetInt64() / 1000.0) - timestamp);
 				}
 				double invalid_speed = message["payload"]["cur_speed"].GetDouble() * 0.02;
-				spdlog::info("Invalid speed in the message received from {0}: {1}", veh_id, invalid_speed);
+				spdlog::critical("Invalid speed in the message received from {0}: {1}", veh_id, invalid_speed);
 			}
 			else{
 				speed = message["payload"]["cur_speed"].GetDouble() * 0.02;
-				spdlog::info("valid speed in the message received from {0}: {1}", veh_id, speed);
 			}
 		} else{
 			spdlog::critical("the current speed of Vehicle {0} is missing in the received update!", veh_id);
