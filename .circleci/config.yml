@@ -47,9 +47,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake gpsd libgps-dev portaudio19-dev libeigen3-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
-
-            
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake gpsd libgps-dev portaudio19-dev libeigen3-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev ros-melodic-catkin python-rospkg libeigen3-dev lsb-release        
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
@@ -97,13 +95,11 @@ jobs:
             
             # Download a cmake module for PROJ
             cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
-            apt update && \
-            apt install -y lsb-release && \
             sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
             curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 
-            export DEBIAN_FRONTEND=noninteractive apt-get update && \
-            export DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin
+            apt-get update && \
+            apt-get install -y 
 
             cd /home/carma-streets/
             mkdir carma_lanelet2 && \
@@ -124,10 +120,8 @@ jobs:
             rm -r lanelet2/lanelet2_examples
 
             cd /home/carma-streets/carma_lanelet2
-            source /opt/ros/melodic/setup.bash && \
-            source /home/carma-streets/carma_lanelet2/install/setup.bash \
-            DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
-            DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
+            source /opt/ros/melodic/setup.bash
+            source /home/carma-streets/carma_lanelet2/install/setup.bash 
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
             
@@ -153,11 +147,6 @@ jobs:
             echo "source /opt/ros/melodic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             cat /home/carma-streets/.base-image/init-env.sh
-            source /home/carma-streets/.base-image/init-env.sh
-            cd /home/carma-streets/
-            build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
-            ./coverage.sh
-
       - run:
           name: Build source code & Run Tests & Generate Gcovr Reports
           command: |
