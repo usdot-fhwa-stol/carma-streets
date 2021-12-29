@@ -23,8 +23,8 @@ void call_consumer_thread()
 
         while (consumer_worker->is_running())
         {
-            const char *paylod = consumer_worker->consume(1000);
-            if (strlen(paylod) > 0)
+            const char* paylod= consumer_worker->consume(1000);
+            if(paylod != nullptr && std::strlen(paylod) > 0)
             {
                 spdlog::info("message payload: {0}", paylod);
             }
