@@ -257,7 +257,7 @@ namespace message_services
                 double p2p_d = lanelet::geometry::distance2d(subj_point2d, sub_lanelet_centerline.segment(i).first);
 
                 // Start from the closest point on the centerline to the subject point, and accumulate the closest point to the end of centerline
-                if (p2p_d <= (dP2Line2d + 0.1))
+                if (p2p_d <= (dP2Line2d + 0.2))
                 {
                     start_accumulate = true;
                 }

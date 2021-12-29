@@ -92,21 +92,21 @@ TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end_point)
 
     //Position within the link lanelet with turn direction
     lanelet::Point3d point3d = {lanelet::utils::getId(), {-83.21549512455204, 329.05751672287005, 72}};
-    ASSERT_NEAR(15.033, clt.distance2_cur_lanelet_end(point3d, "right", trajectory), 0.01);
+    ASSERT_NEAR(15.286, clt.distance2_cur_lanelet_end(point3d, "right", trajectory), 0.01);
 
     //Position within the entry lanelet
     point3d = {lanelet::utils::getId(), {-96.40002062426407,304.71216057912693, 72}};
-    ASSERT_NEAR(17.4779, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
+    ASSERT_NEAR(17.881, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
 
     point3d = {lanelet::utils::getId(), {-91.5717516026476, 313.7486930462219, 72}};
     ASSERT_NEAR(7.12777, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
 
     point3d = {lanelet::utils::getId(), {-91.04298660840287,314.4369775722761, 72}};
-    ASSERT_NEAR(6.08981, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
+    ASSERT_NEAR(6.34942, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
 
     //Position within the departure lanelet
     point3d = {lanelet::utils::getId(), {-66.33865452644577,327.63636981163864, 72}};
-    ASSERT_NEAR(137.707, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
+    ASSERT_NEAR(137.958, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
 
     point3d = {lanelet::utils::getId(), {-64.42300140950572,327.1034837742677, 72}};
     ASSERT_NEAR(135.699, clt.distance2_cur_lanelet_end(point3d, "", trajectory), 0.01);
@@ -119,15 +119,17 @@ TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end)
     message_services::models::trajectory trajectory;
 
     //Position within the link lanelet with turn direction
-    ASSERT_NEAR(15.033, clt.distance2_cur_lanelet_end(38.9549432, -77.1493113, 72, "right", trajectory), 0.01);
+    ASSERT_NEAR(15.285, clt.distance2_cur_lanelet_end(38.9549432, -77.1493113, 72, "right", trajectory), 0.01);
+    ASSERT_NEAR(79.946, clt.distance2_cur_lanelet_end(38.9553736, -77.1502519, 72, "straight", trajectory), 0.01);
+    ASSERT_NEAR(17.993, clt.distance2_cur_lanelet_end(38.9550620, -77.1496677, 72, "straight", trajectory), 0.01);
 
     //Position within the entry lanelet
-    ASSERT_NEAR(17.4779, clt.distance2_cur_lanelet_end(38.9547239, -77.1494634, 72, "", trajectory), 0.01);
+    ASSERT_NEAR(17.881, clt.distance2_cur_lanelet_end(38.9547239, -77.1494634, 72, "", trajectory), 0.01);
     ASSERT_NEAR(7.12777, clt.distance2_cur_lanelet_end(38.9548053, -77.1494077, 72, "", trajectory), 0.01);
-    ASSERT_NEAR(6.08981, clt.distance2_cur_lanelet_end(38.9548115, -77.1494016, 72, "", trajectory), 0.01);
+    ASSERT_NEAR(6.34942, clt.distance2_cur_lanelet_end(38.9548115, -77.1494016, 72, "", trajectory), 0.01);
 
     //Position within the departure lanelet
-    ASSERT_NEAR(137.707, clt.distance2_cur_lanelet_end(38.9549304, -77.1491166, 72, "", trajectory), 0.01);
+    ASSERT_NEAR(137.958, clt.distance2_cur_lanelet_end(38.9549304, -77.1491166, 72, "", trajectory), 0.01);
     ASSERT_NEAR(135.699, clt.distance2_cur_lanelet_end(38.9549256, -77.1490945, 72, "", trajectory), 0.01);
 }
 
@@ -164,8 +166,7 @@ TEST(test_message_lanelet2_translation, get_lanelet_types_ids_by_route)
     //From lanelet id = 12459 (departure lanelet) to lanelet id = 12459 (departure lanelet)
     start_lanelet_id = 12459;
     dest_lanelet_id = 12459;
-    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
-    ASSERT_EQ(message_services::models::unknown, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").at(dest_lanelet_id));
+    ASSERT_EQ(0, clt.get_lanelet_types_ids_by_route(start_lanelet_id, dest_lanelet_id, "NA").size());
 }
 
 TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_trajectory)
@@ -205,7 +206,7 @@ TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_traject
     trajectory.offsets.clear();
     trajectory.offsets.push_back(offset);
     turn_direction = "right";
-    ASSERT_EQ(2, clt.get_lanelet_types_ids_by_vehicle_trajectory(trajectory, offset_size, turn_direction).size());
+    ASSERT_EQ(3, clt.get_lanelet_types_ids_by_vehicle_trajectory(trajectory, offset_size, turn_direction).size());
 
     //From lanelet 22528 to lanelet 12459
     turn_direction = "left";
@@ -229,7 +230,7 @@ TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_traject
     trajectory.offsets.clear();
     trajectory.offsets.push_back(offset);
     turn_direction = "";
-    ASSERT_EQ(1, clt.get_lanelet_types_ids_by_vehicle_trajectory(trajectory, offset_size, turn_direction).size());
+    ASSERT_EQ(0, clt.get_lanelet_types_ids_by_vehicle_trajectory(trajectory, offset_size, turn_direction).size());
 }
 
 TEST(test_message_lanelet2_translation, ecef_2_map_point)
