@@ -12,6 +12,7 @@ namespace kafka_clients
         try
         {      
             int partition = 0;
+            int partTest = 1
             // int64_t cur_offset = RdKafka::Topic::OFFSET_BEGINNING;
             int64_t cur_offset = RdKafka::Topic::OFFSET_END;
             kafka_clients::kafka_consumer_worker *consumer = new kafka_clients::kafka_consumer_worker(bootstrap_server,topic_str,group_id_str,partition,cur_offset);

@@ -19,27 +19,27 @@
 cd /home/carma-streets/kafka_clients
 ls -a
 mkdir coverage
-kafka_clients_test
+./kafka_clients_test
 gcovr -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/scheduling_service
 ls -a
 mkdir coverage
-scheduling_service_test
+./scheduling_service_test
 gcovr -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/message_services
 ls -a
 mkdir coverage
-message_services_test
+./message_services_test
 gcovr -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/intersection_model
 ls -a
 mkdir coverage
-intersection_model_test
+./intersection_model_test
 gcovr -k -r .
 mv *.gcov coverage
