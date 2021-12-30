@@ -231,26 +231,8 @@ jobs:
         command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
          docker push usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,}
-  docker_build_push_intersection_model :
-   machine:
-    image: ubuntu-1604:202004-01
-   resource_class: large 
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-         docker build --network=host -t usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .         
-    
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-         echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,}        
-
    
-  docker_build_push_develop :
+  docker_build_push_develop_scheduling_service :
    machine:
     image: ubuntu-1604:202004-01
    steps:
@@ -258,22 +240,37 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-          docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .
-          docker build -t usdotfhwastoldev/message_services:latest -f message_services/Dockerfile .
-          docker build -t usdotfhwastoldev/intersection_model:latest -f intersection_model/Dockerfile .    
+          docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .   
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/scheduling_service:latest
+  docker_build_push_develop_message_service :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
+     - checkout
+     - run: 
+        name: Docker Build
+        command: |
+          docker build -t usdotfhwastoldev/message_services:latest -f message_services/Dockerfile .
+     - run: 
+        name: Docker Push
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
+        command: | 
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/message_services:latest
-          docker push usdotfhwastoldev/intersection_model:latest          
 workflows:
   version: 2
   build:
     jobs:
-      - docker_build_push_develop:
+      - docker_build_push_develop_scheduling_service:
+          filters:
+            branches:
+              only: develop
+      - docker_build_push_develop_message_service:
           filters:
             branches:
               only: develop
@@ -282,10 +279,6 @@ workflows:
            branches:
               ignore: develop
       - docker_build_push_message_service:
-          filters:
-           branches:
-              ignore: develop
-      - docker_build_push_intersection_model:
           filters:
            branches:
               ignore: develop
