@@ -14,8 +14,8 @@ namespace message_services
         bool vehicle_status_intent_service::initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_lanelet2_translate_ptr)
         {
             try
-            {
-                kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
+            {               
+                auto client = std::make_shared<kafka_clients::kafka_client>();
                 std::string file_path = std::string(MANIFEST_CONFIG_FILE_PATH);
                 rapidjson::Document doc = client->read_json_file(file_path);
 
@@ -68,8 +68,6 @@ namespace message_services
                 this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
                 this->CLEAN_QUEUE_IN_SECS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_SECS"));
 
-                delete client;
-
                 this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
 
                 return true;
@@ -86,19 +84,16 @@ namespace message_services
             if (_bsm_consumer_worker)
             {
                 _bsm_consumer_worker->stop();
-                delete _bsm_consumer_worker;
             }
 
             if (_mo_consumer_worker)
             {
                 _mo_consumer_worker->stop();
-                delete _mo_consumer_worker;
             }
 
             if (_mp_consumer_worker)
             {
                 _mp_consumer_worker->stop();
-                delete _mp_consumer_worker;
             }
         }
 
@@ -257,9 +252,8 @@ namespace message_services
             // Consuming MobilityPath messages
             std::thread vsi_mp_t{[mp_w_ptr, vsi_w_ptr, this]()
                                  {
-                                     kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
-                                     kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
-                                     delete client;
+                                    auto client = std::make_shared<kafka_clients::kafka_client>();
+                                    auto consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
 
                                      if (!consumer_worker->init())
                                      {
@@ -292,16 +286,14 @@ namespace message_services
                                          }
                                          consumer_worker->stop();
                                      }
-                                     delete consumer_worker;
                                  }};
 
             // Consuming MobilityOperation messages
             std::thread vsi_mo_t{[mo_w_ptr, vsi_w_ptr, this]()
                                  {
-                                     kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
-                                     kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(this->bootstrap_server, this->mo_topic_name, this->mo_group_id);
-                                     delete client;
-
+                                    auto client = std::make_shared<kafka_clients::kafka_client>();
+                                    auto consumer_worker = client->create_consumer(this->bootstrap_server, this->mo_topic_name, this->mo_group_id);
+                                    
                                      if (!consumer_worker->init())
                                      {
                                          spdlog::critical("kafka consumer initialize error");
@@ -333,16 +325,15 @@ namespace message_services
                                          }
                                          consumer_worker->stop();
                                      }
-                                     delete consumer_worker;
                                  }};
 
             // Consuming BSM messages
             std::thread vsi_bsm_t{[bsm_w_ptr, vsi_w_ptr, this]()
                                   {
-                                      kafka_clients::kafka_client *client = new kafka_clients::kafka_client();
-                                      kafka_clients::kafka_consumer_worker *consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
-                                      delete client;
-
+                                     
+                                    auto client = std::make_shared<kafka_clients::kafka_client>();
+                                    auto consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
+                                    
                                       if (!consumer_worker->init())
                                       {
                                           spdlog::critical("kafka consumer initialize error");
@@ -374,7 +365,6 @@ namespace message_services
                                           }
                                           consumer_worker->stop();
                                       }
-                                      delete consumer_worker;
                                   }};
 
             // Publishing Vehicle Status and Intent messages
@@ -584,7 +574,7 @@ namespace message_services
         }
 
         template <typename T>
-        void vehicle_status_intent_service::msg_consumer(std::shared_ptr<T> msg_w_ptr, kafka_clients::kafka_consumer_worker *consumer_worker)
+        void vehicle_status_intent_service::msg_consumer(std::shared_ptr<T> msg_w_ptr, std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker)
         {
             while (consumer_worker->is_running())
             {
@@ -605,7 +595,7 @@ namespace message_services
         }
 
         template <typename T>
-        void vehicle_status_intent_service::publish_msg(T msg, kafka_clients::kafka_producer_worker *producer_worker)
+        void vehicle_status_intent_service::publish_msg(T msg,  std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker)
         {
             std::string msg_to_send = "";
             msg_to_send = (char *)msg;

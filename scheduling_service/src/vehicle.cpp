@@ -6,7 +6,7 @@ using namespace rapidjson;
 
 
 /* */
-void vehicle::update(const rapidjson::Document& message, intersection_client& localmap, configuration& config){
+void vehicle::update(const rapidjson::Document& message, intersection_client& localmap, const configuration& config){
 	
 	/* the main function will check whether veh_id is included in the message or not
 	*  if it is not included, this function cannot be executed!
@@ -226,7 +226,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 						}
 						else{
 
-							future_information fi;
+							fi = future_information();
 
 							fi.timestamp = (double)message["payload"]["est_paths"][i]["ts"].GetInt64() / 1000;
 
@@ -247,7 +247,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 								fi.acceleration = (fi.speed - future_info[future_info.size() - 1].speed) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
 							}
 
-							// spdlog::info("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
+							spdlog::debug("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
 							future_info.push_back(fi);
 						}
 					}
@@ -319,79 +319,79 @@ bool vehicle::message_hasError(const Document& message, intersection_client& loc
 }
 
 /* */
-string vehicle::get_id(){return id;};
+string vehicle::get_id() const {return id;};
 
 /* */
-double vehicle::get_length(){return length;}
+double vehicle::get_length() const {return length;}
 
 /* */
-double vehicle::get_minGap(){return min_gap;}
+double vehicle::get_minGap() const {return min_gap;}
 
 /* */
-double vehicle::get_reactionT(){return reaction_time;}
+double vehicle::get_reactionT() const {return reaction_time;}
 
 /* */
-double vehicle::get_accelMax(){return accel_max;}
+double vehicle::get_accelMax() const {return accel_max;}
 
 /* */
-double vehicle::get_decelMax(){return decel_max;}
+double vehicle::get_decelMax() const {return decel_max;}
 
 /* */
-string vehicle::get_direction(){return direction;}
+string vehicle::get_direction() const {return direction;}
 
 /* */
-string vehicle::get_entryLaneID(){return entryLane_id;}
+string vehicle::get_entryLaneID() const {return entryLane_id;}
 
 /* */
-string vehicle::get_exitLaneID(){return exitLane_id;}
+string vehicle::get_linkID() const {return link_id;}
 
 /* */
-string vehicle::get_linkID(){return link_id;}
+string vehicle::get_exitLaneID() const {return exitLane_id;}
 
 /* */
-int vehicle::get_linkPriority(){return link_priority;}
+int vehicle::get_linkPriority() const {return link_priority;}
 
 /* */
-int vehicle::get_departurePosition(){return departurePosition_index;}
+int vehicle::get_departurePosition() const {return departurePosition_index;}
 
 /* */
-int vehicle::get_flexET(){return flexibility_ET;}
+int vehicle::get_flexET() const {return flexibility_ET;}
 
 /* */
-double vehicle::get_flexST(){return flexibility_ST;}
+double vehicle::get_flexST() const {return flexibility_ST;}
 
 /* */
-bool vehicle::get_access(){return access;}
+bool vehicle::get_access() const {return access;}
 
 /* */
-double vehicle::get_actualST(){return st_actual;}
+double vehicle::get_actualST() const {return st_actual;}
 
 /* */
-double vehicle::get_actualET(){return et_actual;}
+double vehicle::get_actualET() const {return et_actual;}
 
 /* */
-double vehicle::get_actualDT(){return dt_actual;}
+double vehicle::get_actualDT() const {return dt_actual;}
 
 /* */
-double vehicle::get_curTime(){return timestamp;}
+double vehicle::get_curTime() const {return timestamp;}
 
 /* */
-double vehicle::get_curDistance(){return distance;}
+double vehicle::get_curDistance() const {return distance;}
 
 /* */
-double vehicle::get_curSpeed(){return speed;}
+double vehicle::get_curSpeed() const {return speed;}
 
 /* */
-double vehicle::get_curAccel(){return acceleration;}
+double vehicle::get_curAccel() const {return acceleration;}
 
 /* */
-string vehicle::get_curLaneID(){return lane_id;}
+string vehicle::get_curLaneID() const {return lane_id;}
 
 /* */
-string vehicle::get_curState(){return state;}
+string vehicle::get_curState() const {return state;}
 
 /* */
-vector<future_information> vehicle::get_futureInfo(){return future_info;}
+vector<future_information> vehicle::get_futureInfo() const {return future_info;}
 
 /* */
 void vehicle::set_departurePosition(int pos_index){

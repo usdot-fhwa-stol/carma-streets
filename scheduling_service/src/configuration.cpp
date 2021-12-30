@@ -67,25 +67,25 @@ configuration::configuration(){
 }
 
 /* */
-double configuration::get_schedulingDelta(){return scheduling_delta;}
+double configuration::get_schedulingDelta() const {return scheduling_delta;}
 
 /* */
-double configuration::get_lastSchedulingT(){return last_schedule_start_time;}
+double configuration::get_lastSchedulingT() const {return last_schedule_start_time;}
 
 /* */
-double configuration::get_curSchedulingT(){return cur_schedule_start_time;}
+double configuration::get_curSchedulingT() const {return cur_schedule_start_time;}
 
 /* */
-double configuration::get_expDelta(){return update_expiration_delta;}
+double configuration::get_expDelta() const {return update_expiration_delta;}
 
 /* */
-double configuration::get_stopDistance(){return stopping_distance;}
+double configuration::get_stopDistance() const {return stopping_distance;}
 
 /* */
-double configuration::get_stopSpeed(){return stopping_speed;}
+double configuration::get_stopSpeed() const {return stopping_speed;}
 
 /* */
-double configuration::get_maxValidSpeed(){return max_valid_speed;}
+double configuration::get_maxValidSpeed() const {return max_valid_speed;}
 
 /* */
 void configuration::set_lastSchedulingT(double t){last_schedule_start_time = t;}
