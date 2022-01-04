@@ -23,7 +23,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_D
 
 
 add_library(${PROJECT_NAME}_lib 
-            src/services/mobiliy_operation_service.cpp
             src/services/vehicle_status_intent_service.cpp 
             src/workers/bsm_worker.cpp 
             src/workers/mobilitypath_worker.cpp  
