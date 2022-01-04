@@ -126,10 +126,10 @@ TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end)
     //Position within the entry lanelet
     ASSERT_NEAR(17.881, clt.distance2_cur_lanelet_end(38.9547239, -77.1494634, 72, "", trajectory), 0.01);
     ASSERT_NEAR(7.12777, clt.distance2_cur_lanelet_end(38.9548053, -77.1494077, 72, "", trajectory), 0.01);
-    ASSERT_NEAR(6.08981, clt.distance2_cur_lanelet_end(38.9548115, -77.1494016, 72, "", trajectory), 0.01);
+    ASSERT_NEAR(6.3494, clt.distance2_cur_lanelet_end(38.9548115, -77.1494016, 72, "", trajectory), 0.01);
 
     //Position within the departure lanelet
-    ASSERT_NEAR(137.707, clt.distance2_cur_lanelet_end(38.9549304, -77.1491166, 72, "", trajectory), 0.01);
+    ASSERT_NEAR(137.958, clt.distance2_cur_lanelet_end(38.9549304, -77.1491166, 72, "", trajectory), 0.01);
     ASSERT_NEAR(135.699, clt.distance2_cur_lanelet_end(38.9549256, -77.1490945, 72, "", trajectory), 0.01);
 }
 
