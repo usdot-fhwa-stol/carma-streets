@@ -359,8 +359,8 @@ namespace message_services
         {
             while (consumer_worker->is_running())
             {
-                const char *payload = consumer_worker->consume(1000);
-                if (payload != nullptr && std::strlen(payload) != 0 && msg_w_ptr)
+                const std::string payload = consumer_worker->consume(1000);
+                if (payload.length() != 0 && msg_w_ptr)
                 {
                     std::unique_lock<std::mutex> lck(worker_mtx);
                     msg_w_ptr->process_incoming_msg(payload);
