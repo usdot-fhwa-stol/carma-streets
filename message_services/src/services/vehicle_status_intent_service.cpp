@@ -104,7 +104,6 @@ namespace message_services
             std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr = std::make_shared<message_services::workers::mobilityoperation_worker>();
             std::shared_ptr<message_services::workers::vehicle_status_intent_worker> vsi_w_ptr = std::make_shared<message_services::workers::vehicle_status_intent_worker>();
             run(bsm_w_ptr, mp_w_ptr, mo_w_ptr);
-            // run(vsi_w_ptr, bsm_w_ptr, mp_w_ptr, mo_w_ptr);
         }
 
         void vehicle_status_intent_service::run(std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr,
@@ -214,7 +213,7 @@ namespace message_services
                                 spdlog::info("Clean the BSM...");
                                 for (auto itr = bsm_w_ptr->get_curr_map().cbegin(); itr != bsm_w_ptr->get_curr_map().cend();)
                                 {
-                                    if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 60 * 1000))
+                                    if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                                     {
                                         std::unique_lock<std::mutex> lck(worker_mtx);
                                         bsm_w_ptr->get_curr_map().erase(itr++);
@@ -237,225 +236,7 @@ namespace message_services
             mp_t.join();
             mo_t.join();
             bsm_t.join();
-        }
-
-        /**
-         * //a global Map key vehicle id, if (timestamp diff)_> update with bsm id to correlate messages.
-         * Only add when the vehicle id does not exist
-            //Pull at 10HZ and publish leave all entries; have not yet updated (timestamp now -> bsm timestamp) in 10 secs
-        ***/
-        void vehicle_status_intent_service::run(std::shared_ptr<workers::vehicle_status_intent_worker> vsi_w_ptr,
-                                                std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr,
-                                                std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr,
-                                                std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr)
-        {
-            // Consuming MobilityPath messages
-            std::thread vsi_mp_t{[mp_w_ptr, vsi_w_ptr, this]()
-                                 {
-                                    auto client = std::make_shared<kafka_clients::kafka_client>();
-                                    auto consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
-
-                                     if (!consumer_worker->init())
-                                     {
-                                         spdlog::critical("kafka consumer initialize error");
-                                     }
-                                     else
-                                     {
-                                         consumer_worker->subscribe();
-                                         if (!consumer_worker->is_running())
-                                         {
-                                             spdlog::critical("consumer_worker is not running");
-                                         }
-
-                                         while (consumer_worker->is_running())
-                                         {
-                                             const char *payload = consumer_worker->consume(1000);
-                                             // spdlog::info("bsm message payload: {0}", payload);
-                                             if (std::strlen(payload) != 0 && mp_w_ptr)
-                                             {
-                                                 //  std::unique_lock<std::mutex> lck(worker_mtx);
-                                                 mp_w_ptr->process_incoming_msg(payload);
-                                                 vsi_w_ptr->update_insert_by_incoming_mobilitypath_msg(mp_w_ptr->get_curr_list().back());
-                                                 mp_w_ptr->pop_cur_element_from_list(0);
-                                             }
-
-                                             if (!mp_w_ptr)
-                                             {
-                                                 spdlog::critical("Message worker is not initialized");
-                                             }
-                                         }
-                                         consumer_worker->stop();
-                                     }
-                                 }};
-
-            // Consuming MobilityOperation messages
-            std::thread vsi_mo_t{[mo_w_ptr, vsi_w_ptr, this]()
-                                 {
-                                    auto client = std::make_shared<kafka_clients::kafka_client>();
-                                    auto consumer_worker = client->create_consumer(this->bootstrap_server, this->mo_topic_name, this->mo_group_id);
-                                    
-                                     if (!consumer_worker->init())
-                                     {
-                                         spdlog::critical("kafka consumer initialize error");
-                                     }
-                                     else
-                                     {
-                                         consumer_worker->subscribe();
-                                         if (!consumer_worker->is_running())
-                                         {
-                                             spdlog::critical("consumer_worker is not running");
-                                         }
-
-                                         while (consumer_worker->is_running())
-                                         {
-                                             const char *payload = consumer_worker->consume(1000);
-                                             // spdlog::info("bsm message payload: {0}", payload);
-                                             if (std::strlen(payload) != 0 && mo_w_ptr)
-                                             {
-                                                 std::unique_lock<std::mutex> lck(worker_mtx);
-                                                 mo_w_ptr->process_incoming_msg(payload);
-                                                 vsi_w_ptr->update_insert_by_incoming_mobilityoperation_msg(mo_w_ptr->get_curr_list().back());
-                                                 mo_w_ptr->pop_cur_element_from_list(0);
-                                             }
-
-                                             if (!mo_w_ptr)
-                                             {
-                                                 spdlog::critical("Message worker is not initialized");
-                                             }
-                                         }
-                                         consumer_worker->stop();
-                                     }
-                                 }};
-
-            // Consuming BSM messages
-            std::thread vsi_bsm_t{[bsm_w_ptr, vsi_w_ptr, this]()
-                                  {
-                                     
-                                    auto client = std::make_shared<kafka_clients::kafka_client>();
-                                    auto consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
-                                    
-                                      if (!consumer_worker->init())
-                                      {
-                                          spdlog::critical("kafka consumer initialize error");
-                                      }
-                                      else
-                                      {
-                                          consumer_worker->subscribe();
-                                          if (!consumer_worker->is_running())
-                                          {
-                                              spdlog::critical("consumer_worker is not running");
-                                          }
-
-                                          while (consumer_worker->is_running())
-                                          {
-                                              const char *payload = consumer_worker->consume(1000);
-                                              // spdlog::info("bsm message payload: {0}", payload);
-                                              if (std::strlen(payload) != 0 && bsm_w_ptr)
-                                              {
-                                                  std::unique_lock<std::mutex> lck(worker_mtx);
-                                                  bsm_w_ptr->process_incoming_msg(payload);
-                                                  vsi_w_ptr->update_by_incoming_bsm_msg(bsm_w_ptr->get_curr_list().back());
-                                                  bsm_w_ptr->pop_cur_element_from_list(0);
-                                              }
-
-                                              if (!bsm_w_ptr)
-                                              {
-                                                  spdlog::critical("Message worker is not initialized");
-                                              }
-                                          }
-                                          consumer_worker->stop();
-                                      }
-                                  }};
-
-            // Publishing Vehicle Status and Intent messages
-            std::thread vsi_t{[vsi_w_ptr, this]()
-                              {
-                                  while (true)
-                                  {
-                                      if (vsi_w_ptr->get_curr_map().size() > 0)
-                                      {
-                                          std::unique_lock<std::mutex> lck(worker_mtx);
-                                          std::map<std::string, models::vehicle_status_intent>::iterator itr = vsi_w_ptr->get_curr_map().begin();
-                                          while (itr != vsi_w_ptr->get_curr_map().end())
-                                          {
-                                              std::string msg_to_pub = itr->second.asJson();
-                                              this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
-                                              spdlog::info("vsi_t msg_to_pub: {0} ", msg_to_pub);
-                                              ++itr;
-                                          }
-                                      }
-                                      sleep(0.1);
-                                  }
-                              }};
-
-            vsi_t.join();
-            vsi_mp_t.join();
-            vsi_mo_t.join();
-            vsi_bsm_t.join();
-        }
-
-        bool vehicle_status_intent_service::identify_latest_mapping_bsm_mp_by_mo(std::shared_ptr<workers::bsm_worker> bsm_w_ptr,
-                                                                                 std::shared_ptr<workers::mobilitypath_worker> mp_w_ptr,
-                                                                                 std::shared_ptr<models::bsm> bsm_ptr,
-                                                                                 std::shared_ptr<models::mobilityoperation> mo_ptr,
-                                                                                 std::shared_ptr<models::mobilitypath> mp_ptr)
-        {
-            try
-            {
-                // Checking timestamp and vehicle id to find mobilitypath
-                long mp_pos = 0;
-                bool is_mp_mapping_found = false;
-                bool is_bsm_mapping_found = false;
-                spdlog::info("Current mobilityPath list SIZE = {0}", mp_w_ptr->get_curr_list().size());
-                spdlog::info("Current BSM list SIZE = {0}", bsm_w_ptr->get_curr_list().size());
-                while (mp_w_ptr && mp_ptr && mo_ptr && !mp_w_ptr->get_curr_list().empty() && mp_pos < mp_w_ptr->get_curr_list().size())
-                {
-                    spdlog::debug("debug mp start {0}", mp_w_ptr->get_curr_list().size());
-                    std::string mp_vehicle_id = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().sender_id;
-                    uint64_t mp_timestamp = mp_w_ptr->get_curr_list().at(mp_pos).getHeader().timestamp;
-                    spdlog::debug("mo_timestamp {0}", (long)mo_ptr->getHeader().timestamp);
-                    spdlog::debug("mp_timestamp {0}", (long)mp_timestamp);
-
-                    // Mapping MobilityOperation and MobilityPath timestamp duration within MOBILITY_OPERATION_PATH_MAX_DURATION ms.
-                    if (mo_ptr->getHeader().sender_id == mp_vehicle_id && std::abs((long)mo_ptr->getHeader().timestamp - (long)mp_timestamp) <= MOBILITY_OPERATION_PATH_MAX_DURATION)
-                    {
-                        spdlog::debug("debug mp during {0}", mp_w_ptr->get_curr_list().size());
-                        mp_ptr->setHeader(mp_w_ptr->get_curr_list().at(mp_pos).getHeader());
-                        mp_ptr->setTrajectory(mp_w_ptr->get_curr_list().at(mp_pos).getTrajectory());
-                        mp_w_ptr->pop_cur_element_from_list(mp_pos); // The deque size shrik every time we call a pop element
-                        is_mp_mapping_found = true;
-                        spdlog::debug("debug mp end {0}", mp_w_ptr->get_curr_list().size());
-                        continue;
-                    }
-                    mp_pos++;
-                }
-
-                // checking msg_count and BSM ID for this BSM
-                long bsm_pos = 0;
-                while (is_mp_mapping_found && bsm_w_ptr && bsm_ptr && mo_ptr && !bsm_w_ptr->get_curr_list().empty() && bsm_pos < bsm_w_ptr->get_curr_list().size())
-                {
-                    spdlog::debug("debug bsm start {0}", bsm_w_ptr->get_curr_list().size());
-
-                    // Mapping MobilityOperation and BSM msg_count maximum allowed differences.
-                    if (mo_ptr->getHeader().sender_bsm_id == bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().temprary_id && std::abs(std::stol(mo_ptr->get_value_from_strategy_params("msg_count")) - (long)bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data().msg_count) <= MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET)
-                    {
-                        spdlog::debug("debug bsm during {0}", bsm_w_ptr->get_curr_list().size());
-                        bsm_ptr->setCore_data(bsm_w_ptr->get_curr_list().at(bsm_pos).getCore_data());
-                        bsm_w_ptr->pop_cur_element_from_list(bsm_pos); // The deque size shrik every time we call a pop element
-                        is_bsm_mapping_found = true;
-                        spdlog::debug("debug bsm end {0}", bsm_w_ptr->get_curr_list().size());
-                        continue;
-                    }
-                    bsm_pos++;
-                }
-                return is_bsm_mapping_found && is_mp_mapping_found;
-            }
-            catch (...)
-            {
-                spdlog::critical("Identify latest mapping bsm mp and mo throw exception");
-                return false;
-            }
-        }
+        }     
 
         models::vehicle_status_intent vehicle_status_intent_service::compose_vehicle_status_intent(models::bsm &bsm,
                                                                                                    models::mobilityoperation &mo,
@@ -579,7 +360,6 @@ namespace message_services
             while (consumer_worker->is_running())
             {
                 const char *payload = consumer_worker->consume(1000);
-                // spdlog::info("bsm message payload: {0}", payload);
                 if (payload != nullptr && std::strlen(payload) != 0 && msg_w_ptr)
                 {
                     std::unique_lock<std::mutex> lck(worker_mtx);
