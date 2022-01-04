@@ -32,6 +32,7 @@ jobs:
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
+    resource_class: large 
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
@@ -47,7 +48,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
             
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
@@ -85,6 +86,66 @@ jobs:
             cd /home/carma-streets/ext/rapidjson/build
             cmake .. && make -j
             make install
+
+            # Install qhttpengine
+            cd /home/carma-streets/ext
+            git clone https://github.com/etherealjoy/qhttpengine.git
+            cd /home/carma-streets/ext/qhttpengine/
+            mkdir build
+            cd /home/carma-streets/ext/qhttpengine/build
+            cmake .. && make -j
+            make install
+
+            # Install PROJ, a package for coordinate transformations
+            git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
+            cd /home/carma-streets/PROJ && \
+            ./autogen.sh && \
+            ./configure  && \
+            make && \
+            make install
+            
+            export DEBIAN_FRONTEND=noninteractive
+
+            # Download a cmake module for PROJ
+            cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
+            apt update 
+            apt install -y lsb-release
+            sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+            curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+
+            apt-get update && \
+            apt-get install -y ros-melodic-catkin
+
+            cd /opt/ros/melodic/
+            ls -a
+            
+
+            cd /home/carma-streets/
+            mkdir carma_lanelet2 && \
+            cd carma_lanelet2 && \
+            mkdir src && \
+            cd src && \
+            git init && \
+            echo "temp" && \
+            git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git && \
+            git config core.sparsecheckout true	&& \
+            echo "common/hardcoded_params/*" >> .git/info/sparse-checkout && \
+            echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout && \
+            echo "lanelet2/*" >> .git/info/sparse-checkout && \
+            echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout && \
+            git pull --depth 1 origin refactor_lanelet2_extension && \
+            git checkout refactor_lanelet2_extension && \
+            rm -r lanelet2/lanelet2_python && \
+            rm -r lanelet2/lanelet2_examples
+
+            cd /home/carma-streets/carma_lanelet2
+            source /opt/ros/melodic/setup.bash && \
+            apt-get install -y python-rospkg && \
+            apt-get install -y libeigen3-dev && \
+            ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
+
+            cd /home/carma-streets/carma_lanelet2/install/
+            ls -a
             
             cd /home/carma-streets
             mkdir .base-image
@@ -104,7 +165,11 @@ jobs:
             rm $SONAR_DIR/build-wrapper.zip
             mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
+
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
+            echo "source /opt/ros/melodic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
+            echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
+            cat /home/carma-streets/.base-image/init-env.sh
       - run:
           name: Build source code & Run Tests & Generate Gcovr Reports
           command: |
@@ -133,25 +198,40 @@ jobs:
               cd /home/carma-streets/
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
             fi 
-  docker_build_push :
+  docker_build_push_scheduling_service :
    machine:
     image: ubuntu-1604:202004-01
+   resource_class: large 
    steps:
      - checkout
      - run: 
         name: Docker Build
         command: |
-         docker build --network=host -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .
+         docker build -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .         
     
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}
-    
-   
-  docker_build_push_develop :
+         docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}   
+  docker_build_push_message_service :
+   machine:
+    image: ubuntu-1604:202004-01
+   resource_class: large 
+   steps:
+     - checkout
+     - run: 
+        name: Docker Build
+        command: |
+         docker build -t usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,} -f message_services/Dockerfile .
+     - run: 
+        name: Docker Push
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
+        command: | 
+         echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+         docker push usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,}
+  docker_build_push_intersection_model :
    machine:
     image: ubuntu-1604:202004-01
    steps:
@@ -159,23 +239,84 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-          docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .
-    
+          docker build -t usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .
+     - run: 
+        name: Docker Push
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
+        command: | 
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+          docker push usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,}
+   
+  docker_build_push_develop_scheduling_service :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
+     - checkout
+     - run: 
+        name: Docker Build
+        command: |
+          docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .   
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
           docker push usdotfhwastoldev/scheduling_service:latest
+  docker_build_push_develop_message_service :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
+     - checkout
+     - run: 
+        name: Docker Build
+        command: |
+          docker build -t usdotfhwastoldev/message_services:latest -f message_services/Dockerfile .
+     - run: 
+        name: Docker Push
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
+        command: | 
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+          docker push usdotfhwastoldev/message_services:latest
+  docker_build_push_develop_intersection_model :
+   machine:
+    image: ubuntu-1604:202004-01
+   steps:
+     - checkout
+     - run: 
+        name: Docker Build
+        command: |
+          docker build -t usdotfhwastoldev/intersection_model:latest -f intersection_model/Dockerfile .
+     - run: 
+        name: Docker Push
+        # Push carma-streets docker image to usdotfhwastoldev dockerhub
+        command: | 
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+          docker push usdotfhwastoldev/intersection_model:latest
 workflows:
   version: 2
   build:
     jobs:
-      - docker_build_push_develop:
+      - docker_build_push_develop_scheduling_service:
           filters:
             branches:
               only: develop
-      - docker_build_push:
+      - docker_build_push_develop_message_service:
+          filters:
+            branches:
+              only: develop
+      - docker_build_push_develop_intersection_model:
+          filters:
+            branches:
+              only: develop
+      - docker_build_push_scheduling_service:
+          filters:
+           branches:
+              ignore: develop
+      - docker_build_push_message_service:
+          filters:
+           branches:
+              ignore: develop
+      - docker_build_push_intersection_model:
           filters:
            branches:
               ignore: develop

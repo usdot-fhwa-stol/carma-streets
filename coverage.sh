@@ -16,60 +16,30 @@
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
 
-for d in kafka_clients/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-	    gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
-for d in scheduling_service/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep [a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-            gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
-for d in message_services/*
-do
-    echo ""
-    echo $d
-    if [[ -d $d ]]; then
-        if ls $d | grep run[a-zA-Z]*_test ; then
-            TESTS="./`ls $d | grep run[a-zA-Z]*_test`"
-            echo "$TESTS built"
-            cd $d
-            $TESTS
-            mkdir coverage
-            gcovr -k -r .
-            mv *.gcov coverage
-            cd ../..
-        else
-            echo "no tests built"
-        fi
-    fi
-done
+cd /home/carma-streets/kafka_clients
+ls -a
+mkdir coverage
+./kafka_clients_test
+gcovr -k -r .
+mv *.gcov coverage
+
+cd /home/carma-streets/scheduling_service
+ls -a
+mkdir coverage
+./scheduling_service_test
+gcovr -k -r .
+mv *.gcov coverage
+
+cd /home/carma-streets/message_services
+ls -a
+mkdir coverage
+./message_services_test
+gcovr -k -r .
+mv *.gcov coverage
+
+cd /home/carma-streets/intersection_model
+ls -a
+mkdir coverage
+./intersection_model_test
+gcovr -k -r .
+mv *.gcov coverage
