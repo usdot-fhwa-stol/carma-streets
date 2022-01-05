@@ -21,7 +21,7 @@ ls -a
 ./kafka_clients_test
 cd /home/carma-streets/kafka_clients/
 mkdir coverage
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/scheduling_service/build/
@@ -29,7 +29,7 @@ ls -a
 ./scheduling_service_test
 cd /home/carma-streets/scheduling_service/build/
 mkdir coverage
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/message_services/build/
@@ -45,5 +45,5 @@ ls -a
 ./intersection_model_test
 cd /home/carma-streets/intersection_model/build/
 mkdir coverage
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
