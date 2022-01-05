@@ -456,9 +456,9 @@ void call_consumer_thread()
                 list_veh_removal.clear();
             } 
 
-            const char* paylod= consumer_worker->consume(1000);
+            const std::string payload = consumer_worker->consume(1000);
 
-            if(paylod != nullptr && strlen(paylod) > 0)
+            if(payload.length() > 0)
             {
 
                 
@@ -467,7 +467,7 @@ void call_consumer_thread()
                 *   note: 
                 *   
                 */
-                consumer_update(paylod);
+                consumer_update(payload.c_str());
 
                 
             }

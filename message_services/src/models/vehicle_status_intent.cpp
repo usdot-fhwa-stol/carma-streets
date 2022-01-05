@@ -159,7 +159,8 @@ namespace message_services
 
         std::ostream &operator<<(std::ostream &out, vehicle_status_intent &vehicle_status_intent_obj)
         {
-            std::cout << "vehicle_status_intent model: vehicle_id  = " << vehicle_status_intent_obj.vehicle_id << ", current_timestamp = " << vehicle_status_intent_obj.cur_timestamp << ", bsm_id =" << vehicle_status_intent_obj.bsm_id << ", current speed= " << vehicle_status_intent_obj.cur_speed << std::endl;
+            out << "vehicle_status_intent model: vehicle_id  = " << vehicle_status_intent_obj.vehicle_id << ", current_timestamp = " << vehicle_status_intent_obj.cur_timestamp << ", bsm_id =" << vehicle_status_intent_obj.bsm_id << ", current speed= " << vehicle_status_intent_obj.cur_speed << std::endl;
+            return out;
         }
 
         //getters and setters

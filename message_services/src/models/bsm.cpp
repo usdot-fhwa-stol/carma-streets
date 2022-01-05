@@ -209,11 +209,12 @@ namespace message_services
 
         std::ostream &operator<<(std::ostream &out, bsm &bsm_obj)
         {
-            std::cout << std::fixed;
-            std::cout << std::setprecision(6);
-            std::cout << "bsm model: core_data: { temprary_id = " << bsm_obj.core_data.temprary_id << ", sec_mark = " << bsm_obj.core_data.sec_mark
+            out << std::fixed;
+            out << std::setprecision(6);
+            out << "bsm model: core_data: { temprary_id = " << bsm_obj.core_data.temprary_id << ", sec_mark = " << bsm_obj.core_data.sec_mark
                       << ", latitude= " << bsm_obj.core_data.latitude << ", longitude = " << bsm_obj.core_data.longitude
                       << ", size: {length = " << bsm_obj.core_data.size.length << "}, speed = " << bsm_obj.core_data.speed << "}" << std::endl;
+            return out;
         }
 
         std::string bsm::generate_hash_bsm_msg_id(std::string temprary_id, long msg_count, long sec_mark)

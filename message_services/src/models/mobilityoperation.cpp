@@ -150,13 +150,14 @@ namespace message_services
 
         std::ostream &operator<<(std::ostream &out, mobilityoperation &mobilityoperation_obj)
         {
-            std::cout << std::fixed;
-            std::cout << std::setprecision(6);
-            std::cout << "mobilityoperation model: sender_id =  " << mobilityoperation_obj.header.sender_id
+            out << std::fixed;
+            out << std::setprecision(6);
+            out << "mobilityoperation model: sender_id =  " << mobilityoperation_obj.header.sender_id
                       << ", sender_bsm_id =" << mobilityoperation_obj.header.sender_bsm_id
                       << ", timestamp = " << mobilityoperation_obj.header.timestamp
                       << ", sender id = " << mobilityoperation_obj.header.sender_id << ", strategy= " << mobilityoperation_obj.strategy
                       << ", strategy_params= " << mobilityoperation_obj.strategy_params << std::endl;
+            return out;
         }
 
         mobility_header_t mobilityoperation::getHeader() const

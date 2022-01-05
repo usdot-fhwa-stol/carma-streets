@@ -172,14 +172,15 @@ namespace message_services
 
         std::ostream &operator<<(std::ostream &out, mobilitypath &mobilitypath_obj)
         {
-            std::cout << std::fixed;
-            std::cout << std::setprecision(6);
-            std::cout << "mobilitypath model: sender_id =  " << mobilitypath_obj.header.sender_id
+            out << std::fixed;
+            out << std::setprecision(6);
+            out << "mobilitypath model: sender_id =  " << mobilitypath_obj.header.sender_id
                       << ", sender_bsm_id =" << mobilitypath_obj.header.sender_bsm_id
                       << ", timestamp = " << mobilitypath_obj.header.timestamp
                       << ", location = { ecef_x= " << mobilitypath_obj.trajectory.location.ecef_x << ", ecef_y= "
                       << mobilitypath_obj.trajectory.location.ecef_y << ", ecef_z= " << mobilitypath_obj.trajectory.offsets[0].offset_x << ", offsets = { offset_x= " << mobilitypath_obj.trajectory.location.ecef_x << ", ecef_y= "
                       << mobilitypath_obj.trajectory.offsets[0].offset_y << ", offset_z= " << mobilitypath_obj.trajectory.offsets[0].offset_z << "}" << std::endl;
+            return out;
         }
 
         std::string mobilitypath::generate_hash_sender_timestamp_id(std::string sender_bsm_id, uint64_t timestamp)
