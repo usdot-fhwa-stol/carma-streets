@@ -41,7 +41,7 @@ make install
 
 cd /home/carma-streets/intersection_model
 mkdir build
-cd /home/carma-streets/scheduling_service/build
+cd /home/carma-streets/intersection_model/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
 make install
