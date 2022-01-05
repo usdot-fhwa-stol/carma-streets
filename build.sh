@@ -18,27 +18,37 @@
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
-cd /home/carma-streets/kafka_clients 
-cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
+cd /home/carma-streets/kafka_clients
+mkdir build
+cd /home/carma-streets/kafka_clients/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
 make install
 
 cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
-cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
+mkdir build
+cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
 make install
 
 cd /home/carma-streets/scheduling_service
+mkdir build
+cd /home/carma-streets/scheduling_service/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
 
 cd /home/carma-streets/intersection_model
+mkdir build
+cd /home/carma-streets/scheduling_service/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
 
 cd /home/carma-streets/message_services
+mkdir build
+cd /home/carma-streets/message_services/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" .
 make
 make install
