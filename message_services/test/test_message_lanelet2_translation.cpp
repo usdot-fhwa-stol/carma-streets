@@ -6,19 +6,19 @@
 TEST(test_message_lanelet2_translation, read_lanelet2_map)
 {
     message_services::message_translations::message_lanelet2_translation clt;
-    ASSERT_TRUE(clt.read_lanelet2_map("../vector_map.osm"));
+    ASSERT_TRUE(clt.read_lanelet2_map("../test_map.osm"));
     ASSERT_FALSE(clt.read_lanelet2_map("../fake_map_path.osm"));
 }
 
 TEST(test_message_lanelet2_translation, update_vehicle_routing_graph)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     ASSERT_TRUE(clt.update_vehicle_routing_graph());
 }
 
 TEST(test_message_lanelet2_translation, get_cur_lanelet_id_by_loc_and_direction)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     message_services::models::trajectory trajectory;
 
     //Position within the link lanelet with proper turn direction
@@ -65,7 +65,7 @@ TEST(test_message_lanelet2_translation, get_cur_lanelet_id_by_point_and_directio
 
 TEST(test_message_lanelet2_translation, get_cur_lanelets_by_point)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
 
     //Position within the entry lanelet return 1 lanelet
     lanelet::Point3d point3d = {lanelet::utils::getId(), {-89.162, 316.702, 72}};
@@ -87,7 +87,7 @@ TEST(test_message_lanelet2_translation, get_cur_lanelets_by_point)
 
 TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end_point)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     message_services::models::trajectory trajectory;
 
     //Position within the link lanelet with turn direction
@@ -115,7 +115,7 @@ TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end_point)
 
 TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     message_services::models::trajectory trajectory;
 
     //Position within the link lanelet with turn direction
@@ -135,7 +135,7 @@ TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end)
 
 TEST(test_message_lanelet2_translation, get_lanelet_types_ids_by_route)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     
     //From lanelet id = 19252  (entry lanelet) to lanelet id = 19252 (entry lanelet)
     std::int64_t start_lanelet_id = 19252;
@@ -171,7 +171,7 @@ TEST(test_message_lanelet2_translation, get_lanelet_types_ids_by_route)
 
 TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_trajectory)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     message_services::models::trajectory trajectory;
     message_services::models::locationECEF location;
     message_services::models::locationOffsetECEF_t offset;
@@ -235,7 +235,7 @@ TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_traject
 
 TEST(test_message_lanelet2_translation, ecef_2_map_point)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
     message_services::models::trajectory trajectory;
     message_services::models::locationECEF location;
     message_services::models::locationOffsetECEF_t offset;
