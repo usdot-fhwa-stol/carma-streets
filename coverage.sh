@@ -16,9 +16,12 @@
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
 
+cd /home/carma-streets
+mkdir test_results
+
 cd /home/carma-streets/kafka_clients/build/
 ls -a
-./kafka_clients_test
+./kafka_clients_test --gtest_output=xml
 cd /home/carma-streets/kafka_clients/
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
@@ -26,15 +29,15 @@ mv *.gcov coverage
 
 cd /home/carma-streets/scheduling_service/build/
 ls -a
-./scheduling_service_test
-cd /home/carma-streets/scheduling_service/build/
+./scheduling_service_test --gtest_output=xml
+cd /home/carma-streets/scheduling_service/
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/message_services/build/
 ls -a
-./message_services_test
+./message_services_test --gtest_output=xml
 cd /home/carma-streets/message_services/
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
@@ -42,8 +45,8 @@ mv *.gcov coverage
 
 cd /home/carma-streets/intersection_model/build/
 ls -a
-./intersection_model_test
+./intersection_model_test --gtest_output=xml
 cd /home/carma-streets/intersection_model/
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server --exclude=./build/src/ -k -r .
 mv *.gcov coverage
