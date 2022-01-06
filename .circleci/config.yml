@@ -177,6 +177,8 @@ jobs:
             cd /home/carma-streets/
             build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output bash build.sh
             ./coverage.sh
+      - store_test_results:
+          path: test_results
       - run:
           name: Run Sonar Scanner
           command: |
