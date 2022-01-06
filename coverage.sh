@@ -39,6 +39,7 @@ cd /home/carma-streets/message_services/build/
 ls -a
 ./message_services_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/message_services/
+ls -a
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
@@ -47,6 +48,7 @@ cd /home/carma-streets/intersection_model/build/
 ls -a
 ./intersection_model_test ---gtest_output=xml:../../test_results/
 cd /home/carma-streets/intersection_model/
+ls -a
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server --exclude=./build/src/ -k -r .
 mv *.gcov coverage
