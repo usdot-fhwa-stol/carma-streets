@@ -43,7 +43,7 @@ mv *.gcov coverage
 cd /home/carma-streets/intersection_model/build/
 ls -a
 ./intersection_model_test
-cd /home/carma-streets/intersection_model/build/
+cd /home/carma-streets/intersection_model/
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server -k -r .
 mv *.gcov coverage
