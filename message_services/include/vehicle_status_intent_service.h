@@ -46,7 +46,7 @@ namespace message_services
             std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
 
             //Mapping MobilityOperation and MobilityPath timestamp duration within 100 ms.
-            std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 100; 
+            std::int32_t MOBILITY_OPERATION_PATH_MAX_DURATION = 1000; 
 
             //The duration between the offset points in mobilitypath message. Default duration is MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION * 100 (milliseconds)
             std::uint32_t MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = 1;
