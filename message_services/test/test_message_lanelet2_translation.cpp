@@ -171,7 +171,7 @@ TEST(test_message_lanelet2_translation, get_lanelet_types_ids_by_route)
 
 TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_trajectory)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../../test_map.osm");
     message_services::models::trajectory trajectory;
     message_services::models::locationECEF location;
     message_services::models::locationOffsetECEF_t offset;
@@ -235,7 +235,7 @@ TEST(test_message_lanelet2_translation, get_route_lanelet_ids_by_vehicle_traject
 
 TEST(test_message_lanelet2_translation, ecef_2_map_point)
 {
-    message_services::message_translations::message_lanelet2_translation clt("../test_map.osm");
+    message_services::message_translations::message_lanelet2_translation clt("../../test_map.osm");
     message_services::models::trajectory trajectory;
     message_services::models::locationECEF location;
     message_services::models::locationOffsetECEF_t offset;

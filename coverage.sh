@@ -18,6 +18,7 @@
 
 cd /home/carma-streets
 mkdir test_results
+ls -a
 
 cd /home/carma-streets/kafka_clients/build/
 ls -a
