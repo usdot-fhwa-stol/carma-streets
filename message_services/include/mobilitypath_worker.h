@@ -22,7 +22,7 @@ namespace message_services
             ~mobilitypath_worker();
 
             std::mutex worker_mtx;
-            uint16_t MOBILITY_OPERATION_PATH_MAX_DURATION = 100;
+            uint16_t MOBILITY_OPERATION_PATH_MAX_DURATION = 1000;
 
             /**
              * @brief Return the vector of mobilitypath stored in the mobilitypath_worker
