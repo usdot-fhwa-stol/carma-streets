@@ -16,30 +16,40 @@
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
 
-cd /home/carma-streets/kafka_clients
+cd /home/carma-streets
+mkdir test_results
 ls -a
+
+cd /home/carma-streets/kafka_clients/build/
+ls -a
+./kafka_clients_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/kafka_clients/
 mkdir coverage
-./kafka_clients_test
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
 
-cd /home/carma-streets/scheduling_service
+cd /home/carma-streets/scheduling_service/build/
 ls -a
+./scheduling_service_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/scheduling_service/
 mkdir coverage
-./scheduling_service_test
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
 
-cd /home/carma-streets/message_services
+cd /home/carma-streets/message_services/build/
+ls -a
+./message_services_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/message_services/
 ls -a
 mkdir coverage
-./message_services_test
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
 
-cd /home/carma-streets/intersection_model
+cd /home/carma-streets/intersection_model/build/
+ls -a
+./intersection_model_test ---gtest_output=xml:../../test_results/
+cd /home/carma-streets/intersection_model/
 ls -a
 mkdir coverage
-./intersection_model_test
-gcovr -k -r .
+gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server --exclude=./build/src/ -k -r .
 mv *.gcov coverage
