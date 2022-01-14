@@ -216,7 +216,7 @@ jobs:
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}   
+         docker push usdotfhwastolcandidate/scheduling_service:${CIRCLE_BRANCH,,}   
   docker_build_push_message_service :
    machine:
     image: ubuntu-1604:202004-01
@@ -232,7 +232,7 @@ jobs:
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,}
+         docker push usdotfhwastolcandidate/message_services:${CIRCLE_BRANCH,,}
   docker_build_push_intersection_model :
    machine:
     image: ubuntu-1604:202004-01
@@ -247,7 +247,7 @@ jobs:
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
         command: | 
           echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,}
+          docker push usdotfhwastolcandidate/intersection_model:${CIRCLE_BRANCH,,}
    
   docker_build_push_develop_scheduling_service :
    machine:
