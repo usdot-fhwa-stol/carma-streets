@@ -7,5 +7,5 @@
     "STOP_DISTANCE": 3,
     "STOP_SPEED": 0.1 ,
     "MAX_VALID_SPEED": 50,
-    "SCHEDULING_DELTA": 0.5
+    "SCHEDULING_DELTA": 0.2
 }

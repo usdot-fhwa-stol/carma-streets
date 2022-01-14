@@ -18,7 +18,7 @@ class configuration{
 	private:
 
 		/* the scheduling time interval */
-		double scheduling_delta; // sec
+		double scheduling_delta = 1.0; // sec
 
 		/* the time point when the last schedule started */
 		double last_schedule_start_time = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
