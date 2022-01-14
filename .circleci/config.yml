@@ -209,7 +209,7 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-         docker build -t usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .         
+         docker build -t usdotfhwastolcandidate/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .         
     
      - run: 
         name: Docker Push
@@ -226,7 +226,7 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-         docker build -t usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,} -f message_services/Dockerfile .
+         docker build -t usdotfhwastolcandidate/message_services:${CIRCLE_BRANCH,,} -f message_services/Dockerfile .
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
@@ -241,7 +241,7 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-          docker build -t usdotfhwastoldev/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .
+          docker build -t usdotfhwastolcandidate/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .
      - run: 
         name: Docker Push
         # Push carma-streets docker image to usdotfhwastoldev dockerhub
