@@ -64,6 +64,14 @@ configuration::configuration(){
         exit(1);
     }
 
+    if(doc.HasMember("SCHEDULING_DELTA")){
+        scheduling_delta = doc["SCHEDULING_DELTA"].GetDouble();
+        spdlog::info("scheduling_delta :  {0}", scheduling_delta);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULING_DELTA");
+        exit(1);
+    }
+
 }
 
 /* */
