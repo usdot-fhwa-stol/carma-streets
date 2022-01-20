@@ -21,7 +21,7 @@ using namespace std;
 /* !!! must be revised !!! */
 class scheduling{
 	private:
-		
+
 		/* list of vehicle ids */
 		vector<string> veh_id;
 
@@ -136,6 +136,8 @@ class scheduling{
 		void set_dt(int v_index, double dt_added);
 		void set_departPosIndex(int v_index, int pos_index);
 		void set_access(int v_index, bool access_value);
+
+		string toCSV(const configuration& config);
 };
 
 

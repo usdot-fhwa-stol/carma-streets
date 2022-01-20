@@ -10,6 +10,7 @@
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
+#include "schedule_logger.h"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
@@ -33,6 +34,7 @@ intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 set<string> list_veh_removal;
+schedule_logger schedule_logger_object(config);
 
 
 void consumer_update(const char* paylod){
@@ -81,6 +83,7 @@ void consumer_update(const char* paylod){
     }
 
 }
+
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
 
@@ -416,6 +419,13 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
             schedule_plan.PushBack(veh_sched, allocator);
         }
     }
+    
+    if (config.isScheduleLoggerOn()){
+        string schedule_info_csv = schedule.toCSV(config);
+        // schedule_logger_object.saveSchedule(schedule_info_csv, config.isScheduleLoggerOn());
+        string xxx = "a, b, c, d \n";
+        schedule_logger_object.saveSchedule(xxx, config.isScheduleLoggerOn());
+    }
 
     return schedule_plan;
       
@@ -495,13 +505,12 @@ void call_scheduling_thread(){
     else
     {        
         
-        int sch_count = 0;
         while (true) 
         {   
             
             if (duration<double>(system_clock::now().time_since_epoch()).count() - config.get_lastSchedulingT() >= config.get_schedulingDelta()){
                 
-                spdlog::info("schedule number #{0}", sch_count);
+                spdlog::info("schedule number #{0}", config.get_curScheduleIndex());
 
                 config.set_curSchedulingT(duration<double>(system_clock::now().time_since_epoch()).count());
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
@@ -525,7 +534,7 @@ void call_scheduling_thread(){
                 Value metadata(kObjectType);
                 
                 /* the unit of timestamp here is milliseconds without decimal places */
-                auto timestamp = u_int64_t(duration<double>(system_clock::now().time_since_epoch()).count()*1000);
+                auto timestamp = u_int64_t(config.get_curSchedulingT()*1000);
 
                 metadata.AddMember("timestamp", timestamp, allocator);
                 metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
@@ -534,6 +543,7 @@ void call_scheduling_thread(){
                 Value schedule;
                 if (!list_veh_copy.empty()){
                     schedule = scheduling_func(list_veh_copy, allocator);
+                    config.set_lastNonemptyScheduleIndex(config.get_curScheduleIndex());
                 }
                 document.AddMember("payload", schedule, allocator);
 
@@ -551,7 +561,13 @@ void call_scheduling_thread(){
                     this_thread::sleep_until(t);
                 }
 
-                sch_count += 1;
+                if (!list_veh_copy.empty() || (config.get_curScheduleIndex() > 0 && config.get_curScheduleIndex() - config.get_lastNonemptyScheduleIndex() <= config.get_maxEmptyScheduleCount())){
+                    config.set_curScheduleIndex(config.get_curScheduleIndex() + 1);
+                } 
+                else{
+                    config.set_curScheduleIndex(0);
+                    config.set_lastNonemptyScheduleIndex(0);
+                }
 
             }
 
