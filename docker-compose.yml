@@ -119,8 +119,6 @@ services:
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
-    depends_on:
-      - kafka
     container_name: intersection_model
     restart: always
     network_mode: host
