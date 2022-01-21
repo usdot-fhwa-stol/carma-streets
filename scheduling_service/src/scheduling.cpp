@@ -184,7 +184,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 				index_LVs.push_back(vehicle_index);
 			}
 
-			spdlog::info("Scheduling Class Vehicle Info Update before Schedule - timestamp = {0}, vehicle id = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, est = {6}, access = {7}, departure position = {8}", time.back(), veh_id.back(), lane_id.back(), state.back(), speed.back(), distance.back(), access.back(), departurePosition_index.back());
+			spdlog::info("Scheduling Class Vehicle Info Update before Schedule - timestamp = {0}, vehicle id = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, est = {6}, access = {7}, departure position = {8}", time.back(), veh_id.back(), lane_id.back(), state.back(), speed.back(), distance.back(), est.back(), access.back(), departurePosition_index.back());
 
 		}
 		else{
