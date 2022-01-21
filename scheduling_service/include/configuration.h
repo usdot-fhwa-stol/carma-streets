@@ -20,21 +20,6 @@ class configuration{
 		/* the scheduling time interval */
 		double scheduling_delta = 1.0; // sec
 
-		/* the time point when the last schedule started */
-		double last_schedule_start_time = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
-
-		/* the time point when the current schedule started */
-		double cur_schedule_start_time;
-
-		/* the index of the current schedule*/
-		int cur_schedule_index = 0;
-
-		/* the index of the current schedule*/
-		int last_nonempty_schedule_index = 0;
-
-		/* the index of the current schedule*/
-		int max_empty_schedule_count = 10;
-
 		/* If the last update of the vehicle is update_expiration_delta seconds older than the current time, the vehicle will not be included in the schedule
 		*  Unit: second
 		 */
@@ -55,11 +40,11 @@ class configuration{
 		*/
 		double max_valid_speed;
 
-		/* a binary variable indicating whether the scheduling_service logs shall be stored in a CSV file or not */
-		bool schedule_logger_switch;
+		/* Flag to indicate whether schedule logs are enabled */
+		bool schedule_log_enabled;
 
-		/* log file directory */
-		string file_directory;
+		/* String schedule log directory path*/
+		string schedule_log_path;
 
 	public:
 
@@ -68,21 +53,6 @@ class configuration{
 
 		/* get the scheduling time interval */
 		double get_schedulingDelta() const;
-
-		/* get the time point when the last schedule started */
-		double get_lastSchedulingT() const;
-
-		/* get the time point when the current schedule started */
-		double get_curSchedulingT() const;
-
-		/* get the current schedule index */
-		int get_curScheduleIndex() const;
-
-		/* get the last nonempty schedule index */
-		int get_lastNonemptyScheduleIndex() const;
-
-		/* get the maximum number of empty schedule before reseting the scheduling index to 0 */
-		int get_maxEmptyScheduleCount() const;
 
 		/* get the vehicle status and intent update expiration time interval */
 		double get_expDelta() const;
@@ -96,26 +66,11 @@ class configuration{
 		/* get the max valid speed */
 		double get_maxValidSpeed() const;
 
-		/* get the schedule log directory */
-		string get_logDirectory() const;
+		/* get the schedule log path */
+		string get_scheduleLogPath() const;
 
-		/* get the message_logger switch status: true = on, false = off */ 
-		bool isScheduleLoggerOn() const;
-
-		/* set the last schedule's start time point to t */
-		void set_lastSchedulingT(double t);
-
-		/* set the current schedule's start time point to t */
-		void set_curSchedulingT(double t);
-
-		/* set the current schedule index */
-		void set_curScheduleIndex(int index);
-
-		/* set the last nonempty schedule index */
-		void set_lastNonemptyScheduleIndex(int index);
-
-		/* set the maximum number of empty schedule to count */
-		void set_maxEmptyScheduleCount(int count);
+		/* is schedule log enabled */ 
+		bool isScheduleLoggerEnabled() const;
 
 		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);

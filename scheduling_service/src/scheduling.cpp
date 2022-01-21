@@ -14,7 +14,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 		/* if the vehicle update is not older than update_expiration_delta seconds ago, include the vehicle in the schedule
 		*  if the vehicle update is older than update_expiration_delta seconds ago, do not include the vehicle in the schedule
 		*/
-		if (config.get_curSchedulingT() - element.second.get_curTime() <= config.get_expDelta()){
+		if ( timestamp - element.second.get_curTime() <= config.get_expDelta()){
 
 			veh_id.push_back(element.first);
 			auto vehicle_index = (int)veh_id.size() - 1;
@@ -51,17 +51,17 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 				/* if CARMA Streets did not receive the confirmation from the vehicle updates yet, it will consider the vehicle as a DV for now */
 				else{
 					state[state.size() - 1] = "DV";
-					et[et.size() - 1] = config.get_curSchedulingT();
+					et[et.size() - 1] = timestamp;
 					access[access.size() - 1] = true;
 				}
 			}
 
 			/* estimate the vehicle location, speed, state, etc. at a given future timestamp! */
-			if (time.back() < config.get_curSchedulingT() + config.get_schedulingDelta()){
+			if (time.back() < timestamp + config.get_schedulingDelta()){
 				
 				for (int i = 0; i < (int)element.second.get_futureInfo().size(); ++i){
 					
-					if (element.second.get_futureInfo()[i].timestamp >= config.get_curSchedulingT() + config.get_schedulingDelta() || 
+					if (element.second.get_futureInfo()[i].timestamp >= timestamp + config.get_schedulingDelta() || 
 						i == (int)element.second.get_futureInfo().size() - 1){
 
 						
@@ -205,12 +205,11 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 
 }
 
-string scheduling::toCSV(const configuration& config) {
+string scheduling::toCSV() const {
 	
 	string schedule_info = "";
+	schedule_info += to_string(timestamp) + ", ";
 	for (int i = 0; i < (int)veh_id.size(); ++i){
-		schedule_info += to_string(config.get_curScheduleIndex()) + ", ";
-		schedule_info += to_string(config.get_curSchedulingT()) + ", ";
 		schedule_info += veh_id[i] + ", ";
 		schedule_info += to_string(time[i]) + ", ";
 		schedule_info += to_string(speed[i]) + ", ";
@@ -223,11 +222,13 @@ string scheduling::toCSV(const configuration& config) {
 		schedule_info += to_string(st[i]) + ", ";
 		schedule_info += to_string(et[i]) + ", ";
 		schedule_info += to_string(dt[i]) + ", ";
-		// schedule_info += to_string(access[i]) + "\n";
+		schedule_info += to_string(access[i]) + "\n";
 	}
 
 	return schedule_info;
 }
+
+double scheduling::get_timestamp() const {return timestamp;}
 
 /* */
 vector<string> scheduling::get_vehicleIdList() const {return veh_id;}
@@ -303,3 +304,6 @@ void scheduling::set_departPosIndex(int v_index, int pos_index){departurePositio
 
 /* */
 void scheduling::set_access(int v_index, bool access_value){access[v_index] = access_value;}
+
+/* */
+void scheduling::set_timestamp(double timestamp){this->timestamp = timestamp;}

@@ -20,9 +20,7 @@ using namespace boost::filesystem;
 class schedule_logger{
 	private:
 		
-		/*** ??
-		* @brief ??
-		*/
+		
 		std::ofstream _log_file;
 
 		std::string _file_name = "schedulingLogs";
@@ -39,21 +37,19 @@ class schedule_logger{
 
 		int _log_file_size_inMB_max = 50;
 
-		bool _open_status;
-
 		std::string GetCurDateTimeStr();
-
-	public:
-
-		schedule_logger(const configuration& config);
 
 		void openLogFile();
 
-		void saveSchedule(std::string schedule_info, bool is_schedule_logger_on);
 
-		bool isFileOpen();
+		void fileSizeCheck();
 
-		// void closeFile();
+	public:
+
+		schedule_logger( std::string log_directory );
+		void log_schedule( std::string schedule_info );
+
+		
 
 };
 

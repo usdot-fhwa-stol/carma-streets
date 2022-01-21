@@ -72,19 +72,19 @@ configuration::configuration(){
         exit(1);
     }
 
-    if(doc.HasMember("SCHEDULE_LOGGER_IS_RUNNING")){
-        schedule_logger_switch = doc["SCHEDULE_LOGGER_IS_RUNNING"].GetBool();
-        spdlog::info("schedule_logger_is_running :  {0}", schedule_logger_switch);
+    if(doc.HasMember("ENABLE_SCHEDULE_LOGGING")){
+        schedule_log_enabled = doc["ENABLE_SCHEDULE_LOGGING"].GetBool();
+        spdlog::info("schedule_logger_is_running :  {0}", schedule_log_enabled);
     } else{
-        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOGGER_IS_RUNNING");
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "ENABLE_SCHEDULE_LOGGING");
         exit(1);
     }
 
-    if(doc.HasMember("SCHEDULE_LOGGER_DIRECTORY")){
-        file_directory = doc["SCHEDULE_LOGGER_DIRECTORY"].GetString();
-        spdlog::info("initial schedule_logger file_directory :  {0}", file_directory);
+    if(doc.HasMember("SCHEDULE_LOG_PATH")){
+        schedule_log_path = doc["SCHEDULE_LOG_PATH"].GetString();
+        spdlog::info("initial schedule_logger file_directory :  {0}", schedule_log_path);
     } else{
-        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOGGER_DIRECTORY");
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_PATH");
         exit(1);
     }
 
@@ -92,21 +92,6 @@ configuration::configuration(){
 
 /* */
 double configuration::get_schedulingDelta() const {return scheduling_delta;}
-
-/* */
-double configuration::get_lastSchedulingT() const {return last_schedule_start_time;}
-
-/* */
-double configuration::get_curSchedulingT() const {return cur_schedule_start_time;}
-
-/* */
-int configuration::get_curScheduleIndex() const {return cur_schedule_index;}
-
-/* */
-int configuration::get_lastNonemptyScheduleIndex() const {return last_nonempty_schedule_index;}
-
-/* */
-int configuration::get_maxEmptyScheduleCount() const {return max_empty_schedule_count;}
 
 /* */
 double configuration::get_expDelta() const {return update_expiration_delta;}
@@ -121,25 +106,10 @@ double configuration::get_stopSpeed() const {return stopping_speed;}
 double configuration::get_maxValidSpeed() const {return max_valid_speed;}
 
 /* */
-string configuration::get_logDirectory() const {return file_directory;}
+string configuration::get_scheduleLogPath() const {return schedule_log_path;}
 
 /* */
-bool configuration::isScheduleLoggerOn() const {return schedule_logger_switch;}
-
-/* */
-void configuration::set_lastSchedulingT(double t){last_schedule_start_time = t;}
-
-/* */
-void configuration::set_curSchedulingT(double t){cur_schedule_start_time = t;}
-
-/* */
-void configuration::set_curScheduleIndex(int index){cur_schedule_index = index;}
-
-/* */
-void configuration::set_lastNonemptyScheduleIndex(int index){last_nonempty_schedule_index = index;}
-
-/* */
-void configuration::set_maxEmptyScheduleCount(int count){max_empty_schedule_count = count;}
+bool configuration::isScheduleLoggerEnabled() const {return schedule_log_enabled;}
 
 /* */
 void configuration::set_schedulingDelta(double delta){scheduling_delta = delta;}

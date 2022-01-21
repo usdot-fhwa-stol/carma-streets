@@ -34,14 +34,15 @@ intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 set<string> list_veh_removal;
-schedule_logger schedule_logger_object(config);
+double last_schedule;
+std::unique_ptr<schedule_logger> logger;
 
 
-void consumer_update(const char* paylod){
+void consumer_update(const char* payload){
     
     rapidjson::Document message;
     message.SetObject();
-    message.Parse(paylod);
+    message.Parse(payload);
     
     /* if the received message does not have payload, it cannot be processed! */
     if (message.HasMember("payload")){
@@ -84,11 +85,16 @@ void consumer_update(const char* paylod){
 
 }
 
-
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
 
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
+    // Set schedule timestamp
+    schedule.set_timestamp(duration<double>(chrono::system_clock::now().time_since_epoch()).count());
+    if ( config.isScheduleLoggerEnabled() ) {
+        logger->log_schedule( schedule.toCSV() );
+    }
 
+    last_schedule = schedule.get_timestamp();
     /* estimate the departure times (DTs) of DVs */
     for (const auto vehicle_index : schedule.get_indexDVs()){
         double dt = schedule.get_timeList()[vehicle_index] + schedule.get_clearTimeList()[vehicle_index];
@@ -117,7 +123,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         int vehicle_index1 = listRDV[n];
         string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
         string link_id1 = list_veh[vehicle_id1].get_linkID();
-        double et = config.get_curSchedulingT() + config.get_schedulingDelta();
+        double et = schedule.get_timestamp() + config.get_schedulingDelta();
         for (int m = 0; m < (int)listS.size(); ++m){
             int vehicle_index2 = listS[m];
             string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
@@ -255,7 +261,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		}
 
         /* if the vehicle's entering time is set to the next scheduling time step, give access to the vehicle */
-        if (et <= config.get_curSchedulingT() + config.get_schedulingDelta()){
+        if (et <= schedule.get_timestamp() + config.get_schedulingDelta()){
             bool vehicle_access_indicator = true;
             for (int n = 0; n < (int)schedule.get_indexDVs().size(); ++n){
                 int vehicle_index1 = schedule.get_indexDVs()[n];
@@ -312,7 +318,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
 
-                double st = max(schedule.get_estList()[vehicle_index1], config.get_curSchedulingT() + config.get_schedulingDelta());
+                double st = max(schedule.get_estList()[vehicle_index1], schedule.get_timestamp() + config.get_schedulingDelta());
                 if (!listS.empty()){
                     for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
@@ -419,13 +425,6 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
             schedule_plan.PushBack(veh_sched, allocator);
         }
     }
-    
-    if (config.isScheduleLoggerOn()){
-        string schedule_info_csv = schedule.toCSV(config);
-        // schedule_logger_object.saveSchedule(schedule_info_csv, config.isScheduleLoggerOn());
-        string xxx = "a, b, c, d \n";
-        schedule_logger_object.saveSchedule(xxx, config.isScheduleLoggerOn());
-    }
 
     return schedule_plan;
       
@@ -496,7 +495,9 @@ void call_scheduling_thread(){
     std::string bootstrap_server =  client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
     std::string topic = client->get_value_by_doc(doc_json, "PRODUCER_TOPIC");
     auto producer_worker  = client->create_producer(bootstrap_server, topic);
-
+    if ( config.isScheduleLoggerEnabled()) {
+        logger = std::unique_ptr<schedule_logger>(new schedule_logger( config.get_scheduleLogPath() ));
+    }
     char str_msg[]="";           
     if(!producer_worker->init())
     {
@@ -505,14 +506,14 @@ void call_scheduling_thread(){
     else
     {        
         
+        int sch_count = 0;
         while (true) 
         {   
             
-            if (duration<double>(system_clock::now().time_since_epoch()).count() - config.get_lastSchedulingT() >= config.get_schedulingDelta()){
+            if (duration<double>(system_clock::now().time_since_epoch()).count() - last_schedule >= config.get_schedulingDelta()){
                 
-                spdlog::info("schedule number #{0}", config.get_curScheduleIndex());
+                spdlog::info("schedule number #{0}", sch_count);
 
-                config.set_curSchedulingT(duration<double>(system_clock::now().time_since_epoch()).count());
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
 
                 // copy list_veh
@@ -534,7 +535,7 @@ void call_scheduling_thread(){
                 Value metadata(kObjectType);
                 
                 /* the unit of timestamp here is milliseconds without decimal places */
-                auto timestamp = u_int64_t(config.get_curSchedulingT()*1000);
+                auto timestamp = u_int64_t(duration<double>(system_clock::now().time_since_epoch()).count()*1000);
 
                 metadata.AddMember("timestamp", timestamp, allocator);
                 metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
@@ -543,7 +544,6 @@ void call_scheduling_thread(){
                 Value schedule;
                 if (!list_veh_copy.empty()){
                     schedule = scheduling_func(list_veh_copy, allocator);
-                    config.set_lastNonemptyScheduleIndex(config.get_curScheduleIndex());
                 }
                 document.AddMember("payload", schedule, allocator);
 
@@ -556,18 +556,11 @@ void call_scheduling_thread(){
                 producer_worker->send(msg_to_send);
 
                 // update the previous scheduling time and sleep until next schedule
-                config.set_lastSchedulingT(config.get_curSchedulingT());
                 if (system_clock::now() < t){
                     this_thread::sleep_until(t);
                 }
 
-                if (!list_veh_copy.empty() || (config.get_curScheduleIndex() > 0 && config.get_curScheduleIndex() - config.get_lastNonemptyScheduleIndex() <= config.get_maxEmptyScheduleCount())){
-                    config.set_curScheduleIndex(config.get_curScheduleIndex() + 1);
-                } 
-                else{
-                    config.set_curScheduleIndex(0);
-                    config.set_lastNonemptyScheduleIndex(0);
-                }
+                sch_count += 1;
 
             }
 
