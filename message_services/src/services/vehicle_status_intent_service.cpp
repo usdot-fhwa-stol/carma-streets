@@ -185,14 +185,14 @@ namespace message_services
                         std::time_t cur_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                         {
-                            spdlog::info("Clean the BSM and MP...");
+                            spdlog::debug("Clean the BSM and MP...");
                             spdlog::debug("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
                             spdlog::debug("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
                             spdlog::debug("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
 
                             if (mp_w_ptr && !mp_w_ptr->get_curr_map().empty())
                             {
-                                spdlog::info("Clean the MP...");
+                                spdlog::debug("Clean the MP...");
                                 for (auto itr = mp_w_ptr->get_curr_map().cbegin(); itr != mp_w_ptr->get_curr_map().cend();)
                                 {
                                     if (mp_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
@@ -205,12 +205,12 @@ namespace message_services
                                         ++itr;
                                     }
                                 }
-                                spdlog::info("Cleaned the MP.");
+                                spdlog::debug("Cleaned the MP.");
                             }
 
                             if (bsm_w_ptr && !bsm_w_ptr->get_curr_map().empty())
                             {
-                                spdlog::info("Clean the BSM...");
+                                spdlog::debug("Clean the BSM...");
                                 for (auto itr = bsm_w_ptr->get_curr_map().cbegin(); itr != bsm_w_ptr->get_curr_map().cend();)
                                 {
                                     if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
@@ -223,7 +223,7 @@ namespace message_services
                                         ++itr;
                                     }
                                 }
-                                spdlog::info("Cleaned the BSM.");
+                                spdlog::debug("Cleaned the BSM.");
                             }
 
                             prev_msg_expired_timestamp_ = cur_timestamp;
