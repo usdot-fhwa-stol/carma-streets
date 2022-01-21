@@ -163,12 +163,9 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			/* vehicle state update */
 			if (state == "EV"){
 				if (lane_id != entryLane_id){
-					if (lane_id == link_id){
-						distance = 0.1;
-					}
-					lane_id = entryLane_id;
+					spdlog::critical("Vehicle Class Issue - The lane ID of vehicle {0} is not correct! Vehicle {0} is in EV state, but its lane ID in the status and intent message is a link ID; lane_id: {1}, entry_lane_id: {2}, link_id: {3}", veh_id, lane_id, entryLane_id, link_id);
 				}
-				if (distance <= config.get_stopDistance() + length && speed <= config.get_stopSpeed()){
+				else if (distance <= config.get_stopDistance() + length && speed <= config.get_stopSpeed()){
 					state = "RDV";
 					st_actual = timestamp;
 				}
@@ -212,7 +209,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			fi.acceleration = acceleration;
 			future_info.push_back(fi);
 			if (message["payload"]["est_paths"].Size() > 1){
-				for (SizeType i = 1; i < message["payload"]["est_paths"].Size(); ++i){
+				for (SizeType i = 0; i < message["payload"]["est_paths"].Size(); ++i){
 					
 					/* adding checks to make sure the necessary data exist in the future point */
 					if (message["payload"]["est_paths"][i].HasMember("ts") && message["payload"]["est_paths"][i].HasMember("id") && message["payload"]["est_paths"][i].HasMember("ds")){
@@ -226,29 +223,29 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 						}
 						else{
 
-							fi = future_information();
 
-							fi.timestamp = (double)message["payload"]["est_paths"][i]["ts"].GetInt64() / 1000;
 
 							/* the future path received from CARMA Platform does not consider the stopping requirement at the stop bar.
 							*  therefore, CARMA Streets will force the stopping requirement to the vehicle's future path.
 							*  basically, if the vehicle is an EV, or and RDV without access, if the vehicle lane id in the future path is not the same as the vehicle entry lane id, the scheduling service consider the entry lane id as the vehicle future lane id and 0.1 as the distance.
 							* */
 							if ((state == "EV" || (state == "RDV" && access == false)) && to_string(message["payload"]["est_paths"][i]["id"].GetInt()) != entryLane_id){
-								fi.lane_id = entryLane_id;
-								fi.distance = 0.1;
-								fi.speed = 0.0;
-								fi.acceleration = 0.0;
+								continue;
 							}
 							else{
+								fi = future_information();
+
+								fi.timestamp = (double)message["payload"]["est_paths"][i]["ts"].GetInt64() / 1000;
 								fi.lane_id = to_string(message["payload"]["est_paths"][i]["id"].GetInt());
 								fi.distance = message["payload"]["est_paths"][i]["ds"].GetDouble();
-								fi.speed = (fi.distance - future_info[future_info.size() - 1].distance) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
+								fi.speed = (future_info[future_info.size() - 1].distance - fi.distance) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
 								fi.acceleration = (fi.speed - future_info[future_info.size() - 1].speed) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
+
+								spdlog::debug("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
+								future_info.push_back(fi);
 							}
 
-							spdlog::debug("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
-							future_info.push_back(fi);
+
 						}
 					}
 					else{
@@ -261,7 +258,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			spdlog::critical("the future paths of Vehicle {0} is missing in the received update!", veh_id);
 		}
 
-		spdlog::info("At timestamp {0}, vehicle {1} from lane {2} is in state {3} with speed {4} m/s and is {5} m far from the end of the lane!", timestamp, id, lane_id, state, speed, distance);
+		spdlog::info("Vehicle Class Vehicle Info Update - timestamp = {0}, vehicle = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, access = {6}, departure position index = {7}", timestamp, id, lane_id, state, speed, distance, access, departurePosition_index);
 
 	}
 
