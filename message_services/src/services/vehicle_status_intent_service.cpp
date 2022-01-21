@@ -67,6 +67,7 @@ namespace message_services
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
                 this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
                 this->CLEAN_QUEUE_IN_SECS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_SECS"));
+                this->distable_future_path = std::stoi(client->get_value_by_doc(doc, "DISABLE_FUTURE_PATH")) == 0 ? false: true ;
 
                 this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
 
@@ -274,6 +275,8 @@ namespace message_services
                 vsi.setCur_lanelet_id(cur_lanelet.id());
                 vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, cur_lanelet, turn_direction, trajectory));
 
+            if(!distable_future_path)
+            {
                 // Update vehicle status intent with MobilityPath
                 models::est_path_t est_path;
                 std::vector<models::est_path_t> est_path_v;
@@ -331,6 +334,7 @@ namespace message_services
                 }
 
                 vsi.setEst_path_v(est_path_v);
+            }
                 std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(trajectory, vsi_est_path_point_count, turn_direction);
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {

@@ -41,6 +41,7 @@ namespace message_services
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _mp_consumer_worker;
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _bsm_consumer_worker;
             std::int64_t vsi_est_path_point_count = 0;
+            bool distable_future_path = false; // false: Show future path in the vsi message. true: Not show
 
             //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
             std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;
