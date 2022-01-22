@@ -243,14 +243,14 @@ TEST(test_message_lanelet2_translation, get_route_lanelet_ids)
     ASSERT_EQ(3, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction).size());
     ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[19252]);
     ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[22528]);
-    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[16377]);
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[11899]);
 
     //From lanelet link 22878 
     turn_direction = "straight";
     ASSERT_EQ(3, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction).size());
     ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[19252]);
     ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[22878]);
-    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[11899]);
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(subj_lanelet, offset_size, turn_direction)[16377]);
 
     //From lanelet 12459 to lanelet 12459
     location.ecef_x = 110462803;
