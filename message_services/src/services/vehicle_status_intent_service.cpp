@@ -67,7 +67,7 @@ namespace message_services
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
                 this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
                 this->CLEAN_QUEUE_IN_SECS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_SECS"));
-                this->distable_future_path = std::stoi(client->get_value_by_doc(doc, "DISABLE_FUTURE_PATH")) == 0 ? false: true ;
+                this->disable_future_path = std::stoi(client->get_value_by_doc(doc, "DISABLE_FUTURE_PATH")) == 0 ? false: true ;
 
                 this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
 
@@ -271,11 +271,11 @@ namespace message_services
 
                 spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
                 message_services::models::trajectory trajectory = mp.getTrajectory();
-                lanelet::Lanelet cur_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction, trajectory);
+                lanelet::Lanelet cur_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction, trajectory);         
                 vsi.setCur_lanelet_id(cur_lanelet.id());
-                vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, cur_lanelet, turn_direction, trajectory));
-
-            if(!distable_future_path)
+                vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, cur_lanelet, turn_direction, trajectory));      
+                         
+            if(!disable_future_path)
             {
                 // Update vehicle status intent with MobilityPath
                 models::est_path_t est_path;
@@ -320,7 +320,7 @@ namespace message_services
                         continue;
                     }
                     lanelet::BasicPoint3d trajectory_point = _msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z);
-                    lanelet::Lanelet trajectory_point_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(trajectory_point, turn_direction, trajectory);
+                    lanelet::Lanelet trajectory_point_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(trajectory_point, turn_direction, trajectory);            
                     est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(trajectory_point, trajectory_point_lanelet, turn_direction, trajectory);
                     est_path.lanelet_id = trajectory_point_lanelet.id();
                     est_path_v.push_back(est_path);
@@ -335,7 +335,8 @@ namespace message_services
 
                 vsi.setEst_path_v(est_path_v);
             }
-                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(trajectory, vsi_est_path_point_count, turn_direction);
+
+                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, vsi_est_path_point_count, turn_direction);
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
                     if (itr->second == models::intersection_lanelet_type::link)
@@ -351,7 +352,7 @@ namespace message_services
                         vsi.setEnter_lanelet_id(itr->first);
                     }
                 }
-                return vsi;
+                return vsi;               
             }
             catch (...)
             {
