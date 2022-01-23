@@ -344,3 +344,48 @@ TEST(test_message_lanelet2_translation, ecef_2_map_point)
     ASSERT_NEAR(327.636, clt.ecef_2_map_point(location.ecef_x + offset.offset_x, location.ecef_y + offset.offset_y, location.ecef_z + offset.offset_z).y(), 0.1);
     ASSERT_NEAR(72, clt.ecef_2_map_point(location.ecef_x + offset.offset_x, location.ecef_y + offset.offset_y, location.ecef_z + offset.offset_z).z(), 0.1);
 }
+
+
+TEST(test_message_lanelet2_translation, gps_2_map_point)
+{
+    message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
+    auto basic_point_3d = clt.gps_2_map_point(38.9549432, -77.1493113, 72);
+    ASSERT_EQ(basic_point_3d.x(),-83.21549512455204);
+    ASSERT_EQ(basic_point_3d.y(),329.05751672287005);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9553736, -77.1502519, 72);
+    ASSERT_EQ(basic_point_3d.x(),-164.74694594558378);
+    ASSERT_EQ(basic_point_3d.y(),376.8394912241078);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9550620, -77.1496677, 72);
+    ASSERT_EQ(basic_point_3d.x(),-114.10852620084985);
+    ASSERT_EQ(basic_point_3d.y(),342.24643973581453);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9547239, -77.1494634, 72);
+    ASSERT_EQ(basic_point_3d.x(),-96.40002062426407);
+    ASSERT_EQ(basic_point_3d.y(),304.71216057912693);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9548053, -77.1494077, 72);
+    ASSERT_EQ(basic_point_3d.x(),-91.5717516026476);
+    ASSERT_EQ(basic_point_3d.y(),313.7486930462219);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9548115, -77.1494016, 72);
+    ASSERT_EQ(basic_point_3d.x(),-91.04298660840287);
+    ASSERT_EQ(basic_point_3d.y(),314.4369775722761);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9549304, -77.1491166, 72);
+    ASSERT_EQ(basic_point_3d.x(),-66.33865452644577);
+    ASSERT_EQ(basic_point_3d.y(),327.63636981163864);
+    ASSERT_EQ(basic_point_3d.z(),72);
+
+    basic_point_3d = clt.gps_2_map_point(38.9549256, -77.1490945, 72);  
+    ASSERT_EQ(basic_point_3d.x(),-64.42300140950572);
+    ASSERT_EQ(basic_point_3d.y(),327.1034837742677);
+    ASSERT_EQ(basic_point_3d.z(),72);
+}

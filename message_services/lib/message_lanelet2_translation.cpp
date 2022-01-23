@@ -82,23 +82,7 @@ namespace message_services
 
         lanelet::Lanelet message_lanelet2_translation::get_cur_lanelet_by_loc_and_direction(double lat, double lon, double elev, std::string turn_direction, models::trajectory &trajectory) const
         {
-            lanelet::BasicPoint3d subj_point3d;
-            try
-            {
-                // construct a GPS point
-                lanelet::GPSPoint subj_gps_pos;
-                subj_gps_pos.lat = lat;
-                subj_gps_pos.lon = lon;
-                subj_gps_pos.ele = elev;
-
-                // project the GPS point to (x,y,z)
-                subj_point3d = local_projector->forward(subj_gps_pos);
-            }
-            catch (...)
-            {
-                spdlog::error("Cannot project the GPS position: Latitude: {0} , Longitude: {1}, Elevation: {2}", lat, lon, elev);
-                return lanelet::Lanelet();
-            }
+            lanelet::BasicPoint3d subj_point3d = gps_2_map_point(lat, lon, elev);
             return get_cur_lanelet_by_point_and_direction(subj_point3d, turn_direction, trajectory);
         }
 
@@ -218,16 +202,8 @@ namespace message_services
         }
 
         double message_lanelet2_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, lanelet::Lanelet subj_lanelet, std::string turn_direction, models::trajectory &trajectory) const
-        {
-            // construct a GPS point
-            lanelet::GPSPoint subj_gps_pos;
-            subj_gps_pos.lat = lat;
-            subj_gps_pos.lon = lon;
-            subj_gps_pos.ele = elev;
-
-            // project the GPS point to (x,y,z)
-            lanelet::BasicPoint3d subj_point3d = local_projector->forward(subj_gps_pos);
-
+        {   
+            lanelet::BasicPoint3d subj_point3d = gps_2_map_point(lat, lon, elev);
             return distance2_cur_lanelet_end(subj_point3d,subj_lanelet, turn_direction, trajectory);
         }
 
@@ -274,6 +250,27 @@ namespace message_services
         {
             lanelet::BasicPoint3d basic_point3d = this->local_projector->projectECEF({((double)ecef_x) / 100, ((double)ecef_y) / 100, ((double)ecef_z) / 100}, -1);
             return basic_point3d;
+        }
+
+        lanelet::BasicPoint3d message_lanelet2_translation::gps_2_map_point(double lat, double lon, double elev) const
+        {
+            lanelet::BasicPoint3d basic_point3d;
+            try
+            {
+                // construct a GPS point
+                lanelet::GPSPoint subj_gps_pos;
+                subj_gps_pos.lat = lat;
+                subj_gps_pos.lon = lon;
+                subj_gps_pos.ele = elev;
+
+                // project the GPS point to (x,y,z)
+                basic_point3d = local_projector->forward(subj_gps_pos);
+            }
+            catch (...)
+            {
+                spdlog::error("Cannot project the GPS position: Latitude: {0} , Longitude: {1}, Elevation: {2}", lat, lon, elev);
+            }
+            return basic_point3d;            
         }
 
         std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids(lanelet::Lanelet subj_lanelet, std::string turn_direction) const

@@ -146,6 +146,13 @@ namespace message_services
             * @return 2d point in map frame
             */
             lanelet::BasicPoint3d ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z) const;
+
+            /**
+            * @brief Function to convert GPS location to a 3d point in map frame
+            * @param GPS location point
+            * @return 3d point in map frame
+            */
+            lanelet::BasicPoint3d gps_2_map_point(double lat, double lon, double elev) const;
             
         };
     }
