@@ -276,7 +276,7 @@ namespace message_services
                 lanelet::Lanelet cur_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(cur_basic_point3d, turn_direction, trajectory);         
                 vsi.setCur_lanelet_id(cur_lanelet.id());
                 vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_basic_point3d, cur_lanelet, turn_direction, trajectory));      
-                std::time_t msg_received_timestamp_ = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            
             if(!disable_est_path)
             {
                 // Update vehicle status intent with MobilityPath
@@ -368,9 +368,7 @@ namespace message_services
 
                 vsi.setEst_path_v(est_path_v);
             }
-             std::time_t msg_received_timestamp_1 = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             
-                spdlog::error("EST_PATH time {0} =  ", msg_received_timestamp_1- msg_received_timestamp_);
                 std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, turn_direction);
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
