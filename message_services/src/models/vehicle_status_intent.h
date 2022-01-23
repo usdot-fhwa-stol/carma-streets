@@ -14,8 +14,8 @@ namespace message_services
     {
         typedef struct est_path
         {
-            int64_t lanelet_id = 0;
-            double distance_to_end_of_lanelet = 0.0;
+            int64_t lanelet_id = 0; //The lanelet id can be defined as either the current point lanelet id or starting point lanelet id
+            double distance = 0.0; // The distance can be defined as either distance to end of lanelet where this point land on or distance to the previous point starting from the current vehicle location. 
             long timestamp = 0;
         } est_path_t;
 
