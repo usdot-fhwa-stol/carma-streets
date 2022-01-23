@@ -303,7 +303,7 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
-                                spdlog::info("Found link lanelet id :{0}  ", ll_itr->id());
+                                spdlog::debug("Found link lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = local_ll;
                                 link_lanelet = *ll_itr;
                                 departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
