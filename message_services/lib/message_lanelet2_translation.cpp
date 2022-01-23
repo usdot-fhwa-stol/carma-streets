@@ -270,27 +270,6 @@ namespace message_services
             return total_length;
         }
 
-        std::map<int64_t, models::intersection_lanelet_type> message_lanelet2_translation::get_lanelet_types_ids(lanelet::Lanelet subj_lanelet,  std::uint64_t offset_size, std::string turn_direction) const
-        {
-            std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
-            try
-            {              
-                if (subj_lanelet.id() == 0L)
-                {
-                    spdlog::error("{0}: Empty current lanelet. ", __FILE__);
-                    return lanelet_id_type_m;
-                }
-
-                lanelet_id_type_m = get_lanelet_types_ids(subj_lanelet, turn_direction);
-            }
-            catch (...)
-            {
-                spdlog::error("{0}: Cannot determine lanelet type and ids with vehicle trajectory. ", __FILE__);
-                lanelet_id_type_m.clear();
-            }
-            return lanelet_id_type_m;
-        }
-
         lanelet::BasicPoint3d message_lanelet2_translation::ecef_2_map_point(std::int32_t ecef_x, std::int32_t ecef_y, std::int32_t ecef_z) const
         {
             lanelet::BasicPoint3d basic_point3d = this->local_projector->projectECEF({((double)ecef_x) / 100, ((double)ecef_y) / 100, ((double)ecef_z) / 100}, -1);
@@ -324,7 +303,7 @@ namespace message_services
                             const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
                             if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                             {
-                                spdlog::debug("Found link lanelet id :{0}  ", ll_itr->id());
+                                spdlog::info("Found link lanelet id :{0}  ", ll_itr->id());
                                 entry_lanelet = local_ll;
                                 link_lanelet = *ll_itr;
                                 departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
@@ -382,7 +361,7 @@ namespace message_services
             }
             catch(...)
             {
-                spdlog::error("{0}: Cannot determine vehicle future lanelets within intersection radius. ", __FILE__);
+                spdlog::error("{0}: Cannot determine lanelet type and ids with vehicle current lanelet. ", __FILE__);
                 lanelet_id_type_m.clear();
                 return lanelet_id_type_m;
             }

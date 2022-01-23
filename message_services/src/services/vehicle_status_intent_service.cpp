@@ -336,7 +336,7 @@ namespace message_services
                 vsi.setEst_path_v(est_path_v);
             }
 
-                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, vsi_est_path_point_count, turn_direction);
+                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, turn_direction);
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
                     if (itr->second == models::intersection_lanelet_type::link)

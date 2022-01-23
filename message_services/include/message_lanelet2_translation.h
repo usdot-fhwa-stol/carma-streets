@@ -134,15 +134,6 @@ namespace message_services
 
             /***
              * @brief Vehicle broadcast mobilityoperation message that contains current vehicle lanelet and vehicle turn direction.
-             * Determine the subject vehicle future lanelet ids along the vehicle route with the start point to the end point of the trajectory. 
-             * @param subj_vehicle_lanelet
-             * @param turn_direction
-             * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
-             * **/
-            std::map<int64_t, models::intersection_lanelet_type> get_lanelet_types_ids(lanelet::Lanelet subj_lanelet,  std::uint64_t offset_size, std::string turn_direction) const;
-
-            /***
-             * @brief Vehicle broadcast mobilityoperation message that contains current vehicle lanelet and vehicle turn direction.
              * @param subj_lanelet
              * @param turn_direction
              * @return A map of lanelet_id and intersection lanelet type (entry, departure, link or unknown)
