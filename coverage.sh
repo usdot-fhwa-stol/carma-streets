@@ -35,6 +35,7 @@ cd /home/carma-streets/scheduling_service/
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 mv *.gcov coverage
+ls coverage/
 
 cd /home/carma-streets/message_services/build/
 ls -a
@@ -53,3 +54,4 @@ ls -a
 mkdir coverage
 gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server --exclude=./build/src/ -k -r .
 mv *.gcov coverage
+ls ../test_results/

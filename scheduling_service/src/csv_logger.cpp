@@ -27,8 +27,9 @@ void csv_logger::openLogFile(){
     else{
         _cur_file_name =_file_directory + "/" + _file_name + ".csv";
         spdlog::info("Opening a Log file.");
-        if (!boost::filesystem::exists(_file_directory + "logs/")){
-            boost::filesystem::create_directory(_file_directory + "logs/");   
+        if (!boost::filesystem::exists(_file_directory + "/logs/")){
+            boost::filesystem::create_directory(_file_directory + "/logs/");
+            spdlog::info("Created {0} directory!", _file_directory + "/logs/");   
 	    }
 
         renameAndMoveLogfile();
@@ -43,7 +44,7 @@ void csv_logger::openLogFile(){
 
 }
 
-void csv_logger::renameAndMoveLogfile(){
+void csv_logger::renameAndMoveLogfile() const{
     std::string _new_file_name = _file_directory + "/logs/" + _file_name + "_" + GetCurDateTimeStr() + ".csv";
 
     if ( boost::filesystem::exists(_new_file_name.c_str( ) ) ) {
@@ -63,7 +64,7 @@ void csv_logger::renameAndMoveLogfile(){
 }
 
 
-void csv_logger::log_line(std::string new_line){
+void csv_logger::log_line(std::string const &new_line){
     // File size check
      fileSizeCheck();
     // Write log and append endline character

@@ -17,21 +17,23 @@
 
 class csv_logger{
 	private:
-		
-		/** Open Log file **/
-		std::ofstream _log_file;
 
-		/** Log file prefix**/
-		std::string _file_name;
-
-		/** Open Log file name **/
-		std::string _cur_file_name;
 
 		/** Directory to which log files will be written **/
 		std::string _file_directory;
 
+		/** Log file prefix**/
+		std::string _file_name;
+
 		/** Maximum log file size in Megabytes **/
 		int _log_file_size_inMB_max;
+		
+		/** Open Log file **/
+		std::ofstream _log_file;
+
+		/** Open Log file name **/
+		std::string _cur_file_name;
+
 
 		/**
 		 * Method returns string representation of current date and time.
@@ -54,7 +56,7 @@ class csv_logger{
 		 * given new proposed name. Will append "(1)" to any filename that already exists.
 		 * 
 		 **/ 
-		void renameAndMoveLogfile();
+		void renameAndMoveLogfile() const;
 
 		/**
 		 * Method to checkfile size against configurable limit. If filesize exceeds limit log file is rotated.
@@ -74,7 +76,7 @@ class csv_logger{
 		 * 
 		 * @param new_line to log into current csv log file.
 		 **/ 
-		void log_line( std::string new_line );
+		void log_line( std::string const &new_line );
 
 };
 
