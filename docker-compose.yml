@@ -4,6 +4,9 @@ services:
     image: wurstmeister/zookeeper
     ports:
        - "2181:2182"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
   kafka:
     image: wurstmeister/kafka
     depends_on: 
@@ -13,10 +16,12 @@ services:
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
-      KAFKA_CREATE_TOPICS: "v2xhub_in:1:1,v2xhub_out:1:1,v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1"
+      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
   db:
     image: mysql:5.7
     container_name: mysql
@@ -57,6 +62,8 @@ services:
     volumes:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       
   scheduling_service:
     image: usdotfhwastolcandidate/scheduling_service:release_fiesta
@@ -79,7 +86,9 @@ services:
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
       - ./scheduling_service/logs/:/home/carma-streets/scheduling_service/logs/
-      
+      - /etc/localtime:/etc/localtime:ro 
+      - /etc/timezone:/etc/timezone:ro     
+
   message_services:
     image: usdotfhwastolcandidate/message_services:release_fiesta
     build: 
@@ -95,7 +104,8 @@ services:
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/message_services/vector_map.osm
-  
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
   intersection_model:
     image: usdotfhwastolcandidate/intersection_model:release_fiesta
     build: 
@@ -107,6 +117,8 @@ services:
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 secrets:
     mysql_password:
         file: ./secrets/mysql_password.txt
