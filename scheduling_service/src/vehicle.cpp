@@ -208,49 +208,46 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 			fi.speed = speed;
 			fi.acceleration = acceleration;
 			future_info.push_back(fi);
-			if (message["payload"]["est_paths"].Size() > 1){
-				for (SizeType i = 0; i < message["payload"]["est_paths"].Size(); ++i){
+			for (SizeType i = 0; i < message["payload"]["est_paths"].Size(); ++i){
+				
+				/* adding checks to make sure the necessary data exist in the future point */
+				if (message["payload"]["est_paths"][i].HasMember("ts") && message["payload"]["est_paths"][i].HasMember("id") && message["payload"]["est_paths"][i].HasMember("ds")){
 					
-					/* adding checks to make sure the necessary data exist in the future point */
-					if (message["payload"]["est_paths"][i].HasMember("ts") && message["payload"]["est_paths"][i].HasMember("id") && message["payload"]["est_paths"][i].HasMember("ds")){
-						
-						/* adding checks to make sure only valid future points will be saved */
-						if (message["payload"]["est_paths"][i]["id"].GetInt() == 0){
-							spdlog::critical("the lane id in the future path of Vehicle {0} is invalid in the received update!", veh_id);
-						}
-						else if (message["payload"]["est_paths"][i]["ds"].GetDouble() < 0){
-							spdlog::critical("the distance to the end of lane in the future path of Vehicle {0} is invalid in the received update!", veh_id);
-						}
-						else{
-
-
-
-							/* the future path received from CARMA Platform does not consider the stopping requirement at the stop bar.
-							*  therefore, CARMA Streets will force the stopping requirement to the vehicle's future path.
-							*  basically, if the vehicle is an EV, or and RDV without access, if the vehicle lane id in the future path is not the same as the vehicle entry lane id, the scheduling service consider the entry lane id as the vehicle future lane id and 0.1 as the distance.
-							* */
-							if ((state == "EV" || (state == "RDV" && access == false)) && to_string(message["payload"]["est_paths"][i]["id"].GetInt()) != entryLane_id){
-								continue;
-							}
-							else{
-								fi = future_information();
-
-								fi.timestamp = (double)message["payload"]["est_paths"][i]["ts"].GetInt64() / 1000;
-								fi.lane_id = to_string(message["payload"]["est_paths"][i]["id"].GetInt());
-								fi.distance = message["payload"]["est_paths"][i]["ds"].GetDouble();
-								fi.speed = (future_info[future_info.size() - 1].distance - fi.distance) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
-								fi.acceleration = (fi.speed - future_info[future_info.size() - 1].speed) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
-
-								spdlog::debug("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
-								future_info.push_back(fi);
-							}
-
-
-						}
+					/* adding checks to make sure only valid future points will be saved */
+					if (message["payload"]["est_paths"][i]["id"].GetInt() == 0){
+						spdlog::critical("the lane id in the future path of Vehicle {0} is invalid in the received update!", veh_id);
+					}
+					else if (message["payload"]["est_paths"][i]["ds"].GetDouble() < 0){
+						spdlog::critical("the distance to the end of lane in the future path of Vehicle {0} is invalid in the received update!", veh_id);
 					}
 					else{
-						spdlog::critical("a point in the future path of Vehicle {0} is not complete in the received update!", veh_id);
+
+
+						/* the future path received from CARMA Platform does not consider the stopping requirement at the stop bar.
+						*  therefore, CARMA Streets will force the stopping requirement to the vehicle's future path.
+						*  basically, if the vehicle is an EV, or and RDV without access, if the vehicle lane id in the future path is not the same as the vehicle entry lane id, the scheduling service will ignore the future points.
+						* */
+						if (future_info[future_info.size() - 1].distance >= message["payload"]["est_paths"][i]["ds"].GetDouble()){
+							fi = future_information();
+							// the unit of timestamp in here is sec with decimal places.
+							fi.timestamp = (double)message["payload"]["est_paths"][i]["ts"].GetInt64() / 1000;
+							fi.distance = future_info[future_info.size() - 1].distance - message["payload"]["est_paths"][i]["ds"].GetDouble();
+							fi.lane_id = to_string(message["payload"]["est_paths"][i]["id"].GetInt());
+							fi.speed = message["payload"]["est_paths"][i]["ds"].GetDouble() / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
+							fi.acceleration = (fi.speed - future_info[future_info.size() - 1].speed) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
+
+							spdlog::debug("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
+							future_info.push_back(fi);
+						} 
+						else{
+							spdlog::info("Vehicle Class log - vehicle {0}: the lane id of the vehicle in the est_pathh has changed!", veh_id);
+							break;
+						}
+
 					}
+				}
+				else{
+					spdlog::critical("a point in the future path of Vehicle {0} is not complete in the received update!", veh_id);
 				}
 			}
 		}
