@@ -499,7 +499,7 @@ void call_scheduling_thread(){
     double last_schedule;
 
     // Create logger
-    std::unique_ptr<csv_logger> logger = std::unique_ptr<csv_logger>(new csv_logger( config.get_scheduleLogPath(), config.get_scheduleLogFilename(), config.get_scheduleLogMaxsize() ));
+    auto logger = std::unique_ptr<csv_logger>(new csv_logger( config.get_scheduleLogPath(), config.get_scheduleLogFilename(), config.get_scheduleLogMaxsize() ));
     
     char str_msg[]="";           
     if(!producer_worker->init())

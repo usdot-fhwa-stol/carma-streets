@@ -33,7 +33,7 @@ ls -a
 ./scheduling_service_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/scheduling_service/
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
+gcovr -k -r .
 mv *.gcov coverage
 ls coverage/
 
