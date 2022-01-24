@@ -1,12 +1,9 @@
 
 #include "csv_logger.h"
 
-csv_logger::csv_logger(const std::string log_directory, const std::string filename, const int filesize_max){
-    
-    _file_directory = log_directory;
-    _file_name = filename;
-    _cur_file_name = _file_directory + _file_name + ".csv";
-    _log_file_size_inMB_max = filesize_max;
+csv_logger::csv_logger( std::string log_directory, std::string filename, int filesize_max) : 
+_file_directory(log_directory), _file_name(filename), _log_file_size_inMB_max(filesize_max) ,_cur_file_name(_file_directory + _file_name + ".csv") 
+{
     openLogFile();
 }
 
@@ -74,7 +71,7 @@ void csv_logger::log_line(std::string new_line){
 
 
 
-std::string csv_logger::GetCurDateTimeStr()
+std::string csv_logger::GetCurDateTimeStr() const
 {   
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
@@ -90,7 +87,7 @@ void csv_logger::fileSizeCheck(){
         // Check file size in bytes
         int _log_file_size = boost::filesystem::file_size( _cur_file_name );
         // Convert to Mb
-        int _log_file_size_inMB = _log_file_size/1048576;
+        long _log_file_size_inMB = _log_file_size/1048576;
         // Close file if larger that Mb limit and open new file
         if (_log_file_size_inMB >= _log_file_size_inMB_max)
         {

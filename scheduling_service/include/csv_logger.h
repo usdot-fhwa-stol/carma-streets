@@ -8,13 +8,11 @@
 #include <boost/filesystem.hpp>
 #include <sstream>
 
+
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
 
 #include "configuration.h"
-
-using namespace std;
-using namespace boost::filesystem;
 
 
 class csv_logger{
@@ -40,7 +38,7 @@ class csv_logger{
 		 * 
 		 * @return std::string representing current time and date 
 		 **/
-		std::string GetCurDateTimeStr();
+		std::string GetCurDateTimeStr() const;
 
 		/**
 		 * On initial call method will create a logs directory under the _file_directory path specified and 
@@ -66,7 +64,7 @@ class csv_logger{
 	public:
 
 		/** Constructor **/
-		csv_logger( const std::string log_directory, const std::string log_filename, const int filesize_max);
+		explicit csv_logger( std::string log_directory, std::string log_filename, int filesize_max);
 
 		/** Deconstructor **/
 		~csv_logger();
