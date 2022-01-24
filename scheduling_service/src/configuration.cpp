@@ -89,7 +89,7 @@ configuration::configuration(){
     }
 
      if(doc.HasMember("SCHEDULE_LOG_FILENAME")){
-        schedule_log_path = doc["SCHEDULE_LOG_FILENAME"].GetString();
+        schedule_log_filename = doc["SCHEDULE_LOG_FILENAME"].GetString();
         spdlog::info("initial schedule_logger file_name prefix :  {0}", schedule_log_filename);
     } else{
         spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_FILENAME");
@@ -97,7 +97,7 @@ configuration::configuration(){
     }
 
      if(doc.HasMember("SCHEDULE_LOG_MAX_SIZE")){
-        schedule_log_path = doc["SCHEDULE_LOG_MAX_SIZE"].GetInt();
+        schedule_log_maxsize = doc["SCHEDULE_LOG_MAX_SIZE"].GetInt();
         spdlog::info("initial schedule_logger maximum file size :  {0}", schedule_log_maxsize);
     } else{
         spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_MAX_SIZE");

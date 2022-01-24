@@ -64,7 +64,7 @@ class csv_logger{
 	public:
 
 		/** Constructor **/
-		explicit csv_logger( std::string log_directory, std::string log_filename, int filesize_max);
+		explicit csv_logger( std::string const &log_directory, std::string const &log_filename, int filesize_max);
 
 		/** Deconstructor **/
 		~csv_logger();

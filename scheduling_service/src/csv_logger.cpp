@@ -1,8 +1,8 @@
 
 #include "csv_logger.h"
 
-csv_logger::csv_logger( std::string log_directory, std::string filename, int filesize_max) : 
-_file_directory(log_directory), _file_name(filename), _log_file_size_inMB_max(filesize_max) ,_cur_file_name(_file_directory + _file_name + ".csv") 
+csv_logger::csv_logger( std::string const  &log_directory, std::string const &filename, int filesize_max) : 
+_file_directory(log_directory), _file_name(filename), _log_file_size_inMB_max(filesize_max) 
 {
     openLogFile();
 }
@@ -25,6 +25,7 @@ void csv_logger::openLogFile(){
         spdlog::debug("A log file is already open!");
     } 
     else{
+        _cur_file_name =_file_directory + "/" + _file_name + ".csv";
         spdlog::info("Opening a Log file.");
         if (!boost::filesystem::exists(_file_directory + "logs/")){
             boost::filesystem::create_directory(_file_directory + "logs/");   
@@ -85,7 +86,7 @@ void csv_logger::fileSizeCheck(){
     // Check if there is an open file
     if (_log_file.is_open()){
         // Check file size in bytes
-        int _log_file_size = boost::filesystem::file_size( _cur_file_name );
+        long _log_file_size = boost::filesystem::file_size( _cur_file_name );
         // Convert to Mb
         long _log_file_size_inMB = _log_file_size/1048576;
         // Close file if larger that Mb limit and open new file
