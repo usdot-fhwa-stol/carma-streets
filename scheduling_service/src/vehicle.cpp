@@ -224,21 +224,51 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 						else{
 
 
-
 							/* the future path received from CARMA Platform does not consider the stopping requirement at the stop bar.
 							*  therefore, CARMA Streets will force the stopping requirement to the vehicle's future path.
-							*  basically, if the vehicle is an EV, or and RDV without access, if the vehicle lane id in the future path is not the same as the vehicle entry lane id, the scheduling service consider the entry lane id as the vehicle future lane id and 0.1 as the distance.
+							*  basically, if the vehicle is an EV, or and RDV without access, if the vehicle lane id in the future path is not the same as the vehicle entry lane id, the scheduling service will ignore the future points.
 							* */
-							if ((state == "EV" || (state == "RDV" && access == false)) && to_string(message["payload"]["est_paths"][i]["id"].GetInt()) != entryLane_id){
-								continue;
+							if ((state == "EV" || (state == "RDV" && access == false)) && (to_string(message["payload"]["est_paths"][i]["id"].GetInt()) != entryLane_id || future_info[future_info.size() - 1].distance < message["payload"]["est_paths"][i]["ds"].GetDouble())){
+								spdlog::critical("Vehicle Class log - vehicle {0}: est_path point is not located in an entry lane!", veh_id);
+								break;
 							}
 							else{
+								
 								fi = future_information();
-
 								fi.timestamp = (double)message["payload"]["est_paths"][i]["ts"].GetInt64() / 1000;
-								fi.lane_id = to_string(message["payload"]["est_paths"][i]["id"].GetInt());
-								fi.distance = message["payload"]["est_paths"][i]["ds"].GetDouble();
-								fi.speed = (future_info[future_info.size() - 1].distance - fi.distance) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
+								if (future_info[future_info.size() - 1].distance >= message["payload"]["est_paths"][i]["ds"].GetDouble()) {
+									fi.distance = future_info[future_info.size() - 1].distance - message["payload"]["est_paths"][i]["ds"].GetDouble();
+									fi.lane_id = to_string(message["payload"]["est_paths"][i]["id"].GetInt());
+								} else{
+									if (future_info[future_info.size() - 1].lane_id == entryLane_id){
+										if (future_info[future_info.size() - 1].distance + localmap.get_laneLength(link_id) >= message["payload"]["est_paths"][i]["ds"].GetDouble()){
+											fi.distance = future_info[future_info.size() - 1].distance + localmap.get_laneLength(link_id) - message["payload"]["est_paths"][i]["ds"].GetDouble();
+											fi.lane_id = link_id;
+										} 
+										else if (future_info[future_info.size() - 1].distance + localmap.get_laneLength(link_id) + localmap.get_laneLength(exitLane_id) >= message["payload"]["est_paths"][i]["ds"].GetDouble()){
+											fi.distance = future_info[future_info.size() - 1].distance + localmap.get_laneLength(link_id) + localmap.get_laneLength(exitLane_id) - message["payload"]["est_paths"][i]["ds"].GetDouble();
+											fi.lane_id = exitLane_id;
+										}
+										else {
+											break;
+										}
+									}
+									else if (future_info[future_info.size() - 1].lane_id == link_id){
+										if (future_info[future_info.size() - 1].distance + localmap.get_laneLength(exitLane_id) >= message["payload"]["est_paths"][i]["ds"].GetDouble()){
+											fi.distance = future_info[future_info.size() - 1].distance + localmap.get_laneLength(exitLane_id) - message["payload"]["est_paths"][i]["ds"].GetDouble();
+											fi.lane_id = exitLane_id;
+										}
+										else {
+											break;
+										}
+									} 
+									else{
+										break;
+									}
+
+								}
+
+								fi.speed = message["payload"]["est_paths"][i]["ds"].GetDouble() / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
 								fi.acceleration = (fi.speed - future_info[future_info.size() - 1].speed) / (fi.timestamp - future_info[future_info.size() - 1].timestamp);
 
 								spdlog::debug("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance, fi.speed, fi.acceleration);
