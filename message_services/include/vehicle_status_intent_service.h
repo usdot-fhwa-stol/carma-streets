@@ -41,7 +41,12 @@ namespace message_services
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _mp_consumer_worker;
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _bsm_consumer_worker;
             std::int64_t vsi_est_path_point_count = 0;
-            bool distable_future_path = false; // false: Show future path in the vsi message. true: Not show
+            bool disable_est_path = false; // false: Show est path in the vsi message. true: Not show
+            /***
+             * False: Each point in est path includes lanelet id (Identify which lanelet this point lands on), distance to end of lanelet and timestamp
+             * True: First point in est_path includes distance to current vehicle location, and timestamp. Following points in est_path include distance to previous point and timestamp 
+            **/
+            bool is_est_path_p2p_distance_only = false; 
 
             //Mapping MobilityOperation and BSM msg_count maximum allowed differences.
             std::int32_t MOBILITY_OPERATION_BSM_MAX_COUNT_OFFSET = 0;

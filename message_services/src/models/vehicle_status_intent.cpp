@@ -138,7 +138,7 @@ namespace message_services
                         writer->Int64(est_path_item.lanelet_id);
                         //Distance to the end of the lanelet where the future position is
                         writer->String("ds");
-                        writer->Double(est_path_item.distance_to_end_of_lanelet);
+                        writer->Double(est_path_item.distance);
                         //Timestamp when the future position is
                         writer->String("ts");
                         writer->Uint64(est_path_item.timestamp);
