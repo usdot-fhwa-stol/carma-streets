@@ -10,7 +10,7 @@
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
-#include "schedule_logger.h"
+#include "csv_logger.h"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
@@ -34,8 +34,6 @@ intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 set<string> list_veh_removal;
-double last_schedule;
-std::unique_ptr<schedule_logger> logger;
 
 
 void consumer_update(const char* payload){
@@ -85,13 +83,13 @@ void consumer_update(const char* payload){
 
 }
 
-rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
+rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, std::unique_ptr<csv_logger> &logger, double &last_schedule){
 
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
     // Set schedule timestamp
     schedule.set_timestamp(duration<double>(chrono::system_clock::now().time_since_epoch()).count());
     if ( config.isScheduleLoggerEnabled() ) {
-        logger->log_schedule( schedule.toCSV() );
+        logger->log_line( schedule.toCSV() ); 
     }
 
     last_schedule = schedule.get_timestamp();
@@ -442,6 +440,8 @@ void call_consumer_thread()
     std::string group_id = client->get_value_by_doc(doc_json, "GROUP_ID");
     std::string topic = client->get_value_by_doc(doc_json, "CONSUMER_TOPIC");
     auto consumer_worker = client->create_consumer(bootstrap_server,topic,group_id);
+   
+
     if(!consumer_worker->init())
     {
         spdlog::critical("kafka consumer initialize error");
@@ -495,9 +495,12 @@ void call_scheduling_thread(){
     std::string bootstrap_server =  client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
     std::string topic = client->get_value_by_doc(doc_json, "PRODUCER_TOPIC");
     auto producer_worker  = client->create_producer(bootstrap_server, topic);
-    if ( config.isScheduleLoggerEnabled()) {
-        logger = std::unique_ptr<schedule_logger>(new schedule_logger( config.get_scheduleLogPath() ));
-    }
+     // Holds timestamp for last schedule sent
+    double last_schedule;
+
+    // Create logger
+    std::unique_ptr<csv_logger> logger = std::unique_ptr<csv_logger>(new csv_logger( config.get_scheduleLogPath(), config.get_scheduleLogFilename(), config.get_scheduleLogMaxsize() ));
+    
     char str_msg[]="";           
     if(!producer_worker->init())
     {
@@ -543,7 +546,7 @@ void call_scheduling_thread(){
 
                 Value schedule;
                 if (!list_veh_copy.empty()){
-                    schedule = scheduling_func(list_veh_copy, allocator);
+                    schedule = scheduling_func(list_veh_copy, allocator, logger, last_schedule);
                 }
                 document.AddMember("payload", schedule, allocator);
 

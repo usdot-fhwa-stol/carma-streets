@@ -78,6 +78,7 @@ services:
       WAIT_HOST_CONNECT_TIMEOUT: 30
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
+      - ./scheduling_service/logs/:/home/carma-streets/scheduling_service/logs/
       
   message_services:
     image: usdotfhwastolcandidate/message_services:release_fiesta

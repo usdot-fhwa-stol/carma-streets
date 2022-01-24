@@ -222,7 +222,7 @@ string scheduling::toCSV() const {
 		schedule_info += to_string(st[i]) + ", ";
 		schedule_info += to_string(et[i]) + ", ";
 		schedule_info += to_string(dt[i]) + ", ";
-		schedule_info += to_string(access[i]) + "\n";
+		schedule_info += to_string(access[i]);
 	}
 
 	return schedule_info;
