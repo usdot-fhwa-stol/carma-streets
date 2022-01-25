@@ -294,6 +294,7 @@ namespace message_services
                 if(is_est_path_p2p_distance_only)
                 {
                     est_path.distance = lanelet::geometry::distance(lanelet::utils::to2D(cur_basic_point3d),lanelet::utils::to2D(mp_start_point));
+                    est_path.lanelet_id = cur_lanelet.id(); //Set the lanelet id to the current vehicle lanelet id
                 }
                 else
                 {
