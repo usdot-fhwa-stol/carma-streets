@@ -7,5 +7,9 @@
     "STOP_DISTANCE": 3,
     "STOP_SPEED": 0.1 ,
     "MAX_VALID_SPEED": 50,
-    "SCHEDULING_DELTA": 0.2
+    "SCHEDULING_DELTA": 0.2,
+    "ENABLE_SCHEDULE_LOGGING": true,
+    "SCHEDULE_LOG_PATH": "/home/carma-streets/scheduling_service/",
+    "SCHEDULE_LOG_FILENAME": "scheduleLogs",
+    "SCHEDULE_LOG_MAX_SIZE": 5
 }

@@ -10,6 +10,7 @@
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
+#include "csv_logger.h"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/cfg/env.h"
@@ -35,11 +36,11 @@ set<string> list_veh_confirmation;
 set<string> list_veh_removal;
 
 
-void consumer_update(const char* paylod){
+void consumer_update(const char* payload){
     
     rapidjson::Document message;
     message.SetObject();
-    message.Parse(paylod);
+    message.Parse(payload);
     
     /* if the received message does not have payload, it cannot be processed! */
     if (message.HasMember("payload")){
@@ -82,10 +83,16 @@ void consumer_update(const char* paylod){
 
 }
 
-rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator){
+rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, std::unique_ptr<csv_logger> &logger, double &last_schedule){
 
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
+    // Set schedule timestamp
+    schedule.set_timestamp(duration<double>(chrono::system_clock::now().time_since_epoch()).count());
+    if ( config.isScheduleLoggerEnabled() ) {
+        logger->log_line( schedule.toCSV() ); 
+    }
 
+    last_schedule = schedule.get_timestamp();
     /* estimate the departure times (DTs) of DVs */
     for (const auto vehicle_index : schedule.get_indexDVs()){
         double dt = schedule.get_timeList()[vehicle_index] + schedule.get_clearTimeList()[vehicle_index];
@@ -114,7 +121,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         int vehicle_index1 = listRDV[n];
         string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
         string link_id1 = list_veh[vehicle_id1].get_linkID();
-        double et = config.get_curSchedulingT() + config.get_schedulingDelta();
+        double et = schedule.get_timestamp() + config.get_schedulingDelta();
         for (int m = 0; m < (int)listS.size(); ++m){
             int vehicle_index2 = listS[m];
             string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
@@ -252,7 +259,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		}
 
         /* if the vehicle's entering time is set to the next scheduling time step, give access to the vehicle */
-        if (et <= config.get_curSchedulingT() + config.get_schedulingDelta()){
+        if (et <= schedule.get_timestamp() + config.get_schedulingDelta()){
             bool vehicle_access_indicator = true;
             for (int n = 0; n < (int)schedule.get_indexDVs().size(); ++n){
                 int vehicle_index1 = schedule.get_indexDVs()[n];
@@ -309,7 +316,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
 
-                double st = max(schedule.get_estList()[vehicle_index1], config.get_curSchedulingT() + config.get_schedulingDelta());
+                double st = max(schedule.get_estList()[vehicle_index1], schedule.get_timestamp() + config.get_schedulingDelta());
                 if (!listS.empty()){
                     for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
@@ -433,6 +440,8 @@ void call_consumer_thread()
     std::string group_id = client->get_value_by_doc(doc_json, "GROUP_ID");
     std::string topic = client->get_value_by_doc(doc_json, "CONSUMER_TOPIC");
     auto consumer_worker = client->create_consumer(bootstrap_server,topic,group_id);
+   
+
     if(!consumer_worker->init())
     {
         spdlog::critical("kafka consumer initialize error");
@@ -486,7 +495,12 @@ void call_scheduling_thread(){
     std::string bootstrap_server =  client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
     std::string topic = client->get_value_by_doc(doc_json, "PRODUCER_TOPIC");
     auto producer_worker  = client->create_producer(bootstrap_server, topic);
+     // Holds timestamp for last schedule sent
+    double last_schedule;
 
+    // Create logger
+    auto logger = std::unique_ptr<csv_logger>(new csv_logger( config.get_scheduleLogPath(), config.get_scheduleLogFilename(), config.get_scheduleLogMaxsize() ));
+    
     char str_msg[]="";           
     if(!producer_worker->init())
     {
@@ -499,11 +513,10 @@ void call_scheduling_thread(){
         while (true) 
         {   
             
-            if (duration<double>(system_clock::now().time_since_epoch()).count() - config.get_lastSchedulingT() >= config.get_schedulingDelta()){
+            if (duration<double>(system_clock::now().time_since_epoch()).count() - last_schedule >= config.get_schedulingDelta()){
                 
                 spdlog::info("schedule number #{0}", sch_count);
 
-                config.set_curSchedulingT(duration<double>(system_clock::now().time_since_epoch()).count());
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
 
                 // copy list_veh
@@ -533,7 +546,7 @@ void call_scheduling_thread(){
 
                 Value schedule;
                 if (!list_veh_copy.empty()){
-                    schedule = scheduling_func(list_veh_copy, allocator);
+                    schedule = scheduling_func(list_veh_copy, allocator, logger, last_schedule);
                 }
                 document.AddMember("payload", schedule, allocator);
 
@@ -546,7 +559,6 @@ void call_scheduling_thread(){
                 producer_worker->send(msg_to_send);
 
                 // update the previous scheduling time and sleep until next schedule
-                config.set_lastSchedulingT(config.get_curSchedulingT());
                 if (system_clock::now() < t){
                     this_thread::sleep_until(t);
                 }

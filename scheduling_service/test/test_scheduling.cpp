@@ -171,11 +171,9 @@ TEST(test_scheduling, scheduling)
             list_veh[veh_id_7].update(message, localmap, config);
             list_veh_confirmation.insert(veh_id_7);
 
-            config.set_lastSchedulingT(1623677096.000);
-            config.set_curSchedulingT(1623677097.000);
 
             scheduling schedule_1(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
-
+            schedule_1.set_timestamp(1623677097.000);
             ASSERT_EQ(7, schedule_1.get_vehicleIdList().size());
             ASSERT_EQ(7, schedule_1.get_vehicleIndexList().size());
             ASSERT_EQ(7, schedule_1.get_timeList().size());
