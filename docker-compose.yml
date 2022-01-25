@@ -2,6 +2,7 @@ version: '3.7'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
+    container_name: zookeeper
     ports:
        - "2181:2182"
     volumes:
@@ -9,6 +10,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
   kafka:
     image: wurstmeister/kafka
+    container_name: kafka
     depends_on: 
       - zookeeper
     ports:
@@ -18,10 +20,25 @@ services:
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
       KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LOG_RETENTION_HOURS: 24
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+##############################################################
+# Kafka Owl for monitoring kafka traffic. UI can be accessed on 
+# configurable port set in performance/kowl.yaml
+#  kowl:
+#    image: quay.io/cloudhut/kowl
+#    container_name: kowl
+#    restart: on-failure
+#    network_mode: host
+#    depends_on:
+#      - kafka
+#    environment:
+#      CONFIG_FILEPATH: /etc/kowl/kowl.yaml
+#    volumes:
+#      - ./performance/kowl.yaml:/etc/kowl/kowl.yaml
   db:
     image: mysql:5.7
     container_name: mysql
@@ -77,6 +94,7 @@ services:
     depends_on:  
       - kafka
       - intersection_model
+      - message_services
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
