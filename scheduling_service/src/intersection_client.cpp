@@ -132,7 +132,7 @@ void intersection_client::call()
   connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignalE, [&](OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
           {
             string error_str_print = error_str.toStdString();
-            spdlog::critical("Error happened while issuing request : {0}", error_str_print);
+            spdlog::critical("Error happened while issuing request: {0}", error_str_print);
             is_running_indicator = false;
             loop.quit(); });
 

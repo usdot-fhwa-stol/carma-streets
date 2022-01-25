@@ -39,7 +39,7 @@ void vehicle::update(const rapidjson::Document& message, intersection_client& lo
 		if (message["payload"].HasMember("cur_accel")){
 			acceleration = message["payload"]["cur_accel"].GetDouble();
 		} else{
-			spdlog::critical("the current acceleration of Vehicle {0} is missing in the received update!", veh_id);
+			spdlog::critical("the current acceleration of Vehicle {0} is missing in the received update!!", veh_id);
 		}
 
 		/* the unit of the received timestamp from the message is milisecond without decimal places

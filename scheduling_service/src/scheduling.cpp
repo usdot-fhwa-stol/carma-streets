@@ -191,7 +191,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 			if (list_veh_confirmation.find(element.first) != list_veh_confirmation.end()){
 				list_veh_confirmation.erase(element.first);
 			}
-			spdlog::info("Vehicle {0} is not added to the schedule as its update is more than {1} seconds old!", element.first, config.get_expDelta());
+			spdlog::info("Vehicle {0} is not added to the schedule as its update is more than {1} seconds old!!", element.first, config.get_expDelta());
 			list_veh_removal.insert(element.first);
 		}
 	}

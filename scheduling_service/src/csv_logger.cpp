@@ -22,7 +22,7 @@ csv_logger::~csv_logger() {
 void csv_logger::openLogFile(){
     
     if (_log_file.is_open()){
-        spdlog::debug("A log file is already open!");
+        spdlog::debug("A log file is already open!!");
     } 
     else{
         _cur_file_name =_file_directory + "/" + _file_name + ".csv";
