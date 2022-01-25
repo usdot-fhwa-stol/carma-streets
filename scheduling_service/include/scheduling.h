@@ -21,7 +21,10 @@ using namespace std;
 /* !!! must be revised !!! */
 class scheduling{
 	private:
-		
+
+		/* Schedule timestamp in seconds */
+		double timestamp;
+
 		/* list of vehicle ids */
 		vector<string> veh_id;
 
@@ -105,6 +108,7 @@ class scheduling{
 	public:
 
 		scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, const configuration& config, set<string>& list_veh_removal);
+		double get_timestamp() const;
 		vector<string> get_vehicleIdList() const;
 		unordered_map<string, int> get_vehicleIndexList() const;
 
@@ -136,6 +140,10 @@ class scheduling{
 		void set_dt(int v_index, double dt_added);
 		void set_departPosIndex(int v_index, int pos_index);
 		void set_access(int v_index, bool access_value);
+
+		void set_timestamp(double timestamp);
+
+		string toCSV() const;
 };
 
 
