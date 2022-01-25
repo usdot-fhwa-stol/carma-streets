@@ -7,7 +7,7 @@ using namespace std;
 
 /* */
 scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, const configuration& config, set<string>& list_veh_removal){
-	schedule.set_timestamp(duration<double>(chrono::system_clock::now().time_since_epoch()).count());
+	timestamp = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (const auto& element : list_veh){
 		
