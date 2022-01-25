@@ -86,8 +86,6 @@ void consumer_update(const char* payload){
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, std::unique_ptr<csv_logger> &logger, double &last_schedule){
 
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
-    // Set schedule timestamp
-    schedule.set_timestamp(duration<double>(chrono::system_clock::now().time_since_epoch()).count());
     if ( config.isScheduleLoggerEnabled() ) {
         logger->log_line( schedule.toCSV() ); 
     }
