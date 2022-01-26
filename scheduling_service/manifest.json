@@ -9,7 +9,8 @@
     "MAX_VALID_SPEED": 50,
     "SCHEDULING_DELTA": 0.2,
     "ENABLE_SCHEDULE_LOGGING": true,
-    "SCHEDULE_LOG_PATH": "/home/carma-streets/scheduling_service/",
+    "SCHEDULE_LOG_PATH": "/home/carma-streets/scheduling_service/logs/",
     "SCHEDULE_LOG_FILENAME": "scheduleLogs",
-    "SCHEDULE_LOG_MAX_SIZE": 5
+    "SCHEDULE_LOG_MAX_FILE_SIZE": 5,
+    "SCHEDULE_LOG_MAX_FILE_NUMBER": 5
 }

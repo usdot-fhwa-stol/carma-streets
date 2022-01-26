@@ -10,9 +10,11 @@
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
-#include "csv_logger.h"
 
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/rotating_file_sink.h" // support for rotating file logging
+#include "spdlog/async.h" //support for async logging.
+
 #include "spdlog/cfg/env.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -83,12 +85,16 @@ void consumer_update(const char* payload){
 
 }
 
-rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, std::unique_ptr<csv_logger> &logger, double &last_schedule){
+rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, double &last_schedule){
 
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
     if ( config.isScheduleLoggerEnabled() ) {
-        logger->log_line( schedule.toCSV() ); 
-    }
+        auto logger = spdlog::get("csv_logger");
+        if ( logger != nullptr )
+            logger->info( schedule.toCSV());
+        
+    };
+
 
     last_schedule = schedule.get_timestamp();
     /* estimate the departure times (DTs) of DVs */
@@ -497,8 +503,23 @@ void call_scheduling_thread(){
     double last_schedule;
 
     // Create logger
-    auto logger = std::unique_ptr<csv_logger>(new csv_logger( config.get_scheduleLogPath(), config.get_scheduleLogFilename(), config.get_scheduleLogMaxsize() ));
-    
+    if ( config.isScheduleLoggerEnabled() ) {
+        try{
+            auto logger = spdlog::rotating_logger_mt<spdlog::async_factory>(
+                "csv_logger",  // logger name
+                config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
+                1048576 * config.get_scheduleLogMaxsize(), // max size in MB
+                config.get_scheduleLogMaxNumber() // max number of files
+                );
+            // Only log log statement content
+            logger->set_pattern("%v");
+            logger->set_level(spdlog::level::info);
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
+        }
+    }
     char str_msg[]="";           
     if(!producer_worker->init())
     {
@@ -544,7 +565,7 @@ void call_scheduling_thread(){
 
                 Value schedule;
                 if (!list_veh_copy.empty()){
-                    schedule = scheduling_func(list_veh_copy, allocator, logger, last_schedule);
+                    schedule = scheduling_func(list_veh_copy, allocator, last_schedule);
                 }
                 document.AddMember("payload", schedule, allocator);
 
