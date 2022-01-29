@@ -3,6 +3,8 @@
 
 #include "vehicle_status_intent_service.h"
 
+
+
 namespace message_services
 {
 
@@ -34,6 +36,26 @@ namespace message_services
 
                 // producer topics
                 this->vsi_topic_name = client->get_value_by_doc(doc, "VSI_PRODUCER_TOPIC");
+
+                // Create default multisink daily file logger
+                try {
+                    std::string loglevel = client->get_value_by_doc(doc, "LOG_LEVEL");
+
+                    spdlog::init_thread_pool(8192, 1);
+                    auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("/home/carma-streets/message_services/logs/message_service.log", 23, 3);
+                    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+                    console_sink->set_level(spdlog::level::from_str(loglevel));
+                    file_sink->set_level( spdlog::level::from_str(loglevel) );
+
+                    auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
+                    spdlog::register_logger(logger);
+                    spdlog::set_default_logger(logger);
+                    spdlog::info("Default Logger initialized!");
+                }   
+                catch (const spdlog::spdlog_ex& ex)
+                {
+                    spdlog::error( "Log initialization failed: {0}!",ex.what());
+                }
 
                 _bsm_consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
                 _mp_consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
