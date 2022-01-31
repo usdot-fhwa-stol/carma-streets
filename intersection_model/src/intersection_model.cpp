@@ -1,6 +1,5 @@
 #include "intersection_model.h"
 
-
 namespace intersection_model
 {
 
@@ -43,26 +42,6 @@ namespace intersection_model
 
             //Read the osm file and initialize the map object.
             read_lanelet2_map(osm_file_path);
-        }
-        if(doc.HasMember("log_level") ) {
-            std::string loglevel = doc["log_level"].GetString();
-            spdlog::init_thread_pool(8192, 1);
-            try {
-                
-                auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("/home/carma-streets/intersection_model/logs/intersection_model.log", 23, 3);
-                auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-                console_sink->set_level(spdlog::level::from_str(loglevel));
-                file_sink->set_level( spdlog::level::from_str(loglevel ) );
-
-                auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
-                spdlog::register_logger(logger);
-                spdlog::set_default_logger(logger);
-                spdlog::info("Default Logger initialized!");
-            }   
-            catch (const spdlog::spdlog_ex& ex)
-            {
-                spdlog::error( "Log initialization failed: {0}!",ex.what());
-            }
         }
         
         if (map && !map->empty())

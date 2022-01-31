@@ -1,6 +1,5 @@
 {
     "osm_file_path": "../vector_map.osm",
     "intersection_name": "West Intersection",
-    "intersection_id": 9001,
-    "log_level":"info"
+    "intersection_id": 9001
 }
