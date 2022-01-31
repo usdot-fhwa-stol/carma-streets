@@ -96,13 +96,6 @@ configuration::configuration(){
         exit(1);
     }
 
-     if(doc.HasMember("SCHEDULE_LOG_MAX_FILE_SIZE")){
-        schedule_log_maxsize = doc["SCHEDULE_LOG_MAX_FILE_SIZE"].GetInt();
-        spdlog::info("initial schedule_logger maximum file size :  {0}", schedule_log_maxsize);
-    } else{
-        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_MAX_FILE_SIZE");
-        exit(1);
-    }
 
 }
 
@@ -126,12 +119,6 @@ string configuration::get_scheduleLogPath() const {return schedule_log_path;}
 
 /* */
 string configuration::get_scheduleLogFilename() const {return schedule_log_filename;}
-
-/* */
-int configuration::get_scheduleLogMaxsize() const {return schedule_log_maxsize;}
-
-/* */
-int configuration::get_scheduleLogMaxNumber() const{return schedule_log_max_number;}
 
 /* */
 bool configuration::isScheduleLoggerEnabled() const {return schedule_log_enabled;}

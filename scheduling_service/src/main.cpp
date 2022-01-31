@@ -12,7 +12,7 @@
 #include "scheduling.h"
 
 #include "spdlog/spdlog.h"
-#include "spdlog/sinks/rotating_file_sink.h" // support for rotating file logging
+#include "spdlog/sinks/daily_file_sink.h" // support for daily logging
 #include "spdlog/async.h" //support for async logging.
 
 #include "spdlog/cfg/env.h"
@@ -93,7 +93,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         if ( logger != nullptr )
             logger->info( schedule.toCSV());
         
-    };
+    }
 
 
     last_schedule = schedule.get_timestamp();
@@ -505,11 +505,11 @@ void call_scheduling_thread(){
     // Create logger
     if ( config.isScheduleLoggerEnabled() ) {
         try{
-            auto logger = spdlog::rotating_logger_mt<spdlog::async_factory>(
+            auto logger = spdlog::daily_logger_mt<spdlog::async_factory>(
                 "csv_logger",  // logger name
                 config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
-                1048576 * config.get_scheduleLogMaxsize(), // max size in MB
-                config.get_scheduleLogMaxNumber() // max number of files
+                23, // hours to rotate
+                59 // minutes to rotate
                 );
             // Only log log statement content
             logger->set_pattern("%v");
