@@ -104,6 +104,14 @@ configuration::configuration(){
         exit(1);
     }
 
+    if(doc.HasMember("LOG_LEVEL")){
+        loglevel = doc["LOG_LEVEL"].GetString();
+        spdlog::info("Initial log_level :  {0}", loglevel);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "LOG_LEVEL");
+        exit(1);
+    }
+
 }
 
 /* */
@@ -129,6 +137,9 @@ string configuration::get_scheduleLogFilename() const {return schedule_log_filen
 
 /* */
 int configuration::get_scheduleLogMaxsize() const {return schedule_log_maxsize;}
+
+/* */
+string configuration::get_loglevel() const {return loglevel;}
 
 /* */
 bool configuration::isScheduleLoggerEnabled() const {return schedule_log_enabled;}

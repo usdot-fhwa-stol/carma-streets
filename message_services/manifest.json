@@ -14,5 +14,5 @@
     "CLEAN_QUEUE_IN_SECS": "3",
     "DISABLE_EST_PATH": "1",
     "IS_EST_PATH_P2P_DISTANCE_ONLY": "0",
-    "LOG_LEVEL": "info"
+    "LOG_LEVEL": "debug"
 }

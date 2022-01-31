@@ -49,6 +49,8 @@ class configuration{
 		string schedule_log_filename;
 		/* Schedule log max size in megabytes */
 		int schedule_log_maxsize;
+		/* String loglevel */
+		string loglevel;
 
 	public:
 
@@ -85,6 +87,11 @@ class configuration{
 		 * @return schedule log file max size in megabytes.
 		 **/
 		int get_scheduleLogMaxsize() const;
+
+		/**
+		 * @return loglevel
+		 */
+		string get_loglevel() const;
 
 		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);

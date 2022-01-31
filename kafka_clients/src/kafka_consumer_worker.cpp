@@ -133,13 +133,13 @@ namespace kafka_clients
         case RdKafka::ERR__TIMED_OUT:
             break;
         case RdKafka::ERR_NO_ERROR:
-            spdlog::info(" {0} Read message at offset {1} ", _consumer->name(), message->offset());
-            spdlog::info(" {0} Message Consued: {1}   bytes ):  {2}", _consumer->name(), static_cast<int>(message->len()), static_cast<const char *>(message->payload()));
+            spdlog::debug(" {0} Read message at offset {1} ", _consumer->name(), message->offset());
+            spdlog::debug(" {0} Message Consumed: {1}   bytes ):  {2}", _consumer->name(), static_cast<int>(message->len()), static_cast<const char *>(message->payload()));
             _last_offset = message->offset();
             return_msg_str = static_cast<const char *>(message->payload());
             break;
         case RdKafka::ERR__PARTITION_EOF:
-            spdlog::info("{0} Reached the end of the queue, offset : {1}", _consumer->name(), _last_offset);
+            spdlog::debug("{0} Reached the end of the queue, offset : {1}", _consumer->name(), _last_offset);
             break;
         case RdKafka::ERR__UNKNOWN_TOPIC:
         case RdKafka::ERR__UNKNOWN_PARTITION:

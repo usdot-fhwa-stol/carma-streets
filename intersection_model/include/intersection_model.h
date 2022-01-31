@@ -46,6 +46,10 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
+#include "spdlog/async.h" //support for async logging.
+#include "spdlog/sinks/daily_file_sink.h" // support for dailty file sink
+#include "spdlog/sinks/stdout_color_sinks.h" // or "../stdout_sinks.h" if no colors needed
+
 namespace intersection_model
 {    
     struct lanelet_info_t
