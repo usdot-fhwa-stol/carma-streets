@@ -55,7 +55,7 @@ COPY ./ /home/carma-streets
 WORKDIR  /home/carma-streets/kafka_clients
 RUN mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake ..
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
@@ -133,7 +133,7 @@ RUN echo " ------> compile examples..."
 WORKDIR  /home/carma-streets/intersection_model
 RUN mkdir build
 WORKDIR  /home/carma-streets/intersection_model/build
-RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
+RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
 
