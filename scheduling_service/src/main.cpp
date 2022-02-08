@@ -477,10 +477,11 @@ void call_consumer_thread()
                 *   note: 
                 *   
                 */
+                std::unique_lock<std::mutex> lck(worker_mtx); //Lock the list_veh for vehicle's update
                 consumer_update(payload.c_str());
 
                 
-            }
+            } //The unique lock is automatically released when it is out of scope
         }
         
         consumer_worker->stop();
@@ -519,8 +520,9 @@ void call_scheduling_thread(){
                 spdlog::info("schedule number #{0}", sch_count);
 
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
-
+                std::unique_lock<std::mutex> lck(worker_mtx);
                 unordered_map<string, vehicle> list_veh_copy = list_veh;
+                lck.unlock(); //Temporarily unlock the list_veh
                 // Create scheduling JSON
                 //  
                 //    {
@@ -565,7 +567,7 @@ void call_scheduling_thread(){
 
                 sch_count += 1;
 
-            }
+            } //The unique lock is automatically released when it is out of scope
 
         }
         producer_worker->stop();
