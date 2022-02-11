@@ -67,6 +67,8 @@ namespace message_services
                 this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
                 this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
                 this->CLEAN_QUEUE_IN_SECS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_SECS"));
+                this->disable_est_path = std::stoi(client->get_value_by_doc(doc, "DISABLE_EST_PATH")) == 0 ? false: true ;
+                this->is_est_path_p2p_distance_only = std::stoi(client->get_value_by_doc(doc, "IS_EST_PATH_P2P_DISTANCE_ONLY")) == 0 ? false: true ;
 
                 this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
 
@@ -185,14 +187,14 @@ namespace message_services
                         std::time_t cur_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                         {
-                            spdlog::info("Clean the BSM and MP...");
+                            spdlog::debug("Clean the BSM and MP...");
                             spdlog::debug("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
                             spdlog::debug("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
                             spdlog::debug("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
 
                             if (mp_w_ptr && !mp_w_ptr->get_curr_map().empty())
                             {
-                                spdlog::info("Clean the MP...");
+                                spdlog::debug("Clean the MP...");
                                 for (auto itr = mp_w_ptr->get_curr_map().cbegin(); itr != mp_w_ptr->get_curr_map().cend();)
                                 {
                                     if (mp_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
@@ -205,12 +207,12 @@ namespace message_services
                                         ++itr;
                                     }
                                 }
-                                spdlog::info("Cleaned the MP.");
+                                spdlog::debug("Cleaned the MP.");
                             }
 
                             if (bsm_w_ptr && !bsm_w_ptr->get_curr_map().empty())
                             {
-                                spdlog::info("Clean the BSM...");
+                                spdlog::debug("Clean the BSM...");
                                 for (auto itr = bsm_w_ptr->get_curr_map().cbegin(); itr != bsm_w_ptr->get_curr_map().cend();)
                                 {
                                     if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
@@ -223,7 +225,7 @@ namespace message_services
                                         ++itr;
                                     }
                                 }
-                                spdlog::info("Cleaned the BSM.");
+                                spdlog::debug("Cleaned the BSM.");
                             }
 
                             prev_msg_expired_timestamp_ = cur_timestamp;
@@ -270,10 +272,13 @@ namespace message_services
 
                 spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
                 message_services::models::trajectory trajectory = mp.getTrajectory();
-                
-                vsi.setCur_lanelet_id(_msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_loc_and_direction(cur_lat, cur_lon, cur_elev, turn_direction, trajectory));
-                vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_lat, cur_lon, cur_elev, turn_direction, trajectory));
-
+                lanelet::BasicPoint3d cur_basic_point3d = _msg_lanelet2_translate_ptr->gps_2_map_point(cur_lat, cur_lon, cur_elev);
+                lanelet::Lanelet cur_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(cur_basic_point3d, turn_direction, trajectory);         
+                vsi.setCur_lanelet_id(cur_lanelet.id());
+                vsi.setCur_distance(_msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(cur_basic_point3d, cur_lanelet, turn_direction, trajectory));      
+            
+            if(!disable_est_path)
+            {
                 // Update vehicle status intent with MobilityPath
                 models::est_path_t est_path;
                 std::vector<models::est_path_t> est_path_v;
@@ -285,14 +290,25 @@ namespace message_services
                 spdlog::debug("MobilityPath location ecef_x: {0}", ecef_x);
                 spdlog::debug("MobilityPath location ecef_y: {0}", ecef_y);
                 spdlog::debug("MobilityPath location ecef_z: {0}", ecef_z);
-
-                est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction, trajectory);
-                est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction, trajectory);
+                lanelet::BasicPoint3d mp_start_point = _msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z);
+                if(is_est_path_p2p_distance_only)
+                {
+                    est_path.distance = lanelet::geometry::distance(lanelet::utils::to2D(cur_basic_point3d),lanelet::utils::to2D(mp_start_point));
+                    est_path.lanelet_id = cur_lanelet.id(); //Set the lanelet id to the current vehicle lanelet id
+                }
+                else
+                {
+                    lanelet::Lanelet mp_point_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(mp_start_point, turn_direction, trajectory);
+                    est_path.distance = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(mp_start_point,mp_point_lanelet, turn_direction, trajectory);
+                    est_path.lanelet_id = mp_point_lanelet.id();
+                }
                 est_path.timestamp = timestamp;
                 est_path_v.push_back(est_path);
 
                 int32_t count = 1;
                 size_t next_index = 0;
+                double accumulated_distance_to_previous_point = 0;
+                lanelet::BasicPoint3d mp_cur_point = mp_start_point;
                 for (size_t offset_index = 0; offset_index < trajectory.offsets.size(); offset_index++)
                 {
                     ecef_x += trajectory.offsets.at(offset_index).offset_x;
@@ -303,6 +319,14 @@ namespace message_services
                     spdlog::debug("MobilityPath location offset_y: {0}", trajectory.offsets.at(offset_index).offset_y);
                     spdlog::debug("MobilityPath location offset_z: {0}", trajectory.offsets.at(offset_index).offset_z);
                     est_path.timestamp += 100; // The duration between two points is 0.1 sec
+                    
+                    //Calculate the distance between two points (interval 0.1 secs) from the MobilityPath message starting from the current vehicle location                
+                    if(is_est_path_p2p_distance_only)
+                    {   
+                        lanelet::BasicPoint3d mp_previous_point = mp_cur_point;
+                        mp_cur_point = _msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z);
+                        accumulated_distance_to_previous_point += lanelet::geometry::distance2d(lanelet::utils::to2D(mp_cur_point),lanelet::utils::to2D(mp_previous_point));                        
+                    }
 
                     if (next_index != offset_index)
                     {
@@ -316,8 +340,23 @@ namespace message_services
                         continue;
                     }
 
-                    est_path.distance_to_end_of_lanelet = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction, trajectory);
-                    est_path.lanelet_id = _msg_lanelet2_translate_ptr->get_cur_lanelet_id_by_point_and_direction(_msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z), turn_direction, trajectory);
+                    //If the est_path only includes the distance to previous point, the distance is set to accumulated distance to previous point.
+                    if(is_est_path_p2p_distance_only)
+                    {
+                        est_path.distance = accumulated_distance_to_previous_point;
+                        est_path.lanelet_id = cur_lanelet.id(); //Set the lanelet id to the current vehicle lanelet id
+
+                        //reset the accumulated distance, and start to calculate from the latest point
+                        accumulated_distance_to_previous_point = 0;
+                    }
+                    else
+                    {
+                        lanelet::BasicPoint3d trajectory_point = _msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z);
+                        lanelet::Lanelet trajectory_point_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(trajectory_point, turn_direction, trajectory);            
+                        est_path.distance = _msg_lanelet2_translate_ptr->distance2_cur_lanelet_end(trajectory_point, trajectory_point_lanelet, turn_direction, trajectory);
+                        est_path.lanelet_id = trajectory_point_lanelet.id();
+                    }
+                    
                     est_path_v.push_back(est_path);
                     count++;
 
@@ -329,7 +368,9 @@ namespace message_services
                 }
 
                 vsi.setEst_path_v(est_path_v);
-                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids_by_vehicle_trajectory(trajectory, vsi_est_path_point_count, turn_direction);
+            }
+            
+                std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, turn_direction);
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
                     if (itr->second == models::intersection_lanelet_type::link)
@@ -345,7 +386,7 @@ namespace message_services
                         vsi.setEnter_lanelet_id(itr->first);
                     }
                 }
-                return vsi;
+                return vsi;               
             }
             catch (...)
             {

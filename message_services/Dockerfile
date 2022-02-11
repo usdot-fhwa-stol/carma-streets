@@ -53,7 +53,7 @@ COPY ./kafka_clients /home/carma-streets/kafka_clients
 WORKDIR  /home/carma-streets/kafka_clients
 RUN  rm -rf build && mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake ..
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN sudo make install
 
@@ -122,7 +122,7 @@ COPY ./message_services /home/carma-streets/message_services
 WORKDIR  /home/carma-streets/message_services
 RUN  rm -rf build && mkdir build
 WORKDIR  /home/carma-streets/message_services/build
-RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake ..
+RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
 
 WORKDIR  /home/carma-streets/message_services/build/

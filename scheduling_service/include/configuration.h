@@ -20,12 +20,6 @@ class configuration{
 		/* the scheduling time interval */
 		double scheduling_delta = 1.0; // sec
 
-		/* the time point when the last schedule started */
-		double last_schedule_start_time = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
-
-		/* the time point when the current schedule started */
-		double cur_schedule_start_time;
-
 		/* If the last update of the vehicle is update_expiration_delta seconds older than the current time, the vehicle will not be included in the schedule
 		*  Unit: second
 		 */
@@ -46,6 +40,16 @@ class configuration{
 		*/
 		double max_valid_speed;
 
+		/* Flag to indicate whether schedule logs are enabled */
+		bool schedule_log_enabled;
+
+		/* String schedule log directory path*/
+		string schedule_log_path;
+		/* String schedule log filename prefix */
+		string schedule_log_filename;
+		/* Schedule log max size in megabytes */
+		int schedule_log_maxsize;
+
 	public:
 
 		/* initialization: reading the EXPIRATION_DELTA from ../manifest.json */
@@ -53,12 +57,6 @@ class configuration{
 
 		/* get the scheduling time interval */
 		double get_schedulingDelta() const;
-
-		/* get the time point when the last schedule started */
-		double get_lastSchedulingT() const;
-
-		/* get the time point when the current schedule started */
-		double get_curSchedulingT() const;
 
 		/* get the vehicle status and intent update expiration time interval */
 		double get_expDelta() const;
@@ -72,11 +70,21 @@ class configuration{
 		/* get the max valid speed */
 		double get_maxValidSpeed() const;
 
-		/* set the last schedule's start time point to t */
-		void set_lastSchedulingT(double t);
+		/* get the schedule log path */
+		string get_scheduleLogPath() const;
 
-		/* set the current schedule's start time point to t */
-		void set_curSchedulingT(double t);
+		/* is schedule log enabled */ 
+		bool isScheduleLoggerEnabled() const;
+
+		/**
+		 * @return schedule log file name prefix.
+		 **/
+		string get_scheduleLogFilename() const;
+
+		/**
+		 * @return schedule log file max size in megabytes.
+		 **/
+		int get_scheduleLogMaxsize() const;
 
 		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);
@@ -92,6 +100,7 @@ class configuration{
 
 		/* set the max valid speed to speed */
 		void set_maxValidSpeed(double speed);
+
 };
 
 #endif

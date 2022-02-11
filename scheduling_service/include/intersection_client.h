@@ -95,7 +95,7 @@ class intersection_client : public QObject
         void call();
 
         bool is_running();
-	string get_intersectionName() const;
+        string get_intersectionName() const;
         int get_intersectionId() const;
         int get_laneCount() const;
 

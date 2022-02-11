@@ -51,7 +51,7 @@ COPY ./kafka_clients/ /home/carma-streets/kafka_clients
 WORKDIR  /home/carma-streets/kafka_clients
 RUN mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake ..
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
@@ -60,7 +60,7 @@ COPY ./streets_utils/ /home/carma-streets/streets_utils
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
 RUN mkdir build
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
-RUN cmake ..
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
@@ -70,7 +70,7 @@ COPY ./scheduling_service/ /home/carma-streets/scheduling_service/
 WORKDIR  /home/carma-streets/scheduling_service
 RUN mkdir build
 WORKDIR  /home/carma-streets/scheduling_service/build
-RUN cmake ..
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 
 WORKDIR  /home/carma-streets/scheduling_service/build/

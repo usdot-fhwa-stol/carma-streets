@@ -72,16 +72,42 @@ configuration::configuration(){
         exit(1);
     }
 
+    if(doc.HasMember("ENABLE_SCHEDULE_LOGGING")){
+        schedule_log_enabled = doc["ENABLE_SCHEDULE_LOGGING"].GetBool();
+        spdlog::info("schedule_logger_is_running :  {0}", schedule_log_enabled);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "ENABLE_SCHEDULE_LOGGING");
+        exit(1);
+    }
+
+    if(doc.HasMember("SCHEDULE_LOG_PATH")){
+        schedule_log_path = doc["SCHEDULE_LOG_PATH"].GetString();
+        spdlog::info("initial schedule_logger file_directory :  {0}", schedule_log_path);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_PATH");
+        exit(1);
+    }
+
+     if(doc.HasMember("SCHEDULE_LOG_FILENAME")){
+        schedule_log_filename = doc["SCHEDULE_LOG_FILENAME"].GetString();
+        spdlog::info("initial schedule_logger file_name prefix :  {0}", schedule_log_filename);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_FILENAME");
+        exit(1);
+    }
+
+     if(doc.HasMember("SCHEDULE_LOG_MAX_SIZE")){
+        schedule_log_maxsize = doc["SCHEDULE_LOG_MAX_SIZE"].GetInt();
+        spdlog::info("initial schedule_logger maximum file size :  {0}", schedule_log_maxsize);
+    } else{
+        spdlog::critical("Reading {0} failure: {1} is missing in {0}", json_file.c_str(), "SCHEDULE_LOG_MAX_SIZE");
+        exit(1);
+    }
+
 }
 
 /* */
 double configuration::get_schedulingDelta() const {return scheduling_delta;}
-
-/* */
-double configuration::get_lastSchedulingT() const {return last_schedule_start_time;}
-
-/* */
-double configuration::get_curSchedulingT() const {return cur_schedule_start_time;}
 
 /* */
 double configuration::get_expDelta() const {return update_expiration_delta;}
@@ -96,10 +122,16 @@ double configuration::get_stopSpeed() const {return stopping_speed;}
 double configuration::get_maxValidSpeed() const {return max_valid_speed;}
 
 /* */
-void configuration::set_lastSchedulingT(double t){last_schedule_start_time = t;}
+string configuration::get_scheduleLogPath() const {return schedule_log_path;}
 
 /* */
-void configuration::set_curSchedulingT(double t){cur_schedule_start_time = t;}
+string configuration::get_scheduleLogFilename() const {return schedule_log_filename;}
+
+/* */
+int configuration::get_scheduleLogMaxsize() const {return schedule_log_maxsize;}
+
+/* */
+bool configuration::isScheduleLoggerEnabled() const {return schedule_log_enabled;}
 
 /* */
 void configuration::set_schedulingDelta(double delta){scheduling_delta = delta;}

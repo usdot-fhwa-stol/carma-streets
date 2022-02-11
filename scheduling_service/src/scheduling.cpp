@@ -7,14 +7,14 @@ using namespace std;
 
 /* */
 scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, const configuration& config, set<string>& list_veh_removal){
-
+	timestamp = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
 	index_EVs.resize(localmap.get_laneIdEntry().size());
 	for (const auto& element : list_veh){
 		
 		/* if the vehicle update is not older than update_expiration_delta seconds ago, include the vehicle in the schedule
 		*  if the vehicle update is older than update_expiration_delta seconds ago, do not include the vehicle in the schedule
 		*/
-		if (config.get_curSchedulingT() - element.second.get_curTime() <= config.get_expDelta()){
+		if ( timestamp - element.second.get_curTime() <= config.get_expDelta()){
 
 			veh_id.push_back(element.first);
 			auto vehicle_index = (int)veh_id.size() - 1;
@@ -51,45 +51,46 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 				/* if CARMA Streets did not receive the confirmation from the vehicle updates yet, it will consider the vehicle as a DV for now */
 				else{
 					state[state.size() - 1] = "DV";
-					et[et.size() - 1] = config.get_curSchedulingT();
+					et[et.size() - 1] = timestamp;
 					access[access.size() - 1] = true;
 				}
 			}
 
 			/* estimate the vehicle location, speed, state, etc. at a given future timestamp! */
-			if (time.back() < config.get_curSchedulingT() + config.get_schedulingDelta()){
+			if (time.back() < timestamp + config.get_schedulingDelta()){
 				
 				for (int i = 0; i < (int)element.second.get_futureInfo().size(); ++i){
 					
-					if (element.second.get_futureInfo()[i].timestamp >= config.get_curSchedulingT() + config.get_schedulingDelta() || 
+					if (element.second.get_futureInfo()[i].timestamp >= timestamp + config.get_schedulingDelta() || 
 						i == (int)element.second.get_futureInfo().size() - 1){
 
 						
 						time.back() = element.second.get_futureInfo()[i].timestamp;
 						lane_id.back() = element.second.get_futureInfo()[i].lane_id;
-						if (state.back() == "EV" && element.second.get_futureInfo()[i].distance >= element.second.get_length()){
-							distance.back() = element.second.get_futureInfo()[i].distance - element.second.get_length();
-						}
-						else{
-							distance.back() = 0.1;
-						}
+						distance.back() = element.second.get_futureInfo()[i].distance;
 						speed.back() = element.second.get_futureInfo()[i].speed;
 						acceleration.back() = element.second.get_futureInfo()[i].acceleration;
 
-						if (state.back() == "EV"){
+						if (state.back() == "EV" && lane_id.back() != element.second.get_entryLaneID()){
+							spdlog::critical("Scheduling Class Issue - The future lane id of vehicle {0} is not correct! Vehicle {0} is in EV state, but its lane ID in the future path is not its entry lane ID; cur_timestamp: {1}, cur_lane_id: {2}, future_path_lane_id: {3}, future_path_timestamp: {4}, entry_lane_id: {5}, link_id: {6}", veh_id.back(), element.second.get_curTime(), element.second.get_curLaneID(), time.back(), lane_id.back(),  element.second.get_entryLaneID(), element.second.get_linkID());
+							continue;
+						} 
+						else {
+							time.back() = element.second.get_futureInfo()[i].timestamp;
+							lane_id.back() = element.second.get_futureInfo()[i].lane_id;
+							distance.back() = element.second.get_futureInfo()[i].distance;
+							speed.back() = element.second.get_futureInfo()[i].speed;
+							acceleration.back() = element.second.get_futureInfo()[i].acceleration;
+						} 
+						
+						if (state.back() == "RDV"){
 							if (lane_id.back() != element.second.get_entryLaneID()){
 								lane_id.back() = element.second.get_entryLaneID();
-								distance.back() = 0.1;
-							}
-						} else if (state.back() == "RDV"){
-							if (lane_id.back() != element.second.get_entryLaneID()){
-								lane_id.back() = element.second.get_entryLaneID();
-								distance.back() = 0.1;
 							}
 						} else if (state.back() == "DV"){
 							if (lane_id.back() == element.second.get_entryLaneID()){
 								lane_id.back() = element.second.get_linkID();
-								distance.back() = localmap.get_laneLength(lane_id.back());
+								distance.back() += localmap.get_laneLength(lane_id.back());
 							} else if (lane_id.back() != element.second.get_linkID()){
 								state.back() = "LV";
 								dt.back() = time.back();
@@ -113,26 +114,32 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 				double t_a;
 				double t_d;
 				double t_cr;
+				double v_mid;
 				if (dx1 < dx2){
 					double d_emergency = -pow(speed.back(), 2) / (2 * dx1);
+					v_mid = speed.back();
 					t_a = 0.0;
 					t_d = - speed.back() / d_emergency;
 					t_cr = 0.0;
 				} 
 				else if (dx1 < dx3){
-					double v_mid = sqrt(element.second.get_decelMax() * ((2 * dx1 * element.second.get_accelMax()) + pow(speed.back(), 2)) / 
+					v_mid = sqrt(element.second.get_decelMax() * ((2 * dx1 * element.second.get_accelMax()) + pow(speed.back(), 2)) / 
 						(element.second.get_decelMax() - element.second.get_accelMax()));
 					t_a = (v_mid - speed.back()) / element.second.get_accelMax();
 					t_d = -v_mid / element.second.get_decelMax();
 					t_cr = 0.0;
 				}
 				else{
-					double v_mid = localmap.get_laneSpeedLimit(lane_id.back());
+					v_mid = localmap.get_laneSpeedLimit(lane_id.back());
 					t_a = (v_mid - speed.back()) / element.second.get_accelMax();
 					t_d = -v_mid / element.second.get_decelMax();
 					t_cr = (dx1 - dx3) / v_mid;
 				}
 				est.back() = time.back() + max(t_a + t_cr + t_d, 0.01);
+
+				double max_speed = localmap.get_laneSpeedLimit(lane_id.back());
+				spdlog::info("Scheduling Class - vehicle {0}: cur_time = {1}, EST = {2}, difference = {3}", veh_id.back(), time.back(), est.back(), est.back() - time.back());
+				spdlog::info("cur_timestamp = {0}, initial speed = {1}, initial distance = {2}, speed limit = {3}, v_mid = {4}, t_a = {5}, t_cr = {6}, t_d = {7}, dx1 = {8}, dx2 = {9}, dx3 = {10}", time.back(), speed.back(), distance.back(), max_speed, v_mid, t_a, t_cr, t_d, dx1, dx2, dx3);
 			}
 
 
@@ -176,6 +183,9 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 			else if (state.back() == "LV"){
 				index_LVs.push_back(vehicle_index);
 			}
+
+			spdlog::info("Scheduling Class Vehicle Info Update before Schedule - timestamp = {0}, vehicle id = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, est = {6}, access = {7}, departure position = {8}", time.back(), veh_id.back(), lane_id.back(), state.back(), speed.back(), distance.back(), est.back(), access.back(), departurePosition_index.back());
+
 		}
 		else{
 			if (list_veh_confirmation.find(element.first) != list_veh_confirmation.end()){
@@ -204,6 +214,31 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 	}
 
 }
+
+string scheduling::toCSV() const {
+	
+	string schedule_info = "";
+	schedule_info += to_string(timestamp) + ", ";
+	for (int i = 0; i < (int)veh_id.size(); ++i){
+		schedule_info += veh_id[i] + ", ";
+		schedule_info += to_string(time[i]) + ", ";
+		schedule_info += to_string(speed[i]) + ", ";
+		schedule_info += to_string(acceleration[i]) + ", ";
+		schedule_info += lane_id[i] + ", ";
+		schedule_info += state[i] + ", ";
+		schedule_info += to_string(departurePosition_index[i]) + ", ";
+		schedule_info += to_string(distance[i]) + ", ";
+		schedule_info += to_string(clearance_time[i]) + ", ";
+		schedule_info += to_string(st[i]) + ", ";
+		schedule_info += to_string(et[i]) + ", ";
+		schedule_info += to_string(dt[i]) + ", ";
+		schedule_info += to_string(access[i]);
+	}
+
+	return schedule_info;
+}
+
+double scheduling::get_timestamp() const {return timestamp;}
 
 /* */
 vector<string> scheduling::get_vehicleIdList() const {return veh_id;}
@@ -279,3 +314,6 @@ void scheduling::set_departPosIndex(int v_index, int pos_index){departurePositio
 
 /* */
 void scheduling::set_access(int v_index, bool access_value){access[v_index] = access_value;}
+
+/* */
+void scheduling::set_timestamp(double timestamp){this->timestamp = timestamp;}

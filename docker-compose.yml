@@ -2,10 +2,15 @@ version: '3.7'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
+    container_name: zookeeper
     ports:
        - "2181:2182"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
   kafka:
     image: wurstmeister/kafka
+    container_name: kafka
     depends_on: 
       - zookeeper
     ports:
@@ -13,10 +18,27 @@ services:
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
-      KAFKA_CREATE_TOPICS: "v2xhub_in:1:1,v2xhub_out:1:1,v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1"
+      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LOG_RETENTION_HOURS: 24
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+##############################################################
+# Kafka Owl for monitoring kafka traffic. UI can be accessed on 
+# configurable port set in performance/kowl.yaml
+#  kowl:
+#    image: quay.io/cloudhut/kowl
+#    container_name: kowl
+#    restart: on-failure
+#    network_mode: host
+#    depends_on:
+#      - kafka
+#    environment:
+#      CONFIG_FILEPATH: /etc/kowl/kowl.yaml
+#    volumes:
+#      - ./performance/kowl.yaml:/etc/kowl/kowl.yaml
   db:
     image: mysql:5.7
     container_name: mysql
@@ -34,7 +56,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
 
   php:
-    image: usdotfhwaops/php:latest
+    image: usdotfhwaops/php:7.1
     container_name: php
     network_mode: host
     depends_on:
@@ -43,7 +65,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:carma-streets
+    image: usdotfhwaops/v2xhubamd:7.1
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -57,9 +79,11 @@ services:
     volumes:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       
   scheduling_service:
-    image: usdotfhwastoldev/scheduling_service:latest
+    image: usdotfhwastol/scheduling_service:carma-system-3.11.0
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -70,6 +94,7 @@ services:
     depends_on:  
       - kafka
       - intersection_model
+      - message_services
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
@@ -78,9 +103,12 @@ services:
       WAIT_HOST_CONNECT_TIMEOUT: 30
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
-      
+      - ./scheduling_service/logs/:/home/carma-streets/scheduling_service/logs/
+      - /etc/localtime:/etc/localtime:ro 
+      - /etc/timezone:/etc/timezone:ro     
+
   message_services:
-    image: usdotfhwastoldev/message_services:latest
+    image: usdotfhwastol/message_services:carma-system-3.11.0
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -94,9 +122,10 @@ services:
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/message_services/vector_map.osm
-  
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastoldev/intersection_model:latest
+    image: usdotfhwastol/intersection_model:carma-system-3.11.0
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -106,6 +135,8 @@ services:
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 secrets:
     mysql_password:
         file: ./secrets/mysql_password.txt
