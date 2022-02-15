@@ -95,7 +95,7 @@ void configure_logger() {
     spdlog::init_thread_pool(8192, 1);
     try {
         
-        auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("/home/carma-streets/scheduling_service/logs/scheduling_service.log", 23, 3);
+        auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/scheduling_service.log", 23, 3);
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         console_sink->set_level(spdlog::level::from_str(loglevel));
         file_sink->set_level( spdlog::level::from_str(loglevel ) );

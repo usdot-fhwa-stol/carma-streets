@@ -42,7 +42,7 @@ namespace message_services
                     std::string loglevel = client->get_value_by_doc(doc, "LOG_LEVEL");
 
                     spdlog::init_thread_pool(8192, 1);
-                    auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("/home/carma-streets/message_services/logs/message_service.log", 23, 3);
+                    auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/message_service.log", 23, 3);
                     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
                     console_sink->set_level(spdlog::level::from_str(loglevel));
                     file_sink->set_level( spdlog::level::from_str(loglevel) );
