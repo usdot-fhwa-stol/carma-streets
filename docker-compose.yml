@@ -56,7 +56,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
 
   php:
-    image: usdotfhwaops/php:v2xrelease_7.1
+    image: usdotfhwaops/php:7.1
     container_name: php
     network_mode: host
     depends_on:
@@ -65,7 +65,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:v2xrelease_7.1
+    image: usdotfhwaops/v2xhubamd:7.1
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -83,7 +83,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       
   scheduling_service:
-    image: usdotfhwastolcandidate/scheduling_service:release_fiesta
+    image: usdotfhwastoldev/scheduling_service:latest
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -108,7 +108,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastolcandidate/message_services:release_fiesta
+    image: usdotfhwastoldev/message_services:latest
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -126,7 +126,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastolcandidate/intersection_model:release_fiesta
+    image: usdotfhwastoldev/intersection_model:latest
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile

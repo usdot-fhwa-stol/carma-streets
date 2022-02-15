@@ -38,10 +38,11 @@ intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
 set<string> list_veh_removal;
+std::mutex worker_mtx;
+
 
 
 void consumer_update(const char* payload){
-    
     rapidjson::Document message;
     message.SetObject();
     message.Parse(payload);
@@ -49,7 +50,8 @@ void consumer_update(const char* payload){
     /* if the received message does not have payload, it cannot be processed! */
     if (message.HasMember("payload")){
         if (message["payload"].HasMember("v_id")){
-            string veh_id = message["payload"]["v_id"].GetString();
+
+            string veh_id = message["payload"]["v_id"].GetString(); 
 
             /* check if the vehicle is included in the list_veh. if not, include it. */
             if (!list_veh.count(veh_id)){
@@ -113,8 +115,9 @@ void configure_logger() {
 }
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, std::unique_ptr<csv_logger> &logger, double &last_schedule){
-
+    std::unique_lock<std::mutex> lck(worker_mtx);
     scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
+    lck.unlock();
     if ( config.isScheduleLoggerEnabled() ) {
         logger->log_line( schedule.toCSV() ); 
     }
@@ -483,15 +486,15 @@ void call_consumer_thread()
         
         while (consumer_worker->is_running()) 
         {
-            
             /* remove those vehicles with old updates */
             if (list_veh_removal.size() > 0){
                 for (auto veh_id : list_veh_removal){
                     list_veh.erase(veh_id);
                 }
+                std::unique_lock<std::mutex> lck(worker_mtx);
                 list_veh_removal.clear();
+                lck.unlock();
             } 
-
             const std::string payload = consumer_worker->consume(1000);
 
             if(payload.length() > 0)
@@ -503,10 +506,11 @@ void call_consumer_thread()
                 *   note: 
                 *   
                 */
+                std::unique_lock<std::mutex> lck(worker_mtx); //Lock the list_veh for vehicle's update
                 consumer_update(payload.c_str());
 
                 
-            }
+            } //The unique lock is automatically released when it is out of scope
         }
         
         consumer_worker->stop();
@@ -545,10 +549,9 @@ void call_scheduling_thread(){
                 spdlog::info("schedule number #{0}", sch_count);
 
                 auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
-
-                // copy list_veh
+                std::unique_lock<std::mutex> lck(worker_mtx);
                 unordered_map<string, vehicle> list_veh_copy = list_veh;
-
+                lck.unlock(); //Temporarily unlock the list_veh
                 // Create scheduling JSON
                 //  
                 //    {
@@ -560,6 +563,7 @@ void call_scheduling_thread(){
                 //     }
                 Document document;
                 document.SetObject();
+
                 Document::AllocatorType &allocator = document.GetAllocator();
 
                 Value metadata(kObjectType);
@@ -592,7 +596,7 @@ void call_scheduling_thread(){
 
                 sch_count += 1;
 
-            }
+            } //The unique lock is automatically released when it is out of scope
 
         }
         producer_worker->stop();
@@ -602,7 +606,6 @@ void call_scheduling_thread(){
     return;
 
 }
-
 
 int main(int argc,char** argv)
 {
