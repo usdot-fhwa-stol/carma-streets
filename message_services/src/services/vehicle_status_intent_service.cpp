@@ -16,10 +16,9 @@ namespace message_services
         /**
          * Configure multisink terminal and daily rotating file logger as default spdlog logger
          */ 
-        void configure_logger() {
+        void configure_logger(const std::string &loglevel ) {
             // Create default multisink daily file logger
             try {
-                std::string loglevel = client->get_value_by_doc(doc, "LOG_LEVEL");
 
                 spdlog::init_thread_pool(8192, 1);
                 auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/message_service.log", 23, 3);
@@ -64,7 +63,9 @@ namespace message_services
                 this->vsi_topic_name = client->get_value_by_doc(doc, "VSI_PRODUCER_TOPIC");
 
                 // Configure default logger
-                configure_logger();
+                std::string loglevel = client->get_value_by_doc(doc, "LOG_LEVEL");
+
+                configure_logger(loglevel);
                 _bsm_consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
                 _mp_consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
                 _mo_consumer_worker = client->create_consumer(this->bootstrap_server, this->mo_topic_name, this->mo_group_id);
