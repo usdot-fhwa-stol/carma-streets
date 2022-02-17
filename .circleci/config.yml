@@ -202,7 +202,7 @@ jobs:
             fi 
   docker_build_push_scheduling_service :
    machine:
-    image: ubuntu-1604:202004-01
+    image: ubuntu-2004:202201-02
    resource_class: large 
    steps:
      - checkout
@@ -219,7 +219,7 @@ jobs:
          docker push usdotfhwastoldev/scheduling_service:${CIRCLE_BRANCH,,}   
   docker_build_push_message_service :
    machine:
-    image: ubuntu-1604:202004-01
+    image: ubuntu-2004:202201-02
    resource_class: large 
    steps:
      - checkout
@@ -235,7 +235,7 @@ jobs:
          docker push usdotfhwastoldev/message_services:${CIRCLE_BRANCH,,}
   docker_build_push_intersection_model :
    machine:
-    image: ubuntu-1604:202004-01
+    image: ubuntu-2004:202201-02
    steps:
      - checkout
      - run: 
@@ -251,7 +251,7 @@ jobs:
    
   docker_build_push_develop_scheduling_service :
    machine:
-    image: ubuntu-1604:202004-01
+    image: ubuntu-2004:202201-02
    steps:
      - checkout
      - run: 
@@ -266,7 +266,7 @@ jobs:
           docker push usdotfhwastoldev/scheduling_service:latest
   docker_build_push_develop_message_service :
    machine:
-    image: ubuntu-1604:202004-01
+    image: ubuntu-2004:202201-02
    steps:
      - checkout
      - run: 
@@ -281,7 +281,7 @@ jobs:
           docker push usdotfhwastoldev/message_services:latest
   docker_build_push_develop_intersection_model :
    machine:
-    image: ubuntu-1604:202004-01
+    image: ubuntu-2004:202201-02
    steps:
      - checkout
      - run: 
