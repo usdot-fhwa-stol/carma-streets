@@ -47,8 +47,6 @@ class configuration{
 		string schedule_log_path;
 		/* String schedule log filename prefix */
 		string schedule_log_filename;
-		/* Schedule log max size in megabytes */
-		int schedule_log_maxsize;
 		/* String loglevel */
 		string loglevel;
 
@@ -82,11 +80,6 @@ class configuration{
 		 * @return schedule log file name prefix.
 		 **/
 		string get_scheduleLogFilename() const;
-
-		/**
-		 * @return schedule log file max size in megabytes.
-		 **/
-		int get_scheduleLogMaxsize() const;
 
 		/**
 		 * @return loglevel

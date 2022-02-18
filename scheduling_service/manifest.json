@@ -11,6 +11,5 @@
     "ENABLE_SCHEDULE_LOGGING": true,
     "SCHEDULE_LOG_PATH": "/home/carma-streets/scheduling_service/",
     "SCHEDULE_LOG_FILENAME": "scheduleLogs",
-    "SCHEDULE_LOG_MAX_SIZE": 5,
     "LOG_LEVEL": "debug"
 }

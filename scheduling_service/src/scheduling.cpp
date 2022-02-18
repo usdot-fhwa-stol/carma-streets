@@ -218,21 +218,25 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 string scheduling::toCSV() const {
 	
 	string schedule_info = "";
-	schedule_info += to_string(timestamp) + ", ";
+	schedule_info += to_string(timestamp) + ",";
 	for (int i = 0; i < (int)veh_id.size(); ++i){
-		schedule_info += veh_id[i] + ", ";
-		schedule_info += to_string(time[i]) + ", ";
-		schedule_info += to_string(speed[i]) + ", ";
-		schedule_info += to_string(acceleration[i]) + ", ";
-		schedule_info += lane_id[i] + ", ";
-		schedule_info += state[i] + ", ";
-		schedule_info += to_string(departurePosition_index[i]) + ", ";
-		schedule_info += to_string(distance[i]) + ", ";
-		schedule_info += to_string(clearance_time[i]) + ", ";
-		schedule_info += to_string(st[i]) + ", ";
-		schedule_info += to_string(et[i]) + ", ";
-		schedule_info += to_string(dt[i]) + ", ";
+		schedule_info += veh_id[i] + ",";
+		schedule_info += to_string(time[i]) + ",";
+		schedule_info += to_string(speed[i]) + ",";
+		schedule_info += to_string(acceleration[i]) + ",";
+		schedule_info += lane_id[i] + ",";
+		schedule_info += state[i] + ",";
+		schedule_info += to_string(departurePosition_index[i]) + ",";
+		schedule_info += to_string(distance[i]) + ",";
+		schedule_info += to_string(clearance_time[i]) + ",";
+		schedule_info += to_string(st[i]) + ",";
+		schedule_info += to_string(et[i]) + ",";
+		schedule_info += to_string(dt[i]) + ",";
 		schedule_info += to_string(access[i]);
+		// Added comma to separate vehicle entries
+		if ( i != (int)veh_id.size()-1 ) {
+			schedule_info += ",";
+		}
 	}
 
 	return schedule_info;

@@ -19,8 +19,7 @@ add_executable(${PROJECT_NAME}  src/main.cpp
                                 src/configuration.cpp
                                 src/scheduling.cpp
                                 src/vehicle.cpp
-                                src/intersection_client.cpp
-                                src/csv_logger.cpp )
+                                src/intersection_client.cpp)
                                 
 target_include_directories( ${PROJECT_NAME} PUBLIC
                             ${PROJECT_SOURCE_DIR}/include)
@@ -40,8 +39,7 @@ add_executable(${BINARY} ${TEST_SOURCES}
                         src/configuration.cpp
                         src/scheduling.cpp
                         src/vehicle.cpp
-                        src/intersection_client.cpp
-                        src/csv_logger.cpp )
+                        src/intersection_client.cpp )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC  Boost::system Boost::filesystem kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network)
