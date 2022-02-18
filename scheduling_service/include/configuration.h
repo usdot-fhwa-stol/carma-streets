@@ -47,10 +47,8 @@ class configuration{
 		string schedule_log_path;
 		/* String schedule log filename prefix */
 		string schedule_log_filename;
-		/* Schedule log max file size in megabytes */
-		int schedule_log_maxsize;
-		/* Schedule log maximum number of files */
-		int schedule_log_max_number;
+		/* String loglevel */
+		string loglevel;
 
 	public:
 
@@ -84,14 +82,9 @@ class configuration{
 		string get_scheduleLogFilename() const;
 
 		/**
-		 * @return schedule log file max size in megabytes.
-		 **/
-		int get_scheduleLogMaxsize() const;
-
-		/**
-		 * @return maximum number of logs files
+		 * @return loglevel
 		 */
-		int get_scheduleLogMaxNumber() const;
+		string get_loglevel() const;
 
 		/* set the scheduling time interval to delta */
 		void set_schedulingDelta(double delta);

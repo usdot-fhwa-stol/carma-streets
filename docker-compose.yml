@@ -122,6 +122,7 @@ services:
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/message_services/vector_map.osm
+      - ./message_services/logs/:/home/carma-streets/message_services/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
@@ -135,6 +136,7 @@ services:
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
+      - ./intersection_model/logs/:/home/carma-streets/intersection_model/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 secrets:

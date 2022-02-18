@@ -26,6 +26,10 @@
 #include <QCoreApplication>
 #include "OAIHelpers.h"
 
+#include "spdlog/async.h" //support for async logging.
+#include "spdlog/sinks/daily_file_sink.h" // support for dailty file sink
+#include "spdlog/sinks/stdout_color_sinks.h" // or "../stdout_sinks.h" if no colors needed
+
 using namespace std;
 using namespace rapidjson;
 using namespace chrono;
@@ -85,6 +89,52 @@ void consumer_update(const char* payload){
         spdlog::critical("payload is missing in the received status and intent update!");
     }
 
+}
+/**
+ * Method to set spdlog default logger to a multisink( daily rotating file logger and stdout logger ) asynchronous logger.
+ */ 
+void configure_logger() {
+  // Create default multisink daily file logger
+    std::string loglevel = config.get_loglevel();
+    spdlog::init_thread_pool(8192, 1);
+    try {
+        
+        auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/scheduling_service.log", 23, 3);
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_level(spdlog::level::from_str(loglevel));
+        file_sink->set_level( spdlog::level::from_str(loglevel ) );
+
+        auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
+        spdlog::register_logger(logger);
+        spdlog::set_default_logger(logger);
+        spdlog::info("Default Logger initialized!");
+    }   
+    catch (const spdlog::spdlog_ex& ex)
+    {
+        spdlog::error( "Log initialization failed: {0}!",ex.what());
+    }
+
+}
+
+/**
+ * Method to configure spdlog::logger for logging scheduling metrics into daily rotating csv file.
+ */  
+void configure_csv_logger() {
+    try{
+        auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
+            "csv_logger",  // logger name
+            config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
+            23, // hours to rotate
+            59 // minutes to rotate
+            );
+        // Only log log statement content
+        csv_logger->set_pattern("%v");
+        csv_logger->set_level(spdlog::level::info);
+    }
+    catch (const spdlog::spdlog_ex& ex)
+    {
+        spdlog::error( "Log initialization failed: {0}!",ex.what());
+    }
 }
 
 
@@ -510,21 +560,7 @@ void call_scheduling_thread(){
 
     // Create logger
     if ( config.isScheduleLoggerEnabled() ) {
-        try{
-            auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "csv_logger",  // logger name
-                config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
-                23, // hours to rotate
-                59 // minutes to rotate
-                );
-            // Only log log statement content
-            csv_logger->set_pattern("%v");
-            csv_logger->set_level(spdlog::level::info);
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
-        }
+        configure_csv_logger();
     }
     char str_msg[]="";           
     if(!producer_worker->init())
@@ -605,6 +641,7 @@ int main(int argc,char** argv)
 {
     QCoreApplication a(argc, argv);
     localmap.call();
+    configure_logger();
     boost::thread consumer{call_consumer_thread};
     boost::thread scheduling{call_scheduling_thread};
     consumer.join();
@@ -612,3 +649,5 @@ int main(int argc,char** argv)
     return 0;
 
 }
+
+
