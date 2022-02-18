@@ -116,6 +116,27 @@ void configure_logger() {
 
 }
 
+/**
+ * Method to configure spdlog::logger for logging scheduling metrics into daily rotating csv file.
+ */  
+void configure_csv_logger() {
+    try{
+        auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
+            "csv_logger",  // logger name
+            config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
+            23, // hours to rotate
+            59 // minutes to rotate
+            );
+        // Only log log statement content
+        csv_logger->set_pattern("%v");
+        csv_logger->set_level(spdlog::level::info);
+    }
+    catch (const spdlog::spdlog_ex& ex)
+    {
+        spdlog::error( "Log initialization failed: {0}!",ex.what());
+    }
+}
+
 
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, double &last_schedule){
 
@@ -539,21 +560,7 @@ void call_scheduling_thread(){
 
     // Create logger
     if ( config.isScheduleLoggerEnabled() ) {
-        try{
-            auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "csv_logger",  // logger name
-                config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
-                23, // hours to rotate
-                59 // minutes to rotate
-                );
-            // Only log log statement content
-            csv_logger->set_pattern("%v");
-            csv_logger->set_level(spdlog::level::info);
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
-        }
+        configure_csv_logger();
     }
     char str_msg[]="";           
     if(!producer_worker->init())
