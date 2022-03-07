@@ -83,7 +83,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       
   scheduling_service:
-    image: usdotfhwastoldev/scheduling_service:latest
+    image: usdotfhwastoldev/scheduling_service:develop
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -108,7 +108,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastoldev/message_services:latest
+    image: usdotfhwastoldev/message_services:develop
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -126,7 +126,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastoldev/intersection_model:latest
+    image: usdotfhwastoldev/intersection_model:develop
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
