@@ -48,7 +48,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcc-10 g++-10 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
             
             sudo wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz
             sudo tar xzf Python-3.5.2.tgz
