@@ -27,7 +27,7 @@ cd /home/carma-streets/kafka_clients/
 mkdir coverage
 #gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 #mv *.gcov coverage
-gcovr -r --sonarqube coverage.xml
+gcovr -k -r . --sonarqube -o coverage.xml
 mv coverage.xml coverage
 
 cd /home/carma-streets/scheduling_service/build/
@@ -37,8 +37,8 @@ cd /home/carma-streets/scheduling_service/
 mkdir coverage
 #gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 #mv *.gcov coverage
-gcovr -r --sonarqube coverage.xml
-mv coverage.xml
+gcovr -k -r . --sonarqube -o coverage.xml
+mv coverage.xml coverage
 
 cd /home/carma-streets/message_services/build/
 ls -a
@@ -48,8 +48,8 @@ ls -a
 mkdir coverage
 #gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 #mv *.gcov coverage
-gcovr --sonarqube coverage.xml
-mv coverage.xml
+gcovr -k -r . --sonarqube -o coverage.xml
+mv coverage.xml coverage
 
 cd /home/carma-streets/intersection_model/build/
 ls -a
@@ -59,5 +59,5 @@ ls -a
 mkdir coverage
 #gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server --exclude=./build/src/ -k -r .
 #mv *.gcov coverage
-gcovr --sonarqube coverage.xml
-mv coverage.xml
+gcovr -k -r . --sonarqube -o coverage.xml
+mv coverage.xml coverage
