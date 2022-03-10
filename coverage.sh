@@ -25,11 +25,11 @@ ls -a
 ./kafka_clients_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/kafka_clients/
 mkdir coverage
-#gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
-#mv *.gcov coverage
-gcovr -r . --sonarqube coverage.xml
-mv coverage.xml coverage
-ls -a
+gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
+mv *.gcov coverage
+#gcovr -r . --sonarqube coverage.xml
+#mv coverage.xml coverage
+#ls -a
 
 cd /home/carma-streets/scheduling_service/build/
 ls -a
@@ -38,7 +38,7 @@ cd /home/carma-streets/scheduling_service/
 mkdir coverage
 #gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
 #mv *.gcov coverage
-gcovr -r . --sonarqube coverage.xml
+gcovr --exclude=./test --exclude=./build/CMakeFiles  --sonarqube coverage.xml
 mv coverage.xml coverage
 ls -a
 
