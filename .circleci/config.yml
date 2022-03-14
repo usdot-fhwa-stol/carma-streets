@@ -49,15 +49,9 @@ jobs:
             set -x
             apt-get update
             apt-get update  && apt-get install -y cmake git build-essential curl gcovr unzip gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
-            apt --fix-broken install
-            add-apt-repository universe
-            apt-get update
             apt-get install libboost-all-dev
             apt-get update
-            #apt-get install -y python3.5
-            #apt-get install -y python3-pip
-            #pip3 install 'gcovr == 4.2'
-            
+           
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
