@@ -1,2 +1,0 @@
-/usr/bin/ar qc libstreets_singleton_lib.a  CMakeFiles/streets_singleton_lib.dir/src/streets_configuration_exception.cpp.o CMakeFiles/streets_singleton_lib.dir/src/streets_configuration.cpp.o
-/usr/bin/ranlib libstreets_singleton_lib.a
