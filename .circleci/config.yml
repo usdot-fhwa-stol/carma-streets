@@ -114,9 +114,9 @@ jobs:
             curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 
             apt-get update && \
-            apt-get install -y ros-melodic-catkin
+            apt-get install -y ros-noetic-catkin
 
-            cd /opt/ros/melodic/
+            cd /opt/ros/noetic/
             ls -a
             
 
@@ -139,7 +139,7 @@ jobs:
             rm -r lanelet2/lanelet2_examples
 
             cd /home/carma-streets/carma_lanelet2
-            source /opt/ros/melodic/setup.bash && \
+            source /opt/ros/noetic/setup.bash && \
             apt-get install -y python-rospkg && \
             apt-get install -y libeigen3-dev && \
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
@@ -167,7 +167,7 @@ jobs:
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
 
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
-            echo "source /opt/ros/melodic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
+            echo "source /opt/ros/noetic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             cat /home/carma-streets/.base-image/init-env.sh
       - run:
