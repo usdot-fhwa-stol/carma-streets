@@ -28,7 +28,7 @@ jobs:
     # Pull docker image 
     # XTERM used for better make output
     docker:
-      - image: ubuntu:focal-20220316
+      - image: ubuntu:bionic-20190807
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
@@ -47,8 +47,8 @@ jobs:
           name: Install Sonar & Dependencies
           command: |
             set -x
-            export DEBIAN_FRONTEND=noninteractive
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.71-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
+            apt-get update
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
             
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
@@ -114,9 +114,9 @@ jobs:
             curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 
             apt-get update && \
-            apt-get install -y ros-noetic-catkin
+            apt-get install -y ros-melodic-catkin
 
-            cd /opt/ros/noetic/
+            cd /opt/ros/melodic/
             ls -a
             
 
@@ -139,8 +139,8 @@ jobs:
             rm -r lanelet2/lanelet2_examples
 
             cd /home/carma-streets/carma_lanelet2
-            source /opt/ros/noetic/setup.bash && \
-            apt-get install -y python3-rospkg && \
+            source /opt/ros/melodic/setup.bash && \
+            apt-get install -y python-rospkg && \
             apt-get install -y libeigen3-dev && \
             ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
@@ -167,7 +167,7 @@ jobs:
             mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
 
             echo "export PATH=$PATH:/opt/jq/:$SONAR_DIR/sonar-scanner/bin/:$SONAR_DIR/build-wrapper/" > /home/carma-streets/.base-image/init-env.sh
-            echo "source /opt/ros/noetic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
+            echo "source /opt/ros/melodic/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> /home/carma-streets/.base-image/init-env.sh
             cat /home/carma-streets/.base-image/init-env.sh
       - run:
