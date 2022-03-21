@@ -1,14 +1,4 @@
 #pragma once
-//============================================================================
-// Name        : streets_singleton.cpp
-// Author      : Paul Bourelly
-// Version     : 5.0
-// Copyright   : Your copyright notice
-// Description : A CARMA-Streets utility templated singleton class. Used for 
-// create of objects with a singleton scope (single instance).The get_singleton()
-// method allows for lazy and thread safe initialization of instance. To use this 
-// class simply extend class.
-//============================================================================
 
 #include "spdlog/spdlog.h"
 

@@ -62,7 +62,10 @@ struct configuration {
     bool operator!=(const configuration& t) const {
         return !(name == t.name && value == t.value && description == t.description && type == t.type);
     }
-
+    /**
+     * @brief Method to translate json object to configuration struct.
+     * @param val rapidjson::Value object representing configuration.
+     */ 
     void fromJson(const rapidjson::Value &val ){
         if ( val.HasMember("name") ) {
             name = val.FindMember("name")->value.GetString();
