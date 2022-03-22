@@ -13,6 +13,7 @@
 #include <rapidjson/writer.h>
 #include <iosfwd>
 #include <sstream>
+#include <mutex>
 #include <map>
 #include <iostream>
 #include <iterator>
@@ -127,6 +128,12 @@ struct configuration {
     
     }
 };
+/**
+ * @brief Streets Configuration singleton scoped object that parses
+ * manifest.json configuration file and offers static access to the
+ * configuration parameter values. Singleton also configures default
+ * multisink logger file and terminal logger.
+ */ 
 class streets_configuration : public streets_singleton<streets_configuration> {
     friend class streets_singleton<streets_configuration>;
 
@@ -170,8 +177,6 @@ class streets_configuration : public streets_singleton<streets_configuration> {
     
     protected:
 
-        // // Hide inherited get_singleton method access
-        // using streets_singleton::get_singleton;
         /**
          * @brief Parse manifest.json configuration file for CARMA-Streets service and update configurations.
          */ 
@@ -181,18 +186,26 @@ class streets_configuration : public streets_singleton<streets_configuration> {
          */ 
         void update_configuration(const rapidjson::Document &doc);
         /**
-         * @brief
+         * @brief Method to read service level configurations from 
+         * manifest.json file to configure default logger and set
+         * log level.
+         * @param doc rapidjson::Document containing parse manifest.json
+         * configuration file. 
          */
-        void initialize(const rapidjson::Document &doc); 
+        void const initialize(const rapidjson::Document &doc); 
         /**
-         * 
+         * @brief Method to configuration spdlog default multisink logger. Includes
+         * a file sink which rotates daily and terminal sink.
+         * @param service_name string which is obtained form the manifest.json configuration
+         * file and used as part of the naming convention for log files.
          */
-        void configure_logger( const std::string &service_name); 
+        void const configure_logger( const std::string &service_name); 
         /**
-         * 
+         * @brief Method to set the spdlog::default
          */
-        void set_loglevel( const std::string &loglevel); 
+        void const set_loglevel( const std::string &loglevel); 
 
+        // Hide get_singleton method. Use static methods instead.
         using streets_singleton::get_singleton;
 
 };

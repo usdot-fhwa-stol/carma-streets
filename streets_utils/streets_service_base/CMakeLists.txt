@@ -20,7 +20,7 @@ target_include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/inc
 #######
 
 INSTALL(TARGETS ${PROJECT_NAME}_lib  DESTINATION lib)
-FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}/*.h")
+FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 INSTALL(FILES ${files} DESTINATION include)
 
 

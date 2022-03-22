@@ -16,7 +16,7 @@ streets_configuration::streets_configuration( const std::string &filepath ): fil
 };
 
 rapidjson::Document streets_configuration::parse_configuration_file() {
-    config_lock.lock();
+    std::unique_lock<std::mutex> lck(config_lock);
     // Open file
     std::ifstream file(filepath);
     if (!file.is_open()) {
@@ -31,11 +31,10 @@ rapidjson::Document streets_configuration::parse_configuration_file() {
         throw streets_configuration_exception("Document parse error!");
     }
     file.close();
-    config_lock.unlock();
     return doc;
 };
 
-void streets_configuration::initialize( const rapidjson::Document &doc ) {
+const void streets_configuration::initialize( const rapidjson::Document &doc ) {
     if ( doc.HasMember("service_name") && doc.FindMember("service_name")->value.IsString() ) {
         configure_logger( doc.FindMember("service_name")->value.GetString());
     }
@@ -54,7 +53,7 @@ void streets_configuration::initialize( const rapidjson::Document &doc ) {
 
 void streets_configuration::update_configuration( const rapidjson::Document &doc) {
     spdlog::debug("Updating Configuration Map");
-    config_lock.lock();
+    std::unique_lock<std::mutex> lck(config_lock);
     if ( doc.HasMember("configurations") && doc.FindMember("configurations")->value.IsArray() ) {
         for ( auto& cnf: doc.FindMember("configurations")->value.GetArray() ) {
             std::string property_name = cnf.FindMember("name")->value.GetString();
@@ -78,9 +77,7 @@ void streets_configuration::update_configuration( const rapidjson::Document &doc
                 throw streets_configuration_exception("Configuration parameter " + property_name + " not properly formatted!");
             }  
         } 
-    }
-    config_lock.unlock();
-    
+    }   
 };
 
 std::string streets_configuration::get_string_config(const std::string &config_param_name) {
@@ -146,7 +143,7 @@ bool streets_configuration::get_boolean_config( const std::string &config_param_
 }
 
  
-void streets_configuration::set_loglevel(const std::string &loglevel ) {
+const void streets_configuration::set_loglevel(const std::string &loglevel ) {
     // Get main logger and set loglevel
     auto main_logger = spdlog::get("main");
     if ( main_logger != nullptr ) {
@@ -158,7 +155,7 @@ void streets_configuration::set_loglevel(const std::string &loglevel ) {
     }
 }
 
-void streets_configuration::configure_logger(const std::string &service_name ){
+const void streets_configuration::configure_logger(const std::string &service_name ){
     try {
         // Create logger thread pool
         spdlog::init_thread_pool(8192, 1);
