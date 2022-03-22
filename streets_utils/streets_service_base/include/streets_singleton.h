@@ -1,7 +1,5 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
-
 /**
  * CARMA-Streets singleton templated class meant for extending
  * to allow for singleton scoped objects in CARMA-Streets services
@@ -48,10 +46,10 @@ T& streets_singleton<T>::get_singleton() {
  * Protected constructor
  */ 
 template <typename T>   
-streets_singleton<T>::streets_singleton() {};
+streets_singleton<T>::streets_singleton() = default;
 /**
  * Protected destructor
  */ 
 template <typename T>   
-streets_singleton<T>::~streets_singleton() {};        
+streets_singleton<T>::~streets_singleton() = default;        
 

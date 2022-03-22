@@ -17,6 +17,6 @@ class streets_configuration_exception : public std::runtime_error{
          * @brief Constructor. 
          * @param msg String exception message.
          */  
-        streets_configuration_exception(const std::string &msg );
+        explicit streets_configuration_exception(const std::string &msg );
 };
 

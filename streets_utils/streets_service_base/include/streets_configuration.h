@@ -138,8 +138,7 @@ class streets_configuration : public streets_singleton<streets_configuration> {
         std::mutex config_lock;
         /* Map of configuration names and values*/
         std::map< std::string, configuration > configuration_map;
-        /* Flag to indicate whether streets_configuration singleton has been initialized */
-        bool initialized = false;
+
         /**
          * @brief Constructor that takes filepath as a parameter. 
          * @param filepath relative path to manifest.json configuration file.
@@ -168,6 +167,10 @@ class streets_configuration : public streets_singleton<streets_configuration> {
          * @param config_param_name configuration parameter name.
          */ 
         static bool get_boolean_config( const std::string &config_param_name);
+        /**
+         * @brief Static method to initialize streets configuration singleton. 
+         */ 
+        static void initialize();
     
     protected:
 
@@ -186,18 +189,18 @@ class streets_configuration : public streets_singleton<streets_configuration> {
          * @param doc rapidjson::Document containing parse manifest.json
          * configuration file. 
          */
-        void const initialize(const rapidjson::Document &doc); 
+        void configure_logger(const rapidjson::Document &doc) const; 
         /**
          * @brief Method to configuration spdlog default multisink logger. Includes
          * a file sink which rotates daily and terminal sink.
          * @param service_name string which is obtained form the manifest.json configuration
          * file and used as part of the naming convention for log files.
          */
-        void const configure_logger( const std::string &service_name); 
+        void create_default_logger( const std::string &service_name) const; 
         /**
          * @brief Method to set the spdlog::default
          */
-        void const set_loglevel( const std::string &loglevel); 
+        void set_loglevel( const std::string &loglevel) const; 
 
         // Hide get_singleton method. Use static methods instead.
         using streets_singleton::get_singleton;

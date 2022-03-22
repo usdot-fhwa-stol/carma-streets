@@ -6,7 +6,7 @@
 // Constructor
 streets_configuration::streets_configuration( const std::string &filepath ): filepath(filepath){
     auto doc = parse_configuration_file();
-    initialize( doc );
+    configure_logger( doc );
     update_configuration( doc );
     spdlog::info("Printing Configuration Parameters ---------------------------------------");
     for(const auto& conf : configuration_map)
@@ -34,13 +34,13 @@ rapidjson::Document streets_configuration::parse_configuration_file() {
     return doc;
 };
 
-const void streets_configuration::initialize( const rapidjson::Document &doc ) {
+void streets_configuration::configure_logger( const rapidjson::Document &doc ) const {
     if ( doc.HasMember("service_name") && doc.FindMember("service_name")->value.IsString() ) {
-        configure_logger( doc.FindMember("service_name")->value.GetString());
+        create_default_logger( doc.FindMember("service_name")->value.GetString());
     }
     else {
         spdlog::warn("Parameter \"service_name\" missing/incorrectly formatted in manifest.json! Setting \"service_name\" to streets_service!");
-        configure_logger("streets_service");
+        create_default_logger("streets_service");
     }
     if ( doc.HasMember("loglevel") && doc.FindMember("loglevel")->value.IsString() ) {
         set_loglevel( doc.FindMember("loglevel")->value.GetString() );
@@ -54,7 +54,7 @@ const void streets_configuration::initialize( const rapidjson::Document &doc ) {
 void streets_configuration::update_configuration( const rapidjson::Document &doc) {
     spdlog::debug("Updating Configuration Map");
     std::unique_lock<std::mutex> lck(config_lock);
-    if ( doc.HasMember("configurations") && doc.FindMember("configurations")->value.IsArray() ) {
+    if ( doc.FindMember("configurations")->value.IsArray() ) {
         for ( auto& cnf: doc.FindMember("configurations")->value.GetArray() ) {
             std::string property_name = cnf.FindMember("name")->value.GetString();
             auto val = configuration_map.find( property_name );
@@ -77,6 +77,9 @@ void streets_configuration::update_configuration( const rapidjson::Document &doc
                 throw streets_configuration_exception("Configuration parameter " + property_name + " not properly formatted!");
             }  
         } 
+    }
+    else {
+        spdlog::warn("No configurations found in manifest.json!");
     }   
 };
 
@@ -143,7 +146,7 @@ bool streets_configuration::get_boolean_config( const std::string &config_param_
 }
 
  
-const void streets_configuration::set_loglevel(const std::string &loglevel ) {
+void streets_configuration::set_loglevel(const std::string &loglevel ) const{
     // Get main logger and set loglevel
     auto main_logger = spdlog::get("main");
     if ( main_logger != nullptr ) {
@@ -155,7 +158,7 @@ const void streets_configuration::set_loglevel(const std::string &loglevel ) {
     }
 }
 
-const void streets_configuration::configure_logger(const std::string &service_name ){
+void streets_configuration::create_default_logger(const std::string &service_name ) const{
     try {
         // Create logger thread pool
         spdlog::init_thread_pool(8192, 1);
@@ -173,6 +176,10 @@ const void streets_configuration::configure_logger(const std::string &service_na
         spdlog::error( "Log initialization failed: {0}!",ex.what());
     }
 };
+
+void streets_configuration::initialize(){
+    streets_configuration::get_singleton();
+}
 
 
 
