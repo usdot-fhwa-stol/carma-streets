@@ -6,12 +6,15 @@ link_directories("/usr/lib"  "/usr/local/lib"  )
 find_package(Boost COMPONENTS system thread REQUIRED)
 find_package(spdlog REQUIRED)
 
+include_directories("/usr/local/include")
+
 add_library(${PROJECT_NAME}_lib 
                 src/streets_configuration_exception.cpp
                 src/streets_configuration.cpp
                 )
 target_include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/include 
                 "/usr/local/include")
+target_link_libraries( ${PROJECT_NAME}_lib Boost::system Boost::thread spdlog::spdlog )
 
                 
 
