@@ -5,6 +5,7 @@
 #include <rapidjson/ostreamwrapper.h>
 #include <fstream>
 
+using namespace streets_service;
 
 void create_test_configuration(const std::string &filepath){
    rapidjson::Document doc;

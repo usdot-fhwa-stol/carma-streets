@@ -2,6 +2,7 @@
 #include <streets_singleton.h>
 #include <spdlog/spdlog.h>
 
+using namespace streets_service;
 // Test singleton class
 class test_singleton_impl : public streets_singleton<test_singleton_impl>{
     friend class streets_singleton<test_singleton_impl>;

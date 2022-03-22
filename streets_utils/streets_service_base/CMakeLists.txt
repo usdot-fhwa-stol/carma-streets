@@ -10,6 +10,7 @@ include_directories("/usr/local/include")
 
 add_library(${PROJECT_NAME}_lib 
                 src/streets_configuration_exception.cpp
+                src/configuration.cpp
                 src/streets_configuration.cpp
                 )
 target_include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/include 
@@ -38,6 +39,7 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 
 add_executable(${BINARY} ${TEST_SOURCES} 
                     src/streets_configuration_exception.cpp
+                    src/configuration.cpp
                     src/streets_configuration.cpp
                     )
 
