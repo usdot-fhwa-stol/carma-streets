@@ -59,7 +59,7 @@ namespace streets_service {
             throw streets_service::streets_configuration_exception("Configuration " + name + " is missing a type");
         }
         
-        // spdlog::debug("Create config name : {0}, value : {1}, type : {2}, description : {3} ",name, value, type, description );
+        spdlog::debug("Create config name : {0}, value : {1}, type : {2}, description : {3} ",name, value, type, description );
 
     };
 }
