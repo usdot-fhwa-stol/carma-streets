@@ -6,10 +6,11 @@ This is the `streets_service_base` library meant to be the base of each new CARM
 
 ## Streets Singleton
 
-TODO
+Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself, which is lazily initialized (not initialized until retrieved for the first time). To ensure that new instances of this class can not be created the constructors are deleted or hidden using private or protected access.
 
 
 ## Streets Configuration
+Library creates `streets_configuration` singleton which standardizes the `manifest.json` configuration file parsing and configuration parameter retrieval. Extending `streets_singleton` allows `streets_configuration` to be limited to singleton scope ( single instance ) and offer static methods for configuration parameter retrieval. `streets_configuration` also parses some service required configurations like **loglevel** and **service_name** to create and configure a `spdlog::async_loggerr` with a  `spdlog::sinks::daily_file_sink_mt` and a `spdlog::sinks::stdout_color_sink_mt`.
 
 Example `manifest.json` configuration file.
 ```

@@ -1,6 +1,9 @@
 #ifndef streets_singleton_H
 #define streets_singleton_H
 
+#include <spdlog/spdlog.h>
+#include <typeinfo>
+
 
 namespace streets_service {
     /**
