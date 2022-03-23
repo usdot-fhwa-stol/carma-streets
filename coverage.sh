@@ -15,14 +15,6 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
-find_as_array() {
-	local -n ref_array=$1 # Pass the output array by reference
-	# Run the find command and store the results in the array
-	while IFS=  read -r -d $'\0'; do
-	    ref_array+=("$REPLY")
-	done < <(find . -iname "$2" -print0 $3)
-}
-
 
 cd /home/carma-streets
 mkdir test_results
@@ -33,7 +25,7 @@ ls -a
 ./kafka_clients_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/kafka_clients/
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
+gcovr --exclude=./build/CMakefiles/kakfa_clients_lib.dir --exclude=./build/CMakefiles/kafka_clients.dir -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/scheduling_service/build/
@@ -41,27 +33,19 @@ ls -a
 ./scheduling_service_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/scheduling_service/
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
+gcovr --exclude=./build/CMakefiles/scheduling_service.dir -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/streets_utils/streets_service_base/build/
 ls -a
-./streets_service_base_test --gtest_output=xml:../../test_results/
+./streets_service_base_test --gtest_output=xml:../../../test_results/
 cd /home/carma-streets/streets_utils/streets_service_base
 mkdir coverage
-gcovr -k -r .
+gcovr --exclude=./build/CMakefiles/streets_service_base_lib.dir -k -r .
 output_dir=".coverage"
-gcov_file_array=()
-find_as_array gcov_file_array "*.gcov" "-type f"
-echo "Moving new files"
+ls -l
+mv *.gcov coverage
 
-for gcov_file in "${gcov_file_array[@]}"
-do
-   base_file_name=$(basename ${gcov_file})
-   mv ${gcov_file} ${output_dir}/${base_file_name}
-   echo "Moved file"
-   echo ${gcov_file}
-done
 
 cd /home/carma-streets/message_services/build/
 ls -a
@@ -69,7 +53,7 @@ ls -a
 cd /home/carma-streets/message_services/
 ls -a
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles -k -r .
+gcovr --exclude=./build/CMakefiles/message_services.dir -k -r .
 mv *.gcov coverage
 
 cd /home/carma-streets/intersection_model/build/
@@ -78,5 +62,5 @@ ls -a
 cd /home/carma-streets/intersection_model/
 ls -a
 mkdir coverage
-gcovr --exclude=./test --exclude=./build/CMakeFiles --exclude=./src/server --exclude=./build/src/ -k -r .
+gcovr --exclude=./build/CMakefiles/intersection_model.dir --exclude=./src/server --exclude=./build/src/ -k -r .
 mv *.gcov coverage
