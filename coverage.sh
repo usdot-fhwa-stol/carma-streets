@@ -15,6 +15,14 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
+find_as_array() {
+	local -n ref_array=$1 # Pass the output array by reference
+	# Run the find command and store the results in the array
+	while IFS=  read -r -d $'\0'; do
+	    ref_array+=("$REPLY")
+	done < <(find . -iname "$2" -print0 $3)
+}
+
 
 cd /home/carma-streets
 mkdir test_results
@@ -41,8 +49,19 @@ ls -a
 ./streets_service_base_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/streets_utils/streets_service_base
 mkdir coverage
-gcovr --exclude=test --exclude=./build/CMakeFiles -k -r .
-mv *.gcov coverage
+gcovr -k -r .
+output_dir=".coverage/"
+gcov_file_array=()
+find_as_array gcov_file_array "*.gcov" "-type f"
+echo "Moving new files"
+
+for gcov_file in "${gcov_file_array[@]}"
+do
+   base_file_name=$(basename ${gcov_file})
+   mv ${gcov_file} ${output_dir}/${base_file_name}
+   echo "Moved file"
+   echo ${gcov_file}
+done
 
 cd /home/carma-streets/message_services/build/
 ls -a
