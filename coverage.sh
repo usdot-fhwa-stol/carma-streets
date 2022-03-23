@@ -50,7 +50,7 @@ ls -a
 cd /home/carma-streets/streets_utils/streets_service_base
 mkdir coverage
 gcovr -k -r .
-output_dir=".coverage/"
+output_dir=".coverage"
 gcov_file_array=()
 find_as_array gcov_file_array "*.gcov" "-type f"
 echo "Moving new files"
