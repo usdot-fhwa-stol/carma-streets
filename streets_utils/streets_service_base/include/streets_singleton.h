@@ -1,4 +1,5 @@
-#pragma once
+#ifndef streets_singleton_H
+#define streets_singleton_H
 
 
 namespace streets_service {
@@ -34,24 +35,8 @@ namespace streets_service {
             ~streets_singleton();        
     };
 
-    // Implementation
+         
+};
 
-    template <typename T>   
-    T& streets_singleton<T>::get_singleton() {
-        static T instance;  // Guaranteed to be destroyed.
-                            // Instantiated on first use.
-        return instance;
-    };
-        
-
-    /**
-     * Protected constructor
-     */ 
-    template <typename T>   
-    streets_singleton<T>::streets_singleton() = default;
-    /**
-     * Protected destructor
-     */ 
-    template <typename T>   
-    streets_singleton<T>::~streets_singleton() = default;        
-}
+#include "internal/streets_singleton.tpp"
+#endif
