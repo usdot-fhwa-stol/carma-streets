@@ -38,7 +38,7 @@ mv *.gcov coverage
 
 cd /home/carma-streets/streets_utils/streets_service_base/build/
 ls -a
-./atreets_service_base_test --gtest_output=xml:../../test_results/
+./streets_service_base_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/streets_utils/streets_service_base
 mkdir coverage
 gcovr --exclude=test --exclude=./build/CMakeFiles -k -r .
