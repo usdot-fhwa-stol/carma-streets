@@ -1,20 +1,17 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_service_base)
                     
-link_directories("/usr/lib"  "/usr/local/lib"  )
 
 find_package(Boost COMPONENTS system thread REQUIRED)
 find_package(spdlog REQUIRED)
 
-include_directories("/usr/local/include")
 
 add_library(${PROJECT_NAME}_lib 
                 src/streets_configuration_exception.cpp
                 src/configuration.cpp
                 src/streets_configuration.cpp
                 )
-target_include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/include 
-                "/usr/local/include")
+target_include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/include )
 target_link_libraries( ${PROJECT_NAME}_lib Boost::system Boost::thread spdlog::spdlog )
 
                 
@@ -25,7 +22,9 @@ target_link_libraries( ${PROJECT_NAME}_lib Boost::system Boost::thread spdlog::s
 
 INSTALL(TARGETS ${PROJECT_NAME}_lib  DESTINATION lib)
 FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-INSTALL(FILES ${files} DESTINATION include)
+INSTALL(FILES ${files} DESTINATION include/${PROJECT_NAME})
+FILE(GLOB templates "${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp")
+INSTALL(FILES ${templates} DESTINATION include/${PROJECT_NAME}/interal)
 
 
 ########################
