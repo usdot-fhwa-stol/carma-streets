@@ -50,7 +50,6 @@ jobs:
             apt-get update
             apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev python3-pip
             pip3 install gcovr
-            echo "export PATH=$PATH:/home/carma-streets/.local/bin/" > /home/carma-streets/.base-image/init-env.sh
 
             cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
             mkdir build
