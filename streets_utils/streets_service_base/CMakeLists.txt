@@ -24,7 +24,7 @@ INSTALL(TARGETS ${PROJECT_NAME}_lib  DESTINATION lib)
 FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 INSTALL(FILES ${files} DESTINATION include/${PROJECT_NAME})
 FILE(GLOB templates "${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp")
-INSTALL(FILES ${templates} DESTINATION include/${PROJECT_NAME}/interal)
+INSTALL(FILES ${templates} DESTINATION include/${PROJECT_NAME}/internal)
 
 
 ########################
