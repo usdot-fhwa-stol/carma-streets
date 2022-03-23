@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
-#include <streets_singleton.h>
 #include <spdlog/spdlog.h>
+#include "streets_singleton.h"
+
 
 using namespace streets_service;
 // Test singleton class

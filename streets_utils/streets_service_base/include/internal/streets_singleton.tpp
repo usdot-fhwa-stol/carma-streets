@@ -1,4 +1,4 @@
-#ifdef streets_singleton_h
+#ifdef streets_singleton_H
 
 namespace streets_service {  
   // Implementation
