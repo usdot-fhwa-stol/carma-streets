@@ -18,6 +18,8 @@ namespace kafka_clients
         RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
         if (!conf)
         {
+            // Will this trigger code coverage
+            spdlog::info("Something");
             spdlog::critical("RDKafka create global conf failed ");
             return false;
         }

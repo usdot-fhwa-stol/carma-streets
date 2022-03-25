@@ -8,6 +8,10 @@ namespace kafka_clients
         try
         {
             int partition = 0;
+            int something = 12;
+            if (something == 13) {
+                spdlog::info("something ");
+            }
             int64_t cur_offset = RdKafka::Topic::OFFSET_END;
             auto consumer_ptr = std::make_shared<kafka_clients::kafka_consumer_worker>(bootstrap_server, topic_str, group_id_str, cur_offset, partition);
             return consumer_ptr;
