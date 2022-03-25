@@ -11,15 +11,9 @@
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <fstream>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <iosfwd>
-#include <sstream>
 #include <mutex>
 #include <map>
-#include <iostream>
-#include <iterator>
-#include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 
 
 namespace streets_service {
@@ -39,6 +33,8 @@ namespace streets_service {
             std::mutex config_lock;
             /* Map of configuration names and values*/
             std::map< std::string, configuration > configuration_map;
+            /* Time stamp for when the configuration file was last modified to only update on modifications*/
+            std::time_t last_modified;
 
             /**
              * @brief Constructor that takes filepath as a parameter. 
@@ -69,9 +65,9 @@ namespace streets_service {
              */ 
             static bool get_boolean_config( const std::string &config_param_name);
             /**
-             * @brief Static method to initialize streets configuration singleton. 
+             * @brief Static method to initialize spdlog default logger. 
              */ 
-            static void initialize();
+            static void initialize_logger();
         
         protected:
 
@@ -108,6 +104,11 @@ namespace streets_service {
              * @brief Method to set the spdlog::default
              */
             void set_loglevel( const std::string &loglevel) const; 
+
+            /**
+             * @brief Method to check last modified time of file to see if a file update is necessary.
+             */ 
+            void check_update();
 
             // Hide get_singleton method. Use static methods instead.
             using streets_singleton::get_singleton;

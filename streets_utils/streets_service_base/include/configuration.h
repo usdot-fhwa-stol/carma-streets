@@ -1,9 +1,9 @@
 #pragma once
 
 #include "streets_configuration_exception.h"
+
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
 
 
 namespace streets_service {

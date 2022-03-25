@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
-#include <streets_singleton.h>
-#include <streets_configuration.h>
 #include <spdlog/spdlog.h>
 #include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/writer.h>
 #include <fstream>
+
+#include "streets_singleton.h"
+#include "streets_configuration.h"
 
 using namespace streets_service;
 
@@ -71,6 +73,7 @@ TEST(test_streets_configuration, missing_configuration_file)
 
 TEST(test_streets_configuration, get_config) {
    create_test_configuration("../manifest.json");
+   streets_configuration::initialize_logger();
    // Test Correct Parameters
    ASSERT_TRUE(streets_configuration::get_boolean_config("param2"));
    ASSERT_EQ(streets_configuration::get_int_config("param1"), 123);

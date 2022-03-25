@@ -4,10 +4,8 @@
 namespace streets_service {
     // Constructor
     streets_configuration::streets_configuration( const std::string &filepath ): filepath(filepath){
-        auto doc = parse_configuration_file();
-        configure_logger( doc );
-        update_configuration( doc );
         spdlog::info("Printing Configuration Parameters ---------------------------------------");
+        check_update();
         for(const auto& conf : configuration_map)
         {
             spdlog::info("{0} : {1} ", conf.first.c_str(), conf.second.value.c_str());
@@ -90,8 +88,7 @@ namespace streets_service {
         // Get Singleton
         auto &instance = get_singleton();
         // update  Singleton
-        instance.update_configuration(instance.parse_configuration_file());
-
+        instance.check_update();
         // Get Configuration
         auto string_config = instance.configuration_map.find(config_param_name);
         if ( string_config->second.type == data_type::config_string) {
@@ -106,7 +103,7 @@ namespace streets_service {
         // Get Singleton
         auto &instance = get_singleton();
         // update  Singleton
-        instance.update_configuration(instance.parse_configuration_file());
+        instance.check_update();
 
         // Get Configuration
         auto int_config = instance.configuration_map.find(config_param_name);
@@ -122,7 +119,7 @@ namespace streets_service {
         // Get Singleton
         auto &instance = get_singleton();
         // update  Singleton
-        instance.update_configuration(instance.parse_configuration_file());
+        instance.check_update();
         // Get Configuration
         auto double_config = instance.configuration_map.find(config_param_name);
         if ( double_config->second.type == data_type::config_double) {
@@ -137,7 +134,7 @@ namespace streets_service {
         // Get Singleton
         auto &instance = get_singleton();
         // update  Singleton
-        instance.update_configuration(instance.parse_configuration_file());
+        instance.check_update();
         // Get Configuration
         auto bool_config = instance.configuration_map.find(config_param_name);
         if ( bool_config->second.type == data_type::config_bool) {
@@ -180,9 +177,25 @@ namespace streets_service {
         }
     };
 
-    void streets_configuration::initialize(){
-        streets_configuration::get_singleton();
+    void streets_configuration::initialize_logger(){
+        auto &singleton = streets_configuration::get_singleton();
+        auto doc = singleton.parse_configuration_file();
+        singleton.configure_logger( doc );
+        singleton.update_configuration( doc );
     };
+
+    void streets_configuration::check_update() {
+        try {
+            std::time_t time = boost::filesystem::last_write_time(filepath);
+            if ( time != last_modified) {
+                update_configuration(parse_configuration_file());
+                last_modified = time;
+            }
+        }
+        catch (const std::exception &e) {
+            throw streets_configuration_exception(e.what());
+        }
+    }
 
 }
 

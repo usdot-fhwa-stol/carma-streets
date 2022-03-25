@@ -1,4 +1,3 @@
-#ifdef streets_singleton_H
 
 namespace streets_service {  
   // Implementation
@@ -8,8 +7,9 @@ namespace streets_service {
         static T instance;  // Guaranteed to be destroyed.
                             // Instantiated on first use.
         char strAddress[] = "0x00000000";
-        snprintf(strAddress,sizeof(strAddress) ,"0x%x", &instance);
-        spdlog::debug("Singleton {0} memory address : {1}", typeid(instance).name() , strAddress);
+        snprintf(strAddress,sizeof(strAddress) ,"0x%x", std::addressof(instance));
+        spdlog::debug("Singleton class : {0}.", typeid(instance).name() );
+        spdlog::debug("Singleton address: {0}", strAddress);
         return instance;
     };
         
@@ -25,4 +25,3 @@ namespace streets_service {
     template <typename T>   
     streets_singleton<T>::~streets_singleton() = default; 
 }
-#endif

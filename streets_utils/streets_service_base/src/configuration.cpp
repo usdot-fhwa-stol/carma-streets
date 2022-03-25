@@ -25,28 +25,28 @@ namespace streets_service {
             if ( doc_type == "STRING" ) {
                 type = data_type::config_string;
                 if ( !val.FindMember("value")->value.IsString() ) {
-                    throw streets_service::streets_configuration_exception("Configuration is missing/incorrect a value");
+                    throw streets_service::streets_configuration_exception("String configuration is missing or incorrect type value");
                 }
                 value = val.FindMember("value")->value.GetString();
             }
             else if (doc_type == "INTEGER"){
                 type = data_type::config_int;
                 if ( !val.FindMember("value")->value.IsInt() ) {
-                    throw streets_service::streets_configuration_exception("Configuration is missing/incorrect a value");
+                    throw streets_service::streets_configuration_exception("Integer configuration is missing or incorrect type value");
                 }
                 value = std::to_string(val.FindMember("value")->value.GetInt());
             }
             else if (doc_type == "DOUBLE"){
                 type = data_type::config_double;
                 if ( !val.FindMember("value")->value.IsDouble() ) {
-                    throw streets_service::streets_configuration_exception("Configuration is missing/incorrect a value");
+                    throw streets_service::streets_configuration_exception("Double configuration is missing or incorrect type value");
                 }
                 value = std::to_string(val.FindMember("value")->value.GetDouble());
             }
             else if (doc_type == "BOOL") {
                 type = data_type::config_bool;
                 if ( !val.FindMember("value")->value.IsBool() ) {
-                    throw streets_service::streets_configuration_exception("Configuration is missing/incorrect a value");
+                    throw streets_service::streets_configuration_exception("Bool configuration is missing or incorrect type value");
                 }
                 value = val.FindMember("value")->value.GetBool() ? "true" : "false";
                 

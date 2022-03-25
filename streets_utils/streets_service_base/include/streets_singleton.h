@@ -1,5 +1,4 @@
-#ifndef streets_singleton_H
-#define streets_singleton_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include <typeinfo>
@@ -26,7 +25,12 @@ namespace streets_service {
             // Remove copy constructor 
             streets_singleton(streets_singleton const &) = delete;
             // Remove move constructor
+            streets_singleton(streets_singleton&& ) = delete;
+
+            // Remove assignment constructor
             streets_singleton& operator=(streets_singleton const &) = delete;
+
+
         protected:
             /**
              * Protected constructor
@@ -42,4 +46,3 @@ namespace streets_service {
 };
 
 #include "internal/streets_singleton.tpp"
-#endif
