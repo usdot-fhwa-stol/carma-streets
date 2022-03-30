@@ -44,17 +44,17 @@ install(
 install(
     EXPORT ${PROJECT_NAME}_libTargets 
     FILE ${PROJECT_NAME}_libTargets.cmake
-    DESTINATION lib/cmake/streets_utils/
-    NAMESPACE streets_utils::
+    DESTINATION lib/cmake/${PROJECT_NAME}_lib/
+    NAMESPACE ${PROJECT_NAME}_lib::
 )
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/${PROJECT_NAME}_libConfig.cmake.in 
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
-    INSTALL_DESTINATION  lib/cmake/streets_utils/ )
+    INSTALL_DESTINATION  lib/${PROJECT_NAME}_lib/${PROJECT_NAME}_lib/ )
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
-    DESTINATION  lib/cmake/streets_utils/
+    DESTINATION  lib/cmake/${PROJECT_NAME}_lib/
 )
 install(FILES ${files} DESTINATION include)
 install(FILES ${templates} DESTINATION include/internal)
