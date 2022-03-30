@@ -4,11 +4,11 @@
 namespace streets_service {
     // Constructor
     streets_configuration::streets_configuration( const std::string &filepath ): filepath(filepath){
-        spdlog::info("Printing Configuration Parameters ---------------------------------------");
+        SPDLOG_INFO("Printing Configuration Parameters ---------------------------------------");
         check_update();
         for(const auto& conf : configuration_map)
         {
-            spdlog::info("{0} : {1} ", conf.first.c_str(), conf.second.value.c_str());
+            SPDLOG_INFO("{0} : {1} ", conf.first.c_str(), conf.second.value.c_str());
         }
     };
 
@@ -24,7 +24,7 @@ namespace streets_service {
         rapidjson::Document doc;
         doc.ParseStream(isw);
         if (doc.HasParseError()){
-            spdlog::error("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
+            SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
             throw streets_service::streets_configuration_exception("Document parse error!");
         }
         file.close();
@@ -36,25 +36,25 @@ namespace streets_service {
             create_default_logger( doc.FindMember("service_name")->value.GetString());
         }
         else {
-            spdlog::warn("Parameter \"service_name\" missing/incorrectly formatted in manifest.json! Setting \"service_name\" to streets_service!");
+            SPDLOG_WARN("Parameter \"service_name\" missing/incorrectly formatted in manifest.json! Setting \"service_name\" to streets_service!");
             create_default_logger("streets_service");
         }
         if ( doc.HasMember("loglevel") && doc.FindMember("loglevel")->value.IsString() ) {
             set_loglevel( doc.FindMember("loglevel")->value.GetString() );
         }
         else {
-            spdlog::warn("Parameter \"loglevel\" missing/incorrectly formatted in manifest.json! Setting \"loglevel\" to INFO!");
+            SPDLOG_WARN("Parameter \"loglevel\" missing/incorrectly formatted in manifest.json! Setting \"loglevel\" to INFO!");
             set_loglevel("info");
         }
     }
 
     void streets_configuration::update_configuration( const rapidjson::Document &doc) {
-        spdlog::debug("Updating Configuration Map");
+        SPDLOG_DEBUG("Updating Configuration Map");
         if ( doc.FindMember("configurations")->value.IsArray() ) {
             parse_configurations_array(doc.FindMember("configurations")->value.GetArray());
         }
         else {
-            spdlog::warn("No configurations found in manifest.json!");
+            SPDLOG_WARN("No configurations found in manifest.json!");
         }   
     };
 
@@ -68,7 +68,7 @@ namespace streets_service {
                 configuration file_config;
                 file_config.fromJson( cnf.GetObject());
                 if ( config != file_config ) {
-                    spdlog::info("Updating configuration {0}!", property_name);
+                    SPDLOG_INFO("Updating configuration {0}!", property_name);
                     configuration_map.erase(property_name);
                     configuration_map.insert(std::make_pair(property_name, file_config));
                 }
@@ -151,7 +151,8 @@ namespace streets_service {
         auto main_logger = spdlog::get("main");
         if ( main_logger != nullptr ) {
             main_logger->set_level(spdlog::level::from_str(loglevel));
-            spdlog::info( "Log Level set to {0}!", spdlog::level::to_string_view(spdlog::get_level()));
+            spdlog::set_level(spdlog::level::from_str(loglevel));
+            SPDLOG_INFO( "Log Level set to {0}!", spdlog::level::to_string_view(spdlog::get_level()));
         }
         else {
             throw streets_configuration_exception("Log Level set failed! No main logger configured!");
@@ -167,13 +168,15 @@ namespace streets_service {
             auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
             // Link thread pool and sinks to async logger
             auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
+            // Set pattern [2022-3-31 13:00:00.000] [loglevel] [file_name.cpp:123]
+            logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%s:%#] %v");
             // Register logger and set as default
             spdlog::set_default_logger(logger);
-            spdlog::info("Default Logger initialized!");
+            SPDLOG_INFO("Default Logger initialized!");
         }   
         catch (const spdlog::spdlog_ex& ex)
         {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
+            SPDLOG_ERROR( "Log initialization failed: {0}!",ex.what());
         }
     };
 
@@ -181,13 +184,13 @@ namespace streets_service {
         auto &singleton = streets_configuration::get_singleton();
         auto doc = singleton.parse_configuration_file();
         singleton.configure_logger( doc );
-        singleton.update_configuration( doc );
     };
 
     void streets_configuration::check_update() {
         try {
             std::time_t time = boost::filesystem::last_write_time(filepath);
-            if ( time != last_modified) {
+            SPDLOG_DEBUG("Last Modified Time {0} vs Stored Last Modified Time {1}", time, last_modified);
+            if ( time > last_modified) {
                 update_configuration(parse_configuration_file());
                 last_modified = time;
             }

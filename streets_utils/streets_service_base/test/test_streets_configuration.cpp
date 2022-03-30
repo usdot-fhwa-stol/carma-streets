@@ -1,14 +1,19 @@
+#define RAPIDJSON_HAS_STDSTRING 1
 #include <gtest/gtest.h>
 #include <spdlog/spdlog.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>
 #include <fstream>
 
+
 #include "streets_singleton.h"
 #include "streets_configuration.h"
 
 using namespace streets_service;
-
+/**
+ * @brief Helper methon to create manifest.json file.
+ * @param filepath where to create manifest.json file.
+ */ 
 void create_test_configuration(const std::string &filepath){
    rapidjson::Document doc;
    doc.SetObject();
@@ -60,17 +65,53 @@ void create_test_configuration(const std::string &filepath){
    file.close();
 };
 
+/**
+ * @brief Update string param3 inside manifest.json.
+ * @param filepath to manifest.json
+ * @param new_value to update param3
+ */ 
+void update_configuration(const std::string &filepath, const std::string &new_value){
+    std::ifstream out_file(filepath);
+   if (!out_file.is_open()) {
+      FAIL();
+   }
+   // Add file contents to stream and parse stream into Document
+   rapidjson::IStreamWrapper isw(out_file);
+   rapidjson::Document doc;
+   doc.ParseStream(isw);
+   out_file.close();
+   if ( doc.FindMember("configurations")->value.IsArray()){
+      if  (doc.FindMember("configurations")->value.GetArray()[2].IsObject()){
+         if (doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("value")->value.IsString()) {
+            doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("value")->value.SetString(new_value,doc.GetAllocator());
+         }
+      }
+   }
+
+   std::ofstream in_file(filepath);
+   rapidjson::OStreamWrapper osw(in_file);
+   rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
+   doc.Accept(writer);
+   in_file.close();
+}
+/**
+ * Remove all .json configuration files 
+ */
 void clear_configuration_files(){
-   std::remove( "../manifest.json");
+   std::remove( "../*.json");
 }
 
 
-
+/**
+ * @brief Tested singleton initialization without manifest.json configuration file. 
+ */ 
 TEST(test_streets_configuration, missing_configuration_file)
 {
    EXPECT_THROW(streets_configuration::get_boolean_config("test"), streets_configuration_exception);
 };
-
+/**
+ * @brief Tested get_config methods with created manifest.json file including updates
+ */ 
 TEST(test_streets_configuration, get_config) {
    create_test_configuration("../manifest.json");
    streets_configuration::initialize_logger();
@@ -85,5 +126,11 @@ TEST(test_streets_configuration, get_config) {
    EXPECT_THROW(streets_configuration::get_string_config("param2"),streets_configuration_exception);
    EXPECT_THROW(streets_configuration::get_double_config("param3"),streets_configuration_exception);
    EXPECT_THROW(streets_configuration::get_int_config("param4"),streets_configuration_exception);
+   // sleep for a second to allow last modified timestamp to change
+   sleep(1);
+   // update values
+   update_configuration( "../manifest.json", "UPDATED");
+   ASSERT_EQ(streets_configuration::get_string_config("param3"), "UPDATED");
+   // Clean up created configuration files
    clear_configuration_files();
 };

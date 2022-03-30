@@ -13,7 +13,8 @@
 #include <fstream>
 #include <mutex>
 #include <map>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
+
 
 
 namespace streets_service {

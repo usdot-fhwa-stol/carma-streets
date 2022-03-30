@@ -1,18 +1,25 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_service_base)
                     
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
 
 
-add_library(${PROJECT_NAME}_lib 
+add_library(${PROJECT_NAME}_lib
                 src/streets_configuration_exception.cpp
                 src/configuration.cpp
                 src/streets_configuration.cpp
                 )
-target_include_directories( ${PROJECT_NAME}_lib PUBLIC ${PROJECT_SOURCE_DIR}/include )
-target_link_libraries( ${PROJECT_NAME}_lib 
+
+
+target_include_directories(${PROJECT_NAME}_lib PUBLIC
+                            $<INSTALL_INTERFACE:include>
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                            PRIVATE
+                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
                 Boost::system 
                 Boost::thread 
                 Boost::filesystem
@@ -21,15 +28,36 @@ target_link_libraries( ${PROJECT_NAME}_lib
 
                 
 
-#######
-# Install  
-#######
+########################################################
+# Install streets_util::streets_service_base_lib package.
+########################################################
+file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 
-INSTALL(TARGETS ${PROJECT_NAME}_lib  DESTINATION lib)
-FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-INSTALL(FILES ${files} DESTINATION include/${PROJECT_NAME})
-FILE(GLOB templates "${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp")
-INSTALL(FILES ${templates} DESTINATION include/${PROJECT_NAME}/internal)
+install(
+    TARGETS ${PROJECT_NAME}_lib
+    EXPORT ${PROJECT_NAME}_libTargets
+    LIBRARY DESTINATION lib
+    INCLUDES DESTINATION include
+    ARCHIVE DESTINATION lib
+)
+install(
+    EXPORT ${PROJECT_NAME}_libTargets 
+    FILE ${PROJECT_NAME}_libTargets.cmake
+    DESTINATION lib/cmake/streets_utils/
+    NAMESPACE streets_utils::
+)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    cmake/${PROJECT_NAME}_libConfig.cmake.in 
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
+    INSTALL_DESTINATION  lib/cmake/streets_utils/ )
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
+    DESTINATION  lib/cmake/streets_utils/
+)
+install(FILES ${files} DESTINATION include)
+install(FILES ${templates} DESTINATION include/internal)
 
 
 ########################
@@ -53,7 +81,7 @@ target_link_libraries(${BINARY} PUBLIC
                 Boost::system 
                 Boost::thread
                 Boost::filesystem 
-                spdlog::spdlog 
+                spdlog::spdlog
                 gtest 
                 ${PROJECT_NAME}_lib
                 )

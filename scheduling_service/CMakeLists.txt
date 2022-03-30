@@ -24,15 +24,7 @@ add_executable(${PROJECT_NAME}  src/main.cpp
 target_include_directories( ${PROJECT_NAME} PUBLIC
                             ${PROJECT_SOURCE_DIR}/include)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC 
-                        kafka_clients_lib 
-                        rdkafka++ 
-                        Boost::system 
-                        Boost::filesystem 
-                        Boost::thread 
-                        spdlog::spdlog 
-                        intersection_client_api_lib
-                        streets_service_base_lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog intersection_client_api_lib)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network )
 
 
@@ -50,16 +42,4 @@ add_executable(${BINARY} ${TEST_SOURCES}
                         src/intersection_client.cpp )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY} PUBLIC  
-                        Boost::system 
-                        Boost::filesystem 
-                        kafka_clients_lib 
-                        rdkafka++ 
-                        Boost::thread 
-                        spdlog::spdlog 
-                        gtest 
-                        intersection_client_api_lib 
-                        Qt5::Core 
-                        Qt5::Network
-                        streets_service_base_lib
-                        )
+target_link_libraries(${BINARY} PUBLIC  Boost::system Boost::filesystem kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network)
