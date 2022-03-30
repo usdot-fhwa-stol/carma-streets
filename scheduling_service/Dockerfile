@@ -45,9 +45,6 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
-
-
-
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
@@ -58,7 +55,7 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-RUN echo " ------> Install intersection client library from streets_utils..."
+RUN echo " ------> Install intersection client library from carma-utils..."
 COPY ./streets_utils/ /home/carma-streets/streets_utils
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
 RUN mkdir build
@@ -67,14 +64,6 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-# Install streets_service_base
-RUN echo " ------> Install streets service base library from streets_utils..."
-WORKDIR /home/carma-streets/streets_utils/streets_service_base
-RUN mkdir build
-WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
 
 RUN echo " ------> compile scheduling-service..."
 COPY ./scheduling_service/ /home/carma-streets/scheduling_service/
