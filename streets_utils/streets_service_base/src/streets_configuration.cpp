@@ -95,7 +95,7 @@ namespace streets_service {
             return string_config->second.value;
         }
         else {
-            throw streets_service::streets_configuration_exception("Configuration parameter " + config_param_name + " is not data_type string!");
+            throw streets_service::streets_configuration_exception("Configuration parameter " + config_param_name + " is not data_type STRING!");
         }
     }
 
@@ -111,7 +111,7 @@ namespace streets_service {
             return std::stoi(int_config->second.value);
         }
         else {
-            throw streets_service::streets_configuration_exception("Configuration parameter " + config_param_name + " is not data_type string!");
+            throw streets_service::streets_configuration_exception("Configuration parameter " + config_param_name + " is not data_type INTEGER!");
         }
     }
 
@@ -126,7 +126,7 @@ namespace streets_service {
             return std::stod(double_config->second.value);
         }
         else {
-            throw streets_service::streets_configuration_exception("Configuration parameter " + config_param_name + " is not data_type string!");
+            throw streets_service::streets_configuration_exception("Configuration parameter " + config_param_name + " is not data_type DOUBLE!");
         }
     }
 

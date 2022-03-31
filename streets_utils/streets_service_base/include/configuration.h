@@ -49,6 +49,8 @@ namespace streets_service {
         /**
          * @brief Method to translate json object to configuration struct.
          * @param val rapidjson::Value object representing configuration.
+         * @throws streets_configuration_exception if rapidjson::Value is 
+         * not correctly formatted.
          */ 
         void fromJson(const rapidjson::Value &val );
     };

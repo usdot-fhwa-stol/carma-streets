@@ -48,21 +48,29 @@ namespace streets_service {
             /**
              * @brief Retreive configuration parameter string value with provided name.
              * @param config_param_name configuration parameter name.
+             * @throw streets_configuration_exception if configuration is not of data_type STRING.
+             * @return string configuration value. 
              */ 
             static std::string get_string_config( const std::string &config_param_name);
             /**
              * @brief Retreive configuration parameter integer value with provided name.
              * @param config_param_name configuration parameter name.
+             * @throws streets_configuration_exception if configuration is not of data_type INTEGER.
+             * @return int configuration value. 
              */ 
             static int get_int_config( const std::string &config_param_name);
             /**
              * @brief Retreive configuration parameter double value with provide name.
              * @param config_param_name configuration parameter name.
+             * @throws streets_configuration_exception if configuration is not of data_type DOUBLE.
+             * @return double configuration value.
              */ 
             static double get_double_config( const std::string &config_param_name);
             /**
              * @brief Retreive configuration parameter boolean value with provide name.
              * @param config_param_name configuration parameter name.
+             * @throws streets_configuration_exception if configuration is not of data_type BOOL.
+             * @return bool configuration value.
              */ 
             static bool get_boolean_config( const std::string &config_param_name);
             /**
@@ -74,6 +82,9 @@ namespace streets_service {
 
             /**
              * @brief Parse manifest.json configuration file for CARMA-Streets service and update configurations.
+             * @throws streets_configuration_exception if cannot open manifest.json configuration file or has 
+             * json parse error.
+             * @return rapidjson::Document containing parsed manifest.json.
              */ 
             rapidjson::Document parse_configuration_file();
             /**
@@ -84,6 +95,7 @@ namespace streets_service {
              * @brief Helper method that reads the configurations array inside the manifest.json configuration
              * file.
              * @param arr rapidjson::GenericArray holding values from configurations element of the manifest.json file.
+             * @throws streets_configuration_exception if configurations json object array is incorrectly formatted.
              */
             void parse_configurations_array( const rapidjson::GenericArray<true,rapidjson::Value> &arr);
             /**
@@ -103,11 +115,13 @@ namespace streets_service {
             void create_default_logger( const std::string &service_name) const; 
             /**
              * @brief Method to set the spdlog::default
+             * @throws streets_configuration_exception if default logger has not been configured and registered.
              */
             void set_loglevel( const std::string &loglevel) const; 
 
             /**
              * @brief Method to check last modified time of file to see if a file update is necessary.
+             * @throws streets_configuration_exception if update_configurations fails.
              */ 
             void check_update();
 
