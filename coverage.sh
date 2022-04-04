@@ -26,7 +26,7 @@ ls -a
 cd /home/carma-streets/kafka_clients/
 mkdir coverage
 cd /home/carma-streets/
-gcovr --sonarqube kafka_clients/coverage/coverage.xml -s -f kafka_clients/ -r .
+gcovr --sonarqube kafka_clients/coverage/coverage.xml -s -v -f kafka_clients/ -r .
 
 cd /home/carma-streets/scheduling_service/build/
 ls -a
@@ -34,7 +34,7 @@ ls -a
 cd /home/carma-streets/scheduling_service/
 mkdir coverage
 cd /home/carma-streets/
-gcovr --sonarqube scheduling_service/coverage/coverage.xml -s -f scheduling_service/ -r .
+gcovr --sonarqube scheduling_service/coverage/coverage.xml -s -v -f scheduling_service/ -r .
 
 
 cd /home/carma-streets/streets_utils/streets_service_base/build/
@@ -43,7 +43,7 @@ ls -a
 cd /home/carma-streets/streets_utils/streets_service_base
 mkdir coverage
 cd /home/carma-streets/
-gcovr --sonarqube streets_utils/streets_service_base/coverage/coverage.xml -s -f streets_utils/streets_service_base/ -r .
+gcovr --sonarqube streets_utils/streets_service_base/coverage/coverage.xml -s -v -f streets_utils/streets_service_base/ -r .
 ls -l
 
 
@@ -54,7 +54,7 @@ cd /home/carma-streets/message_services/
 ls -a
 mkdir coverage
 cd /home/carma-streets/
-gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
+gcovr --sonarqube message_services/coverage/coverage.xml -s -v -f message_services/ -r .
 
 cd /home/carma-streets/intersection_model/build/
 ls -a
@@ -63,4 +63,4 @@ cd /home/carma-streets/intersection_model/
 ls -a
 mkdir coverage
 cd /home/carma-streets/
-gcovr --exclude-directories intersection_model/src/server/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
+gcovr --exclude-directories intersection_model/src/server/ --sonarqube intersection_model/coverage/coverage.xml -s -v -f intersection_model/ -r .
