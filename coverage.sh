@@ -28,6 +28,14 @@ mkdir coverage
 gcovr --exclude=./build/CMakeFiles/kafka_clients.dir --exclude=./build/CMakeFiles/kafka_clients_test.dir/test -k -r .
 mv *.gcov coverage
 
+cd /home/carma-streets/streets_utils/streets_service_base/build/
+ls -a
+./streets_service_base_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_service_base/
+mkdir coverage
+gcovr --exclude=./build/CMakeFiles/streets_service_base_test.dir/test --exclude=./build/CMakeFiles/streets_service_base.dir -k -r .
+mv *.gcov coverage
+
 cd /home/carma-streets/scheduling_service/build/
 ls -a
 ./scheduling_service_test --gtest_output=xml:../../test_results/

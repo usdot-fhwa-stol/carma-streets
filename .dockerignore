@@ -11,6 +11,7 @@
 /kafka_clients/build
 /scheduling_service/build
 /message_services/build
+/streets_utils/streets_service_base/build
 /carma_lanelet2
 /intersection_model/build
 /intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc
