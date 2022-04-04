@@ -13,7 +13,6 @@ namespace streets_service {
     };
 
     rapidjson::Document streets_configuration::parse_configuration_file() {
-        std::unique_lock<std::mutex> lck(config_lock);
         // Open file
         std::ifstream file(filepath);
         if (!file.is_open()) {
