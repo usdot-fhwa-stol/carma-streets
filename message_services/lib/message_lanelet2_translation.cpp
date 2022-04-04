@@ -10,28 +10,28 @@ namespace message_services
         {
             if (read_lanelet2_map(filename))
             {
-                SPDLOG_INFO("{0}: Map is initialied. ", __FILE__);
+                SPDLOG_INFO("Map is initialied. ");
                 if (!this->vehicleGraph_ptr)
                 {
-                    SPDLOG_INFO("{0}: Updating vehicle routing graph ... ", __FILE__);
+                    SPDLOG_INFO("Updating vehicle routing graph ... ");
                     if (this->update_vehicle_routing_graph())
                     {
                         std::cout << "Updated vehicle routing graph. " << std::endl;
-                        SPDLOG_INFO("{0}: Updated vehicle routing graph. ", __FILE__);
+                        SPDLOG_INFO("Updated vehicle routing graph. ");
                     }
                     else
                     {
-                        SPDLOG_ERROR("{0}: Failed to update vehicle routing graph. ", __FILE__);
+                        SPDLOG_ERROR("Failed to update vehicle routing graph. ");
                         exit(-1);
                     }
                 }
             }
             else
             {
-                SPDLOG_ERROR("{0}: Failed to initialzie map. ", __FILE__);
+                SPDLOG_ERROR("Failed to initialzie map. ");
                 exit(-1);
             }
-            SPDLOG_INFO("{0}: Finished initializing message_lanelet2_translation. ", __FILE__);
+            SPDLOG_INFO("Finished initializing message_lanelet2_translation. ");
         }
 
         message_lanelet2_translation::~message_lanelet2_translation() {}
@@ -53,9 +53,9 @@ namespace message_services
                     return true;
                 }
             }
-            catch (std::exception ex)
+            catch (const std::exception &ex)
             {
-                SPDLOG_ERROR("{0}: Cannot read osm file {1}. Error message: {2} ", __FILE__, filename, ex.what());
+                SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
             }
             return false;
         }
@@ -153,7 +153,7 @@ namespace message_services
                     lanelet::BasicPoint3d basic_point3d_start = this->ecef_2_map_point(trajectory.location.ecef_x, trajectory.location.ecef_y, trajectory.location.ecef_z);
                     if (trajectory.offsets.empty())
                     {
-                        SPDLOG_ERROR("{0}: Cannot determine current lanelet and ids with vehicle trajectory offset size = 0. ", __FILE__);
+                        SPDLOG_ERROR("Cannot determine current lanelet and ids with vehicle trajectory offset size = 0. ");
                         return lanelet::Lanelet();
                     }
 
@@ -176,10 +176,10 @@ namespace message_services
                     {
                         const lanelet::Lanelet cur_lanelet = *itr;
                         double start_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_start), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
-                        SPDLOG_INFO("{0} cur_lanelet = {1} to trajectory start point distance = {2}", __FILE__, cur_lanelet.id(), start_distance2_ctl);
+                        SPDLOG_INFO("cur_lanelet = {0} to trajectory start point distance = {1}", cur_lanelet.id(), start_distance2_ctl);
 
                         double dest_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_dest), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
-                        SPDLOG_INFO("{0} cur_lanelet = {1} to trajectory dest point distance = {2}", __FILE__, cur_lanelet.id(), dest_distance2_ctl);
+                        SPDLOG_INFO("cur_lanelet = {0} to trajectory dest point distance = {1}", cur_lanelet.id(), dest_distance2_ctl);
 
                         double cur_distance_sum = start_distance2_ctl + dest_distance2_ctl;
 
@@ -191,7 +191,7 @@ namespace message_services
                     }
                     return result_lanelet;
                 }
-                SPDLOG_ERROR("{0}: Cannot determine the current lanelet with this turn direction = {1} for point = (x = {2} , y = {3}, z= {4})", __FILE__, turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
+                SPDLOG_ERROR("Cannot determine the current lanelet with this turn direction = {0} for point = (x = {1} , y = {2}, z= {3})", turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
             }
             else if (current_total_lanelets.size() == 1)
             {           
@@ -214,7 +214,7 @@ namespace message_services
             bool start_accumulate = false;
             if (subj_lanelet.id() == lanelet::InvalId)
             {
-                SPDLOG_ERROR("{0}: Get invalid lanelet id = {1} from position: ({2}, {3} , {4}) and turn direction: {5}", __FILE__, subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
+                SPDLOG_ERROR("Get invalid lanelet id = {0} from position: ({1}, {2} , {3}) and turn direction: {4}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
                 return -1;
             }
 
@@ -278,7 +278,7 @@ namespace message_services
             std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m;
             if (subj_lanelet.id() == 0 )
             {
-                SPDLOG_ERROR("{0}: Invalid start or end lanelet id. ", __FILE__);
+                SPDLOG_ERROR("Invalid start or end lanelet id. ");
                 return lanelet_id_type_m;
             }
 
@@ -358,7 +358,7 @@ namespace message_services
             }
             catch(...)
             {
-                SPDLOG_ERROR("{0}: Cannot determine lanelet type and ids with vehicle current lanelet. ", __FILE__);
+                SPDLOG_ERROR("Cannot determine lanelet type and ids with vehicle current lanelet. ");
                 lanelet_id_type_m.clear();
                 return lanelet_id_type_m;
             }
