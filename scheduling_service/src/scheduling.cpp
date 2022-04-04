@@ -6,15 +6,21 @@ using namespace std;
 
 
 /* */
-scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, const configuration& config, set<string>& list_veh_removal){
-	timestamp = duration<double>(chrono::system_clock::now().time_since_epoch()).count();
+scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, set<string>& list_veh_removal){
+	timestamp = chrono::duration<double>(chrono::system_clock::now().time_since_epoch()).count();
 	index_EVs.resize(localmap.get_laneIdEntry().size());
+
+	// Read configurations
+
+	auto scheduling_delta = streets_service::streets_configuration::get_double_config("scheduling_delta");
+	auto exp_delta = streets_service::streets_configuration::get_int_config("exp_delta");
+
 	for (const auto& element : list_veh){
 		
 		/* if the vehicle update is not older than update_expiration_delta seconds ago, include the vehicle in the schedule
 		*  if the vehicle update is older than update_expiration_delta seconds ago, do not include the vehicle in the schedule
 		*/
-		if ( timestamp - element.second.get_curTime() <= config.get_expDelta()){
+		if ( timestamp - element.second.get_curTime() <= exp_delta){
 
 			veh_id.push_back(element.first);
 			auto vehicle_index = (int)veh_id.size() - 1;
@@ -57,11 +63,11 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 			}
 
 			/* estimate the vehicle location, speed, state, etc. at a given future timestamp! */
-			if (time.back() < timestamp + config.get_schedulingDelta()){
+			if (time.back() < timestamp + scheduling_delta){
 				
 				for (int i = 0; i < (int)element.second.get_futureInfo().size(); ++i){
 					
-					if (element.second.get_futureInfo()[i].timestamp >= timestamp + config.get_schedulingDelta() || 
+					if (element.second.get_futureInfo()[i].timestamp >= timestamp + scheduling_delta || 
 						i == (int)element.second.get_futureInfo().size() - 1){
 
 						
@@ -72,7 +78,7 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 						acceleration.back() = element.second.get_futureInfo()[i].acceleration;
 
 						if (state.back() == "EV" && lane_id.back() != element.second.get_entryLaneID()){
-							spdlog::critical("Scheduling Class Issue - The future lane id of vehicle {0} is not correct! Vehicle {0} is in EV state, but its lane ID in the future path is not its entry lane ID; cur_timestamp: {1}, cur_lane_id: {2}, future_path_lane_id: {3}, future_path_timestamp: {4}, entry_lane_id: {5}, link_id: {6}", veh_id.back(), element.second.get_curTime(), element.second.get_curLaneID(), time.back(), lane_id.back(),  element.second.get_entryLaneID(), element.second.get_linkID());
+							SPDLOG_CRITICAL("Scheduling Class Issue - The future lane id of vehicle {0} is not correct! Vehicle {0} is in EV state, but its lane ID in the future path is not its entry lane ID; cur_timestamp: {1}, cur_lane_id: {2}, future_path_lane_id: {3}, future_path_timestamp: {4}, entry_lane_id: {5}, link_id: {6}", veh_id.back(), element.second.get_curTime(), element.second.get_curLaneID(), time.back(), lane_id.back(),  element.second.get_entryLaneID(), element.second.get_linkID());
 							continue;
 						} 
 						else {
@@ -138,8 +144,8 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 				est.back() = time.back() + max(t_a + t_cr + t_d, 0.01);
 
 				double max_speed = localmap.get_laneSpeedLimit(lane_id.back());
-				spdlog::info("Scheduling Class - vehicle {0}: cur_time = {1}, EST = {2}, difference = {3}", veh_id.back(), time.back(), est.back(), est.back() - time.back());
-				spdlog::info("cur_timestamp = {0}, initial speed = {1}, initial distance = {2}, speed limit = {3}, v_mid = {4}, t_a = {5}, t_cr = {6}, t_d = {7}, dx1 = {8}, dx2 = {9}, dx3 = {10}", time.back(), speed.back(), distance.back(), max_speed, v_mid, t_a, t_cr, t_d, dx1, dx2, dx3);
+				SPDLOG_INFO("Scheduling Class - vehicle {0}: cur_time = {1}, EST = {2}, difference = {3}", veh_id.back(), time.back(), est.back(), est.back() - time.back());
+				SPDLOG_INFO("cur_timestamp = {0}, initial speed = {1}, initial distance = {2}, speed limit = {3}, v_mid = {4}, t_a = {5}, t_cr = {6}, t_d = {7}, dx1 = {8}, dx2 = {9}, dx3 = {10}", time.back(), speed.back(), distance.back(), max_speed, v_mid, t_a, t_cr, t_d, dx1, dx2, dx3);
 			}
 
 
@@ -184,14 +190,14 @@ scheduling::scheduling(unordered_map<string, vehicle> list_veh, set<string>& lis
 				index_LVs.push_back(vehicle_index);
 			}
 
-			spdlog::info("Scheduling Class Vehicle Info Update before Schedule - timestamp = {0}, vehicle id = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, est = {6}, access = {7}, departure position = {8}", time.back(), veh_id.back(), lane_id.back(), state.back(), speed.back(), distance.back(), est.back(), access.back(), departurePosition_index.back());
+			SPDLOG_INFO("Scheduling Class Vehicle Info Update before Schedule - timestamp = {0}, vehicle id = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, est = {6}, access = {7}, departure position = {8}", time.back(), veh_id.back(), lane_id.back(), state.back(), speed.back(), distance.back(), est.back(), access.back(), departurePosition_index.back());
 
 		}
 		else{
 			if (list_veh_confirmation.find(element.first) != list_veh_confirmation.end()){
 				list_veh_confirmation.erase(element.first);
 			}
-			spdlog::info("Vehicle {0} is not added to the schedule as its update is more than {1} seconds old!", element.first, config.get_expDelta());
+			SPDLOG_INFO("Vehicle {0} is not added to the schedule as its update is more than {1} seconds old!", element.first, exp_delta);
 			list_veh_removal.insert(element.first);
 		}
 	}

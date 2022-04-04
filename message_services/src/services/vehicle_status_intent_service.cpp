@@ -1,6 +1,3 @@
-
-#include <stdlib.h> /* abs */
-
 #include "vehicle_status_intent_service.h"
 
 
@@ -13,29 +10,6 @@ namespace message_services
         std::mutex worker_mtx;
         vehicle_status_intent_service::vehicle_status_intent_service() {}
 
-        /**
-         * Configure multisink terminal and daily rotating file logger as default spdlog logger
-         */ 
-        void configure_logger(const std::string &loglevel ) {
-            // Create default multisink daily file logger
-            try {
-
-                spdlog::init_thread_pool(8192, 1);
-                auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/message_service.log", 23, 3);
-                auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-                console_sink->set_level(spdlog::level::from_str(loglevel));
-                file_sink->set_level( spdlog::level::from_str(loglevel) );
-
-                auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
-                spdlog::register_logger(logger);
-                spdlog::set_default_logger(logger);
-                spdlog::info("Default Logger initialized!");
-            }   
-            catch (const spdlog::spdlog_ex& ex)
-            {
-                spdlog::error( "Log initialization failed: {0}!",ex.what());
-            }
-        }
 
 
         bool vehicle_status_intent_service::initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_lanelet2_translate_ptr)
@@ -43,36 +17,30 @@ namespace message_services
             try
             {               
                 auto client = std::make_shared<kafka_clients::kafka_client>();
-                std::string file_path = std::string(MANIFEST_CONFIG_FILE_PATH);
-                rapidjson::Document doc = client->read_json_file(file_path);
 
                 // kafka config
-                this->bootstrap_server = client->get_value_by_doc(doc, "BOOTSTRAP_SERVER");
+                this->bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
 
                 // consumer topics
-                this->bsm_topic_name = client->get_value_by_doc(doc, "BSM_CONSUMER_TOPIC");
-                this->bsm_group_id = client->get_value_by_doc(doc, "BSM_GROUP_ID");
+                this->bsm_topic_name = streets_service::streets_configuration::get_string_config("bsm_consumer_topic");
+                this->bsm_group_id = streets_service::streets_configuration::get_string_config("bsm_group_id");
 
-                this->mp_topic_name = client->get_value_by_doc(doc, "MP_CONSUMER_TOPIC");
-                this->mp_group_id = client->get_value_by_doc(doc, "MP_GROUP_ID");
+                this->mp_topic_name = streets_service::streets_configuration::get_string_config("mp_consumer_topic");
+                this->mp_group_id = streets_service::streets_configuration::get_string_config("mp_group_id");
 
-                this->mo_topic_name = client->get_value_by_doc(doc, "MO_CONSUMER_TOPIC");
-                this->mo_group_id = client->get_value_by_doc(doc, "MO_GROUP_ID");
+                this->mo_topic_name = streets_service::streets_configuration::get_string_config("mo_consumer_topic");
+                this->mo_group_id = streets_service::streets_configuration::get_string_config("mo_group_id");
 
                 // producer topics
-                this->vsi_topic_name = client->get_value_by_doc(doc, "VSI_PRODUCER_TOPIC");
+                this->vsi_topic_name = streets_service::streets_configuration::get_string_config("vsi_producer_topic");
 
-                // Configure default logger
-                std::string loglevel = client->get_value_by_doc(doc, "LOG_LEVEL");
-
-                configure_logger(loglevel);
                 _bsm_consumer_worker = client->create_consumer(this->bootstrap_server, this->bsm_topic_name, this->bsm_group_id);
                 _mp_consumer_worker = client->create_consumer(this->bootstrap_server, this->mp_topic_name, this->mp_group_id);
                 _mo_consumer_worker = client->create_consumer(this->bootstrap_server, this->mo_topic_name, this->mo_group_id);
 
                 if (!_bsm_consumer_worker->init() || !_mp_consumer_worker->init() || !_mo_consumer_worker->init())
                 {
-                    spdlog::critical("kafka consumers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) initialize error");
+                    SPDLOG_CRITICAL("kafka consumers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) initialize error");
                 }
                 else
                 {
@@ -81,7 +49,7 @@ namespace message_services
                     _mo_consumer_worker->subscribe();
                     if (!_bsm_consumer_worker->is_running() || !_mp_consumer_worker->is_running() || !_mo_consumer_worker->is_running())
                     {
-                        spdlog::critical("consumer_workers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) is not running");
+                        SPDLOG_CRITICAL("consumer_workers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) is not running");
                         exit(-1);
                     }
                 }
@@ -89,25 +57,25 @@ namespace message_services
                 this->_vsi_producer_worker = client->create_producer(this->bootstrap_server, this->vsi_topic_name);
                 if (!_vsi_producer_worker->init())
                 {
-                    spdlog::critical("kafka producer (_vsi_producer_worker) initialize error");
+                    SPDLOG_CRITICAL("kafka producer (_vsi_producer_worker) initialize error");
                     exit(-1);
                 }
 
-                this->vsi_est_path_point_count = std::stoi(client->get_value_by_doc(doc, "VSI_EST_PATH_COUNT"));
-                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = std::stoi(client->get_value_by_doc(doc, "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION"));
-                this->VSI_TH_SLEEP_MILLI_SEC = std::stof(client->get_value_by_doc(doc, "VSI_TH_SLEEP_MILLI_SEC"));
-                this->BSM_MSG_EXPIRE_IN_SEC = std::stoul(client->get_value_by_doc(doc, "BSM_MSG_EXPIRE_IN_SEC"));
-                this->CLEAN_QUEUE_IN_SECS = std::stoul(client->get_value_by_doc(doc, "CLEAN_QUEUE_IN_SECS"));
-                this->disable_est_path = std::stoi(client->get_value_by_doc(doc, "DISABLE_EST_PATH")) == 0 ? false: true ;
-                this->is_est_path_p2p_distance_only = std::stoi(client->get_value_by_doc(doc, "IS_EST_PATH_P2P_DISTANCE_ONLY")) == 0 ? false: true ;
+                this->vsi_est_path_point_count = streets_service::streets_configuration::get_int_config("vsi_est_path_count");
+                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_double_config("mobility_path_trajectory_offset_duration");
+                this->VSI_TH_SLEEP_MILLI_SEC = streets_service::streets_configuration::get_int_config("vsi_th_sleep_milli_sec");
+                this->BSM_MSG_EXPIRE_IN_SEC = streets_service::streets_configuration::get_int_config("bsm_msg_expire_in_sec");
+                this->CLEAN_QUEUE_IN_SECS = streets_service::streets_configuration::get_int_config("clean_queue_in_secs");
+                this->disable_est_path = streets_service::streets_configuration::get_boolean_config("disable_est_path");
+                this->is_est_path_p2p_distance_only = streets_service::streets_configuration::get_boolean_config("is_est_path_p2p_distance_only");
 
                 this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
 
                 return true;
             }
-            catch (std::exception ex)
+            catch (const std::exception &ex)
             {
-                spdlog::info("Vehicle status Intent Service Initialization failure: ", ex.what());
+                SPDLOG_ERROR("Vehicle status Intent Service Initialization failure: {0} ", ex.what());
                 return false;
             }
         }
@@ -155,18 +123,18 @@ namespace message_services
                     while (true)
                     {
                         // Change spdlog from debug to info for printing output in terminal
-                        spdlog::debug("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
-                        spdlog::debug("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
-                        spdlog::debug("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
+                        SPDLOG_DEBUG("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
+                        SPDLOG_DEBUG("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
+                        SPDLOG_DEBUG("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
                         if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_map().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_map().size() > 0)
                         {
-                            spdlog::debug("Processing the BSM, mobilityOperation and MP from list...");
+                            SPDLOG_DEBUG("Processing the BSM, mobilityOperation and MP from list...");
                             std::unique_lock<std::mutex> lck(worker_mtx);
                             while (mo_w_ptr && !mo_w_ptr->get_curr_list().empty())
                             {
-                                spdlog::info("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                                spdlog::info("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
-                                spdlog::info("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+                                SPDLOG_INFO("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                                SPDLOG_INFO("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                                SPDLOG_INFO("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
                                 message_services::models::mobilityoperation subj_mo = mo_w_ptr->get_curr_list().front();
                                 mo_w_ptr->get_curr_list().pop_front();
 
@@ -181,7 +149,7 @@ namespace message_services
 
                                     if (std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_) > (this->BSM_MSG_EXPIRE_IN_SEC * 1000))
                                     {
-                                        spdlog::info("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
+                                        SPDLOG_INFO("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
                                         bsm_w_ptr->get_curr_map().erase(bsm_msg_id);
                                         continue;
                                     }
@@ -206,7 +174,7 @@ namespace message_services
                                 *vsi_ptr = compose_vehicle_status_intent(subj_bsm, subj_mo, subj_mp);
                                 if (vsi_ptr)
                                 {
-                                    spdlog::debug("Done composing vehicle_status_intent");
+                                    SPDLOG_DEBUG("Done composing vehicle_status_intent");
                                     std::string msg_to_pub = vsi_ptr->asJson();
                                     this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
                                 }
@@ -218,14 +186,14 @@ namespace message_services
                         std::time_t cur_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                         {
-                            spdlog::debug("Clean the BSM and MP...");
-                            spdlog::debug("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                            spdlog::debug("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
-                            spdlog::debug("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+                            SPDLOG_DEBUG("Clean the BSM and MP...");
+                            SPDLOG_DEBUG("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                            SPDLOG_DEBUG("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                            SPDLOG_DEBUG("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
 
                             if (mp_w_ptr && !mp_w_ptr->get_curr_map().empty())
                             {
-                                spdlog::debug("Clean the MP...");
+                                SPDLOG_DEBUG("Clean the MP...");
                                 for (auto itr = mp_w_ptr->get_curr_map().cbegin(); itr != mp_w_ptr->get_curr_map().cend();)
                                 {
                                     if (mp_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
@@ -238,12 +206,12 @@ namespace message_services
                                         ++itr;
                                     }
                                 }
-                                spdlog::debug("Cleaned the MP.");
+                                SPDLOG_DEBUG("Cleaned the MP.");
                             }
 
                             if (bsm_w_ptr && !bsm_w_ptr->get_curr_map().empty())
                             {
-                                spdlog::debug("Clean the BSM...");
+                                SPDLOG_DEBUG("Clean the BSM...");
                                 for (auto itr = bsm_w_ptr->get_curr_map().cbegin(); itr != bsm_w_ptr->get_curr_map().cend();)
                                 {
                                     if (bsm_w_ptr && std::abs(cur_timestamp - itr->second.msg_received_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
@@ -256,7 +224,7 @@ namespace message_services
                                         ++itr;
                                     }
                                 }
-                                spdlog::debug("Cleaned the BSM.");
+                                SPDLOG_DEBUG("Cleaned the BSM.");
                             }
 
                             prev_msg_expired_timestamp_ = cur_timestamp;
@@ -297,11 +265,11 @@ namespace message_services
                 double cur_lat = bsm.getCore_data().latitude / 10000000;
                 double cur_lon = bsm.getCore_data().longitude / 10000000;
                 double cur_elev = bsm.getCore_data().elev;
-                spdlog::debug("cur_lat = {0}", cur_lat);
-                spdlog::debug("cur_lon = {0}", cur_lon);
-                spdlog::debug("cur_elev = {0}", cur_elev);
+                SPDLOG_DEBUG("cur_lat = {0}", cur_lat);
+                SPDLOG_DEBUG("cur_lon = {0}", cur_lon);
+                SPDLOG_DEBUG("cur_elev = {0}", cur_elev);
 
-                spdlog::debug("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
+                SPDLOG_DEBUG("MobilityPath trajectory offset size: {0}", mp.getTrajectory().offsets.size());
                 message_services::models::trajectory trajectory = mp.getTrajectory();
                 lanelet::BasicPoint3d cur_basic_point3d = _msg_lanelet2_translate_ptr->gps_2_map_point(cur_lat, cur_lon, cur_elev);
                 lanelet::Lanelet cur_lanelet = _msg_lanelet2_translate_ptr->get_cur_lanelet_by_point_and_direction(cur_basic_point3d, turn_direction, trajectory);         
@@ -318,9 +286,9 @@ namespace message_services
                 int32_t ecef_z = mp.getTrajectory().location.ecef_z;
                 long timestamp = mp.getHeader().timestamp;
 
-                spdlog::debug("MobilityPath location ecef_x: {0}", ecef_x);
-                spdlog::debug("MobilityPath location ecef_y: {0}", ecef_y);
-                spdlog::debug("MobilityPath location ecef_z: {0}", ecef_z);
+                SPDLOG_DEBUG("MobilityPath location ecef_x: {0}", ecef_x);
+                SPDLOG_DEBUG("MobilityPath location ecef_y: {0}", ecef_y);
+                SPDLOG_DEBUG("MobilityPath location ecef_z: {0}", ecef_z);
                 lanelet::BasicPoint3d mp_start_point = _msg_lanelet2_translate_ptr->ecef_2_map_point(ecef_x, ecef_y, ecef_z);
                 if(is_est_path_p2p_distance_only)
                 {
@@ -346,9 +314,9 @@ namespace message_services
                     ecef_y += trajectory.offsets.at(offset_index).offset_y;
                     ecef_z += trajectory.offsets.at(offset_index).offset_z;
 
-                    spdlog::debug("MobilityPath location offset_x: {0}", trajectory.offsets.at(offset_index).offset_x);
-                    spdlog::debug("MobilityPath location offset_y: {0}", trajectory.offsets.at(offset_index).offset_y);
-                    spdlog::debug("MobilityPath location offset_z: {0}", trajectory.offsets.at(offset_index).offset_z);
+                    SPDLOG_DEBUG("MobilityPath location offset_x: {0}", trajectory.offsets.at(offset_index).offset_x);
+                    SPDLOG_DEBUG("MobilityPath location offset_y: {0}", trajectory.offsets.at(offset_index).offset_y);
+                    SPDLOG_DEBUG("MobilityPath location offset_z: {0}", trajectory.offsets.at(offset_index).offset_z);
                     est_path.timestamp += 100; // The duration between two points is 0.1 sec
                     
                     //Calculate the distance between two points (interval 0.1 secs) from the MobilityPath message starting from the current vehicle location                
@@ -421,7 +389,7 @@ namespace message_services
             }
             catch (...)
             {
-                spdlog::critical("Compose vehicle status intent Exception occur");
+                SPDLOG_CRITICAL("Compose vehicle status intent Exception occur");
                 return vsi;
             }
         }
@@ -440,7 +408,7 @@ namespace message_services
 
                 if (!msg_w_ptr)
                 {
-                    spdlog::critical("Message worker is not initialized");
+                    SPDLOG_CRITICAL("Message worker is not initialized");
                 }
             }
             return;

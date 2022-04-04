@@ -1,18 +1,97 @@
 {
-    "BOOTSTRAP_SERVER": "127.0.0.1:9092",
-    "VSI_PRODUCER_TOPIC": "vehicle_status_intent_output",
-    "BSM_CONSUMER_TOPIC": "v2xhub_bsm_in",
-    "MP_CONSUMER_TOPIC": "v2xhub_mobility_path_in",
-    "MO_CONSUMER_TOPIC": "v2xhub_mobility_operation_in",
-    "BSM_GROUP_ID": "bsm_consumer",
-    "MP_GROUP_ID": "mobilitypath_consumer",
-    "MO_GROUP_ID": "mobilityoperation_consumer",
-    "VSI_EST_PATH_COUNT": "20",
-    "MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION": "9",
-    "VSI_TH_SLEEP_MILLI_SEC": "100",
-    "BSM_MSG_EXPIRE_IN_SEC": "1",
-    "CLEAN_QUEUE_IN_SECS": "3",
-    "DISABLE_EST_PATH": "1",
-    "IS_EST_PATH_P2P_DISTANCE_ONLY": "0",
-    "LOG_LEVEL": "debug"
+    "service_name": "message_services",
+    "loglevel": "info",
+    "configurations": [
+        {
+            
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        }, 
+        {
+           "name": "vsi_producer_topic",
+           "value": "vehicle_status_intent_output",
+           "description": "Kafka topic for vehicle status and intent messages",
+           "type": "STRING" 
+        },
+        {
+            "name": "bsm_consumer_topic",
+            "value": "v2xhub_bsm_in",
+            "description": "Kafka topic for BSM messages",
+            "type": "STRING"  
+        },
+        {
+            "name": "mp_consumer_topic",
+            "value": "v2xhub_mobility_path_in",
+            "description": "Kafka topic for Mobility Path messages",
+            "type": "STRING" 
+        },
+        {
+            "name": "mo_consumer_topic",
+            "value": "v2xhub_mobility_operation_in",
+            "description": "Kafka topic for Mobility Operation messages",
+            "type": "STRING" 
+        },
+        {
+            "name": "bsm_group_id",
+            "value": "bsm_consumer",
+            "description": "Kafka consumer group for BSM kafka consumer.",
+            "type": "STRING" 
+        },
+        {
+            "name": "mp_group_id",
+            "value": "mobilitypath_consumer",
+            "description": "Kafka consumer group for Mobility Path kafka consumer.",
+            "type": "STRING" 
+        },
+        {
+            "name": "mo_group_id",
+            "value": "mobilityoperation_consumer",
+            "description": "Kafka consumer group for Mobility Operations kafka consumer.",
+            "type": "STRING" 
+        },
+        {
+            "name": "vsi_est_path_count",
+            "value": 20,
+            "description": "The number of point (id, ds, ts) in the est_path array. Point: id is the lanelet id. Point: ds is the distance (either distance between two adjacent points or current point to the end of current lanelet. Point: ts is timestamp).",
+            "type": "INTEGER" 
+        },
+        {
+            "name": "mobility_path_trajectory_offset_duration",
+            "value": 0.1,
+            "description": "Set the time interval between two points in the est_path. The interval is 0.1 second",
+            "type": "DOUBLE" 
+        },
+        {
+            "name": "vsi_th_sleep_milli_sec",
+            "value": 100,
+            "description": "Time interval between publishing vehicle status & intent message (value = 1/frequency(in sec)).",
+            "type": "INTEGER" 
+        },
+        {
+            "name": "bsm_msg_expire_in_sec",
+            "value": 1,
+            "description": "Time in seconds after which a bsm is considered expired.",
+            "type": "INTEGER" 
+        },
+        {
+            "name": "clean_queue_in_secs",
+            "value": 1,
+            "description": "Time interval in seconds after which message consumer queues are cleared.",
+            "type": "INTEGER" 
+        },
+        {
+            "name": "disable_est_path",
+            "value": true,
+            "description": "Bool flag to disable calculation and inclusion of est_path inside vehicle status and intent msg.",
+            "type": "BOOL" 
+        },
+        {
+            "name": "is_est_path_p2p_distance_only",
+            "value": false,
+            "description": "If false, distance in the vehicle status and intent est_path is  the distance to the end of the lanelet. If true, distance in the vehicle status and intent est_path is the distance from the previous point",
+            "type": "BOOL" 
+        }
+    ]
 }
