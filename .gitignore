@@ -16,5 +16,4 @@ intersection_model/build/
 intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc
 mysql/
 secrets/
-MAP/
 logs/
