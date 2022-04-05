@@ -31,7 +31,7 @@
 void catchUnixSignals(QList<int> quitSignals) {
     auto handler = [](int sig) -> void {
         // blocking and not async-signal-safe func are valid
-        // SPDLOG_WARN("Quit the application by signal {0}", sig);
+        SPDLOG_WARN("Quit the application by signal {0}", sig);
         QCoreApplication::quit();
     };
 
@@ -80,7 +80,7 @@ int main(int argc, char * argv[])
     });
 
     QHttpEngine::Server server(handler.data());
-    // SPDLOG_INFO( "Serving on {0}:{1}",address.toString(), static_cast<int>(port));
+    SPDLOG_INFO( "Serving on {0}:{1}",address.toString().toStdString(), static_cast<int>(port));
     // Attempt to listen on the specified port
     if (!server.listen(address, port)) {
         SPDLOG_CRITICAL("Unable to listen on the specified port.");

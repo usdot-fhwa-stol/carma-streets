@@ -48,7 +48,7 @@ namespace intersection_model
             projector = new lanelet::projection::LocalFrameProjector(target_frame.c_str());
             map = lanelet::load(filename, *projector, &errors);
         }
-        catch(const std::exception &ex)
+        catch(const lanelet::LaneletError &ex)
         {         
             SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
             exit(1);
@@ -117,7 +117,7 @@ namespace intersection_model
                 }
             }
         }
-        catch (const std::exception &ex)
+        catch (const lanelet::LaneletError &ex)
         {
             SPDLOG_ERROR("Failed to call get_routing_graph() : {0}", ex.what());
             return false;
@@ -162,7 +162,7 @@ namespace intersection_model
                 rule_map_itr++;
             }
         }
-        catch (const std::exception &ex)
+        catch (const lanelet::LaneletError &ex)
         {
             SPDLOG_ERROR("Failed to call load intersection information: {0}", ex.what());
             return false;
