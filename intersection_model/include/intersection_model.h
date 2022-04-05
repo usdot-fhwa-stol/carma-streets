@@ -82,7 +82,7 @@ namespace intersection_model
     class intersection_model
     {
         public:
-            intersection_model() = delete;
+            intersection_model();
             intersection_model(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path ) ;
             ~intersection_model();
             

@@ -2,6 +2,9 @@
 
 namespace intersection_model
 {
+    intersection_model::intersection_model() {
+        
+    }
 
     intersection_model::intersection_model(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path ){
         initialization(intersection_name, intersection_id, osm_file_path);
@@ -48,7 +51,7 @@ namespace intersection_model
             projector = new lanelet::projection::LocalFrameProjector(target_frame.c_str());
             map = lanelet::load(filename, *projector, &errors);
         }
-        catch(const lanelet::LaneletError &ex)
+        catch(const lanelet::FileNotFoundError &ex)
         {         
             SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
             exit(1);
@@ -289,7 +292,7 @@ namespace intersection_model
                 intersectionPts.clear();
             }
         }
-        catch (const std::exception &ex)
+        catch (const lanelet::LaneletError &ex)
         {
             SPDLOG_ERROR("Failed to lookup element with id {0} : {1} " , ex.what() ,sub_link_lanelet_id);
             conflict_lanelets.clear();
