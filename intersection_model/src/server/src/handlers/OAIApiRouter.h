@@ -25,6 +25,7 @@
 #include <qhttpengine/qobjecthandler.h>
 
 #include "OAIDefaultApiHandler.h"
+#include "intersection_model.h"
 
 
 namespace OpenAPI {
@@ -52,7 +53,7 @@ class OAIApiRouter : public QObject
 {
     Q_OBJECT
 public:
-    OAIApiRouter();
+    OAIApiRouter(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path);
     virtual ~OAIApiRouter();
 
     void setUpRoutes();
@@ -70,7 +71,7 @@ private:
     QSharedPointer<OAIDefaultApiHandler> mOAIDefaultApiHandler;
 protected:
     // override this method to provide custom class derived from ApiHandler classes
-    virtual void createApiHandlers();
+    virtual void createApiHandlers(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path);
 
 private :
     inline QString fromQHttpEngineMethod(QHttpEngine::Socket::Method method){

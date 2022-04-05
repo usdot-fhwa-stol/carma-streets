@@ -3,96 +3,37 @@
 namespace intersection_model
 {
 
-    intersection_model::intersection_model()
-    { 
-        initialization();
+    intersection_model::intersection_model(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path ){
+        initialization(intersection_name, intersection_id, osm_file_path);
     }
 
-    intersection_model::intersection_model(std::string filename){
-        read_lanelet2_map(filename);
-    }
-
-    void intersection_model::initialization()
+    void intersection_model::initialization(const std::string &intersection_name, const int intersection_id,const std::string &osm_file_path)
     {
-        std::string manifest_json_file_name = "../manifest.json";
-        rapidjson::Document doc = read_json_file(manifest_json_file_name);
-
-        if(doc.HasParseError())
-        {
-            spdlog::error("{0}: Initialization Failure! Cannot read {1} file.", __FILE__ , manifest_json_file_name);
-            exit(1);
-        }
-
-        //Update the intersection name based on the value set in the manifest configuration file
-        if(doc.HasMember(this->intersection_name_key))
-        {
-            int_info.intersection_name = doc[this->intersection_name_key].GetString();
-        }
         
-        //Update the intersection id based on the value set in the manifest configuration file
-        if(doc.HasMember(this->intersection_id_key))
-        {
-           int_info.intersection_id = doc[this->intersection_id_key].GetInt();
-        }
-
-        //Read the osm file path from the manifest json configuration file
-        if(doc.HasMember(this->osm_file_path_key))
-        {
-            std::string osm_file_path = doc[this->osm_file_path_key].GetString();
-
-            //Read the osm file and initialize the map object.
-            read_lanelet2_map(osm_file_path);
-        }
-        
+        int_info.intersection_name = intersection_name;
+        int_info.intersection_id = intersection_id; 
+        read_lanelet2_map(osm_file_path);
         if (map && !map->empty())
         {
-            spdlog::info("{0} Map is loaded ...", __FILE__);
+            SPDLOG_INFO("Map is loaded ...");
 
             if(update_intersection_info())
             {
-                spdlog::info("{0}: Intersection information is initialized ...", __FILE__);
+                SPDLOG_INFO("Intersection information is initialized ...");
             }
             else
             {
-                spdlog::error("{0}:  Cannot initialize intersection information.", __FILE__);
+                SPDLOG_INFO("Cannot initialize intersection information.");
             }
         }
         else
         {
-            spdlog::error("{0}: Loading Map Failed.", __FILE__);
+            SPDLOG_ERROR("Loading Map Failed.");
         }
 
-        spdlog::info("{0}: Initialization Done!", __FILE__);  
+        SPDLOG_INFO("Initialization Done!");  
     }
 
-    rapidjson::Document intersection_model::read_json_file(const std::string &json_file_name) const
-    {     
-        rapidjson::Document doc{};
-        try
-        { 
-            std::ifstream ifs {json_file_name};
-            if(!ifs.is_open())
-            {
-                spdlog::error("{0}: Could not open file: {1}" , __FILE__, json_file_name.c_str());
-                // exit(1);
-            }
-            rapidjson::IStreamWrapper isw{ifs};
-            doc.ParseStream(isw);
-            rapidjson::StringBuffer buffer{};
-            rapidjson::Writer<rapidjson::StringBuffer>  writer {buffer};
-            doc.Accept(writer);
-            if(doc.HasParseError())
-            {
-                spdlog::error("Read JSON file error  : {0} Offset: {1} ", doc.GetParseError() ,doc.GetErrorOffset());
-            }          
-        }        
-        catch(std::exception ex)
-        {         
-            spdlog::critical("Read JSON file failure: {0}", ex.what());
-            // exit(1);
-        }        
-        return doc;
-    }
 
     void intersection_model::read_lanelet2_map( std::string filename ) 
     {
@@ -107,9 +48,9 @@ namespace intersection_model
             projector = new lanelet::projection::LocalFrameProjector(target_frame.c_str());
             map = lanelet::load(filename, *projector, &errors);
         }
-        catch(std::exception ex)
+        catch(const std::exception &ex)
         {         
-            spdlog::error("{0}: Cannot read osm file {1}. Error message: {2} " , __FILE__, filename,ex.what());
+            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
             exit(1);
         }
     }
@@ -124,7 +65,7 @@ namespace intersection_model
         //  -> Use projector->forward() to translate to BasicPoint3D
         //  -> search map for nearest lanelet for BasicPoint3D
         //  -> return lanelet
-        spdlog::debug("Getting lanelet for ({0},{1}", lat, lon);
+        SPDLOG_DEBUG("Getting lanelet for ({0},{1}", lat, lon);
         lanelet::GPSPoint gps;
         gps.ele = 0;
         gps.lat = lat;
@@ -171,14 +112,14 @@ namespace intersection_model
                 {
                     if (!update_intersection_info_by_all_way_stop_reg(reg_element_ptr))
                     {
-                         spdlog::critical("{0}: Failed to load intersection information based on all_way_stop regultory element. ",__FILE__);
+                         SPDLOG_CRITICAL("Failed to load intersection information based on all_way_stop regulatory element.");
                     };
                 }
             }
         }
-        catch (...)
+        catch (const std::exception &ex)
         {
-            spdlog::error("{0}: Failed to call get_routing_graph(). ",__FILE__);
+            SPDLOG_ERROR("Failed to call get_routing_graph() : {0}", ex.what());
             return false;
         }
 
@@ -221,9 +162,9 @@ namespace intersection_model
                 rule_map_itr++;
             }
         }
-        catch (...)
+        catch (const std::exception &ex)
         {
-            spdlog::error("{0}: Failed to call load intersection information. ",__FILE__);
+            SPDLOG_ERROR("Failed to call load intersection information: {0}", ex.what());
             return false;
         }
         return true;
@@ -314,7 +255,7 @@ namespace intersection_model
 
         if ( !is_valid_link_lanelet_id(sub_link_lanelet_id) )
         {
-            spdlog::error("{0}: Not a valid input link lanelet id. {0}", __FILE__, sub_link_lanelet_id);
+            SPDLOG_ERROR("Not a valid input link lanelet id {0}.", sub_link_lanelet_id);
             return conflict_lanelets;
         }
 
@@ -348,9 +289,9 @@ namespace intersection_model
                 intersectionPts.clear();
             }
         }
-        catch (...)
+        catch (const std::exception &ex)
         {
-            spdlog::debug("{0}: Failed to lookup element with id {1} . " ,__FILE__ ,sub_link_lanelet_id);
+            SPDLOG_ERROR("Failed to lookup element with id {0} : {1} " , ex.what() ,sub_link_lanelet_id);
             conflict_lanelets.clear();
         }
         return conflict_lanelets;
@@ -385,7 +326,7 @@ namespace intersection_model
 
         if(this->int_info.link_lanelets.size() == 0)
         {
-            spdlog::error("{0} Intersection information contains zero number of link lanelets." , __FILE__);
+            SPDLOG_ERROR("Intersection information contains zero number of link lanelets.");
             return is_link_lanelet_id;
         }
 

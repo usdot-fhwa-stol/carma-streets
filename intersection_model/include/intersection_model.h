@@ -82,15 +82,14 @@ namespace intersection_model
     class intersection_model
     {
         public:
-            intersection_model();
-            intersection_model(std::string filename);
+            intersection_model() = delete;
+            intersection_model(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path ) ;
             ~intersection_model();
             
             /**
             * @brief Read the manifest.json configuration file and initialize intersection information.
             */ 
-            void initialization();
-            
+            void initialization(const std::string &intersection_name, const int intersection_id,const std::string &osm_file_path);            
             /**
              * @brief Getter for lanelet2 map.
              * @return lanelet map object

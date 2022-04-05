@@ -20,6 +20,8 @@ endif(${NODEBUG} STREQUAL "OFF")
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(qhttpengine REQUIRED)
+find_package(streets_service_base_lib REQUIRED)
+find_package(spdlog REQUIRED)
 
 file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/models/*.cpp
@@ -41,7 +43,7 @@ link_directories(
 )
 
 add_executable(${PROJECT_NAME} ${SRCS})
-target_link_libraries(${PROJECT_NAME} Qt5Core Qt5Network ssl crypto qhttpengine intersection_model_lib)
+target_link_libraries(${PROJECT_NAME} Qt5Core Qt5Network ssl crypto qhttpengine intersection_model_lib streets_service_base_lib::streets_service_base_lib spdlog::spdlog)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
