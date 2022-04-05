@@ -1,6 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-<geoReference v="+proj=tmerc +lat_0=4.9000000000000000e+1 +lon_0=8.0000000000000000e+0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs" />
+  <geoReference v="+proj=tmerc +lat_0=4.9000000000000000e+1 +lon_0=8.0000000000000000e+0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs" />
+  <node id='101953' action='modify' visible='true' lat='48.99776449357' lon='8.00266690761' version='1' />
+  <node id='101954' action='modify' visible='true' lat='48.99776456346' lon='8.0026682923' version='1'/>
+  <node id='101955' action='modify' visible='true' lat='48.99776456346' lon='8.00266957048' version='1' />
+  <node id='101957' action='modify' visible='true' lat='48.99793004631' lon='8.00256667726' version='1' />
+  <node id='101958' action='modify' visible='true' lat='48.99793004631' lon='8.00256827498' version='1'/>
+  <node id='101959' action='modify' visible='true' lat='48.99793004631' lon='8.00256997922' version='1'/>
+  <node id='101961' action='modify' visible='true' lat='48.99781641664' lon='8.00248530007' version='1'/>
+  <node id='101962' action='modify' visible='true' lat='48.99781736006' lon='8.00248519356' version='1'/>
+  <node id='101963' action='modify' visible='true' lat='48.99781823359' lon='8.00248519356' version='1'/>
   <node id='1000000' visible='true' version='1' lat='48.99821748787' lon='7.99992549542'>
     <tag k='ele' v='0.0' />
     <tag k='lat' v='48.99821748786612' />
@@ -45346,6 +45355,23 @@
     <tag k='lat' v='48.99792286121539' />
     <tag k='lon' v='8.002565028462913' />
   </node>
+  <way id='-102065' action='modify' visible='true'>
+  </way>
+  <way id='102075' action='modify' visible='true' version='1'>
+    <nd ref='101953' />
+    <nd ref='101954' />
+    <nd ref='101955' />
+  </way>
+  <way id='102077' action='modify' visible='true' version='1'>
+    <nd ref='101957' />
+    <nd ref='101958' />
+    <nd ref='101959' />
+  </way>
+  <way id='102079' action='modify' visible='true' version='1'>
+    <nd ref='101961' />
+    <nd ref='101962' />
+    <nd ref='101963' />
+  </way>
   <way id='1000' visible='true' version='1'>
     <nd ref='1000000' />
     <nd ref='1000001' />
@@ -53617,6 +53643,18 @@
     <tag k='subtype' v='solid' />
     <tag k='type' v='line_thin' />
   </way>
+  <way id='17209' action='modify' visible='true' version='1'>
+    <nd ref='1581079' />
+    <nd ref='1540004' />
+  </way>
+  <way id='17210' action='modify' visible='true' version='1'>
+    <nd ref='1711065' />
+    <nd ref='1680003' />
+  </way>
+  <way id='17211' action='modify' visible='true' version='1'>
+    <nd ref='1640003' />
+    <nd ref='1671380' />
+  </way>
   <relation id='100' visible='true' version='1'>
     <member type='way' ref='1000' role='left' />
     <member type='way' ref='1001' role='right' />
@@ -54692,6 +54730,7 @@
     <member type='way' ref='1540' role='left' />
     <member type='way' ref='1581' role='right' />
     <member type='relation' ref='16300' role='regulatory_element' />
+    <member type='relation' ref='17200' role='regulatory_element' />
     <tag k='cad_id' v='163' />
     <tag k='direction' v='ONE_WAY' />
     <tag k='from_cad_id' v='[159, 150]' />
@@ -54760,6 +54799,7 @@
     <member type='way' ref='1640' role='left' />
     <member type='way' ref='1671' role='right' />
     <member type='relation' ref='16700' role='regulatory_element' />
+    <member type='relation' ref='17200' role='regulatory_element' />
     <tag k='cad_id' v='167' />
     <tag k='direction' v='ONE_WAY' />
     <tag k='from_cad_id' v='[155, 169]' />
@@ -54828,6 +54868,7 @@
     <member type='way' ref='1680' role='left' />
     <member type='way' ref='1711' role='right' />
     <member type='relation' ref='17100' role='regulatory_element' />
+    <member type='relation' ref='17200' role='regulatory_element' />
     <tag k='cad_id' v='171' />
     <tag k='direction' v='ONE_WAY' />
     <tag k='from_cad_id' v='[156, 165]' />
@@ -55345,19 +55386,16 @@
     <tag k='subtype' v='digital_speed_limit' />
     <tag k='type' v='regulatory_element' />
   </relation>
-  <relation id='88385' action='modify' visible='true' version='1'>
-    <member type='relation' ref='NA' role='yield' />
-    <member type='relation' ref='NA' role='yield' />
-    <member type='relation' ref='NA' role='yield' />
-    <member type='relation' ref='NA' role='yield' />
-    <member type='way' ref='NA' role='refers' />
-    <member type='way' ref='NA' role='refers' />
-    <member type='way' ref='NA' role='refers' />
-    <member type='way' ref='NA' role='refers' />
-    <member type='way' ref='NA' role='ref_line' />
-    <member type='way' ref='NA' role='ref_line' />
-    <member type='way' ref='NA' role='ref_line' />
-    <member type='way' ref='NA' role='ref_line' />
+  <relation id='17200' action='modify' visible='true' version='1'>
+    <member type='relation' ref='167' role='yield' />
+    <member type='relation' ref='171' role='yield' />
+    <member type='relation' ref='163' role='yield' />
+    <member type='way' ref='102075' role='refers' />
+    <member type='way' ref='102077' role='refers' />
+    <member type='way' ref='102079' role='refers' />
+    <member type='way' ref='17209' role='ref_line' />
+    <member type='way' ref='17210' role='ref_line' />
+    <member type='way' ref='17211' role='ref_line' />
     <tag k='subtype' v='all_way_stop' />
     <tag k='type' v='regulatory_element' />
   </relation>
