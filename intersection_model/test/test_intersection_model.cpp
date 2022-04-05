@@ -1,6 +1,12 @@
 #include <gtest/gtest.h>
 #include "intersection_model.h"
 
+TEST(intersection_model_test, file_not_found_map) {
+    intersection_model::intersection_model model;
+
+    ASSERT_EXIT( model.read_lanelet2_map("../../sample_map/wrong_file.osm"), ::testing::ExitedWithCode(1),"" );
+}
+
 TEST(intersection_model_test, read_lanelet2_map)
 {
     intersection_model::intersection_model *model = new intersection_model::intersection_model("West Intersection", 9001,"../../sample_map/town01_vector_map_test.osm");

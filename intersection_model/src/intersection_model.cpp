@@ -51,7 +51,7 @@ namespace intersection_model
             projector = new lanelet::projection::LocalFrameProjector(target_frame.c_str());
             map = lanelet::load(filename, *projector, &errors);
         }
-        catch(const lanelet::FileNotFoundError &ex)
+        catch(const lanelet::LaneletError &ex)
         {         
             SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
             exit(1);
