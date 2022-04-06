@@ -64,3 +64,4 @@ ls -a
 mkdir coverage
 cd /home/carma-streets/
 gcovr --exclude=intersection_model/src/server/ --exclude=intersection_model/test/ --exclude=intersection_model/build/src/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
+
