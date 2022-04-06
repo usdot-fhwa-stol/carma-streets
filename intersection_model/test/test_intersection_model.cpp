@@ -102,13 +102,9 @@ TEST(intersection_model_test, get_conflict_lanelets)
 
 TEST(intersection_model_test, get_shared_entry_link_lanelet_ids)
 {   
-    intersection_model::intersection_model model;
+    intersection_model::intersection_model model("West Intersection", 9001,"../../sample_map/town01_vector_map_test.osm");
     int link_lanelet_id = 155;
-    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
-    model.update_intersection_info();
     ASSERT_EQ(model.get_shared_entry_link_lanelet_ids(link_lanelet_id).size(), 2);
-    //INVALID lane id
-    model.get_shared_entry_link_lanelet_ids(123213);
 }
 
 TEST(intersection_model_test, is_valid_link_lanelet_id)
