@@ -117,7 +117,11 @@ TEST(intersection_model_test, is_valid_link_lanelet_id)
     int entry_lanelet_id = 171;
     int link_lanelet_id  = 156;
 
-    intersection_model::intersection_model model("West Intersection", 9001,"../../sample_map/town01_vector_map_test.osm");
+    intersection_model::intersection_model model;
+    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    //Before intersection update, no links yet
+    ASSERT_FALSE(model.is_valid_link_lanelet_id(link_lanelet_id));
+
     model.update_intersection_info();
 
     ASSERT_FALSE(model.is_valid_link_lanelet_id(entry_lanelet_id));
