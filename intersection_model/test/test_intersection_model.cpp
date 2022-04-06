@@ -104,8 +104,9 @@ TEST(intersection_model_test, get_shared_entry_link_lanelet_ids)
 {   
     intersection_model::intersection_model model;
     int link_lanelet_id = 155;
-    ASSERT_EQ(model.get_shared_entry_link_lanelet_ids(link_lanelet_id).size(), 0);
     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_EQ(model.get_shared_entry_link_lanelet_ids(link_lanelet_id).size(), 0);
+
     model.update_intersection_info();
     ASSERT_EQ(model.get_shared_entry_link_lanelet_ids(link_lanelet_id).size(), 2);
     //INVALID lane id
