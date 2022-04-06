@@ -33,7 +33,9 @@ ls -a
 ./scheduling_service_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/scheduling_service/
 mkdir coverage
-gcovr --sonarqube coverage/coverage.xml -s -r .
+cd /home/carma-streets/
+gcovr --sonarqube scheduling_service/coverage/coverage.xml -s -f scheduling_service/ -r .
+
 
 cd /home/carma-streets/streets_utils/streets_service_base/build/
 ls -a
@@ -61,4 +63,4 @@ cd /home/carma-streets/intersection_model/
 ls -a
 mkdir coverage
 cd /home/carma-streets/
-gcovr --exclude-directories intersection_model/src/server/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
+gcovr --exclude intersection_model/src/server/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
