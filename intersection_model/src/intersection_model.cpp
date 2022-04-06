@@ -2,9 +2,6 @@
 
 namespace intersection_model
 {
-    intersection_model::intersection_model() {
-        
-    }
 
     intersection_model::intersection_model(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path ){
         initialization(intersection_name, intersection_id, osm_file_path);
