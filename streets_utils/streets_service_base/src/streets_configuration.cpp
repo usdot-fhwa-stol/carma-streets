@@ -5,7 +5,9 @@ namespace streets_service {
     // Constructor
     streets_configuration::streets_configuration( const std::string &filepath ): filepath(filepath){
         SPDLOG_INFO("Printing Configuration Parameters ---------------------------------------");
-        check_update();
+        rapidjson::Document doc = parse_configuration_file();
+        configure_logger(doc);
+        update_configuration(doc);
         for(const auto& conf : configuration_map)
         {
             SPDLOG_INFO("{0} : {1} ", conf.first.c_str(), conf.second.value.c_str());
@@ -55,6 +57,16 @@ namespace streets_service {
         else {
             SPDLOG_WARN("No configurations found in manifest.json!");
         }   
+    };
+
+    void streets_configuration::update_log_level( const rapidjson::Document &doc ){
+        if ( doc.FindMember("loglevel")->value.IsString() ) {
+            set_loglevel( doc.FindMember("loglevel")->value.GetString() );
+        }
+        else {
+            SPDLOG_WARN("Parameter \"loglevel\" missing/incorrectly formatted in manifest.json! Setting \"loglevel\" to INFO!");
+            set_loglevel("info");
+        }
     };
 
     void streets_configuration::parse_configurations_array( const rapidjson::GenericArray<true, rapidjson::Value> &arr) {
@@ -190,7 +202,9 @@ namespace streets_service {
             std::time_t time = boost::filesystem::last_write_time(filepath);
             SPDLOG_DEBUG("Last Modified Time {0} vs Stored Last Modified Time {1}", time, last_modified);
             if ( time > last_modified) {
-                update_configuration(parse_configuration_file());
+                rapidjson::Document doc = parse_configuration_file();
+                update_log_level(doc);
+                update_configuration(doc);
                 last_modified = time;
             }
         }
