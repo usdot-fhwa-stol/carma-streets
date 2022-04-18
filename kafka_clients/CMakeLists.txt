@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 
 
-find_package(Boost 1.65.1 COMPONENTS system filesystem thread REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(streets_service_base_lib REQUIRED)
 
@@ -74,8 +74,3 @@ target_include_directories(${BINARY}
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                            PRIVATE
                            ${CMAKE_CURRENT_SOURCE_DIR}/src})
-# get_cmake_property(_variableNames VARIABLES)
-# list (SORT _variableNames)
-# foreach (_variableName ${_variableNames})
-#     message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()

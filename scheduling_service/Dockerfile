@@ -63,7 +63,7 @@ WORKDIR  /home/carma-streets/kafka_clients
 RUN mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make VERBOSE=true
+RUN make
 RUN make install
 
 RUN echo " ------> Install intersection client library from streets_utils..."
