@@ -66,13 +66,15 @@ int main(int argc, char * argv[])
     quint16 port = static_cast<quint16>(
         streets_service::streets_configuration::get_int_config("host_port")
     );
-
-
-    QSharedPointer<OpenAPI::OAIApiRequestHandler> handler(new OpenAPI::OAIApiRequestHandler());
-    auto router = QSharedPointer<OpenAPI::OAIApiRouter>::create(
+    
+    std::shared_ptr<intersection_model::intersection_model> model ( new intersection_model::intersection_model(
         streets_service::streets_configuration::get_string_config("intersection_name"),
         streets_service::streets_configuration::get_int_config("intersection_id"),
         streets_service::streets_configuration::get_string_config("osm_file_path")
+    )) ;
+    QSharedPointer<OpenAPI::OAIApiRequestHandler> handler(new OpenAPI::OAIApiRequestHandler());
+    auto router = QSharedPointer<OpenAPI::OAIApiRouter>::create(
+        model
     );
     router->setUpRoutes();
     QObject::connect(handler.data(), &OpenAPI::OAIApiRequestHandler::requestReceived, [&](QHttpEngine::Socket *socket) {

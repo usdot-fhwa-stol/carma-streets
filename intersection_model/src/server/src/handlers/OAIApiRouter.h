@@ -53,7 +53,7 @@ class OAIApiRouter : public QObject
 {
     Q_OBJECT
 public:
-    OAIApiRouter(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path);
+    OAIApiRouter(std::shared_ptr<intersection_model::intersection_model> &model);
     virtual ~OAIApiRouter();
 
     void setUpRoutes();
@@ -71,7 +71,7 @@ private:
     QSharedPointer<OAIDefaultApiHandler> mOAIDefaultApiHandler;
 protected:
     // override this method to provide custom class derived from ApiHandler classes
-    virtual void createApiHandlers(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path);
+    virtual void createApiHandlers(std::shared_ptr<intersection_model::intersection_model> &model);
 
 private :
     inline QString fromQHttpEngineMethod(QHttpEngine::Socket::Method method){

@@ -21,8 +21,8 @@
 
 namespace OpenAPI {
 
-OAIDefaultApiHandler::OAIDefaultApiHandler(const std::string &intersection_name, const int intersection_id, const std::string &osm_file_path){
- this->int_worker = std::make_shared<intersection_model::intersection_model>(intersection_name, intersection_id, osm_file_path);
+OAIDefaultApiHandler::OAIDefaultApiHandler(std::shared_ptr<intersection_model::intersection_model> &model){
+ this->int_worker = model;
 }
 
 OAIDefaultApiHandler::~OAIDefaultApiHandler(){
