@@ -5,8 +5,13 @@ namespace streets_service {
     // Constructor
     streets_configuration::streets_configuration( const std::string &filepath ): filepath(filepath){
         SPDLOG_INFO("Printing Configuration Parameters ---------------------------------------");
+        // Parse manifest.json configuration file into rapidjson::Document
         rapidjson::Document doc = parse_configuration_file();
+        // Use service level configuration parameters from Document (i.e. loglevel and service_name)
+        // to configure spdlog default logger (terminal and file sinks)
         configure_logger(doc);
+        // Use configurations array to populate configuration map with service specific configuration
+        // parameters from Document
         update_configuration(doc);
         for(const auto& conf : configuration_map)
         {
@@ -199,12 +204,16 @@ namespace streets_service {
 
     void streets_configuration::check_update() {
         try {
+            // Check last write time of manifest.json configuration file to see if updates have been made
             std::time_t time = boost::filesystem::last_write_time(filepath);
             SPDLOG_DEBUG("Last Modified Time {0} vs Stored Last Modified Time {1}", time, last_modified);
             if ( time > last_modified) {
+                // If updates have been made parse manifest.json into Document and update loglevel and 
+                // any changed configuration parameters.
                 rapidjson::Document doc = parse_configuration_file();
                 update_log_level(doc);
                 update_configuration(doc);
+                // Set new update time to the last update read
                 last_modified = time;
             }
         }
