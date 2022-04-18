@@ -81,7 +81,7 @@ WORKDIR  /home/carma-streets/scheduling_service
 RUN mkdir build
 WORKDIR  /home/carma-streets/scheduling_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make VERBOSE=true
+RUN make
 
 WORKDIR  /home/carma-streets/scheduling_service/build/
 
