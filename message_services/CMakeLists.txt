@@ -24,7 +24,7 @@ find_package(spdlog REQUIRED)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src/models)
 
 
-add_library(${PROJECT_NAME}_lib
+add_library(${PROJECT_NAME}_lib STATIC
             src/services/vehicle_status_intent_service.cpp 
             src/workers/bsm_worker.cpp 
             src/workers/mobilitypath_worker.cpp  
