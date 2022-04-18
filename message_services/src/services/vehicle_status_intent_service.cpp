@@ -62,7 +62,7 @@ namespace message_services
                 }
 
                 this->vsi_est_path_point_count = streets_service::streets_configuration::get_int_config("vsi_est_path_count");
-                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_double_config("mobility_path_trajectory_offset_duration");
+                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_int_config("mobility_path_trajectory_offset_duration");
                 this->VSI_TH_SLEEP_MILLI_SEC = streets_service::streets_configuration::get_int_config("vsi_th_sleep_milli_sec");
                 this->BSM_MSG_EXPIRE_IN_SEC = streets_service::streets_configuration::get_int_config("bsm_msg_expire_in_sec");
                 this->CLEAN_QUEUE_IN_SECS = streets_service::streets_configuration::get_int_config("clean_queue_in_secs");
@@ -73,8 +73,7 @@ namespace message_services
 
                 return true;
             }
-            catch (const std::exception &ex)
-            {
+            catch ( const streets_service::streets_configuration_exception &ex ) {
                 SPDLOG_ERROR("Vehicle status Intent Service Initialization failure: {0} ", ex.what());
                 return false;
             }

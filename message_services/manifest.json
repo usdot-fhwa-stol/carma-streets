@@ -59,9 +59,9 @@
         },
         {
             "name": "mobility_path_trajectory_offset_duration",
-            "value": 0.1,
-            "description": "Set the time interval between two points in the est_path. The interval is 0.1 second",
-            "type": "DOUBLE" 
+            "value": 1,
+            "description": "Set the time interval between two points in the est_path. 1 is equal to 100ms",
+            "type": "INTEGER" 
         },
         {
             "name": "vsi_th_sleep_milli_sec",
