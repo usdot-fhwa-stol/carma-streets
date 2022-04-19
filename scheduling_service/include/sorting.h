@@ -1,7 +1,5 @@
-#ifndef sorting_H
-#define sorting_H
+#pragma once
 
-#include <string>
 #include <vector>
 using namespace std;
 
@@ -25,5 +23,3 @@ struct sorting
 		}
 	}
 };
-
-#endif

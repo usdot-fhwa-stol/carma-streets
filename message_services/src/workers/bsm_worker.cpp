@@ -37,7 +37,7 @@ namespace message_services
             }
             else
             {
-                spdlog::critical("bsm_worker: Document parse error");
+                SPDLOG_CRITICAL("bsm_worker: Document parse error");
             }
         }
 

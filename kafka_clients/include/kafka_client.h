@@ -5,13 +5,9 @@
 #include "kafka_consumer_worker.h"
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
+#include <spdlog/spdlog.h>
 #include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
-#include <fstream>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+
 
 namespace kafka_clients
 {

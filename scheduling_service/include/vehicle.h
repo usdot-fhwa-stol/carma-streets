@@ -1,16 +1,13 @@
-#ifndef vehicle_H
-#define vehicle_H
+#pragma once
 
 #include <string>
 #include <vector>
 #include <math.h>
+#include <rapidjson/document.h>
+#include <spdlog/spdlog.h>
 
-#include "rapidjson/document.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-
-#include "configuration.h"
 #include "intersection_client.h"
+#include "streets_configuration.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -126,7 +123,7 @@ class vehicle{
 
 	public:
 
-		void update(const Document& message, intersection_client& localmap, const configuration& config);
+		void update(const Document& message, intersection_client& localmap);
 
 
 		string get_id() const;
@@ -171,4 +168,3 @@ class vehicle{
 
 };
 
-#endif

@@ -1,15 +1,79 @@
 {
-    "BOOTSTRAP_SERVER": "127.0.0.1:9092", 
-    "PRODUCER_TOPIC": "v2xhub_scheduling_plan_sub",
-    "CONSUMER_TOPIC": "vehicle_status_intent_output",
-    "GROUP_ID": "group_one",
-    "EXPIRATION_DELTA": 300,
-    "STOP_DISTANCE": 3,
-    "STOP_SPEED": 0.1 ,
-    "MAX_VALID_SPEED": 50,
-    "SCHEDULING_DELTA": 0.2,
-    "ENABLE_SCHEDULE_LOGGING": true,
-    "SCHEDULE_LOG_PATH": "/home/carma-streets/scheduling_service/",
-    "SCHEDULE_LOG_FILENAME": "scheduleLogs",
-    "LOG_LEVEL": "debug"
+    "service_name": "scheduling_service",
+    "loglevel": "debug",
+    "configurations": [
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        },
+        {
+            "name": "producer_topic",
+            "value": "v2xhub_scheduling_plan_sub",
+            "description": "Kafka topic to which the scheduling service will produce schedules.",
+            "type": "STRING"
+        },
+        {
+            "name": "consumer_topic",
+            "value": "vehicle_status_intent_output",
+            "description":"Kafka topic to which the scheduling service will consume status and intent updates.",
+            "type": "STRING"
+        },
+        {
+            "name": "group_id",
+            "value": "group_1",
+            "description": "Kafka consumer group ID.",
+            "type": "STRING"
+        },
+        {
+            "name": "exp_delta",
+            "value": 300,
+            "description": "Time(in seconds) without receiving status & intent updates after which a vehicle is no longer considered!",
+            "type": "INTEGER"
+        },
+        {
+            "name": "stop_distance",
+            "value": 3.0,
+            "description" : "Maximum distance(in meters) from the end of an entry-lane at which point a vehicle can be considered stopped.",
+            "type": "DOUBLE"
+        },
+        {
+            "name": "stop_speed",
+            "value": 0.1,
+            "description": "Maximum speed(in m/s) of vehicle for considering vehicle stopped at intersection.",
+            "type": "DOUBLE"
+        },
+        {
+            "name": "max_valid_speed",
+            "value": 50,
+            "description": "Maximum speed(in m/s) of vehicle for consideration for scheduling.",
+            "type":"INTEGER"
+        },
+        {
+            "name": "scheduling_delta",
+            "value": 1.0,
+            "description": "Time(in seconds) interval between scheduling calculations.",
+            "type": "DOUBLE"       
+        },
+        {
+            "name": "enable_schedule_logging",
+            "value": true,
+            "description": "Bool flag to enable schedule calculation csv logging.",
+            "type": "BOOL"
+        }, 
+        {
+            "name": "schedule_log_path",
+            "value": "../logs/",
+            "description": "File path where schedule calculation csv file will be written(Note: set enable_schedule_logging true).",
+            "type": "STRING"
+        },
+        {
+            "name": "schedule_log_filename",
+            "value": "scheduleLogs",
+            "description": "Filename for schedule calculation csv logging (Note: set enable_schedule_logging true).",
+            "type": "STRING"
+        }
+
+    ]
 }

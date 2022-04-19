@@ -12,8 +12,8 @@
 #endif
 
 #include <librdkafka/rdkafkacpp.h>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
+#include <spdlog/spdlog.h>
+
 
 namespace kafka_clients
 {  
@@ -28,9 +28,9 @@ namespace kafka_clients
             };
             void dr_cb (RdKafka::Message &message)
             {
-                spdlog::info("Message dellivery for:  {0} bytes [ {1} ]",message.len(), message.errstr().c_str());
+                SPDLOG_INFO("Message dellivery for:  {0} bytes [ {1} ]",message.len(), message.errstr().c_str());
                 if(message.key())                 
-                    spdlog::info(" Key:  {:>8}",(char*)(message.key()));
+                    SPDLOG_INFO(" Key:  {:>8}",(char*)(message.key()));
             }
     };
     class producer_event_cb:public RdKafka::EventCb
@@ -47,17 +47,17 @@ namespace kafka_clients
                 switch (event.type())
                 {
                 case RdKafka::Event::EVENT_ERROR:                 
-                    spdlog::critical("{0} : Line {1}.  ERROR:  {2}  {3}",__FILE__, __LINE__, RdKafka::err2str(event.err()) ,event.str() );
+                    SPDLOG_CRITICAL("ERROR:  {0}  {1}", RdKafka::err2str(event.err()) ,event.str() );
                     if (event.err() == RdKafka::ERR__ALL_BROKERS_DOWN)
                     break;
                 case RdKafka::Event::EVENT_STATS:
-                    spdlog::critical("{0} : Line {1}.  STATS: {2}  {3}",__FILE__, __LINE__, RdKafka::err2str(event.err()) ,event.str() );
+                    SPDLOG_CRITICAL("STATS: {0}  {1}", RdKafka::err2str(event.err()) ,event.str() );
                     break;
                 case RdKafka::Event::EVENT_LOG:
-                    spdlog::critical("{0} : Line {1}.  LOG:  {2}  {3}",__FILE__, __LINE__, RdKafka::err2str(event.err()) ,event.str() );
+                    SPDLOG_CRITICAL("LOG:  {0}  {1}", RdKafka::err2str(event.err()) ,event.str() );
                     break;
                 default:
-                    spdlog::critical("{0} : Line {1}.  EVENT:  {2}  {3}",__FILE__, __LINE__, RdKafka::err2str(event.err()) ,event.str() );
+                    SPDLOG_CRITICAL("EVENT:  {0}  {1}", RdKafka::err2str(event.err()) ,event.str() );
                     break;
                 }
             }

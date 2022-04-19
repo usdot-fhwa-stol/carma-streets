@@ -15,7 +15,7 @@ namespace kafka_clients
         catch (...)
         {
             std::exception_ptr p = std::current_exception();
-            spdlog::critical("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
+            SPDLOG_CRITICAL("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
             exit(1);
         }
     }
@@ -31,58 +31,10 @@ namespace kafka_clients
         catch (...)
         {
             std::exception_ptr p = std::current_exception();
-            spdlog::critical("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
+            SPDLOG_CRITICAL("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
             exit(1);
         }
     }
 
-    std::string kafka_client::get_value_by_doc(rapidjson::Document &doc, const char *key) const
-    {
-        try
-        {
-            std::string result;
-            if (doc.HasMember(key))
-                return doc[key].GetString();
-            return std::string("");
-        }
-        catch (...)
-        {
-            std::exception_ptr p = std::current_exception();
-            spdlog::critical("get_value_by_doc failed: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
-            exit(1);
-        }
-    }
-
-    rapidjson::Document kafka_client::read_json_file(const std::string &json_file) const
-    {
-        std::ifstream ifs{json_file};
-        if (!ifs.is_open())
-        {
-            spdlog::critical("Could not open file: {0}", json_file.c_str());
-            exit(1);
-        }
-        rapidjson::IStreamWrapper isw{ifs};
-        rapidjson::Document doc{};
-        try
-        {
-            doc.ParseStream(isw);
-            rapidjson::StringBuffer buffer{};
-            rapidjson::Writer<rapidjson::StringBuffer> writer{buffer};
-            doc.Accept(writer);
-            if (doc.HasParseError())
-            {
-                spdlog::critical("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
-                exit(1);
-            }
-        }
-        catch (...)
-        {
-            std::exception_ptr p = std::current_exception();
-            spdlog::critical("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
-            exit(1);
-        }
-
-        return doc;
-    }
 
 }

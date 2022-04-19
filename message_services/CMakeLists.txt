@@ -6,23 +6,25 @@ project(message_services LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-link_directories("/usr/lib"  "/usr/local/lib"  ${catkin_LIBRARY_DIRS} ${catkin_INCLUDE_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+link_directories(${catkin_LIBRARY_DIRS} ${catkin_INCLUDE_DIRS})
 find_package(PROJ4)
 find_package(Eigen3 3.3 NO_MODULE)
-find_package(catkin COMPONENTS REQUIRED
+find_package(catkin COMPONENTS 
                 lanelet2_core 
                 lanelet2_projection 
-                lanelet2_io )
+                lanelet2_io REQUIRED)
+find_package( streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 message(STATUS ${CMAKE_CURRENT_BINARY_DIR})
 
-find_package(Boost COMPONENTS thread filesystem system REQUIRED)
+find_package(Boost COMPONENTS thread system REQUIRED)
 find_package(spdlog REQUIRED)
-include_directories("/usr/local/include")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src/models)
 
 
-add_library(${PROJECT_NAME}_lib 
+add_library(${PROJECT_NAME}_lib STATIC
             src/services/vehicle_status_intent_service.cpp 
             src/workers/bsm_worker.cpp 
             src/workers/mobilitypath_worker.cpp  
@@ -49,11 +51,14 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
                         "${catkin_LIBRARY_DIRS}/liblanelet2_routing.so"
                         "${catkin_LIBRARY_DIRS}/liblanelet2_extension_lib.so"
                         Eigen3::Eigen
+                        streets_service_base_lib::streets_service_base_lib
+                        kafka_clients_lib 
+                        rdkafka++
                         ${catkin_LIBRARIES}) 
 
 foreach(_target  message_services )
     add_executable(${_target} "src/${_target}.cpp")
-    target_link_libraries(${_target} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system  Boost::thread   spdlog::spdlog )
+    target_link_libraries(${_target} PUBLIC ${PROJECT_NAME}_lib Boost::system  Boost::thread   spdlog::spdlog )
 endforeach()
 
 message(STATUS "END of message_services")

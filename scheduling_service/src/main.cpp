@@ -1,41 +1,33 @@
 #define RAPIDJSON_HAS_STDSTRING 1
-#include "kafka_client.h"
 #include <thread>    
 #include <chrono>  
 #include <vector>
 #include <unordered_map>
 #include <set>
+#include <QTimer>
+#include <QEventLoop>
+#include <QCoreApplication>
+#include <OAIHelpers.h>
+#include <spdlog/spdlog.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
-#include "configuration.h"
 #include "vehicle.h"
 #include "sorting.h"
 #include "scheduling.h"
-
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/daily_file_sink.h" // support for daily logging
-#include "spdlog/async.h" //support for async logging.
-
-#include "spdlog/cfg/env.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-
+#include "kafka_client.h"
+#include "streets_configuration.h"
 #include "OAIDefaultApi.h"
-#include <QTimer>
 #include "intersection_client.h"
-#include <QEventLoop>
-#include <QCoreApplication>
-#include "OAIHelpers.h"
 
-#include "spdlog/async.h" //support for async logging.
-#include "spdlog/sinks/daily_file_sink.h" // support for dailty file sink
-#include "spdlog/sinks/stdout_color_sinks.h" // or "../stdout_sinks.h" if no colors needed
+
+
 
 using namespace std;
 using namespace rapidjson;
 using namespace chrono;
 using namespace OpenAPI;
 
-configuration config;
 intersection_client localmap;
 unordered_map<string, vehicle> list_veh;
 set<string> list_veh_confirmation;
@@ -65,7 +57,7 @@ void consumer_update(const char* payload){
                     }
                 }
                 else{
-                    spdlog::critical("Vehicle {0}'s current lane id is missing in the received status and intent update!", veh_id);
+                    SPDLOG_CRITICAL("Vehicle {0}'s current lane id is missing in the received status and intent update!", veh_id);
                 }
             }
 
@@ -73,45 +65,20 @@ void consumer_update(const char* payload){
             if (list_veh.count(veh_id)){
                 /* adding a check to not read the messages with wrong BSM */
                 if (list_veh[veh_id].message_hasError(message, localmap) == false){
-                    list_veh[veh_id].update(message, localmap, config);       
+                    list_veh[veh_id].update(message, localmap);       
                     if (list_veh[veh_id].get_curState() == "LV"){
-                        spdlog::info("Vehicle {0} has departed the intersection box (i.e., is in LV state) and been removed from list_veh", veh_id);
+                        SPDLOG_INFO("Vehicle {0} has departed the intersection box (i.e., is in LV state) and been removed from list_veh", veh_id);
                         list_veh.erase(veh_id);
                     }
                 }
             }
         }
         else{
-            spdlog::critical("vehicle id is missing in the received status and intent update!");
+            SPDLOG_CRITICAL("vehicle id is missing in the received status and intent update!");
         }
     }
     else{
-        spdlog::critical("payload is missing in the received status and intent update!");
-    }
-
-}
-/**
- * Method to set spdlog default logger to a multisink( daily rotating file logger and stdout logger ) asynchronous logger.
- */ 
-void configure_logger() {
-  // Create default multisink daily file logger
-    std::string loglevel = config.get_loglevel();
-    spdlog::init_thread_pool(8192, 1);
-    try {
-        
-        auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/scheduling_service.log", 23, 3);
-        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        console_sink->set_level(spdlog::level::from_str(loglevel));
-        file_sink->set_level( spdlog::level::from_str(loglevel ) );
-
-        auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
-        spdlog::register_logger(logger);
-        spdlog::set_default_logger(logger);
-        spdlog::info("Default Logger initialized!");
-    }   
-    catch (const spdlog::spdlog_ex& ex)
-    {
-        spdlog::error( "Log initialization failed: {0}!",ex.what());
+        SPDLOG_CRITICAL("payload is missing in the received status and intent update!");
     }
 
 }
@@ -123,7 +90,8 @@ void configure_csv_logger() {
     try{
         auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
             "csv_logger",  // logger name
-            config.get_scheduleLogPath()+config.get_scheduleLogFilename() +".csv",  // log file name and path
+            streets_service::streets_configuration::get_string_config("schedule_log_path")+
+                streets_service::streets_configuration::get_string_config("schedule_log_filename") +".csv",  // log file name and path
             23, // hours to rotate
             59 // minutes to rotate
             );
@@ -141,9 +109,9 @@ void configure_csv_logger() {
 rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Document::AllocatorType& allocator, double &last_schedule){
 
     std::unique_lock<std::mutex> lck(worker_mtx);
-    scheduling schedule(list_veh, list_veh_confirmation, localmap, config, list_veh_removal);
+    scheduling schedule(list_veh, list_veh_confirmation, localmap, list_veh_removal);
     lck.unlock();
-    if ( config.isScheduleLoggerEnabled() ) {
+    if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
         auto logger = spdlog::get("csv_logger");
         if ( logger != nullptr )
             logger->info( schedule.toCSV());
@@ -180,7 +148,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
         int vehicle_index1 = listRDV[n];
         string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
         string link_id1 = list_veh[vehicle_id1].get_linkID();
-        double et = schedule.get_timestamp() + config.get_schedulingDelta();
+        double et = schedule.get_timestamp() + streets_service::streets_configuration::get_double_config("scheduling_delta");
         for (int m = 0; m < (int)listS.size(); ++m){
             int vehicle_index2 = listS[m];
             string vehicle_id2 = schedule.get_vehicleIdList()[vehicle_index2];
@@ -318,7 +286,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
 		}
 
         /* if the vehicle's entering time is set to the next scheduling time step, give access to the vehicle */
-        if (et <= schedule.get_timestamp() + config.get_schedulingDelta()){
+        if (et <= schedule.get_timestamp() + streets_service::streets_configuration::get_double_config("scheduling_delta")){
             bool vehicle_access_indicator = true;
             for (int n = 0; n < (int)schedule.get_indexDVs().size(); ++n){
                 int vehicle_index1 = schedule.get_indexDVs()[n];
@@ -375,7 +343,7 @@ rapidjson::Value scheduling_func(unordered_map<string, vehicle> list_veh, Docume
                 string vehicle_id1 = schedule.get_vehicleIdList()[vehicle_index1];
                 string link_id1 = list_veh[vehicle_id1].get_linkID();
 
-                double st = max(schedule.get_estList()[vehicle_index1], schedule.get_timestamp() + config.get_schedulingDelta());
+                double st = max(schedule.get_estList()[vehicle_index1], schedule.get_timestamp() + streets_service::streets_configuration::get_double_config("scheduling_delta"));
                 if (!listS.empty()){
                     for (int n = 0; n < (int)listS.size(); ++n){
                         int vehicle_index2 = listS[n];
@@ -493,24 +461,22 @@ void call_consumer_thread()
 {
   
     auto client = std::make_shared<kafka_clients::kafka_client>();
-    std::string file_name= "../manifest.json";
-    rapidjson::Document doc_json = client->read_json_file(file_name); 
-    std::string bootstrap_server = client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
-    std::string group_id = client->get_value_by_doc(doc_json, "GROUP_ID");
-    std::string topic = client->get_value_by_doc(doc_json, "CONSUMER_TOPIC");
+    std::string bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
+    std::string group_id = streets_service::streets_configuration::get_string_config("group_id");
+    std::string topic = streets_service::streets_configuration::get_string_config("consumer_topic");
     auto consumer_worker = client->create_consumer(bootstrap_server,topic,group_id);
    
 
     if(!consumer_worker->init())
     {
-        spdlog::critical("kafka consumer initialize error");
+        SPDLOG_CRITICAL("kafka consumer initialize error");
     }
     else
     {
         consumer_worker->subscribe();
         if(!consumer_worker->is_running())
         {
-            spdlog::critical("consumer_worker is not running");
+            SPDLOG_CRITICAL("consumer_worker is not running");
         }
         
         while (consumer_worker->is_running()) 
@@ -550,22 +516,20 @@ void call_consumer_thread()
 void call_scheduling_thread(){
 
     auto client = std::make_shared<kafka_clients::kafka_client>();         
-    std::string file_name="../manifest.json";
-    rapidjson::Document doc_json = client->read_json_file(file_name);           
-    std::string bootstrap_server =  client->get_value_by_doc(doc_json, "BOOTSTRAP_SERVER");
-    std::string topic = client->get_value_by_doc(doc_json, "PRODUCER_TOPIC");
+    std::string bootstrap_server =  streets_service::streets_configuration::get_string_config("bootstrap_server");
+    std::string topic = streets_service::streets_configuration::get_string_config("producer_topic");
     auto producer_worker  = client->create_producer(bootstrap_server, topic);
      // Holds timestamp for last schedule sent
     double last_schedule;
 
     // Create logger
-    if ( config.isScheduleLoggerEnabled() ) {
+    if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
         configure_csv_logger();
     }
     char str_msg[]="";           
     if(!producer_worker->init())
     {
-        spdlog::critical("kafka producer initialize error");
+        SPDLOG_CRITICAL("kafka producer initialize error");
     }
     else
     {        
@@ -573,12 +537,12 @@ void call_scheduling_thread(){
         int sch_count = 0;
         while (true) 
         {   
-            
-            if (duration<double>(system_clock::now().time_since_epoch()).count() - last_schedule >= config.get_schedulingDelta()){
+            auto scheduling_delta=streets_service::streets_configuration::get_double_config("scheduling_delta");
+            if (duration<double>(system_clock::now().time_since_epoch()).count() - last_schedule >= scheduling_delta){
                 
-                spdlog::info("schedule number #{0}", sch_count);
+                SPDLOG_INFO("schedule number #{0}", sch_count);
 
-                auto t = system_clock::now() + milliseconds(int(config.get_schedulingDelta()*1000));
+                auto t = system_clock::now() + milliseconds(int(scheduling_delta*1000));
                 std::unique_lock<std::mutex> lck(worker_mtx);
                 unordered_map<string, vehicle> list_veh_copy = list_veh;
                 lck.unlock(); //Temporarily unlock the list_veh
@@ -641,7 +605,7 @@ int main(int argc,char** argv)
 {
     QCoreApplication a(argc, argv);
     localmap.call();
-    configure_logger();
+    streets_service::streets_configuration::initialize_logger();
     boost::thread consumer{call_consumer_thread};
     boost::thread scheduling{call_scheduling_thread};
     consumer.join();

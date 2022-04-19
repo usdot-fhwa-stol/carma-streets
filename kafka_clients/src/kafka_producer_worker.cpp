@@ -5,7 +5,7 @@ namespace kafka_clients
     kafka_producer_worker::kafka_producer_worker(const std::string &brokers, const std::string &topics, int partition)
         : _topics_str(topics), _broker_str(brokers), _run(true), _partition(partition)
     {
-        spdlog::info("kafka_producer_worker init()... ");
+        SPDLOG_INFO("kafka_producer_worker init()... ");
     }
 
     bool kafka_producer_worker::init()
@@ -22,21 +22,21 @@ namespace kafka_clients
         // set broker list
         if (conf->set(BOOTSTRAP_SERVER, _broker_str, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RdKafka conf set brokerlist failed: {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RdKafka conf set brokerlist failed: {0} ", errstr.c_str());
             return false;
         }
 
         // set delivery report callback
         if (conf->set(DR_CB, &_producer_delivery_report_cb, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RdKafka conf set delivery report callback failed:   {0}", errstr.c_str());
+            SPDLOG_CRITICAL("RdKafka conf set delivery report callback failed:   {0}", errstr.c_str());
             return false;
         }
 
         // set event callback
         if (conf->set(EVENT_CB, &_producer_event_cb, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RdKafka conf set event callback failed: {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RdKafka conf set event callback failed: {0} ", errstr.c_str());
             return false;
         }
 
@@ -44,18 +44,18 @@ namespace kafka_clients
         _producer = RdKafka::Producer::create(conf, errstr);
         if (!_producer)
         {
-            spdlog::critical("Failed to create producer:  {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("Failed to create producer:  {0} ", errstr.c_str());
             return false;
         }
         delete conf;
 
-        spdlog::info("created producer:  {:>8} ", _producer->name());
+        SPDLOG_INFO("created producer:  {:>8} ", _producer->name());
 
         // Create topic handle
         _topic = RdKafka::Topic::create(_producer, _topics_str, tconf, errstr);
         if (!_topic)
         {
-            spdlog::critical("Failed to create producer:  {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("Failed to create producer:  {0} ", errstr.c_str());
 
             return false;
         }
@@ -88,7 +88,7 @@ namespace kafka_clients
                                                          NULL);
             if (resp != RdKafka::ERR_NO_ERROR)
             {
-                spdlog::critical(" {0} Produce failed:  {1} ", _producer->name(), RdKafka::err2str(resp));
+                SPDLOG_CRITICAL(" {0} Produce failed:  {1} ", _producer->name(), RdKafka::err2str(resp));
                 if (resp == RdKafka::ERR__QUEUE_FULL)
                 {
                     /* If the internal queue is full, wait for
@@ -107,7 +107,7 @@ namespace kafka_clients
             }
             else
             {
-                spdlog::debug(" {0} Produced message ( {1}  bytes ) , message content:  {2}", _producer->name(), msg.size(), msg.c_str());
+                SPDLOG_DEBUG(" {0} Produced message ( {1}  bytes ) , message content:  {2}", _producer->name(), msg.size(), msg.c_str());
             }
 
             // break the loop regardless of sucessfully sent or failed
@@ -133,8 +133,8 @@ namespace kafka_clients
          * flush() is an abstraction over poll() which
          * waits for all messages to be delivered. */
         _run = false;
-        spdlog::critical("Stopping producer client.. ");
-        spdlog::critical("Flushing final messages... ");
+        SPDLOG_CRITICAL("Stopping producer client.. ");
+        SPDLOG_CRITICAL("Flushing final messages... ");
         try
         {
             if (_producer)
@@ -142,19 +142,19 @@ namespace kafka_clients
                 _producer->flush(10 * 1000 /* wait for max 10 seconds */);
 
                 if (_producer->outq_len() > 0)
-                    spdlog::info("  {0} {1} message(s) were not delivered  ", _producer->name(), _producer->outq_len());
+                    SPDLOG_INFO("  {0} {1} message(s) were not delivered  ", _producer->name(), _producer->outq_len());
             }
         }
         catch (...)
         {
 
-            spdlog::critical("Flushing final messages.??.. ");
+            SPDLOG_CRITICAL("Flushing final messages.??.. ");
         }
     }
 
     void kafka_producer_worker::printCurrConf()
     {
-        spdlog::info("Producer connect to bootstrap_server: {0}, topic: {1} ,partition: {2} ",
+        SPDLOG_INFO("Producer connect to bootstrap_server: {0}, topic: {1} ,partition: {2} ",
                      (_broker_str.empty() ? "UNKNOWN" : _broker_str), (_topics_str.empty() ? "UNKNOWN" : _topics_str), _partition);
     }
 }

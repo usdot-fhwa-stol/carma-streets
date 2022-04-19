@@ -1,9 +1,7 @@
-#include "gtest/gtest.h"
-#include "OAIDefaultApi.h"
-#include <QTimer>
-#include <QEventLoop>
+#include <gtest/gtest.h>
 #include <QCoreApplication>
-#include "OAIHelpers.h"
+
+
 
 int main(int argc, char **argv)
 {

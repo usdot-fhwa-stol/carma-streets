@@ -89,8 +89,14 @@ namespace streets_service {
             rapidjson::Document parse_configuration_file();
             /**
              * @brief Update configuration parameters using json Document.
+             * @param doc rapidjson::Document containing parsed manifest.json file.
              */ 
             void update_configuration(const rapidjson::Document &doc);
+            /**
+             * @brief Update loglevel for logger using json Document
+             * @param doc rapidjson::Document containing parsed manifest.json file.
+             */ 
+            void update_log_level( const rapidjson::Document &doc );
             /**
              * @brief Helper method that reads the configurations array inside the manifest.json configuration
              * file.

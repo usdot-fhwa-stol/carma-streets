@@ -1,18 +1,19 @@
 #pragma once
-#ifndef intersection_client_H
-#define intersection_client_H
+
 
 #include <string>
 #include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <math.h>
-
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-
 #include <iostream>
+#include <QTimer>
+#include <QEventLoop>
+#include <OAIHelpers.h>
+#include <spdlog/spdlog.h>
+
 #include "OAIDefaultApi.h"
+
 
 using namespace OpenAPI;
 using namespace std;
@@ -115,4 +116,3 @@ class intersection_client : public QObject
         int get_lanePriority(string const & lane_id);
 };
 
-#endif

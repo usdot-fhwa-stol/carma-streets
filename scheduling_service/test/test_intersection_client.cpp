@@ -1,10 +1,10 @@
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <vector>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
+#include <spdlog/spdlog.h>
 
 #include "intersection_client.h"
+
 
 /* an example of the west intersection at TFHRC
 * 

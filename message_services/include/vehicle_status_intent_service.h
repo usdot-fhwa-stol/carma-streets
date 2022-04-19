@@ -5,6 +5,7 @@
 #include <thread>
 #include <vector>
 #include <map>
+#include <stdlib.h> /* abs */
 
 #include "bsm_worker.h"
 #include "mobilitypath_worker.h"
@@ -14,9 +15,8 @@
 #include "kafka_client.h"
 #include "message_lanelet2_translation.h"
 
-#include "spdlog/async.h" //support for async logging.
-#include "spdlog/sinks/daily_file_sink.h" // support for dailty file sink
-#include "spdlog/sinks/stdout_color_sinks.h" // or "../stdout_sinks.h" if no colors needed
+#include "streets_configuration.h"
+
 
 namespace message_services
 {

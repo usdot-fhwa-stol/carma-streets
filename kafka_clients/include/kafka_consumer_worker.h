@@ -8,8 +8,8 @@
 #include <csignal>
 #include <cstring>
 #include <sys/time.h>
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
+#include <spdlog/spdlog.h>
+
 
 #ifndef _WIN32
 #include <sys/time.h>
@@ -33,13 +33,13 @@ namespace kafka_clients
             static void part_list_print (const std::vector<RdKafka::TopicPartition*>&partitions)
             {
                 for (unsigned int i = 0 ; i < partitions.size() ; i++)
-                  spdlog::info("Topic {0} , Partition {1}", partitions[i]->topic() , partitions[i]->partition());
+                  SPDLOG_INFO("Topic {0} , Partition {1}", partitions[i]->topic() , partitions[i]->partition());
             }
 
         public:
             void rebalance_cb (RdKafka::KafkaConsumer *consumer, RdKafka::ErrorCode err, std::vector<RdKafka::TopicPartition*> &partitions) 
             {
-                spdlog::info("RebalanceCb: {0} ", RdKafka::err2str(err) );
+                SPDLOG_INFO("RebalanceCb: {0} ", RdKafka::err2str(err) );
                 part_list_print(partitions);
 
                 RdKafka::Error *error = NULL;
@@ -66,10 +66,10 @@ namespace kafka_clients
                 eof_cnt = 0; /* FIXME: Won't work with COOPERATIVE */
 
                 if (error) {
-                    spdlog::critical("incremental assign failed:  {0} ",error->str() );
+                    SPDLOG_CRITICAL("incremental assign failed:  {0} ",error->str() );
                     delete error;
                 } else if (ret_err)
-                    spdlog::critical("assign failed:  {0} ",error->str() );
+                    SPDLOG_CRITICAL("assign failed:  {0} ",error->str() );
             }
     };
 
@@ -85,25 +85,25 @@ namespace kafka_clients
                 case RdKafka::Event::EVENT_ERROR:
                     if (event.fatal()) 
                     {
-                        spdlog::critical("{0} : Line {1}. FATAL  {2}  {3}",__FILE__, __LINE__,RdKafka::err2str(event.err()) ,event.str());
+                        SPDLOG_CRITICAL("{0} : Line {1}. FATAL  {2}  {3}",__FILE__, __LINE__,RdKafka::err2str(event.err()) ,event.str());
                     }
-                    spdlog::critical("{0} : Line {1}. ERROR:  {2}  {3}",__FILE__, __LINE__,  RdKafka::err2str(event.err()) ,event.str() );
+                    SPDLOG_CRITICAL("{0} : Line {1}. ERROR:  {2}  {3}",__FILE__, __LINE__,  RdKafka::err2str(event.err()) ,event.str() );
                     break;
 
                 case RdKafka::Event::EVENT_STATS:
-                    spdlog::critical("{0} : Line {1}. STATS:  {2}  {3}",__FILE__, __LINE__, RdKafka::err2str(event.err()) ,event.str() );
+                    SPDLOG_CRITICAL("{0} : Line {1}. STATS:  {2}  {3}",__FILE__, __LINE__, RdKafka::err2str(event.err()) ,event.str() );
                     break;
 
                 case RdKafka::Event::EVENT_LOG:
-                    spdlog::critical("{0} : Line {1}. LOG:  {2}  {3} {4}",__FILE__, __LINE__, event.severity(), event.fac().c_str(), event.str().c_str() );
+                    SPDLOG_CRITICAL("{0} : Line {1}. LOG:  {2}  {3} {4}",__FILE__, __LINE__, event.severity(), event.fac().c_str(), event.str().c_str() );
                     break;
 
                 case RdKafka::Event::EVENT_THROTTLE:
-                    spdlog::critical("{0} : Line {1}. THROTTLED: {2} ms by {3} id ",__FILE__, __LINE__, event.throttle_time(),(int)event.broker_id() );
+                    SPDLOG_CRITICAL("{0} : Line {1}. THROTTLED: {2} ms by {3} id ",__FILE__, __LINE__, event.throttle_time(),(int)event.broker_id() );
                     break;
 
                 default:
-                    spdlog::critical("{0} : Line {1}. EVENT: {1} ms by {2} id ",__FILE__, __LINE__, RdKafka::err2str(event.err()),event.str() );
+                    SPDLOG_CRITICAL("{0} : Line {1}. EVENT: {1} ms by {2} id ",__FILE__, __LINE__, RdKafka::err2str(event.err()),event.str() );
                     break;
                 }
             }

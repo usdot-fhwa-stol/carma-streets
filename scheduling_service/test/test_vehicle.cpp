@@ -1,18 +1,16 @@
 
-#include "gtest/gtest.h"
-#include "vehicle.h"
-#include "rapidjson/document.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
+#include <gtest/gtest.h>
+#include <rapidjson/document.h>
+#include <spdlog/spdlog.h>
 
-#include "configuration.h"
+
+#include "vehicle.h"
 #include "intersection_client.h"
 
 TEST(test_vehicle, update)
 {
 
 
-    configuration config;
     intersection_client localmap;        
     localmap.call();
 
@@ -33,7 +31,7 @@ TEST(test_vehicle, update)
             message.Parse(paylod);
 
             spdlog::debug("adding the vehicle info for the first time. payload: {0}", paylod);
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             
             ASSERT_EQ("DOT-507", test_veh.get_id());
             ASSERT_EQ(5, test_veh.get_length());
@@ -80,7 +78,7 @@ TEST(test_vehicle, update)
             message["payload"]["cur_accel"].SetDouble(-3);
             spdlog::debug("* updating the vehicle info with a new message *");
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677097.000, test_veh.get_curTime());
             ASSERT_EQ(7, test_veh.get_curDistance());
             /* the unit of the received speed from the message is 0.02 of meter per second.
@@ -99,7 +97,7 @@ TEST(test_vehicle, update)
             message["payload"]["cur_accel"].SetDouble(0);
             spdlog::debug("* make sure that the scheduling service does not replace the current vehicle information with an old update *");
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677097.000, test_veh.get_curTime());
             ASSERT_EQ(7, test_veh.get_curDistance());
             /* the unit of the received speed from the message is 0.02 of meter per second.
@@ -118,7 +116,7 @@ TEST(test_vehicle, update)
             message["payload"]["cur_accel"].SetDouble(-2);
             spdlog::debug("* make sure that the scheduling service can succesfully updated the vehicle state *");
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677098.000, test_veh.get_curTime());
             ASSERT_EQ(5, test_veh.get_curDistance());
             /* the unit of the received speed from the message is 0.02 of meter per second.
@@ -134,7 +132,7 @@ TEST(test_vehicle, update)
             message["metadata"]["timestamp"].SetInt64(1623677099000);
             message["payload"]["cur_accel"].SetDouble(0);
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677099.000, test_veh.get_curTime());
             ASSERT_EQ("RDV", test_veh.get_curState());
             EXPECT_EQ(1623677098.000, test_veh.get_actualST());
@@ -144,7 +142,7 @@ TEST(test_vehicle, update)
             message["metadata"]["timestamp"].SetInt64(1623677100000);
             message["payload"]["is_allowed"].SetBool(true);
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}, is_allowed: {3}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble(), message["payload"]["is_allowed"].GetBool());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677100.000, test_veh.get_curTime()); 
             ASSERT_EQ("23016", test_veh.get_curLaneID());
             ASSERT_EQ(localmap.get_laneLength(test_veh.get_curLaneID()), test_veh.get_curDistance());
@@ -161,7 +159,7 @@ TEST(test_vehicle, update)
             message["payload"]["cur_speed"].SetDouble(200);
             message["payload"]["cur_accel"].SetDouble(2);
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}, cur_lane_id: {3}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble(), message["payload"]["cur_lane_id"].GetInt());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677101.000, test_veh.get_curTime());
             ASSERT_EQ(18, test_veh.get_curDistance());
             /* the unit of the received speed from the message is 0.02 of meter per second.
@@ -183,7 +181,7 @@ TEST(test_vehicle, update)
             message["payload"]["cur_speed"].SetDouble(1000);
             message["payload"]["cur_accel"].SetDouble(0);
             spdlog::debug("The changed information in the payload => timestamp: {0}, cur_ds: {1}, cur_speed: {2}, cur_lane_id: {3}", message["metadata"]["timestamp"].GetInt64(), message["payload"]["cur_ds"].GetDouble(), message["payload"]["cur_speed"].GetDouble(), message["payload"]["cur_lane_id"].GetInt());
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
             ASSERT_EQ(1623677105.000, test_veh.get_curTime());
             ASSERT_EQ(295, test_veh.get_curDistance());
             /* the unit of the received speed from the message is 0.02 of meter per second.
@@ -213,7 +211,6 @@ TEST(test_vehicle, update)
 
 TEST(test_vehicle, set_departurePosition){
 
-    configuration config;
     intersection_client localmap;
     localmap.call();
     try{
@@ -229,7 +226,7 @@ TEST(test_vehicle, set_departurePosition){
             message.SetObject();
             message.Parse(paylod);
 
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
 
             ASSERT_LE(0, test_veh.get_departurePosition());
             test_veh.set_departurePosition(5);
@@ -247,7 +244,6 @@ TEST(test_vehicle, set_departurePosition){
 
 TEST(test_vehicle, set_flexEt){
 
-    configuration config;
     intersection_client localmap;
     localmap.call();
 
@@ -264,7 +260,7 @@ TEST(test_vehicle, set_flexEt){
             message.SetObject();
             message.Parse(paylod);
 
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
 
             ASSERT_LE(0, test_veh.get_flexET());
             test_veh.set_flexEt(3);
@@ -282,7 +278,6 @@ TEST(test_vehicle, set_flexEt){
 
 TEST(test_vehicle, set_flexST){
 
-    configuration config;
     intersection_client localmap;
     localmap.call();
 
@@ -299,7 +294,7 @@ TEST(test_vehicle, set_flexST){
             message.SetObject();
             message.Parse(paylod);
 
-            test_veh.update(message, localmap, config);
+            test_veh.update(message, localmap);
 
             ASSERT_LE(0, test_veh.get_flexST());
             test_veh.set_flexSt(4.6);
