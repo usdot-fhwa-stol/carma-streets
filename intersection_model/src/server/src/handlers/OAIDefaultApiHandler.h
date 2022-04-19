@@ -26,7 +26,7 @@ class OAIDefaultApiHandler : public QObject
     Q_OBJECT
 
 public:
-    OAIDefaultApiHandler();
+    OAIDefaultApiHandler(std::shared_ptr<intersection_model::intersection_model> &model);
     virtual ~OAIDefaultApiHandler();
     std::shared_ptr<intersection_model::intersection_model> int_worker ;
 

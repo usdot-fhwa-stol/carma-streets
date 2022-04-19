@@ -3,7 +3,7 @@ FROM ubuntu:bionic-20210702
 # Avoid interactive prompts during the building of this docker image
 ARG DEBIAN_FRONTEND="noninteractive"
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+RUN apt-get update && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -49,15 +49,16 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./ /home/carma-streets
-WORKDIR  /home/carma-streets/kafka_clients
+COPY ./streets_utils/ /home/carma-streets/streets_utils
+# Install streets_service_base
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_base
 RUN mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
+WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
+
 
 # Install qhttpengine
 RUN echo " ------> Install qhttpengine..."
@@ -128,6 +129,7 @@ RUN source /opt/ros/melodic/setup.bash && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
+COPY ./intersection_model/ /home/carma-streets/intersection_model
 # Install intersection_model
 RUN echo " ------> compile examples..."
 WORKDIR  /home/carma-streets/intersection_model
