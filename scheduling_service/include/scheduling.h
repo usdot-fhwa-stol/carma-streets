@@ -1,16 +1,13 @@
-#ifndef scheduling_H
-#define scheduling_H
+#pragma once
 
-#include <string>
 #include <vector>
 #include <algorithm>
 #include <math.h>
 #include <set>
+#include <spdlog/spdlog.h>
+#include <chrono>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/cfg/env.h"
-
-#include "configuration.h"
+#include "streets_configuration.h"
 #include "vehicle.h"
 #include "sorting.h"
 #include "intersection_client.h"
@@ -107,7 +104,7 @@ class scheduling{
 
 	public:
 
-		scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, const configuration& config, set<string>& list_veh_removal);
+		scheduling(unordered_map<string, vehicle> list_veh, set<string>& list_veh_confirmation, intersection_client& localmap, set<string>& list_veh_removal);
 		double get_timestamp() const;
 		vector<string> get_vehicleIdList() const;
 		unordered_map<string, int> get_vehicleIndexList() const;
@@ -147,4 +144,3 @@ class scheduling{
 };
 
 
-#endif

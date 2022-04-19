@@ -1,9 +1,6 @@
 
 #include "intersection_client.h"
-#include "OAIDefaultApi.h"
-#include <QTimer>
-#include <QEventLoop>
-#include "OAIHelpers.h"
+
 
 void intersection_client::call()
 {
@@ -16,8 +13,8 @@ void intersection_client::call()
             is_running_indicator = true;
             intersection_name = int_info.getName().toStdString();
             intersection_id = int_info.getId();
-            spdlog::debug("intersection name: {0}", intersection_name);
-            spdlog::debug("intersection id: {0}", intersection_id);
+            SPDLOG_DEBUG("intersection name: {0}", intersection_name);
+            SPDLOG_DEBUG("intersection id: {0}", intersection_id);
 
             /* entry lanes */
             int count = 0;
@@ -45,9 +42,9 @@ void intersection_client::call()
               count += 1;
 
 
-              spdlog::debug("entry lanelet ID: {0}", li.id);
-              spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
-              spdlog::debug("Length (m): {0}", li.length);
+              SPDLOG_DEBUG("entry lanelet ID: {0}", li.id);
+              SPDLOG_DEBUG("Speed Limit (m/s): {0}", li.speed_limit);
+              SPDLOG_DEBUG("Length (m): {0}", li.length);
             }
 
             /* exit\departure lanes */
@@ -75,9 +72,9 @@ void intersection_client::call()
 	          	lane_id_exit.push_back(li.id);
               count += 1;
 
-              spdlog::debug("departure lanelet ID: {0}", li.id);
-              spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
-              spdlog::debug("Length (m): {0}", li.length);
+              SPDLOG_DEBUG("departure lanelet ID: {0}", li.id);
+              SPDLOG_DEBUG("Speed Limit (m/s): {0}", li.speed_limit);
+              SPDLOG_DEBUG("Length (m): {0}", li.length);
 
             } 
 
@@ -99,17 +96,17 @@ void intersection_client::call()
 
               /* each link's priority depends on its direction. but since currently the lane directions are not available, all links are assumed to have the same priority 1 */
               li.priority = 1;
-              spdlog::debug("departure lanelet ID: {0}", li.id);
-              spdlog::debug("Speed Limit (m/s): {0}", li.speed_limit);
-              spdlog::debug("Length (m): {0}", li.length);
+              SPDLOG_DEBUG("departure lanelet ID: {0}", li.id);
+              SPDLOG_DEBUG("Speed Limit (m/s): {0}", li.speed_limit);
+              SPDLOG_DEBUG("Length (m): {0}", li.length);
 
               
-              spdlog::debug("conflict lanelets of lanelet {0}:", li.id);
+              SPDLOG_DEBUG("conflict lanelets of lanelet {0}:", li.id);
               QList<qint32> conflict_lanelets = itr->getConflictLaneletIds();
               for(auto inner_itr = conflict_lanelets.begin(); inner_itr != conflict_lanelets.end(); inner_itr++ )
               {
                     li.conflicting_lane_id.push_back(to_string(*inner_itr));
-                    spdlog::debug("lanelet {0}", li.conflicting_lane_id.back());
+                    SPDLOG_DEBUG("lanelet {0}", li.conflicting_lane_id.back());
               }
               lane_info[li.id] = li;
               lane_id_all.push_back(li.id);
@@ -132,7 +129,7 @@ void intersection_client::call()
   connect(&apiInstance, &OAIDefaultApi::getIntersectionInfoSignalE, [&](OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
           {
             string error_str_print = error_str.toStdString();
-            spdlog::critical("Error happened while issuing request : {0}", error_str_print);
+            SPDLOG_CRITICAL("Error happened while issuing request : {0}", error_str_print);
             is_running_indicator = false;
             loop.quit(); });
 

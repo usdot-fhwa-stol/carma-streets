@@ -165,7 +165,7 @@ namespace message_services
             }
             catch (std::exception &ex)
             {
-                spdlog::critical("mobilitypath model: ", ex.what());
+                SPDLOG_CRITICAL("mobilitypath model: ", ex.what());
                 return false;
             }
         }

@@ -110,7 +110,7 @@ namespace message_services
             }
             catch (std::exception &ex)
             {
-                spdlog::critical("mobilityoperation model: {0} ", ex.what());
+                SPDLOG_CRITICAL("mobilityoperation model: {0} ", ex.what());
                 return false;
             }
         }
