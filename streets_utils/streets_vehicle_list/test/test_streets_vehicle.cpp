@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "streets_vehicle.h"
+#include "vehicle.h"
 #include "rapidjson/rapidjson.h"
 #include "spdlog/spdlog.h"
 

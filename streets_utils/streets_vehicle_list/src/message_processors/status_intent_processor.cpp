@@ -1,7 +1,7 @@
 #include "status_intent_processor.h"
 
 namespace streets_vehicles {
-    void status_intent_processor::process_status_intent(const std::string &status_intent_msg, streets_vehicle &vehicle ) const{
+    void status_intent_processor::process_status_intent(const std::string &status_intent_msg, vehicle &vehicle ) const{
         rapidjson::Document document;
 
         document.Parse(status_intent_msg.c_str());
@@ -12,7 +12,7 @@ namespace streets_vehicles {
         process_status_intent(document, vehicle);
     };
 
-    void status_intent_processor::process_status_intent(const rapidjson::Value &status_intent_msg, streets_vehicle &vehicle) const{
+    void status_intent_processor::process_status_intent(const rapidjson::Value &status_intent_msg, vehicle &vehicle) const{
         if ( status_intent_msg.IsObject()) {
             from_json( status_intent_msg.GetObject(), vehicle );
         }

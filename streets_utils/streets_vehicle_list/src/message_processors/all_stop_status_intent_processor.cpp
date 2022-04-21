@@ -2,7 +2,7 @@
 
 namespace streets_vehicles {
 
-	void all_stop_status_intent_processor::from_json(const rapidjson::GenericObject<true,rapidjson::Value> &json, streets_vehicle &vehicle) const{
+	void all_stop_status_intent_processor::from_json(const rapidjson::GenericObject<true,rapidjson::Value> &json, vehicle &vehicle) const{
 		
 		/* the main function will check whether veh_id is included in the message or not
 		*  if it is not included, this function cannot be executed!
@@ -28,7 +28,7 @@ namespace streets_vehicles {
 		}  
 	}
 
-	void all_stop_status_intent_processor::read_metadata(const rapidjson::GenericObject<true, rapidjson::Value> &metadata, streets_vehicle &vehicle ) const{
+	void all_stop_status_intent_processor::read_metadata(const rapidjson::GenericObject<true, rapidjson::Value> &metadata, vehicle &vehicle ) const{
 		if ( metadata.FindMember("timestamp")->value.IsInt64()) {
 			// timestamp in seconds 
 			u_int64_t update = metadata.FindMember("timestamp")->value.GetInt64()/1000.0 ;
@@ -38,7 +38,7 @@ namespace streets_vehicles {
 		}
 	}
 
-	void all_stop_status_intent_processor::read_payload(const rapidjson::GenericObject<true, rapidjson::Value> &payload, streets_vehicle &vehicle) const{
+	void all_stop_status_intent_processor::read_payload(const rapidjson::GenericObject<true, rapidjson::Value> &payload, vehicle &vehicle) const{
 		
 		/* this if condition checks whether the vehicle has been seen before or not */
 		if (vehicle.get_id() == ""){
@@ -143,7 +143,7 @@ namespace streets_vehicles {
 		update_vehicle_state(vehicle);
 	}
 
-	void all_stop_status_intent_processor::update_vehicle_state( streets_vehicle &vehicle ) const {
+	void all_stop_status_intent_processor::update_vehicle_state( vehicle &vehicle ) const {
 
 		if (vehicle.get_cur_state() == vehicle_state::ND ){
 			if ( vehicle.get_cur_lane_id() == vehicle.get_entry_lane_id() ) {
@@ -177,7 +177,7 @@ namespace streets_vehicles {
 		}
 	}
 
-	void all_stop_status_intent_processor::read_est_path(const rapidjson::GenericArray<true,rapidjson::Value> &est_path, streets_vehicle &vehicle) const {
+	void all_stop_status_intent_processor::read_est_path(const rapidjson::GenericArray<true,rapidjson::Value> &est_path, vehicle &vehicle) const {
 
 				
 		/* the first point in the future path is the current point */
@@ -230,7 +230,7 @@ namespace streets_vehicles {
 		vehicle.set_future_info(future_info);
 	}
 
-	bool all_stop_status_intent_processor::is_vehicle_stopped(const streets_vehicle &vehicle) const {
+	bool all_stop_status_intent_processor::is_vehicle_stopped(const vehicle &vehicle) const {
 		return vehicle.get_cur_speed() <= stopping_speed && vehicle.get_cur_distance() <= stopping_distance;
 	}
 
