@@ -9,6 +9,13 @@
 using namespace streets_vehicles;
 namespace streets_vehicles {
 
+    /**
+     * @brief Status Intent processor implementation for all stop use case. Updates
+     * vehicle states based on the condition that all vehicles must stop before entering
+     * the intersection.
+     * 
+     * @author Paul Bourelly
+     */
     class all_stop_status_intent_processor : public status_intent_processor{
         public:
             
@@ -32,13 +39,32 @@ namespace streets_vehicles {
             void from_json(const rapidjson::GenericObject<true,rapidjson::Value> &json, vehicle &vehicle) const override;
 
         protected:
-
+            /**
+             * @brief Reads metadata element in status and intent vehicle update.
+             * 
+             * @param json metadata json object.
+             * @param vehicle reference to update.
+             */
             void read_metadata(const rapidjson::GenericObject<true,rapidjson::Value> &json, vehicle &vehicle) const;
-
+            /**
+             * @brief Reads payload element in status and intent vehicle update.
+             * 
+             * @param json payload json object.
+             * @param vehicle reference to update.
+             */
             void read_payload(const rapidjson::GenericObject<true,rapidjson::Value> &json, vehicle &vehicle) const;
-
+            /**
+             * @brief Reads estimated path element in status and intent vehicle update.
+             * 
+             * @param json est_path json object
+             * @param vehicle reference to update
+             */
             void read_est_path(const rapidjson::GenericArray<true,rapidjson::Value> &json, vehicle &vehicle) const;
-
+            /**
+             * @brief Updates vehicle state based on previous state and stopping condition.
+             * 
+             * @param vehicle reference to update
+             */
             void update_vehicle_state(vehicle &vehicle) const;
 
         private:

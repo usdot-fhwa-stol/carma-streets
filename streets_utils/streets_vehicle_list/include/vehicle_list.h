@@ -88,7 +88,7 @@ namespace streets_vehicles {
              */
             static void process_update(const std::string &update);
             /**
-             * @brief Set the status_intent_processor to use for update processing.
+             * @brief Set the status_intent_processor to allow for customizable update processing.
              * 
              * @param processor status_intent_processor
              */
