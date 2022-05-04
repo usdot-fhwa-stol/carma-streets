@@ -76,12 +76,17 @@ namespace streets_vehicles {
 			/**
 			 * @brief Default Constructor.
 			 */
-			vehicle();
+			vehicle() {};
 			/**
 			 * @brief Copy Constructor.
 			 * @param veh Vehicle to copy.
 			 */
-			vehicle(const vehicle &veh);
+			vehicle(const vehicle &veh) : 
+				id(veh.id), length(veh.length), min_gap(veh.min_gap), reaction_time(veh.reaction_time), accel_max(veh.accel_max),
+				decel_max(veh.decel_max), entry_lane_id(veh.entry_lane_id), link_id(veh.link_id), exit_lane_id(veh.exit_lane_id),
+				lane_id(veh.lane_id), access(veh.access), departure_position(veh.departure_position), st_actual(veh.st_actual), 
+				et_actual(veh.et_actual), dt_actual(veh.dt_actual), timestamp(veh.timestamp), distance(veh.distance), speed(veh.speed),
+				acceleration(veh.acceleration), state(veh.state), future_info(veh.future_info) {};
 			/**
 			 * @brief Copy assignment operator. Required default implementation due to non-copyable member std::mutex 
 			 * config lock

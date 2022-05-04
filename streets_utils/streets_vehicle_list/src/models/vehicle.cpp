@@ -2,32 +2,6 @@
 
 namespace streets_vehicles {
 
-    vehicle::vehicle(){
-    }
-
-    vehicle::vehicle(const vehicle &veh) {
-        this->id = veh.get_id();
-        this->length = veh.get_length();
-        this->min_gap =  veh.get_min_gap();
-        this->reaction_time =veh.get_reaction_t();
-        this->accel_max = veh.get_accel_max();
-        this->decel_max = veh.get_decel_max();
-        this->entry_lane_id = veh.get_entry_lane_id();
-        this->link_id =veh.get_link_id();
-        this->exit_lane_id = veh.get_exit_lane_id();
-        this->lane_id = veh.get_cur_lane_id();
-        this->access = veh.get_access();
-        this->departure_position = veh.get_departure_position();
-        this->st_actual = veh.get_actual_st();
-        this->et_actual = veh.get_actual_et();
-        this->dt_actual = veh.get_actual_dt();
-        this->timestamp = veh.get_cur_time();
-        this->distance = veh.get_cur_distance();
-        this->speed = veh.get_cur_speed();
-        this->acceleration = veh.get_cur_accel();
-        this->state = veh.get_cur_state();
-        this->future_info = veh.get_future_info();
-    }
 
     vehicle& vehicle::operator=(const vehicle &veh) {
         this->id = veh.get_id();
