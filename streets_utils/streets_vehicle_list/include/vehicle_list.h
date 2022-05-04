@@ -19,11 +19,11 @@ namespace streets_vehicles {
     class vehicle_list : public streets_service::streets_singleton<vehicle_list>  {
         friend class streets_singleton<vehicle_list>;
 
-        protected:
+        private:
             std::unordered_map<std::string, vehicle> vehicles;
             std::mutex vehicle_list_lock;
-
             std::unique_ptr<status_intent_processor> processor;
+        protected:
             /**
              * @brief Adds a vehicle to the vehicle map.
              * 
@@ -62,23 +62,23 @@ namespace streets_vehicles {
             /**
              * @brief Get the vehicles map.
              * 
-             * @return const std::unordered_map<std::string, vehicle> .
+             * @return std::unordered_map<std::string, vehicle> .
              */
-            static const std::unordered_map<std::string, vehicle> get_vehicles();
+            static std::unordered_map<std::string, vehicle> get_vehicles();
             /**
              * @brief Get the vehicles by lane id.
              * 
              * @param lane_id lanelet2 map lane id.
-             * @return const std::vector<vehicle> 
+             * @return std::vector<vehicle> 
              */
-            static const std::vector<vehicle> get_vehicles_by_lane(const int lane_id);
+            static std::vector<vehicle> get_vehicles_by_lane(const int lane_id);
             /**
              * @brief Get the vehicles by state. 
              * 
              * @param state 
-             * @return const std::vector<vehicle> 
+             * @return std::vector<vehicle> 
              */
-            static const std::vector<vehicle> get_vehicles_by_state(const vehicle_state state);
+            static std::vector<vehicle> get_vehicles_by_state(const vehicle_state state);
             /**
              * @brief Process JSON status and intent update into vehicle update and modifies 
              * vehicle map with update

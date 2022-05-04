@@ -3,7 +3,7 @@
 namespace streets_vehicles {
 
 
-    const std::vector<vehicle> vehicle_list::get_vehicles_by_lane( const int lane_id ) {
+   std::vector<vehicle> vehicle_list::get_vehicles_by_lane( const int lane_id ){
         auto &instance = get_singleton();
         std::vector<vehicle> vehicles_in_entry_lane;
         for ( auto it = instance.vehicles.begin(); it != instance.vehicles.end(); it ++ ) {
@@ -15,7 +15,7 @@ namespace streets_vehicles {
         return vehicles_in_entry_lane;
     }
 
-    const std::vector<vehicle> vehicle_list::get_vehicles_by_state( const vehicle_state state ) {
+    std::vector<vehicle> vehicle_list::get_vehicles_by_state( const vehicle_state state ){
         auto &instance = get_singleton();
         std::vector<vehicle> vehicle_in_state;
         for ( auto it = instance.vehicles.begin(); it != instance.vehicles.end(); it ++ ) {
@@ -27,20 +27,20 @@ namespace streets_vehicles {
         return vehicle_in_state;
     }
 
-    const std::unordered_map<std::string,vehicle> vehicle_list::get_vehicles() {
+    std::unordered_map<std::string,vehicle> vehicle_list::get_vehicles(){
         auto &instance = get_singleton();
         return instance.vehicles;
     }
 
     void vehicle_list::add_vehicle(const vehicle &veh) {
-        std::unique_lock<std::mutex>(vehicle_list_lock);
+        std::unique_lock<std::mutex> lock(vehicle_list_lock);
         vehicles.insert(std::pair<std::string, vehicle>({veh.get_id(),veh}));
     }
 
     void vehicle_list::update_vehicle(const vehicle &vehicle) {
         auto it = vehicles.find(vehicle.get_id());
         if (it != vehicles.end()) {
-            std::unique_lock<std::mutex>(vehicle_list_lock);
+            std::unique_lock<std::mutex> lock(vehicle_list_lock);
             it->second = vehicle;
         }else{
             SPDLOG_WARN("Did not find vehicle {0} to update!", vehicle.get_id());
@@ -48,7 +48,7 @@ namespace streets_vehicles {
     }
 
     void vehicle_list::remove_vehicle(const std::string &v_id ){
-        std::unique_lock<std::mutex>(vehicle_list_lock);
+        std::unique_lock<std::mutex> lock(vehicle_list_lock);
         vehicles.erase(v_id);
     }
 
@@ -88,10 +88,6 @@ namespace streets_vehicles {
             catch( const status_intent_processing_exception &ex) {
                 SPDLOG_CRITICAL("Failed to parse status and intent update: {0}", ex.what());
             }
-            catch ( const std::exception &ex ) {
-                SPDLOG_CRITICAL("Failed to parse status and intent update: {0}", ex.what());
-            }
-
         }
         else {
             SPDLOG_CRITICAL("No status_intent_processor available! Set status_intent_processor for vehicle_list!");
