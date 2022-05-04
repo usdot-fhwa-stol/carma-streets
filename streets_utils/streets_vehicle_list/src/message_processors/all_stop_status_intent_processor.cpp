@@ -1,5 +1,6 @@
 #include "all_stop_status_intent_processor.h"
 
+
 namespace streets_vehicles {
 
 	void all_stop_status_intent_processor::from_json(const rapidjson::GenericObject<true,rapidjson::Value> &json, vehicle &vehicle) const{

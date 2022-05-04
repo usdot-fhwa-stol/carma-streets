@@ -6,7 +6,6 @@
 #include "vehicle.h"
 #include "status_intent_processor.h"
 
-using namespace streets_vehicles;
 namespace streets_vehicles {
 
     /**

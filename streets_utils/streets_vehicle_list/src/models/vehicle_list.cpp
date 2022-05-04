@@ -101,7 +101,7 @@ namespace streets_vehicles {
 
     void vehicle_list::set_processor(std::unique_ptr<status_intent_processor> processor ) {
         auto &instance = get_singleton();
-        std::unique_lock<std::mutex>(instance.vehicle_list_lock);
+        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
         instance.processor = std::move(processor);
     }
 
@@ -111,7 +111,7 @@ namespace streets_vehicles {
 
     void vehicle_list::clear() {
         auto &instance = get_singleton();
-        std::unique_lock<std::mutex>(instance.vehicle_list_lock);
+        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
         SPDLOG_WARN("Clearing Vehicle list!");
         instance.vehicles.clear();
 

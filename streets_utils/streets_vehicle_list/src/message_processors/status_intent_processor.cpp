@@ -1,5 +1,6 @@
 #include "status_intent_processor.h"
 
+
 namespace streets_vehicles {
     void status_intent_processor::process_status_intent(const rapidjson::Document &doc, vehicle &vehicle ) const{
         if ( doc.IsObject()) {

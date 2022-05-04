@@ -22,7 +22,7 @@ namespace streets_vehicles {
 	};
 
 	class vehicle{
-		protected:
+		private:
 			/* vehicle id */
 			std::string id;
 			/* vehicle length */

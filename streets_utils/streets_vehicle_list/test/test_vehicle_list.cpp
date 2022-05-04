@@ -14,6 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <fstream>
 
+using namespace streets_vehicles;
 
 
 std::vector<std::string> load_vehicle_update(const std::string &filepath){
