@@ -2,7 +2,7 @@
 
 namespace streets_vehicles {
 
-
+    
     vehicle& vehicle::operator=(const vehicle &veh) {
         this->id = veh.get_id();
         this->length = veh.get_length();
@@ -44,9 +44,9 @@ namespace streets_vehicles {
 
     double vehicle::get_min_gap() const {return min_gap;}
 
-    void vehicle::set_min_gap( const double min_gap) {
+    void vehicle::set_min_gap( const double gap) {
         std::unique_lock<std::mutex> lock(config_lock);
-        this->min_gap = min_gap;
+        this->min_gap = gap;
     }
 
     double vehicle::get_reaction_t() const {return reaction_time;}

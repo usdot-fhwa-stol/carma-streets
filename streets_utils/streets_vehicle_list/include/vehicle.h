@@ -87,6 +87,8 @@ namespace streets_vehicles {
 				lane_id(veh.lane_id), access(veh.access), departure_position(veh.departure_position), st_actual(veh.st_actual), 
 				et_actual(veh.et_actual), dt_actual(veh.dt_actual), timestamp(veh.timestamp), distance(veh.distance), speed(veh.speed),
 				acceleration(veh.acceleration), state(veh.state), future_info(veh.future_info) {};
+			
+			~vehicle() = default;
 			/**
 			 * @brief Copy assignment operator. Required default implementation due to non-copyable member std::mutex 
 			 * config lock
@@ -251,7 +253,7 @@ namespace streets_vehicles {
 			 * 
 			 * @param min_gap 
 			 */
-			void set_min_gap(const double min_gap);
+			void set_min_gap(const double gap);
 			/**
 			 * @brief Set the reaction time in seconds.
 			 * 

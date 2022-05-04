@@ -58,7 +58,7 @@ namespace streets_vehicles {
              * @brief Construct a new vehicle list object
              * 
              */
-            vehicle_list() {};
+            vehicle_list() = default;
             /**
              * @brief Get the vehicles map.
              * 
