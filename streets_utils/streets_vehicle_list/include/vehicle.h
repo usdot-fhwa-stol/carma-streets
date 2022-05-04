@@ -41,6 +41,10 @@ namespace streets_vehicles {
 			int exit_lane_id;
 			/* vehicle's connection link id */
 			int link_id;
+			/* vehicle turn direction in intersection */
+			std::string direction;
+			/* link lane priority */
+			int link_priority;
 			/* access to the intersection box */
 			bool access;
 			/* the departure position index of the vehicle */
@@ -70,19 +74,21 @@ namespace streets_vehicles {
 
 		public:
 			/**
-			 * @brief Constructor.
+			 * @brief Default Constructor.
 			 */
 			vehicle();
 			/**
 			 * @brief Copy Constructor.
-			 * @param veh 
+			 * @param veh Vehicle to copy.
 			 */
 			vehicle(const vehicle &veh);
 			/**
-			 * @brief Copy assignment operator
-			 * @return vehicle& 
+			 * @brief Copy assignment operator. Required default implementation due to non-copyable member std::mutex 
+			 * config lock
+			 * @param veh& Vehicle to copy.
+			 * @return vehicle& Reference to this vehicle.
 			 */
-			vehicle& operator=(const vehicle &);
+			vehicle& operator=(const vehicle &veh);
 			/**
 			 * @brief Get vehicle id.
 			 * @return std::string 
@@ -135,6 +141,14 @@ namespace streets_vehicles {
 			 * @return int 
 			 */
 			int get_link_id() const;
+
+			/**
+			 * @brief Get the intended turn direction of vehicle in intersection. 
+			 * 
+			 * @return std::string turn direction.
+			 */
+			std::string get_direction() const;
+
 			/**
 			 * @brief Get the link priority object
 			 * 
@@ -167,100 +181,196 @@ namespace streets_vehicles {
 			 */
 			double get_actual_et() const;
 			/**
-			 * @brief Get the actual dt object
+			 * @brief Get the actual dt in seconds.
 			 * 
 			 * @return double 
 			 */
 			double get_actual_dt() const;
 			/**
-			 * @brief Get the cur time object
+			 * @brief Get the epoch time of last update in seconds.
 			 * 
 			 * @return double 
 			 */
 			double get_cur_time() const;
 			/**
-			 * @brief Get the cur distance object
+			 * @brief Get the curent distance from end of lanelet in meters. 
 			 * 
-			 * @return double 
+			 * @return double
 			 */
 			double get_cur_distance() const;
 			/**
-			 * @brief Get the cur speed object
+			 * @brief Get the cur speed
 			 * 
 			 * @return double 
 			 */
 			double get_cur_speed() const;
 			/**
-			 * @brief Get the cur accel object
+			 * @brief Get the cur accel
 			 * 
 			 * @return double 
 			 */
 			double get_cur_accel() const;
 			/**
-			 * @brief Get the cur lane id object
+			 * @brief Get the cur lane id 
 			 * 
 			 * @return int 
 			 */
 			int get_cur_lane_id() const;
 			/**
-			 * @brief Get the cur state object
+			 * @brief Get the current state of the vehicle.
 			 * 
 			 * @return vehicle_state 
 			 */
 			vehicle_state get_cur_state() const;
 			/**
-			 * @brief Get the future info object
+			 * @brief Get the future info vector. Contains elements that represent vehicle estimated position for several future times.
 			 * 
 			 * @return std::vector<future_information> 
 			 */
 			std::vector<future_information> get_future_info() const;
 
 			/**
-			 * @brief Set the id object
+			 * @brief Set vehicle id
 			 * 
 			 * @param id 
 			 */
 			void set_id(const std::string &id);
 			/**
-			 * @brief Set the length object
+			 * @brief Set vehicle length in meters
 			 * 
 			 * @param length 
 			 */
-			void set_length(double length);
+			void set_length(const double length);
 			/**
-			 * @brief Set the min gap object
+			 * @brief Set the minimum gap in meters
 			 * 
 			 * @param min_gap 
 			 */
-			void set_min_gap(double min_gap);
+			void set_min_gap(const double min_gap);
 			/**
-			 * @brief Set the reaction time object
+			 * @brief Set the reaction time in seconds.
 			 * 
 			 * @param reaction_t 
 			 */
-			void set_reaction_time(double reaction_t);
+			void set_reaction_time(const double reaction_t);
 			/**
-			 * @brief Set the accel max object
+			 * @brief Set max acceleration in m/s
 			 * 
 			 * @param accel_max 
 			 */
-			void set_accel_max(double accel_max);
-			void set_decel_max(double decel_max);
-			void set_entry_lane_id(int entry_lane_id);
-			void set_exit_lane_id(int exit_lane_id);
-			void set_link_id(int link_id);
-			void set_link_priority(int link_priority);
-			void set_access(bool access);
-			void set_departure_position(int departure_position);
-			void set_actual_st(double actual_st);
-			void set_actual_et(double actual_et);
-			void set_actual_dt(double actual_dt);
-			void set_cur_time(double cur_time);
-			void set_cur_distance(double cur_distance);
-			void set_cur_speed(double cur_speed);
-			void set_cur_accel(double cur_accel);
-			void set_cur_lane_id(int cur_lane_id);
+			void set_accel_max(const double accel_max);
+			/**
+			 * @brief Set the maximum deceleration in m/s.
+			 * 
+			 * @param decel_max 
+			 */
+			void set_decel_max(const double decel_max);
+			/**
+			 * @brief Set the entry lane id. The entry lane id is the lanelet id in the lanelet2 map from which the vehicle
+			 * is approaching the intersection.
+			 * 
+			 * @param entry_lane_id 
+			 */
+			void set_entry_lane_id(const int entry_lane_id);
+			/**
+			 * @brief Set the exit lane id. The exit id is the lanelet id in the lanelet2 map for the departure lanelet the
+			 * vehicle intends to take leaving the intersection.
+			 * 
+			 * @param exit_lane_id 
+			 */
+			void set_exit_lane_id(const int exit_lane_id);
+			/**
+			 * @brief Set the link id. The link id is the lanelet id in the lanlet2 map, which the vehicle intends to take for 
+			 * the linking the desired intersection approach lanelet with desired departure lanelet.
+			 * 
+			 * @param link_id 
+			 */
+			void set_link_id(const int link_id);
+			/**
+			 * @brief Set the direction. This string indicates the turn direction the vehicle intends to take in the intersection.
+			 * 
+			 * @param direction 
+			 */
+			void set_direction(const std::string &direction);
+			/**
+			 * @brief Set the link priority.
+			 * 
+			 * @param link_priority 
+			 */
+			void set_link_priority(const int link_priority);
+			/**
+			 * @brief Set the access for a vehicle. This flag indicates whether the vehicle is allowed by CARMA-Streets to enter the 
+			 * intersection.
+			 * 
+			 * @param access 
+			 */
+			void set_access(const bool access);
+			/**
+			 * @brief Set the departure position. The index starting from 1 in which vehicle will be granted access to the intersection.
+			 * 
+			 * @param departure_position 
+			 */
+			void set_departure_position(const int departure_position);
+			/**
+			 * @brief Set the actual stopping epoch time in seconds. This is when the vehicle is first considered 
+			 * stopped at the intersection stop line.
+			 * 
+			 * @param actual_st 
+			 */
+			void set_actual_st(const double actual_st);
+			/**
+			 * @brief Set the actual entering epoch time in seconds. This is when the vehicle first enters the intersection box.
+			 * 
+			 * @param actual_et 
+			 */
+			void set_actual_et(const double actual_et);
+			/**
+			 * @brief Set the actual departure epoch time in seconds. This is when the vehicle leaves the intersection box.
+			 * 
+			 * @param actual_dt 
+			 */
+			void set_actual_dt(const double actual_dt);
+			/**
+			 * @brief Set the epoch time of the last update in seconds.
+			 * 
+			 * @param cur_time 
+			 */
+			void set_cur_time(const double cur_time);
+			/**
+			 * @brief Set the current distance in meters.
+			 * 
+			 * @param cur_distance 
+			 */
+			void set_cur_distance(const double cur_distance);
+			/**
+			 * @brief Set the current speed in m/s.
+			 * 
+			 * @param cur_speed 
+			 */
+			void set_cur_speed(const double cur_speed);
+			/**
+			 * @brief Set the current acceleration in m/s^s
+			 * 
+			 * @param cur_accel 
+			 */
+			void set_cur_accel(const double cur_accel);
+			/**
+			 * @brief Set the current lane id. This is the id of the lanelet the vehicle is currently in within the lanelet2 map.
+			 * 
+			 * @param cur_lane_id 
+			 */
+			void set_cur_lane_id(const int cur_lane_id);
+			/**
+			 * @brief Set the vehicle current state.
+			 * 
+			 * @param state of the vehicle.
+			 */
 			void set_cur_state(const vehicle_state &state);
+			/**
+			 * @brief Set the future info vector.
+			 * 
+			 * @param future_information vector of future information points.
+			 */
 			void set_future_info(const std::vector<future_information> &future_information);
 
 

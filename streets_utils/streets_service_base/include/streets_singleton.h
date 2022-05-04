@@ -23,12 +23,13 @@ namespace streets_service {
              */ 
             static T& get_singleton() ;
             // Remove copy constructor 
-            streets_singleton(streets_singleton const &) = delete;
+            streets_singleton(const streets_singleton &) = delete;
             // Remove move constructor
             streets_singleton(streets_singleton&& ) = delete;
-
-            // Remove assignment constructor
-            streets_singleton& operator=(streets_singleton const &) = delete;
+            // Remove copy assignment operator
+            streets_singleton& operator=(const streets_singleton &) = delete;
+            // Remove move assignment operator
+            streets_singleton& operator=(const streets_singleton &&) = delete;
 
 
         protected:

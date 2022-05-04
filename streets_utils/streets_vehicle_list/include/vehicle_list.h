@@ -59,7 +59,7 @@ namespace streets_vehicles {
              * @brief Construct a new vehicle list object
              * 
              */
-            vehicle_list();
+            vehicle_list() {};
             /**
              * @brief Get the vehicles map.
              * 
@@ -72,14 +72,14 @@ namespace streets_vehicles {
              * @param lane_id lanelet2 map lane id.
              * @return const std::vector<vehicle> 
              */
-            static const std::vector<vehicle> get_vehicles_by_lane(int lane_id);
+            static const std::vector<vehicle> get_vehicles_by_lane(const int lane_id);
             /**
              * @brief Get the vehicles by state. 
              * 
              * @param state 
              * @return const std::vector<vehicle> 
              */
-            static const std::vector<vehicle> get_vehicles_by_state(vehicle_state state);
+            static const std::vector<vehicle> get_vehicles_by_state(const vehicle_state state);
             /**
              * @brief Process JSON status and intent update into vehicle update and modifies 
              * vehicle map with update
@@ -93,6 +93,20 @@ namespace streets_vehicles {
              * @param processor status_intent_processor
              */
             static void set_processor(std::unique_ptr<status_intent_processor> processor);
+
+            /**
+             * @brief Get the processor object
+             * 
+             * @return std::unique_ptr<status_intent_processor> 
+             */
+            static std::unique_ptr<status_intent_processor>& get_processor();
+            
+            /**
+             * @brief Clear vehicle list.
+             * 
+             */
+            static void clear();
+        
              
 
     };

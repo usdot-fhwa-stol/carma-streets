@@ -18,7 +18,15 @@ namespace streets_vehicles {
      */
     class all_stop_status_intent_processor : public status_intent_processor{
         public:
-            
+            /**
+             * @brief Construct a new all stop status intent processor object
+             * 
+             * @param stopping_distance min distance from stop line in meters to be considered stopped(default = 5 m).
+             * @param stopping_speed min speed in m/s to be considered stopped(default = 0.1 m/s).
+             * @param timeout time interval after which vehicle updates will no longer be considered valid in milliseconds(default = 30s).
+             */
+            all_stop_status_intent_processor(double stopping_distance=1.0, double stopping_speed=0.1, uint64_t timeout = 30000 ): 
+                stopping_distance(stopping_distance), stopping_speed(stopping_speed), timeout(timeout) {};
             /**
              * @brief Set stopping_distance stopping condition.
              * @param stopping_distance max distance from stop line at which vehicle can be considered stopped in meters.
@@ -37,6 +45,18 @@ namespace streets_vehicles {
              * @return streets_vehicle_update. 
              */ 
             void from_json(const rapidjson::GenericObject<true,rapidjson::Value> &json, vehicle &vehicle) const override;
+            /**
+             * @brief Get the timeout in milliseconds. Timeout value controls when updates are no longer considered valid.
+             * 
+             * @return uint64_t timeout value in milliseconds.
+             */
+            uint64_t get_timeout() const override;
+            /**
+             * @brief Set the timeout in milliseconds Timeout value controls when updates are no longer considered valid.
+             * 
+             * @param timeout 
+             */
+            void set_timeout(uint64_t timeout) override;
 
         protected:
             /**
@@ -72,7 +92,8 @@ namespace streets_vehicles {
             double stopping_distance;
             /* max speed, in m/s, at which a vehicle can be considered stopped */
             double stopping_speed;
-
+            // Timeout value in milliseconds. Defaults to 30s
+            uint64_t timeout;
             bool is_vehicle_stopped(const vehicle &vehicle) const;
 
 
