@@ -24,53 +24,53 @@ namespace streets_vehicles {
 	class vehicle{
 		private:
 			/* vehicle id */
-			std::string id;
+			std::string _id;
 			/* vehicle length */
-			double length;
+			double _length;
 			/* the minimum distance gap a vehicle needs to maintain from its preceding vehicle if it is stopped */
-			double min_gap;
+			double _min_gap;
 			/* vehicle's reaction time to the preceding vehicle's speed change */
-			double reaction_time;
+			double _reaction_time;
 			/* maximum comfortable acceleration rate */
-			double accel_max;
+			double _accel_max;
 			/* maximum comfortable deceleration rate (it must have a negative value) */
-			double decel_max;
-			/* vehicle's entry lane id */
-			int entry_lane_id;
-			/* vehicle's departure lane id */
-			int exit_lane_id;
-			/* vehicle's connection link id */
-			int link_id;
-			/* vehicle turn direction in intersection */
-			std::string direction;
-			/* link lane priority */
-			int link_priority;
-			/* access to the intersection box */
-			bool access;
-			/* the departure position index of the vehicle */
-			int departure_position=-1;
-			/* vehicle's actual stopping time at the stop bar in seconds */
-			double st_actual;
-			/* vehicle's actual entering time to the intersection box in seconds */
-			double et_actual;
-			/*** vehicle's actual departure time from the intersection box in seconds */
-			double dt_actual;
-			/* the timestamp of the last update in seconds.*/
-			double timestamp = 0;
-			/* the distance between the vehicle and the end of its lane in the last update */
-			double distance;
-			/* vehicle's speed in the last update */
-			double speed;
-			/* vehicle's acceleration in the last update */
-			double acceleration;
+			double _decel_max;
 			/* vehicle's lane id in the last update */
-			int lane_id;
+			int _lane_id;
+			/* vehicle's entry lane id */
+			int _entry_lane_id;
+			/* vehicle's departure lane id */
+			int _exit_lane_id;
+			/* vehicle's connection link id */
+			int _link_id;
+			/* vehicle turn direction in intersection */
+			std::string _direction;
+			/* link lane priority */
+			int _link_priority;
+			/* access to the intersection box */
+			bool _access;
+			/* the departure position index of the vehicle */
+			int _departure_position=-1;
+			/* vehicle's actual stopping time at the stop bar in seconds */
+			double _st_actual;
+			/* vehicle's actual entering time to the intersection box in seconds */
+			double _et_actual;
+			/*** vehicle's actual departure time from the intersection box in seconds */
+			double _dt_actual;
+			/* the timestamp of the last update in seconds.*/
+			double _timestamp = 0;
+			/* the distance between the vehicle and the end of its lane in the last update */
+			double _distance;
+			/* vehicle's speed in the last update */
+			double _speed;
+			/* vehicle's acceleration in the last update */
+			double _acceleration;
 			/* vehicle's state based on the last update */
-			vehicle_state state = vehicle_state::ND;
+			vehicle_state _state = vehicle_state::ND;
 			/* the estimated future path information of the vehicle */
-			std::vector<future_information> future_info;
+			std::vector<future_information> _future_info;
 			/* mutex lock for vehicle*/
-			std::mutex config_lock;
+			std::mutex _config_lock;
 
 		public:
 			/**
@@ -82,11 +82,29 @@ namespace streets_vehicles {
 			 * @param veh Vehicle to copy.
 			 */
 			vehicle(const vehicle &veh) : 
-				id(veh.id), length(veh.length), min_gap(veh.min_gap), reaction_time(veh.reaction_time), accel_max(veh.accel_max),
-				decel_max(veh.decel_max), entry_lane_id(veh.entry_lane_id), link_id(veh.link_id), exit_lane_id(veh.exit_lane_id),
-				lane_id(veh.lane_id), access(veh.access), departure_position(veh.departure_position), st_actual(veh.st_actual), 
-				et_actual(veh.et_actual), dt_actual(veh.dt_actual), timestamp(veh.timestamp), distance(veh.distance), speed(veh.speed),
-				acceleration(veh.acceleration), state(veh.state), future_info(veh.future_info) {};
+				_id(veh._id), 
+				_length(veh._length), 
+				_min_gap(veh._min_gap),
+				_reaction_time(veh._reaction_time), 
+				_accel_max(veh._accel_max),
+				_decel_max(veh._decel_max), 
+				_lane_id(veh._lane_id),
+				_entry_lane_id(veh._entry_lane_id),
+				_exit_lane_id(veh._exit_lane_id), 
+				_link_id(veh._link_id), 
+				_direction(veh._direction), 
+				_link_priority(veh._link_priority), 
+				_access(veh._access), 
+				_departure_position(veh._departure_position), 
+				_st_actual(veh._st_actual), 
+				_et_actual(veh._et_actual), 
+				_dt_actual(veh._dt_actual),
+				_timestamp(veh._timestamp), 
+				_distance(veh._distance), 
+				_speed(veh._speed),
+				_acceleration(veh._acceleration), 
+				_state(veh._state),
+				_future_info(veh._future_info) {};
 			
 			~vehicle() = default;
 			/**
@@ -253,7 +271,7 @@ namespace streets_vehicles {
 			 * 
 			 * @param min_gap 
 			 */
-			void set_min_gap(const double gap);
+			void set_min_gap(const double min_gap);
 			/**
 			 * @brief Set the reaction time in seconds.
 			 * 
