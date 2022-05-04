@@ -8,7 +8,6 @@ find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
 
 add_library(${PROJECT_NAME}_lib
-                src/models/vehicle.cpp
                 src/models/vehicle_list.cpp
                 src/exceptions/status_intent_processing_exception.cpp
                 src/message_processors/all_stop_status_intent_processor.cpp
@@ -31,7 +30,6 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 
 
 add_executable(${BINARY} ${TEST_SOURCES} 
-            src/models/vehicle.cpp
             src/models/vehicle_list.cpp
             src/exceptions/status_intent_processing_exception.cpp
             src/message_processors/all_stop_status_intent_processor.cpp

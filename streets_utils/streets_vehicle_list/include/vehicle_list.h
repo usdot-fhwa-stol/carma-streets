@@ -31,12 +31,6 @@ namespace streets_vehicles {
              */
             void add_vehicle(const vehicle &vehicle);
             /**
-             * @brief Removes a vehicle from the vehicle map.
-             * 
-             * @param v_id to remove 
-             */
-            void remove_vehicle (const std::string &v_id);
-            /**
              * @brief Updates a vehicle in the vehicle map, with new vehicle information.
              * 
              * @param vehicle new vehicle information to update vehicle with.

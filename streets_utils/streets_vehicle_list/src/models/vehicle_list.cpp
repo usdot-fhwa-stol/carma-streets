@@ -5,10 +5,11 @@ namespace streets_vehicles {
 
    std::vector<vehicle> vehicle_list::get_vehicles_by_lane( const int lane_id ){
         auto &instance = get_singleton();
+        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
         std::vector<vehicle> vehicles_in_entry_lane;
         for ( auto it = instance.vehicles.begin(); it != instance.vehicles.end(); it ++ ) {
             vehicle veh =it->second;
-            if ( veh.get_cur_lane_id() == lane_id ) {
+            if ( veh._cur_lane_id == lane_id ) {
                 vehicles_in_entry_lane.push_back(veh);
             }
         }
@@ -18,9 +19,10 @@ namespace streets_vehicles {
     std::vector<vehicle> vehicle_list::get_vehicles_by_state( const vehicle_state state ){
         auto &instance = get_singleton();
         std::vector<vehicle> vehicle_in_state;
+        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
         for ( auto it = instance.vehicles.begin(); it != instance.vehicles.end(); it ++ ) {
             vehicle veh =it->second;
-            if ( veh.get_cur_state() == state ) {
+            if ( veh._cur_state == state ) {
                 vehicle_in_state.push_back(veh);
             }
         }
@@ -33,32 +35,26 @@ namespace streets_vehicles {
     }
 
     void vehicle_list::add_vehicle(const vehicle &veh) {
-        std::unique_lock<std::mutex> lock(vehicle_list_lock);
-        vehicles.insert(std::pair<std::string, vehicle>({veh.get_id(),veh}));
+        vehicles.insert(std::pair<std::string, vehicle>({veh._id,veh}));
     }
 
     void vehicle_list::update_vehicle(const vehicle &vehicle) {
-        auto it = vehicles.find(vehicle.get_id());
+        auto it = vehicles.find(vehicle._id);
         if (it != vehicles.end()) {
-            std::unique_lock<std::mutex> lock(vehicle_list_lock);
             it->second = vehicle;
         }else{
-            SPDLOG_WARN("Did not find vehicle {0} to update!", vehicle.get_id());
+            SPDLOG_WARN("Did not find vehicle {0} to update!", vehicle._id);
         }
     }
 
-    void vehicle_list::remove_vehicle(const std::string &v_id ){
-        std::unique_lock<std::mutex> lock(vehicle_list_lock);
-        vehicles.erase(v_id);
-    }
 
     void vehicle_list::purge_old_vehicles( int timeout ) {
         uint64_t timeout_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - timeout;
         for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             vehicle veh =it->second;
-            if ( veh.get_cur_time()*1000 < timeout_time ) {
-                SPDLOG_WARN("Vehicle {0} timed out!", veh.get_id());
-                remove_vehicle( veh.get_id() );
+            if ( veh._cur_time*1000 < timeout_time ) {
+                SPDLOG_WARN("Vehicle {0} timed out!", veh._id);
+                vehicles.erase(veh._id);
             }
         }
 
@@ -71,6 +67,7 @@ namespace streets_vehicles {
             try{
                 vehicle vehicle;
                 rapidjson::Document doc;
+                std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
                 std::string v_id = instance.processor->get_vehicle_id(update, doc);
                 if ( instance.vehicles.find(v_id) != instance.vehicles.end() ) {
                     vehicle = instance.vehicles.find(v_id)->second;
