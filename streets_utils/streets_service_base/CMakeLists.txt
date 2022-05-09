@@ -29,7 +29,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
                 
 
 ########################################################
-# Install streets_util::streets_service_base_lib package.
+# Install streets_service_base_lib package.
 ########################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)

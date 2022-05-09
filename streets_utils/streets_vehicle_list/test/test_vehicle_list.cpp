@@ -16,7 +16,13 @@
 
 using namespace streets_vehicles;
 
-
+/**
+ * @brief Helper method to load vehicle status and intent updates into a vector 
+ * of strings using a filepath as a parameter.
+ * 
+ * @param filepath to json file of vehicle status and intent updates for testing.
+ * @return std::vector<std::string> 
+ */
 std::vector<std::string> load_vehicle_update(const std::string &filepath){
     std::ifstream file(filepath);
     if (!file.is_open()) {
