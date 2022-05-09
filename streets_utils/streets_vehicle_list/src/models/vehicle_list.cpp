@@ -48,7 +48,7 @@ namespace streets_vehicles {
     }
 
 
-    void vehicle_list::purge_old_vehicles( const int timeout ) {
+    void vehicle_list::purge_old_vehicles( const uint64_t timeout ) {
         uint64_t timeout_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - timeout;
         for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             vehicle veh =it->second;
