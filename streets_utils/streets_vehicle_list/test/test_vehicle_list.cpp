@@ -66,21 +66,21 @@ TEST(test_vehicle_list, parse_valid_json) {
         if ( i == 0) {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 1);
             ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).begin()->get_id(), "DOT-507");
-            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).begin()->get_id(), "DOT-507");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).begin()->_id, "DOT-507");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).begin()->_id, "DOT-507");
         }
         else if ( i == 1) {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 2);
             ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).size(), 2);
             ASSERT_EQ( vehicle_list::get_vehicles_by_lane(5).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(5).begin()->get_id(), "DOT-508");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(5).begin()->_id, "DOT-508");
         }
         else if (i == 4) {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 2);
             ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::RDV).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::RDV).begin()->get_id(), "DOT-507");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::RDV).begin()->_id, "DOT-507");
             ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).begin()->get_id(), "DOT-508");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).begin()->_id, "DOT-508");
         }
         else if (i == 5) {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 2);
@@ -90,9 +90,9 @@ TEST(test_vehicle_list, parse_valid_json) {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 2);
             ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).size(), 2);
             ASSERT_EQ( vehicle_list::get_vehicles_by_lane(5).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(5).begin()->get_id(), "DOT-508");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(5).begin()->_id, "DOT-508");
             ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).begin()->get_id(), "DOT-507");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).begin()->_id, "DOT-507");
         }
         SPDLOG_INFO("Update Processed");
         i++;
@@ -121,8 +121,8 @@ TEST(test_vehicle_list, parse_invalid_json) {
         if ( i == updates.size()-1) {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 1);
             ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).size(), 1);
-            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).begin()->get_id(), "DOT-507");
-            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).begin()->get_id(), "DOT-507");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_state(vehicle_state::EV).begin()->_id, "DOT-507");
+            ASSERT_EQ( vehicle_list::get_vehicles_by_lane(7).begin()->_id, "DOT-507");
         }
         else {
             ASSERT_EQ( vehicle_list::get_vehicles().size(), 0);
