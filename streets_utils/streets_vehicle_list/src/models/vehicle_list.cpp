@@ -30,7 +30,7 @@ namespace streets_vehicles {
     }
 
     std::unordered_map<std::string,vehicle> vehicle_list::get_vehicles(){
-        auto &instance = get_singleton();
+        const auto &instance = get_singleton();
         return instance.vehicles;
     }
 
@@ -48,11 +48,11 @@ namespace streets_vehicles {
     }
 
 
-    void vehicle_list::purge_old_vehicles( int timeout ) {
+    void vehicle_list::purge_old_vehicles( const int timeout ) {
         uint64_t timeout_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - timeout;
         for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             vehicle veh =it->second;
-            if ( veh._cur_time*1000 < timeout_time ) {
+            if ( std::trunc(veh._cur_time*1000) < timeout_time  ) {
                 SPDLOG_WARN("Vehicle {0} timed out!", veh._id);
                 vehicles.erase(veh._id);
             }

@@ -42,9 +42,27 @@ namespace streets_vehicles {
              */
             std::string get_vehicle_id(const std::string &status_intent_msg, rapidjson::Document &doc) const;
 
+            /**
+             * @brief Get the timeout Any vehicle status and intent
+             * updates after this will be considered timed out and any vehicles with timed out updates as their most
+             * recent update will be purged from the vehicle list.
+             * 
+             * @return uint64_t 
+             */
             virtual uint64_t get_timeout() const = 0;
-
+            /**
+             * @brief Set the timeout in milliseconds for the status_intent_processor. Any vehicle status and intent
+             * updates after this will be considered timed out and any vehicles with timed out updates as their most
+             * recent update will be purged from the vehicle list.
+             * 
+             * @param timeout in milliseconds
+             */
             virtual void set_timeout(uint64_t timeout) = 0;
+            /**
+             * @brief Destroy the status intent processor object
+             * 
+             */
+            virtual ~status_intent_processor() = default;
         
     };
 }

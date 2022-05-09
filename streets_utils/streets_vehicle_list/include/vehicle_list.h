@@ -41,7 +41,7 @@ namespace streets_vehicles {
              * 
              * @param timeout time in milliseconds from current time after which vehicles will be removed from the vehicle list.
              */
-            void purge_old_vehicles(int timeout);
+            void purge_old_vehicles(const int timeout);
             
             // Hide get_singleton method. Use static methods instead.
             using streets_singleton::get_singleton;

@@ -57,6 +57,11 @@ namespace streets_vehicles {
              */
             void set_timeout(const uint64_t timeout) override;
 
+            /**
+             * @brief Destroy the all stop status intent processor object
+             * 
+             */
+            ~all_stop_status_intent_processor() override = default;
         protected:
             /**
              * @brief Reads metadata element in status and intent vehicle update.
@@ -94,6 +99,7 @@ namespace streets_vehicles {
             // Timeout value in milliseconds. Defaults to 30s
             uint64_t _timeout;
             bool is_vehicle_stopped(const vehicle &vehicle) const;
+            
 
 
 
