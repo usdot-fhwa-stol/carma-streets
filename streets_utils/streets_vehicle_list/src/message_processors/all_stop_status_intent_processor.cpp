@@ -38,9 +38,11 @@ namespace streets_vehicles {
 				throw status_intent_processing_exception("The \"timestamp\" " + std::to_string(cur_time) + " for update older than " + std::to_string(timeout_time) + "!");
 			}
 			// convert to seconds.
-			double update = (double) cur_time/1000.0;
-			if ( update > vehicle._cur_time) {
-				vehicle._cur_time = update;
+			if ( cur_time > vehicle._cur_time) {
+				vehicle._cur_time = cur_time;
+			}else {
+				throw status_intent_processing_exception("Ignore incoming \"timestamp\" " + std::to_string(cur_time) + 
+					" older than stored last update " + std::to_string(vehicle._cur_time) + "!");
 			}
 		}
 		else{
@@ -217,7 +219,7 @@ namespace streets_vehicles {
 			/* adding checks to make sure the necessary data exist in the future point */
 			// Added member end check for Int64 type
 			if (path_point.FindMember("ts") != path_point.MemberEnd() &&
-				path_point.FindMember("ts")->value.IsInt64() && 
+				path_point.FindMember("ts")->value.IsUint64() && 
 				path_point.FindMember("id")->value.IsInt() && 
 				path_point.FindMember("ds")->value.IsDouble()){
 
@@ -238,7 +240,7 @@ namespace streets_vehicles {
 				if (future_info[future_info.size() - 1].distance >= path_point["ds"].GetDouble()){
 					fi = future_information();
 					// the unit of timestamp in here is sec with decimal places.
-					fi.timestamp = ((double)path_point["ts"].GetInt64()) / 1000;
+					fi.timestamp = path_point["ts"].GetInt64();
 					fi.distance = path_point["ds"].GetDouble();
 					fi.lane_id = path_point["id"].GetInt();
 					SPDLOG_DEBUG("future path {0}: {1}, {2}, {3}, {4}", i, fi.lane_id, fi.distance);

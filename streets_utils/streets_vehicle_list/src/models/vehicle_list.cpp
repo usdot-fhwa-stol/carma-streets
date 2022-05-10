@@ -49,12 +49,16 @@ namespace streets_vehicles {
 
 
     void vehicle_list::purge_old_vehicles( const uint64_t timeout ) {
-        uint64_t timeout_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() - timeout;
-        for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
+        uint64_t timeout_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - timeout;
+        for ( auto it = vehicles.begin(); it != vehicles.end();  ) {
             vehicle veh =it->second;
-            if ( std::trunc(veh._cur_time*1000) < timeout_time  ) {
+            SPDLOG_DEBUG("Checking Vehicle {0} timestamp {1} < timeout time {2} !", veh._id, veh._cur_time, timeout );
+            if ( veh._cur_time < timeout_time  ) {
                 SPDLOG_WARN("Vehicle {0} timed out!", veh._id);
-                vehicles.erase(veh._id);
+                vehicles.erase(it ++);
+            }
+            else {
+                it ++;
             }
         }
 

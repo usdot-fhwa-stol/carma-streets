@@ -16,52 +16,83 @@
 
 using namespace streets_vehicles;
 
-/**
- * @brief Helper method to load vehicle status and intent updates into a vector 
- * of strings using a filepath as a parameter.
- * 
- * @param filepath to json file of vehicle status and intent updates for testing.
- * @return std::vector<std::string> 
- */
-std::vector<std::string> load_vehicle_update(const std::string &filepath){
-    std::ifstream file(filepath);
-    if (!file.is_open()) {
-        throw streets_vehicles::status_intent_processing_exception("Unable to open status and intent message update file " + filepath + " !"); 
-    }
-    // Add file contents to stream and parse stream into Document
-    rapidjson::IStreamWrapper isw(file);
-    rapidjson::Document doc;
-    doc.ParseStream(isw);
-    if (doc.HasParseError()){
-        SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
-        throw streets_vehicles::status_intent_processing_exception("Document parse error!");
-    }
-    file.close();
-    std::vector<std::string> updates;
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    if ( doc.FindMember("vehicle_updates")->value.IsArray() ) {
-        for ( auto& update: doc.FindMember("vehicle_updates")->value.GetArray() ) {
-            if (update.IsObject()) {
-                buffer.Clear();
-                writer.Reset(buffer);           
-                update.Accept(writer);
-                std::string up = buffer.GetString();
-                updates.push_back(up);
-            }
-        }
-        return updates;
-    }
-        
-}
+namespace {
 
-TEST(test_vehicle_list, parse_valid_json) {
+    class vehicle_list_test : public ::testing::Test {
+
+    protected:
+        /**
+         * @brief Helper method to load vehicle status and intent updates into a vector 
+         * of strings using a filepath as a parameter.
+         * 
+         * @param filepath to json file of vehicle status and intent updates for testing.
+         * @return std::vector<std::string> 
+         */
+        std::vector<std::string> load_vehicle_update(const std::string &filepath){
+            std::ifstream file(filepath);
+            if (!file.is_open()) {
+                throw streets_vehicles::status_intent_processing_exception("Unable to open status and intent message update file " + filepath + " !"); 
+            }
+            // Add file contents to stream and parse stream into Document
+            rapidjson::IStreamWrapper isw(file);
+            rapidjson::Document doc;
+            doc.ParseStream(isw);
+            if (doc.HasParseError()){
+                SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
+                throw streets_vehicles::status_intent_processing_exception("Document parse error!");
+            }
+            file.close();
+            std::vector<std::string> updates;
+            rapidjson::StringBuffer buffer;
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            if ( doc.FindMember("vehicle_updates")->value.IsArray() ) {
+                for ( auto& update: doc.FindMember("vehicle_updates")->value.GetArray() ) {
+                    if (update.IsObject()) {
+                        buffer.Clear();
+                        writer.Reset(buffer);           
+                        update.Accept(writer);
+                        std::string up = buffer.GetString();
+                        updates.push_back(up);
+                    }
+                }
+                return updates;
+            }
+                
+        }
+        /**
+         * @brief Test Setup method run before each test.
+         * 
+         */
+        void SetUp() override {
+            // Setup All_stop_status_intent_processor
+            vehicle_list::set_processor( std::make_unique<all_stop_status_intent_processor>());
+            dynamic_cast<all_stop_status_intent_processor*>(vehicle_list::get_processor().get())->set_stopping_distance(1.0);
+            dynamic_cast<all_stop_status_intent_processor*>(vehicle_list::get_processor().get())->set_stopping_speed(0.1);
+
+        }
+        /**
+         * @brief Test TearDown method run after each test.
+         * 
+         */
+        void TearDown() override{
+            vehicle_list::clear();
+            
+        }
+        
+    };
+};
+
+
+
+
+TEST_F(vehicle_list_test, parse_valid_json) {
     // Test initialization
     auto vehicles = vehicle_list::get_vehicles();
     ASSERT_EQ(vehicles.size(), 0);
-    vehicle_list::set_processor( std::make_unique<streets_vehicles::all_stop_status_intent_processor>());
     // Set timeout to 1 year in milliseconds.
-    vehicle_list::get_processor()->set_timeout(3.156e10);
+    vehicle_list::get_processor()->set_timeout(3.154e10);
+    // Print timeout in days.
+    SPDLOG_INFO( "Set timeout to {0} days !", vehicle_list::get_processor()->get_timeout()/(1000*60*60*24));
     
     // Load Vehicle Update
     std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates.json");
@@ -104,19 +135,17 @@ TEST(test_vehicle_list, parse_valid_json) {
         i++;
     }
     SPDLOG_INFO("Processed all updates!");
-    // Clear vehicle list
-    vehicle_list::clear();
 
 }
 
-TEST(test_vehicle_list, parse_invalid_json) {
+TEST_F(vehicle_list_test, parse_invalid_json) {
     // Test initialization
     auto vehicles = vehicle_list::get_vehicles();
     ASSERT_EQ(vehicles.size(), 0);
-    vehicle_list::set_processor( std::make_unique<streets_vehicles::all_stop_status_intent_processor>());
     // Set timeout to 1 year in milliseconds.
     vehicle_list::get_processor()->set_timeout(3.156e10);
-
+    // Print timeout in days.
+    SPDLOG_INFO( "Set timeout to {0} days !", vehicle_list::get_processor()->get_timeout()/(1000*60*60*24));
     
     // Load Vehicle Update
     std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_missing_fields.json");
@@ -137,19 +166,18 @@ TEST(test_vehicle_list, parse_invalid_json) {
         i++;
     }
     SPDLOG_INFO("Processed all updates!");
-    // Clear vehicle list
-    vehicle_list::clear();
 
 }
 
-TEST(test_vehicle_list, parse_timeout_json) {
+TEST_F(vehicle_list_test, parse_timeout_json) {
     // Test initialization
     auto vehicles = vehicle_list::get_vehicles();
     ASSERT_EQ(vehicles.size(), 0);
     vehicle_list::set_processor( std::make_unique<streets_vehicles::all_stop_status_intent_processor>());
     // Set timeout to 30 seconds in milliseconds.
     vehicle_list::get_processor()->set_timeout(30000);
-
+    // Print timeout in seconds.
+    SPDLOG_INFO( "Set timeout to {0} days !", vehicle_list::get_processor()->get_timeout()/(1000));
     
     // Load Vehicle Update
     std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates.json");
@@ -162,7 +190,5 @@ TEST(test_vehicle_list, parse_timeout_json) {
         i++;
     }
     SPDLOG_INFO("Processed all updates!");
-    // Clear vehicle list
-    vehicle_list::clear();
 
 }

@@ -8,8 +8,8 @@
 namespace streets_vehicles {
 	struct future_information {
 
-		/* timestamp for future point in seconds */
-		double timestamp;
+		/* epoch timestamp for future point in milliseconds */
+		uint64_t timestamp;
 		/* lanelet id for future point */
 		int lane_id;
 		/* distance to end of lanelet */
@@ -51,14 +51,14 @@ namespace streets_vehicles {
 		bool _access;
 		/* the departure position index of the vehicle */
 		int _departure_position=-1;
-		/* vehicle's actual stopping time at the stop bar in seconds */
-		double _actual_st;
-		/* vehicle's actual entering time to the intersection box in seconds */
-		double _actual_et;
-		/*** vehicle's actual departure time from the intersection box in seconds */
-		double _actual_dt;
-		/* the timestamp of the last update in seconds.*/
-		double _cur_time = 0;
+		/* vehicle's actual epoch stopping time at the stop bar in milliseconds */
+		u_int64_t _actual_st;
+		/* vehicle's actual epoch entering time to the intersection box in milliseconds */
+		u_int64_t _actual_et;
+		/*** vehicle's actual epoch departure time from the intersection box in milliseconds */
+		u_int64_t _actual_dt;
+		/* the epoch timestamp of the last update in milliseconds.*/
+		u_int64_t _cur_time = 0;
 		/* the distance between the vehicle and the end of its lane in the last update */
 		double _cur_distance;
 		/* vehicle's speed in the last update */
