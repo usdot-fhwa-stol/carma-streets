@@ -3,11 +3,11 @@
 namespace streets_vehicles {
 
 
-   std::vector<vehicle> vehicle_list::get_vehicles_by_lane( const int lane_id ){
-        auto &instance = get_singleton();
-        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
+   std::vector<vehicle> vehicle_list::get_vehicles_by_lane( const int lane_id ) {
         std::vector<vehicle> vehicles_in_entry_lane;
-        for ( auto it = instance.vehicles.begin(); it != instance.vehicles.end(); it ++ ) {
+        // Read lock
+        std::shared_lock  lock(vehicle_list_lock);
+        for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             vehicle veh =it->second;
             if ( veh._cur_lane_id == lane_id ) {
                 vehicles_in_entry_lane.push_back(veh);
@@ -16,11 +16,11 @@ namespace streets_vehicles {
         return vehicles_in_entry_lane;
     }
 
-    std::vector<vehicle> vehicle_list::get_vehicles_by_state( const vehicle_state state ){
-        auto &instance = get_singleton();
+    std::vector<vehicle> vehicle_list::get_vehicles_by_state( const vehicle_state state ) {
         std::vector<vehicle> vehicle_in_state;
-        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
-        for ( auto it = instance.vehicles.begin(); it != instance.vehicles.end(); it ++ ) {
+        // Read Lock
+        std::shared_lock  lock(vehicle_list_lock);
+        for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             vehicle veh =it->second;
             if ( veh._cur_state == state ) {
                 vehicle_in_state.push_back(veh);
@@ -29,9 +29,10 @@ namespace streets_vehicles {
         return vehicle_in_state;
     }
 
-    std::unordered_map<std::string,vehicle> vehicle_list::get_vehicles(){
-        const auto &instance = get_singleton();
-        return instance.vehicles;
+    std::unordered_map<std::string,vehicle> vehicle_list::get_vehicles() {
+        // Read Lock
+        std::shared_lock  lock(vehicle_list_lock);
+        return vehicles;
     }
 
     void vehicle_list::add_vehicle(const vehicle &veh) {
@@ -65,23 +66,23 @@ namespace streets_vehicles {
     }
 
     void vehicle_list::process_update( const std::string &update ) {
-        auto &instance = get_singleton();
-        instance.purge_old_vehicles( instance.processor->get_timeout());
-        if ( instance.processor != nullptr ) {
+        purge_old_vehicles( processor->get_timeout());
+        if ( processor != nullptr ) {
             try{
                 vehicle vehicle;
                 rapidjson::Document doc;
-                std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
-                std::string v_id = instance.processor->get_vehicle_id(update, doc);
-                if ( instance.vehicles.find(v_id) != instance.vehicles.end() ) {
-                    vehicle = instance.vehicles.find(v_id)->second;
-                    instance.processor->process_status_intent( doc, vehicle);
-                    instance.update_vehicle(vehicle);
+                // Write Lock
+                std::unique_lock  lock(vehicle_list_lock);
+                std::string v_id = processor->get_vehicle_id(update, doc);
+                if ( vehicles.find(v_id) != vehicles.end() ) {
+                    vehicle = vehicles.find(v_id)->second;
+                    processor->process_status_intent( doc, vehicle);
+                    update_vehicle(vehicle);
                     SPDLOG_DEBUG("Update Vehicle : {0}" , vehicle.get_id());
                 }
                 else {
-                    instance.processor->process_status_intent( doc, vehicle);
-                    instance.add_vehicle(vehicle);
+                    processor->process_status_intent( doc, vehicle);
+                    add_vehicle(vehicle);
                     SPDLOG_DEBUG("Added Vehicle : {0}" , vehicle.get_id());
 
                 }
@@ -96,21 +97,21 @@ namespace streets_vehicles {
         
     }
 
-    void vehicle_list::set_processor(std::unique_ptr<status_intent_processor> processor ) {
-        auto &instance = get_singleton();
-        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
-        instance.processor = std::move(processor);
+    void vehicle_list::set_processor(std::shared_ptr<status_intent_processor> _processor ) {
+        // Write Lock
+        processor = _processor;
     }
 
-    std::unique_ptr<status_intent_processor>& vehicle_list::get_processor() {
-        return get_singleton().processor;
+    std::shared_ptr<status_intent_processor> vehicle_list::get_processor() {
+        // Read lock
+        return processor;
     }
 
     void vehicle_list::clear() {
-        auto &instance = get_singleton();
-        std::unique_lock<std::mutex> lock(instance.vehicle_list_lock);
+        // Write Lock
+        std::unique_lock  lock(vehicle_list_lock);
         SPDLOG_WARN("Clearing Vehicle list!");
-        instance.vehicles.clear();
+        vehicles.clear();
 
     }
 

@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.10.2)
 project(streets_vehicle_list)
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+# Required for shared_mutex
+set(CMAKE_CXX_STANDARD 17)
+
 
 find_package(spdlog REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
-find_package(streets_service_base_lib)
 
 add_library(${PROJECT_NAME}_lib
                 src/models/vehicle_list.cpp
@@ -22,7 +24,7 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
                             PRIVATE
                             ${CMAKE_CURRENT_SOURCE_DIR}/src)
 ########################################################
-# Install streets_service_base_lib package.
+# Install streets_vehicle_list_lib package.
 ########################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 

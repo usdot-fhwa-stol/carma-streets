@@ -2,28 +2,31 @@
 
 #include "vehicle.h"
 #include "status_intent_processing_exception.h"
-#include "streets_singleton.h"
 #include "status_intent_processor.h"
 #include "status_intent_processing_exception.h"
 #include <chrono>  
+#include <shared_mutex>
+#include <mutex>
 
 
 
 namespace streets_vehicles {
     /**
-     * @brief Streets Singleton used to store and update vehicle information for all
-     * vehicles in an intersection. Consumes status and intent JSON vehicle updates and
-     * populates a map of vehicles.
+     * @brief Class to store vehicle information for all vehicles in an intersection. Contains pointer
+     * to a status_intent_processor which holds business logic to process status and intent vehicle 
+     * updates. To implement custom message processing simply extend status_intent_processor and set 
+     * this object to be the message processor for you vehicle list.
      * 
+     * @author Paul Bourelly
      */
-    class vehicle_list : public streets_service::streets_singleton<vehicle_list>  {
-        friend class streets_singleton<vehicle_list>;
+    class vehicle_list   {
 
         private:
+            // Map to store vehicles with vehicle id string as keys
             std::unordered_map<std::string, vehicle> vehicles;
-            std::mutex vehicle_list_lock;
-            std::unique_ptr<status_intent_processor> processor;
-        protected:
+            // shared mutex to enable read/write locking (requires C++ > 17)
+            std::shared_mutex vehicle_list_lock;
+            std::shared_ptr<status_intent_processor> processor;
             /**
              * @brief Adds a vehicle to the vehicle map.
              * 
@@ -43,8 +46,6 @@ namespace streets_vehicles {
              */
             void purge_old_vehicles(const uint64_t timeout);
             
-            // Hide get_singleton method. Use static methods instead.
-            using streets_singleton::get_singleton;
             
 
         public:
@@ -58,47 +59,47 @@ namespace streets_vehicles {
              * 
              * @return std::unordered_map<std::string, vehicle> .
              */
-            static std::unordered_map<std::string, vehicle> get_vehicles();
+            std::unordered_map<std::string, vehicle> get_vehicles();
             /**
              * @brief Get the vehicles by lane id.
              * 
              * @param lane_id lanelet2 map lane id.
              * @return std::vector<vehicle> 
              */
-            static std::vector<vehicle> get_vehicles_by_lane(const int lane_id);
+            std::vector<vehicle> get_vehicles_by_lane(const int lane_id);
             /**
              * @brief Get the vehicles by state. 
              * 
              * @param state 
              * @return std::vector<vehicle> 
              */
-            static std::vector<vehicle> get_vehicles_by_state(const vehicle_state state);
+            std::vector<vehicle> get_vehicles_by_state(const vehicle_state state);
             /**
              * @brief Process JSON status and intent update into vehicle update and modifies 
              * vehicle map with update
              * 
              * @param update std::string status and intent JSON vehicle update 
              */
-            static void process_update(const std::string &update);
+            void process_update(const std::string &update);
             /**
              * @brief Set the status_intent_processor to allow for customizable update processing.
              * 
              * @param processor status_intent_processor
              */
-            static void set_processor(std::unique_ptr<status_intent_processor> processor);
+            void set_processor(std::shared_ptr<status_intent_processor> _processor);
 
             /**
              * @brief Get the processor object
              * 
              * @return std::unique_ptr<status_intent_processor> 
              */
-            static std::unique_ptr<status_intent_processor>& get_processor();
+            std::shared_ptr<status_intent_processor> get_processor();
             
             /**
              * @brief Clear vehicle list.
              * 
              */
-            static void clear();
+            void clear();
         
              
 

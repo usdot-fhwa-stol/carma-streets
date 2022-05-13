@@ -6,8 +6,11 @@
 
 
 namespace streets_vehicles {
+	/**
+	 * @brief Future path information for vehicles.
+	 * 
+	 */
 	struct future_information {
-
 		/* epoch timestamp for future point in milliseconds */
 		uint64_t timestamp;
 		/* lanelet id for future point */
@@ -16,11 +19,18 @@ namespace streets_vehicles {
 		double distance;
 
 	};
-
+	/**
+	 * @brief Vehicle State Enum. EV (Entering Vehicle), RDV (Ready to Depart Vehicle),
+	 * DV (Departing Vehicle), LV (Leaving Vehicle), ND (Not Defined).
+	 * 
+	 */
 	enum class vehicle_state{
 		EV=0,RDV=1,DV=2,LV=3,ND=-1
 	};
-
+	/**
+	 * @brief Data struct for vehicle status and intent information.
+	 * 
+	 */
 	struct vehicle{
 		
 		/* vehicle id */

@@ -11,7 +11,7 @@ namespace streets_vehicles {
     /**
      * @brief Status Intent processor implementation for all stop use case. Updates
      * vehicle states based on the condition that all vehicles must stop before entering
-     * the intersection.
+     * a stop sign controlled intersection.
      * 
      * @author Paul Bourelly
      */
@@ -98,6 +98,13 @@ namespace streets_vehicles {
             double _stopping_speed;
             // Timeout value in milliseconds. Defaults to 30s
             uint64_t _timeout;
+            /**
+             * @brief Is vehicle considered stopped at stopping line according to stopping conditions.
+             * 
+             * @param vehicle 
+             * @return true if considered stopped .
+             * @return false if not considered stopped.
+             */
             bool is_vehicle_stopped(const vehicle &vehicle) const;
             
 
