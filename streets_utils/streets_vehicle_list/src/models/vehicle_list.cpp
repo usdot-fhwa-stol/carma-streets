@@ -66,21 +66,23 @@ namespace streets_vehicles {
     }
 
     void vehicle_list::process_update( const std::string &update ) {
+        // Write lock for purge/update/add
+        std::unique_lock  lock(vehicle_list_lock);
         purge_old_vehicles( processor->get_timeout());
         if ( processor != nullptr ) {
             try{
                 vehicle vehicle;
                 rapidjson::Document doc;
-                // Write Lock
-                std::unique_lock  lock(vehicle_list_lock);
                 std::string v_id = processor->get_vehicle_id(update, doc);
                 if ( vehicles.find(v_id) != vehicles.end() ) {
+                    // If vehicle is already in Vehicle List, update vehicle
                     vehicle = vehicles.find(v_id)->second;
                     processor->process_status_intent( doc, vehicle);
                     update_vehicle(vehicle);
                     SPDLOG_DEBUG("Update Vehicle : {0}" , vehicle.get_id());
                 }
                 else {
+                    // If vehicle is not already in Vehicle list, add vehicle
                     processor->process_status_intent( doc, vehicle);
                     add_vehicle(vehicle);
                     SPDLOG_DEBUG("Added Vehicle : {0}" , vehicle.get_id());
