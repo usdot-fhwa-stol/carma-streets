@@ -66,10 +66,11 @@ namespace streets_vehicles {
     }
 
     void vehicle_list::process_update( const std::string &update ) {
-        // Write lock for purge/update/add
-        std::unique_lock  lock(vehicle_list_lock);
-        purge_old_vehicles( processor->get_timeout());
+      
         if ( processor != nullptr ) {
+            // Write lock for purge/update/add
+            std::unique_lock  lock(vehicle_list_lock);
+            purge_old_vehicles( processor->get_timeout());
             try{
                 vehicle vehicle;
                 rapidjson::Document doc;
