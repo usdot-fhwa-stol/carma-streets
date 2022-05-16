@@ -18,10 +18,8 @@
 
 cd /home/carma-streets
 mkdir test_results
-ls -a
 
 cd /home/carma-streets/kafka_clients/build/
-ls -a
 ./kafka_clients_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/kafka_clients/
 mkdir coverage
@@ -29,7 +27,6 @@ cd /home/carma-streets/
 gcovr --sonarqube kafka_clients/coverage/coverage.xml -s -f kafka_clients/ -r .
 
 cd /home/carma-streets/scheduling_service/build/
-ls -a
 ./scheduling_service_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/scheduling_service/
 mkdir coverage
@@ -38,29 +35,30 @@ gcovr --sonarqube scheduling_service/coverage/coverage.xml -s -f scheduling_serv
 
 
 cd /home/carma-streets/streets_utils/streets_service_base/build/
-ls -a
 ./streets_service_base_test --gtest_output=xml:../../../test_results/
 cd /home/carma-streets/streets_utils/streets_service_base
 mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_service_base/coverage/coverage.xml -s -f streets_utils/streets_service_base/ -r .
-ls -l
+
+cd /home/carma-streets/streets_utils/streets_vehicle_list/build/
+./streets_vehicle_list_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_vehicle_list
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_vehicle_list/coverage/coverage.xml -s -f streets_utils/streets_vehicle_list/ -r .
 
 
 cd /home/carma-streets/message_services/build/
-ls -a
 ./message_services_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/message_services/
-ls -a
 mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
 
 cd /home/carma-streets/intersection_model/build/
-ls -a
 ./intersection_model_test ---gtest_output=xml:../../test_results/
 cd /home/carma-streets/intersection_model/
-ls -a
 mkdir coverage
 cd /home/carma-streets/
 gcovr --exclude=intersection_model/src/server/ --exclude=intersection_model/test/ --exclude=intersection_model/build/src/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .

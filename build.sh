@@ -25,6 +25,13 @@ cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" 
 make
 make install
 
+cd /home/carma-streets/streets_utils/streets_vehicle_list
+mkdir build
+cd /home/carma-streets/streets_utils/streets_vehicle_list/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
+
 cd /home/carma-streets/kafka_clients
 mkdir build
 cd /home/carma-streets/kafka_clients/build

@@ -28,7 +28,7 @@ struct future_information {
 	double acceleration;
 };
 
-class vehicle{
+struct vehicle{
 	private:
 
 		/* vehicle id */

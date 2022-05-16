@@ -1,38 +1,32 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(streets_service_base)
+project(streets_vehicle_list)
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+# Required for shared_mutex
+set(CMAKE_CXX_STANDARD 17)
 
-find_package(Boost COMPONENTS system filesystem thread REQUIRED)
+
 find_package(spdlog REQUIRED)
-
+find_package(RapidJSON REQUIRED)
+find_package(GTest REQUIRED)
 
 add_library(${PROJECT_NAME}_lib
-                src/streets_configuration_exception.cpp
-                src/configuration.cpp
-                src/streets_configuration.cpp
+                src/models/vehicle_list.cpp
+                src/exceptions/status_intent_processing_exception.cpp
+                src/message_processors/all_stop_status_intent_processor.cpp
+                src/message_processors/status_intent_processor.cpp
                 )
 
-
+target_link_libraries(${PROJECT_NAME}_lib PUBLIC spdlog::spdlog rapidjson)
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
                             $<INSTALL_INTERFACE:include>
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                             PRIVATE
                             ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
-                Boost::system 
-                Boost::thread 
-                Boost::filesystem
-                spdlog::spdlog
-                )
-
-                
-
 ########################################################
-# Install streets_service_base_lib package.
+# Install streets_vehicle_list_lib package.
 ########################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
-file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 
 install(
     TARGETS ${PROJECT_NAME}_lib
@@ -56,9 +50,8 @@ install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
     DESTINATION  lib/cmake/${PROJECT_NAME}_lib/
 )
-install(FILES ${files} DESTINATION include)
-install(FILES ${templates} DESTINATION include/internal)
 
+install(FILES ${files} DESTINATION include)
 
 ########################
 # googletest for unit testing
@@ -70,17 +63,15 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 
 
 add_executable(${BINARY} ${TEST_SOURCES} 
-                src/streets_configuration_exception.cpp
-                src/configuration.cpp
-                src/streets_configuration.cpp
+            src/models/vehicle_list.cpp
+            src/exceptions/status_intent_processing_exception.cpp
+            src/message_processors/all_stop_status_intent_processor.cpp
+            src/message_processors/status_intent_processor.cpp
                 )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY} PUBLIC 
-                Boost::system 
-                Boost::thread
-                Boost::filesystem 
+target_link_libraries(${BINARY} PUBLIC  
                 spdlog::spdlog
                 gtest 
                 ${PROJECT_NAME}_lib
