@@ -15,7 +15,8 @@
 
 # script executes all kafka_clients and scheduling service build and coverage steps so that they can be singularly
 # wrapped by the sonarcloud build-wrapper
-
+# Fail when any command fails
+set -e
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
 cd /home/carma-streets/streets_utils/streets_service_base
