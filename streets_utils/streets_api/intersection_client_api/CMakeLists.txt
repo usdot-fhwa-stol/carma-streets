@@ -23,6 +23,11 @@ add_library(${PROJECT_NAME}_lib
     src/OAIHttpRequest.cpp
     src/OAIHttpFileElement.cpp
 )
+target_include_directories(${PROJECT_NAME}_lib PUBLIC
+                            $<INSTALL_INTERFACE:include>
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                            PRIVATE
+                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC Qt5::Core Qt5::Network )
 
 if(NOT APPLE)
