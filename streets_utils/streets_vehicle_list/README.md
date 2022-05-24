@@ -14,7 +14,7 @@ The `vehicle_list` object also contains a `shared_ptr<status_intent_processor>`.
 ## Include streets_vehicle_list
 Streets Vehicle List CMakeList.txt includes an install target which will install this library as a CMake package. The library along with it's dependencies can then be included by simply using the `find_package()` instruction.
 ```
-find_package(treets_vehicle_list_lib REQUIRED)
+find_package(streets_vehicle_list_lib REQUIRED)
 ...
-target_link_library( target PUBLIC treets_vehicle_list)
+target_link_library( target PUBLIC streets_vehicle_list)
 ```
