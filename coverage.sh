@@ -15,6 +15,7 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
+set -e
 
 cd /home/carma-streets
 mkdir test_results
@@ -48,6 +49,12 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_vehicle_list/coverage/coverage.xml -s -f streets_utils/streets_vehicle_list/ -r .
 
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler/build/
+./streets_vehicle_scheduler_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_vehicle_scheduler/coverage/coverage.xml -s -f streets_utils/streets_vehicle_scheduler/ -r .
 
 cd /home/carma-streets/message_services/build/
 ./message_services_test --gtest_output=xml:../../test_results/

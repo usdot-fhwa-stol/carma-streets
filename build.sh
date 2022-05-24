@@ -15,6 +15,7 @@
 
 # script executes all kafka_clients and scheduling service build and coverage steps so that they can be singularly
 # wrapped by the sonarcloud build-wrapper
+set -e
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
@@ -28,6 +29,13 @@ make install
 cd /home/carma-streets/streets_utils/streets_vehicle_list
 mkdir build
 cd /home/carma-streets/streets_utils/streets_vehicle_list/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
+
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler
+mkdir build
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
 make install
