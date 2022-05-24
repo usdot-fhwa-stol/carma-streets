@@ -83,7 +83,7 @@ namespace streets_vehicle_scheduler {
 
     
 
-    void all_stop_vehicle_scheduler::estimate_est(const std::vector<streets_vehicles::vehicle> &evs, intersection_schedule &schedule ) const{
+    void all_stop_vehicle_scheduler::schedule_evs(const std::vector<streets_vehicles::vehicle> &evs, intersection_schedule &schedule ) const{
         
         for ( auto entering_veh: evs ) {
             // Distance to stop bar TODO:Is this incorrect?
@@ -214,10 +214,10 @@ namespace streets_vehicle_scheduler {
                                                                                 std::shared_ptr<vehicle_schedule> previously_scheduled_vehicle ) const {
         for ( auto veh : rdvs ) {
                 // If scheduling option moves vehicle departure position more than flexibility limit it is not a valid option.
-                if ( abs(starting_departure_position - veh._departure_position) > flexibility_rating ) {
+                if ( abs(starting_departure_position - veh._departure_position) > flexibility_limit ) {
                     SPDLOG_WARN(
                         "Not considering scheduling option since change in departure position for vehicle {0} exceeds flexibility limit {1}!",
-                        veh._id, flexibility_rating);
+                        veh._id, flexibility_limit);
                     // Break out of scheduling estimation loop and do not consider this scheduling option
                     return false;
                 }
@@ -285,20 +285,8 @@ namespace streets_vehicle_scheduler {
                                                                     const OpenAPI::OAILanelet_info &link_lane_info) const{
         // Clearance time in seconds 
         double clearance_time = 0;
-        if ( veh._cur_state == streets_vehicles::vehicle_state::RDV) {
-            // Distance covered during constant max acceleration to speed limit assuming initial 0 speed.
-            double constant_acceleration_delta_x = pow(link_lane_info.getSpeedLimit(), 2) / (2 * veh._accel_max);
-            // If vehicle accelerates to speed limit with max acceleration is it still in the link lanelet
-            if ( constant_acceleration_delta_x < link_lane_info.getLength()){
-                // If yes assume vehicle cruises at speed limit for the duration of the lanelet
-                clearance_time = link_lane_info.getLength() / link_lane_info.getSpeedLimit() + 
-                            link_lane_info.getSpeedLimit() / (2 *veh._accel_max);
-            } else{
-                // If not assume vehicle trajectory is constant acceleration from initial speed of 0
-                clearance_time = sqrt(2 * link_lane_info.getLength() / veh._accel_max) ;
-            }
-        }
-        else if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
+        // If vehicle is Departing Vehicle consider its location in the link lanelet.
+        if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
             // Distance covered during constant max acceleration to speed limit
             double constant_acceleration_delta_x = (pow(link_lane_info.getSpeedLimit(), 2) - pow( veh._cur_speed, 2))/(2* veh._accel_max);
             // If vehicle accelerates to speed limit with max acceleration is it still in link lanelet
@@ -311,7 +299,21 @@ namespace streets_vehicle_scheduler {
             }
 
         }
-        // Convert time to milliseconds
+        // Consider vehicle is stopped at stop bar
+        else  {
+            // Distance covered during constant max acceleration to speed limit assuming initial 0 speed.
+            double constant_acceleration_delta_x = pow(link_lane_info.getSpeedLimit(), 2) / (2 * veh._accel_max);
+            // If vehicle accelerates to speed limit with max acceleration is it still in the link lanelet
+            if ( constant_acceleration_delta_x < link_lane_info.getLength()){
+                // If yes assume vehicle cruises at speed limit for the duration of the lanelet
+                clearance_time = link_lane_info.getLength() / link_lane_info.getSpeedLimit() + 
+                            link_lane_info.getSpeedLimit() / (2 *veh._accel_max);
+            } else{
+                // If not assume vehicle trajectory is constant acceleration from initial speed of 0
+                clearance_time = sqrt(2 * link_lane_info.getLength() / veh._accel_max) ;
+            }
+        }
+        // Convert time to milliseconds and round up.
         return ceil(1000* clearance_time);
     }
 }
