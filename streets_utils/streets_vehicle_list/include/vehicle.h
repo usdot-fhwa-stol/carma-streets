@@ -58,15 +58,15 @@ namespace streets_vehicles {
 		/* link lane priority */
 		int _link_priority;
 		/* access to the intersection box */
-		bool _access;
+		bool _access = false;
 		/* the departure position index of the vehicle */
 		int _departure_position=-1;
 		/* vehicle's actual epoch stopping time at the stop bar in milliseconds */
-		u_int64_t _actual_st;
+		u_int64_t _actual_st = 0;
 		/* vehicle's actual epoch entering time to the intersection box in milliseconds */
-		u_int64_t _actual_et;
+		u_int64_t _actual_et = 0;
 		/*** vehicle's actual epoch departure time from the intersection box in milliseconds */
-		u_int64_t _actual_dt;
+		u_int64_t _actual_dt = 0;
 		/* the epoch timestamp of the last update in milliseconds.*/
 		u_int64_t _cur_time = 0;
 		/* the distance between the vehicle and the end of its lane in the last update */
