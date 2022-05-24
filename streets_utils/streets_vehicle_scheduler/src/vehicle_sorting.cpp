@@ -32,4 +32,8 @@ namespace streets_vehicle_scheduler {
 		}
 
 	}
+
+	bool delay_comparator( const intersection_schedule &sched1, const intersection_schedule &sched2) {
+		return sched1.get_delay() < sched2.get_delay();
+	}
 }

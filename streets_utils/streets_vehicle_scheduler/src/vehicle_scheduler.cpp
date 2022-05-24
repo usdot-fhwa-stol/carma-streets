@@ -11,6 +11,40 @@ namespace streets_vehicle_scheduler {
         intersection_info = _intersection_info;
     }
 
+    OpenAPI::OAILanelet_info vehicle_scheduler::get_entry_lanelet_info(const streets_vehicles::vehicle &veh) const{
+        OpenAPI::OAILanelet_info entry_lane;
+        bool is_found = false;
+        for ( auto lanelet : intersection_info->getEntryLanelets() ) {
+            int lane_id = static_cast<int>(lanelet.getId());
+            if ( lane_id == veh._cur_lane_id ) {
+                entry_lane =  lanelet;
+                is_found = true;
+            }
+            
+        }
+        if (!is_found) {
+            throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
+        }
+
+    }
+
+     OpenAPI::OAILanelet_info vehicle_scheduler::get_link_lanelet_info(const streets_vehicles::vehicle &veh) const{
+        OpenAPI::OAILanelet_info entry_lane;
+        bool is_found = false;
+        for ( auto lanelet : intersection_info->getLinkLanelets() ) {
+            int lane_id = static_cast<int>(lanelet.getId());
+            if ( lane_id == veh._link_id ) {
+                entry_lane =  lanelet;
+                is_found = true;
+            }
+            
+        }
+        if (!is_found) {
+            throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
+        }
+
+    }
+
     void vehicle_scheduler::estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                                 const u_int64_t timestamp) {
         for ( auto map_entry: vehicles) {

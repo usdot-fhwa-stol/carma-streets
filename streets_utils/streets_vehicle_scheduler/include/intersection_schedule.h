@@ -24,7 +24,7 @@ namespace streets_vehicle_scheduler {
         
         std::vector<vehicle_schedule> vehicle_schedules;
        
-        u_int64_t get_delay();
+        u_int64_t get_delay() const;
 
     };  
 }

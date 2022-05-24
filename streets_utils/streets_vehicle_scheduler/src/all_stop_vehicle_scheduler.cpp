@@ -4,13 +4,12 @@ namespace streets_vehicle_scheduler {
 
    
 
-    void all_stop_vehicle_scheduler::schedule_vehicles( streets_vehicles::vehicle_list &list_veh, 
+    void all_stop_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                             intersection_schedule &schedule) {
-        auto vehicle_map = list_veh.get_vehicles();
         std::vector<streets_vehicles::vehicle> DVs;
         std::vector<streets_vehicles::vehicle> RDVs;
         std::vector<streets_vehicles::vehicle> EVs;
-        for ( auto it = vehicle_map.begin(); it != vehicle_map.end(); it ++ ) {
+        for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             streets_vehicles::vehicle veh =it->second;
             if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
                 DVs.push_back(veh);
@@ -31,7 +30,7 @@ namespace streets_vehicle_scheduler {
                 
         //     }
         // }
-        estimate_vehicles_at_common_time( vehicle_map, schedule.timestamp);
+        estimate_vehicles_at_common_time( vehicles, schedule.timestamp);
         
         // Schedule DVs
         schedule_dvs( DVs, schedule);
@@ -82,22 +81,7 @@ namespace streets_vehicle_scheduler {
         return v_hat/veh._decel_max;
     }
 
-    OpenAPI::OAILanelet_info all_stop_vehicle_scheduler::get_lanelet_info(const streets_vehicles::vehicle &veh) const{
-        OpenAPI::OAILanelet_info entry_lane;
-        bool is_found = false;
-        for ( auto lanelet : intersection_info->getEntryLanelets() ) {
-            int lane_id = static_cast<int>(lanelet.getId());
-            if ( lane_id == veh._cur_lane_id ) {
-                entry_lane =  lanelet;
-                is_found = true;
-            }
-            
-        }
-        if (!is_found) {
-            throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
-        }
-
-    }
+    
 
     void all_stop_vehicle_scheduler::estimate_est(const std::vector<streets_vehicles::vehicle> &evs, intersection_schedule &schedule ) const{
         
@@ -105,7 +89,7 @@ namespace streets_vehicle_scheduler {
             // Distance to stop bar TODO:Is this incorrect?
             double delta_x = entering_veh._cur_distance;
             // Get Entry Lane
-            OpenAPI::OAILanelet_info lane_info =  get_lanelet_info( entering_veh );
+            OpenAPI::OAILanelet_info lane_info =  get_entry_lanelet_info( entering_veh );
             // Distance necessary to get to max speed and decelerate with decel_max
             double delta_x_prime =  estimate_delta_x_prime( entering_veh, lane_info );
             // Calculate v_hat and planned cruising time interval
@@ -145,14 +129,20 @@ namespace streets_vehicle_scheduler {
                                                 intersection_schedule &schedule) const{
         for ( auto departing_veh : dvs ) {
             // get lane info
-            OpenAPI::OAILanelet_info lane_info =  get_lanelet_info( departing_veh );
-            // calculate delta x
-            double delta_x = (pow( lane_info.getSpeedLimit(), 2) - pow( departing_veh._cur_speed, 2))/(2*departing_veh._accel_max);
+            OpenAPI::OAILanelet_info lane_info =  get_link_lanelet_info( departing_veh );
+            // Distance covered assuming constant max acceleration to speed limit
+            double constant_acceleration_distance = (pow( lane_info.getSpeedLimit(), 2) - pow( departing_veh._cur_speed, 2))/
+                (2*departing_veh._accel_max);
             double dt;
-            if ( delta_x >= lane_info.getLength() ) {
-                dt = (sqrt( pow(departing_veh._cur_speed,2) + 2*lane_info.getSpeedLimit()*lane_info.getLength() ) - departing_veh._cur_speed)/departing_veh._accel_max;
+            // If distance covered is larger than lanelet length.
+            if ( constant_acceleration_distance > lane_info.getLength() ) {
+                // Departure time assuming constant acceleration for entire trajectory
+                dt =  ( 2 * departing_veh._accel_max * departing_veh._cur_distance - lane_info.getSpeedLimit()*departing_veh._cur_speed + pow(departing_veh._cur_speed, 2))/
+                    (2*departing_veh._accel_max*lane_info.getSpeedLimit());
             }else {
-                dt = (lane_info.getSpeedLimit() - departing_veh._cur_speed)/(2*departing_veh._accel_max) + (lane_info.getLength()- delta_x)/lane_info.getSpeedLimit();
+                // Departure time assuming constant acceleration period followed by cruising at lanelet speed limit period
+                dt =  (sqrt(pow(departing_veh._cur_speed, 2)+2*departing_veh._accel_max*departing_veh._cur_distance) -departing_veh._cur_speed)/
+                        departing_veh._accel_max;
             }
             vehicle_schedule veh_sched;
             // set id
@@ -163,8 +153,8 @@ namespace streets_vehicle_scheduler {
             veh_sched.st = departing_veh._actual_st;
             // set et
             veh_sched.et =  departing_veh._actual_et;
-            // set estimated dt
-            veh_sched.dt =  dt;
+            // set estimated dt in milliseconds
+            veh_sched.dt =  ceil(dt*1000);
             // set departure position
             veh_sched.dp = departing_veh._departure_position;
             // set state
@@ -186,12 +176,12 @@ namespace streets_vehicle_scheduler {
         // Earliest possible departure position is equal to first RDVs departure position
         int starting_departure_position = rdvs.begin()->_departure_position;
         SPDLOG_DEBUG("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
-        // TODO for 8 possible approaches this may need to be optimized (gre)
+        // TODO: for 8 possible approaches this may need to be optimized (greedy search)
         do { 
             // Index to assign RDVs in every possible departure order permutation
             int proposed_departure_position =  starting_departure_position;
-            
-            intersection_schedule option;
+            // update schedule option to include already scheduled vehicles
+            intersection_schedule option = schedule;
             // timestamp for option equals schedule timestamp
             option.timestamp =  schedule.timestamp;
 
@@ -212,6 +202,7 @@ namespace streets_vehicle_scheduler {
         // While ( !all RDVS schedule)
         while (std::next_permutation( rdvs.begin(), rdvs.end(), departure_position_comparator));
         
+        std::sort(schedule_options.begin(), schedule_options.end(), delay_comparator);
 
 
     }
@@ -231,7 +222,7 @@ namespace streets_vehicle_scheduler {
                     return false;
                 }
                 vehicle_schedule sched;
-                // Populate vehicle schedule information
+                // Populate common vehicle schedule information
                 sched.v_id = veh._id;
                 // RDVs should have already stopped
                 sched.st = veh._actual_st;
@@ -241,40 +232,48 @@ namespace streets_vehicle_scheduler {
                 // Set connection link lanelet id
                 sched.link_id = veh._link_id;
                 // Get vehicle lane info
-                OpenAPI::OAILanelet_info veh_lane =  get_lanelet_info(veh);
+                OpenAPI::OAILanelet_info veh_lane = get_link_lanelet_info(veh);
                 // If there is no previously scheduled vehicle
                 if ( previously_scheduled_vehicle == nullptr) {
                     // Give vehicle access since there are no proceeding vehicles
                     sched.access = true;
-                    // Update vehicle schedule state
+                    // Set vehicle state. Will not impact clearance time estimation since set on schedule
                     sched.state = streets_vehicles::vehicle_state::DV;
-                    // Entering time equals current time
+                    // Entering time equals schedule time
                     sched.et = option.timestamp;
+                    // Departure time equals entering time + clearance time
+                    sched.dt =  sched.et + estimate_clearance_time( veh, veh_lane);
                 }
                 else {
                     // If there is conflicting directions with previous vehicle
                     if ( veh_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled_vehicle->link_id))) {
-                        // Populate vehicle schedule information
-                        sched.v_id = veh._id;
-                        // RDVs should have already stopped
-                        sched.st = veh._actual_st;
-                        // Set departure position for permutation
-                        sched.dp = starting_departure_position;
-                        // Set connection link lanelet id
-                        sched.link_id = veh._link_id;
                         // For conflict entering time needs to be the previously scheduled vehicles dt
                         sched.et =  previously_scheduled_vehicle->dt;
-                        // For conflict 
+                        // Vehicle cannot enter since it has conflict with previous vehicle
                         sched.state = streets_vehicles::vehicle_state::RDV;
-                        // sched.dt =
-                        //sched.dt = 
+                        // Departure time is estimated clearance time for vehicle and link lane plus entering time
+                        sched.dt = sched.et + estimate_clearance_time( veh, veh_lane );
+                        // set access to false
+                        sched.access = false;
 
                     } else {
-                        // Entering time should be max of entering time of previous vehicle and schedule
+                        // Entering time for RDVs should be max of entering time of previous vehicle and schedule timestamp since they
+                        // can only enter the intersection once they have received a schedule allowing them to enter the intersection
                         sched.et =  std::max(previously_scheduled_vehicle->et, option.timestamp);
+                        // Set vehicle state. Will not impact clearance time estimation since set on schedule
+                        sched.state =  streets_vehicles::vehicle_state::DV;
+                        // Departure time is estimated clearance time for vehicle and link lane plus entering time
+                        sched.dt = sched.et + estimate_clearance_time( veh, veh_lane );
+                        // Set access to true
+                        sched.access = true;
 
                     }
                 }
+                // Add vehicle schedule to option
+                option.vehicle_schedules.push_back(sched);
+                // Point to new previously scheduled vehicle
+                previously_scheduled_vehicle = std::make_shared<vehicle_schedule>(sched);
+                // Increment departure position
                 starting_departure_position++;
                 
                 
@@ -282,22 +281,35 @@ namespace streets_vehicle_scheduler {
             
     }
 
-    uint64_t all_stop_vehicle_scheduler::estimate_clearance_time( const streets_vehicles::vehicle &veh, const OpenAPI::OAILanelet_info &link_lane_info) {
+    uint64_t all_stop_vehicle_scheduler::estimate_clearance_time( const streets_vehicles::vehicle &veh, 
+                                                                    const OpenAPI::OAILanelet_info &link_lane_info) const{
         // Clearance time in seconds 
         double clearance_time = 0;
         if ( veh._cur_state == streets_vehicles::vehicle_state::RDV) {
+            // Distance covered during constant max acceleration to speed limit assuming initial 0 speed.
+            double constant_acceleration_delta_x = pow(link_lane_info.getSpeedLimit(), 2) / (2 * veh._accel_max);
             // If vehicle accelerates to speed limit with max acceleration is it still in the link lanelet
-            if (pow(link_lane_info.getSpeedLimit(), 2) / (2 * veh._accel_max) < link_lane_info.getLength()){
+            if ( constant_acceleration_delta_x < link_lane_info.getLength()){
                 // If yes assume vehicle cruises at speed limit for the duration of the lanelet
-                clearance_time = ((link_lane_info.getLength() / link_lane_info.getSpeedLimit()) + 
-                            link_lane_info.getSpeedLimit() / (2 *veh._accel_max));
+                clearance_time = link_lane_info.getLength() / link_lane_info.getSpeedLimit() + 
+                            link_lane_info.getSpeedLimit() / (2 *veh._accel_max);
             } else{
                 // If not assume vehicle trajectory is constant acceleration from initial speed of 0
                 clearance_time = sqrt(2 * link_lane_info.getLength() / veh._accel_max) ;
             }
         }
         else if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
-            //
+            // Distance covered during constant max acceleration to speed limit
+            double constant_acceleration_delta_x = (pow(link_lane_info.getSpeedLimit(), 2) - pow( veh._cur_speed, 2))/(2* veh._accel_max);
+            // If vehicle accelerates to speed limit with max acceleration is it still in link lanelet
+            if ( veh._cur_distance > constant_acceleration_delta_x ) {
+                clearance_time = ( 2 * veh._accel_max * veh._cur_distance - link_lane_info.getSpeedLimit()*veh._cur_speed + pow(veh._cur_speed, 2))/
+                    (2*veh._accel_max*link_lane_info.getSpeedLimit());
+            } else {
+                clearance_time = (sqrt(pow(veh._cur_speed, 2)+2*veh._accel_max*veh._cur_distance) -veh._cur_speed)/
+                        veh._accel_max;
+            }
+
         }
         // Convert time to milliseconds
         return ceil(1000* clearance_time);

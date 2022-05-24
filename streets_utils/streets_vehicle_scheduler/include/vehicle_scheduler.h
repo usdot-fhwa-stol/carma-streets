@@ -9,6 +9,7 @@
 #include "vehicle_list.h"
 #include "intersection_schedule.h"
 #include "OAIIntersection_info.h"
+#include "scheduling_exception.h"
 
 
 namespace streets_vehicle_scheduler {
@@ -21,10 +22,14 @@ namespace streets_vehicle_scheduler {
             void estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                     const u_int64_t timestamp);
 
+            OpenAPI::OAILanelet_info get_entry_lanelet_info(const streets_vehicles::vehicle &veh) const;
+
+            OpenAPI::OAILanelet_info get_link_lanelet_info(const streets_vehicles::vehicle &veh) const;
+
            
         public:
 
-            virtual void schedule_vehicles( streets_vehicles::vehicle_list &list_veh, intersection_schedule &schedule) = 0;
+            virtual void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) = 0;
 
             std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info();
 
