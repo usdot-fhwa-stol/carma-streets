@@ -21,7 +21,12 @@ namespace streets_vehicle_scheduler {
         protected:
             std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info;
 
-            std::shared_mutex scheduler_lock;
+            /**
+             * @brief Limits how much departure position for a given vehicle can change from current reported departure position.
+             */
+            int flexibility_limit = 5;
+
+            const double MPH_TO_METER_PER_SECOND = 0.44704;
 
             void estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                     const u_int64_t timestamp);
@@ -33,11 +38,17 @@ namespace streets_vehicle_scheduler {
            
         public:
 
+            vehicle_scheduler() = default;
+
+            ~vehicle_scheduler() = default;
+
             virtual void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) = 0;
 
             std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info();
 
             void set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> &_intersection_info );
+
+            void set_flexibility_limit( const int limit );
             
     };
 }

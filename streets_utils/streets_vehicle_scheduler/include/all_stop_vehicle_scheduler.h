@@ -13,10 +13,7 @@
 namespace streets_vehicle_scheduler {
     class all_stop_vehicle_scheduler : public vehicle_scheduler {
         private:
-            /**
-             * @brief Limits how much departure position for a given vehicle can change from current reported departure position.
-             */
-            int flexibility_limit = 5;
+            
             /**
              * @brief Configurable time buffer in milliseconds for estimating the time it takes a vehicle to leave its entry lane 
              * and enter the intersection box once granted access to the intersection.
@@ -41,10 +38,18 @@ namespace streets_vehicle_scheduler {
              * @param schedule intersection_schedule to add RDV scheduling information to.
              */
             void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule ) const;
-
-            void schedule_evs( const std::unordered_map<std::string, streets_vehicles::vehicle> &vehicles, 
-                            std::list<streets_vehicles::vehicle> &evs,
-                            intersection_schedule &schedule ) const;
+            /**
+             * @brief Schedule all Entering Vehicles (EVs). Method first organizes all EVs into lists based on their entry
+             * lane. These list are order in ascending order with the vehicle closest to the intersection in a given lane 
+             * being the first vehicle in that entry lanes vehicle list. Then stopping time (ST) for the unscheduled front EVs 
+             * from every approach are calculated and the vehicle with the lowest (earliest) stopping times is scheduled. This
+             * is repeated until all evs from all approach lanelets are scheduled 
+             * 
+             * @param vehicles 
+             * @param evs 
+             * @param schedule 
+             */
+            void schedule_evs( std::list<streets_vehicles::vehicle> &evs, intersection_schedule &schedule ) const;
 
             /**
              * @brief Creates and intersection schedule for a given RDV departure order. RDV departure order is based on 
@@ -89,9 +94,11 @@ namespace streets_vehicle_scheduler {
 
         public:
 
+            all_stop_vehicle_scheduler() = default;
+             
+            ~all_stop_vehicle_scheduler() = default;
+
             void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) override;
-            
-            void set_flexibility_rating( const int flexibility );
 
             void set_entering_time_buffer( const uint64_t buffer);
 

@@ -2,13 +2,15 @@
 
 namespace streets_vehicle_scheduler {
     std::shared_ptr<OpenAPI::OAIIntersection_info> vehicle_scheduler::get_intersection_info() {
-        std::shared_lock lock(scheduler_lock);
         return intersection_info;
     }
 
     void vehicle_scheduler::set_intersection_info( std::shared_ptr<OpenAPI::OAIIntersection_info> &_intersection_info) {
-        std::unique_lock lock(scheduler_lock);
         intersection_info = _intersection_info;
+    }
+
+    void vehicle_scheduler::set_flexibility_limit( const int limit ) {
+        flexibility_limit = limit;
     }
 
     OpenAPI::OAILanelet_info vehicle_scheduler::get_entry_lanelet_info(const streets_vehicles::vehicle &veh) const{
