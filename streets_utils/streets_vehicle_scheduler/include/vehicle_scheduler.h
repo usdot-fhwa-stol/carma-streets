@@ -13,6 +13,10 @@
 
 
 namespace streets_vehicle_scheduler {
+    /**
+     * @brief Abstract Class for extend to implement scheduling business logic.
+     * 
+     */
     class vehicle_scheduler {
         protected:
             std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info;

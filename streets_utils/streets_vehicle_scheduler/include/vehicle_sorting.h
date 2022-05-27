@@ -11,5 +11,8 @@ namespace streets_vehicle_scheduler{
 
 	bool st_comparator(const streets_vehicles::vehicle &veh1, const streets_vehicles::vehicle &veh2) ;
 
+	bool distance_comparator( const streets_vehicles::vehicle &veh1,  const streets_vehicles::vehicle &veh2 );
+
 	bool delay_comparator( const intersection_schedule &sched1, const intersection_schedule & sched2) ;
+
 }

@@ -33,7 +33,13 @@ namespace streets_vehicle_scheduler {
 
 	}
 
+	bool distance_comparator(const streets_vehicles::vehicle &veh1, const streets_vehicles::vehicle &veh2 ) {
+		return veh1._cur_distance < veh2._cur_distance;
+	}
+
 	bool delay_comparator( const intersection_schedule &sched1, const intersection_schedule &sched2) {
 		return sched1.get_delay() < sched2.get_delay();
 	}
+
+ 
 }

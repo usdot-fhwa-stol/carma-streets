@@ -6,9 +6,12 @@ namespace streets_vehicle_scheduler {
 
     void all_stop_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                             intersection_schedule &schedule) {
-        std::vector<streets_vehicles::vehicle> DVs;
-        std::vector<streets_vehicles::vehicle> RDVs;
-        std::vector<streets_vehicles::vehicle> EVs;
+        // Estimate Vehicles at common time 
+        estimate_vehicles_at_common_time( vehicles, schedule.timestamp);
+        // Create vectors of EVs RDVs and DVs
+        std::list<streets_vehicles::vehicle> DVs;
+        std::list<streets_vehicles::vehicle> RDVs;
+        std::list<streets_vehicles::vehicle> EVs;
         for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
             streets_vehicles::vehicle veh =it->second;
             if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
@@ -21,24 +24,15 @@ namespace streets_vehicle_scheduler {
                 EVs.push_back(veh);
             }
         }
-
-       
-        // std::sort(EVs.begin(), EVs.end(), departure_position_comparator);
-        // int departure_index =  1; // starting index
-        // for (auto veh : EVs) {
-        //     if ( veh._departure_position != -1 ) {
-                
-        //     }
-        // }
-        estimate_vehicles_at_common_time( vehicles, schedule.timestamp);
         
+        SPDLOG_DEBUG("Vehicles to schedule are DVs : {0}, RDVs : {1}, EVs {2} ", DVs.size(), RDVs.size(), EVs.size());
+
         // Schedule DVs
         schedule_dvs( DVs, schedule);
-        // Select Departure Order for RDV
-
-        // sort schedule based on est
-        // std::sort( schedule.vehicle_schedules.begin(), schedule.vehicle_schedules.end(), compare_est_schedule );
-//        estimate_st();
+        // Schedule RDVs
+        schedule_rdvs( RDVs, schedule);
+        // Schedule EVs
+        schedule_evs( vehicles, EVs, schedule);
 
     }
 
@@ -46,13 +40,7 @@ namespace streets_vehicle_scheduler {
                                                                 const OpenAPI::OAILanelet_info &entry_lane) const{
         if ( veh._cur_state == streets_vehicles::vehicle_state::EV ) {
             // Get Entry Lanelet
-            OpenAPI::OAILanelet_info entry_lane;
-            for ( auto lanelet : intersection_info->getEntryLanelets() ) {
-                int lane_id = static_cast<int>(lanelet.getId());
-                if ( lane_id == veh._cur_lane_id ) {
-                    entry_lane =  lanelet;
-                }
-            }
+            OpenAPI::OAILanelet_info entry_lane = get_entry_lanelet_info( veh );
             double delta_x_prime = (pow(entry_lane.getSpeedLimit(),2)-pow(veh._cur_speed,2))/(2*veh._accel_max) - 
                 pow(entry_lane.getSpeedLimit(), 2)/(2*veh._decel_max); 
             return  delta_x_prime;
@@ -81,51 +69,7 @@ namespace streets_vehicle_scheduler {
         return v_hat/veh._decel_max;
     }
 
-    
-
-    void all_stop_vehicle_scheduler::schedule_evs(const std::vector<streets_vehicles::vehicle> &evs, intersection_schedule &schedule ) const{
-        
-        for ( auto entering_veh: evs ) {
-            // Distance to stop bar TODO:Is this incorrect?
-            double delta_x = entering_veh._cur_distance;
-            // Get Entry Lane
-            OpenAPI::OAILanelet_info lane_info =  get_entry_lanelet_info( entering_veh );
-            // Distance necessary to get to max speed and decelerate with decel_max
-            double delta_x_prime =  estimate_delta_x_prime( entering_veh, lane_info );
-            // Calculate v_hat and planned cruising time interval
-            double v_hat;
-            double t_cruising;
-            if ( delta_x >= delta_x_prime ) {
-                v_hat = lane_info.getSpeedLimit();
-                t_cruising = calculate_cruising_time(entering_veh, v_hat, delta_x_prime); 
-
-            }
-            else {
-                v_hat =  calculate_v_hat(entering_veh);
-                t_cruising = 0.0;
-            }
-            // calculate planned acceleration time interval
-            double t_accel = calculate_acceleration_time(entering_veh, v_hat);
-            // calculate planned deceleration time interval
-            double t_decel = calculate_deceleration_time(entering_veh, v_hat);
-            // calculate time to stop bar
-            double time_to_stop_bar = t_accel + t_cruising + t_decel;
-            // create vehicle_sched obj
-            vehicle_schedule veh_sched;
-            // set id
-            veh_sched.v_id = entering_veh._id;
-            // set est
-            // convert from seconds double to milliseconds u_int64t
-            veh_sched.est = schedule.timestamp + std::round(time_to_stop_bar * 1000);
-            // Add new vehicle schedule to intersection schedule;
-            schedule.vehicle_schedules.push_back(veh_sched);
-        }
-
-    }
-
-
-
-    void all_stop_vehicle_scheduler::schedule_dvs( const std::vector<streets_vehicles::vehicle> &dvs,
+    void all_stop_vehicle_scheduler::schedule_dvs( const std::list<streets_vehicles::vehicle> &dvs,
                                                 intersection_schedule &schedule) const{
         for ( auto departing_veh : dvs ) {
             // get lane info
@@ -161,6 +105,8 @@ namespace streets_vehicle_scheduler {
             veh_sched.state = departing_veh._cur_state;
             // set vehicle link id
             veh_sched.link_id =  departing_veh._link_id;
+            // set vehicle entry lane id
+            veh_sched.entry_lane =  departing_veh._entry_lane_id;
             // add vehicle_schedule
             schedule.vehicle_schedules.push_back(veh_sched);
 
@@ -168,11 +114,11 @@ namespace streets_vehicle_scheduler {
 
     }
 
-    void all_stop_vehicle_scheduler::schedule_rdvs( std::vector<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule ) const {
+    void all_stop_vehicle_scheduler::schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule ) const {
         // Vector of considered intersection_schedule_options
         std::vector<intersection_schedule> schedule_options;
         // Sort rdvs ascending order based on departure position
-        std::sort(rdvs.begin(), rdvs.end(), departure_position_comparator);
+        rdvs.sort(departure_position_comparator);
         // Earliest possible departure position is equal to first RDVs departure position
         int starting_departure_position = rdvs.begin()->_departure_position;
         SPDLOG_DEBUG("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
@@ -182,12 +128,9 @@ namespace streets_vehicle_scheduler {
             int proposed_departure_position =  starting_departure_position;
             // update schedule option to include already scheduled vehicles
             intersection_schedule option = schedule;
-            // timestamp for option equals schedule timestamp
-            option.timestamp =  schedule.timestamp;
-
+        
             // previous vehicle is equal to last scheduled DV
             std::shared_ptr<vehicle_schedule> previous_vehicle = nullptr;
-
             if ( !schedule.vehicle_schedules.empty() ) {
                 previous_vehicle = std::make_shared<vehicle_schedule> (schedule.vehicle_schedules.back());
             }
@@ -201,83 +144,236 @@ namespace streets_vehicle_scheduler {
         }
         // While ( !all RDVS schedule)
         while (std::next_permutation( rdvs.begin(), rdvs.end(), departure_position_comparator));
-        
+        // Sort in ascending order based on delay.
         std::sort(schedule_options.begin(), schedule_options.end(), delay_comparator);
+        // Add scheduled RDVs starting at last scheduled DV position to schedule
+        for (auto sched : schedule_options.front().vehicle_schedules){
+            if (sched.dp == starting_departure_position ){
+                schedule.vehicle_schedules.push_back( sched );
+                starting_departure_position ++;
+            }
+        }
+
+    }
+
+    void all_stop_vehicle_scheduler::schedule_evs( 
+                                                const std::unordered_map<std::string, streets_vehicles::vehicle> &vehicles, 
+                                                std::list<streets_vehicles::vehicle> &evs,
+                                                intersection_schedule &schedule ) const {
+        // Map of entry lane ids to preceeding already scheduled vehicle
+        std::unordered_map<int , vehicle_schedule> preceeding_vehicle_entry_lane_map;
+        for ( auto entry_lane : intersection_info->getEntryLanelets() ) {
+            int lane_id = entry_lane.getId();
+            vehicle_schedule preceeding_veh;
+            // Only one RDV can exist for each approach
+            for (auto veh_sched : schedule.vehicle_schedules ) {
+                if ( veh_sched.state == streets_vehicles::vehicle_state::RDV) {
+                    // All RDVs
+                    preceeding_veh = veh_sched;
+                }
+            }
+            preceeding_vehicle_entry_lane_map.insert({lane_id, preceeding_veh});
+          
+            
+            
+        }
+        // Sort vehicles based on distance
+        evs.sort(departure_position_comparator);
+        
+
+        std::unordered_map<int, std::list<streets_vehicles::vehicle>> vehicle_to_be_scheduled_next;
+        for ( auto entry_lane : intersection_info->getEntryLanelets() ) {
+            std::list<streets_vehicles::vehicle> vehicles_in_lane;
+            for ( auto ev : evs ) {
+                if ( ev._entry_lane_id == static_cast<int>(entry_lane.getId())) {
+                    vehicles_in_lane.push_back(ev);
+                }
+            }
+            vehicle_to_be_scheduled_next.insert({ static_cast<int>(entry_lane.getId()), vehicles_in_lane });
+        }
+        do {
+            vehicle_schedule sched;
+            // Calculate ST for each next vehicle in each lane and schedule the vehicle with the lowest ST
+            uint64_t lowest_st = 0;
+
+            //Populate Map
+            // Find next vehicle for each entry lanelet
+            for ( auto map_entry : vehicle_to_be_scheduled_next ) {
+                // Take first vehicle to be scheduled in lane.
+                streets_vehicles::vehicle ev = map_entry.second.front();
+                // Get previously scheduled vehicle regardless of lane
+                vehicle_schedule previously_scheduled = schedule.vehicle_schedules.back();
+                // Get link lanelet information for ev
+                OpenAPI::OAILanelet_info link_lane = get_link_lanelet_info( ev );
+                // Calculate EST for vehicle
+                uint64_t est = estimate_earliest_time_to_stop_bar(ev);
+                // Store ST value for vehicle
+                uint64_t st;
+
+
+                // If there is a preceeding vehicle scheduled in this lane
+                if ( preceeding_vehicle_entry_lane_map.find( ev._cur_lane_id )  != preceeding_vehicle_entry_lane_map.end() ) {
+                    // Get preceeding vehicle in lane
+                    vehicle_schedule preceeding_veh = preceeding_vehicle_entry_lane_map.find( ev._cur_lane_id )->second;
+                    // If there is a preceeding vehicle the st is calculated as max of EST and preceeding vehicle ET plus a time
+                    // buffer to account for the time it takes the preceeding vehicle to enter the intersection
+                    st =  std::max( sched.est, preceeding_veh.et + entering_time_buffer );
+
+                }
+                // IF there is no preceeding vehicle ST == EST
+                else {
+                    st = est;
+                }
+                // If lowest st has not been set yet. This is currently the lowest st
+                if ( lowest_st == 0 || lowest_st > st ) {
+                    lowest_st = st;
+                    // Set schedule properties
+                    sched.v_id =  ev._id;
+                    sched.est = est;
+                    sched.st = st;
+                    sched.entry_lane =  ev._entry_lane_id;
+                    sched.link_id = ev._link_id;
+                    sched.state = streets_vehicles::vehicle_state::EV;
+                    sched.access = false;
+                    // If there is a previously scheduled vehicle with conflicting direction
+                    if ( link_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled.link_id))) {
+                        // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
+                        sched.et = std::max(previously_scheduled.dt, sched.st);
+                    }else{
+                        sched.et = sched.st;
+                    }
+                    // Departure time is equal to entering time + clearance time
+                    sched.dt = sched.et + estimate_clearance_time( ev, link_lane );
+            
+                }
+               
+            }
+            // Add lowest ST to schedule
+            schedule.vehicle_schedules.push_back(sched);
+            // Replace previous preceeding vehicle for lane with scheduled vehicle
+            if ( preceeding_vehicle_entry_lane_map.find(sched.entry_lane) != preceeding_vehicle_entry_lane_map.end()) {
+                preceeding_vehicle_entry_lane_map.find(sched.entry_lane)->second =  sched;
+            }
+            else {
+                preceeding_vehicle_entry_lane_map.insert({sched.entry_lane, sched});
+            }
+            // Pop vehicle off of list of vehicles to be scheduled for each lane
+            vehicle_to_be_scheduled_next.find(sched.entry_lane)->second.pop_front();
+            // If pop makes list empty remove map entry
+            if ( vehicle_to_be_scheduled_next.find(sched.entry_lane)->second.empty() ) {
+                SPDLOG_DEBUG("All vehicles in approach lanelet {0} have been scheduled!", sched.entry_lane);
+                vehicle_to_be_scheduled_next.erase(sched.entry_lane);
+            }
+            
+        }
+        // Schedule EVs in order of est
+        while ( !vehicle_to_be_scheduled_next.empty() );
 
 
     }
 
+    uint64_t all_stop_vehicle_scheduler::estimate_earliest_time_to_stop_bar(const streets_vehicles::vehicle &veh) const{
+        // Distance to stop bar TODO:Is this incorrect?
+        double delta_x = veh._cur_distance;
+        // Get Entry Lane
+        OpenAPI::OAILanelet_info lane_info =  get_entry_lanelet_info( veh );
+        // Distance necessary to get to max speed and decelerate with decel_max
+        double delta_x_prime =  estimate_delta_x_prime( veh, lane_info );
+        // Calculate v_hat and planned cruising time interval
+        double v_hat;
+        double t_cruising;
+        if ( delta_x >= delta_x_prime ) {
+            v_hat = lane_info.getSpeedLimit();
+            t_cruising = calculate_cruising_time(veh, v_hat, delta_x_prime); 
+
+        }
+        else {
+            v_hat =  calculate_v_hat(veh);
+            t_cruising = 0.0;
+        }
+        // calculate planned acceleration time interval
+        double t_accel = calculate_acceleration_time(veh, v_hat);
+        // calculate planned deceleration time interval
+        double t_decel = calculate_deceleration_time(veh, v_hat);
+        // calculate time to stop bar
+        double time_to_stop_bar = t_accel + t_cruising + t_decel;
+        
+        return ceil(time_to_stop_bar * 1000) + veh._cur_time;
+    }
+
     bool all_stop_vehicle_scheduler::consider_departure_position_permutation( 
-                                                                                const std::vector<streets_vehicles::vehicle> &rdvs, 
+                                                                                const std::list<streets_vehicles::vehicle> &rdvs, 
                                                                                 intersection_schedule &option,
                                                                                 int starting_departure_position,
                                                                                 std::shared_ptr<vehicle_schedule> previously_scheduled_vehicle ) const {
         for ( auto veh : rdvs ) {
-                // If scheduling option moves vehicle departure position more than flexibility limit it is not a valid option.
-                if ( abs(starting_departure_position - veh._departure_position) > flexibility_limit ) {
-                    SPDLOG_WARN(
-                        "Not considering scheduling option since change in departure position for vehicle {0} exceeds flexibility limit {1}!",
-                        veh._id, flexibility_limit);
-                    // Break out of scheduling estimation loop and do not consider this scheduling option
-                    return false;
-                }
-                vehicle_schedule sched;
-                // Populate common vehicle schedule information
-                sched.v_id = veh._id;
-                // RDVs should have already stopped
-                sched.st = veh._actual_st;
-                sched.est =  veh._actual_st;
-                // set dp position for current permutation                      
-                sched.dp = starting_departure_position;
-                // Set connection link lanelet id
-                sched.link_id = veh._link_id;
-                // Get vehicle lane info
-                OpenAPI::OAILanelet_info veh_lane = get_link_lanelet_info(veh);
-                // If there is no previously scheduled vehicle
-                if ( previously_scheduled_vehicle == nullptr) {
-                    // Give vehicle access since there are no proceeding vehicles
-                    sched.access = true;
-                    // Set vehicle state. Will not impact clearance time estimation since set on schedule
-                    sched.state = streets_vehicles::vehicle_state::DV;
-                    // Entering time equals schedule time
-                    sched.et = option.timestamp;
-                    // Departure time equals entering time + clearance time
-                    sched.dt =  sched.et + estimate_clearance_time( veh, veh_lane);
-                }
-                else {
-                    // If there is conflicting directions with previous vehicle
-                    if ( veh_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled_vehicle->link_id))) {
-                        // For conflict entering time needs to be the previously scheduled vehicles dt
-                        sched.et =  previously_scheduled_vehicle->dt;
-                        // Vehicle cannot enter since it has conflict with previous vehicle
-                        sched.state = streets_vehicles::vehicle_state::RDV;
-                        // Departure time is estimated clearance time for vehicle and link lane plus entering time
-                        sched.dt = sched.et + estimate_clearance_time( veh, veh_lane );
-                        // set access to false
-                        sched.access = false;
-
-                    } else {
-                        // Entering time for RDVs should be max of entering time of previous vehicle and schedule timestamp since they
-                        // can only enter the intersection once they have received a schedule allowing them to enter the intersection
-                        sched.et =  std::max(previously_scheduled_vehicle->et, option.timestamp);
-                        // Set vehicle state. Will not impact clearance time estimation since set on schedule
-                        sched.state =  streets_vehicles::vehicle_state::DV;
-                        // Departure time is estimated clearance time for vehicle and link lane plus entering time
-                        sched.dt = sched.et + estimate_clearance_time( veh, veh_lane );
-                        // Set access to true
-                        sched.access = true;
-
-                    }
-                }
-                // Add vehicle schedule to option
-                option.vehicle_schedules.push_back(sched);
-                // Point to new previously scheduled vehicle
-                previously_scheduled_vehicle = std::make_shared<vehicle_schedule>(sched);
-                // Increment departure position
-                starting_departure_position++;
-                
-                
+            // If scheduling option moves vehicle departure position more than flexibility limit it is not a valid option.
+            if ( abs(starting_departure_position - veh._departure_position) > flexibility_limit ) {
+                SPDLOG_WARN(
+                    "Not considering scheduling option since change in departure position for vehicle {0} exceeds flexibility limit {1}!",
+                    veh._id, flexibility_limit);
+                // Break out of scheduling estimation loop and do not consider this scheduling option
+                return false;
             }
+            vehicle_schedule sched;
+            // Populate common vehicle schedule information
+            sched.v_id = veh._id;
+            // RDVs should have already stopped
+            sched.st = veh._actual_st;
+            sched.est =  veh._actual_st;
+            // set dp position for current permutation                      
+            sched.dp = starting_departure_position;
+            // Set connection link lanelet id
+            sched.link_id = veh._link_id;
+            // Set entry lanelet id 
+            sched.entry_lane = veh._entry_lane_id;
+            // Get vehicle lane info
+            OpenAPI::OAILanelet_info veh_lane = get_link_lanelet_info(veh);
+            // If there is no previously scheduled vehicle
+            if ( previously_scheduled_vehicle == nullptr) {
+                // Give vehicle access since there are no proceeding vehicles
+                sched.access = true;
+                // Set vehicle state. Will not impact clearance time estimation since set on schedule
+                sched.state = streets_vehicles::vehicle_state::DV;
+                // Entering time equals schedule time
+                sched.et = option.timestamp;
+                // Departure time equals entering time + clearance time
+                sched.dt =  sched.et + estimate_clearance_time( veh, veh_lane);
+            }
+            else {
+                // If there is conflicting directions with previous vehicle
+                if ( veh_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled_vehicle->link_id))) {
+                    // For conflict entering time needs to be the previously scheduled vehicles dt
+                    sched.et =  previously_scheduled_vehicle->dt;
+                    // Vehicle cannot enter since it has conflict with previous vehicle
+                    sched.state = streets_vehicles::vehicle_state::RDV;
+                    // Departure time is estimated clearance time for vehicle and link lane plus entering time
+                    sched.dt = sched.et + estimate_clearance_time( veh, veh_lane );
+                    // set access to false
+                    sched.access = false;
+
+                } else {
+                    // Entering time for RDVs should be max of entering time of previous vehicle and schedule timestamp since they
+                    // can only enter the intersection once they have received a schedule allowing them to enter the intersection
+                    sched.et =  std::max(previously_scheduled_vehicle->et, option.timestamp);
+                    // Set vehicle state. Will not impact clearance time estimation since set on schedule
+                    sched.state =  streets_vehicles::vehicle_state::DV;
+                    // Departure time is estimated clearance time for vehicle and link lane plus entering time
+                    sched.dt = sched.et + estimate_clearance_time( veh, veh_lane );
+                    // Set access to true
+                    sched.access = true;
+
+                }
+            }
+            // Add vehicle schedule to option
+            option.vehicle_schedules.push_back(sched);
+            // Point to new previously scheduled vehicle
+            previously_scheduled_vehicle = std::make_shared<vehicle_schedule>(sched);
+            // Increment departure position
+            starting_departure_position++;
+            
+            
+        }
             
     }
 
