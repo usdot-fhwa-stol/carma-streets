@@ -1,9 +1,7 @@
-
-#include "OAIDefaultApi.h"
 #include "intersection_client.h"
 #include <QTimer>
 #include <QEventLoop>
-#include "OAIHelpers.h"
+#include "intersection_client_api_lib/OAIHelpers.h"
 
 void intersection_client::call()
 {

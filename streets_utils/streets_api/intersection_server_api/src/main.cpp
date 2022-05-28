@@ -23,16 +23,13 @@
 #include <unistd.h>
 #endif
 #include <qhttpengine/server.h>
-#include <spdlog/spdlog.h>
-#include "IntersectionModelRouter.h"
-#include "streets_configuration.h"
-#include "intersection_model.h"
+#include "OAIApiRouter.h"
 
 #ifdef __linux__
 void catchUnixSignals(QList<int> quitSignals) {
     auto handler = [](int sig) -> void {
         // blocking and not async-signal-safe func are valid
-        SPDLOG_WARN("Quit the application by signal {0}", sig);
+        qDebug() << "\nquit the application by signal " << sig;
         QCoreApplication::quit();
     };
 
@@ -58,35 +55,43 @@ int main(int argc, char * argv[])
     QList<int> sigs({SIGQUIT, SIGINT, SIGTERM, SIGHUP});
     catchUnixSignals(sigs);
 #endif
-    streets_service::streets_configuration::initialize_logger();
+    // Build the command-line options
+    QCommandLineParser parser;
+    QCommandLineOption addressOption(
+        QStringList() << "a" << "address",
+        "address to bind to",
+        "address",
+        "0.0.0.0"
+    );
+    parser.addOption(addressOption);
+    QCommandLineOption portOption(
+        QStringList() << "p" << "port",
+        "port to listen on",
+        "port",
+        "8080"
+    );
+    parser.addOption(portOption);
+    parser.addHelpOption();
+
+    // Parse the options that were provided
+    parser.process(a);
 
     // Obtain the values
-    QHostAddress address = QHostAddress(QString::fromStdString(
-        streets_service::streets_configuration::get_string_config("host_address")
-    ));
-    quint16 port = static_cast<quint16>(
-        streets_service::streets_configuration::get_int_config("host_port")
-    );
-    
-    std::shared_ptr<intersection_model::intersection_model> model ( new intersection_model::intersection_model(
-        streets_service::streets_configuration::get_string_config("intersection_name"),
-        streets_service::streets_configuration::get_int_config("intersection_id"),
-        streets_service::streets_configuration::get_string_config("osm_file_path")
-    )) ;
+    QHostAddress address = QHostAddress(parser.value(addressOption));
+    quint16 port = static_cast<quint16>(parser.value(portOption).toInt());
+
     QSharedPointer<OpenAPI::OAIApiRequestHandler> handler(new OpenAPI::OAIApiRequestHandler());
-    auto router = QSharedPointer<IntersectionModelAPI::IntersectionModelRouter>::create(
-        model
-    );
+    auto router = QSharedPointer<OpenAPI::OAIApiRouter>::create();
     router->setUpRoutes();
     QObject::connect(handler.data(), &OpenAPI::OAIApiRequestHandler::requestReceived, [&](QHttpEngine::Socket *socket) {
         router->processRequest(socket);
     });
 
     QHttpEngine::Server server(handler.data());
-    SPDLOG_INFO( "Serving on {0}:{1}",address.toString().toStdString(), static_cast<int>(port));
+    qDebug() << "Serving on " << address.toString() << ":" << port;
     // Attempt to listen on the specified port
     if (!server.listen(address, port)) {
-        SPDLOG_CRITICAL("Unable to listen on the specified port.");
+        qCritical("Unable to listen on the specified port.");
         return 1;
     }
 

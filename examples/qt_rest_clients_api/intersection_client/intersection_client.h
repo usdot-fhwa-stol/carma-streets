@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "OAIDefaultApi.h"
+#include "intersection_client_api_lib/OAIDefaultApi.h"
 using namespace OpenAPI;
 
 class intersection_client : public QObject

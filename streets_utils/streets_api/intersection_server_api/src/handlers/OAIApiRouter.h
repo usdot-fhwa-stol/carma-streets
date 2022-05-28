@@ -25,7 +25,6 @@
 #include <qhttpengine/qobjecthandler.h>
 
 #include "OAIDefaultApiHandler.h"
-#include "intersection_model.h"
 
 
 namespace OpenAPI {
@@ -45,6 +44,9 @@ protected:
         if (socket->bytesAvailable() >= socket->contentLength()) {
             emit requestReceived(socket);
         } else {
+            connect(socket, &QHttpEngine::Socket::readChannelFinished, [this, socket]() {
+                emit requestReceived(socket);
+            });
         }
     }
 };
@@ -53,7 +55,7 @@ class OAIApiRouter : public QObject
 {
     Q_OBJECT
 public:
-    OAIApiRouter(std::shared_ptr<intersection_model::intersection_model> &model);
+    OAIApiRouter();
     virtual ~OAIApiRouter();
 
     void setUpRoutes();
@@ -71,7 +73,7 @@ private:
     QSharedPointer<OAIDefaultApiHandler> mOAIDefaultApiHandler;
 protected:
     // override this method to provide custom class derived from ApiHandler classes
-    virtual void createApiHandlers(std::shared_ptr<intersection_model::intersection_model> &model);
+    virtual void createApiHandlers();
 
 private :
     inline QString fromQHttpEngineMethod(QHttpEngine::Socket::Method method){
@@ -97,7 +99,7 @@ private :
     }
 
     inline QRegularExpressionMatch getRequestMatch(QString serverTemplatePath, QString requestPath){
-        QRegularExpression parExpr( R"(\{([^\/\\s]+)\})" );
+        QRegularExpression parExpr( R"(\{([^\/\s]+)\})" );
         serverTemplatePath.replace( parExpr, R"((?<\1>[^\/\s]+))" );
         serverTemplatePath.append("[\\/]?$");
         QRegularExpression pathExpr( serverTemplatePath );

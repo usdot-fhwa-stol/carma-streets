@@ -23,8 +23,6 @@
 #include "OAILanelet_info.h"
 #include <QString>
 #include "OAIDefaultApiHandler.h"
-#include "spdlog/spdlog.h"
-
 
 namespace OpenAPI {
 
@@ -86,7 +84,7 @@ private:
         for(auto itr = responseHeaders.begin(); itr != responseHeaders.end(); ++itr) {
             resHeaders.insert(itr.key().toUtf8(), itr.value().toUtf8());
         }
-        socket->setHeaders(resHeaders);
+        // socket->setHeaders(resHeaders);
     }
 };
 

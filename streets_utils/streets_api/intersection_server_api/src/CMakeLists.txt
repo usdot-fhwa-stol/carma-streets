@@ -19,9 +19,6 @@ endif(${NODEBUG} STREQUAL "OFF")
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
-find_package(qhttpengine REQUIRED)
-find_package(streets_service_base_lib REQUIRED)
-find_package(spdlog REQUIRED)
 
 file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/models/*.cpp
@@ -42,9 +39,13 @@ link_directories(
     ${CMAKE_PREFIX_PATH}/lib
 )
 
-add_executable(${PROJECT_NAME} ${SRCS})
-target_link_libraries(${PROJECT_NAME} Qt5Core Qt5Network ssl crypto qhttpengine intersection_model_lib streets_service_base_lib::streets_service_base_lib spdlog::spdlog)
+add_library(${PROJECT_NAME} ${SRCS})
+target_link_libraries(${PROJECT_NAME} Qt5Core Qt5Network ssl crypto qhttpengine)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib INCLUDES DESTINATION include ARCHIVE DESTINATION lib)
+FILE(GLOB include_files "${CMAKE_CURRENT_SOURCE_DIR}/*/*.h")
+INSTALL(FILES ${include_files} DESTINATION include/${PROJECT_NAME})
+
+

@@ -213,9 +213,9 @@ namespace intersection_model
         return this->int_info.entering_lanelets;
     }
 
-    uint32_t intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
+    float intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
     {
-        uint32_t speed_limit_result = 0;
+        float speed_limit_result = 0;
         std::regex r("[0-9]+");
         lanelet::RegulatoryElementConstPtrs reg_elements = subj_lanelet.regulatoryElements();
 
@@ -234,6 +234,7 @@ namespace intersection_model
                     if (std::regex_search(speed_str, r))
                     {
                         speed_limit_result = std::stoi(std::regex_replace(speed_str, std::regex("\\s"), std::string("")));
+                        speed_limit_result *= MPH_TO_MS; //MPH to M/S conversion
                     };
                 }
             }
@@ -282,9 +283,7 @@ namespace intersection_model
                 boost::geometry::intersection(c, c_sub, intersectionPts);
                 if (intersectionPts.size() > 0)
                 {
-                    lanelet_info_t lanelet_info_conflict;
-                    lanelet_info_conflict.id = link_lanelet.id;
-                    conflict_lanelets.push_back(lanelet_info_conflict);
+                    conflict_lanelets.push_back(link_lanelet);
                 }
                 intersectionPts.clear();
             }
