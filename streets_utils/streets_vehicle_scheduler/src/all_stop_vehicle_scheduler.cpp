@@ -48,8 +48,8 @@ namespace streets_vehicle_scheduler {
                                                                 const OpenAPI::OAILanelet_info &entry_lane) const{
         if ( veh._cur_state == streets_vehicles::vehicle_state::EV ) {
             // Get Entry Lanelet
-            double delta_x_prime = (pow(entry_lane.getSpeedLimit()*MPH_TO_METER_PER_SECOND,2)-pow(veh._cur_speed,2))/(2*veh._accel_max) - 
-                pow(entry_lane.getSpeedLimit()*MPH_TO_METER_PER_SECOND, 2)/(2*veh._decel_max); 
+            double delta_x_prime = (pow(entry_lane.getSpeedLimit(),2)-pow(veh._cur_speed,2))/(2*veh._accel_max) - 
+                pow(entry_lane.getSpeedLimit(), 2)/(2*veh._decel_max); 
             return  delta_x_prime;
         }
         else {
@@ -73,7 +73,7 @@ namespace streets_vehicle_scheduler {
     }
 
     double all_stop_vehicle_scheduler::calculate_deceleration_time( const streets_vehicles::vehicle &veh, const double v_hat) const {
-        return v_hat/veh._decel_max;
+        return -v_hat/veh._decel_max;
     }
 
     void all_stop_vehicle_scheduler::schedule_dvs( const std::list<streets_vehicles::vehicle> &dvs,
@@ -82,14 +82,14 @@ namespace streets_vehicle_scheduler {
             // get lane info
             OpenAPI::OAILanelet_info lane_info =  get_link_lanelet_info( departing_veh );
             // Distance covered assuming constant max acceleration to speed limit
-            double constant_acceleration_distance = (pow( lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND, 2) - pow( departing_veh._cur_speed, 2))/
+            double constant_acceleration_distance = (pow( lane_info.getSpeedLimit(), 2) - pow( departing_veh._cur_speed, 2))/
                 (2*departing_veh._accel_max);
             double dt;
             // If distance covered is larger than lanelet length.
             if ( constant_acceleration_distance > lane_info.getLength() ) {
                 // Departure time assuming constant acceleration for entire trajectory
-                dt =  ( 2 * departing_veh._accel_max * departing_veh._cur_distance - lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND*departing_veh._cur_speed + pow(departing_veh._cur_speed, 2))/
-                    (2*departing_veh._accel_max*lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND);
+                dt =  ( 2 * departing_veh._accel_max * departing_veh._cur_distance - lane_info.getSpeedLimit()*departing_veh._cur_speed + pow(departing_veh._cur_speed, 2))/
+                    (2*departing_veh._accel_max*lane_info.getSpeedLimit());
             }else {
                 // Departure time assuming constant acceleration period followed by cruising at lanelet speed limit period
                 dt =  (sqrt(pow(departing_veh._cur_speed, 2)+2*departing_veh._accel_max*departing_veh._cur_distance) -departing_veh._cur_speed)/
@@ -180,11 +180,13 @@ namespace streets_vehicle_scheduler {
                 }
             }
         }
-        SPDLOG_INFO("Created map of preceeding vehicles in each lane");
+        SPDLOG_INFO("Created map of preceding vehicles in each lane");
         if ( !preceding_vehicle_entry_lane_map.empty()) {
             for ( auto map_entry : preceding_vehicle_entry_lane_map ) {
                 SPDLOG_INFO("Preceding Vehicle {0} in lane {1}", map_entry.second.v_id, map_entry.first);
             }
+        } else {
+            SPDLOG_INFO("No preceding vehicles in any lane!");
         }
         // Sort vehicles based on distance
         evs.sort(departure_position_comparator);
@@ -193,19 +195,27 @@ namespace streets_vehicle_scheduler {
         std::unordered_map<int, std::list<streets_vehicles::vehicle>> vehicle_to_be_scheduled_next;
         for ( auto entry_lane : intersection_info->getEntryLanelets() ) {
             std::list<streets_vehicles::vehicle> vehicles_in_lane;
+            SPDLOG_INFO("Finding Vehicles in entry lane {0} .", static_cast<int>(entry_lane.getId()));
             for ( auto ev : evs ) {
                 if ( ev._entry_lane_id == static_cast<int>(entry_lane.getId())) {
+                    SPDLOG_INFO("Adding vehicle {0} to EVs list in entry lane {1}", ev._id, ev._entry_lane_id);
                     vehicles_in_lane.push_back(ev);
                 }
             }
             if ( !vehicles_in_lane.empty())
                 vehicle_to_be_scheduled_next.insert({ static_cast<int>(entry_lane.getId()), vehicles_in_lane });
+            else {
+                SPDLOG_INFO("No EVs in lane {0}.",static_cast<int>(entry_lane.getId()) );
+            }
         }
         SPDLOG_INFO("Map of vehicles to be scheduled next is populated");
         if ( !vehicle_to_be_scheduled_next.empty()) {
             for ( auto map_entry : vehicle_to_be_scheduled_next ) {
                 SPDLOG_INFO("Next Vehicle {0} to be scheduled in lane {1}", map_entry.second.front()._id, map_entry.first);
             }
+        }
+        else {
+            throw scheduling_exception("Map of vehicles to be scheduled is empty but list of EVs to be scheduled is not!");
         }
         do {
             vehicle_schedule sched;
@@ -317,7 +327,7 @@ namespace streets_vehicle_scheduler {
         double v_hat;
         double t_cruising;
         if ( delta_x >= delta_x_prime ) {
-            v_hat = lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND;
+            v_hat = lane_info.getSpeedLimit();
             SPDLOG_INFO("V hat = {0}.", v_hat);
 
             t_cruising = calculate_cruising_time(veh, v_hat, delta_x_prime); 
@@ -334,8 +344,12 @@ namespace streets_vehicle_scheduler {
         }
         // calculate planned acceleration time interval
         double t_accel = calculate_acceleration_time(veh, v_hat);
+        SPDLOG_INFO("T accel = {0}.",t_accel);
+
         // calculate planned deceleration time interval
         double t_decel = calculate_deceleration_time(veh, v_hat);
+        SPDLOG_INFO("T decel = {0}.",t_decel);
+
         // calculate time to stop bar
         double time_to_stop_bar = t_accel + t_cruising + t_decel;
         
@@ -425,11 +439,11 @@ namespace streets_vehicle_scheduler {
         // If vehicle is Departing Vehicle consider its location in the link lanelet.
         if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
             // Distance covered during constant max acceleration to speed limit
-            double constant_acceleration_delta_x = (pow(link_lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND, 2) - pow( veh._cur_speed, 2))/(2* veh._accel_max);
+            double constant_acceleration_delta_x = (pow(link_lane_info.getSpeedLimit(), 2) - pow( veh._cur_speed, 2))/(2* veh._accel_max);
             // If vehicle accelerates to speed limit with max acceleration is it still in link lanelet
             if ( veh._cur_distance > constant_acceleration_delta_x ) {
-                clearance_time = ( 2 * veh._accel_max * veh._cur_distance - link_lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND*veh._cur_speed + pow(veh._cur_speed, 2))/
-                    (2*veh._accel_max*link_lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND);
+                clearance_time = ( 2 * veh._accel_max * veh._cur_distance - link_lane_info.getSpeedLimit()*veh._cur_speed + pow(veh._cur_speed, 2))/
+                    (2*veh._accel_max*link_lane_info.getSpeedLimit());
             } else {
                 clearance_time = (sqrt(pow(veh._cur_speed, 2)+2*veh._accel_max*veh._cur_distance) -veh._cur_speed)/
                         veh._accel_max;
@@ -439,12 +453,12 @@ namespace streets_vehicle_scheduler {
         // Consider vehicle is stopped at stop bar
         else  {
             // Distance covered during constant max acceleration to speed limit assuming initial 0 speed.
-            double constant_acceleration_delta_x = pow(link_lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND, 2) / (2 * veh._accel_max);
+            double constant_acceleration_delta_x = pow(link_lane_info.getSpeedLimit(), 2) / (2 * veh._accel_max);
             // If vehicle accelerates to speed limit with max acceleration is it still in the link lanelet
             if ( constant_acceleration_delta_x < link_lane_info.getLength()){
                 // If yes assume vehicle cruises at speed limit for the duration of the lanelet
-                clearance_time = link_lane_info.getLength() / link_lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND + 
-                            link_lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND / (2 *veh._accel_max);
+                clearance_time = link_lane_info.getLength() / link_lane_info.getSpeedLimit() + 
+                            link_lane_info.getSpeedLimit() / (2 *veh._accel_max);
             } else{
                 // If not assume vehicle trajectory is constant acceleration from initial speed of 0
                 clearance_time = sqrt(2 * link_lane_info.getLength() / veh._accel_max) ;

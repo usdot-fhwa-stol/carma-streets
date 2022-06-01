@@ -26,8 +26,6 @@ namespace streets_vehicle_scheduler {
              */
             int flexibility_limit = 5;
 
-            const double MPH_TO_METER_PER_SECOND = 0.44704;
-
             void estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                     const u_int64_t timestamp);
 
