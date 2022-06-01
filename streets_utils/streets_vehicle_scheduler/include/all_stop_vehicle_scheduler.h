@@ -14,6 +14,7 @@ namespace streets_vehicle_scheduler {
     class all_stop_vehicle_scheduler : public vehicle_scheduler {
         private:
             
+            std::list<streets_vehicles::vehicle> rdvs_previously_granted_access;
             /**
              * @brief Configurable time buffer in milliseconds for estimating the time it takes a vehicle to leave its entry lane 
              * and enter the intersection box once granted access to the intersection.
@@ -27,7 +28,7 @@ namespace streets_vehicle_scheduler {
              * @param dvs vector of unscheduled DVs
              * @param schedule intersection_schedule to add DV scheduling information to.
              */
-            void schedule_dvs( const std::list<streets_vehicles::vehicle> &dvs, intersection_schedule &schedule) const;
+            void schedule_dvs( std::list<streets_vehicles::vehicle> &dvs, intersection_schedule &schedule) const;
             /**
              * @brief Schedule all currently Ready to Depart Vehicles (RDVs). Consider all possible RDV departure orders. Select
              * the one with the least calculated delay. Delay for a given vehicle is the difference between Entering Time and Stopping 
@@ -37,7 +38,17 @@ namespace streets_vehicle_scheduler {
              * @param rdvs vector of unscheduled RDVs
              * @param schedule intersection_schedule to add RDV scheduling information to.
              */
-            void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule ) const;
+            void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule );
+            /**
+             * @brief 
+             * 
+             */
+            bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
+
+            void remove_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
+
+            streets_vehicles::vehicle get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string veh_id ) const;
+
             /**
              * @brief Schedule all Entering Vehicles (EVs). Method first organizes all EVs into lists based on their entry
              * lane. These list are order in ascending order with the vehicle closest to the intersection in a given lane 

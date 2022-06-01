@@ -56,7 +56,7 @@ namespace streets_vehicle_scheduler {
             double delta_t = (double)(timestamp - map_entry.second._cur_time)/1000.0;
             // estimate future speed.
             double v_final = map_entry.second._cur_speed + map_entry.second._cur_accel*delta_t;
-            // estimate chang in distance
+            // estimate change in distance
             double delta_x = ((v_final + map_entry.second._cur_speed)/2.0)*delta_t;
 
             map_entry.second._cur_speed = v_final;

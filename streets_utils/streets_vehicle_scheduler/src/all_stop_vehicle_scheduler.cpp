@@ -12,10 +12,20 @@ namespace streets_vehicle_scheduler {
             // Create vectors of EVs RDVs and DVs
             std::list<streets_vehicles::vehicle> DVs;
             std::list<streets_vehicles::vehicle> RDVs;
+            std::list<streets_vehicles::vehicle> RDVs_with_access;
+
             std::list<streets_vehicles::vehicle> EVs;
             for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
                 streets_vehicles::vehicle veh =it->second;
                 if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
+                    // Once vehicle is considered as DV it has confirmed that it has received access.
+                    if ( is_rdv_previously_granted_access(veh) ) {
+                        remove_rdv_previously_granted_access(veh);
+                    }
+                    DVs.push_back(veh);
+                }
+                else if ( is_rdv_previously_granted_access(veh) ) {
+                    // Consider any RDVs previously granted access as a DV
                     DVs.push_back(veh);
                 }
                 else if ( veh._cur_state == streets_vehicles::vehicle_state::RDV ) {
@@ -76,8 +86,10 @@ namespace streets_vehicle_scheduler {
         return -v_hat/veh._decel_max;
     }
 
-    void all_stop_vehicle_scheduler::schedule_dvs( const std::list<streets_vehicles::vehicle> &dvs,
+    void all_stop_vehicle_scheduler::schedule_dvs( std::list<streets_vehicles::vehicle> &dvs,
                                                 intersection_schedule &schedule) const{
+        // Sort based on departure position
+        dvs.sort( departure_position_comparator);                                                    
         for ( auto departing_veh : dvs ) {
             // get lane info
             OpenAPI::OAILanelet_info lane_info =  get_link_lanelet_info( departing_veh );
@@ -121,7 +133,7 @@ namespace streets_vehicle_scheduler {
 
     }
 
-    void all_stop_vehicle_scheduler::schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule ) const {
+    void all_stop_vehicle_scheduler::schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule ) {
         // Vector of considered intersection_schedule_options
         std::vector<intersection_schedule> schedule_options;
         // Sort rdvs ascending order based on departure position
@@ -156,6 +168,11 @@ namespace streets_vehicle_scheduler {
         // Add scheduled RDVs starting at last scheduled DV position to schedule
         for (auto sched : schedule_options.front().vehicle_schedules){
             if (sched.dp == starting_departure_position ){
+                if ( sched.access ) {
+                    streets_vehicles::vehicle rdv_granted_access = get_vehicle_with_id( rdvs, sched.v_id );
+                    SPDLOG_INFO("Added RDV {0} to list of RDVs previously granted access.", rdv_granted_access._id);
+                    rdvs_previously_granted_access.push_back(rdv_granted_access);
+                }
                 schedule.vehicle_schedules.push_back( sched );
                 starting_departure_position ++;
             }
@@ -466,5 +483,54 @@ namespace streets_vehicle_scheduler {
         }
         // Convert time to milliseconds and round up.
         return ceil(1000* clearance_time);
+    }
+    void all_stop_vehicle_scheduler::remove_rdv_previously_granted_access( const streets_vehicles::vehicle &veh) {
+        auto previously_granted_itr = rdvs_previously_granted_access.begin();
+        while ( previously_granted_itr != rdvs_previously_granted_access.end() ) {
+            if ( previously_granted_itr->_id == veh._id ) {
+                SPDLOG_INFO("Removing DV {0} to list of RDVs previously granted access.", previously_granted_itr->_id);
+                rdvs_previously_granted_access.erase(previously_granted_itr);
+                
+            }else {
+                previously_granted_itr++;
+            }
+        }
+    }
+
+    bool all_stop_vehicle_scheduler::is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh) {
+        if ( rdvs_previously_granted_access.empty() ) {
+            return false;
+        }
+        else {
+            for ( auto rdv: rdvs_previously_granted_access ) {
+                if ( rdv._id == veh._id ) {
+                    return true;
+                }
+            }
+            // not in list
+            return false;
+        }
+    }
+
+    streets_vehicles::vehicle all_stop_vehicle_scheduler::get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string veh_id ) const {
+        streets_vehicles::vehicle rtn;
+        bool found_veh = false;
+        if ( veh_list.empty() ) {
+            throw scheduling_exception("Vehicle List is empty!");
+            
+        }
+        else {
+            for (auto veh : veh_list ) {
+                if ( veh._id == veh_id ) {
+                    rtn = veh; 
+                    found_veh = true;
+                }
+            }
+        }
+        if (!found_veh) {
+            throw scheduling_exception("Vehicle not found!");
+ 
+        }
+        return rtn;
     }
 }

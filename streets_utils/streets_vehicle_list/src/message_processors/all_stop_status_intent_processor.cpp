@@ -185,7 +185,7 @@ namespace streets_vehicles {
 			}
 			vehicle._cur_state =  vehicle_state::RDV;
 			vehicle._actual_st = vehicle._cur_time;
-			SPDLOG_DEBUG("Vehi)cle {0} state is updated from EV to RDV.", vehicle._id);	 
+			SPDLOG_DEBUG("Vehicle {0} state is updated from EV to RDV.", vehicle._id);	 
 		}
 		else if (vehicle._cur_state == vehicle_state::RDV && vehicle._access ){
 			if ( vehicle._cur_lane_id != vehicle._link_id ){
