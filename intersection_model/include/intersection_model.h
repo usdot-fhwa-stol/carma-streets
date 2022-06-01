@@ -31,6 +31,7 @@
 #include <lanelet2_io/io_handlers/Writer.h>
 #include <lanelet2_projection/UTM.h>
 #include <lanelet2_core/geometry/Point.h>
+#include <map_msg_worker.h>
 
 // Standard library
 #include <spdlog/spdlog.h>
@@ -199,6 +200,13 @@ namespace intersection_model
             * @return true if the routing graph for vehicle participant  is updated, otherwise false.
             */
             bool update_vehicle_routing_graph();
+            
+            /***
+             * @brief Update intersection info structure with incoming map msg consumed by kafka map consumer
+             * @param int_map_msg populated with map message published by v2xhub. This map message describes intersection geometry and signal group ids
+             * @return True if the intersection info is updated, otherwise false
+             **/
+            bool update_int_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg);
 
         private:
             lanelet::LaneletMapPtr map;
@@ -216,8 +224,7 @@ namespace intersection_model
             lanelet::routing::RoutingGraphPtr  vehicleGraph_ptr;
 
             //Define intersection information
-            intersection_info_t int_info;
-        
+            intersection_info_t int_info;            
     };
 }
 #endif

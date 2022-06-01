@@ -350,6 +350,27 @@ namespace intersection_model
         return this->vehicleGraph_ptr;
     }
 
+    bool intersection_model::update_int_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg)
+    {
+        SPDLOG_INFO("update_int_info_by_map_msg {0} geometry {1}", int_map_msg->intersectionid, int_map_msg->geometries.size());
+        for(auto geometry : int_map_msg->geometries)
+        {
+            SPDLOG_INFO("refpoint {0} {1} {2}",geometry.refpoint.latitude , geometry.refpoint.longitude, geometry.refpoint.elevation);
+            for(auto lane: geometry.approach.lanes)
+            {                
+                SPDLOG_INFO("lane id {0} {1} {2}", lane.lane_id);
+                for(auto node : lane.nodes)
+                {
+                     SPDLOG_INFO("node {0} {1}", node.x, node.y);
+                }
+                for(auto connection : lane.connection)
+                {
+                     SPDLOG_INFO("connection {0} {1}", connection.lane_id, connection.signalGroup);
+                }
+            }
+        }
+    }
+
     intersection_model::~intersection_model()
     {
         int_info.link_lanelets.clear();

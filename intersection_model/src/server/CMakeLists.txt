@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(intersection-server)
 
 
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
-
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
