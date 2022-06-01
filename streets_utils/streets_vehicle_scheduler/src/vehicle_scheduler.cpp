@@ -18,7 +18,7 @@ namespace streets_vehicle_scheduler {
         bool is_found = false;
         for ( auto lanelet : intersection_info->getEntryLanelets() ) {
             int lane_id = static_cast<int>(lanelet.getId());
-            if ( lane_id == veh._cur_lane_id ) {
+            if ( lane_id == veh._entry_lane_id ) {
                 entry_lane =  lanelet;
                 is_found = true;
             }
@@ -27,16 +27,17 @@ namespace streets_vehicle_scheduler {
         if (!is_found) {
             throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
         }
+        return entry_lane;
 
     }
 
      OpenAPI::OAILanelet_info vehicle_scheduler::get_link_lanelet_info(const streets_vehicles::vehicle &veh) const{
-        OpenAPI::OAILanelet_info entry_lane;
+        OpenAPI::OAILanelet_info link_lane;
         bool is_found = false;
         for ( auto lanelet : intersection_info->getLinkLanelets() ) {
             int lane_id = static_cast<int>(lanelet.getId());
             if ( lane_id == veh._link_id ) {
-                entry_lane =  lanelet;
+                link_lane =  lanelet;
                 is_found = true;
             }
             
@@ -44,6 +45,7 @@ namespace streets_vehicle_scheduler {
         if (!is_found) {
             throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
         }
+        return link_lane;
 
     }
 

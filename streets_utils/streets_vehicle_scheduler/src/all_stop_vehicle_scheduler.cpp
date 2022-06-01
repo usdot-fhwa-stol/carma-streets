@@ -48,7 +48,6 @@ namespace streets_vehicle_scheduler {
                                                                 const OpenAPI::OAILanelet_info &entry_lane) const{
         if ( veh._cur_state == streets_vehicles::vehicle_state::EV ) {
             // Get Entry Lanelet
-            OpenAPI::OAILanelet_info entry_lane = get_entry_lanelet_info( veh );
             double delta_x_prime = (pow(entry_lane.getSpeedLimit()*MPH_TO_METER_PER_SECOND,2)-pow(veh._cur_speed,2))/(2*veh._accel_max) - 
                 pow(entry_lane.getSpeedLimit()*MPH_TO_METER_PER_SECOND, 2)/(2*veh._decel_max); 
             return  delta_x_prime;
@@ -199,13 +198,13 @@ namespace streets_vehicle_scheduler {
                     vehicles_in_lane.push_back(ev);
                 }
             }
-            if ( vehicles_in_lane.empty())
+            if ( !vehicles_in_lane.empty())
                 vehicle_to_be_scheduled_next.insert({ static_cast<int>(entry_lane.getId()), vehicles_in_lane });
         }
         SPDLOG_INFO("Map of vehicles to be scheduled next is populated");
         if ( !vehicle_to_be_scheduled_next.empty()) {
             for ( auto map_entry : vehicle_to_be_scheduled_next ) {
-                SPDLOG_INFO("Preceding Vehicle {0} in lane {1}", map_entry.second.front()._id, map_entry.first);
+                SPDLOG_INFO("Next Vehicle {0} to be scheduled in lane {1}", map_entry.second.front()._id, map_entry.first);
             }
         }
         do {
@@ -218,12 +217,14 @@ namespace streets_vehicle_scheduler {
             for ( auto map_entry : vehicle_to_be_scheduled_next ) {
                 // Take first vehicle to be scheduled in lane.
                 streets_vehicles::vehicle ev = map_entry.second.front();
-                // Get previously scheduled vehicle regardless of lane
-                vehicle_schedule previously_scheduled = schedule.vehicle_schedules.back();
+                SPDLOG_INFO( "Estimating schedule for {0}.", ev._id);
+
                 // Get link lanelet information for ev
                 OpenAPI::OAILanelet_info link_lane = get_link_lanelet_info( ev );
+                SPDLOG_INFO( "Link lanelet for {0} is {1}.", ev._id, link_lane.getId());
                 // Calculate EST for vehicle
                 uint64_t est = estimate_earliest_time_to_stop_bar(ev);
+                SPDLOG_INFO( "EST for vehicle {0} is {1}." ,ev._id, est ) ;
                 // Store ST value for vehicle
                 uint64_t st;
 
@@ -232,6 +233,7 @@ namespace streets_vehicle_scheduler {
                 if ( preceding_vehicle_entry_lane_map.find( ev._cur_lane_id )  != preceding_vehicle_entry_lane_map.end() ) {
                     // Get preceeding vehicle in lane
                     vehicle_schedule preceding_veh = preceding_vehicle_entry_lane_map.find( ev._cur_lane_id )->second;
+                    SPDLOG_INFO("Preceding vehicle schedule in lane {0} is {1}.", preceding_veh.entry_lane, preceding_veh.v_id);
                     // If there is a preceeding vehicle the st is calculated as max of EST and preceeding vehicle ET plus a time
                     // buffer to account for the time it takes the preceeding vehicle to enter the intersection
                     st =  std::max( sched.est, preceding_veh.et + entering_time_buffer );
@@ -252,11 +254,21 @@ namespace streets_vehicle_scheduler {
                     sched.link_id = ev._link_id;
                     sched.state = streets_vehicles::vehicle_state::EV;
                     sched.access = false;
-                    // If there is a previously scheduled vehicle with conflicting direction
-                    if ( link_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled.link_id))) {
-                        // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
-                        sched.et = std::max(previously_scheduled.dt, sched.st);
-                    }else{
+
+                    // Get previously scheduled vehicle regardless of lane
+                    if ( !schedule.vehicle_schedules.empty() ) {
+                        vehicle_schedule previously_scheduled = schedule.vehicle_schedules.back();
+                        SPDLOG_INFO( "Last schedule vehicle is {0} in entry lane {1} using link {2}.");
+                        // If there is a previously scheduled vehicle with conflicting direction
+                        if ( link_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled.link_id))) {
+                            // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
+                            sched.et = std::max(previously_scheduled.dt, sched.st);
+                        }else{
+                            //TODO: Should this be max of st and previous et or just st?
+                            sched.et = std::max( sched.st, previously_scheduled.et);
+                        }
+                    }
+                    else {
                         sched.et = sched.st;
                     }
                     // Departure time is equal to entering time + clearance time
@@ -265,6 +277,7 @@ namespace streets_vehicle_scheduler {
                 }
                
             }
+            SPDLOG_INFO( "Found vehicle {0} with lowest stopping time {1} in lane {2}", sched.v_id, sched.st, sched.entry_lane);
             // Add lowest ST to schedule
             schedule.vehicle_schedules.push_back(sched);
             // Replace previous preceeding vehicle for lane with scheduled vehicle
@@ -278,13 +291,14 @@ namespace streets_vehicle_scheduler {
             vehicle_to_be_scheduled_next.find(sched.entry_lane)->second.pop_front();
             // If pop makes list empty remove map entry
             if ( vehicle_to_be_scheduled_next.find(sched.entry_lane)->second.empty() ) {
-                SPDLOG_DEBUG("All vehicles in approach lanelet {0} have been scheduled!", sched.entry_lane);
+                SPDLOG_INFO("All vehicles in approach lanelet {0} have been scheduled!", sched.entry_lane);
                 vehicle_to_be_scheduled_next.erase(sched.entry_lane);
             }
             
         }
         // Schedule EVs in order of est
         while ( !vehicle_to_be_scheduled_next.empty() );
+        SPDLOG_INFO("All EV lists in every entry lane have been scheduled!");
 
 
     }
@@ -294,19 +308,29 @@ namespace streets_vehicle_scheduler {
         double delta_x = veh._cur_distance;
         // Get Entry Lane
         OpenAPI::OAILanelet_info lane_info =  get_entry_lanelet_info( veh );
+        SPDLOG_INFO("Get entry lane information {0} for vehicle {1}.",  lane_info.getId(), veh._id);
         // Distance necessary to get to max speed and decelerate with decel_max
         double delta_x_prime =  estimate_delta_x_prime( veh, lane_info );
+        SPDLOG_INFO("Delta X = {0}.", delta_x_prime);
+
         // Calculate v_hat and planned cruising time interval
         double v_hat;
         double t_cruising;
         if ( delta_x >= delta_x_prime ) {
             v_hat = lane_info.getSpeedLimit()*MPH_TO_METER_PER_SECOND;
+            SPDLOG_INFO("V hat = {0}.", v_hat);
+
             t_cruising = calculate_cruising_time(veh, v_hat, delta_x_prime); 
+            SPDLOG_INFO("T cruising = {0}.",t_cruising);
 
         }
         else {
             v_hat =  calculate_v_hat(veh);
+            SPDLOG_INFO("V hat = {0}.", v_hat);
+
             t_cruising = 0.0;
+            SPDLOG_INFO("T cruising = {0}.",t_cruising);
+
         }
         // calculate planned acceleration time interval
         double t_accel = calculate_acceleration_time(veh, v_hat);
