@@ -1,10 +1,10 @@
 #include "IntersectionModelHandler.h"
-#include "intersection_model.h"
 
 namespace IntersectionModelAPI
 {
     IntersectionModelHandler::IntersectionModelHandler(std::shared_ptr<intersection_model::intersection_model> int_worker) : int_worker_(int_worker)
     {
+        SPDLOG_DEBUG("IntersectionModelHandler constructor called");
     }
 
     void IntersectionModelHandler::getIntersectionInfo()

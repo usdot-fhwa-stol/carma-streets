@@ -19,6 +19,7 @@ endif(${NODEBUG} STREQUAL "OFF")
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(qhttpengine REQUIRED)
 
 file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/models/*.cpp

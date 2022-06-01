@@ -233,7 +233,7 @@ namespace intersection_model
                     std::string speed_str = inner_itr->second.value();
                     if (std::regex_search(speed_str, r))
                     {
-                        speed_limit_result = std::stoi(std::regex_replace(speed_str, std::regex("\\s"), std::string("")));
+                        speed_limit_result = std::stof(std::regex_replace(speed_str, std::regex("\\s"), std::string("")));
                         speed_limit_result *= MPH_TO_MS; //MPH to M/S conversion
                     };
                 }

@@ -123,6 +123,9 @@ RUN make
 Navigate to /carma-streets/ directory
 docker build -t intersection_model -f intersection_model/Dockerfile .
 ```
+## API definition
+1. intersection model is made up of swagger-generated server code compiled into library, then classes to extend to house custom business logic ( DefaultHandler, DefaultRouter). The current yaml file is located [here](yaml/intersection_model_v1.2.yaml).
+2. Intersection Geometry consists of list of entry, link, and departure lanelets which have the following fields. ( Maybe just copy and past the object definitions from the yaml)
 
 ## Notes
 When running unit test for the intersection model, making sure the correct osm file is upload under the intersection_model directory.

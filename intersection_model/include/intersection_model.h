@@ -210,7 +210,7 @@ namespace intersection_model
             const char* osm_file_path_key       = "osm_file_path";
             const char* intersection_name_key   = "intersection_name";
             const char* intersection_id_key     = "intersection_id";
-            const float MPH_TO_MS               = 0.44704; //Miles per hour to meters per seconds conversion
+            const double MPH_TO_MS               = 0.44704; //Miles per hour to meters per seconds conversion
 
             //Routing graph is used to store the possible routing set
             lanelet::routing::RoutingGraphPtr  vehicleGraph_ptr;
