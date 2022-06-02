@@ -130,3 +130,130 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_cruising){
     SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 14.044);
     ASSERT_EQ( schedule.vehicle_schedules.front().dt, schedule.timestamp+14044);
 }
+
+/**
+ * @brief This unit test considers 1 DV (TEST_DV_01) and 2 RDVs (TEST_RDV_01 and TEST_RDV_02). The DV is inside the intersection box.
+ * TEST_RDV_02 does not have a conflict direction with TEST_DV_01 and TEST_RDV_01. But TEST_RDV_01 has a conflicting direction with TEST_DV_01.
+ * TEST_RDV_01 and TEST_RDV_02 stopped at the stop bar at the same time (schedule.timestamp - 1000). 
+ * Initially, TEST_RDV_01 is set to departure position 2 and TEST_RDV_02 is assigned to departure position 3.
+ * The expected departure sequence is: 1-TEST_DV_01, 2-TEST_RDV_02, 3-TEST_RDV_01
+ * This test checks if the schedule plan information (e.g., est, st, et, dt, access, dp, state) is correct.
+ */
+TEST_F(all_stop_scheduler_test, one_dv_two_rdvs){
+    intersection_schedule schedule;
+    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    vehicle veh_dv;
+    veh_dv._id = "TEST_DV_01";
+    veh_dv._accel_max = 2.0;
+    veh_dv._decel_max = -2.0;
+    veh_dv._cur_speed = 1.0;
+    veh_dv._cur_accel = 2.0;
+    veh_dv._cur_distance = 9.3;
+    veh_dv._cur_lane_id = 160;
+    veh_dv._cur_state = vehicle_state::DV;
+    veh_dv._cur_time = schedule.timestamp;
+    veh_dv._entry_lane_id = 158;
+    veh_dv._link_id = 160;
+    veh_dv._exit_lane_id = 164;
+    veh_dv._direction = "right";
+    veh_dv._departure_position = 1;
+    veh_dv._access = true;
+    veh_dv._actual_st = schedule.timestamp - 3000;
+    veh_dv._actual_et = schedule.timestamp - 1000;
+
+    vehicle veh_rdv1;
+    veh_rdv1._id = "TEST_RDV_01";
+    veh_rdv1._accel_max = 2.0;
+    veh_rdv1._decel_max = -2.0;
+    veh_rdv1._cur_speed = 0.0;
+    veh_rdv1._cur_accel = 0.0;
+    veh_rdv1._cur_distance = 1.0;
+    veh_rdv1._cur_lane_id = 171;
+    veh_rdv1._cur_state = vehicle_state::RDV;
+    veh_rdv1._cur_time = schedule.timestamp;
+    veh_rdv1._entry_lane_id = 171;
+    veh_rdv1._link_id = 165;
+    veh_rdv1._exit_lane_id = 164;
+    veh_rdv1._direction = "straight";
+    veh_rdv1._departure_position = 2;
+    veh_rdv1._actual_st = schedule.timestamp - 1000;
+
+    vehicle veh_rdv2;
+    veh_rdv2._id = "TEST_RDV_02";
+    veh_rdv2._accel_max = 2.0;
+    veh_rdv2._decel_max = -2.0;
+    veh_rdv2._cur_speed = 0.0;
+    veh_rdv2._cur_accel = 0.0;
+    veh_rdv2._cur_distance = 1.0;
+    veh_rdv2._cur_lane_id = 167;
+    veh_rdv2._cur_state = vehicle_state::RDV;
+    veh_rdv2._cur_time = schedule.timestamp;
+    veh_rdv2._entry_lane_id = 167;
+    veh_rdv2._link_id = 169;
+    veh_rdv2._exit_lane_id = 168;
+    veh_rdv2._direction = "straight";
+    veh_rdv2._departure_position = 3;
+    veh_rdv2._actual_st = schedule.timestamp - 1000;
+
+    veh_list.insert({{veh_dv._id, veh_dv}, {veh_rdv1._id, veh_rdv1}, {veh_rdv2._id, veh_rdv2}});
+
+    scheduler->schedule_vehicles(veh_list, schedule);
+    ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
+    vehicle_schedule veh_dv_schedule;
+    vehicle_schedule veh_rdv1_schedule;
+    vehicle_schedule veh_rdv2_schedule;
+    for (auto veh_sched : schedule.vehicle_schedules){
+        if (veh_sched.v_id == veh_dv._id){
+            veh_dv_schedule = veh_sched;
+        }
+        else if (veh_sched.v_id == veh_rdv1._id){
+            veh_rdv1_schedule = veh_sched;
+        }
+        else if (veh_sched.v_id == veh_rdv2._id){
+            veh_rdv2_schedule = veh_sched;
+        } 
+    }
+    if (veh_dv_schedule.v_id == ""){
+        SPDLOG_ERROR( "Vehicle {0} cannot be found in the schedule plan!", veh_dv._id);
+    }
+    if (veh_rdv1_schedule.v_id == ""){
+        SPDLOG_ERROR( "Vehicle {0} cannot be found in the schedule plan!", veh_rdv1._id);
+    }
+    if (veh_rdv2_schedule.v_id == ""){
+        SPDLOG_ERROR( "Vehicle {0} cannot be found in the schedule plan!", veh_rdv2._id);
+    }
+
+    ASSERT_EQ(veh_dv_schedule.v_id, veh_dv._id);
+    ASSERT_EQ(veh_dv_schedule.est, veh_dv._actual_st);
+    ASSERT_EQ(veh_dv_schedule.st, veh_dv._actual_st);
+    ASSERT_EQ(veh_dv_schedule.et, veh_dv._actual_et);
+    // assume the estimated dt is correct.
+    // ASSERT_EQ(veh_dv_schedule.dt, ??);
+    ASSERT_EQ(veh_dv_schedule.dp, 1);
+    ASSERT_EQ(veh_dv_schedule.state, vehicle_state::DV);
+    ASSERT_EQ(veh_dv_schedule.access, true);
+
+
+    ASSERT_EQ(veh_rdv2_schedule.v_id, veh_rdv2._id);
+    ASSERT_EQ(veh_rdv2_schedule.est, veh_rdv2._actual_st);
+    ASSERT_EQ(veh_rdv2_schedule.st, veh_rdv2._actual_st);
+    ASSERT_EQ(veh_rdv2_schedule.et, schedule.timestamp);
+    // assume the estimated dt is correct.
+    // ASSERT_EQ(veh_rdv2_schedule.dt, ??);
+    ASSERT_EQ(veh_rdv2_schedule.dp, 2);
+    ASSERT_EQ(veh_rdv2_schedule.state, vehicle_state::DV);
+    ASSERT_EQ(veh_rdv2_schedule.access, true);
+
+
+    ASSERT_EQ(veh_rdv1_schedule.v_id, veh_rdv1._id);
+    ASSERT_EQ(veh_rdv1_schedule.est, veh_rdv1._actual_st);
+    ASSERT_EQ(veh_rdv1_schedule.st, veh_rdv1._actual_st);
+    ASSERT_EQ(veh_rdv1_schedule.et, std::max(veh_dv_schedule.dt, veh_rdv2_schedule.dt));
+    // assume the estimated dt is correct.
+    // ASSERT_EQ(veh_dv_schedule.dt, ??);
+    ASSERT_EQ(veh_rdv1_schedule.dp, 3);
+    ASSERT_EQ(veh_rdv1_schedule.state, vehicle_state::RDV);
+    ASSERT_EQ(veh_rdv1_schedule.access, false);
+
+}
