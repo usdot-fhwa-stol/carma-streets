@@ -51,19 +51,39 @@ namespace streets_vehicle_scheduler {
 
     void vehicle_scheduler::estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                                 const u_int64_t timestamp) {
-        for ( auto map_entry: vehicles) {
+        for ( auto &map_entry: vehicles) {
             // Time difference in seconds
             double delta_t = (double)(timestamp - map_entry.second._cur_time)/1000.0;
+            if ( delta_t > 500.0 ) {
+                SPDLOG_INFO("Vehicle update {0} is older than 5 times the vehicle update interval (500 ms)!", map_entry.second._id);
+            }
+            else if ( delta_t > 200.0) {
+                SPDLOG_WARN("Vehicle update {0} is older than double the vehicle update interval (200 ms)!", map_entry.second._id);
+            }
             // estimate future speed.
             double v_final = map_entry.second._cur_speed + map_entry.second._cur_accel*delta_t;
             // estimate change in distance
             double delta_x = ((v_final + map_entry.second._cur_speed)/2.0)*delta_t;
-
+            SPDLOG_INFO("Setting speed for vehicle {0} from {1}m/s to {2}m/s.", 
+                            map_entry.second._id, 
+                            map_entry.second._cur_speed, 
+                            v_final );
             map_entry.second._cur_speed = v_final;
+            SPDLOG_INFO("Speed for vehicle {0} is {1}m/s", 
+                            map_entry.second._id, 
+                            map_entry.second._cur_speed);
             map_entry.second._cur_time =  timestamp;
             // Estimate distance to end of lanelet
             if ( map_entry.second._cur_distance - delta_x >= 0.0) {
-                map_entry.second._cur_distance =  map_entry.second._cur_distance - delta_x;
+                SPDLOG_INFO("Setting distance for vehicle {0} from {1}m to {2}m.", 
+                            map_entry.second._id, 
+                            map_entry.second._cur_distance, 
+                            map_entry.second._cur_distance-delta_x );
+
+                map_entry.second._cur_distance -= delta_x;
+                SPDLOG_INFO("Distance for vehicle {0} is {1}m", 
+                            map_entry.second._id, 
+                            map_entry.second._cur_distance);
             }
             else {
                 // TODO: Could add lanelet transition estimation with intersection model information.

@@ -130,3 +130,73 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_cruising){
     SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 14.044);
     ASSERT_EQ( schedule.vehicle_schedules.front().dt, schedule.timestamp+14044);
 }
+/**
+ * @brief Test one EV future time kinematics estimate given no possible lane transition.
+ * 
+ */
+TEST_F(all_stop_scheduler_test, one_vehicle_with_future_time_estimate){
+    intersection_schedule schedule;
+    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    vehicle veh;
+    veh._id = "TEST01";
+    veh._accel_max = 2.0;
+    veh._decel_max = -2.0;
+    veh._cur_speed = 4.4704;
+    veh._cur_accel = 2;
+    veh._cur_distance = 60.0;
+    veh._cur_lane_id = 167;
+    veh._cur_state = vehicle_state::EV;
+    veh._cur_time = schedule.timestamp-150;
+    veh._entry_lane_id = 167;
+    veh._link_id = 155;
+    veh._exit_lane_id = 162;
+    veh._direction = "left";
+    veh_list.insert({veh._id,veh});
+
+    scheduler->schedule_vehicles(veh_list,schedule);
+    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
+    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
+    auto estimate_veh = veh_list.find(veh._id)->second;
+    ASSERT_EQ(estimate_veh._cur_time, schedule.timestamp);
+    ASSERT_NEAR(estimate_veh._cur_distance, 59.30694, 0.00001);
+    ASSERT_NEAR(estimate_veh._cur_speed, 4.7704, 0.0001);
+
+    
+}
+
+/**
+ * @brief Test one EV future time kinematics estimate given possible lane transition.
+ * 
+ */
+TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_estimate){
+    intersection_schedule schedule;
+    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    vehicle veh;
+    veh._id = "TEST01";
+    veh._accel_max = 2.0;
+    veh._decel_max = -2.0;
+    veh._cur_speed = 4.4704;
+    veh._cur_accel = -1.5;
+    veh._cur_distance = .8;
+    veh._cur_lane_id = 167;
+    veh._cur_state = vehicle_state::EV;
+    veh._cur_time = schedule.timestamp-600;
+    veh._entry_lane_id = 167;
+    veh._link_id = 155;
+    veh._exit_lane_id = 162;
+    veh._direction = "left";
+    veh_list.insert({veh._id,veh});
+
+    scheduler->schedule_vehicles(veh_list,schedule);
+    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
+    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
+    auto estimate_veh = veh_list.find(veh._id)->second;
+    ASSERT_EQ(estimate_veh._cur_time, schedule.timestamp);
+    ASSERT_EQ(estimate_veh._cur_distance, 0.0);
+    double est_time =(schedule.vehicle_schedules.front().est-schedule.timestamp)/1000.0;
+    SPDLOG_INFO( "EST time for scheduler  : {0}", est_time);
+    double dt_time =(schedule.vehicle_schedules.front().dt-schedule.timestamp)/1000.0;
+    SPDLOG_INFO( "DT time for scheduler  : {0}", dt_time);
+
+    
+}

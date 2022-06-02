@@ -32,6 +32,7 @@ namespace streets_vehicle_scheduler {
                     RDVs.push_back(veh);
                 }
                 else if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
+                    SPDLOG_INFO("Vehicle {0} with speed {1}m/s and distance {2}m.",veh._id, veh._cur_speed, veh._cur_distance);
                     EVs.push_back(veh);
                 }
             }
@@ -91,6 +92,7 @@ namespace streets_vehicle_scheduler {
         // Sort based on departure position
         dvs.sort( departure_position_comparator);                                                    
         for ( auto departing_veh : dvs ) {
+            SPDLOG_INFO("Scheduling DV with ID {0} .", departing_veh._id);
             // get lane info
             OpenAPI::OAILanelet_info lane_info =  get_link_lanelet_info( departing_veh );
             // Distance covered assuming constant max acceleration to speed limit
@@ -126,6 +128,7 @@ namespace streets_vehicle_scheduler {
             veh_sched.link_id =  departing_veh._link_id;
             // set vehicle entry lane id
             veh_sched.entry_lane =  departing_veh._entry_lane_id;
+            SPDLOG_INFO("Added schedule for {0} with dt {1}.", veh_sched.v_id, veh_sched.dt);
             // add vehicle_schedule
             schedule.vehicle_schedules.push_back(veh_sched);
 
@@ -140,9 +143,10 @@ namespace streets_vehicle_scheduler {
         rdvs.sort(departure_position_comparator);
         // Earliest possible departure position is equal to first RDVs departure position
         int starting_departure_position = rdvs.begin()->_departure_position;
-        SPDLOG_DEBUG("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
+        SPDLOG_INFO("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
         // TODO: for 8 possible approaches this may need to be optimized (greedy search)
         do { 
+            SPDLOG_INFO("Considering scheduling options with {0} as first RDV." ,rdvs.front()._id);
             // Index to assign RDVs in every possible departure order permutation
             int proposed_departure_position =  starting_departure_position;
             // update schedule option to include already scheduled vehicles
@@ -155,6 +159,7 @@ namespace streets_vehicle_scheduler {
             }
             // Pointer to previous scheduled vehicle for departure time  and entering time 
             bool valid_option =  consider_departure_position_permutation(rdvs, option, starting_departure_position, previous_vehicle);
+            SPDLOG_INFO("Scheduling option is valid : {0}.", valid_option);
             //fix an RDV based on lower bound delay
             if ( valid_option ) {
                 schedule_options.push_back(option);
@@ -163,8 +168,14 @@ namespace streets_vehicle_scheduler {
         }
         // While ( !all RDVS schedule)
         while (std::next_permutation( rdvs.begin(), rdvs.end(), departure_position_comparator));
+
+
         // Sort in ascending order based on delay.
         std::sort(schedule_options.begin(), schedule_options.end(), delay_comparator);
+
+        SPDLOG_INFO("All all scheduling options, the option with RDV {0} first has the least delay of {1}.",
+                                schedule_options.front().vehicle_schedules.front().v_id,
+                                schedule_options.front().get_delay());
         // Add scheduled RDVs starting at last scheduled DV position to schedule
         for (auto sched : schedule_options.front().vehicle_schedules){
             if (sched.dp == starting_departure_position ){
@@ -378,6 +389,7 @@ namespace streets_vehicle_scheduler {
                                                                                 intersection_schedule &option,
                                                                                 int starting_departure_position,
                                                                                 std::shared_ptr<vehicle_schedule> previously_scheduled_vehicle ) const {
+        SPDLOG_INFO("Considering Permutation.");
         for ( auto veh : rdvs ) {
             // If scheduling option moves vehicle departure position more than flexibility limit it is not a valid option.
             if ( abs(starting_departure_position - veh._departure_position) > flexibility_limit ) {
@@ -443,9 +455,12 @@ namespace streets_vehicle_scheduler {
             previously_scheduled_vehicle = std::make_shared<vehicle_schedule>(sched);
             // Increment departure position
             starting_departure_position++;
+
             
             
         }
+        return true;
+
             
     }
 
