@@ -213,9 +213,9 @@ namespace intersection_model
         return this->int_info.entering_lanelets;
     }
 
-    float intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
+    double intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
     {
-        float speed_limit_result = 0;
+        double speed_limit_result = 0;
         std::regex r("[0-9]+");
         lanelet::RegulatoryElementConstPtrs reg_elements = subj_lanelet.regulatoryElements();
 

@@ -51,7 +51,7 @@ namespace intersection_model
     struct lanelet_info_t
     {
         int64_t id                      = 0;    //Uniquely identify the lanelet id within an OSM file
-        float speed_limit               = 0;    //Unit of measure m/s
+        double speed_limit               = 0;    //Unit of measure m/s
         double length                   = 0.0;  //Unit of meter
         int32_t signal_group_id         = 0;    //0 = Not available
         std::string turn_direction      = "NA"; //Turn direction of current lanelet
@@ -155,7 +155,7 @@ namespace intersection_model
              * @brief Retrieve the speed_limit of the current lanelet
              * @return speed_limit regulatory element that is attached to this lanelet
              **/
-            float get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
+            double get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
 
             /**
              * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet
