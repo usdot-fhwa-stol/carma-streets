@@ -131,22 +131,11 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
             veh_rdv2_schedule = veh_sched;
         } 
     }
-    if (veh_dv_schedule.v_id == ""){
-        SPDLOG_ERROR( "Vehicle {0} cannot be found in the schedule plan!", veh_dv._id);
-    }
-    if (veh_rdv1_schedule.v_id == ""){
-        SPDLOG_ERROR( "Vehicle {0} cannot be found in the schedule plan!", veh_rdv1._id);
-    }
-    if (veh_rdv2_schedule.v_id == ""){
-        SPDLOG_ERROR( "Vehicle {0} cannot be found in the schedule plan!", veh_rdv2._id);
-    }
 
     ASSERT_EQ(veh_dv_schedule.v_id, veh_dv._id);
     ASSERT_EQ(veh_dv_schedule.est, veh_dv._actual_st);
     ASSERT_EQ(veh_dv_schedule.st, veh_dv._actual_st);
     ASSERT_EQ(veh_dv_schedule.et, veh_dv._actual_et);
-    // assume the estimated dt is correct.
-    // ASSERT_EQ(veh_dv_schedule.dt, ??);
     ASSERT_EQ(veh_dv_schedule.dp, 1);
     ASSERT_EQ(veh_dv_schedule.state, vehicle_state::DV);
     ASSERT_EQ(veh_dv_schedule.access, true);
@@ -156,8 +145,6 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
     ASSERT_EQ(veh_rdv2_schedule.est, veh_rdv2._actual_st);
     ASSERT_EQ(veh_rdv2_schedule.st, veh_rdv2._actual_st);
     ASSERT_EQ(veh_rdv2_schedule.et, schedule.timestamp);
-    // assume the estimated dt is correct.
-    // ASSERT_EQ(veh_rdv2_schedule.dt, ??);
     ASSERT_EQ(veh_rdv2_schedule.dp, 2);
     ASSERT_EQ(veh_rdv2_schedule.state, vehicle_state::DV);
     ASSERT_EQ(veh_rdv2_schedule.access, true);
@@ -166,9 +153,7 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
     ASSERT_EQ(veh_rdv1_schedule.v_id, veh_rdv1._id);
     ASSERT_EQ(veh_rdv1_schedule.est, veh_rdv1._actual_st);
     ASSERT_EQ(veh_rdv1_schedule.st, veh_rdv1._actual_st);
-    ASSERT_EQ(veh_rdv1_schedule.et, std::max(veh_dv_schedule.dt, veh_rdv2_schedule.dt));
-    // assume the estimated dt is correct.
-    // ASSERT_EQ(veh_dv_schedule.dt, ??);
+    ASSERT_EQ(veh_rdv1_schedule.et, std::max(veh_dv_schedule.dt, veh_rdv2_schedule.et));
     ASSERT_EQ(veh_rdv1_schedule.dp, 3);
     ASSERT_EQ(veh_rdv1_schedule.state, vehicle_state::RDV);
     ASSERT_EQ(veh_rdv1_schedule.access, false);
