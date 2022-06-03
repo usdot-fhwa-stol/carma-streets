@@ -124,8 +124,38 @@ Navigate to /carma-streets/ directory
 docker build -t intersection_model -f intersection_model/Dockerfile .
 ```
 ## API definition
-1. intersection model is made up of swagger-generated server code compiled into library, then classes to extend to house custom business logic ( DefaultHandler, DefaultRouter). The current yaml file is located [here](yaml/intersection_model_v1.2.yaml).
-2. Intersection Geometry consists of list of entry, link, and departure lanelets which have the following fields. ( Maybe just copy and past the object definitions from the yaml)
-
+1. intersection model is a service used the expose intersection geometry information from MAP and lanelet2 osm map to carma-streets services that require this information via REST server. 
+2. Intersection Geometry consists of list of entry, link, and departure lanelets which have the following fields:
+```
+lanelet_info:
+    description: The information of lanelet 
+    type: object
+    properties:
+      id:
+        type: integer
+      speed_limit:
+        type: number
+        description: Unit of measure is m/s
+      conflict_lanelet_ids:
+        type: array
+        items:
+          type: integer
+        description: List of unique identifers for lanelets that have conflicts
+      length:
+        type: number
+        description: The length of lanelet. Unit of measure is meter
+      turn_direction:
+        type: string
+        description: Turn direction of intersection lane
+      signal_group_id: 
+        type: integer
+        description: The matching signal group send by the SPAT message for this lanelet
+      connecting_lanelet_ids:
+        description: List of unique identifers for following lanelets that are connecting the depature and entry lanelets
+        type: array
+        items:
+          type: integer
+```
+3. Intesection model handler and router classes inherit from the default handler and router classes from the generated library in streets_utils/streets_api folder. 
 ## Notes
 When running unit test for the intersection model, making sure the correct osm file is upload under the intersection_model directory.

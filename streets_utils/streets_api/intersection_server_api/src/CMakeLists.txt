@@ -25,7 +25,6 @@ file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/models/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/handlers/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/requests/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 
 include_directories(
