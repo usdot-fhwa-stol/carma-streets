@@ -67,7 +67,7 @@ void intersection_model_event_update(std::shared_ptr<intersection_model::interse
                 if(is_updated)
                 {
                     auto map_msg_ptr = map_msp_worker->get_map_msg_ptr(); 
-                    model->update_int_info_by_map_msg(map_msg_ptr);
+                    model->update_intersecion_info_by_map_msg(map_msg_ptr);
                 }
             }
         }
