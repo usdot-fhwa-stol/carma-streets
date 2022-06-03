@@ -374,6 +374,7 @@ namespace intersection_model
 
     bool intersection_model::update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg)
     {
+        bool is_updated = false;
         SPDLOG_DEBUG("Intersection id {0} has {1} number of geometries.", int_map_msg->intersectionid, int_map_msg->geometries.size());
         if(int_map_msg->intersectionid, int_map_msg->geometries.size() == 0)
         {
@@ -403,6 +404,7 @@ namespace intersection_model
             link_departure_lanes_m.insert({map_msg_lane.lane_id, map_msg_lane});
         }     
         
+        //Matching enter lanelet, departure lanelet to signal group id
         std::vector<signalized_intersection_lanelets> enter_departure_lanelets2SG_id_v;    
         for (auto lane: entry_lane2connections_m)
         {
@@ -420,54 +422,73 @@ namespace intersection_model
                 long signal_group_id = conn.signalGroup;
 
                 signalized_intersection_lanelets temp_sil; 
-                temp_sil.enter_lanelet = entry_lanelet.id();
-                temp_sil.depart_lanelet = depart_lanelet.id();
+                temp_sil.enter_lanelet_id = entry_lanelet.id();
+                temp_sil.depart_lanelet_id = depart_lanelet.id();
                 temp_sil.signal_group_id = signal_group_id;
                 enter_departure_lanelets2SG_id_v.push_back(temp_sil);
-                SPDLOG_INFO("enter_departure_lanelets2SG_id_v: enter_lanelet_id = {0}, depart_lanelet_id = {1}, signal group_id = {2}.", temp_sil.enter_lanelet, temp_sil.depart_lanelet, temp_sil.signal_group_id);
+                SPDLOG_INFO("enter_departure_lanelets2SG_id_v: enter_lanelet_id = {0}, depart_lanelet_id = {1}, signal group_id = {2}.", temp_sil.enter_lanelet_id, temp_sil.depart_lanelet_id, temp_sil.signal_group_id);
             }
         }
 
+        //Matching intersection link lanelet_id with signal group id
         std::unordered_map<lanelet::Id, long> link_lanelet2signal_group_id_m;
         for(auto itr = enter_departure_lanelets2SG_id_v.begin(); itr != enter_departure_lanelets2SG_id_v.end(); itr++)
         {
-            auto following_enter_lanelets = this->vehicleGraph_ptr->following( this->map->laneletLayer.get(itr->enter_lanelet), true);
-            auto prev_depart_lanelets =  this->vehicleGraph_ptr->previous(this->map->laneletLayer.get(itr->depart_lanelet), true);
-            std::vector<lanelet::Id> fel_ids;
-            std::vector<lanelet::Id> pdl_ids;
-            std::vector<lanelet::Id> v_intersection;
-            std::cout << following_enter_lanelets <<std::endl;
-            std::cout << prev_depart_lanelets <<std::endl;
-            for(auto temp_lanelet: following_enter_lanelets)
+            auto link_lanelet_id = find_link_lanelet_id_by_enter_depart_lanelet_ids(itr->enter_lanelet_id, itr->depart_lanelet_id);    
+            if(link_lanelet_id != lanelet::InvalId)
             {
-                fel_ids.push_back(temp_lanelet.id());
+                itr->link_lanelet_id = link_lanelet_id;
+                link_lanelet2signal_group_id_m.insert({link_lanelet_id, itr->signal_group_id});
             }
-
-            for(auto temp_lanelet: prev_depart_lanelets)
+            else
             {
-                pdl_ids.push_back(temp_lanelet.id());
-            }
-            std::set_intersection(fel_ids.begin(), fel_ids.end(), pdl_ids.begin(), pdl_ids.end(), std::back_inserter(v_intersection));
-            if(v_intersection.size() > 0)
-            {
-                itr->link_lanelet = v_intersection.front();
-                link_lanelet2signal_group_id_m.insert({v_intersection.front(), itr->signal_group_id});
+                continue;
             }
         }     
+            std::cout << link_lanelet2signal_group_id_m.size() <<std::endl;
 
         //Update intersection link lanelet info with signal group id
-        bool is_updated = false;        
+        bool is_signal_group_updated = false;        
         for(auto itr = this->int_info.link_lanelets_info.begin(); itr != this->int_info.link_lanelets_info.end(); itr++)
         {
-            auto temp_iter = link_lanelet2signal_group_id_m.find(itr->id);
-            if(temp_iter!= link_lanelet2signal_group_id_m.end())
+            auto find_itr = link_lanelet2signal_group_id_m.find(itr->id);
+            if(find_itr != link_lanelet2signal_group_id_m.end())
             {
-                is_updated = true;
                 itr->signal_group_id = link_lanelet2signal_group_id_m[itr->id];
+                is_signal_group_updated = true; 
             }
         }
-        is_updated ? SPDLOG_INFO("Intersection info is updated.") : SPDLOG_INFO("Intersection_map message is processed, but intersection information is not updated.");
+        is_signal_group_updated ? SPDLOG_INFO("Intersection info is updated with signal group ids.") : SPDLOG_INFO("Intersection_map message is processed, but intersection information  signal group ids are not updated.");
+        is_updated = is_updated || is_signal_group_updated; 
         return is_updated;
+    }
+
+    lanelet::Id intersection_model::find_link_lanelet_id_by_enter_depart_lanelet_ids(const lanelet::Id enter_lanelet_id, const lanelet::Id depart_lanelet_id ) const
+    {
+        auto following_enter_lanelets = this->vehicleGraph_ptr->following(get_enter_lanelet_by_id(enter_lanelet_id), true);
+        auto prev_depart_lanelets =  this->vehicleGraph_ptr->previous(get_departure_lanelet_by_id(depart_lanelet_id), true);
+        std::vector<lanelet::Id> fel_ids;
+        std::vector<lanelet::Id> pdl_ids;
+        std::vector<lanelet::Id> link_lanelet_id_intersect_v;
+        for(auto temp_lanelet: following_enter_lanelets)
+        {
+            fel_ids.push_back(temp_lanelet.id());
+        }
+        std::sort(fel_ids.begin(), fel_ids.end());
+
+        for(auto temp_lanelet: prev_depart_lanelets)
+        {
+            pdl_ids.push_back(temp_lanelet.id());
+        }
+        std::sort(pdl_ids.begin(), pdl_ids.end());
+        std::set_intersection(fel_ids.begin(), fel_ids.end(), pdl_ids.begin(), pdl_ids.end(), std::back_inserter(link_lanelet_id_intersect_v));
+        if(link_lanelet_id_intersect_v.size() > 0)
+        {
+            SPDLOG_DEBUG("Found matching link lanelet id = {0} for enter lanelet id = {1} and departure lanelet id = {2}", link_lanelet_id_intersect_v.front(),enter_lanelet_id, depart_lanelet_id);
+            return link_lanelet_id_intersect_v.front();
+        }  
+        SPDLOG_DEBUG("NO matching link lanelet for enter lanelet id = {1} and departure lanelet id = {2}", link_lanelet_id_intersect_v.front(),enter_lanelet_id, depart_lanelet_id);
+        return lanelet::InvalId;
     }
 
     void intersection_model::mapping_lanelet_id_2_lane_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet> subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
@@ -563,6 +584,45 @@ namespace intersection_model
             SPDLOG_ERROR("Cannot project (x, y,z) point to geolocation: ({0} ,{1}, {2}). Error {3}", x, y, z);
         }
         return gps_point;  
+    }
+
+    lanelet::ConstLanelet intersection_model::get_enter_lanelet_by_id(lanelet::Id id) const
+    {
+        lanelet::ConstLanelet result;
+        for(auto ll : this->entering_lanelets)
+        {
+            if(ll.id() == id)
+            {
+                return ll;
+            }
+        }
+        return result;
+    }
+
+    lanelet::ConstLanelet intersection_model::get_link_lanelet_by_id(lanelet::Id id) const
+    {
+        lanelet::ConstLanelet result;
+        for(auto ll : this->link_lanelets)
+        {
+            if(ll.id() == id)
+            {
+                return ll;
+            }
+        }
+        return result;
+    }
+
+    lanelet::ConstLanelet intersection_model::get_departure_lanelet_by_id(lanelet::Id id) const
+    {
+        lanelet::ConstLanelet result;
+        for(auto ll : this->departure_lanelets)
+        {
+            if(ll.id() == id)
+            {
+                return ll;
+            }
+        }
+        return result;
     }
 
     intersection_model::~intersection_model()

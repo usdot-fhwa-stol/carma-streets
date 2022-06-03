@@ -87,9 +87,9 @@ namespace intersection_model
 
     struct signalized_intersection_lanelets
     {
-        lanelet::Id enter_lanelet;
-        lanelet::Id link_lanelet;
-        lanelet::Id depart_lanelet;
+        lanelet::Id enter_lanelet_id;
+        lanelet::Id link_lanelet_id;
+        lanelet::Id depart_lanelet_id;
         long signal_group_id = 0;
     };
 
@@ -228,6 +228,29 @@ namespace intersection_model
 
             lanelet::GPSPoint map_point2_gps(double x, double y, double z) const;
 
+            lanelet::Id find_link_lanelet_id_by_enter_depart_lanelet_ids(const lanelet::Id enter_lanelet_id, const lanelet::Id depart_lanelet_id ) const;
+
+            /**
+             * @brief Get the enter lanelet by id object from the list of intersection entering lanelets
+             * @param id 
+             * @return lanelet::ConstLanelet . If not matching, the it returns invalid lanelet
+             */
+            lanelet::ConstLanelet get_enter_lanelet_by_id(lanelet::Id id) const;
+
+            /**
+             * @brief Get the link lanelet by id object from the list of intersection link lanelets
+             * @param id 
+             * @return lanelet::ConstLanelet . If not matching, the it returns invalid lanelet
+             */
+            lanelet::ConstLanelet get_link_lanelet_by_id(lanelet::Id id) const;
+
+            /**
+             * @brief Get the deaparture lanelet by id object from the list of intersection deaparture lanelets
+             * @param id 
+             * @return lanelet::ConstLanelet. If not matching, the it returns invalid lanelet
+             */
+            lanelet::ConstLanelet get_departure_lanelet_by_id(lanelet::Id id) const;   
+
         private:
             lanelet::LaneletMapPtr map;
             lanelet::projection::LocalFrameProjector *projector;
@@ -259,7 +282,7 @@ namespace intersection_model
             * and is allowed to ignore any further signals from infrastructure.         
             **/
             //Keep a private copy of departure lanelets geometry for intersection
-            std::vector<lanelet::ConstLanelet> departure_lanelets;         
+            std::vector<lanelet::ConstLanelet> departure_lanelets;    
     };
 }
 #endif
