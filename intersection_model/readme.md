@@ -127,6 +127,26 @@ docker build -t intersection_model -f intersection_model/Dockerfile .
 1. intersection model is a service used the expose intersection geometry information from MAP and lanelet2 osm map to carma-streets services that require this information via REST server. 
 2. Intersection Geometry consists of list of entry, link, and departure lanelets which have the following fields:
 ```
+intersection_info:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        entry_lanelets:
+          $ref: "#/components/schemas/lanelet_array"
+        link_lanelets:
+          $ref: "#/components/schemas/lanelet_array"
+        departure_lanelets:
+          $ref: "#/components/schemas/lanelet_array"
+        
+lanelet_array:
+    description: The array of lanelets
+    type: array
+    items:
+        $ref: "#/components/schemas/lanelet_info"
+
 lanelet_info:
     description: The information of lanelet 
     type: object
