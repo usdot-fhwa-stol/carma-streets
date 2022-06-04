@@ -4,11 +4,8 @@
 
 namespace intersection_model
 {
-    map_msg_worker::map_msg_worker(const int intersection_id, const std::string &bootstrap_server, const std::string &map_msg_group_id, const std::string &map_msg_topic_name)
+    map_msg_worker::map_msg_worker(const int intersection_id, const std::string &bootstrap_server, const std::string &map_msg_group_id, const std::string &map_msg_topic_name):bootstrap_server(bootstrap_server), map_msg_group_id(map_msg_group_id),map_msg_topic_name(map_msg_topic_name)
     {
-        this->bootstrap_server = bootstrap_server;
-        this->map_msg_group_id = map_msg_group_id;
-        this->map_msg_topic_name = map_msg_topic_name;
         /**
          * Kafka client config
          */
@@ -107,7 +104,7 @@ namespace intersection_model
                                     {
                                         map_connection map_connect;
                                         map_connect.lane_id = std::stol(connectsto[k].FindMember("connecting_lane")->value.FindMember("lane")->value.GetString());
-                                        map_connect.signalGroup = std::stol(connectsto[k].FindMember("signal_group")->value.GetString());
+                                        map_connect.signalGroup = std::stoi(connectsto[k].FindMember("signal_group")->value.GetString());
                                         lane.connection.push_back(map_connect);
                                     }
                                 }
@@ -140,7 +137,7 @@ namespace intersection_model
         return _map_msg_consumer;
     }
 
-    rapidjson::Document map_msg_worker::parse_JSON_string(const std::string &jsonString)
+    rapidjson::Document map_msg_worker::parse_JSON_string(const std::string &jsonString) const
     {
         rapidjson::Document doc;
         bool has_parse_error = doc.Parse(jsonString.c_str()).HasParseError() ? true : false;

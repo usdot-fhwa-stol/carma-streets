@@ -210,7 +210,7 @@ namespace intersection_model
            
             //If the departure lanelet with the same lanelet id already exist in the list, do not add this lanelet into the list
             bool is_exist = false;
-            for(const auto subj_dpl: departure_lanelets)
+            for(const auto& subj_dpl: departure_lanelets)
             {
                 if(subj_dpl.id() == depart_lanelet.id())
                 {
@@ -292,7 +292,7 @@ namespace intersection_model
         {
             //comparing centerline between subject link lanelet and all other link lanelets at the intersection
             lanelet::ConstLineString2d subject_centerline_b = lanelets.get(subject_link_lanelet_id).centerline2d();
-            for (const auto link_lanelet : this->int_info.link_lanelets_info)
+            for (const auto& link_lanelet : this->int_info.link_lanelets_info)
             {
                 if (std::find(lanelet_ids_to_skip.begin(), lanelet_ids_to_skip.end(), link_lanelet.id) != lanelet_ids_to_skip.end())
                 {
@@ -351,7 +351,7 @@ namespace intersection_model
             return is_link_lanelet_id;
         }
 
-        for (const auto link_lanelet_info : this->int_info.link_lanelets_info)
+        for (const auto& link_lanelet_info : this->int_info.link_lanelets_info)
         {
             if (lanelet_id == link_lanelet_info.id)
             {
@@ -381,11 +381,11 @@ namespace intersection_model
             return false;
         }  
         // Assuming the map msg only has one geometry object
-        auto map_msg_geometry = int_map_msg->geometries.front();
+        const auto& map_msg_geometry = int_map_msg->geometries.front();
         std::unordered_map<long, lanelet::ConstLanelet> entry_lane2lanelet_m;
         std::unordered_map<long, std::vector<map_connection>> entry_lane2connections_m;
         std::unordered_map<long, map_lane> link_departure_lanes_m; 
-        for(auto map_msg_lane: map_msg_geometry.approach.lanes)
+        for(const auto& map_msg_lane: map_msg_geometry.approach.lanes)
         {    
             // Lane geometry has to have at least 2 points to form a path/line
             if(map_msg_lane.nodes.size() < 2)
@@ -490,7 +490,7 @@ namespace intersection_model
         return lanelet::InvalId;
     }
 
-    void intersection_model::mapping_lanelet_id_2_lane_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet> subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
+    void intersection_model::mapping_lanelet_id_2_lane_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
     {    
         std::vector<lanelet::BasicPoint3d> basic_points = convert_lane_path_2_basic_points(ref_point, lane);
         std::unordered_map<lanelet::Id, double> lanelet2lane_path_distance_m;
@@ -502,7 +502,7 @@ namespace intersection_model
         }
         //Find the nearest lanelet from the lane path by shortest average distance
         const auto&  min_distance_pair = std::min_element(lanelet2lane_path_distance_m.begin(), lanelet2lane_path_distance_m.end(), [](const auto& l, const auto& r){return l.second < r.second; });
-        for(auto subj_l: subj_lanelets)
+        for(const auto& subj_l: subj_lanelets)
         {
             if(subj_l.id() == min_distance_pair->first)
             {
@@ -533,9 +533,9 @@ namespace intersection_model
         return basic_point_v;
     }
 
-    double intersection_model::compute_points_2_lanelet_avg_distance(const std::vector<lanelet::BasicPoint3d>  basic_points, lanelet::ConstLanelet subj_lanelet) const
+    double intersection_model::compute_points_2_lanelet_avg_distance(const std::vector<lanelet::BasicPoint3d>&  basic_points, lanelet::ConstLanelet subj_lanelet) const
     {
-        int points_num = basic_points.size();
+        auto points_num = basic_points.size();
         double distance_sum = 0;
         lanelet::ConstLineString2d centerline = subj_lanelet.centerline2d();
         for(const auto&  bp3D: basic_points)

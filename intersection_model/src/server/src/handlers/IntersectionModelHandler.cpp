@@ -33,6 +33,7 @@ namespace IntersectionModelAPI
                 OpenAPI::OAILanelet_info lanelet_info;
                 lanelet_info.setId(itr->id);
                 lanelet_info.setSpeedLimit(itr->speed_limit);
+                lanelet_info.setSignalGroupId(itr->signal_group_id);
 
                 // Update the llink lanelet_info with the list of conflict lanelets
                 std::vector<intersection_model::lanelet_info_t> conflict_lanelet_info_v = int_worker_->get_conflict_lanelets_info(itr->id);
@@ -54,6 +55,12 @@ namespace IntersectionModelAPI
                 lanelet_info.setId(itr->id);
                 lanelet_info.setSpeedLimit(itr->speed_limit);
                 lanelet_info.setLength(itr->length);
+                QList<qint32> conn_lanelet_ids;
+                for(const auto & conn_lane_id: itr->connecting_lanelet_ids)
+                {
+                    conn_lanelet_ids.push_back(conn_lane_id);
+                }
+                lanelet_info.setConnectingLaneletIds(conn_lanelet_ids);
                 entry_lanlets.push_back(lanelet_info);
             }
             res.setEntryLanelets(entry_lanlets);
@@ -93,6 +100,12 @@ namespace IntersectionModelAPI
                 lanelet_info.setId(itr->id);
                 lanelet_info.setSpeedLimit(itr->speed_limit);
                 lanelet_info.setLength(itr->length);
+                QList<qint32> conn_lanelet_ids;
+                for(const auto & conn_lane_id: itr->connecting_lanelet_ids)
+                {
+                    conn_lanelet_ids.push_back(conn_lane_id);
+                }
+                lanelet_info.setConnectingLaneletIds(conn_lanelet_ids);
                 res.push_back(lanelet_info);
             }
             reqObj->listEntryLaneletsResponse(res);
@@ -112,6 +125,7 @@ namespace IntersectionModelAPI
                 lanelet_info.setId(itr->id);
                 lanelet_info.setSpeedLimit(itr->speed_limit);
                 lanelet_info.setLength(itr->length);
+                lanelet_info.setSignalGroupId(itr->signal_group_id);
                 res.push_back(lanelet_info);
             }
             reqObj->listLinkLaneletsResponse(res);
@@ -135,6 +149,7 @@ namespace IntersectionModelAPI
                     lanelet_info.setId(itr->id);
                     lanelet_info.setSpeedLimit(itr->speed_limit);
                     lanelet_info.setLength(itr->length);
+                    lanelet_info.setSignalGroupId(itr->signal_group_id);
                     res.push_back(lanelet_info);
                 }
                 reqObj->getConflictLaneletsResponse(res);

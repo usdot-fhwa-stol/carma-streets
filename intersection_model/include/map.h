@@ -20,7 +20,7 @@ namespace intersection_model
         geometric = 4,
         navigational = 8
     };
-    enum map_node_attributes
+    enum class map_node_attributes
     {
         width = 1,
         packed = 2

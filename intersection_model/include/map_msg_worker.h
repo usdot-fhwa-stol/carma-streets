@@ -57,6 +57,6 @@ namespace intersection_model
         /**
          * @brief parse MAP msg json string with rapidjson document
          */
-        rapidjson::Document parse_JSON_string(const std::string &jsonString);
+        rapidjson::Document parse_JSON_string(const std::string &jsonString) const;
     };
 }
