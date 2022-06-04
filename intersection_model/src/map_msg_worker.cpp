@@ -127,12 +127,12 @@ namespace intersection_model
         return is_updated;
     }
 
-    const std::shared_ptr<intersection_map> map_msg_worker::get_map_msg_ptr() const
+    const std::shared_ptr<intersection_map>& map_msg_worker::get_map_msg_ptr() const
     {
         return _intersection_map_ptr;
     }
 
-    const std::shared_ptr<kafka_clients::kafka_consumer_worker> map_msg_worker::get_map_msg_consumer_ptr() const
+    const std::shared_ptr<kafka_clients::kafka_consumer_worker>& map_msg_worker::get_map_msg_consumer_ptr() const
     {
         return _map_msg_consumer;
     }

@@ -181,7 +181,7 @@ namespace intersection_model
         //Retrieve all the possible link lanelets for the entry lanelet
         lanelet::ConstLanelets link_lanelets_per_entering_lanelet = this->vehicleGraph_ptr->following(entry_lanelet, false);
 
-        //Every entry lanelet at the intersection has tt most three link lanelets
+        //Every entry lanelet at the intersection has at most three link lanelets
         for (auto &link_lanelet : link_lanelets_per_entering_lanelet)
         {
             lanelet_info_t lanelet_info_link;
@@ -192,13 +192,12 @@ namespace intersection_model
             link_lanelets.push_back(link_lanelet);
             
             //Updating connecting lanelet ids for entering lanelet
-            for(auto itr = this->int_info.entering_lanelets_info.begin(); itr!=this->int_info.entering_lanelets_info.end(); itr++ )
-            {
-                if(itr->id == entry_lanelet.id())
+            std::for_each(this->int_info.entering_lanelets_info.begin(), this->int_info.entering_lanelets_info.end(), [link_lanelet, entry_lanelet](auto& ref){
+                if(ref.id == entry_lanelet.id())
                 {
-                    itr->connecting_lanelet_ids.push_back(link_lanelet.id());
+                    ref.connecting_lanelet_ids.push_back(link_lanelet.id());
                 }
-            }
+            });
 
             //Only one departure lanelet per link lanelet
             lanelet_info_t lanelet_info_depart;
@@ -225,12 +224,12 @@ namespace intersection_model
         }
     }
 
-    const intersection_info_t intersection_model::get_intersection_info() const 
+    const intersection_info_t& intersection_model::get_intersection_info() const 
     {
         return this->int_info;
     }
 
-   const  std::vector<lanelet_info_t> intersection_model::get_entry_lanelets_info() const 
+   const  std::vector<lanelet_info_t>& intersection_model::get_entry_lanelets_info() const 
     {
         return this->int_info.entering_lanelets_info;
     }
@@ -264,12 +263,12 @@ namespace intersection_model
         return speed_limit_result;
     }
 
-   const  std::vector<lanelet_info_t> intersection_model::get_link_lanelets_info() const 
+   const  std::vector<lanelet_info_t>& intersection_model::get_link_lanelets_info() const 
     {
         return this->int_info.link_lanelets_info;
     }
 
-    const std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets_info(int64_t sub_link_lanelet_id)
+    std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets_info(int64_t sub_link_lanelet_id)
     {       
         //Check the subject link_lanelet conflict by comparing it to all link lanelets at the intersection
         lanelet::Id subject_link_lanelet_id{sub_link_lanelet_id};
@@ -345,7 +344,7 @@ namespace intersection_model
     {
         bool is_link_lanelet_id = false;
 
-        if(this->int_info.link_lanelets_info.size() == 0)
+        if(this->int_info.link_lanelets_info.empty())
         {
             SPDLOG_ERROR("Intersection information contains zero number of link lanelets.");
             return is_link_lanelet_id;
@@ -362,7 +361,7 @@ namespace intersection_model
         return is_link_lanelet_id;
     }
 
-    const  std::set<lanelet_info_t> intersection_model::get_departure_lanelets_info() const 
+    const  std::set<lanelet_info_t>& intersection_model::get_departure_lanelets_info() const 
     {
         return this->int_info.departure_lanelets_info;
     }
@@ -376,7 +375,7 @@ namespace intersection_model
     {
         bool is_updated = false;
         SPDLOG_INFO("Intersection id {0} has {1} number of geometries.", int_map_msg->intersectionid, int_map_msg->geometries.size());
-        if(int_map_msg->geometries.size() == 0)
+        if(int_map_msg->geometries.empty())
         {
             return false;
         }  
@@ -394,7 +393,7 @@ namespace intersection_model
                 continue;
             }
             //Entry lane includes connection in MAP message. 
-            if(map_msg_lane.connection.size() != 0 )
+            if(!map_msg_lane.connection.empty() )
             {
                 //Mapping MAP message lane id to lanelet id from OSM map
                 mapping_lanelet_id_2_lane_id(map_msg_geometry.refpoint, map_msg_lane, this->entering_lanelets, entry_lane2lanelet_m);
@@ -432,31 +431,26 @@ namespace intersection_model
 
         //Matching intersection link lanelet_id with signal group id
         std::unordered_map<lanelet::Id, int32_t> link_lanelet2signal_group_id_m;
-        for(auto  itr = enter_departure_lanelets2SG_id_v.begin(); itr != enter_departure_lanelets2SG_id_v.end(); itr++)
+        std::for_each(enter_departure_lanelets2SG_id_v.begin(), enter_departure_lanelets2SG_id_v.end(),[&](auto& ref)
         {
-            const auto&  link_lanelet_id = find_link_lanelet_id_by_enter_depart_lanelet_ids(itr->enter_lanelet_id, itr->depart_lanelet_id);    
+            const auto&  link_lanelet_id = find_link_lanelet_id_by_enter_depart_lanelet_ids(ref.enter_lanelet_id, ref.depart_lanelet_id);    
             if(link_lanelet_id != lanelet::InvalId)
             {
-                itr->link_lanelet_id = link_lanelet_id;
-                link_lanelet2signal_group_id_m.insert({link_lanelet_id, itr->signal_group_id});
+                ref.link_lanelet_id = link_lanelet_id;
+                link_lanelet2signal_group_id_m.insert({link_lanelet_id, ref.signal_group_id});
             }
-            else
-            {
-                continue;
-            }
-        }     
+        });     
 
         //Update intersection link lanelet info with signal group id
-        bool is_signal_group_updated = false;        
-        for(auto itr = this->int_info.link_lanelets_info.begin(); itr != this->int_info.link_lanelets_info.end(); itr++)
-        {
-            auto  find_itr = link_lanelet2signal_group_id_m.find(itr->id);
+        bool is_signal_group_updated = false;   
+        std::for_each(this->int_info.link_lanelets_info.begin(), this->int_info.link_lanelets_info.end(), [&](auto& ref){
+            auto find_itr = link_lanelet2signal_group_id_m.find(ref.id);
             if(find_itr != link_lanelet2signal_group_id_m.end())
             {
-                itr->signal_group_id = link_lanelet2signal_group_id_m[itr->id];
+                ref.signal_group_id = link_lanelet2signal_group_id_m[ref.id];
                 is_signal_group_updated = true; 
             }
-        }
+        }); 
         is_signal_group_updated ? SPDLOG_INFO("Intersection info is updated with signal group ids.") : SPDLOG_INFO("Intersection_map message is processed, but intersection information  signal group ids are not updated.");
         is_updated = is_updated || is_signal_group_updated; 
         return is_updated;
@@ -481,7 +475,7 @@ namespace intersection_model
         }
         std::sort(pdl_ids.begin(), pdl_ids.end());
         std::set_intersection(fel_ids.begin(), fel_ids.end(), pdl_ids.begin(), pdl_ids.end(), std::back_inserter(link_lanelet_id_intersect_v));
-        if(link_lanelet_id_intersect_v.size() > 0)
+        if(!link_lanelet_id_intersect_v.empty())
         {
             SPDLOG_DEBUG("Found matching link lanelet id = {0} for enter lanelet id = {1} and departure lanelet id = {2}", link_lanelet_id_intersect_v.front(),enter_lanelet_id, depart_lanelet_id);
             return link_lanelet_id_intersect_v.front();
@@ -515,14 +509,17 @@ namespace intersection_model
     std::vector<lanelet::BasicPoint3d> intersection_model::convert_lane_path_2_basic_points(const map_referencepoint& ref_point, const map_lane& lane) const
     {
         std::vector<lanelet::BasicPoint3d> basic_point_v;
-        const auto&  ref_point3d = gps_2_map_point(ref_point.latitude/10000000.0, ref_point.longitude/10000000.0, ref_point.elevation);
+        double lat = static_cast<double>(ref_point.latitude) * TENTH_TO_ONE * MICRO_DEGREE_TO_DEGREE;
+        double lon = static_cast<double>(ref_point.longitude) * TENTH_TO_ONE * MICRO_DEGREE_TO_DEGREE; 
+        double elev = static_cast<double>(ref_point.elevation) * DM_TO_M; 
+        const auto&  ref_point3d = gps_2_map_point(lat, lon, elev);
         double cur_x = ref_point3d.x();
         double cur_y = ref_point3d.y();
         double cur_z = ref_point3d.z();
         for(const auto&  node : lane.nodes)
         {
-            cur_x += node.x/100.0;
-            cur_y += node.y/100.0;
+            cur_x += static_cast<double>(node.x) * CM_TO_M;
+            cur_y += static_cast<double>(node.y) * CM_TO_M;
 
             lanelet::BasicPoint3d basic_point;
             basic_point.x() = cur_x;
@@ -560,9 +557,9 @@ namespace intersection_model
         {
             basic_point =  projector->forward(sub_gps); 
         }
-        catch (lanelet::ForwardProjectionError &ex)
+        catch (const lanelet::ForwardProjectionError &ex)
         {
-            SPDLOG_ERROR("Cannot project the GPS position: Latitude: {0} , Longitude: {1}, Elevation: {2}", lat, lon, elev);
+            SPDLOG_ERROR("Cannot project the GPS position: Latitude: {0} , Longitude: {1}, Elevation: {2}. Error details: {3}", lat, lon, elev, ex.what());
         }
         return basic_point;    
     }
@@ -578,9 +575,9 @@ namespace intersection_model
         {
             gps_point =  projector->reverse(sub_map_point); 
         }
-        catch (lanelet::ReverseProjectionError &ex)
+        catch (const lanelet::ReverseProjectionError &ex)
         {
-            SPDLOG_ERROR("Cannot project (x, y,z) point to geolocation: ({0} ,{1}, {2}). Error {3}", x, y, z);
+            SPDLOG_ERROR("Cannot project (x, y,z) point to geolocation: ({0} ,{1}, {2}). Error {3}", x, y, z, ex.what());
         }
         return gps_point;  
     }

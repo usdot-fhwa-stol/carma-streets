@@ -45,14 +45,14 @@ namespace intersection_model
          * 
          * @return const std::shared_ptr<intersection_map> 
          */
-        const std::shared_ptr<intersection_map> get_map_msg_ptr() const;
+        const std::shared_ptr<intersection_map>& get_map_msg_ptr() const;
         
         /**
          * @brief Get the map msg consumer ptr object and prevent external class from modifying it
          * 
          * @return const std::shared_ptr<kafka_clients::kafka_consumer_worker> 
          */
-        const std::shared_ptr<kafka_clients::kafka_consumer_worker> get_map_msg_consumer_ptr() const;
+        const std::shared_ptr<kafka_clients::kafka_consumer_worker>& get_map_msg_consumer_ptr() const;
 
         /**
          * @brief parse MAP msg json string with rapidjson document

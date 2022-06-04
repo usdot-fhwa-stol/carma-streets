@@ -128,32 +128,32 @@ namespace intersection_model
              * @brief Get intersection metadata
              * @return intersection information struct 
              * **/
-            const  intersection_info_t get_intersection_info() const ;
+            const  intersection_info_t& get_intersection_info() const ;
 
             /**
              * @brief Get list of entry lanelet ids
              * @return A vector of lanelet information struct
              * **/
-            const std::vector<lanelet_info_t> get_entry_lanelets_info() const ;
+            const std::vector<lanelet_info_t>& get_entry_lanelets_info() const ;
 
             /**
              * @brief Get list of link lanelet ids
              * @return A vector of lanelet information struct
              * **/
-            const std::vector<lanelet_info_t> get_link_lanelets_info() const ;
+            const std::vector<lanelet_info_t>& get_link_lanelets_info() const ;
 
             /**
              * @brief Get list of conflict lanelet ids relative to the given link lanelet id
              * @param sub_link_lanelet_id is validated, and has to be link lanelet within an intersection
              * @return A vector of lanelet information struct
              * **/
-            const  std::vector<lanelet_info_t> get_conflict_lanelets_info(int64_t sub_link_lanelet_id);
+            std::vector<lanelet_info_t> get_conflict_lanelets_info(int64_t sub_link_lanelet_id);
 
             /**
              * @brief Get list of departure lanelet ids
              * @return A vector of lanelet information struct
              * **/
-            const std::set<lanelet_info_t> get_departure_lanelets_info() const;
+            const std::set<lanelet_info_t>& get_departure_lanelets_info() const;
 
             /**
              * @brief Comparing the given lanelet id with all link lanelet ids in the current intersection information 
@@ -293,7 +293,11 @@ namespace intersection_model
             const char* osm_file_path_key       = "osm_file_path";
             const char* intersection_name_key   = "intersection_name";
             const char* intersection_id_key     = "intersection_id";
-            const double MPH_TO_MS               = 0.44704; //Miles per hour to meters per seconds conversion
+            const double MPH_TO_MS              = 0.44704; //Miles per hour to meters per seconds conversion
+            const double CM_TO_M                = 0.01;
+            const double DM_TO_M                = 0.1;
+            const double MICRO_DEGREE_TO_DEGREE = 0.000001;
+            const double TENTH_TO_ONE           = 0.1; 
 
             //Routing graph is used to store the possible routing set
             lanelet::routing::RoutingGraphPtr  vehicleGraph_ptr;

@@ -8,12 +8,12 @@
 namespace intersection_model
 {
     /* MAP Enumerations */
-    enum map_type
+    enum class map_type
     {
         intersection = 1,
         roadway = 2
     };
-    enum map_message_attributes
+    enum class map_message_attributes
     {
         elevation = 1,
         decimeter = 2,
@@ -25,12 +25,12 @@ namespace intersection_model
         width = 1,
         packed = 2
     };
-    enum map_group_direction
+    enum class map_group_direction
     {
         approach = 1,
         egress = 2
     };
-    enum map_lane_type
+    enum class map_lane_type
     {
         vehicle = 1,
         computed = 2,
