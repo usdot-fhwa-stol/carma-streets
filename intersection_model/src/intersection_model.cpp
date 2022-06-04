@@ -235,9 +235,9 @@ namespace intersection_model
         return this->int_info.entering_lanelets_info;
     }
 
-    float intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
+    double intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
     {
-        float speed_limit_result = 0;
+        double speed_limit_result = 0;
         std::regex r("[0-9]+");
         lanelet::RegulatoryElementConstPtrs reg_elements = subj_lanelet.regulatoryElements();
 
@@ -375,13 +375,13 @@ namespace intersection_model
     bool intersection_model::update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg)
     {
         bool is_updated = false;
-        SPDLOG_DEBUG("Intersection id {0} has {1} number of geometries.", int_map_msg->intersectionid, int_map_msg->geometries.size());
+        SPDLOG_INFO("Intersection id {0} has {1} number of geometries.", int_map_msg->intersectionid, int_map_msg->geometries.size());
         if(int_map_msg->intersectionid, int_map_msg->geometries.size() == 0)
         {
             return false;
         }  
         // Assuming the map msg only has one geometry object
-        auto map_msg_geometry = int_map_msg->geometries.front();        
+        auto map_msg_geometry = int_map_msg->geometries.front();
         std::unordered_map<long, lanelet::ConstLanelet> entry_lane2lanelet_m;
         std::unordered_map<long, std::vector<map_connection>> entry_lane2connections_m;
         std::unordered_map<long, map_lane> link_departure_lanes_m; 
@@ -390,7 +390,7 @@ namespace intersection_model
             // Lane geometry has to have at least 2 points to form a path/line
             if(map_msg_lane.nodes.size() < 2)
             {
-                SPDLOG_DEBUG("Skip processing MAP message lane as lane id: {0} has less than 2 nodes. Connection size = {1}. Node size = {2}.", lane.lane_id, lane.connection.size(), lane.nodes.size());
+                SPDLOG_CRITICAL("Skip processing MAP message lane as lane id: {0} has less than 2 nodes. Connection size = {1}. Node size = {2}.", map_msg_lane.lane_id, map_msg_lane.connection.size(), map_msg_lane.nodes.size());
                 continue;
             }
             //Entry lane includes connection in MAP message. 
@@ -426,7 +426,7 @@ namespace intersection_model
                 temp_sil.depart_lanelet_id = depart_lanelet.id();
                 temp_sil.signal_group_id = signal_group_id;
                 enter_departure_lanelets2SG_id_v.push_back(temp_sil);
-                SPDLOG_INFO("enter_departure_lanelets2SG_id_v: enter_lanelet_id = {0}, depart_lanelet_id = {1}, signal group_id = {2}.", temp_sil.enter_lanelet_id, temp_sil.depart_lanelet_id, temp_sil.signal_group_id);
+                SPDLOG_DEBUG("Enter_lanelet_id = {0}, depart_lanelet_id = {1}, signal group_id = {2}.", temp_sil.enter_lanelet_id, temp_sil.depart_lanelet_id, temp_sil.signal_group_id);
             }
         }
 
@@ -498,7 +498,7 @@ namespace intersection_model
         for(auto subj_l: subj_lanelets)
         {
             double avg_distance = compute_points_2_lanelet_avg_distance(basic_points, subj_l);
-            SPDLOG_INFO("Lanelet id {0} to lane id = {1} path points average distance {2}", subj_l.id(), lane.lane_id, avg_distance);
+            SPDLOG_DEBUG("Lanelet id {0} to lane id = {1} path points average distance {2}", subj_l.id(), lane.lane_id, avg_distance);
             lanelet2lane_path_distance_m.insert({subj_l.id(), avg_distance});   
         }
         //Find the nearest lanelet from the lane path by shortest average distance
@@ -508,7 +508,7 @@ namespace intersection_model
             if(subj_l.id() == min_distance_pair->first)
             {
                 lane2lanelet_m.insert({lane.lane_id, subj_l});     
-                SPDLOG_INFO("min_distance_pair lanelet id = {0}, distance = {1}", min_distance_pair->first, min_distance_pair->second);   
+                SPDLOG_DEBUG("min_distance_pair lanelet id = {0}, distance = {1}", min_distance_pair->first, min_distance_pair->second);   
             }
         }        
     }

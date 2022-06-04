@@ -54,7 +54,7 @@ namespace intersection_model
     struct lanelet_info_t
     {
         int64_t id                      = 0;    //Uniquely identify the lanelet id within an OSM file
-        float speed_limit               = 0;    //Unit of measure m/s
+        double speed_limit               = 0;    //Unit of measure m/s
         double length                   = 0.0;  //Unit of meter
         int32_t signal_group_id         = 0;    //0 = Not available
         std::string turn_direction      = "NA"; //Turn direction of current lanelet
@@ -167,7 +167,7 @@ namespace intersection_model
              * @brief Retrieve the speed_limit of the current lanelet
              * @return speed_limit regulatory element that is attached to this lanelet
              **/
-            float get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
+            double get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
 
             /**
              * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet
@@ -220,14 +220,46 @@ namespace intersection_model
             bool update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg);
             void mapping_lanelet_id_2_lane_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet> subj_lanelets, std::unordered_map<long,lanelet::ConstLanelet>& lane2lanelet_m) const;
 
+            /**
+             * @brief Convert the centerline geometry of lane defined in J2735 MAP to a list of lanelet2 points in the OSM map.
+             * @param ref_point GPS location for a reference point inside an intersection
+             * @param lane defind in the J2735 MAP message 
+             * @return The list of lanelet2 map points
+             */
             std::vector<lanelet::BasicPoint3d>  convert_lane_path_2_basic_points(const map_referencepoint& ref_point, const map_lane& lane) const;
 
+            /**
+             * @brief Compute the average distance between a linestring and lanelet
+             * @param basic_points a list of points that form a line
+             * @param subj_lanelet the lanelet geometry
+             * @return The average distance between line and lanelet
+             */
             double compute_points_2_lanelet_avg_distance(const std::vector<lanelet::BasicPoint3d>  basic_points, lanelet::ConstLanelet subj_lanelet) const;
 
+            /**
+             * @brief Transform the GPS location into map point using porjector
+             * @param lat 
+             * @param lon 
+             * @param elev 
+             * @return lanelet::BasicPoint3d 
+             */
             lanelet::BasicPoint3d gps_2_map_point(double lat, double lon, double elev ) const;
 
+            /**
+             * @brief Transform the map point to gps location
+             * @param x coordinate
+             * @param y coordinate
+             * @param z coordinate
+             * @return GPS location
+             */
             lanelet::GPSPoint map_point2_gps(double x, double y, double z) const;
 
+            /**
+             * @brief Determine the connection lanelet for a pair of enter and departure lanelet at the intersection
+             * @param enter_lanelet_id 
+             * @param depart_lanelet_id 
+             * @return  The connection/link lanelet id if found. Otherwise return an invalid lanelet id
+             */
             lanelet::Id find_link_lanelet_id_by_enter_depart_lanelet_ids(const lanelet::Id enter_lanelet_id, const lanelet::Id depart_lanelet_id ) const;
 
             /**
@@ -261,7 +293,7 @@ namespace intersection_model
             const char* osm_file_path_key       = "osm_file_path";
             const char* intersection_name_key   = "intersection_name";
             const char* intersection_id_key     = "intersection_id";
-            const float MPH_TO_MS               = 0.44704; //Miles per hour to meters per seconds conversion
+            const double MPH_TO_MS               = 0.44704; //Miles per hour to meters per seconds conversion
 
             //Routing graph is used to store the possible routing set
             lanelet::routing::RoutingGraphPtr  vehicleGraph_ptr;
