@@ -90,7 +90,7 @@ namespace intersection_model
         lanelet::Id enter_lanelet_id;
         lanelet::Id link_lanelet_id;
         lanelet::Id depart_lanelet_id;
-        long signal_group_id = 0;
+        int32_t signal_group_id = 0;
     };
 
     class intersection_model
@@ -167,7 +167,7 @@ namespace intersection_model
              * @brief Retrieve the speed_limit of the current lanelet
              * @return speed_limit regulatory element that is attached to this lanelet
              **/
-            double get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
+            double get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet) const;
 
             /**
              * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet

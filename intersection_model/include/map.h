@@ -5,11 +5,6 @@
 #include <string>
 #include <spdlog/spdlog.h>
 
-/* Constants */
-#define map_maxstringlen 63
-#define map_maxgeometries 10
-#define map_maxlanes 30
-
 namespace intersection_model
 {
     /* MAP Enumerations */
@@ -62,7 +57,7 @@ namespace intersection_model
     {
         long lane_id;
         unsigned char connectionID;
-        long signalGroup;
+        int32_t signalGroup;
         unsigned short maneuver;
     };
     struct map_node
@@ -73,7 +68,7 @@ namespace intersection_model
     struct map_lane
     {
         long lane_id;
-        unsigned char laneName[map_maxstringlen];
+        std::string laneName;
         unsigned char type;
         unsigned short attributes;
         unsigned short width;

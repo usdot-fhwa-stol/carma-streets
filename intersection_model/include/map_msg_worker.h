@@ -28,9 +28,9 @@ namespace intersection_model
 
     public:
         map_msg_worker() = default;
-        map_msg_worker(const int intersection_id);
+        explicit map_msg_worker(const int intersection_id);
         map_msg_worker(const int intersection_id, const std::string &bootstrap_server, const std::string &map_msg_group_id, const std::string &map_msg_topic_name);
-        ~map_msg_worker();
+        ~map_msg_worker() = default;
 
         /**
          * @brief Update intesection map structure. It will only update when both kafka consumer consumes MAP message and intersection id from MAP message matches id from MAP message

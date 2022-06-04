@@ -210,7 +210,7 @@ namespace intersection_model
            
             //If the departure lanelet with the same lanelet id already exist in the list, do not add this lanelet into the list
             bool is_exist = false;
-            for(auto subj_dpl: departure_lanelets)
+            for(const auto subj_dpl: departure_lanelets)
             {
                 if(subj_dpl.id() == depart_lanelet.id())
                 {
@@ -235,7 +235,7 @@ namespace intersection_model
         return this->int_info.entering_lanelets_info;
     }
 
-    double intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet)
+    double intersection_model::get_speed_limit_by_lanelet(const lanelet::ConstLanelet &subj_lanelet) const
     {
         double speed_limit_result = 0;
         std::regex r("[0-9]+");
@@ -292,7 +292,7 @@ namespace intersection_model
         {
             //comparing centerline between subject link lanelet and all other link lanelets at the intersection
             lanelet::ConstLineString2d subject_centerline_b = lanelets.get(subject_link_lanelet_id).centerline2d();
-            for (auto link_lanelet : this->int_info.link_lanelets_info)
+            for (const auto link_lanelet : this->int_info.link_lanelets_info)
             {
                 if (std::find(lanelet_ids_to_skip.begin(), lanelet_ids_to_skip.end(), link_lanelet.id) != lanelet_ids_to_skip.end())
                 {
@@ -351,7 +351,7 @@ namespace intersection_model
             return is_link_lanelet_id;
         }
 
-        for (auto link_lanelet_info : this->int_info.link_lanelets_info)
+        for (const auto link_lanelet_info : this->int_info.link_lanelets_info)
         {
             if (lanelet_id == link_lanelet_info.id)
             {
@@ -376,7 +376,7 @@ namespace intersection_model
     {
         bool is_updated = false;
         SPDLOG_INFO("Intersection id {0} has {1} number of geometries.", int_map_msg->intersectionid, int_map_msg->geometries.size());
-        if(int_map_msg->intersectionid, int_map_msg->geometries.size() == 0)
+        if(int_map_msg->geometries.size() == 0)
         {
             return false;
         }  
@@ -406,20 +406,20 @@ namespace intersection_model
         
         //Matching enter lanelet, departure lanelet to signal group id
         std::vector<signalized_intersection_lanelets> enter_departure_lanelets2SG_id_v;    
-        for (auto lane: entry_lane2connections_m)
+        for (const auto& lane: entry_lane2connections_m)
         {
             long lane_id = lane.first;
-            auto entry_lanelet = entry_lane2lanelet_m[lane_id];
+            const auto& entry_lanelet = entry_lane2lanelet_m[lane_id];
             //Retrieve all connections for the entry lane
-            auto connections = entry_lane2connections_m[lane.first];
-            for(auto conn : connections)
+            const auto& connections = entry_lane2connections_m[lane.first];
+            for(const auto& conn : connections)
             {
                 //Find each departure lane for the entry lanelet using connections, and mapping the departure lane id to the above departure lanelet id
-                auto depart_lane = link_departure_lanes_m[conn.lane_id];
+                const auto&  depart_lane = link_departure_lanes_m[conn.lane_id];
                 std::unordered_map<long, lanelet::ConstLanelet> depart_lane2lanelet_m;                
                 mapping_lanelet_id_2_lane_id(map_msg_geometry.refpoint, depart_lane, this->departure_lanelets ,depart_lane2lanelet_m); 
-                auto depart_lanelet = depart_lane2lanelet_m[depart_lane.lane_id];
-                long signal_group_id = conn.signalGroup;
+                const auto&  depart_lanelet = depart_lane2lanelet_m[depart_lane.lane_id];
+                int32_t signal_group_id = conn.signalGroup;
 
                 signalized_intersection_lanelets temp_sil; 
                 temp_sil.enter_lanelet_id = entry_lanelet.id();
@@ -431,10 +431,10 @@ namespace intersection_model
         }
 
         //Matching intersection link lanelet_id with signal group id
-        std::unordered_map<lanelet::Id, long> link_lanelet2signal_group_id_m;
-        for(auto itr = enter_departure_lanelets2SG_id_v.begin(); itr != enter_departure_lanelets2SG_id_v.end(); itr++)
+        std::unordered_map<lanelet::Id, int32_t> link_lanelet2signal_group_id_m;
+        for(auto  itr = enter_departure_lanelets2SG_id_v.begin(); itr != enter_departure_lanelets2SG_id_v.end(); itr++)
         {
-            auto link_lanelet_id = find_link_lanelet_id_by_enter_depart_lanelet_ids(itr->enter_lanelet_id, itr->depart_lanelet_id);    
+            const auto&  link_lanelet_id = find_link_lanelet_id_by_enter_depart_lanelet_ids(itr->enter_lanelet_id, itr->depart_lanelet_id);    
             if(link_lanelet_id != lanelet::InvalId)
             {
                 itr->link_lanelet_id = link_lanelet_id;
@@ -450,7 +450,7 @@ namespace intersection_model
         bool is_signal_group_updated = false;        
         for(auto itr = this->int_info.link_lanelets_info.begin(); itr != this->int_info.link_lanelets_info.end(); itr++)
         {
-            auto find_itr = link_lanelet2signal_group_id_m.find(itr->id);
+            auto  find_itr = link_lanelet2signal_group_id_m.find(itr->id);
             if(find_itr != link_lanelet2signal_group_id_m.end())
             {
                 itr->signal_group_id = link_lanelet2signal_group_id_m[itr->id];
@@ -464,18 +464,18 @@ namespace intersection_model
 
     lanelet::Id intersection_model::find_link_lanelet_id_by_enter_depart_lanelet_ids(const lanelet::Id enter_lanelet_id, const lanelet::Id depart_lanelet_id ) const
     {
-        auto following_enter_lanelets = this->vehicleGraph_ptr->following(get_enter_lanelet_by_id(enter_lanelet_id), true);
-        auto prev_depart_lanelets =  this->vehicleGraph_ptr->previous(get_departure_lanelet_by_id(depart_lanelet_id), true);
+        const auto&  following_enter_lanelets = this->vehicleGraph_ptr->following(get_enter_lanelet_by_id(enter_lanelet_id), true);
+        const auto&  prev_depart_lanelets =  this->vehicleGraph_ptr->previous(get_departure_lanelet_by_id(depart_lanelet_id), true);
         std::vector<lanelet::Id> fel_ids;
         std::vector<lanelet::Id> pdl_ids;
         std::vector<lanelet::Id> link_lanelet_id_intersect_v;
-        for(auto temp_lanelet: following_enter_lanelets)
+        for(const auto&  temp_lanelet: following_enter_lanelets)
         {
             fel_ids.push_back(temp_lanelet.id());
         }
         std::sort(fel_ids.begin(), fel_ids.end());
 
-        for(auto temp_lanelet: prev_depart_lanelets)
+        for(const auto&  temp_lanelet: prev_depart_lanelets)
         {
             pdl_ids.push_back(temp_lanelet.id());
         }
@@ -494,14 +494,14 @@ namespace intersection_model
     {    
         std::vector<lanelet::BasicPoint3d> basic_points = convert_lane_path_2_basic_points(ref_point, lane);
         std::unordered_map<lanelet::Id, double> lanelet2lane_path_distance_m;
-        for(auto subj_l: subj_lanelets)
+        for(const auto&  subj_l: subj_lanelets)
         {
             double avg_distance = compute_points_2_lanelet_avg_distance(basic_points, subj_l);
             SPDLOG_DEBUG("Lanelet id {0} to lane id = {1} path points average distance {2}", subj_l.id(), lane.lane_id, avg_distance);
             lanelet2lane_path_distance_m.insert({subj_l.id(), avg_distance});   
         }
         //Find the nearest lanelet from the lane path by shortest average distance
-        auto min_distance_pair = std::min_element(lanelet2lane_path_distance_m.begin(), lanelet2lane_path_distance_m.end(), [](const auto& l, const auto& r){return l.second < r.second; });
+        const auto&  min_distance_pair = std::min_element(lanelet2lane_path_distance_m.begin(), lanelet2lane_path_distance_m.end(), [](const auto& l, const auto& r){return l.second < r.second; });
         for(auto subj_l: subj_lanelets)
         {
             if(subj_l.id() == min_distance_pair->first)
@@ -515,11 +515,11 @@ namespace intersection_model
     std::vector<lanelet::BasicPoint3d> intersection_model::convert_lane_path_2_basic_points(const map_referencepoint& ref_point, const map_lane& lane) const
     {
         std::vector<lanelet::BasicPoint3d> basic_point_v;
-        auto ref_point3d = gps_2_map_point(ref_point.latitude/10000000.0, ref_point.longitude/10000000.0, ref_point.elevation);
+        const auto&  ref_point3d = gps_2_map_point(ref_point.latitude/10000000.0, ref_point.longitude/10000000.0, ref_point.elevation);
         double cur_x = ref_point3d.x();
         double cur_y = ref_point3d.y();
         double cur_z = ref_point3d.z();
-        for(auto node : lane.nodes)
+        for(const auto&  node : lane.nodes)
         {
             cur_x += node.x/100.0;
             cur_y += node.y/100.0;
@@ -538,9 +538,9 @@ namespace intersection_model
         int points_num = basic_points.size();
         double distance_sum = 0;
         lanelet::ConstLineString2d centerline = subj_lanelet.centerline2d();
-        for(auto bp3D: basic_points)
+        for(const auto&  bp3D: basic_points)
         {
-            auto bp2d = lanelet::utils::to2D(bp3D);
+            const auto&  bp2d = lanelet::utils::to2D(bp3D);
             double distance = lanelet::geometry::distance2d(bp2d, centerline);
             SPDLOG_DEBUG("Point to lanelet id {0} 2D distance {1}", subj_lanelet.id(), distance);
             distance_sum += distance;
@@ -588,7 +588,7 @@ namespace intersection_model
     lanelet::ConstLanelet intersection_model::get_enter_lanelet_by_id(lanelet::Id id) const
     {
         lanelet::ConstLanelet result;
-        for(auto ll : this->entering_lanelets)
+        for(const auto&  ll : this->entering_lanelets)
         {
             if(ll.id() == id)
             {
@@ -601,7 +601,7 @@ namespace intersection_model
     lanelet::ConstLanelet intersection_model::get_link_lanelet_by_id(lanelet::Id id) const
     {
         lanelet::ConstLanelet result;
-        for(auto ll : this->link_lanelets)
+        for(const auto&  ll : this->link_lanelets)
         {
             if(ll.id() == id)
             {
@@ -614,7 +614,7 @@ namespace intersection_model
     lanelet::ConstLanelet intersection_model::get_departure_lanelet_by_id(lanelet::Id id) const
     {
         lanelet::ConstLanelet result;
-        for(auto ll : this->departure_lanelets)
+        for(const auto&  ll : this->departure_lanelets)
         {
             if(ll.id() == id)
             {

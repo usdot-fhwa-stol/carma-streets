@@ -39,15 +39,6 @@ namespace intersection_model
         _intersection_map_ptr->intersectionid = intersection_id;
     }
 
-    map_msg_worker::~map_msg_worker()
-    {
-        if (_map_msg_consumer)
-        {
-            _map_msg_consumer->stop();
-        }
-        SPDLOG_INFO("~map_msg_worker destructed");
-    }
-
     bool map_msg_worker::update_map_msg(const std::string &payload)
     {
         bool is_updated = false;
