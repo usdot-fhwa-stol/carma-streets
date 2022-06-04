@@ -1,5 +1,119 @@
 #include <gtest/gtest.h>
+#include <iomanip>
 #include "intersection_model.h"
+
+
+class intersection_map_mock
+{
+public:
+    intersection_model::intersection_map int_map_msg;
+    intersection_map_mock()
+    {
+        int_map_msg.intersectionid = 9001;
+        intersection_model::map_geometry geometry;
+        geometry.refpoint.latitude  = 489978505;
+        geometry.refpoint.longitude = 80025947;
+        geometry.refpoint.elevation = 10;
+
+        //Entry lane 1
+        intersection_model::map_lane lane;
+        lane.lane_id = 1;
+
+        intersection_model::map_node node;
+        node.x = -2487;
+        node.y = -196;
+        lane.nodes.push_back(node);
+        node.x= 8;
+        node.y = 1;
+        lane.nodes.push_back(node);
+
+        intersection_model::map_connection conn;
+        conn.lane_id = 4;
+        conn.signalGroup = 4;
+        lane.connection.push_back(conn);
+        conn.lane_id = 5;
+        conn.signalGroup = 4;
+        lane.connection.push_back(conn);
+        geometry.approach.lanes.push_back(lane);
+
+        //Entry lane 2
+        lane.lane_id = 2;
+        lane.nodes.clear();
+        lane.connection.clear();
+        node.x= 2868;
+        node.y = -1534;
+        lane.nodes.push_back(node);
+        node.x= -19;
+        node.y = 399;
+        lane.nodes.push_back(node);
+
+        conn.lane_id = 5;
+        conn.signalGroup =2;
+        lane.connection.push_back(conn);
+        conn.lane_id = 6;
+        conn.signalGroup =2;
+        lane.connection.push_back(conn);
+        geometry.approach.lanes.push_back(lane);
+
+        //Entry lane 3
+        lane.lane_id = 3;
+        lane.nodes.clear();
+        lane.connection.clear();
+        node.x=  2455;
+        node.y = 1696;
+        lane.nodes.push_back(node);
+        node.x=  -7;
+        node.y = 429;
+        lane.nodes.push_back(node);
+
+        conn.lane_id = 4;
+        conn.signalGroup = 3;
+        lane.connection.push_back(conn);
+        conn.lane_id = 6;
+        conn.signalGroup = 3;
+        lane.connection.push_back(conn);
+        geometry.approach.lanes.push_back(lane);
+
+        //Depart lane 4
+        lane.lane_id = 4;
+        lane.nodes.clear();
+        lane.connection.clear();
+        node.x= 2483;
+        node.y = -1087;
+        lane.nodes.push_back(node);
+        node.x=  -7;
+        node.y = -384;
+        lane.nodes.push_back(node);
+        geometry.approach.lanes.push_back(lane);
+
+        //Depart lane 5
+        lane.lane_id = 5;
+        lane.nodes.clear();
+        lane.connection.clear();
+        node.x=  2876;
+        node.y = 2113;
+        lane.nodes.push_back(node);
+        node.x=  -15;
+        node.y = -517;
+        lane.nodes.push_back(node);
+        geometry.approach.lanes.push_back(lane);
+
+        //Depart lane 6
+        lane.lane_id = 6;
+        lane.nodes.clear();
+        lane.connection.clear();
+        node.x=  -9600;
+        node.y = -722;
+        lane.nodes.push_back(node);
+        node.x=  -558;
+        node.y = -6;
+        lane.nodes.push_back(node);
+        geometry.approach.lanes.push_back(lane);
+
+        int_map_msg.geometries.push_back(geometry);
+    };
+    ~intersection_map_mock(){};
+};
 
 TEST(intersection_model_test, file_not_found_map) {
     intersection_model::intersection_model model;
@@ -140,3 +254,148 @@ TEST(intersection_model_test, update_intersection_info)
     ASSERT_EQ(model.get_entry_lanelets().size(), 3);
 }
 
+TEST(intersection_model_test, map_point2_gps)
+{
+    intersection_model::intersection_model model;
+    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    double subj_lat = 48.9980241;
+    double subj_lon = 8.0025905; //48.9980241, 8.0025905
+    auto subj_point = model.gps_2_map_point(subj_lat,subj_lon, 0);
+    ASSERT_NEAR(subj_lat, model.map_point2_gps(subj_point.x(), subj_point.y(), subj_point.z()).lat, 0.0000001);
+    ASSERT_NEAR(subj_lon, model.map_point2_gps(subj_point.x(), subj_point.y(), subj_point.z()).lon, 0.0000001);    
+}
+
+TEST(intersection_model_test, gps_2_map_point)
+{   
+    intersection_model::intersection_model model;
+    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());
+    double subj_lat = 48.9979855;
+    double subj_lon = 8.0025914;
+    auto subj_point = model.gps_2_map_point(subj_lat,subj_lon, 0);
+    ASSERT_NEAR(subj_lat, model.map_point2_gps(subj_point.x(), subj_point.y(), subj_point.z()).lat, 0.0000001);
+    ASSERT_NEAR(subj_lon, model.map_point2_gps(subj_point.x(), subj_point.y(), subj_point.z()).lon, 0.0000001);   
+}       
+
+TEST(intersection_model_test, update_intersecion_info_by_map_msg)
+{
+    intersection_map_mock mockData;
+    auto int_map_msg_ptr = std::make_shared<intersection_model::intersection_map>();
+    int_map_msg_ptr->intersectionid = mockData.int_map_msg.intersectionid;
+    int_map_msg_ptr->geometries = mockData.int_map_msg.geometries;
+    intersection_model::intersection_model model;
+    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());
+    model.update_intersecion_info_by_map_msg(int_map_msg_ptr);
+    for(auto link_lane: model.get_intersection_info().link_lanelets_info)
+    {
+        
+        switch (link_lane.id)
+        {
+            case 169:
+            case 155:
+                ASSERT_NE(2,link_lane.signal_group_id);
+                break;
+            case 165:
+            case 156:
+                ASSERT_NE(3,link_lane.signal_group_id);
+                break;
+            case 161:
+            case 160:
+                ASSERT_NE(4,link_lane.signal_group_id);
+                break;
+        
+        default:
+            break;
+        }
+    }
+} 
+
+TEST(intersection_model_test, convert_lane_path_2_basic_points)
+{
+    intersection_model::intersection_model model;
+     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());   
+    intersection_map_mock mockData;
+    auto int_map_msg_ptr = std::make_shared<intersection_model::intersection_map>();
+    int_map_msg_ptr->intersectionid = mockData.int_map_msg.intersectionid;
+    int_map_msg_ptr->geometries = mockData.int_map_msg.geometries;
+    auto cur_geometry = int_map_msg_ptr->geometries.front();
+    auto ref_point = cur_geometry.refpoint;
+    auto lane = cur_geometry.approach.lanes.front();//making sure there are at least two nodes in each lane geometry
+    ASSERT_NE(0, model.convert_lane_path_2_basic_points(ref_point, cur_geometry.approach.lanes.front()).size());
+}
+  
+TEST(intersection_model_test, compute_points_2_lanelet_avg_distance)
+{
+    intersection_model::intersection_model model;
+     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info()); 
+    auto enter_ll = model.get_enter_lanelet_by_id(167);
+    auto centerline = enter_ll.centerline3d();
+    std::vector<lanelet::BasicPoint3d> basic_points3d;
+    for (auto itr = centerline.begin(); itr!=centerline.end(); itr++)
+    {
+        auto p = itr->basicPoint2d();        
+        basic_points3d.push_back(lanelet::utils::to3D(p));
+    }
+    ASSERT_EQ(0, model.compute_points_2_lanelet_avg_distance(basic_points3d, enter_ll));    
+}
+
+TEST(intersection_model_test, mapping_lanelet_id_2_lane_id)
+{
+    intersection_model::intersection_model model;
+    intersection_map_mock mockData;
+    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info()); 
+    auto int_map_msg_ptr = std::make_shared<intersection_model::intersection_map>();
+    int_map_msg_ptr->intersectionid = mockData.int_map_msg.intersectionid;
+    int_map_msg_ptr->geometries = mockData.int_map_msg.geometries;
+    auto cur_geometry = int_map_msg_ptr->geometries.front();
+    auto ref_point = cur_geometry.refpoint;
+    auto lane2 = cur_geometry.approach.lanes.at(1);//making sure there are at least two nodes in each lane geometry  
+    auto enter_ll = model.get_enter_lanelet_by_id(167); 
+    std::vector<lanelet::ConstLanelet>  enter_ll_v;
+    enter_ll_v.push_back(enter_ll);
+    std::unordered_map<long, lanelet::ConstLanelet> lane2lanelet_m;
+    model.mapping_lanelet_id_2_lane_id(ref_point,lane2, enter_ll_v,lane2lanelet_m);
+    ASSERT_EQ(167,lane2lanelet_m[lane2.lane_id].id());
+}
+
+TEST(intersection_model_test, get_enter_lanelet_by_id)
+{
+    intersection_model::intersection_model model;
+     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());
+    ASSERT_EQ(0, model.get_enter_lanelet_by_id(1234).id());
+    ASSERT_EQ(167, model.get_enter_lanelet_by_id(167).id());
+    ASSERT_EQ(0, model.get_enter_lanelet_by_id(168).id());
+}
+
+
+TEST(intersection_model_test, get_departure_lanelet_by_id)
+{
+    intersection_model::intersection_model model;
+     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());
+    ASSERT_EQ(0, model.get_link_lanelet_by_id(1234).id());
+    ASSERT_EQ(168, model.get_departure_lanelet_by_id(168).id());
+}
+
+TEST(intersection_model_test, get_link_lanelet_by_id)
+{
+    intersection_model::intersection_model model;
+     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());
+    ASSERT_EQ(0, model.get_link_lanelet_by_id(168).id());
+    ASSERT_EQ(169, model.get_link_lanelet_by_id(169).id());
+}
+
+TEST(intersection_model_test, find_link_lanelet_id_by_enter_depart_lanelet_ids)
+{
+    intersection_model::intersection_model model;
+    model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
+    ASSERT_TRUE(model.update_intersection_info());
+    ASSERT_EQ(0, model.find_link_lanelet_id_by_enter_depart_lanelet_ids(1234, 1234));
+    ASSERT_EQ(169, model.find_link_lanelet_id_by_enter_depart_lanelet_ids(167, 168));
+}

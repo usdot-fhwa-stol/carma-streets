@@ -9,7 +9,6 @@
  * Do not edit the class manually.
  */
 
-
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>
@@ -27,6 +26,7 @@
 #include "IntersectionModelRouter.h"
 #include "streets_configuration.h"
 #include "intersection_model.h"
+#include "map_msg_worker.h"
 
 #ifdef __linux__
 void catchUnixSignals(QList<int> quitSignals) {
@@ -51,7 +51,30 @@ void catchUnixSignals(QList<int> quitSignals) {
 }
 #endif
 
-int main(int argc, char * argv[])
+void intersection_model_event_update(std::shared_ptr<intersection_model::intersection_model> model, std::shared_ptr<intersection_model::map_msg_worker> map_msp_worker)
+{
+    auto _map_msg_consumer = map_msp_worker->get_map_msg_consumer_ptr();
+    if (map_msp_worker && _map_msg_consumer)
+    {
+        SPDLOG_INFO("_map_msg_consumer running {0}", _map_msg_consumer->is_running());
+        while (_map_msg_consumer && _map_msg_consumer->is_running())
+        {
+            const std::string payload = _map_msg_consumer->consume(1000);
+            SPDLOG_INFO("Map msg payload => {0}", payload);
+            if (payload.length() != 0)
+            {
+                bool is_updated = map_msp_worker->update_map_msg(payload);
+                if(is_updated)
+                {
+                    auto map_msg_ptr = map_msp_worker->get_map_msg_ptr(); 
+                    model->update_intersecion_info_by_map_msg(map_msg_ptr);
+                }
+            }
+        }
+    } 
+}
+
+int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 #ifdef __linux__
@@ -89,6 +112,12 @@ int main(int argc, char * argv[])
         SPDLOG_CRITICAL("Unable to listen on the specified port.");
         return 1;
     }
+    auto map_msp_worker = std::make_shared<intersection_model::map_msg_worker>(streets_service::streets_configuration::get_int_config("intersection_id"),
+                                                                                streets_service::streets_configuration::get_string_config("bootstrap_server"),
+                                                                                streets_service::streets_configuration::get_string_config("map_msg_group_id"),
+                                                                                streets_service::streets_configuration::get_string_config("map_msg_topic"));
+    std::thread intersection_model_events_thread(intersection_model_event_update, std::ref(model), std::ref(map_msp_worker));
+    intersection_model_events_thread.detach();
 
     return a.exec();
 }
