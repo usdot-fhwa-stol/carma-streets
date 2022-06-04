@@ -445,7 +445,6 @@ namespace intersection_model
                 continue;
             }
         }     
-            std::cout << link_lanelet2signal_group_id_m.size() <<std::endl;
 
         //Update intersection link lanelet info with signal group id
         bool is_signal_group_updated = false;        

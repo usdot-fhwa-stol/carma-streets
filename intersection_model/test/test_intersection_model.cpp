@@ -289,20 +289,19 @@ TEST(intersection_model_test, update_intersecion_info_by_map_msg)
     model.update_intersecion_info_by_map_msg(int_map_msg_ptr);
     for(auto link_lane: model.get_intersection_info().link_lanelets_info)
     {
-        
         switch (link_lane.id)
         {
             case 169:
             case 155:
-                ASSERT_NE(2,link_lane.signal_group_id);
+                ASSERT_EQ(2,link_lane.signal_group_id);
                 break;
             case 165:
             case 156:
-                ASSERT_NE(3,link_lane.signal_group_id);
+                ASSERT_EQ(3,link_lane.signal_group_id);
                 break;
             case 161:
             case 160:
-                ASSERT_NE(4,link_lane.signal_group_id);
+                ASSERT_EQ(4,link_lane.signal_group_id);
                 break;
         
         default:
