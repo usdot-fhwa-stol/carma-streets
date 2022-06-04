@@ -159,9 +159,9 @@ TEST(intersection_model_test, update_intersection_info_by_all_way_stop_reg)
         if (reg_element_ptr->attribute(lanelet::AttributeName::Subtype) == lanelet::AttributeValueString::AllWayStop)
         {
             ASSERT_TRUE(model.update_intersection_info_by_all_way_stop_reg(reg_element_ptr));
-            ASSERT_EQ(model.get_intersection_info().link_lanelets.size(), 6);
-            ASSERT_EQ(model.get_intersection_info().entering_lanelets.size(), 3);
-            ASSERT_EQ(model.get_intersection_info().departure_lanelets.size(), 3);
+            ASSERT_EQ(model.get_intersection_info().link_lanelets_info.size(), 6);
+            ASSERT_EQ(model.get_intersection_info().entering_lanelets_info.size(), 3);
+            ASSERT_EQ(model.get_intersection_info().departure_lanelets_info.size(), 3);
         }
     }
 }
@@ -178,20 +178,20 @@ TEST(intersection_model_test, update_link_departure_lanelets_by_entry_lanelet)
     lanelet::LaneletLayer &lanelet_layer = model.get_lanelet2_map()->laneletLayer;
     
     lanelet::Lanelet entry_lanelet = lanelet_layer.get(167);
-    ASSERT_TRUE(model.update_link_departure_lanelets_by_entry_lanelet(entry_lanelet));
-    ASSERT_EQ(model.get_departure_lanelets().size(), 2);
-    ASSERT_EQ(model.get_link_lanelets().size(), 2);
+    ASSERT_TRUE(model.update_link_departure_lanelets_info_by_entry_lanelet(entry_lanelet));
+    ASSERT_EQ(model.get_departure_lanelets_info().size(), 2);
+    ASSERT_EQ(model.get_link_lanelets_info().size(), 2);
 
     entry_lanelet = lanelet_layer.get(171);
-    ASSERT_TRUE(model.update_link_departure_lanelets_by_entry_lanelet(entry_lanelet));
+    ASSERT_TRUE(model.update_link_departure_lanelets_info_by_entry_lanelet(entry_lanelet));
 
     entry_lanelet = lanelet_layer.get(163);
-    ASSERT_TRUE(model.update_link_departure_lanelets_by_entry_lanelet(entry_lanelet));
+    ASSERT_TRUE(model.update_link_departure_lanelets_info_by_entry_lanelet(entry_lanelet));
     
     // Once all entry link and departure lanelets are updated by entry lanelet
     
-    ASSERT_EQ(model.get_departure_lanelets().size(), 3);
-    ASSERT_EQ(model.get_link_lanelets().size(), 6);
+    ASSERT_EQ(model.get_departure_lanelets_info().size(), 3);
+    ASSERT_EQ(model.get_link_lanelets_info().size(), 6);
 }
 
 TEST(intersection_model_test, get_speed_limit_by_lanelet)
@@ -202,16 +202,16 @@ TEST(intersection_model_test, get_speed_limit_by_lanelet)
     ASSERT_NEAR(model.get_speed_limit_by_lanelet(entry_lanelet), 11.175, 0.1);
 }
 
-TEST(intersection_model_test, get_conflict_lanelets)
+TEST(intersection_model_test, get_conflict_lanelets_info)
 {
     intersection_model::intersection_model model("West Intersection", 9001,"../../sample_map/town01_vector_map_test.osm");
     model.update_intersection_info();
     
     int link_lanelet_id = 156;
-    ASSERT_NE(model.get_conflict_lanelets(link_lanelet_id).size(), 0);
+    ASSERT_NE(model.get_conflict_lanelets_info(link_lanelet_id).size(), 0);
 
     int entry_lanelet_id = 171;
-    ASSERT_EQ(model.get_conflict_lanelets(entry_lanelet_id).size(), 0);
+    ASSERT_EQ(model.get_conflict_lanelets_info(entry_lanelet_id).size(), 0);
 }
 
 TEST(intersection_model_test, get_shared_entry_link_lanelet_ids)
@@ -241,17 +241,17 @@ TEST(intersection_model_test, update_intersection_info)
 {
     intersection_model::intersection_model model;
     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
-    ASSERT_EQ(model.get_intersection_info().link_lanelets.size(), 0);
-    ASSERT_EQ(model.get_intersection_info().entering_lanelets.size(), 0);
-    ASSERT_EQ(model.get_intersection_info().departure_lanelets.size(), 0);
+    ASSERT_EQ(model.get_intersection_info().link_lanelets_info.size(), 0);
+    ASSERT_EQ(model.get_intersection_info().entering_lanelets_info.size(), 0);
+    ASSERT_EQ(model.get_intersection_info().departure_lanelets_info.size(), 0);
     
     ASSERT_TRUE(model.update_intersection_info());
 
-    ASSERT_EQ(model.get_intersection_info().link_lanelets.size(), 6);
-    ASSERT_EQ(model.get_intersection_info().entering_lanelets.size(), 3);
-    ASSERT_EQ(model.get_intersection_info().departure_lanelets.size(), 3);
+    ASSERT_EQ(model.get_intersection_info().link_lanelets_info.size(), 6);
+    ASSERT_EQ(model.get_intersection_info().entering_lanelets_info.size(), 3);
+    ASSERT_EQ(model.get_intersection_info().departure_lanelets_info.size(), 3);
 
-    ASSERT_EQ(model.get_entry_lanelets().size(), 3);
+    ASSERT_EQ(model.get_entry_lanelets_info().size(), 3);
 }
 
 TEST(intersection_model_test, map_point2_gps)
