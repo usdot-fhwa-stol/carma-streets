@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "spdlog/spdlog.h"
 #include "intersection_server_api_lib/OAIDefaultApiHandler.h"
 #include "intersection_server_api_lib/OAIDefaultApiRequest.h"
 #include "intersection_model.h"
