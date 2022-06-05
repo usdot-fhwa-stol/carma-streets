@@ -39,12 +39,23 @@ namespace streets_vehicle_scheduler {
              * @param schedule intersection_schedule to add RDV scheduling information to.
              */
             void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule );
+        
+            /**
+             * @brief ethod to determine whether vehicle was granted access to the intersection in previous schedules. To avoid granting
+             * conflicting vehicles intersection access simultaneously, the scheduling service maintains a list of vehicles it has granted
+             * access to in the past. Vehicles are removed from this list once their update reflects that they have received and processed
+             * this access.
+             * 
+             * @param veh 
+             * @return true if vehicle is in list of vehicles previously granted access.
+             * @return false if vehicle is not in list of vehicles previously granted access.
+             */
+            bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
             /**
              * @brief 
              * 
+             * @param veh 
              */
-            bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
-
             void remove_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
 
             streets_vehicles::vehicle get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string veh_id ) const;
@@ -71,15 +82,15 @@ namespace streets_vehicle_scheduler {
              * @param rdvs vector of unscheduled RDVs
              * @param option intersection_schedule possibility.
              * @param starting_departure_position first available departure position given already scheduled vehicle (e.i. DVs)
-             * @param previously_scheduled_vehicle pointer to previously scheduled DV. If null_ptr, method assumes no DVs.
+             * @param scheduled_dvs a vector of scheduled dvs, This includes dvs already schedules and any RDVs scheduled in this permutation.
+             *         This is necessary for calculating the current RDVs entering time based on already scheduled DVs and RDVs conflicts.
              * @return true if departure order is valid and does not violate flexibility_limit for any vehicle.
              * @return false if departure order is invalid and does violate flexibility_limit for any vehicle.
              */
             bool consider_departure_position_permutation( 
                                                     const std::list<streets_vehicles::vehicle> &rdvs, 
                                                     intersection_schedule &option,
-                                                    int starting_departure_position,
-                                                    std::shared_ptr<vehicle_schedule> previously_scheduled_vehicle ) const;
+                                                    int starting_departure_position ) const;
 
             /**
              * @brief Estimate clearance time any vehicle given it's link lanelet information.  
@@ -89,6 +100,9 @@ namespace streets_vehicle_scheduler {
              * @return uint64_t clearance time in milliseconds. 
              */
             uint64_t estimate_clearance_time(const streets_vehicles::vehicle &veh, const OpenAPI::OAILanelet_info &link_lane_info) const;
+
+            std::shared_ptr<vehicle_schedule> get_latest_conflicting(const OpenAPI::OAILanelet_info &link_lane,
+                                        const std::vector<vehicle_schedule> &schedules) const;
 
             uint64_t estimate_earliest_time_to_stop_bar(const streets_vehicles::vehicle &veh) const;
             double estimate_delta_x_prime( const streets_vehicles::vehicle &veh, const OpenAPI::OAILanelet_info &entry_lane ) const;

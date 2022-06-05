@@ -57,6 +57,8 @@ namespace streets_vehicle_scheduler {
          * @brief Intended lanelet id of link lanelet used to travel through intersection.
          */
         int link_id = -1;
+
+        rapidjson::GenericObject<false, rapidjson::Value>& toJson() const;
     };
 
     
@@ -77,6 +79,10 @@ namespace streets_vehicle_scheduler {
          * @return u_int64_t 
          */
         u_int64_t get_delay() const;
+
+        std::string toCSV() const;
+
+        rapidjson::GenericObject<false, rapidjson::Value>& toJson() const;
 
     };  
 }
