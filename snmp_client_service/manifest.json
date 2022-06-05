@@ -1,0 +1,31 @@
+{
+    "service_name": "message_services",
+    "loglevel": "info",
+    "configurations": [
+        {
+            
+            "name": "ip",
+            "value": "127.0.0.1:9092",
+            "description": "Target device IP address",
+            "type": "STRING"
+        }, 
+        {
+           "name": "port",
+           "value": "vehicle_status_intent_output",
+           "description": "Target device NTCIP port",
+           "type": "INTEGER" 
+        },
+        {
+            "name": "community",
+            "value": "v2xhub_bsm_in",
+            "description": "Kafka topic for BSM messages",
+            "type": "STRING"  
+        },
+        {
+            "name": "peername",
+            "value": "v2xhub_mobility_path_in",
+            "description": "Kafka topic for Mobility Path messages",
+            "type": "STRING" 
+        }
+    ]
+}
