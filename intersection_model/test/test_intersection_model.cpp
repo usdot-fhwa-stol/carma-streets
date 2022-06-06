@@ -341,7 +341,7 @@ TEST(intersection_model_test, compute_points_2_lanelet_avg_distance)
     ASSERT_EQ(0, model.compute_points_2_lanelet_avg_distance(basic_points3d, enter_ll));    
 }
 
-TEST(intersection_model_test, mapping_lanelet_id_2_lane_id)
+TEST(intersection_model_test, mapping_lane_id_2_lanelet_id)
 {
     intersection_model::intersection_model model;
     intersection_map_mock mockData;
@@ -357,7 +357,7 @@ TEST(intersection_model_test, mapping_lanelet_id_2_lane_id)
     std::vector<lanelet::ConstLanelet>  enter_ll_v;
     enter_ll_v.push_back(enter_ll);
     std::unordered_map<long, lanelet::ConstLanelet> lane2lanelet_m;
-    model.mapping_lanelet_id_2_lane_id(ref_point,lane2, enter_ll_v,lane2lanelet_m);
+    model.mapping_lane_id_2_lanelet_id(ref_point,lane2, enter_ll_v,lane2lanelet_m);
     ASSERT_EQ(167,lane2lanelet_m[lane2.lane_id].id());
 }
 

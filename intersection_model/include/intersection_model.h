@@ -218,7 +218,14 @@ namespace intersection_model
              * @return True if the intersection info is updated, otherwise false
              **/
             bool update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg);
-            void mapping_lanelet_id_2_lane_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long,lanelet::ConstLanelet>& lane2lanelet_m) const;
+            /**
+             * @brief Comparing the geometry between lane in the MAP message and geometry of the list of lanelets to determine which lanelet this lane path fall into.
+             * @param ref_point Reference location (latitude, longitude, elevation) of the subsequent data points
+             * @param lane MAP message lane definition includes the lane geometry, unique lane id, and connections if entry lane.
+             * @param subj_lanelets List of lanelets
+             * @param lane2lanelet_m A mapping reference to update with lane id and its relevant lanelet id
+             */
+            void mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long,lanelet::ConstLanelet>& lane2lanelet_m) const;
 
             /**
              * @brief Convert the centerline geometry of lane defined in J2735 MAP to a list of lanelet2 points in the OSM map.

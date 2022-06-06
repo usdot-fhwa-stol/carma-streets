@@ -396,7 +396,7 @@ namespace intersection_model
             if(!map_msg_lane.connection.empty() )
             {
                 //Mapping MAP message lane id to lanelet id from OSM map
-                mapping_lanelet_id_2_lane_id(map_msg_geometry.refpoint, map_msg_lane, this->entering_lanelets, entry_lane2lanelet_m);
+                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, map_msg_lane, this->entering_lanelets, entry_lane2lanelet_m);
                 entry_lane2connections_m.insert({map_msg_lane.lane_id,  map_msg_lane.connection});
                 continue;
             }
@@ -416,7 +416,7 @@ namespace intersection_model
                 //Find each departure lane for the entry lanelet using connections, and mapping the departure lane id to the above departure lanelet id
                 const auto&  depart_lane = link_departure_lanes_m[conn.lane_id];
                 std::unordered_map<long, lanelet::ConstLanelet> depart_lane2lanelet_m;                
-                mapping_lanelet_id_2_lane_id(map_msg_geometry.refpoint, depart_lane, this->departure_lanelets ,depart_lane2lanelet_m); 
+                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, depart_lane, this->departure_lanelets ,depart_lane2lanelet_m); 
                 const auto&  depart_lanelet = depart_lane2lanelet_m[depart_lane.lane_id];
                 int32_t signal_group_id = conn.signalGroup;
 
@@ -484,7 +484,7 @@ namespace intersection_model
         return lanelet::InvalId;
     }
 
-    void intersection_model::mapping_lanelet_id_2_lane_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
+    void intersection_model::mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
     {    
         std::vector<lanelet::BasicPoint3d> basic_points = convert_lane_path_2_basic_points(ref_point, lane);
         std::unordered_map<lanelet::Id, double> lanelet2lane_path_distance_m;
