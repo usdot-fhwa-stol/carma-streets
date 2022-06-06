@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <spdlog/spdlog.h>
+#include <boost/range/algorithm/count.hpp>
 
 #include "vehicle_list.h"
 #include "all_stop_vehicle_scheduler.h"
@@ -116,6 +117,8 @@ TEST_F(all_stop_json_schedule_test, json_schedule){
 
     ASSERT_EQ( json_schedule.Size(), 3);
     ASSERT_TRUE ( json_schedule.IsArray() );
+    int new_lines = boost::count( schedule.toCSV(), '\n');
+    ASSERT_EQ( new_lines, 3);
 
     
 
