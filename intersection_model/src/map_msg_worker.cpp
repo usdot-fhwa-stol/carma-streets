@@ -119,7 +119,7 @@ namespace intersection_model
                     }
                     else
                     {
-                        SPDLOG_CRITICAL("Cannot find intersection model intersection_id mapping to MAP msg intersection geometry id.");
+                        SPDLOG_CRITICAL("Cannot find intersection model intersection_id {0} mapping to MAP msg intersection geometry id {1}.", _intersection_map_ptr->intersectionid, id_id);
                     }
                 }
             }

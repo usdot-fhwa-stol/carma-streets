@@ -254,7 +254,7 @@ namespace intersection_model
                     std::string speed_str = inner_itr->second.value();
                     if (std::regex_search(speed_str, r))
                     {
-                        speed_limit_result = std::stoi(std::regex_replace(speed_str, std::regex("\\s"), std::string("")));
+                        speed_limit_result = std::stod(std::regex_replace(speed_str, std::regex("\\s"), std::string("")));
                         speed_limit_result *= MPH_TO_MS; //MPH to M/S conversion
                     };
                 }
@@ -542,7 +542,7 @@ namespace intersection_model
             SPDLOG_DEBUG("Point to lanelet id {0} 2D distance {1}", subj_lanelet.id(), distance);
             distance_sum += distance;
         }
-        double distance_avg = distance_sum/points_num;
+        double distance_avg = distance_sum/static_cast<double>(points_num);
         return distance_avg;
     }
 
