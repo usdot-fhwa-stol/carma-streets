@@ -51,7 +51,7 @@ RUN apt-get update  && apt-get install -y wget libperl-dev
 RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
 RUN tar -xvzf /home/net-snmp-5.9.1.tar.gz
 WORKDIR /home/net-snmp-5.9.1/
-RUN ./configure
+RUN ./configure --with-default-snmp-version="2"
 RUN make
 RUN make install
 

@@ -5,27 +5,33 @@
         {
             
             "name": "ip",
-            "value": "127.0.0.1:9092",
+            "value": "172.17.0.4",
             "description": "Target device IP address",
             "type": "STRING"
         }, 
         {
            "name": "port",
-           "value": "vehicle_status_intent_output",
+           "value": 161,
            "description": "Target device NTCIP port",
            "type": "INTEGER" 
         },
         {
             "name": "community",
-            "value": "v2xhub_bsm_in",
-            "description": "Kafka topic for BSM messages",
+            "value": "public",
+            "description": " ",
             "type": "STRING"  
         },
         {
-            "name": "peername",
-            "value": "v2xhub_mobility_path_in",
-            "description": "Kafka topic for Mobility Path messages",
+            "name": "snmp_version",
+            "value": "SNMP_VERSION_2c",
+            "description": " ",
             "type": "STRING" 
+        },
+        {
+            "name": "timeout",
+            "value": 10000,
+            "description": " ",
+            "type": "INTEGER" 
         }
     ]
 }

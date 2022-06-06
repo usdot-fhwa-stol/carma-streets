@@ -5,8 +5,11 @@
 # include "snmp_client.h"
 
 
-SnmpClient::SnmpClient()
+SnmpClient::SnmpClient(std::string ip, int port)
 {
+    ip_ = ip;
+    port_ = port;
+    
     streets_service::streets_configuration::initialize_logger();
     
     // Get config parameters from json
@@ -30,7 +33,7 @@ SnmpClient::SnmpClient()
     init_snmp("carma_snmp");
     snmp_sess_init(&session);
     session.peername = ip_port;
-    session.version = SNMP_VERSION_1;
+    session.version = SNMP_VERSION_2c;
 
     // Establish the session parameters.
     unsigned char comm[] = "public";
@@ -52,7 +55,7 @@ SnmpClient::SnmpClient()
 
 }
 
-void SnmpClientprocess_snmp_get_request(std::vector<std::string> input_oids){
+void SnmpClient::process_snmp_get_request(std::string input_oid){
 
     // Create pdu for the data
     pdu = snmp_pdu_create(SNMP_MSG_GET);
@@ -61,43 +64,61 @@ void SnmpClientprocess_snmp_get_request(std::vector<std::string> input_oids){
     // net-snmp has several methods for creating an OID object
     // their documentation suggests using get_node. read_objid seems like a simpler approach
     // TO DO: investigate update to get_node
-    bool failures = false;
-    for input_oid : input_oids {
         
-        if(!read_objid(input_oid.c_str(), OID, &OID_len)){
-            // If oid cannot be created
-            SPDLOG_ERROR("OID could not be created from input: ", input_oid);
-            snmp_perror(input_oid.c_str())
-            failures = true;
-        }
-        else{
-            SPDLOG_DEBUG("Created OID for input: ", input_oid);
-            snmp_add_null_var(pdu, OID, OID_len);
-        }
+    if(!read_objid(input_oid.c_str(), OID, &OID_len)){
+        // If oid cannot be created
+        SPDLOG_ERROR("OID could not be created from input: ", input_oid);
+        snmp_perror(input_oid.c_str());
     }
-
-    if(failures){
-
+    else{
+        SPDLOG_DEBUG("Created OID for input: ", input_oid);
+        snmp_add_null_var(pdu, OID, OID_len);
     }
+    
 
     // Send the request
     status = snmp_synch_response(ss, pdu, &response);
+
+    // Check response
     if(status == STAT_SUCCESS) {
         if(response->errstat == SNMP_ERR_NOERROR){
-            for(vars = response->variables; vars; vars = vars->next_variable){
+            for(auto vars = response->variables; vars; vars = vars->next_variable){
                 // Get value of variable depending on ASN.1 type
                 // Variable could be a integer, string, bitstring, ojbid, counter : defined here https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/types.h
-                uin8_t buf_array[vars->val_len];
-                for(int i = 0; i < vars->val_len; ++i){
-                    buf_array[i] = vars->val;
+
+                // get Integer value
+                if(vars->type == ASN_INTEGER){
+                    
+                    SPDLOG_DEBUG("Integer value in object: ", val->val.integer);
+                }
+                // get counter value
+                else if(vars->type == ASN_COUNTER){
+
+                    SPDLOG_DEBUG("Counter value in object: ", vars->val.counter64);
+                }
+                // get string value
+                else if(vars->type == ASN_OCTET_STR){
+                    vars->val.string;
+                    char *sp = new char;
+                    sp[vars->val_len] = '\0';
+                    SPDLOG_DEBUG("string value in object: ", sp);
+                    delete(sp);
                 }
             }
         }
     }
+    else if (status == STAT_TIMEOUT){ 
+        SPDLOG_ERROR("Timeout, no response from ", session.peername);
+    }
+    else{
+        //Error while getting response
+        snmp_sess_perror("snmpget", ss);
+        SPDLOG_ERROR("Error while getting response");
+    }
 
-
-
-        
+    if (response){
+        snmp_free_pdu(response);
+    }
         
 
 }
@@ -134,15 +155,15 @@ int SnmpClient::process_snmp_request(std::string request_type, std::string input
     if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
 
         if (request_type == "GET"){
-            int out[50]{};
-            int i{};
-            for(vars = response->variables; vars; vars = vars->next_variable)
-            {
-                int **aa{};
-                aa = (int*)vars->val.integer;
-                out[i++] = *aa;
-                value = out[0];
-            }
+            // int out[50]{};
+            // int i{};
+            // for(vars = response->variables; vars; vars = vars->next_variable)
+            // {
+            //     int **aa{};
+            //     aa = (int*)vars->val.integer;
+            //     out[i++] = *aa;
+            //     value = out[0];
+            // }
             SPDLOG_DEBUG("Success in GET for OID: ", input_oid, " ; Value = ", std::to_string(value));
         }
         else{
@@ -159,5 +180,6 @@ int SnmpClient::process_snmp_request(std::string request_type, std::string input
 
 SnmpClient::~SnmpClient()
 {
+    SPDLOG_INFO("Closing snmp session");
     snmp_close(ss);
 }

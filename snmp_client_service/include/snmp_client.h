@@ -41,15 +41,17 @@ class SnmpClient
         // variable list will hold the variables we want to manipulate via SNMP
 
         // Values from config
-        std::string ip_;
-        int port_;
-        std::string community_;
-        int community_len_;
-        std::string snmp_version_ = SNMP_VERSION_1;
-        int timeout_;
+        std::string ip_ = "";
+        int port_ = 0;
+        std::string community_ = "public";
+        int community_len_ = 3;
+        std::string snmp_version_ = "SNMP_VERSION_2c";
+        int timeout_ = 10000;
 
     public:
-        SnmpClient();
+        SnmpClient(std::string ip, int port);
+        
+        ~SnmpClient();
 
         int process_snmp_request(std::string request_type, std::string input_oid, int value);
 
