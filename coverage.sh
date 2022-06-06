@@ -57,9 +57,10 @@ cd /home/carma-streets/
 gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
 
 cd /home/carma-streets/intersection_model/build/
+ls
 ./intersection_model_test ---gtest_output=xml:../../test_results/
 cd /home/carma-streets/intersection_model/
 mkdir coverage
 cd /home/carma-streets/
-gcovr --exclude=intersection_model/src/server/ --exclude=intersection_model/test/ --exclude=intersection_model/build/src/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
+gcovr  --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
 
