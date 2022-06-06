@@ -1,6 +1,7 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+#include <rapidjson/rapidjson.h>
 #include "vehicle.h"
 
 namespace streets_vehicle_scheduler {
@@ -91,9 +92,9 @@ namespace streets_vehicle_scheduler {
         /**
          * @brief Method to write intersection schedule as JSON scheduling message.
          * 
-         * @return rapidjson::GenericObject<false, rapidjson::Value>& reference 
+         * @return rrapidjson::Value& reference 
          */
-        rapidjson::GenericObject<true, rapidjson::Value>& toJson() const;
+        rapidjson::Value toJson() const;
 
     };  
 }

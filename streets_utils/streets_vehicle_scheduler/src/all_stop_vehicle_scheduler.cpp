@@ -214,8 +214,8 @@ namespace streets_vehicle_scheduler {
         }
         // DEBUG logs
         if ( !preceding_vehicle_entry_lane_map.empty() && SPDLOG_ACTIVE_LEVEL == spdlog::level::debug) {
-            for ( auto map_entry : preceding_vehicle_entry_lane_map ) {
-                SPDLOG_DEBUG("Preceding Vehicle {0} in lane {1}", map_entry.second.v_id, map_entry.first);
+            for ( const auto &[entry_lane, veh] : preceding_vehicle_entry_lane_map ) {
+                SPDLOG_DEBUG("Preceding Vehicle {0} in lane {1}", veh._id, entry_lane);
             }
         } else if (SPDLOG_ACTIVE_LEVEL == spdlog::level::debug ){
             SPDLOG_DEBUG("No preceding vehicles in any lane!");
@@ -227,7 +227,7 @@ namespace streets_vehicle_scheduler {
         std::unordered_map<int, std::list<streets_vehicles::vehicle>> vehicle_to_be_scheduled_next;
         for ( const auto &entry_lane : intersection_info->getEntryLanelets() ) {
             std::list<streets_vehicles::vehicle> vehicles_in_lane;
-            for ( auto ev : evs ) {
+            for ( const auto &ev : evs ) {
                 if ( ev._entry_lane_id == entry_lane.getId()) {
                     SPDLOG_DEBUG("Adding vehicle {0} to EVs list in entry lane {1}", ev._id, ev._entry_lane_id);
                     vehicles_in_lane.push_back(ev);
@@ -526,7 +526,7 @@ namespace streets_vehicle_scheduler {
         }
     }
 
-    bool all_stop_vehicle_scheduler::is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh) {
+    bool all_stop_vehicle_scheduler::is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh) const {
         if ( rdvs_previously_granted_access.empty() ) {
             return false;
         }
