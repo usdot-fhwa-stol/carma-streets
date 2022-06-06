@@ -58,8 +58,12 @@ namespace streets_vehicle_scheduler {
          * @brief Intended lanelet id of link lanelet used to travel through intersection.
          */
         int link_id = -1;
-
-        rapidjson::GenericObject<false, rapidjson::Value>& toJson() const;
+        /**
+         * @brief Write vehicle schedule as rapidjson::Value.
+         * 
+         * @return rapidjson::Value 
+         */
+        rapidjson::Value toJson() const;
     };
 
     

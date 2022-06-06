@@ -46,15 +46,20 @@ namespace streets_vehicle_scheduler {
         rapidjson::Value json_sched(rapidjson::kArrayType);
         auto allocator = doc.GetAllocator();
         for (const auto &veh_sched: vehicle_schedules ) {
-            rapidjson::Value vehicle_schedule(rapidjson::kObjectType);
-            vehicle_schedule.AddMember("v_id", veh_sched.v_id, allocator);
-            vehicle_schedule.AddMember("st", veh_sched.st, allocator);
-            vehicle_schedule.AddMember("et", veh_sched.et, allocator);
-            vehicle_schedule.AddMember("dt", veh_sched.dt, allocator);
-            vehicle_schedule.AddMember("dp", veh_sched.dp, allocator);
-            vehicle_schedule.AddMember("access", veh_sched.access, allocator);
-            json_sched.PushBack(vehicle_schedule,allocator);
+            json_sched.PushBack(veh_sched.toJson(),allocator);
         }
         return json_sched;
+    }
+
+    rapidjson::Value vehicle_schedule::toJson() const {
+        rapidjson::Document doc;
+        auto allocator = doc.GetAllocator();
+        rapidjson::Value vehicle_schedule(rapidjson::kObjectType);
+        vehicle_schedule.AddMember("v_id", v_id, allocator);
+        vehicle_schedule.AddMember("st", st, allocator);
+        vehicle_schedule.AddMember("et", et, allocator);
+        vehicle_schedule.AddMember("dt", dt, allocator);
+        vehicle_schedule.AddMember("dp", dp, allocator);
+        vehicle_schedule.AddMember("access", access, allocator);
     }
 }
