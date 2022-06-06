@@ -50,7 +50,7 @@ namespace streets_vehicle_scheduler {
     }
 
     void vehicle_scheduler::estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
-                                                                const u_int64_t timestamp) {
+                                                                const u_int64_t timestamp) const {
         for ( auto &[v_id, veh]: vehicles) {
             // Time difference in seconds
             double delta_t = (double)(timestamp - veh._cur_time)/1000.0;

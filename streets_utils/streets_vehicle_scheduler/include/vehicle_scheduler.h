@@ -39,7 +39,7 @@ namespace streets_vehicle_scheduler {
              * @throw scheduling_exception if vehicle update time for any vehicle is more recent than timestamp.
              */
             void estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
-                                                    const u_int64_t timestamp);
+                                                    const u_int64_t timestamp) const;
 
             /**
              * @brief Helper method to get entry lane OAILanelet_info from intersection information given a vehicle.

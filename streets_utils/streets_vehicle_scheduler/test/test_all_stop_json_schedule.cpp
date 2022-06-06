@@ -120,6 +120,4 @@ TEST_F(all_stop_json_schedule_test, json_schedule){
     int new_lines = boost::count( schedule.toCSV(), '\n');
     ASSERT_EQ( new_lines, 3);
 
-    
-
 }
