@@ -50,7 +50,7 @@ namespace streets_vehicle_scheduler {
              * @return true if vehicle is in list of vehicles previously granted access.
              * @return false if vehicle is not in list of vehicles previously granted access.
              */
-            bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
+            bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh) const;
             /**
              * @brief This method will remove a vehicle (DV) once it from the list of previously granted access RDVs. This method should be
              * called once a RDV received the schedule update that grants it access to the intersection. This is indicated by the vehicle 

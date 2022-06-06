@@ -26,12 +26,14 @@ namespace streets_vehicle_scheduler {
                 }
                 DVs.push_back(veh);
             }
-            else if ( is_rdv_previously_granted_access(veh) ) {
-                // Consider any RDVs previously granted access as a DV
-                DVs.push_back(veh);
-            }
             else if ( veh._cur_state == streets_vehicles::vehicle_state::RDV ) {
-                RDVs.push_back(veh);
+                // Consider any RDVs previously granted access as a DV
+                if ( is_rdv_previously_granted_access(veh) ) {
+                    DVs.push_back(veh);
+                } 
+                else {
+                    RDVs.push_back(veh);
+                }
             }
             else if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
                 EVs.push_back(veh);
@@ -375,7 +377,7 @@ namespace streets_vehicle_scheduler {
 
         // calculate time to stop bar
         double time_to_stop_bar = t_accel + t_cruising + t_decel;
-        return ceil(time_to_stop_bar * 1000) + veh._cur_time;
+        return static_cast<uint64_t>(ceil(time_to_stop_bar * 1000.0)) + veh._cur_time;
     }
 
     bool all_stop_vehicle_scheduler::consider_departure_position_permutation( 
@@ -488,7 +490,7 @@ namespace streets_vehicle_scheduler {
             }
         }
         // Convert time to milliseconds and round up.
-        return ceil(1000* clearance_time);
+        return static_cast<uint64_t>(ceil(1000.0* clearance_time));
     }
 
     std::shared_ptr<vehicle_schedule> all_stop_vehicle_scheduler::get_latest_conflicting(const OpenAPI::OAILanelet_info &link_lane, 
