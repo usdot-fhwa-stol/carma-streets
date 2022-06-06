@@ -68,7 +68,7 @@ namespace streets_vehicle_scheduler {
              * @return streets_vehicles::vehicle vehicle with matching vehicle id
              * @throw scheduling_exception if vehicle is not in list.
              */
-            streets_vehicles::vehicle get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string veh_id ) const;
+            streets_vehicles::vehicle get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string &veh_id ) const;
 
             /**
              * @brief Schedule all Entering Vehicles (EVs). Method first organizes all EVs into lists based on their entry

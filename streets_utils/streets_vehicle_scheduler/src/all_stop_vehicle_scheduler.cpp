@@ -18,7 +18,7 @@ namespace streets_vehicle_scheduler {
         std::list<streets_vehicles::vehicle> RDVs_with_access;
 
         std::list<streets_vehicles::vehicle> EVs;
-        for ( const auto& [v_id, veh] : vehicles) {
+        for ( const auto &[v_id, veh] : vehicles) {
             if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
                 // Once vehicle is considered as DV it has confirmed that it has received access.
                 if ( is_rdv_previously_granted_access(veh) ) {
@@ -106,7 +106,7 @@ namespace streets_vehicle_scheduler {
                                                 intersection_schedule &schedule) const{
         // Sort based on departure position
         dvs.sort( departure_position_comparator);                                                    
-        for ( auto departing_veh : dvs ) {
+        for ( const auto &departing_veh : dvs ) {
             SPDLOG_DEBUG("Scheduling DV with ID {0} .", departing_veh._id);
             // get link lane info
             OpenAPI::OAILanelet_info lane_info =  get_link_lanelet_info( departing_veh );
@@ -201,7 +201,7 @@ namespace streets_vehicle_scheduler {
             int lane_id = entry_lane.getId();
             vehicle_schedule preceding_veh;
             // Only one RDV can exist for each approach
-            for (auto veh_sched : schedule.vehicle_schedules ) {
+            for (const auto &veh_sched : schedule.vehicle_schedules ) {
                 if ( veh_sched.state == streets_vehicles::vehicle_state::RDV) {
                     // All RDVs
                     preceding_veh = veh_sched;
@@ -210,11 +210,12 @@ namespace streets_vehicle_scheduler {
                 }
             }
         }
-        if ( !preceding_vehicle_entry_lane_map.empty()) {
+        // DEBUG logs
+        if ( !preceding_vehicle_entry_lane_map.empty() && SPDLOG_ACTIVE_LEVEL == spdlog::level::debug) {
             for ( auto map_entry : preceding_vehicle_entry_lane_map ) {
                 SPDLOG_DEBUG("Preceding Vehicle {0} in lane {1}", map_entry.second.v_id, map_entry.first);
             }
-        } else {
+        } else if (SPDLOG_ACTIVE_LEVEL == spdlog::level::debug ){
             SPDLOG_DEBUG("No preceding vehicles in any lane!");
         }
         // Sort vehicles based on distance
@@ -236,10 +237,9 @@ namespace streets_vehicle_scheduler {
                 SPDLOG_DEBUG("No EVs in lane {0}.",static_cast<int>(entry_lane.getId()) );
             }
         }
-        SPDLOG_INFO("Map of vehicles to be scheduled next is populated");
         if ( !vehicle_to_be_scheduled_next.empty()) {
             for ( auto map_entry : vehicle_to_be_scheduled_next ) {
-                SPDLOG_INFO("Next Vehicle {0} to be scheduled in lane {1}", map_entry.second.front()._id, map_entry.first);
+                SPDLOG_DEBUG("Next Vehicle {0} to be scheduled in lane {1}", map_entry.second.front()._id, map_entry.first);
             }
         }
         else {
@@ -255,14 +255,14 @@ namespace streets_vehicle_scheduler {
             for ( const auto &[entry_lane, evs_in_lane] : vehicle_to_be_scheduled_next ) {
                 // Take first vehicle to be scheduled in lane.
                 streets_vehicles::vehicle ev = evs_in_lane.front();
-                SPDLOG_INFO( "Estimating schedule for {0}.", ev._id);
+                SPDLOG_DEBUG( "Estimating schedule for {0}.", ev._id);
 
                 // Get link lanelet information for ev
                 OpenAPI::OAILanelet_info link_lane = get_link_lanelet_info( ev );
-                SPDLOG_INFO( "Link lanelet for {0} is {1}.", ev._id, link_lane.getId());
+                SPDLOG_DEBUG( "Link lanelet for {0} is {1}.", ev._id, link_lane.getId());
                 // Calculate EST for vehicle
                 uint64_t est = estimate_earliest_time_to_stop_bar(ev);
-                SPDLOG_INFO( "EST for vehicle {0} is {1}." ,ev._id, est ) ;
+                SPDLOG_DEBUG( "EST for vehicle {0} is {1}." ,ev._id, est ) ;
                 // Store ST value for vehicle
                 uint64_t st;
 
@@ -271,7 +271,7 @@ namespace streets_vehicle_scheduler {
                 if ( preceding_vehicle_entry_lane_map.find( ev._cur_lane_id )  != preceding_vehicle_entry_lane_map.end() ) {
                     // Get preceeding vehicle in lane
                     vehicle_schedule preceding_veh = preceding_vehicle_entry_lane_map.find( ev._cur_lane_id )->second;
-                    SPDLOG_INFO("Preceding vehicle schedule in lane {0} is {1}.", preceding_veh.entry_lane, preceding_veh.v_id);
+                    SPDLOG_DEBUG("Preceding vehicle schedule in lane {0} is {1}.", preceding_veh.entry_lane, preceding_veh.v_id);
                     // If there is a preceeding vehicle the st is calculated as max of EST and preceeding vehicle ET plus a time
                     // buffer to account for the time it takes the preceeding vehicle to enter the intersection
                     st =  std::max( sched.est, preceding_veh.et + entering_time_buffer );
@@ -341,38 +341,37 @@ namespace streets_vehicle_scheduler {
         double delta_x = veh._cur_distance;
         // Get Entry Lane
         OpenAPI::OAILanelet_info lane_info =  get_entry_lanelet_info( veh );
-        SPDLOG_INFO("Get entry lane information {0} for vehicle {1}.",  lane_info.getId(), veh._id);
         // Distance necessary to get to max speed and decelerate with decel_max
         double delta_x_prime =  estimate_delta_x_prime( veh, lane_info );
-        SPDLOG_INFO("Delta X Prime = {0}.", delta_x_prime);
+        SPDLOG_DEBUG("Delta X Prime = {0}.", delta_x_prime);
 
         // Calculate v_hat and planned cruising time interval
         double v_hat;
         double t_cruising;
         if ( delta_x >= delta_x_prime ) {
             v_hat = lane_info.getSpeedLimit();
-            SPDLOG_INFO("V hat = {0}.", v_hat);
+            SPDLOG_DEBUG("V hat = {0}.", v_hat);
 
             t_cruising = calculate_cruising_time(veh, v_hat, delta_x_prime); 
-            SPDLOG_INFO("T cruising = {0}.",t_cruising);
+            SPDLOG_DEBUG("T cruising = {0}.",t_cruising);
 
         }
         else {
             v_hat =  calculate_v_hat(veh);
-            SPDLOG_INFO("V hat = {0}.", v_hat);
+            SPDLOG_DEBUG("V hat = {0}.", v_hat);
 
             t_cruising = 0.0;
-            SPDLOG_INFO("T cruising = {0}.",t_cruising);
+            SPDLOG_DEBUG("T cruising = {0}.",t_cruising);
 
         }
         
         // calculate planned acceleration time interval
         double t_accel = calculate_acceleration_time(veh, v_hat);
-        SPDLOG_INFO("T accel = {0}.",t_accel);
+        SPDLOG_DEBUG("T accel = {0}.",t_accel);
 
         // calculate planned deceleration time interval
         double t_decel = calculate_deceleration_time(veh, v_hat);
-        SPDLOG_INFO("T decel = {0}.",t_decel);
+        SPDLOG_DEBUG("T decel = {0}.",t_decel);
 
         // calculate time to stop bar
         double time_to_stop_bar = t_accel + t_cruising + t_decel;
@@ -383,8 +382,7 @@ namespace streets_vehicle_scheduler {
                                                                                 const std::list<streets_vehicles::vehicle> &rdvs, 
                                                                                 intersection_schedule &option,
                                                                                 int starting_departure_position ) const {
-        SPDLOG_INFO("Considering Permutation.");
-        for ( auto veh : rdvs ) {
+        for ( const auto &veh : rdvs ) {
             // If scheduling option moves vehicle departure position more than flexibility limit it is not a valid option.
             if ( abs(starting_departure_position - veh._departure_position) > flexibility_limit ) {
                 SPDLOG_WARN(
@@ -433,7 +431,7 @@ namespace streets_vehicle_scheduler {
                 }
             }
             else {
-                SPDLOG_INFO("Latest conflicting vehicle is {0} and next vehicle is {1}", latest_conflicting_vehicle->v_id, veh._id);
+                SPDLOG_DEBUG("Latest conflicting vehicle is {0} and next vehicle is {1}", latest_conflicting_vehicle->v_id, veh._id);
                 sched.access = false;
                 sched.state =  streets_vehicles::vehicle_state::RDV;
                 sched.et =  std::max(latest_conflicting_vehicle->dt, option.vehicle_schedules.back().et);
@@ -450,8 +448,8 @@ namespace streets_vehicle_scheduler {
 
             
         }
-        SPDLOG_INFO("Schedule Option: \n"+option.toCSV());
-        SPDLOG_INFO("With delay {0}." ,option.get_delay() );
+        SPDLOG_DEBUG("Schedule Option: \n"+option.toCSV());
+        SPDLOG_DEBUG("With delay {0}." ,option.get_delay() );
         return true;
 
             
@@ -517,7 +515,7 @@ namespace streets_vehicle_scheduler {
         auto previously_granted_itr = rdvs_previously_granted_access.begin();
         while ( previously_granted_itr != rdvs_previously_granted_access.end() ) {
             if ( previously_granted_itr->_id == veh._id ) {
-                SPDLOG_INFO("Removing DV {0} to list of RDVs previously granted access.", previously_granted_itr->_id);
+                SPDLOG_DEBUG("Removing DV {0} to list of RDVs previously granted access.", previously_granted_itr->_id);
                 rdvs_previously_granted_access.erase(previously_granted_itr);
                 
             }else {
@@ -531,7 +529,7 @@ namespace streets_vehicle_scheduler {
             return false;
         }
         else {
-            for ( auto rdv: rdvs_previously_granted_access ) {
+            for ( const auto &rdv: rdvs_previously_granted_access ) {
                 if ( rdv._id == veh._id ) {
                     return true;
                 }
@@ -541,7 +539,7 @@ namespace streets_vehicle_scheduler {
         }
     }
 
-    streets_vehicles::vehicle all_stop_vehicle_scheduler::get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string veh_id ) const {
+    streets_vehicles::vehicle all_stop_vehicle_scheduler::get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string &veh_id ) const {
         streets_vehicles::vehicle rtn;
         bool found_veh = false;
         if ( veh_list.empty() ) {
@@ -549,7 +547,7 @@ namespace streets_vehicle_scheduler {
             
         }
         else {
-            for (auto veh : veh_list ) {
+            for (const auto &veh : veh_list ) {
                 if ( veh._id == veh_id ) {
                     rtn = veh; 
                     found_veh = true;

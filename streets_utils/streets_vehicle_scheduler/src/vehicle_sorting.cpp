@@ -1,37 +1,37 @@
 #include "vehicle_sorting.h"
 
 namespace streets_vehicle_scheduler {
-    bool departure_position_comparator(const streets_vehicles::vehicle &veh1, const streets_vehicles::vehicle &veh2){
+    bool departure_position_comparator(const streets_vehicles::vehicle &prev_veh, const streets_vehicles::vehicle &next_veh){
 		// -1 indicates unassigned departure position which should be last when sorted in ascending order
-		if ((veh1._departure_position < 1  && veh2._departure_position < 1) ||  veh1._departure_position < 1) {
-			return veh1._departure_position > veh2._departure_position;
+		if ((prev_veh._departure_position < 1  && next_veh._departure_position < 1) ||  prev_veh._departure_position < 1) {
+			return prev_veh._departure_position > next_veh._departure_position;
 		}
 		else {
-			return veh1._departure_position < veh2._departure_position; 
+			return prev_veh._departure_position < next_veh._departure_position; 
 		}
 	}
 
-    bool st_comparator(const streets_vehicles::vehicle &veh1, const streets_vehicles::vehicle &veh2) {
+    bool st_comparator(const streets_vehicles::vehicle &prev_veh, const streets_vehicles::vehicle &next_veh) {
 		// -1 indicates unassigned departure position which should be last when sorted in ascending order
-		if (veh1._actual_st == -1  || veh2._actual_st == -1 ) {
-			if ( veh1._departure_position < 1)
-				throw scheduling_exception("Vehicle " + veh1._id + " has invalid actual st of " + std::to_string(veh1._actual_st) + "!");
-			else if ( veh2._departure_position < 1 )
-				throw scheduling_exception("Vehicle " + veh2._id + " has invalid actual st of " + std::to_string(veh2._actual_st) + "!");
+		if (prev_veh._actual_st == 0  || next_veh._actual_st == 0) {
+			if ( prev_veh._actual_st < 1)
+				throw scheduling_exception("Vehicle " + prev_veh._id + " has invalid actual st of " + std::to_string(prev_veh._actual_st) + "!");
+			else if ( next_veh._actual_st < 1 )
+				throw scheduling_exception("Vehicle " + next_veh._id + " has invalid actual st of " + std::to_string(next_veh._actual_st) + "!");
 			return true;
 		}
 		else {
-			return veh1._departure_position < veh2._departure_position; 
+			return prev_veh._actual_st < next_veh._actual_st; 
 		}
 
 	}
 
-	bool distance_comparator(const streets_vehicles::vehicle &veh1, const streets_vehicles::vehicle &veh2 ) {
-		return veh1._cur_distance < veh2._cur_distance;
+	bool distance_comparator(const streets_vehicles::vehicle &prev_veh, const streets_vehicles::vehicle &next_veh ) {
+		return prev_veh._cur_distance < next_veh._cur_distance;
 	}
 
-	bool delay_comparator( const intersection_schedule &sched1, const intersection_schedule &sched2) {
-		return sched1.get_delay() < sched2.get_delay();
+	bool delay_comparator( const intersection_schedule &prev_sched, const intersection_schedule &next_sched) {
+		return prev_sched.get_delay() < next_sched.get_delay();
 	}
 
  
