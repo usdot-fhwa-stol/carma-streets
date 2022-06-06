@@ -85,7 +85,7 @@ TEST(intersection_model_test, get_speed_limit_by_lanelet)
     intersection_model::intersection_model model("West Intersection", 9001,"../../sample_map/town01_vector_map_test.osm");
     lanelet::LaneletLayer &lanelet_layer = model.get_lanelet2_map()->laneletLayer;
     lanelet::Lanelet entry_lanelet = lanelet_layer.get(171);
-    ASSERT_EQ(model.get_speed_limit_by_lanelet(entry_lanelet), 25);
+    ASSERT_NEAR(model.get_speed_limit_by_lanelet(entry_lanelet), 11.175, 0.1);
 }
 
 TEST(intersection_model_test, get_conflict_lanelets)

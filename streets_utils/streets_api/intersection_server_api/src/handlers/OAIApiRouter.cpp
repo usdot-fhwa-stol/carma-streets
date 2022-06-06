@@ -21,16 +21,16 @@
 
 namespace OpenAPI {
 
-OAIApiRouter::OAIApiRouter(std::shared_ptr<intersection_model::intersection_model> &model) {
-    createApiHandlers(model);
+OAIApiRouter::OAIApiRouter() {
+    createApiHandlers();
 }
 
 OAIApiRouter::~OAIApiRouter(){
 
 }
 
-void OAIApiRouter::createApiHandlers(std::shared_ptr<intersection_model::intersection_model> &model) { 
-    mOAIDefaultApiHandler = QSharedPointer<OAIDefaultApiHandler>::create(model);
+void OAIApiRouter::createApiHandlers() { 
+    mOAIDefaultApiHandler = QSharedPointer<OAIDefaultApiHandler>::create();
 }
 
 

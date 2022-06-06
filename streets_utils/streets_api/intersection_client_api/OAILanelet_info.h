@@ -21,6 +21,7 @@
 #include <QJsonObject>
 
 #include <QList>
+#include <QString>
 
 #include "OAIEnum.h"
 #include "OAIObject.h"
@@ -52,10 +53,26 @@ public:
     void setConflictLaneletIds(const QList<qint32> &conflict_lanelet_ids);
     bool is_conflict_lanelet_ids_Set() const;
     bool is_conflict_lanelet_ids_Valid() const;
+
     double getLength() const;
     void setLength(const double &length);
     bool is_length_Set() const;
     bool is_length_Valid() const;
+
+    QString getTurnDirection() const;
+    void setTurnDirection(const QString &turn_direction);
+    bool is_turn_direction_Set() const;
+    bool is_turn_direction_Valid() const;
+
+    qint32 getSignalGroupId() const;
+    void setSignalGroupId(const qint32 &signal_group_id);
+    bool is_signal_group_id_Set() const;
+    bool is_signal_group_id_Valid() const;
+
+    QList<qint32> getConnectingLaneletIds() const;
+    void setConnectingLaneletIds(const QList<qint32> &connecting_lanelet_ids);
+    bool is_connecting_lanelet_ids_Set() const;
+    bool is_connecting_lanelet_ids_Valid() const;
 
     virtual bool isSet() const override;
     virtual bool isValid() const override;
@@ -74,9 +91,22 @@ private:
     QList<qint32> conflict_lanelet_ids;
     bool m_conflict_lanelet_ids_isSet;
     bool m_conflict_lanelet_ids_isValid;
+
     double length;
     bool m_length_isSet;
     bool m_length_isValid;
+
+    QString turn_direction;
+    bool m_turn_direction_isSet;
+    bool m_turn_direction_isValid;
+
+    qint32 signal_group_id;
+    bool m_signal_group_id_isSet;
+    bool m_signal_group_id_isValid;
+
+    QList<qint32> connecting_lanelet_ids;
+    bool m_connecting_lanelet_ids_isSet;
+    bool m_connecting_lanelet_ids_isValid;
 };
 
 } // namespace OpenAPI

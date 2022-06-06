@@ -121,7 +121,7 @@ signals:
     void listLinkLaneletsSignalEFull(OAIHttpRequestWorker *worker, QNetworkReply::NetworkError error_type, QString error_str);
 
     void abortRequestsSignal();
-    void allPendingRequestsCompleted();
+    void allPendingRequestsCompleted();   
 };
 
 } // namespace OpenAPI

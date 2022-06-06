@@ -70,6 +70,15 @@ WORKDIR /home/carma-streets/ext/qhttpengine/build
 RUN cmake .. && make -j
 RUN make install
 
+# Install intersection_server_api
+RUN echo " ------> Install streets intersection api server from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install PROJ, a package for coordinate transformations
 RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
         cd /home/carma-streets/PROJ && \
@@ -153,4 +162,4 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 
-CMD ["/home/carma-streets/intersection_model/build/src/server/src/intersection-server"]
+CMD ["/home/carma-streets/intersection_model/build/src/server/intersection-server"]

@@ -24,8 +24,9 @@
 #endif
 #include <qhttpengine/server.h>
 #include <spdlog/spdlog.h>
-#include "OAIApiRouter.h"
+#include "IntersectionModelRouter.h"
 #include "streets_configuration.h"
+#include "intersection_model.h"
 
 #ifdef __linux__
 void catchUnixSignals(QList<int> quitSignals) {
@@ -73,7 +74,7 @@ int main(int argc, char * argv[])
         streets_service::streets_configuration::get_string_config("osm_file_path")
     )) ;
     QSharedPointer<OpenAPI::OAIApiRequestHandler> handler(new OpenAPI::OAIApiRequestHandler());
-    auto router = QSharedPointer<OpenAPI::OAIApiRouter>::create(
+    auto router = QSharedPointer<IntersectionModelAPI::IntersectionModelRouter>::create(
         model
     );
     router->setUpRoutes();

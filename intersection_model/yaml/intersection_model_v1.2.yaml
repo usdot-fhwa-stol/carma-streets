@@ -1,0 +1,218 @@
+openapi: 3.0.1
+info:
+  version: 1.2.0
+  title: Intersection Model API
+servers:
+  - url: http://localhost:8080/intersection_model/v1
+paths:
+  /info:
+    get:
+      operationId: get_intersection_info
+      responses:
+        '200':
+          description: Retrieve the intersection information including intersection name and id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/intersection_info"
+              example: '{
+                          "departure_lanelets": {
+                            [
+                              {"id": 163, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"},
+                              {"id": 163, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"},
+                              {"id": 124, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"},
+                              {"id": 118, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"}
+                            ]
+                          },
+                          "entry_lanelets": {
+                            [
+                              {"id": 58, "speed_limit": 12.2,  "length": 167.3023081290892,  "turn_direction": "straight",  "connecting_lanelet_ids": [238,222,236]},
+                              {"id": 192, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids": [228,225,224]},
+                              {"id": 131, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids":  [222,231,233]},
+                              {"id": 162, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids": [234, 227, 232]}
+                            ]
+                          },
+                          "link_lanelets":{
+                            [
+                              {"id": 238, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 8},
+                              {"id": 222, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right", "signal_group_id": 8},
+                              {"id": 236, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 5},
+                              {"id": 228, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 6},
+                              {"id": 225, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right", "signal_group_id": 6},
+                              {"id": 224, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 5},
+                              {"id": 222, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 5},
+                              {"id": 231, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right", "signal_group_id": 6},
+                              {"id": 233, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 8},
+                              {"id": 234, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 6},
+                              {"id": 227, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right",  "signal_group_id": 8},
+                              {"id": 232, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 5}
+                              ]
+                          }
+                          "id": 0,
+                          "name": "West Intersection"
+                        }'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+              example: '{ "error_code": 501, "error_message": "Server error"}'
+  
+  /entry_lanelets:
+    get:
+      operationId: list_entry_lanelets
+      responses:
+        '200':
+          description: Retrieve the list of entering lanelet ids.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/lanelet_array"
+              example: '[
+                          {"id": 58, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids": [238,222,236]},
+                          {"id": 192, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids": [228,225,224]},
+                          {"id": 131, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids":  [222,231,233]},
+                          {"id": 162, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight", "connecting_lanelet_ids": [234, 227, 232]}
+                        ]'
+        default:
+          description: Unexpected error
+          content:
+            application/text:
+              schema:
+                type: string
+              example: '{ "error_code": 501, "error_message": "Server error"}'
+                
+  /link_lanelets:
+    get:
+      operationId: list_link_lanelets
+      responses:
+        '200':
+          description: Retrieve the list of link lanelet ids.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/lanelet_array"
+              example: '[
+                          {"id": 238, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 8},
+                          {"id": 222, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right", "signal_group_id": 8},
+                          {"id": 236, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 5},
+                          {"id": 228, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 6},
+                          {"id": 225, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right", "signal_group_id": 6},
+                          {"id": 224, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 5},
+                          {"id": 222, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 5},
+                          {"id": 231, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right", "signal_group_id": 6},
+                          {"id": 233, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 8},
+                          {"id": 234, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "left", "signal_group_id": 6},
+                          {"id": 227, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right",  "signal_group_id": 8},
+                          {"id": 232, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "straight", "signal_group_id": 5}
+                        ]'
+        default:
+          description: Unexpected error
+          content:
+            application/text:
+              schema:
+                type: string
+              example: '{ "error_code": 501, "error_message": "Server error"}'
+  
+  /departure_lanelets:
+    get:
+      operationId: list_departure_lanelets
+      responses:
+        '200':
+          description: Retrieve the list of departure lanelet ids.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/lanelet_array"
+              example: '[
+                              {"id": 163, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"},
+                              {"id": 163, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"},
+                              {"id": 124, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"},
+                              {"id": 118, "speed_limit": 12.2, "length": 167.3023081290892, "turn_direction": "straight"}]'
+        default:
+          description: Unexpected error
+          content:
+            application/text:
+              schema:
+                type: string
+              example: '{ "error_code": 501, "error_message": "Server error"}'
+  
+  /get_conflict_lanelets/{link_lanelet_id}:
+    get:
+      parameters:
+        - name: link_lanelet_id
+          in: path
+          required: true
+          description: The id of the link lanelet to retrieve the list of conflict lanelet ids
+          schema:
+            type: integer
+      operationId: get_conflict_lanelets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/lanelet_array"
+              example: '[{"id": 222, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right"},
+                              {"id": 236, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right"},
+                              {"id": 228, "speed_limit": 12.2, "conflict_lanelet_ids": [222, 231], "length": 23, "turn_direction": "right"},]'
+        default:
+          description: Unexpected error
+          content:
+            application/text:
+              schema:
+                type: string
+              example: '{ "error_code": 501, "error_message": "Server error"}'
+              
+components:
+  schemas:
+    intersection_info:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        entry_lanelets:
+          $ref: "#/components/schemas/lanelet_array"
+        link_lanelets:
+          $ref: "#/components/schemas/lanelet_array"
+        departure_lanelets:
+          $ref: "#/components/schemas/lanelet_array"
+        
+    lanelet_array:
+      description: The array of lanelets
+      type: array
+      items:
+         $ref: "#/components/schemas/lanelet_info"
+
+    lanelet_info:
+      description: The information of lanelet 
+      type: object
+      properties:
+        id:
+          type: integer
+        speed_limit:
+          type: number
+          description: Unit of measure is m/s
+        conflict_lanelet_ids:
+          type: array
+          items:
+            type: integer
+          description: List of unique identifers for lanelets that have conflicts
+        length:
+          type: number
+          description: The length of lanelet. Unit of measure is meter
+        turn_direction:
+          type: string
+          description: Turn direction of intersection lane
+        signal_group_id: 
+          type: integer
+          description: The matching signal group send by the SPAT message for this lanelet
+        connecting_lanelet_ids:
+          description: List of unique identifers for following lanelets that are connecting the depature and entry lanelets
+          type: array
+          items:
+            type: integer

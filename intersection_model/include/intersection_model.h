@@ -50,9 +50,11 @@ namespace intersection_model
 {    
     struct lanelet_info_t
     {
-        int64_t id           = 0;    //Uniquely identify the lanelet id within an OSM file
-        uint32_t speed_limit = 0;    //Unit of measure MPH
-        double length        = 0.0;  //Unit of meter
+        int64_t id                      = 0;    //Uniquely identify the lanelet id within an OSM file
+        double speed_limit               = 0;    //Unit of measure m/s
+        double length                   = 0.0;  //Unit of meter
+        int32_t signal_group_id         = 0;    //0 = Not available
+        std::string turn_direction      = "NA"; //Turn direction of current lanelet
 
         //Override comparison operator
         friend bool operator<(const lanelet_info_t &l, const lanelet_info_t &r)
@@ -151,9 +153,9 @@ namespace intersection_model
 
             /**
              * @brief Retrieve the speed_limit of the current lanelet
-             * @return uint32_t speed_limit regulatory element that is attached to this lanelet
+             * @return speed_limit regulatory element that is attached to this lanelet
              **/
-            uint32_t get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
+            double get_speed_limit_by_lanelet(const lanelet::ConstLanelet& subj_lanelet);
 
             /**
              * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet
@@ -208,6 +210,7 @@ namespace intersection_model
             const char* osm_file_path_key       = "osm_file_path";
             const char* intersection_name_key   = "intersection_name";
             const char* intersection_id_key     = "intersection_id";
+            const double MPH_TO_MS               = 0.44704; //Miles per hour to meters per seconds conversion
 
             //Routing graph is used to store the possible routing set
             lanelet::routing::RoutingGraphPtr  vehicleGraph_ptr;

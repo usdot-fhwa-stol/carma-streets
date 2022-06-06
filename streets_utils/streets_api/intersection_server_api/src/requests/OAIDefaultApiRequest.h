@@ -23,8 +23,6 @@
 #include "OAILanelet_info.h"
 #include <QString>
 #include "OAIDefaultApiHandler.h"
-#include "spdlog/spdlog.h"
-
 
 namespace OpenAPI {
 
