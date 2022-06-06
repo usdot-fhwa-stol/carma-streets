@@ -19,6 +19,10 @@ namespace streets_vehicle_scheduler {
      */
     class vehicle_scheduler {
         protected:
+            /**
+             * @brief shared pointer to intersection information required for scheduling.
+             * 
+             */
             std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info;
 
             /**

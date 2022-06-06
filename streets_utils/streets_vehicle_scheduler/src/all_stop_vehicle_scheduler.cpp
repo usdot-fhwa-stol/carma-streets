@@ -212,14 +212,7 @@ namespace streets_vehicle_scheduler {
                 }
             }
         }
-        // DEBUG logs
-        if ( !preceding_vehicle_entry_lane_map.empty() && SPDLOG_ACTIVE_LEVEL == spdlog::level::debug) {
-            for ( const auto &[entry_lane, veh] : preceding_vehicle_entry_lane_map ) {
-                SPDLOG_DEBUG("Preceding Vehicle {0} in lane {1}", veh._id, entry_lane);
-            }
-        } else if (SPDLOG_ACTIVE_LEVEL == spdlog::level::debug ){
-            SPDLOG_DEBUG("No preceding vehicles in any lane!");
-        }
+
         // Sort vehicles based on distance
         evs.sort(distance_comparator);
         
@@ -240,8 +233,8 @@ namespace streets_vehicle_scheduler {
             }
         }
         if ( !vehicle_to_be_scheduled_next.empty()) {
-            for ( auto map_entry : vehicle_to_be_scheduled_next ) {
-                SPDLOG_DEBUG("Next Vehicle {0} to be scheduled in lane {1}", map_entry.second.front()._id, map_entry.first);
+            for ( const auto &[entry_lane, next_veh] : vehicle_to_be_scheduled_next ) {
+                SPDLOG_DEBUG("Next Vehicle {0} to be scheduled in lane {1}",next_veh._id, entry_lane);
             }
         }
         else {
@@ -299,7 +292,7 @@ namespace streets_vehicle_scheduler {
                     if ( !schedule.vehicle_schedules.empty() ) {
                         vehicle_schedule previously_scheduled = schedule.vehicle_schedules.back();
                         // If there is a previously scheduled vehicle with conflicting direction
-                        if ( link_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled.link_id))) {
+                        if ( link_lane.getConflictLaneletIds().contains(previously_scheduled.link_id)) {
                             // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
                             sched.et = std::max(previously_scheduled.dt, sched.st);
                         }else{

@@ -61,5 +61,6 @@ namespace streets_vehicle_scheduler {
         vehicle_schedule.AddMember("dt", dt, allocator);
         vehicle_schedule.AddMember("dp", dp, allocator);
         vehicle_schedule.AddMember("access", access, allocator);
+        return vehicle_schedule;
     }
 }

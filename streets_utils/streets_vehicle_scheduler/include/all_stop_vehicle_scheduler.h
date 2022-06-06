@@ -190,12 +190,12 @@ namespace streets_vehicle_scheduler {
              * @brief Construct a new all stop vehicle scheduler object
              * 
              */
-            all_stop_vehicle_scheduler() = default;
+            all_stop_vehicle_scheduler() = default ;
             /**
              * @brief Destroy the all stop vehicle scheduler object
              * 
              */
-            ~all_stop_vehicle_scheduler() = default;
+            ~all_stop_vehicle_scheduler() override = default ;
             /**
              * @brief Method to schedule vehicles. Given and empty intersection_schedule object and a map of vehicle, this method
              * will populate the intersection schedule with a schedule for each EV,RDV and DV in the vehicle map based on UC 1
