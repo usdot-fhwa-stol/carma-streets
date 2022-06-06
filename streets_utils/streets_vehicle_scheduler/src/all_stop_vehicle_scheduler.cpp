@@ -7,7 +7,7 @@ namespace streets_vehicle_scheduler {
     void all_stop_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                             intersection_schedule &schedule) {
         if ( vehicles.empty() ) {
-            SPDLOG_DEBUG("No vehicles to schedule.");
+            SPDLOG_INFO("No vehicles to schedule.");
             return;
         }
         // Estimate Vehicles at common time 
@@ -210,6 +210,13 @@ namespace streets_vehicle_scheduler {
                     preceding_vehicle_entry_lane_map.try_emplace(lane_id, preceding_veh);  
 
                 }
+                // Consider vehicles recently granted access
+                else if ( veh_sched.state == streets_vehicles::vehicle_state::DV && (veh_sched.et-schedule.timestamp) <= entering_time_buffer) {
+                    SPDLOG_DEBUG("Considering DV {0} as still in entry since entering time {1} - timestamp {2} does not exceed buffer {3}",
+                            veh_sched.v_id, veh_sched.et, schedule.timestamp, entering_time_buffer);
+                    preceding_veh = veh_sched;
+                    preceding_vehicle_entry_lane_map.try_emplace(lane_id, preceding_veh);
+                }
             }
         }
 
@@ -234,11 +241,16 @@ namespace streets_vehicle_scheduler {
         }
         if ( !vehicle_to_be_scheduled_next.empty()) {
             for ( const auto &[entry_lane, next_veh] : vehicle_to_be_scheduled_next ) {
-                SPDLOG_DEBUG("Next Vehicle {0} to be scheduled in lane {1}",next_veh._id, entry_lane);
+                SPDLOG_DEBUG("Next Vehicle {0} to be scheduled in lane {1}",next_veh.front()._id, entry_lane);
             }
         }
         else {
             throw scheduling_exception("Map of vehicles to be scheduled is empty but list of EVs to be scheduled is not!");
+        }
+        // Get next available departure index, default to 1 if schedule is empty
+        int last_departure_index = 1;
+        if ( !schedule.vehicle_schedules.empty()) {
+            last_departure_index =  schedule.vehicle_schedules.back().dp + 1;
         }
         do {
             vehicle_schedule sched;
@@ -269,11 +281,14 @@ namespace streets_vehicle_scheduler {
                     SPDLOG_DEBUG("Preceding vehicle schedule in lane {0} is {1}.", preceding_veh.entry_lane, preceding_veh.v_id);
                     // If there is a preceeding vehicle the st is calculated as max of EST and preceeding vehicle ET plus a time
                     // buffer to account for the time it takes the preceeding vehicle to enter the intersection
-                    st =  std::max( sched.est, preceding_veh.et + entering_time_buffer );
+                    SPDLOG_DEBUG("Preceding vehicle et {0}", preceding_veh.et);
+                    st =  std::max( est, preceding_veh.et + entering_time_buffer );
+                    SPDLOG_DEBUG("Setting st for vehicle {0} to max of {1} , {2}.", ev._id, est, preceding_veh.et + entering_time_buffer);
 
                 }
                 // IF there is no preceeding vehicle ST == EST
                 else {
+                    SPDLOG_DEBUG("No proceeding vehicle for {0}", ev._id);
                     st = est;
                 }
                 // If lowest st has not been set yet. This is currently the lowest st
@@ -287,20 +302,23 @@ namespace streets_vehicle_scheduler {
                     sched.link_id = ev._link_id;
                     sched.state = streets_vehicles::vehicle_state::EV;
                     sched.access = false;
+                    sched.dp = last_departure_index;
 
-                    // Get previously scheduled vehicle regardless of lane
+                    // Get schedule of conflicting vehicle with largest dt from already scheduled vehicles
                     if ( !schedule.vehicle_schedules.empty() ) {
-                        vehicle_schedule previously_scheduled = schedule.vehicle_schedules.back();
-                        // If there is a previously scheduled vehicle with conflicting direction
-                        if ( link_lane.getConflictLaneletIds().contains(previously_scheduled.link_id)) {
+                        std::shared_ptr<vehicle_schedule> conflict_with_largest_dt = get_latest_conflicting(link_lane,schedule.vehicle_schedules);
+                        
+                        if ( conflict_with_largest_dt != nullptr) {
+                            SPDLOG_DEBUG("Vehicle with largest conflict to {0} is {1}.", ev._id, conflict_with_largest_dt->v_id);
                             // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
-                            sched.et = std::max(previously_scheduled.dt, sched.st);
+                            sched.et = std::max(conflict_with_largest_dt->dt, sched.st);
                         }else{
-                            //TODO: Should this be max of st and previous et or just st?
-                            sched.et = std::max( sched.st, previously_scheduled.et);
+                            // If there is no conflicting scheduled vehicle, st == et
+                            sched.et = sched.st;
                         }
                     }
                     else {
+                        // If schedule is empty there can be no conflict
                         sched.et = sched.st;
                     }
                     // Departure time is equal to entering time + clearance time
@@ -312,6 +330,8 @@ namespace streets_vehicle_scheduler {
             SPDLOG_DEBUG( "Found vehicle {0} with lowest stopping time {1} in lane {2}", sched.v_id, sched.st, sched.entry_lane);
             // Add lowest ST to schedule
             schedule.vehicle_schedules.push_back(sched);
+            // Increment departure index
+            last_departure_index++;
             // Replace previous preceeding vehicle for lane with scheduled vehicle
             if ( preceding_vehicle_entry_lane_map.find(sched.entry_lane) != preceding_vehicle_entry_lane_map.end()) {
                 preceding_vehicle_entry_lane_map.find(sched.entry_lane)->second =  sched;
@@ -332,7 +352,7 @@ namespace streets_vehicle_scheduler {
     }
 
     uint64_t all_stop_vehicle_scheduler::estimate_earliest_time_to_stop_bar(const streets_vehicles::vehicle &veh) const{
-        // Distance to stop bar TODO:Is this incorrect?
+        // Distance to stop bar 
         double delta_x = veh._cur_distance;
         // Get Entry Lane
         OpenAPI::OAILanelet_info lane_info =  get_entry_lanelet_info( veh );
@@ -491,7 +511,7 @@ namespace streets_vehicle_scheduler {
         std::shared_ptr<vehicle_schedule> conflict = nullptr; 
 
         // Loop through all scheduled vehicles and return conflict with largest dt
-        for ( auto sched : schedules ) {
+        for ( const auto &sched : schedules ) {
             // check if that have conflict with link_lane
             if ( link_lane.getConflictLaneletIds().contains(sched.link_id)) {
                 // If no conflicting schedule has been set yet set conflict to first conflicting 
