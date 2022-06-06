@@ -38,7 +38,7 @@ namespace streets_vehicle_scheduler {
 
             vehicle_scheduler() = default;
 
-            ~vehicle_scheduler() = default;
+            virtual ~vehicle_scheduler() = default;
 
             virtual void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) = 0;
 

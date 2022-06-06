@@ -6,52 +6,51 @@ namespace streets_vehicle_scheduler {
 
     void all_stop_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                             intersection_schedule &schedule) {
-        if ( !vehicles.empty() ) {
-            // Estimate Vehicles at common time 
-            estimate_vehicles_at_common_time( vehicles, schedule.timestamp);
-            // Create vectors of EVs RDVs and DVs
-            std::list<streets_vehicles::vehicle> DVs;
-            std::list<streets_vehicles::vehicle> RDVs;
-            std::list<streets_vehicles::vehicle> RDVs_with_access;
-
-            std::list<streets_vehicles::vehicle> EVs;
-            for ( auto it = vehicles.begin(); it != vehicles.end(); it ++ ) {
-                streets_vehicles::vehicle veh =it->second;
-                if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
-                    // Once vehicle is considered as DV it has confirmed that it has received access.
-                    if ( is_rdv_previously_granted_access(veh) ) {
-                        remove_rdv_previously_granted_access(veh);
-                    }
-                    DVs.push_back(veh);
-                }
-                else if ( is_rdv_previously_granted_access(veh) ) {
-                    // Consider any RDVs previously granted access as a DV
-                    DVs.push_back(veh);
-                }
-                else if ( veh._cur_state == streets_vehicles::vehicle_state::RDV ) {
-                    RDVs.push_back(veh);
-                }
-                else if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
-                    SPDLOG_INFO("Vehicle {0} with speed {1}m/s and distance {2}m.",veh._id, veh._cur_speed, veh._cur_distance);
-                    EVs.push_back(veh);
-                }
-            }
-            
-            SPDLOG_INFO("Vehicles to schedule are DVs : {0}, RDVs : {1}, EVs {2} ", DVs.size(), RDVs.size(), EVs.size());
-
-            // Schedule DVs
-            if ( !DVs.empty() )
-                schedule_dvs( DVs, schedule);
-            // Schedule RDVs
-            if ( !RDVs.empty() )
-                schedule_rdvs( RDVs, schedule);
-            // Schedule EVs
-            if ( !EVs.empty() )
-                schedule_evs( EVs, schedule);
-        }
-        else {
+        if ( vehicles.empty() ) {
             SPDLOG_DEBUG("No vehicles to schedule.");
+            return;
         }
+        // Estimate Vehicles at common time 
+        estimate_vehicles_at_common_time( vehicles, schedule.timestamp);
+        // Create vectors of EVs RDVs and DVs
+        std::list<streets_vehicles::vehicle> DVs;
+        std::list<streets_vehicles::vehicle> RDVs;
+        std::list<streets_vehicles::vehicle> RDVs_with_access;
+
+        std::list<streets_vehicles::vehicle> EVs;
+        for ( const auto& [v_id, veh] : vehicles) {
+            if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
+                // Once vehicle is considered as DV it has confirmed that it has received access.
+                if ( is_rdv_previously_granted_access(veh) ) {
+                    remove_rdv_previously_granted_access(veh);
+                }
+                DVs.push_back(veh);
+            }
+            else if ( is_rdv_previously_granted_access(veh) ) {
+                // Consider any RDVs previously granted access as a DV
+                DVs.push_back(veh);
+            }
+            else if ( veh._cur_state == streets_vehicles::vehicle_state::RDV ) {
+                RDVs.push_back(veh);
+            }
+            else if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
+                EVs.push_back(veh);
+            }
+        }
+        
+        SPDLOG_DEBUG("Vehicles to schedule are DVs : {0}, RDVs : {1}, EVs {2} ", DVs.size(), RDVs.size(), EVs.size());
+
+        // Schedule DVs
+        if ( !DVs.empty() )
+            schedule_dvs( DVs, schedule);
+        // Schedule RDVs
+        if ( !RDVs.empty() )
+            schedule_rdvs( RDVs, schedule);
+        // Schedule EVs
+        if ( !EVs.empty() )
+            schedule_evs( EVs, schedule);
+        
+        
 
     }
 
@@ -108,25 +107,23 @@ namespace streets_vehicle_scheduler {
         // Sort based on departure position
         dvs.sort( departure_position_comparator);                                                    
         for ( auto departing_veh : dvs ) {
-            SPDLOG_INFO("Scheduling DV with ID {0} .", departing_veh._id);
-            // get lane info
+            SPDLOG_DEBUG("Scheduling DV with ID {0} .", departing_veh._id);
+            // get link lane info
             OpenAPI::OAILanelet_info lane_info =  get_link_lanelet_info( departing_veh );
-            // Distance covered assuming constant max acceleration to speed limit
-            double constant_acceleration_distance = (pow( lane_info.getSpeedLimit(), 2) - pow( departing_veh._cur_speed, 2))/
-                (2*departing_veh._accel_max);
+            // calculate clearance time in milliseconds 
             uint64_t clearance_time = estimate_clearance_time(departing_veh, lane_info);
 
             vehicle_schedule veh_sched;
             // set id
             veh_sched.v_id = departing_veh._id;
-            // set est (TODO is it correct to set est to actual st)
+            // set est 
             veh_sched.est = departing_veh._actual_st;
             // set st
             veh_sched.st = departing_veh._actual_st;
             // set et
             veh_sched.et =  departing_veh._actual_et;
             // departure time is equal to current time plus clearance time for DVs
-            veh_sched.dt =  schedule.timestamp +clearance_time;
+            veh_sched.dt =  schedule.timestamp + clearance_time;
             // set departure position
             veh_sched.dp = departing_veh._departure_position;
             // set state
@@ -137,7 +134,7 @@ namespace streets_vehicle_scheduler {
             veh_sched.entry_lane =  departing_veh._entry_lane_id;
             // set access
             veh_sched.access =  true;
-            SPDLOG_INFO("Added schedule for {0} with dt {1}.", veh_sched.v_id, veh_sched.dt);
+            SPDLOG_DEBUG("Added schedule for {0} with dt {1}.", veh_sched.v_id, veh_sched.dt);
             // add vehicle_schedule
             schedule.vehicle_schedules.push_back(veh_sched);
 
@@ -152,68 +149,55 @@ namespace streets_vehicle_scheduler {
         rdvs.sort(departure_position_comparator);
         // Earliest possible departure position is equal to first RDVs departure position
         int starting_departure_position = rdvs.begin()->_departure_position;
-        SPDLOG_INFO("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
+        SPDLOG_DEBUG("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
         // TODO: for 8 possible approaches this may need to be optimized (greedy search)
         do { 
-            SPDLOG_INFO("Considering scheduling options with {0} as first RDV." ,rdvs.front()._id);
-            // Index to assign RDVs in every possible departure order permutation
-            int proposed_departure_position =  starting_departure_position;
+            SPDLOG_DEBUG("Considering scheduling options with {0} as first RDV." ,rdvs.front()._id);
             // update schedule option to include already scheduled vehicles
             intersection_schedule option = schedule;
-        
-            // previous vehicle is equal to last scheduled DV
-            std::shared_ptr<vehicle_schedule> last_scheduled_dv = nullptr;
-            if ( !schedule.vehicle_schedules.empty() ) {
-                last_scheduled_dv = std::make_shared<vehicle_schedule> (schedule.vehicle_schedules.back());
-            }
-            // Pointer to previous scheduled vehicle for departure time  and entering time 
+            // consider current permutation of RDV departure order
             bool valid_option =  consider_departure_position_permutation(rdvs, option, starting_departure_position);
-            SPDLOG_INFO("Scheduling option is valid : {0}.", valid_option);
-            //fix an RDV based on lower bound delay
+            SPDLOG_DEBUG("Scheduling option is valid : {0}.", valid_option);
+            // is permutation valid in terms of flexibility limit? Has any vehicle's departure index changed by more
+            // than the current flexibility limit.
             if ( valid_option ) {
                 schedule_options.push_back(option);
             }
 
         }
-        // While ( !all RDVS schedule)
         while (std::next_permutation( rdvs.begin(), rdvs.end(), departure_position_comparator));
-
-
-        // Sort in ascending order based on delay.
-        std::sort(schedule_options.begin(), schedule_options.end(), delay_comparator);
-
-        SPDLOG_INFO("All all scheduling options, the option with RDV {0} first has the least delay of {1}.",
-                                schedule_options.front().vehicle_schedules[starting_departure_position-1].v_id,
-                                schedule_options.front().get_delay());
-        // Add scheduled RDVs starting at last scheduled DV position to schedule
+        // If no valid options were added.
         if ( schedule_options.empty()) {
             throw scheduling_exception("There are no valid schedules for RDVs! Please check flexibility_limit setting.");
         }
-        for (auto sched : schedule_options.front().vehicle_schedules){
+        // Sort in ascending order based on delay.
+        std::sort(schedule_options.begin(), schedule_options.end(), delay_comparator);
+
+        SPDLOG_DEBUG("All all scheduling options, the option with RDV {0} first has the least delay of {1}.",
+                                schedule_options.front().vehicle_schedules[starting_departure_position-1].v_id,
+                                schedule_options.front().get_delay());
+       
+        // Add scheduled RDVs starting at last scheduled DV position to schedule
+        for ( const auto &sched : schedule_options.front().vehicle_schedules){
+            // starting at first available departure position for dvs, add rdvs from best option to current schedule
             if (starting_departure_position <= sched.dp ) {
+                // if rdv was granted access in this schedule add it to the list of RDVs granted access
                 if ( sched.access ) {
-                    
                         streets_vehicles::vehicle rdv_granted_access = get_vehicle_with_id( rdvs, sched.v_id );
-                        SPDLOG_INFO("Added RDV {0} to list of RDVs previously granted access.", rdv_granted_access._id);
+                        SPDLOG_DEBUG("Added RDV {0} to list of RDVs previously granted access.", rdv_granted_access._id);
                         rdvs_previously_granted_access.push_back(rdv_granted_access);
-                    
-                    
                 }
                 schedule.vehicle_schedules.push_back( sched );
                 starting_departure_position ++;
             }
         }
-        SPDLOG_INFO("Schedule for RDVs: \n"+schedule.toCSV());
-
-
-
+        SPDLOG_DEBUG("Schedule for RDVs: \n"+schedule.toCSV());
     }
 
     void all_stop_vehicle_scheduler::schedule_evs( std::list<streets_vehicles::vehicle> &evs,intersection_schedule &schedule ) const {
-        SPDLOG_INFO("Scheduling EVs ");
-        // Map of entry lane ids to preceeding already scheduled vehicle
+        // Map of entry lane ids to preceding already scheduled vehicle
         std::unordered_map<int , vehicle_schedule> preceding_vehicle_entry_lane_map;
-        for ( auto entry_lane : intersection_info->getEntryLanelets() ) {
+        for ( const auto &entry_lane : intersection_info->getEntryLanelets() ) {
             int lane_id = entry_lane.getId();
             vehicle_schedule preceding_veh;
             // Only one RDV can exist for each approach
@@ -221,37 +205,35 @@ namespace streets_vehicle_scheduler {
                 if ( veh_sched.state == streets_vehicles::vehicle_state::RDV) {
                     // All RDVs
                     preceding_veh = veh_sched;
-                    preceding_vehicle_entry_lane_map.insert({lane_id, preceding_veh});  
+                    preceding_vehicle_entry_lane_map.try_emplace(lane_id, preceding_veh);  
 
                 }
             }
         }
-        SPDLOG_INFO("Created map of preceding vehicles in each lane");
         if ( !preceding_vehicle_entry_lane_map.empty()) {
             for ( auto map_entry : preceding_vehicle_entry_lane_map ) {
-                SPDLOG_INFO("Preceding Vehicle {0} in lane {1}", map_entry.second.v_id, map_entry.first);
+                SPDLOG_DEBUG("Preceding Vehicle {0} in lane {1}", map_entry.second.v_id, map_entry.first);
             }
         } else {
-            SPDLOG_INFO("No preceding vehicles in any lane!");
+            SPDLOG_DEBUG("No preceding vehicles in any lane!");
         }
         // Sort vehicles based on distance
         evs.sort(distance_comparator);
         
-
+        // Create a map of entry lane id keys and list of vehicle to be scheduled next in each lane.
         std::unordered_map<int, std::list<streets_vehicles::vehicle>> vehicle_to_be_scheduled_next;
-        for ( auto entry_lane : intersection_info->getEntryLanelets() ) {
+        for ( const auto &entry_lane : intersection_info->getEntryLanelets() ) {
             std::list<streets_vehicles::vehicle> vehicles_in_lane;
-            SPDLOG_INFO("Finding Vehicles in entry lane {0} .", static_cast<int>(entry_lane.getId()));
             for ( auto ev : evs ) {
-                if ( ev._entry_lane_id == static_cast<int>(entry_lane.getId())) {
-                    SPDLOG_INFO("Adding vehicle {0} to EVs list in entry lane {1}", ev._id, ev._entry_lane_id);
+                if ( ev._entry_lane_id == entry_lane.getId()) {
+                    SPDLOG_DEBUG("Adding vehicle {0} to EVs list in entry lane {1}", ev._id, ev._entry_lane_id);
                     vehicles_in_lane.push_back(ev);
                 }
             }
             if ( !vehicles_in_lane.empty())
-                vehicle_to_be_scheduled_next.insert({ static_cast<int>(entry_lane.getId()), vehicles_in_lane });
+                vehicle_to_be_scheduled_next.try_emplace( entry_lane.getId(), vehicles_in_lane );
             else {
-                SPDLOG_INFO("No EVs in lane {0}.",static_cast<int>(entry_lane.getId()) );
+                SPDLOG_DEBUG("No EVs in lane {0}.",static_cast<int>(entry_lane.getId()) );
             }
         }
         SPDLOG_INFO("Map of vehicles to be scheduled next is populated");
@@ -270,9 +252,9 @@ namespace streets_vehicle_scheduler {
 
             //Populate Map
             // Find next vehicle for each entry lanelet
-            for ( auto map_entry : vehicle_to_be_scheduled_next ) {
+            for ( const auto &[entry_lane, evs_in_lane] : vehicle_to_be_scheduled_next ) {
                 // Take first vehicle to be scheduled in lane.
-                streets_vehicles::vehicle ev = map_entry.second.front();
+                streets_vehicles::vehicle ev = evs_in_lane.front();
                 SPDLOG_INFO( "Estimating schedule for {0}.", ev._id);
 
                 // Get link lanelet information for ev
@@ -314,7 +296,6 @@ namespace streets_vehicle_scheduler {
                     // Get previously scheduled vehicle regardless of lane
                     if ( !schedule.vehicle_schedules.empty() ) {
                         vehicle_schedule previously_scheduled = schedule.vehicle_schedules.back();
-                        SPDLOG_INFO( "Last schedule vehicle is {0} in entry lane {1} using link {2}.");
                         // If there is a previously scheduled vehicle with conflicting direction
                         if ( link_lane.getConflictLaneletIds().contains(static_cast<qint32>(previously_scheduled.link_id))) {
                             // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
@@ -333,7 +314,7 @@ namespace streets_vehicle_scheduler {
                 }
                
             }
-            SPDLOG_INFO( "Found vehicle {0} with lowest stopping time {1} in lane {2}", sched.v_id, sched.st, sched.entry_lane);
+            SPDLOG_DEBUG( "Found vehicle {0} with lowest stopping time {1} in lane {2}", sched.v_id, sched.st, sched.entry_lane);
             // Add lowest ST to schedule
             schedule.vehicle_schedules.push_back(sched);
             // Replace previous preceeding vehicle for lane with scheduled vehicle
@@ -341,22 +322,18 @@ namespace streets_vehicle_scheduler {
                 preceding_vehicle_entry_lane_map.find(sched.entry_lane)->second =  sched;
             }
             else {
-                preceding_vehicle_entry_lane_map.insert({sched.entry_lane, sched});
+                preceding_vehicle_entry_lane_map.try_emplace(sched.entry_lane, sched);
             }
             // Pop vehicle off of list of vehicles to be scheduled for each lane
             vehicle_to_be_scheduled_next.find(sched.entry_lane)->second.pop_front();
             // If pop makes list empty remove map entry
             if ( vehicle_to_be_scheduled_next.find(sched.entry_lane)->second.empty() ) {
-                SPDLOG_INFO("All vehicles in approach lanelet {0} have been scheduled!", sched.entry_lane);
+                SPDLOG_DEBUG("All vehicles in approach lanelet {0} have been scheduled!", sched.entry_lane);
                 vehicle_to_be_scheduled_next.erase(sched.entry_lane);
             }
             
         }
-        // Schedule EVs in order of est
         while ( !vehicle_to_be_scheduled_next.empty() );
-        SPDLOG_INFO("All EV lists in every entry lane have been scheduled!");
-
-
     }
 
     uint64_t all_stop_vehicle_scheduler::estimate_earliest_time_to_stop_bar(const streets_vehicles::vehicle &veh) const{
