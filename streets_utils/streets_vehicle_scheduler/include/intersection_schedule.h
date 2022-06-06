@@ -79,10 +79,21 @@ namespace streets_vehicle_scheduler {
          * @return u_int64_t 
          */
         u_int64_t get_delay() const;
-
+        /**
+         * @brief Method to turn schedule into CSV string. Each vehicle schedule is represented by a single row and all rows for 
+         * a given schedule share a timestamp. The values in each row represent the following properties:
+         * 
+         *  timestamp ,v_id ,entry_lane ,link_id ,dp ,est ,st ,et ,dt ,access ,state
+         * 
+         * @return std::string CSV entry
+         */
         std::string toCSV() const;
-
-        rapidjson::GenericObject<false, rapidjson::Value>& toJson() const;
+        /**
+         * @brief Method to write intersection schedule as JSON scheduling message.
+         * 
+         * @return rapidjson::GenericObject<false, rapidjson::Value>& reference 
+         */
+        rapidjson::GenericObject<true, rapidjson::Value>& toJson() const;
 
     };  
 }

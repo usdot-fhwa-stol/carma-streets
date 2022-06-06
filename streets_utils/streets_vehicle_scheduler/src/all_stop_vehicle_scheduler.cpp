@@ -70,16 +70,32 @@ namespace streets_vehicle_scheduler {
 
     double all_stop_vehicle_scheduler::calculate_v_hat(const streets_vehicles::vehicle &veh) const {
         double numerator = veh._decel_max *( 2 * veh._cur_distance*veh._accel_max + pow(veh._cur_speed, 2));
-        // TODO: Are both values positive
         double denominator = veh._decel_max-veh._accel_max;
-        return sqrt(numerator/denominator);
+        double v_hat = sqrt(numerator/denominator);
+        // If v_hat is less that current vehicle speed, const maximum deceleration will not stop before stop bar
+        if ( v_hat < veh._cur_speed) {
+            SPDLOG_ERROR("Stopping trajectory not possible for vehicle {0} with speed {1} m/s and v_hat {2} m/s!", veh._id, veh._cur_speed, v_hat);
+        }
+        return v_hat;
     }
 
     double all_stop_vehicle_scheduler::calculate_acceleration_time( const streets_vehicles::vehicle &veh, const double v_hat) const {
+        // If v_hat is less than current vehicle speed there is only time for deceleration
+        // Note: This is an error case and means stopping before the stop bar is not possible given current kinematic information
+        // and deceleration limits
+        if ( v_hat < veh._cur_speed ){
+            return 0.0;
+        } 
         return (v_hat-veh._cur_speed)/veh._accel_max;
     }
 
     double all_stop_vehicle_scheduler::calculate_cruising_time( const streets_vehicles::vehicle &veh, const double v_hat, const double delta_x_prime) const {
+        // If v_hat is less than current speed there is only time for deceleration
+        // Note: This is an error case and means stopping before the stop bar is not possible given current kinematic information
+        // and deceleration limits
+        if ( v_hat < veh._cur_speed ) {
+            return 0.0;
+        }
         return (veh._cur_distance - delta_x_prime)/v_hat; 
     }
 
@@ -372,6 +388,7 @@ namespace streets_vehicle_scheduler {
             SPDLOG_INFO("T cruising = {0}.",t_cruising);
 
         }
+        
         // calculate planned acceleration time interval
         double t_accel = calculate_acceleration_time(veh, v_hat);
         SPDLOG_INFO("T accel = {0}.",t_accel);

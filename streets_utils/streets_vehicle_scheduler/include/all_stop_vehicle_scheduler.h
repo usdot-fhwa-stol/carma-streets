@@ -41,7 +41,7 @@ namespace streets_vehicle_scheduler {
             void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, intersection_schedule &schedule );
         
             /**
-             * @brief ethod to determine whether vehicle was granted access to the intersection in previous schedules. To avoid granting
+             * @brief Method to determine whether vehicle was granted access to the intersection in previous schedules. To avoid granting
              * conflicting vehicles intersection access simultaneously, the scheduling service maintains a list of vehicles it has granted
              * access to in the past. Vehicles are removed from this list once their update reflects that they have received and processed
              * this access.
@@ -52,12 +52,22 @@ namespace streets_vehicle_scheduler {
              */
             bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
             /**
-             * @brief 
+             * @brief This method will remove a vehicle (DV) once it from the list of previously granted access RDVs. This method should be
+             * called once a RDV received the schedule update that grants it access to the intersection. This is indicated by the vehicle 
+             * no longer being a RDV and instead being a DV ( @see streets_vehicle_list library).
              * 
-             * @param veh 
+             * @param veh DV to be removed from list
              */
             void remove_rdv_previously_granted_access( const streets_vehicles::vehicle &veh);
-
+            /**
+             * @brief Given a list of vehicles and a vehicle id, this method returns the vehicle with a matching vehicle id if there is one.
+             * This method will throw a scheduling_exception if no vehicle with the given id is found.
+             * 
+             * @param veh_list list to search.
+             * @param veh_id vehicle id to search for.
+             * @return streets_vehicles::vehicle vehicle with matching vehicle id
+             * @throw scheduling_exception if vehicle is not in list.
+             */
             streets_vehicles::vehicle get_vehicle_with_id( const std::list<streets_vehicles::vehicle> &veh_list, const std::string veh_id ) const;
 
             /**
@@ -101,30 +111,106 @@ namespace streets_vehicle_scheduler {
              */
             uint64_t estimate_clearance_time(const streets_vehicles::vehicle &veh, const OpenAPI::OAILanelet_info &link_lane_info) const;
 
+            /**
+             * @brief Given a link lane and a vector of vehicle schedules, this method returns a pointer to a vehicle schedule with a 
+             * conflicting direction and the latest departure time. If no vehicle schedules have conflicting directions it returns 
+             * nullptr. This method is meant to return the limiting conflicting vehicle for scheduling new RDVs in a link lane.
+             * 
+             * @param link_lane the linking lane to be traveled
+             * @param schedules Already scheduled vehicles
+             * @return std::shared_ptr<vehicle_schedule> pointer to vehicle schedule with conflicting direction and latest departure time.
+             * 
+             */
             std::shared_ptr<vehicle_schedule> get_latest_conflicting(const OpenAPI::OAILanelet_info &link_lane,
                                         const std::vector<vehicle_schedule> &schedules) const;
 
+            /**
+             * @brief Method to use vehicle kinematic information to estimate earliest possible time stopping time for a vehicle.
+             * Does not consider any other vehicles. Limiting factors are the vehicles current kinematic information, lane speed
+             * limits and vehicle acceleration and deceleration limits.
+             * 
+             * @param veh vehicle for which to calculate trajectory
+             * @return uint64_t time in milliseconds.
+             */
             uint64_t estimate_earliest_time_to_stop_bar(const streets_vehicles::vehicle &veh) const;
+            /**
+             * @brief Calculate minumum distance required to speed up to lane speed limit with maximum acceleration, cruise at
+             * lane speed limit for some time, then decelerate with maximum deceleration. This is used to determine the 
+             * trajectory to provide the vehicle. 
+             * 
+             * @param veh vehicle for which to calculate distance.
+             * @param entry_lane entry lane information.
+             * @return double distance in meters
+             */
             double estimate_delta_x_prime( const streets_vehicles::vehicle &veh, const OpenAPI::OAILanelet_info &entry_lane ) const;
 
+            /**
+             * @brief Method to calculate v_hat. This is the maximum speed reached between maximum speed reached between acceleration
+             * and deceleration periods for a vehicle trajectory towards stopping at a stop bar.
+             * 
+             * @param veh vehicle to calculate trajectory for.
+             * @return double v_hat in m/s
+             */
             double calculate_v_hat(const streets_vehicles::vehicle &veh) const;
-
+            /**
+             * @brief Method to calculate time interval necessary for accelerating to speed v_hat for a given vehicle. Will return 0
+             * if v_hat is less than vehicle speed. 
+             * 
+             * @param veh vehicle for which to calculate trajectory.
+             * @param v_hat maximum speed to reach during acceleration in m/s.
+             * @return double time interval necessary for acceleration in seconds.
+             */
             double calculate_acceleration_time( const streets_vehicles::vehicle &veh, const double v_hat) const;
-
+            /**
+             * @brief Method to calculate time interval necessary for deceleration from v_hat to 0 to stop at stop bar. Assumes trajectory
+             * with constant maximum deceleration.
+             * 
+             * @param veh vehicle for which to calculate trajectory.
+             * @param v_hat max speed from which to decelerate from in m/s
+             * @return double time interval necessary for acceleration in seconds.
+             */
             double calculate_deceleration_time( const streets_vehicles::vehicle &veh, const double v_hat) const;
-
+            /**
+             * @brief Method to calculate time interval necessary for cruising at a constant speed v_hat (speed limit) greater than 
+             * current vehicle speed.If vehicle speed is greater that v_hat, this method will return 0. 
+             * 
+             * @param veh vehicle for which to calculate trajectory for.
+             * @param v_hat cruising speed, usually lane speed limit, in m/s.
+             * @param delta_x_prime the distance necessary for vehicle to accelerate to speed limit with maximum acceleration 
+             *      and then decelerate back to a stop in meters.The difference the distance to the stop bar and this distance 
+             *      is the part of the trajectory for which the vehicle can cruise at the speed limit.
+             * @return double time interval necessary for cruising at speed limit in seconds. 
+             */
             double calculate_cruising_time( const streets_vehicles::vehicle &veh, const double v_hat, const double delta_x_prime) const;
 
 
 
         public:
-
+            /**
+             * @brief Construct a new all stop vehicle scheduler object
+             * 
+             */
             all_stop_vehicle_scheduler() = default;
-             
+            /**
+             * @brief Destroy the all stop vehicle scheduler object
+             * 
+             */
             ~all_stop_vehicle_scheduler() = default;
-
+            /**
+             * @brief Method to schedule vehicles. Given and empty intersection_schedule object and a map of vehicle, this method
+             * will populate the intersection schedule with a schedule for each EV,RDV and DV in the vehicle map based on UC 1
+             * scheduling logic to minimize delay for a all way stop intersection.
+             * 
+             * @param vehicles A map of the vehicles to schedule, with vehicle id as keys
+             * @param schedule A intersection schedule object populated with a vehicle schedule for each EV,RDV and DV in the map.
+             */
             void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) override;
-
+            /**
+             * @brief Set the entering time buffer (ms). This value is used to account for the time it takes a vehicle stopped before 
+             * the stop bar at an entry lane to exit the entry lane and enter the link lane once given access.
+             * 
+             * @param buffer entering time buff in milliseconds.
+             */
             void set_entering_time_buffer( const uint64_t buffer);
 
 

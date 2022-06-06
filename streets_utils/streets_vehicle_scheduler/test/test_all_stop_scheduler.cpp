@@ -172,6 +172,8 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_est
     intersection_schedule schedule;
     schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     vehicle veh;
+    // NOTE: This is an impossible test scenario where the vehicle cannot stop before reaching the stop bar.
+    // This test is to exercise the future time kinematic estimations where a lane transition is possible.
     veh._id = "TEST01";
     veh._accel_max = 2.0;
     veh._decel_max = -2.0;
@@ -197,6 +199,41 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_est
     SPDLOG_INFO( "EST time for scheduler  : {0}", est_time);
     double dt_time =(schedule.vehicle_schedules.front().dt-schedule.timestamp)/1000.0;
     SPDLOG_INFO( "DT time for scheduler  : {0}", dt_time);
+
+    
+}
+
+/**
+ * @brief Test one EV. Kinematics and deceleration limit only allow for trajectory of deceleration at constant max deceleration.
+ * 
+ */
+TEST_F(all_stop_scheduler_test, one_vehicle_lane_with_zero_acceleration_time){
+    intersection_schedule schedule;
+    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    vehicle veh;
+    // NOTE: This is a test to see if the vehicle trajectory will be calculated correctly for a vehicle which only has time to decelerate
+    // with max deceleration.
+    veh._id = "TEST01";
+    veh._accel_max = 2.0;
+    veh._decel_max = -2.0;
+    veh._cur_speed = 1.0;
+    veh._cur_accel = 0;
+    veh._cur_distance = .25;
+    veh._cur_lane_id = 167;
+    veh._cur_state = vehicle_state::EV;
+    veh._cur_time = schedule.timestamp;
+    veh._entry_lane_id = 167;
+    veh._link_id = 155;
+    veh._exit_lane_id = 162;
+    veh._direction = "left";
+    veh_list.insert({veh._id,veh});
+
+    scheduler->schedule_vehicles(veh_list,schedule);
+    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
+    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
+    auto estimate_veh = veh_list.find(veh._id)->second;
+    ASSERT_EQ(estimate_veh._cur_time, schedule.timestamp);
+    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.timestamp + 500);
 
     
 }
