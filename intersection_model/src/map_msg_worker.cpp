@@ -46,6 +46,11 @@ namespace intersection_model
             return is_updated;
         }
         rapidjson::Document doc = parse_JSON_string(payload);
+        if(doc==nullptr)
+        {
+            SPDLOG_CRITICAL("Intersection map msg payload is invalid JSON string.");
+            return false;
+        }
         // Map data
         if (!doc.HasParseError() && doc.FindMember("map_data")->value.IsObject())
         {
