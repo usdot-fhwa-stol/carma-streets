@@ -25,7 +25,7 @@ namespace streets_vehicle_scheduler {
             
         }
         if (!is_found) {
-            throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
+            throw scheduling_exception("No entry lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
         }
         return entry_lane;
 
@@ -43,7 +43,7 @@ namespace streets_vehicle_scheduler {
             
         }
         if (!is_found) {
-            throw scheduling_exception("No lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
+            throw scheduling_exception("No link lane " + std::to_string(veh._cur_lane_id) + " found in intersection info!");
         }
         return link_lane;
 

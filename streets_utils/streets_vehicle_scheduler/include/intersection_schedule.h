@@ -53,11 +53,11 @@ namespace streets_vehicle_scheduler {
         /**
          * @brief Entry lanelet id of vehicle 
          */
-        int entry_lane =  -1;
+        int entry_lane =  0;
         /**
          * @brief Intended lanelet id of link lanelet used to travel through intersection.
          */
-        int link_id = -1;
+        int link_id = 0;
         /**
          * @brief Write vehicle schedule as rapidjson::Value.
          * 
