@@ -245,18 +245,18 @@ namespace intersection_model
 
             /**
              * @brief Transform the GPS location into map point using porjector
-             * @param lat 
-             * @param lon 
-             * @param elev 
+             * @param lat decimal degree
+             * @param lon decimal degree
+             * @param elev decimal degree
              * @return lanelet::BasicPoint3d 
              */
             lanelet::BasicPoint3d gps_2_map_point(double lat, double lon, double elev ) const;
 
             /**
              * @brief Transform the map point to gps location
-             * @param x coordinate
-             * @param y coordinate
-             * @param z coordinate
+             * @param x coordinate (meter)
+             * @param y coordinate (meter)
+             * @param z coordinate (meter)
              * @return GPS location
              */
             lanelet::GPSPoint map_point2_gps(double x, double y, double z) const;
