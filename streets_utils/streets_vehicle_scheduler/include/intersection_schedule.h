@@ -67,7 +67,13 @@ namespace streets_vehicle_scheduler {
     };
 
     
-
+    /**
+     * @brief Struct to store vehicle schedules for all vehicle in an intersection. Includes a timestamp in milliseconds
+     * since epoch. Also includes a get_delay method that will get each vehicle schedules delay and sum them for a total
+     * intersection delay. Delay is the difference between scheduled Entering Time (et) and scheduled Stopping time (st)
+     * and represents the time a vehicle would be waiting at the stop bar before gaining access to the intersection.
+     * 
+     */
     struct intersection_schedule {
         /**
          * @brief Time since epoch in milliseconds timestamp for intersection schedule.

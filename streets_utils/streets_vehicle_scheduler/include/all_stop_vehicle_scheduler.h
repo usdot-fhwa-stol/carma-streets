@@ -14,6 +14,14 @@ namespace streets_vehicle_scheduler {
     class all_stop_vehicle_scheduler : public vehicle_scheduler {
         private:
             
+            /**
+             * @brief A list of RDV vehicles granted access by the vehicle_scheduler, who's updates do not yet reflect they have 
+             * received access (still considered RDV by all_stop_status_intent_processor). We maintain this list to ensure we
+             * do not grant conflicting vehicles access to the intersection simultaneously in back to back scheduling calculations where the 
+             * first RDV granted access in the first schedule has not yet provided a vehicle update the reflects this access by the
+             * time we calculate the second schedule
+             * 
+             */
             std::list<streets_vehicles::vehicle> rdvs_previously_granted_access;
             /**
              * @brief Configurable time buffer in milliseconds for estimating the time it takes a vehicle to leave its entry lane 
@@ -52,9 +60,9 @@ namespace streets_vehicle_scheduler {
              */
             bool is_rdv_previously_granted_access( const streets_vehicles::vehicle &veh) const;
             /**
-             * @brief This method will remove a vehicle (DV) once it from the list of previously granted access RDVs. This method should be
-             * called once a RDV received the schedule update that grants it access to the intersection. This is indicated by the vehicle 
-             * no longer being a RDV and instead being a DV ( @see streets_vehicle_list library).
+             * @brief This method will remove a vehicle (DV) once it's updates reflect that is has received access from the list of previously 
+             * granted access RDVs. This method should be called once a RDV received the schedule update that grants it access to the intersection. 
+             * This is indicated by the vehicle no longer being a RDV and instead being a DV ( @see streets_vehicle_list library).
              * 
              * @param veh DV to be removed from list
              */
