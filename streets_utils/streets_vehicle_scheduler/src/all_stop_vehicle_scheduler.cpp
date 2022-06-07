@@ -15,7 +15,6 @@ namespace streets_vehicle_scheduler {
         // Create vectors of EVs RDVs and DVs
         std::list<streets_vehicles::vehicle> DVs;
         std::list<streets_vehicles::vehicle> RDVs;
-        std::list<streets_vehicles::vehicle> RDVs_with_access;
 
         std::list<streets_vehicles::vehicle> EVs;
         for ( const auto &[v_id, veh] : vehicles) {
@@ -257,7 +256,7 @@ namespace streets_vehicle_scheduler {
             // Calculate ST for each next vehicle in each lane and schedule the vehicle with the lowest ST
             uint64_t lowest_st = 0;
 
-            //Populate Map
+            // Populate Map
             // Find next vehicle for each entry lanelet
             for ( const auto &[entry_lane, evs_in_lane] : vehicle_to_be_scheduled_next ) {
                 // Take first vehicle to be scheduled in lane.
@@ -274,19 +273,19 @@ namespace streets_vehicle_scheduler {
                 uint64_t st;
 
 
-                // If there is a preceeding vehicle scheduled in this lane
+                // If there is a preceding vehicle scheduled in this lane
                 if ( preceding_vehicle_entry_lane_map.find( ev._cur_lane_id )  != preceding_vehicle_entry_lane_map.end() ) {
-                    // Get preceeding vehicle in lane
+                    // Get preceding vehicle in lane
                     vehicle_schedule preceding_veh = preceding_vehicle_entry_lane_map.find( ev._cur_lane_id )->second;
                     SPDLOG_DEBUG("Preceding vehicle schedule in lane {0} is {1}.", preceding_veh.entry_lane, preceding_veh.v_id);
-                    // If there is a preceeding vehicle the st is calculated as max of EST and preceeding vehicle ET plus a time
-                    // buffer to account for the time it takes the preceeding vehicle to enter the intersection
+                    // If there is a preceding vehicle the st is calculated as max of EST and preceding vehicle ET plus a time
+                    // buffer to account for the time it takes the preceding vehicle to enter the intersection
                     SPDLOG_DEBUG("Preceding vehicle et {0}", preceding_veh.et);
                     st =  std::max( est, preceding_veh.et + entering_time_buffer );
                     SPDLOG_DEBUG("Setting st for vehicle {0} to max of {1} , {2}.", ev._id, est, preceding_veh.et + entering_time_buffer);
 
                 }
-                // IF there is no preceeding vehicle ST == EST
+                // IF there is no preceding vehicle ST == EST
                 else {
                     SPDLOG_DEBUG("No proceeding vehicle for {0}", ev._id);
                     st = est;
@@ -421,9 +420,9 @@ namespace streets_vehicle_scheduler {
             // Get vehicle lane info
             OpenAPI::OAILanelet_info veh_lane = get_link_lanelet_info(veh);
             std::shared_ptr<vehicle_schedule> latest_conflicting_vehicle = get_latest_conflicting( veh_lane, option.vehicle_schedules);
-            // If there is no previously scheduled DV
+            // If there is no conflicting scheduled vehicle (RDVs and DVs)
             if ( latest_conflicting_vehicle == nullptr) {
-                // Check for scheduled RDVs
+                // Consider previously scheduled vehicle.
                 if ( option.vehicle_schedules.empty() || option.vehicle_schedules.back().access ) {
                     // Give vehicle access since there are no proceeding vehicles
                     sched.access = true;
@@ -435,7 +434,7 @@ namespace streets_vehicle_scheduler {
                     sched.dt =  sched.et + estimate_clearance_time( veh, veh_lane);
                 }
                 else {
-                    // Can not grant access to vehicle if 
+                    // Can not grant access to vehicle if previous vehicle does not have access yet.
                     sched.access = false;
                     // Set vehicle state. Will not impact clearance time estimation since set on schedule
                     sched.state = streets_vehicles::vehicle_state::RDV;

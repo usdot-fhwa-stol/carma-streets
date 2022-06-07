@@ -47,7 +47,7 @@ namespace streets_vehicle_scheduler {
          */
         bool access = false;
         /**
-         * @brief Vehicle State (@see @link vehicle @endlink)
+         * @brief Vehicle State (@see @link streets_vehicles::vehicle @endlink)
          */
         streets_vehicles::vehicle_state state = streets_vehicles::vehicle_state::ND;
         /**

@@ -19,7 +19,7 @@ namespace streets_vehicle_scheduler {
              * received access (still considered RDV by all_stop_status_intent_processor). We maintain this list to ensure we
              * do not grant conflicting vehicles access to the intersection simultaneously in back to back scheduling calculations where the 
              * first RDV granted access in the first schedule has not yet provided a vehicle update the reflects this access by the
-             * time we calculate the second schedule
+             * time we calculate the second schedule.
              * 
              */
             std::list<streets_vehicles::vehicle> rdvs_previously_granted_access;
@@ -205,8 +205,8 @@ namespace streets_vehicle_scheduler {
              */
             ~all_stop_vehicle_scheduler() override = default ;
             /**
-             * @brief Method to schedule vehicles. Given and empty intersection_schedule object and a map of vehicle, this method
-             * will populate the intersection schedule with a schedule for each EV,RDV and DV in the vehicle map based on UC 1
+             * @brief Method to schedule vehicles. Given and empty intersection_schedule object and a map of vehicles and vehicle ids. 
+             * This method will populate the intersection schedule with a schedule for each EV,RDV and DV in the vehicle map based on UC 1
              * scheduling logic to minimize delay for a all way stop intersection.
              * 
              * @param vehicles A map of the vehicles to schedule, with vehicle id as keys

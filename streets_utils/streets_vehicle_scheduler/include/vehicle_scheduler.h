@@ -90,7 +90,9 @@ namespace streets_vehicle_scheduler {
             void set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> _intersection_info );
             /**
              * @brief Set the flexibility limit. This limit controls how much departure position can change for any given vehicle between
-             * successive schedules. A value of 1 represents that vehicles departure position can change by one between two schedules.
+             * successive intersection schedule calculations. Each subsequent intersection scheduling calculation may have a slightly different
+             * departure order. This value controls how much this departure order can change.A value of 1 represents that vehicles departure 
+             * position can change by one between two intersection schedules.
              * 
              * @param limit How much can departure position change between schedules for any vehicle.
              */
