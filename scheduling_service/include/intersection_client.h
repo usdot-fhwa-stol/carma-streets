@@ -9,10 +9,10 @@
 #include <iostream>
 #include <QTimer>
 #include <QEventLoop>
-#include <OAIHelpers.h>
+#include <intersection_client_api/OAIHelpers.h>
 #include <spdlog/spdlog.h>
 
-#include "OAIDefaultApi.h"
+#include "intersection_client_api/OAIDefaultApi.h"
 
 
 using namespace OpenAPI;
