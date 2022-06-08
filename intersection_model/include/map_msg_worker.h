@@ -28,7 +28,16 @@ namespace intersection_model
 
     public:
         map_msg_worker() = default;
+        /**
+         * @brief Construct a new map msg worker object
+         * @param intersection_id configuration value from intersection model manifest.json. 
+         */
         explicit map_msg_worker(const int intersection_id);
+
+        /**
+         * @brief Construct a new map msg worker object
+         * @param intersection_id configuration value from intersection model manifest.json. It is used to identofy the intersection from MAP message.
+         */
         map_msg_worker(const int intersection_id, const std::string &bootstrap_server, const std::string &map_msg_group_id, const std::string &map_msg_topic_name);
         ~map_msg_worker() = default;
 
