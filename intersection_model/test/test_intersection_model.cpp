@@ -14,6 +14,7 @@ public:
         geometry.refpoint.latitude  = 489978505;
         geometry.refpoint.longitude = 80025947;
         geometry.refpoint.elevation = 10;
+        geometry.approach.width = 400;
 
         //Entry lane 1
         intersection_model::map_lane lane;
@@ -40,11 +41,11 @@ public:
         lane.lane_id = 2;
         lane.nodes.clear();
         lane.connection.clear();
-        node.x= 2868;
-        node.y = -1534;
+        node.x= 583; 
+        node.y = -1283;
         lane.nodes.push_back(node);
-        node.x= -19;
-        node.y = 399;
+        node.x= -0.17;
+        node.y = -251;
         lane.nodes.push_back(node);
 
         conn.lane_id = 5;
@@ -59,11 +60,11 @@ public:
         lane.lane_id = 3;
         lane.nodes.clear();
         lane.connection.clear();
-        node.x=  2455;
-        node.y = 1696;
+        node.x=  -217;
+        node.y = 1708;
         lane.nodes.push_back(node);
-        node.x=  -7;
-        node.y = 429;
+        node.x=  0;
+        node.y = -451;
         lane.nodes.push_back(node);
 
         conn.lane_id = 4;
@@ -78,11 +79,11 @@ public:
         lane.lane_id = 4;
         lane.nodes.clear();
         lane.connection.clear();
-        node.x= 2483;
-        node.y = -1087;
+        node.x= -217;
+        node.y = -1634;
         lane.nodes.push_back(node);
-        node.x=  -7;
-        node.y = -384;
+        node.x=  0;
+        node.y = -351;
         lane.nodes.push_back(node);
         geometry.approach.lanes.push_back(lane);
 
@@ -90,11 +91,11 @@ public:
         lane.lane_id = 5;
         lane.nodes.clear();
         lane.connection.clear();
-        node.x=  2876;
-        node.y = 2113;
+        node.x=  582;
+        node.y = 1808;
         lane.nodes.push_back(node);
-        node.x=  -15;
-        node.y = -517;
+        node.x=  0;
+        node.y = -401;
         lane.nodes.push_back(node);
         geometry.approach.lanes.push_back(lane);
 
@@ -102,11 +103,11 @@ public:
         lane.lane_id = 6;
         lane.nodes.clear();
         lane.connection.clear();
-        node.x=  -9600;
-        node.y = -722;
+        node.x=  -1846;
+        node.y = 409;
         lane.nodes.push_back(node);
-        node.x=  -558;
-        node.y = -6;
+        node.x=  501;
+        node.y = 0;
         lane.nodes.push_back(node);
         geometry.approach.lanes.push_back(lane);
 
@@ -357,7 +358,7 @@ TEST(intersection_model_test, mapping_lane_id_2_lanelet_id)
     std::vector<lanelet::ConstLanelet>  enter_ll_v;
     enter_ll_v.push_back(enter_ll);
     std::unordered_map<long, lanelet::ConstLanelet> lane2lanelet_m;
-    model.mapping_lane_id_2_lanelet_id(ref_point,lane2, enter_ll_v,lane2lanelet_m);
+    model.mapping_lane_id_2_lanelet_id(ref_point,lane2,cur_geometry.approach.width, enter_ll_v,lane2lanelet_m);
     ASSERT_EQ(167,lane2lanelet_m[lane2.lane_id].id());
 }
 

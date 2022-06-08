@@ -399,7 +399,7 @@ namespace intersection_model
             if(!map_msg_lane.connection.empty() )
             {
                 //Mapping MAP message lane id to lanelet id from OSM map
-                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, map_msg_lane, this->entering_lanelets, entry_lane2lanelet_m);
+                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, map_msg_lane, map_msg_geometry.approach.width, this->entering_lanelets, entry_lane2lanelet_m);
                 entry_lane2connections_m.insert({map_msg_lane.lane_id,  map_msg_lane.connection});
                 continue;
             }
@@ -419,7 +419,7 @@ namespace intersection_model
                 //Find each departure lane for the entry lanelet using connections, and mapping the departure lane id to the above departure lanelet id
                 const auto&  depart_lane = link_departure_lanes_m[conn.lane_id];
                 std::unordered_map<long, lanelet::ConstLanelet> depart_lane2lanelet_m;                
-                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, depart_lane, this->departure_lanelets ,depart_lane2lanelet_m); 
+                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, depart_lane, map_msg_geometry.approach.width, this->departure_lanelets ,depart_lane2lanelet_m); 
                 const auto&  depart_lanelet = depart_lane2lanelet_m[depart_lane.lane_id];
                 int32_t signal_group_id = conn.signalGroup;
 
@@ -487,7 +487,7 @@ namespace intersection_model
         return lanelet::InvalId;
     }
 
-    void intersection_model::mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, const map_lane& lane, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
+    void intersection_model::mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, const map_lane& lane, const long lane_width, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
     {    
         std::vector<lanelet::BasicPoint3d> basic_points = convert_lane_path_2_basic_points(ref_point, lane);
         std::unordered_map<lanelet::Id, double> lanelet2lane_path_distance_m;
@@ -499,13 +499,21 @@ namespace intersection_model
         }
         //Find the nearest lanelet from the lane path by shortest average distance
         const auto&  min_distance_pair = std::min_element(lanelet2lane_path_distance_m.begin(), lanelet2lane_path_distance_m.end(), [](const auto& l, const auto& r){return l.second < r.second; });
-        for(const auto& subj_l: subj_lanelets)
-        {
-            if(subj_l.id() == min_distance_pair->first)
+        
+        double max_lane_width = static_cast<double>(lane_width) * CM_TO_M;
+        //Check whether the average distance between points and lanelet is larger than the lane with (defined from MAP message) itself. 
+        if(min_distance_pair->second < max_lane_width)
+        {   
+            for(const auto& subj_l: subj_lanelets)
             {
-                lane2lanelet_m.insert({lane.lane_id, subj_l});     
-                SPDLOG_DEBUG("min_distance_pair lanelet id = {0}, distance = {1}", min_distance_pair->first, min_distance_pair->second);   
+                if(subj_l.id() == min_distance_pair->first)
+                {
+                    lane2lanelet_m.insert({lane.lane_id, subj_l});     
+                    SPDLOG_DEBUG("min_distance_pair lanelet id = {0}, distance = {1}", min_distance_pair->first, min_distance_pair->second);   
+                }
             }
+        }else{
+            SPDLOG_CRITICAL("Mapping failure: min_distance_pair distance = {0} is greater than lane width = {1} defined in the MAP message.", min_distance_pair->second, max_lane_width);   
         }        
     }
 
@@ -515,10 +523,12 @@ namespace intersection_model
         double lat = static_cast<double>(ref_point.latitude) * TENTH_TO_ONE * MICRO_DEGREE_TO_DEGREE;
         double lon = static_cast<double>(ref_point.longitude) * TENTH_TO_ONE * MICRO_DEGREE_TO_DEGREE; 
         double elev = static_cast<double>(ref_point.elevation) * DM_TO_M; 
+        //ref_point3d is a the reference point from which subsequent data points are offset
         const auto&  ref_point3d = gps_2_map_point(lat, lon, elev);
         double cur_x = ref_point3d.x();
         double cur_y = ref_point3d.y();
         double cur_z = ref_point3d.z();
+        //The lane nodes are offsets from the prior points
         for(const auto&  node : lane.nodes)
         {
             cur_x += static_cast<double>(node.x) * CM_TO_M;
@@ -541,8 +551,9 @@ namespace intersection_model
         for(const auto&  bp3D: basic_points)
         {
             const auto&  bp2d = lanelet::utils::to2D(bp3D);
+            const auto & latlon = map_point2_gps(bp3D.x(), bp3D.y(), bp3D.z());
             double distance = lanelet::geometry::distance2d(bp2d, centerline);
-            SPDLOG_DEBUG("Point to lanelet id {0} 2D distance {1}", subj_lanelet.id(), distance);
+            SPDLOG_DEBUG("Point({0}, {1}) to lanelet id {2} 2D distance {3}", latlon.lat, latlon.lon, subj_lanelet.id(), distance);
             distance_sum += distance;
         }
         double distance_avg = distance_sum/static_cast<double>(points_num);

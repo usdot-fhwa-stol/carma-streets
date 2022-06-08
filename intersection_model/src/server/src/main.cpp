@@ -60,9 +60,9 @@ void intersection_model_event_update(std::shared_ptr<intersection_model::interse
         while (_map_msg_consumer && _map_msg_consumer->is_running())
         {
             const std::string payload = _map_msg_consumer->consume(1000);
-            SPDLOG_DEBUG("Map msg payload => {0}", payload);
             if (payload.length() != 0)
             {
+                SPDLOG_DEBUG("Map msg payload => {0}", payload);
                 bool is_updated = map_msp_worker->update_map_msg(payload);
                 if(is_updated)
                 {
