@@ -173,7 +173,7 @@ namespace intersection_model
              * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet
              * @return A vector of link lanelet ids
              **/
-            std::vector<int> get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id);
+            const std::vector<int> get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id);
 
             /**
              * @brief Based on the all_way_stop regulatory element and routing graph, it is able to retrieve all the entry lanelets, 
@@ -187,7 +187,7 @@ namespace intersection_model
             /**
              * @brief Get the following link lanelets information from the entering lanelet. 
              * Based on the link lanelets, it retrieves the following depature lanelets
-             * @return true if the update for link lanelet info and departure lanelet info is successful.
+             * @return true if the update for intersection model info (link lanelet info and departure lanelet info) is successful. Otherwise, not updated 
              * */
             bool update_link_departure_lanelets_info_by_entry_lanelet(const lanelet::Lanelet &entry_lanelet);
 
@@ -263,29 +263,29 @@ namespace intersection_model
 
             /**
              * @brief Determine the connection lanelet for a pair of enter and departure lanelet at the intersection
-             * @param enter_lanelet_id 
-             * @param depart_lanelet_id 
+             * @param enter_lanelet_id Entry lanelet id at the intersection
+             * @param depart_lanelet_id Exit lanelet id at the intersection
              * @return  The connection/link lanelet id if found. Otherwise return an invalid lanelet id
              */
             lanelet::Id find_link_lanelet_id_by_enter_depart_lanelet_ids(const lanelet::Id enter_lanelet_id, const lanelet::Id depart_lanelet_id ) const;
 
             /**
              * @brief Get the enter lanelet by id object from the list of intersection entering lanelets
-             * @param id 
+             * @param id Lanelet id 
              * @return lanelet::ConstLanelet . If not matching, the it returns invalid lanelet
              */
             lanelet::ConstLanelet get_enter_lanelet_by_id(lanelet::Id id) const;
 
             /**
              * @brief Get the link lanelet by id object from the list of intersection link lanelets
-             * @param id 
+             * @param id Lanelet id 
              * @return lanelet::ConstLanelet . If not matching, the it returns invalid lanelet
              */
             lanelet::ConstLanelet get_link_lanelet_by_id(lanelet::Id id) const;
 
             /**
              * @brief Get the deaparture lanelet by id object from the list of intersection deaparture lanelets
-             * @param id 
+             * @param id Lanelet id 
              * @return lanelet::ConstLanelet. If not matching, the it returns invalid lanelet
              */
             lanelet::ConstLanelet get_departure_lanelet_by_id(lanelet::Id id) const;   
@@ -297,14 +297,14 @@ namespace intersection_model
             double participantHeight            = 2.;
             double minLaneChangeLength          = 0.;
             int projector_type                  = 0;
-            const char* osm_file_path_key       = "osm_file_path";
-            const char* intersection_name_key   = "intersection_name";
-            const char* intersection_id_key     = "intersection_id";
-            const double MPH_TO_MS              = 0.44704; //Miles per hour to meters per seconds conversion
-            const double CM_TO_M                = 0.01;
-            const double DM_TO_M                = 0.1;
-            const double MICRO_DEGREE_TO_DEGREE = 0.000001;
-            const double TENTH_TO_ONE           = 0.1; 
+            const char* osm_file_path_key       = "osm_file_path";      //The osm_file_path should match configuration name in the manifest.json
+            const char* intersection_name_key   = "intersection_name";  //The intersection_name should match configuration name in the manifest.json
+            const char* intersection_id_key     = "intersection_id";    //The intersection_id should match configuration name in the manifest.json
+            const double MPH_TO_MS              = 0.44704;              //Miles per hour to meters per seconds conversion
+            const double CM_TO_M                = 0.01;                 //Centimiter to meter conversion
+            const double DM_TO_M                = 0.1;                  //Decimeter to meter conversion
+            const double MICRO_DEGREE_TO_DEGREE = 0.000001;             //Microdegree to degree conversion
+            const double TENTH_TO_ONE           = 0.1;                  //One-tenth of a unit to one
 
             //Routing graph is used to store the possible routing set
             lanelet::routing::RoutingGraphPtr  vehicleGraph_ptr;

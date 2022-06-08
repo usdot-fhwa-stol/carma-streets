@@ -169,12 +169,13 @@ namespace intersection_model
 
     bool intersection_model::update_link_departure_lanelets_info_by_entry_lanelet(const lanelet::Lanelet &entry_lanelet)
     {    
+        bool is_updated= false;
         //making sure the vehicle routing graph is not null
         if( !this->vehicleGraph_ptr )
         { 
             if( !update_vehicle_routing_graph() ) 
             { 
-                return false;
+                return is_updated;
             }
         }
 
@@ -221,7 +222,9 @@ namespace intersection_model
             {
                 departure_lanelets.push_back(depart_lanelet);
             }
+            is_updated = true;
         }
+        return is_updated;
     }
 
     const intersection_info_t& intersection_model::get_intersection_info() const 
@@ -317,7 +320,7 @@ namespace intersection_model
         return conflict_lanelets;
     }
 
-    std::vector<int> intersection_model::get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id)
+    const std::vector<int> intersection_model::get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id)
     {
         std::vector<int> lanelet_ids;
 
