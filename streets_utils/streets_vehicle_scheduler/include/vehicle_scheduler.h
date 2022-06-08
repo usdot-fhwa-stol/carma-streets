@@ -8,7 +8,7 @@
 #include "vehicle.h"
 #include "vehicle_list.h"
 #include "intersection_schedule.h"
-#include "OAIIntersection_info.h"
+#include "intersection_client_api_lib/OAIIntersection_info.h"
 #include "scheduling_exception.h"
 
 
