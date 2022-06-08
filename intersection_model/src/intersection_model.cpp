@@ -551,9 +551,8 @@ namespace intersection_model
         for(const auto&  bp3D: basic_points)
         {
             const auto&  bp2d = lanelet::utils::to2D(bp3D);
-            const auto & latlon = map_point2_gps(bp3D.x(), bp3D.y(), bp3D.z());
             double distance = lanelet::geometry::distance2d(bp2d, centerline);
-            SPDLOG_DEBUG("Point({0}, {1}) to lanelet id {2} 2D distance {3}", latlon.lat, latlon.lon, subj_lanelet.id(), distance);
+            SPDLOG_DEBUG("Point to lanelet id {0} 2D distance {1}", subj_lanelet.id(), distance);
             distance_sum += distance;
         }
         double distance_avg = distance_sum/static_cast<double>(points_num);
