@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QEventLoop>
 #include <QCoreApplication>
-#include <intersection_client_api/OAIHelpers.h>
+#include <intersection_client_api_lib/OAIHelpers.h>
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
@@ -17,7 +17,7 @@
 #include "scheduling.h"
 #include "kafka_client.h"
 #include "streets_configuration.h"
-#include "intersection_client_api/OAIDefaultApi.h"
+#include "intersection_client_api_lib/OAIDefaultApi.h"
 #include "intersection_client.h"
 
 
