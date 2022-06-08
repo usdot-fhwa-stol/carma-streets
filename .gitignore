@@ -1,8 +1,14 @@
 # Cache objects
 packer_cache/
+# build directories
 message_services/build/
 kafka_clients/build/
 scheduling_service/build/
+streets_utils/streets_service_base/build/
+streets_utils/streets_vehicle_list/build/
+streets_utils/streets_vehicle_scheduler/build/
+streets_utils/streets_api/intersection_client_api/build/
+intersection_model/build
 # Crash log
 crash.log
 .env
@@ -12,7 +18,6 @@ gmon.out
 .vscode/
 intersection_model/*.osm
 message_services/*.osm
-intersection_model/build/
 intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc
 mysql/
 secrets/

@@ -12,6 +12,9 @@
 /scheduling_service/build
 /message_services/build
 /streets_utils/streets_service_base/build
+/streets_utils/streets_vehicle_list/build
+/streets_utils/streets_vehicle_scheduler/build
+/streets_utils/streets_api/intersection_client_api/build
 /carma_lanelet2
 /intersection_model/build
 /intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc
