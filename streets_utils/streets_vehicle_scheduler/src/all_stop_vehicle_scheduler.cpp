@@ -106,7 +106,10 @@ namespace streets_vehicle_scheduler {
     void all_stop_vehicle_scheduler::schedule_dvs( std::list<streets_vehicles::vehicle> &dvs,
                                                 intersection_schedule &schedule) const{
         // Sort based on departure position
-        dvs.sort( departure_position_comparator);                                                    
+        dvs.sort( departure_position_comparator);
+        // Regardless of previously set departure index, set DV with lowest departure position to departure position 1
+        // to account for DVs that have become LVs
+        int departure_position_index = 1;                                                    
         for ( const auto &departing_veh : dvs ) {
             SPDLOG_DEBUG("Scheduling DV with ID {0} .", departing_veh._id);
             // get link lane info
@@ -125,8 +128,10 @@ namespace streets_vehicle_scheduler {
             veh_sched.et =  departing_veh._actual_et;
             // departure time is equal to current time plus clearance time for DVs
             veh_sched.dt =  schedule.timestamp + clearance_time;
-            // set departure position
-            veh_sched.dp = departing_veh._departure_position;
+            // set departure position to departure position index
+            veh_sched.dp = departure_position_index;
+            // Increment index for next DV
+            departure_position_index++;
             // set state
             veh_sched.state = departing_veh._cur_state;
             // set vehicle link id
@@ -148,8 +153,15 @@ namespace streets_vehicle_scheduler {
         std::vector<intersection_schedule> schedule_options;
         // Sort rdvs ascending order based on departure position
         rdvs.sort(departure_position_comparator);
-        // Earliest possible departure position is equal to first RDVs departure position
-        int starting_departure_position = rdvs.begin()->_departure_position;
+        // Earliest possible departure position for RDVs is last scheduled DV departure position +1 
+        int starting_departure_position;
+        if ( !schedule.vehicle_schedules.empty() ) {
+            starting_departure_position = schedule.vehicle_schedules.back().dp +1;
+        }
+        else {
+            // If no scheduled DVs, first available departure position is 1
+            starting_departure_position =  1;
+        }
         SPDLOG_DEBUG("Staring the schedule RDVs from departure index {0}!", starting_departure_position );
         // TODO: for 8 possible approaches this may need to be optimized (greedy search)
         do { 
@@ -422,7 +434,9 @@ namespace streets_vehicle_scheduler {
             std::shared_ptr<vehicle_schedule> latest_conflicting_vehicle = get_latest_conflicting( veh_lane, option.vehicle_schedules);
             // If there is no conflicting scheduled vehicle (RDVs and DVs)
             if ( latest_conflicting_vehicle == nullptr) {
-                // Consider previously scheduled vehicle.
+                // Consider previously scheduled vehicle. Current vehicle cannot be granted access
+                // to intersection regardless of conflict status before previously scheduled vehicle
+                // to preserve departure order
                 if ( option.vehicle_schedules.empty() || option.vehicle_schedules.back().access ) {
                     // Give vehicle access since there are no proceeding vehicles
                     sched.access = true;
