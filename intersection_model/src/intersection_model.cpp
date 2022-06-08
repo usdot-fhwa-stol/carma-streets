@@ -528,7 +528,7 @@ namespace intersection_model
         double cur_x = ref_point3d.x();
         double cur_y = ref_point3d.y();
         double cur_z = ref_point3d.z();
-        //The lane nodes are offsets from the prior points
+        //The lane nodes are offsets from the prior node
         for(const auto&  node : lane.nodes)
         {
             cur_x += static_cast<double>(node.x) * CM_TO_M;
