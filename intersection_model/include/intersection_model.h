@@ -147,7 +147,7 @@ namespace intersection_model
              * @param sub_link_lanelet_id is validated, and has to be link lanelet within an intersection
              * @return A vector of lanelet information struct
              * **/
-            std::vector<lanelet_info_t> get_conflict_lanelets_info(int64_t sub_link_lanelet_id);
+            const std::vector<lanelet_info_t> get_conflict_lanelets_info(int64_t sub_link_lanelet_id);
 
             /**
              * @brief Get list of departure lanelet ids
@@ -185,9 +185,9 @@ namespace intersection_model
             bool update_intersection_info_by_all_way_stop_reg(const lanelet::RegulatoryElement * all_way_stop_reg_elem_ptr);
 
             /**
-             * @brief Get the following link lanelets from the entering lanelet. 
+             * @brief Get the following link lanelets information from the entering lanelet. 
              * Based on the link lanelets, it retrieves the following depature lanelets
-             * @return true if the update for link lanelet and departure lanelet is successful.
+             * @return true if the update for link lanelet info and departure lanelet info is successful.
              * */
             bool update_link_departure_lanelets_info_by_entry_lanelet(const lanelet::Lanelet &entry_lanelet);
 

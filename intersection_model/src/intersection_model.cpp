@@ -268,7 +268,7 @@ namespace intersection_model
         return this->int_info.link_lanelets_info;
     }
 
-    std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets_info(int64_t sub_link_lanelet_id)
+    const std::vector<lanelet_info_t> intersection_model::get_conflict_lanelets_info(int64_t sub_link_lanelet_id)
     {       
         //Check the subject link_lanelet conflict by comparing it to all link lanelets at the intersection
         lanelet::Id subject_link_lanelet_id{sub_link_lanelet_id};
