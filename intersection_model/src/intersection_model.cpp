@@ -320,7 +320,7 @@ namespace intersection_model
         return conflict_lanelets;
     }
 
-    const std::vector<int> intersection_model::get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id)
+    const std::vector<int> intersection_model::get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id) const
     {
         std::vector<int> lanelet_ids;
 

@@ -173,7 +173,7 @@ namespace intersection_model
              * @brief Get the list of link lanelets that has the same entry lanelet as the subject link lanelet
              * @return A vector of link lanelet ids
              **/
-            const std::vector<int> get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id);
+            const std::vector<int> get_shared_entry_link_lanelet_ids(int64_t subject_link_lanelet_id) const;
 
             /**
              * @brief Based on the all_way_stop regulatory element and routing graph, it is able to retrieve all the entry lanelets, 
