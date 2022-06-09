@@ -6,31 +6,49 @@
             "name": "osm_file_path",
             "value": "../vector_map.osm",
             "description": "Path to lanelet2 osm map for a given intersection.",
-            "type":"STRING"
+            "type": "STRING"
         },
         {
             "name": "intersection_name",
             "value": "West Intersection",
             "description": "Name of intersection.",
-            "type":"STRING"
+            "type": "STRING"
         },
         {
             "name": "intersection_id",
             "value": 9001,
             "description": "Unique ID of intersection.",
-            "type":"INTEGER"
+            "type": "INTEGER"
         },
         {
             "name": "host_address",
             "value": "127.0.0.1",
             "description": "Address to host intersection model REST server.",
-            "type":"STRING"
+            "type": "STRING"
         },
         {
             "name": "host_port",
             "value": 8080,
             "description": "Port to host intersection model REST server",
-            "type":"INTEGER"
+            "type": "INTEGER"
+        },
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        },
+        {
+            "name": "map_msg_topic",
+            "value": "v2xhub_map_msg_in",
+            "description": "Kafka topic for vehicle status and intent messages",
+            "type": "STRING"
+        },
+        {
+            "name": "map_msg_group_id",
+            "value": "mag_msg_consumer",
+            "description": "Kafka consumer group for BSM kafka consumer.",
+            "type": "STRING"
         }
     ]
 }

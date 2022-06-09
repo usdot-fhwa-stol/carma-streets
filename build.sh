@@ -47,6 +47,12 @@ cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" 
 make
 make install
 
+cd /home/carma-streets/streets_utils/streets_api/intersection_server_api
+mkdir build
+cd /home/carma-streets/streets_utils/streets_api/intersection_server_api/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
 cd /home/carma-streets/kafka_clients
 mkdir build
 cd /home/carma-streets/kafka_clients/build
