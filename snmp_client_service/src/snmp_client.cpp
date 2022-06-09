@@ -49,7 +49,7 @@ SnmpClient::SnmpClient(std::string ip, int port)
     }
     else
     {
-        SPDLOG_DEBUG("Established session with device at ", ip_);
+        SPDLOG_INFO("Established session with device at ", ip_);
     }
     
 
@@ -71,7 +71,7 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
         snmp_perror(input_oid.c_str());
     }
     else{
-        SPDLOG_DEBUG("Created OID for input: ", input_oid);
+        SPDLOG_INFO("Created OID for input: ", input_oid);
         snmp_add_null_var(pdu, OID, OID_len);
     }
     
@@ -81,6 +81,7 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
 
     // Check response
     if(status == STAT_SUCCESS) {
+        SPDLOG_INFO("STAT_SUCCESS, received a response");
         if(response->errstat == SNMP_ERR_NOERROR){
             for(auto vars = response->variables; vars; vars = vars->next_variable){
                 // Get value of variable depending on ASN.1 type
@@ -88,12 +89,10 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
 
                 // get Integer value
                 if(vars->type == ASN_INTEGER){
-                    
-                    SPDLOG_DEBUG("Integer value in object: ", val->val.integer);
+                    SPDLOG_DEBUG("Integer value in object: ", vars->val.integer);
                 }
                 // get counter value
                 else if(vars->type == ASN_COUNTER){
-
                     SPDLOG_DEBUG("Counter value in object: ", vars->val.counter64);
                 }
                 // get string value
@@ -104,7 +103,21 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
                     SPDLOG_DEBUG("string value in object: ", sp);
                     delete(sp);
                 }
+                else if (vars-> type == ASN_BIT_STR){
+                    std::cout<< "Bit string"<<std::endl;
+                }
+                else if(vars->type == ASN_LONG_LEN){
+                    // std::cout<<"Long len"<<std::endl;
+                    
+                }
+                else{
+                    std::cout<<"Integer value in object: "<< vars->val.doubleVal<<std::endl;
+                    SPDLOG_INFO("Received a different message type");
+                }
             }
+        }
+        else{
+            SPDLOG_ERROR("Error in response");
         }
     }
     else if (status == STAT_TIMEOUT){ 
