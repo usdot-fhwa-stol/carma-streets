@@ -1,5 +1,5 @@
 {
-    "service_name": "message_services",
+    "service_name": "snmp_client",
     "loglevel": "info",
     "configurations": [
         {
@@ -23,9 +23,9 @@
         },
         {
             "name": "snmp_version",
-            "value": "SNMP_VERSION_2c",
-            "description": " ",
-            "type": "STRING" 
+            "value": 0,
+            "description": "snmp version being used. net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3",
+            "type": "INTEGER" 
         },
         {
             "name": "timeout",

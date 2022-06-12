@@ -45,11 +45,14 @@ class SnmpClient
         int port_ = 0;
         std::string community_ = "public";
         int community_len_ = 3;
-        std::string snmp_version_ = "SNMP_VERSION_2c";
         int timeout_ = 10000;
 
+        /* net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3 
+        https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/library/snmp.h */
+        int snmp_version_ = 0;
+
     public:
-        SnmpClient(std::string ip, int port);
+        SnmpClient();
         
         ~SnmpClient();
 

@@ -5,23 +5,11 @@
 # include "snmp_client.h"
 
 
-SnmpClient::SnmpClient(std::string ip, int port)
+SnmpClient::SnmpClient()
 {
-    ip_ = ip;
-    port_ = port;
-    
-    streets_service::streets_configuration::initialize_logger();
-    
-    // Get config parameters from json
-    ip_ = streets_service::streets_configuration::get_string_config("ip");
-    port_ = streets_service::streets_configuration::get_int_config("port");
-    community_ = streets_service::streets_configuration::get_string_config("community");
-    community_len_ = community_.length();
-    snmp_version_ = streets_service::streets_configuration::get_string_config("snmp_version");
-    timeout_ = streets_service::streets_configuration::get_int_config("timeout");
-
-    SPDLOG_DEBUG("Target device IP address:", ip);
-    SPDLOG_DEBUG("Target device NTCIP port", std::to_string(port));
+    SPDLOG_DEBUG("Starting SNMP Client");
+    SPDLOG_DEBUG("Target device IP address:", ip_);
+    SPDLOG_DEBUG("Target device NTCIP port", std::to_string(port_));
     
 
     // Bring the IP address and port of the target SNMP device in the required form, which is "IPADDRESS:PORT":
@@ -36,7 +24,7 @@ SnmpClient::SnmpClient(std::string ip, int port)
     session.version = SNMP_VERSION_2c;
 
     // Establish the session parameters.
-    unsigned char comm[] = "public";
+    unsigned char comm[] = community_;
     session.community = comm;
     session.community_len = strlen((const char *)session.community);
 
