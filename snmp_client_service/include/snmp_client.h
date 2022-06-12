@@ -56,9 +56,9 @@ class SnmpClient
         
         ~SnmpClient();
 
-        int process_snmp_request(std::string request_type, std::string input_oid, int value);
-
         void process_snmp_get_request(std::string input_oid);
+
+        void process_snmp_set_request(std::string input_oid, int value);
     
     
 };

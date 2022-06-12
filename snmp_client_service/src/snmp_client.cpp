@@ -21,7 +21,7 @@ SnmpClient::SnmpClient()
     init_snmp("carma_snmp");
     snmp_sess_init(&session);
     session.peername = ip_port;
-    session.version = SNMP_VERSION_2c;
+    session.version = snmp_version_;
 
     // Establish the session parameters.
     unsigned char comm[] = community_;
@@ -79,105 +79,80 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
                 if(vars->type == ASN_INTEGER){
                     SPDLOG_DEBUG("Integer value in object: ", vars->val.integer);
                 }
-                // get counter value
-                else if(vars->type == ASN_COUNTER){
-                    SPDLOG_DEBUG("Counter value in object: ", vars->val.counter64);
-                }
-                // get string value
-                else if(vars->type == ASN_OCTET_STR){
-                    vars->val.string;
-                    char *sp = new char;
-                    sp[vars->val_len] = '\0';
-                    SPDLOG_DEBUG("string value in object: ", sp);
-                    delete(sp);
-                }
-                else if (vars-> type == ASN_BIT_STR){
-                    std::cout<< "Bit string"<<std::endl;
-                }
-                else if(vars->type == ASN_LONG_LEN){
-                    // std::cout<<"Long len"<<std::endl;
-                    
-                }
                 else{
-                    std::cout<<"Integer value in object: "<< vars->val.doubleVal<<std::endl;
-                    SPDLOG_INFO("Received a different message type");
+                    SPDLOG_INFO("Received a message type which isn't an Integer");
                 }
             }
         }
         else{
             SPDLOG_ERROR("Error in response");
+            
+            if (status == STAT_SUCCESS)
+            {
+                SPDLOG_ERROR("Error in packet.", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
+            }
+            else if (status == STAT_TIMEOUT){ 
+                SPDLOG_ERROR("Timeout, no response from ", session.peername);
+            }
+            else{
+                snmp_sess_perror("snmpget", ss);
+                SPDLOG_ERROR("Unknown SNMP Error");
+            }
+            
         }
     }
-    else if (status == STAT_TIMEOUT){ 
-        SPDLOG_ERROR("Timeout, no response from ", session.peername);
-    }
-    else{
-        //Error while getting response
-        snmp_sess_perror("snmpget", ss);
-        SPDLOG_ERROR("Error while getting response");
-    }
+    
 
     if (response){
         snmp_free_pdu(response);
     }
         
-
 }
 
-int SnmpClient::process_snmp_request(std::string request_type, std::string input_oid, int value)
-{
+void process_snmp_set_request(std::string input_oid, int value){
+
+    SPDLOG_DEBUG("Attemping to SET value for ", input_oid, " to ", value);
     // Create pdu for the data
-    if (request_type == "GET"){
-        pdu = snmp_pdu_create(SNMP_MSG_GET);
+    pdu = snmp_pdu_create(SNMP_MSG_SET);
+
+    if(!read_objid(input_oid.c_str(), OID, &OID_len)){
+        // If oid cannot be created
+        SPDLOG_ERROR("OID could not be created from input: ", input_oid);
+        snmp_perror(input_oid.c_str());
     }
-    else if (request_type == "SET"){
-        pdu = snmp_pdu_create(SNMP_MSG_SET);
+    else{
+        SPDLOG_INFO("Created OID for input: ", input_oid);
+        snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
     }
 
-    // Read input OID into an OID variable:
-    // net-snmp has several methods for creating an OID object
-    // their documentation suggests using get_node. read_objid seems like a simpler approach
-    // TO DO: investigate update to get_node
-    read_objid(input_oid.c_str(), OID, &OID_len);
-    
-
-    // For get request, add null variable
-    if (request_type == "GET"){
-        snmp_add_null_var(pdu, OID, OID_len);
-    }
-    else if (request_type == "set"){
-        snmp_add_var(pdu, OID, OID_len, 'i', std::to_string(value).c_str());
-    }
-
-    // Send the request
     status = snmp_synch_response(ss, pdu, &response);
 
-    // Handle response
-    if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
-
-        if (request_type == "GET"){
-            // int out[50]{};
-            // int i{};
-            // for(vars = response->variables; vars; vars = vars->next_variable)
-            // {
-            //     int **aa{};
-            //     aa = (int*)vars->val.integer;
-            //     out[i++] = *aa;
-            //     value = out[0];
-            // }
-            SPDLOG_DEBUG("Success in GET for OID: ", input_oid, " ; Value = ", std::to_string(value));
-        }
-        else{
-            SPDLOG_DEBUG("Success in SET for OID: ", input_oid , " ; Value = ", std::to_string(value));
-        }
+    if (status = STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
+        SPDLOG_DEBUG("Success in SET for OID:", input_oid," ; Value: ", value);
+    }
+    else{
+            SPDLOG_ERROR("Error in response");
+            
+            if (status == STAT_SUCCESS)
+            {
+                SPDLOG_ERROR("Error in packet.", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
+            }
+            else if (status == STAT_TIMEOUT){ 
+                SPDLOG_ERROR("Timeout, no response from ", session.peername);
+            }
+            else{
+                snmp_sess_perror("snmpset", ss);
+                SPDLOG_ERROR("Unknown SNMP Error");
+            }
+            
     }
 
-    // Free response
-    if(response){
+    if (response){
         snmp_free_pdu(response);
     }
-
 }
+
+
 
 SnmpClient::~SnmpClient()
 {
