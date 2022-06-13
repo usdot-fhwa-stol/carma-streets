@@ -6,20 +6,17 @@
 
 
 SnmpClient::SnmpClient(std::string ip, int port, std::string community, int community_len, int snmp_version, int timeout)
+    : ip_(ip), port_(port), community_(community), community_len_(community_len), timeout_(timeout)
 {
+    
     SPDLOG_DEBUG("Starting SNMP Client");
-    SPDLOG_DEBUG("Target device IP address:", ip_);
-    SPDLOG_DEBUG("Target device NTCIP port", std::to_string(port_));
-    ip_ = ip;
-    port_ = port;
-    community_ = community;
-    community_len_ = community_len;
-    timeout_ = timeout;
+    SPDLOG_DEBUG("Target device IP address: {0}", ip_);
+    SPDLOG_INFO("Target device NTCIP port: {0}", port_);
     
 
     // Bring the IP address and port of the target SNMP device in the required form, which is "IPADDRESS:PORT":
     char ip_port[64];
-    strcpy(ip_port,ip_.c_str());
+    strcpy(ip_port,ip_.c_str());    
     strcat(ip_port,":");
     strcat(ip_port,(std::to_string(port_)).c_str()); 
     
@@ -82,7 +79,8 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
 
             // get Integer value
             if(vars->type == ASN_INTEGER){
-                SPDLOG_DEBUG("Integer value in object: ", vars->val.integer);
+                int integer_response = *vars->val.integer;
+                SPDLOG_INFO("Integer value in object: {0}", integer_response);
             }
             else{
                 SPDLOG_INFO("Received a message type which isn't an Integer");
@@ -108,8 +106,6 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
         }
         
     }
-    
-    
 
     if (response){
         snmp_free_pdu(response);
@@ -119,31 +115,31 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
 
 void SnmpClient::process_snmp_set_request(std::string input_oid, int value){
 
-    SPDLOG_DEBUG("Attemping to SET value for ", input_oid, " to ", value);
+    SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
     // Create pdu for the data
     pdu = snmp_pdu_create(SNMP_MSG_SET);
 
     if(!read_objid(input_oid.c_str(), OID, &OID_len)){
         // If oid cannot be created
-        SPDLOG_ERROR("OID could not be created from input: ", input_oid);
+        SPDLOG_ERROR("OID could not be created from input: {0}", input_oid);
         snmp_perror(input_oid.c_str());
     }
     else{
-        SPDLOG_INFO("Created OID for input: ", input_oid);
+        SPDLOG_DEBUG("Created OID for input: {0}", input_oid);
         snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
     }
 
     status = snmp_synch_response(ss, pdu, &response);
 
     if (status = STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
-        SPDLOG_DEBUG("Success in SET for OID:", input_oid," ; Value: ", value);
+        SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
     }
     else{
             SPDLOG_ERROR("Error in response");
             
             if (status == STAT_SUCCESS)
             {
-                SPDLOG_ERROR("Error in packet.", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
+                SPDLOG_ERROR("Error in packet.{0} ", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
             }
             else if (status == STAT_TIMEOUT){ 
                 SPDLOG_ERROR("Timeout, no response from ", session.peername);

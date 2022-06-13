@@ -1,4 +1,5 @@
 #pragma once
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TDEBUG
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -62,5 +63,5 @@ class SnmpClient
         
         int timeout_ = 10000;
     
-    
+    //old  value: 1157
 };

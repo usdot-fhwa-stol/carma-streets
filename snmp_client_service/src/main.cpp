@@ -19,8 +19,10 @@ int main()
 
     SnmpClient worker(ip, port, community, community_len, snmp_version, timeout);
     
-    std::string input_oid = ".1.3.6.1.4.1.2021.11.10";
+    std::string input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.21.2";
     worker.process_snmp_get_request(input_oid);
+
+    worker.process_snmp_set_request(input_oid, 1057);
 
     return 0;
 }

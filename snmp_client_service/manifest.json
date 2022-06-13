@@ -5,13 +5,13 @@
         {
             
             "name": "ip",
-            "value": "192.168.120.132",
+            "value": "192.168.555.50",
             "description": "Target device IP address",
             "type": "STRING"
         }, 
         {
            "name": "port",
-           "value": 161,
+           "value": 6053,
            "description": "Target device NTCIP port",
            "type": "INTEGER" 
         },

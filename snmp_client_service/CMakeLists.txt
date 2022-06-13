@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(snmp_client_service)
+project(traffic_signal_controller_service)
 
 
 # link_directories("/usr/lib" "/usr/local/lib")
