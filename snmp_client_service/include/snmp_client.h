@@ -40,25 +40,27 @@ class SnmpClient
         int status;
         // variable list will hold the variables we want to manipulate via SNMP
 
-        // Values from config
-        std::string ip_ = "";
-        int port_ = 0;
-        std::string community_ = "public";
-        int community_len_ = 3;
-        int timeout_ = 10000;
 
         /* net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3 
         https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/library/snmp.h */
         int snmp_version_ = 0;
 
     public:
-        SnmpClient();
+        SnmpClient(std::string ip, int port, std::string community, int community_len, int snmp_version, int timeout);
         
         ~SnmpClient();
 
         void process_snmp_get_request(std::string input_oid);
 
         void process_snmp_set_request(std::string input_oid, int value);
+
+        // Values from config
+        std::string ip_ = "";
+        int port_ = 0;
+        std::string community_ = "public";
+        int community_len_ = 3;
+        
+        int timeout_ = 10000;
     
     
 };
