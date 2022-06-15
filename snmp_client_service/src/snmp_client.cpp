@@ -39,7 +39,7 @@ SnmpClient::SnmpClient(std::string ip, int port, std::string community, int comm
     }
     else
     {
-        SPDLOG_INFO("Established session with device at ", ip_);
+        SPDLOG_INFO("Established session with device at {0}", ip_);
     }
     
 
@@ -109,6 +109,7 @@ void SnmpClient::process_snmp_get_request(std::string input_oid){
 
     if (response){
         snmp_free_pdu(response);
+        OID_len = MAX_OID_LEN;
     }
         
 }
@@ -125,20 +126,29 @@ void SnmpClient::process_snmp_set_request(std::string input_oid, int value){
         snmp_perror(input_oid.c_str());
     }
     else{
-        SPDLOG_DEBUG("Created OID for input: {0}", input_oid);
-        snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
+        
+        if (snmp_parse_oid((input_oid).c_str(), OID, &OID_len) == NULL){
+            SPDLOG_ERROR("Couldn't parse oid");
+        }
+        if(snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str())){
+            snmp_perror(((input_oid).c_str()));
+            SPDLOG_ERROR("Couldn't add set request");
+        }
+        
+        SPDLOG_INFO("Created OID for input: {0}", input_oid);
+        
     }
 
     status = snmp_synch_response(ss, pdu, &response);
 
-    if (status = STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
+    if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
         SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
     }
     else{
-            SPDLOG_ERROR("Error in response");
             
             if (status == STAT_SUCCESS)
             {
+                SPDLOG_ERROR("Variable type: {0}",response->variables->type);
                 SPDLOG_ERROR("Error in packet.{0} ", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
             }
             else if (status == STAT_TIMEOUT){ 
@@ -153,6 +163,7 @@ void SnmpClient::process_snmp_set_request(std::string input_oid, int value){
 
     if (response){
         snmp_free_pdu(response);
+        OID_len = MAX_OID_LEN;
     }
 }
 

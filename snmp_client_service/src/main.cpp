@@ -21,8 +21,9 @@ int main()
     
     std::string input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.21.2";
     worker.process_snmp_get_request(input_oid);
-
-    worker.process_snmp_set_request(input_oid, 1057);
+    input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.6.2";
+    int set_value = 10;
+    worker.process_snmp_set_request(input_oid, set_value);
 
     return 0;
 }
