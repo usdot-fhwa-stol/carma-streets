@@ -5,8 +5,8 @@
 # include "snmp_client.h"
 
 
-TrafficSignalControllerService::TrafficSignalControllerService(std::string ip, int port, std::string community, int community_len, int snmp_version, int timeout)
-    : ip_(ip), port_(port), community_(community), community_len_(community_len), timeout_(timeout)
+TrafficSignalControllerService::TrafficSignalControllerService(std::string& ip, int& port, std::string community, int community_len, int snmp_version, int timeout)
+    : ip_(ip), port_(port), community_(community), community_len_(community_len),snmp_version_(snmp_version), timeout_(timeout)
 {
     
     SPDLOG_DEBUG("Starting SNMP Client");
@@ -33,7 +33,7 @@ TrafficSignalControllerService::TrafficSignalControllerService(std::string ip, i
 
     ss = snmp_open(&session);
 
-    if (ss == NULL)
+    if (ss == nullptr)
     {
         SPDLOG_ERROR("Failed to establish session with target device");
         snmp_sess_perror("snmpget", &session);
@@ -134,7 +134,7 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
     }
     else{
         
-        if (snmp_parse_oid((input_oid).c_str(), OID, &OID_len) == NULL){
+        if (snmp_parse_oid(input_oid.c_str(), OID, &OID_len) == nullptr){
             SPDLOG_ERROR("Couldn't parse oid");
             return false;
         }

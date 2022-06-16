@@ -25,7 +25,8 @@ class TrafficSignalControllerService
         // struct that holds information about who we're going to be talking to
         // We need to declare 2 of these, one to fill info with and second which is 
         // a pointer returned by the library
-        struct snmp_session session, *ss;
+        struct snmp_session session;
+        struct snmp_session *ss;
 
         //Structure to hold all of the information that we're going to send to the remote host
         struct snmp_pdu *pdu;
@@ -42,6 +43,13 @@ class TrafficSignalControllerService
         https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/library/snmp.h */
         int snmp_version_ = 0;
 
+        // Values from config
+        std::string ip_ = "";
+        int port_ = 0;
+        std::string community_ = "public";
+        int community_len_ = 3;
+        int timeout_ = 10000;
+
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
          * @param ip The ip ,as a string, for the host to establish snmp communication with.
@@ -52,7 +60,7 @@ class TrafficSignalControllerService
          *                      net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3"
          * @param timeout The time in microseconds after which an snmp session request expires. Defaults to 100 if unassigned
          * **/
-        TrafficSignalControllerService(std::string ip, int port, std::string community = "public", int community_len = 6, int snmp_version = 0, int timeout = 100);
+        TrafficSignalControllerService(std::string& ip, int& port, std::string community = "public", int community_len = 6, int snmp_version = 0, int timeout = 100);
         
         /** @brief Destructor for client.**/
         ~TrafficSignalControllerService();
@@ -67,12 +75,5 @@ class TrafficSignalControllerService
          *  @param value The value to set.
          *  @return boolean for whether value could be set, returns true if successful and false if value cannot be set.*/
         bool process_snmp_set_request(std::string input_oid, int value);
-
-        // Values from config
-        std::string ip_ = "";
-        int port_ = 0;
-        std::string community_ = "public";
-        int community_len_ = 3;
-        int timeout_ = 10000;
 
 };
