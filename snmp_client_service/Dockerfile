@@ -58,13 +58,13 @@ RUN make install
 
 COPY ./snmp_client_service/ /home/carma-streets/snmp_client_service
 # Install streets_service_base
-# RUN echo " ------> Install streets service base library from streets_utils..."
-# WORKDIR /home/carma-streets/streets_utils/snmp_client_service
-# RUN mkdir build
-# WORKDIR /home/carma-streets/streets_utils/snmp_client_service/build
-# RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-# RUN make
-# RUN make install
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/snmp_client_service
+RUN mkdir build
+WORKDIR /home/carma-streets/snmp_client_service/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
 
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."

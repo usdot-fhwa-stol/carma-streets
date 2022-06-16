@@ -47,13 +47,13 @@ class SnmpClient
         int snmp_version_ = 0;
 
     public:
-        SnmpClient(std::string ip, int port, std::string community, int community_len, int snmp_version, int timeout);
+        SnmpClient(std::string ip, int port, std::string community = "public", int community_len = 6, int snmp_version = 0, int timeout = 100);
         
         ~SnmpClient();
 
-        void process_snmp_get_request(std::string input_oid);
+        int process_snmp_get_request(std::string input_oid);
 
-        void process_snmp_set_request(std::string input_oid, int value);
+        bool process_snmp_set_request(std::string input_oid, int value);
 
         // Values from config
         std::string ip_ = "";
@@ -62,6 +62,5 @@ class SnmpClient
         int community_len_ = 3;
         
         int timeout_ = 10000;
-    
-    //old  value: 1157
+
 };

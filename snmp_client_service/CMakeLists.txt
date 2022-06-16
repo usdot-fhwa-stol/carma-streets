@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10.2)
 project(traffic_signal_controller_service)
 
 
-# link_directories("/usr/lib" "/usr/local/lib")
+link_directories("/usr/lib" "/usr/local/lib")
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
@@ -12,8 +12,7 @@ find_library(NETSNMPMIBS "netsnmpmibs")
 find_library(NETSNMP "netsnmp")
 
 add_library(${PROJECT_NAME}_lib
-        src/snmp_client.cpp
-        src/main.cpp)
+        src/snmp_client.cpp)
 
 add_executable( ${PROJECT_NAME} 
 src/main.cpp)
@@ -63,3 +62,15 @@ ${PROJECT_NAME}_lib )
 #     Boost::filesystem
 #     spdlog::spdlog 
 #     ${NETSNMP_LIBRARIES})
+
+#############
+## Testing ##
+#############
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
+add_executable(test-${PROJECT_NAME}
+    test/test_traffic_signal_controller_service
+)
+target_link_libraries(test-${PROJECT_NAME} ${PROJECT_NAME}_lib ${GTEST_LIBRARIES})
+add_test(NAME test-${PROJECT_NAME} COMMAND test-${PROJECT_NAME})
+
