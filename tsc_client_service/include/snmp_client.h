@@ -20,8 +20,6 @@
 class TrafficSignalControllerService
 {
     private:
-        /* String filepath to manifest.json configuration file */
-        std::string filepath;
 
         // variable to store an snmp session
         // struct that holds information about who we're going to be talking to
@@ -39,8 +37,6 @@ class TrafficSignalControllerService
         oid OID[MAX_OID_LEN];
         size_t OID_len = MAX_OID_LEN;
         int status;
-        // variable list will hold the variables we want to manipulate via SNMP
-
 
         /* net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3 
         https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/library/snmp.h */
