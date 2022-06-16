@@ -48,13 +48,19 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_vehicle_list/coverage/coverage.xml -s -f streets_utils/streets_vehicle_list/ -r .
 
-
-cd /home/carma-streets/message_services/build/
-./message_services_test --gtest_output=xml:../../test_results/
-cd /home/carma-streets/message_services/
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler/build/
+./streets_vehicle_scheduler_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler
 mkdir coverage
 cd /home/carma-streets/
-gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
+gcovr --sonarqube streets_utils/streets_vehicle_scheduler/coverage/coverage.xml -s -f streets_utils/streets_vehicle_scheduler/ -r .
+
+# cd /home/carma-streets/message_services/build/
+# ./message_services_test --gtest_output=xml:../../test_results/
+# cd /home/carma-streets/message_services/
+# mkdir coverage
+# cd /home/carma-streets/
+# gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
 
 cd /home/carma-streets/intersection_model/build/
 ./intersection_model_test ---gtest_output=xml:../../test_results/

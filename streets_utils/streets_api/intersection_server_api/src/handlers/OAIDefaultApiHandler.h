@@ -17,7 +17,6 @@
 #include "OAIIntersection_info.h"
 #include "OAILanelet_info.h"
 #include <QString>
-#include "intersection_model.h"
 
 namespace OpenAPI {
 
@@ -26,9 +25,9 @@ class OAIDefaultApiHandler : public QObject
     Q_OBJECT
 
 public:
-    OAIDefaultApiHandler(std::shared_ptr<intersection_model::intersection_model> &model);
+    OAIDefaultApiHandler();
     virtual ~OAIDefaultApiHandler();
-    std::shared_ptr<intersection_model::intersection_model> int_worker ;
+
 
 public slots:
     virtual void getConflictLanelets(qint32 link_lanelet_id);

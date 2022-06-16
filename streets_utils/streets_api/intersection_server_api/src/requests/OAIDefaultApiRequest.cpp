@@ -29,7 +29,7 @@ OAIDefaultApiRequest::OAIDefaultApiRequest(QHttpEngine::Socket *s, QSharedPointe
 
 OAIDefaultApiRequest::~OAIDefaultApiRequest(){
     disconnect(this, nullptr, nullptr, nullptr);
-    SPDLOG_DEBUG("OAIDefaultApiRequest::~OAIDefaultApiRequest()");
+    qDebug() << "OAIDefaultApiRequest::~OAIDefaultApiRequest()";
 }
 
 QMap<QString, QString>
@@ -50,7 +50,7 @@ QHttpEngine::Socket* OAIDefaultApiRequest::getRawSocket(){
 
 
 void OAIDefaultApiRequest::getConflictLaneletsRequest(const QString& link_lanelet_idstr){
-    SPDLOG_INFO("/intersection_model/v1/get_conflict_lanelets/{0}", link_lanelet_idstr.toStdString());
+    qDebug() << "/intersection_model/v1/get_conflict_lanelets/{link_lanelet_id}";
     connect(this, &OAIDefaultApiRequest::getConflictLanelets, handler.data(), &OAIDefaultApiHandler::getConflictLanelets);
 
     
@@ -63,7 +63,7 @@ void OAIDefaultApiRequest::getConflictLaneletsRequest(const QString& link_lanele
 
 
 void OAIDefaultApiRequest::getIntersectionInfoRequest(){
-    SPDLOG_INFO("/intersection_model/v1/info");
+    qDebug() << "/intersection_model/v1/info";
     connect(this, &OAIDefaultApiRequest::getIntersectionInfo, handler.data(), &OAIDefaultApiHandler::getIntersectionInfo);
 
     
@@ -74,7 +74,7 @@ void OAIDefaultApiRequest::getIntersectionInfoRequest(){
 
 
 void OAIDefaultApiRequest::listDepartureLaneletsRequest(){
-    SPDLOG_INFO("/intersection_model/v1/departure_lanelets");
+    qDebug() << "/intersection_model/v1/departure_lanelets";
     connect(this, &OAIDefaultApiRequest::listDepartureLanelets, handler.data(), &OAIDefaultApiHandler::listDepartureLanelets);
 
     
@@ -85,7 +85,7 @@ void OAIDefaultApiRequest::listDepartureLaneletsRequest(){
 
 
 void OAIDefaultApiRequest::listEntryLaneletsRequest(){
-    SPDLOG_INFO("/intersection_model/v1/entry_lanelets");
+    qDebug() << "/intersection_model/v1/entry_lanelets";
     connect(this, &OAIDefaultApiRequest::listEntryLanelets, handler.data(), &OAIDefaultApiHandler::listEntryLanelets);
 
     
@@ -96,7 +96,7 @@ void OAIDefaultApiRequest::listEntryLaneletsRequest(){
 
 
 void OAIDefaultApiRequest::listLinkLaneletsRequest(){
-    SPDLOG_INFO("/intersection_model/v1/link_lanelets");
+    qDebug() << "/intersection_model/v1/link_lanelets";
     connect(this, &OAIDefaultApiRequest::listLinkLanelets, handler.data(), &OAIDefaultApiHandler::listLinkLanelets);
 
     
@@ -154,16 +154,11 @@ void OAIDefaultApiRequest::listLinkLaneletsResponse(const QList<OAILanelet_info>
 
 
 void OAIDefaultApiRequest::getConflictLaneletsError(const QList<OAILanelet_info>& res, QNetworkReply::NetworkError error_type, QString& error_str){
+    Q_UNUSED(error_type); // TODO: Remap error_type to QHttpEngine::Socket errors
     setSocketResponseHeaders();
-    if(error_type == QNetworkReply::NetworkError::ContentAccessDenied)
-    {
-        socket->writeError(QHttpEngine::Socket::Forbidden,QByteArray(error_str.toUtf8()));
-    }
-    else
-    {
-        QJsonDocument resDoc(::OpenAPI::toJsonValue(res).toObject());
-        socket->writeJson(resDoc);
-    }
+    Q_UNUSED(error_str);  // response will be used instead of error string
+    QJsonDocument resDoc(::OpenAPI::toJsonValue(res).toArray());
+    socket->writeJson(resDoc);
     if(socket->isOpen()){
         socket->close();
     }

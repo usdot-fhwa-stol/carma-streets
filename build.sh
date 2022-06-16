@@ -15,6 +15,7 @@
 
 # script executes all kafka_clients and scheduling service build and coverage steps so that they can be singularly
 # wrapped by the sonarcloud build-wrapper
+set -e
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
@@ -32,6 +33,26 @@ cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" 
 make
 make install
 
+cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
+mkdir build
+cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
+
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler
+mkdir build
+cd /home/carma-streets/streets_utils/streets_vehicle_scheduler/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
+
+cd /home/carma-streets/streets_utils/streets_api/intersection_server_api
+mkdir build
+cd /home/carma-streets/streets_utils/streets_api/intersection_server_api/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
 cd /home/carma-streets/kafka_clients
 mkdir build
 cd /home/carma-streets/kafka_clients/build
@@ -40,35 +61,23 @@ make
 make install
 
 
-cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
-mkdir build
-cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
-cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
-make
-make install
-
-
-
 cd /home/carma-streets/scheduling_service
 mkdir build
 cd /home/carma-streets/scheduling_service/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
-make install
 
 cd /home/carma-streets/intersection_model
 mkdir build
 cd /home/carma-streets/intersection_model/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
-make install
 
 cd /home/carma-streets/message_services
 mkdir build
 cd /home/carma-streets/message_services/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
-make install
 
 cd /home/carma-streets/tsc_client_service
 mkdir build
