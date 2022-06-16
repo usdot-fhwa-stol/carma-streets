@@ -46,12 +46,12 @@ RUN make
 RUN make install
 
 # Install net-snmp
-WORKDIR /home/
+WORKDIR /home/carma-streets/ext/
 RUN apt-get update  && apt-get install -y wget libperl-dev
 RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
-RUN tar -xvzf /home/net-snmp-5.9.1.tar.gz
-WORKDIR /home/net-snmp-5.9.1/
-RUN ./configure --with-default-snmp-version="2"
+RUN tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
+WORKDIR /home/carma-streets/ext/net-snmp-5.9.1/
+RUN ./configure --with-default-snmp-version="1"
 RUN make
 RUN make install
 
@@ -65,6 +65,9 @@ WORKDIR /home/carma-streets/snmp_client_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
+
+
+WORKDIR /home/
 
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."

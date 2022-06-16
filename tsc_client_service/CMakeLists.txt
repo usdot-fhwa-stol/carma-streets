@@ -36,41 +36,17 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
 )
 
 TARGET_LINK_LIBRARIES (${PROJECT_NAME}_lib PUBLIC Boost::system Boost::thread ${NETSNMP_INCLUDE_DIRS} spdlog::spdlog )
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_lib)
 
-
-# INSTALL(TARGETS ${PROJECT_NAME}_lib  DESTINATION lib)
-# FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-# INSTALL(FILES ${files} DESTINATION include)
-
-install(
-    TARGETS ${PROJECT_NAME}_lib
-    EXPORT ${PROJECT_NAME}_libTargets
-    LIBRARY DESTINATION lib
-    INCLUDES DESTINATION include
-    ARCHIVE DESTINATION lib
-)
-
-target_link_libraries(${PROJECT_NAME}
-${PROJECT_NAME}_lib )
-
-
-# add_dependencies(${PROJECT_NAME}_exec ${PROJECT_NAME}_lib)
-# target_link_libraries( ${PROJECT_NAME}_exec PUBLIC
-#     ${PROJECT_NAME}_lib 
-#     Boost::system 
-#     Boost::thread 
-#     Boost::filesystem
-#     spdlog::spdlog 
-#     ${NETSNMP_LIBRARIES})
 
 #############
 ## Testing ##
 #############
 find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
-add_executable(test-${PROJECT_NAME}
+file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
+add_executable(${PROJECT_NAME}_test
     test/test_traffic_signal_controller_service
 )
-target_link_libraries(test-${PROJECT_NAME} ${PROJECT_NAME}_lib ${GTEST_LIBRARIES})
-add_test(NAME test-${PROJECT_NAME} COMMAND test-${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_lib ${GTEST_LIBRARIES})
+add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
 

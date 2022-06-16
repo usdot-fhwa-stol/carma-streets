@@ -88,6 +88,16 @@ jobs:
             cmake .. && make -j
             make install
 
+            #Install net-snmp
+            cd /home/carma-streets/ext/
+            apt-get update  && apt-get install -y wget libperl-dev
+            wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+            tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
+            cd net-snmp-5.9.1/
+            ./configure --with-default-snmp-version="2"
+            make
+            make install
+
             # Install qhttpengine
             cd /home/carma-streets/ext
             git clone https://github.com/etherealjoy/qhttpengine.git
