@@ -51,21 +51,19 @@ RUN apt-get update  && apt-get install -y wget libperl-dev
 RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
 RUN tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
 WORKDIR /home/carma-streets/ext/net-snmp-5.9.1/
-RUN ./configure --with-default-snmp-version="1"
+RUN ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
 RUN make
 RUN make install
 
 
-COPY ./snmp_client_service/ /home/carma-streets/snmp_client_service
+COPY ./tsc_client_service/ /home/carma-streets/tsc_client_service
 # Install streets_service_base
 RUN echo " ------> Install streets service base library from streets_utils..."
-WORKDIR /home/carma-streets/snmp_client_service
+WORKDIR /home/carma-streets/tsc_client_service
 RUN mkdir build
-WORKDIR /home/carma-streets/snmp_client_service/build
+WORKDIR /home/carma-streets/tsc_client_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
-RUN make install
-
 
 WORKDIR /home/
 
