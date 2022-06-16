@@ -17,7 +17,7 @@
 #include <boost/filesystem/operations.hpp>
 # include "streets_configuration.h"
 
-class SnmpClient
+class TrafficSignalControllerService
 {
     private:
         /* String filepath to manifest.json configuration file */
@@ -47,9 +47,9 @@ class SnmpClient
         int snmp_version_ = 0;
 
     public:
-        SnmpClient(std::string ip, int port, std::string community = "public", int community_len = 6, int snmp_version = 0, int timeout = 100);
+        TrafficSignalControllerService(std::string ip, int port, std::string community = "public", int community_len = 6, int snmp_version = 0, int timeout = 100);
         
-        ~SnmpClient();
+        ~TrafficSignalControllerService();
 
         int process_snmp_get_request(std::string input_oid);
 

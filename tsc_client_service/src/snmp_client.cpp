@@ -5,7 +5,7 @@
 # include "snmp_client.h"
 
 
-SnmpClient::SnmpClient(std::string ip, int port, std::string community, int community_len, int snmp_version, int timeout)
+TrafficSignalControllerService::TrafficSignalControllerService(std::string ip, int port, std::string community, int community_len, int snmp_version, int timeout)
     : ip_(ip), port_(port), community_(community), community_len_(community_len), timeout_(timeout)
 {
     
@@ -46,7 +46,7 @@ SnmpClient::SnmpClient(std::string ip, int port, std::string community, int comm
 
 }
 
-int SnmpClient::process_snmp_get_request(std::string input_oid){
+int TrafficSignalControllerService::process_snmp_get_request(std::string input_oid){
 
     int int_response = -1;
     // Create pdu for the data
@@ -122,7 +122,7 @@ int SnmpClient::process_snmp_get_request(std::string input_oid){
     return int_response;
 }
 
-bool SnmpClient::process_snmp_set_request(std::string input_oid, int value){
+bool TrafficSignalControllerService::process_snmp_set_request(std::string input_oid, int value){
 
     SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
     // Create pdu for the data
@@ -179,7 +179,7 @@ bool SnmpClient::process_snmp_set_request(std::string input_oid, int value){
 
 
 
-SnmpClient::~SnmpClient()
+TrafficSignalControllerService::~TrafficSignalControllerService()
 {
     SPDLOG_INFO("Closing snmp session");
     snmp_close(ss);

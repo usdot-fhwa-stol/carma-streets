@@ -1,2 +1,0 @@
-/usr/bin/ar qc libtraffic_signal_controller_service_lib.a  CMakeFiles/traffic_signal_controller_service_lib.dir/src/snmp_client.cpp.o
-/usr/bin/ranlib libtraffic_signal_controller_service_lib.a

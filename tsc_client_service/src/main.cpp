@@ -17,7 +17,7 @@ int main()
     int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
     int timeout = streets_service::streets_configuration::get_int_config("timeout");
 
-    SnmpClient worker(ip, port, community, community_len, snmp_version, timeout);
+    TrafficSignalControllerService worker(ip, port, community, community_len, snmp_version, timeout);
     
     std::string input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.21.2";
     worker.process_snmp_get_request(input_oid);
