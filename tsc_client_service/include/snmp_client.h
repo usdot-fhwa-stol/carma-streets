@@ -54,7 +54,8 @@ class TrafficSignalControllerService
          * @param community_len The length of the community id. Defaults to "6" if unassigned.
          * @param snmp_version The snmp_version as defined in net-snmp.Default to 0 if unassigned.
          *                      net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3"
-         * @param timeout The time in microseconds after which an snmp session request expires.**/
+         * @param timeout The time in microseconds after which an snmp session request expires. Defaults to 100 if unassigned
+         * **/
         TrafficSignalControllerService(std::string ip, int port, std::string community = "public", int community_len = 6, int snmp_version = 0, int timeout = 100);
         
         /** @brief Destructor for client.**/
