@@ -46,9 +46,8 @@ TrafficSignalControllerService::TrafficSignalControllerService(std::string ip, i
 
 }
 
-int TrafficSignalControllerService::process_snmp_get_request(std::string input_oid){
+bool TrafficSignalControllerService::process_snmp_get_request(std::string input_oid){
 
-    int int_response = -1;
     // Create pdu for the data
     pdu = snmp_pdu_create(SNMP_MSG_GET);
 
@@ -59,14 +58,13 @@ int TrafficSignalControllerService::process_snmp_get_request(std::string input_o
         
     if(!read_objid(input_oid.c_str(), OID, &OID_len)){
         // If oid cannot be created
-        SPDLOG_ERROR("OID could not be created from input: ", input_oid);
+        SPDLOG_ERROR("OID could not be created from input: {0}", input_oid);
         snmp_perror(input_oid.c_str());
-        return int_response;
+        return false;
     }
     else{
-        SPDLOG_INFO("Created OID for input: ", input_oid);
+        SPDLOG_INFO("Created OID for input: {0}", input_oid);
         snmp_add_null_var(pdu, OID, OID_len);
-        return int_response;
     }
     
 
@@ -83,12 +81,12 @@ int TrafficSignalControllerService::process_snmp_get_request(std::string input_o
 
             // get Integer value
             if(vars->type == ASN_INTEGER){
-                int_response = *vars->val.integer;
-                SPDLOG_INFO("Integer value in object: {0}", int_response);
+                int integer_response = *vars->val.integer;
+                SPDLOG_INFO("Integer value in object: {0}", integer_response);
             }
             else{
                 SPDLOG_ERROR("Received a message type which isn't an Integer");
-                return int_response;
+                return false;
             }
         }
         
@@ -110,7 +108,7 @@ int TrafficSignalControllerService::process_snmp_get_request(std::string input_o
             SPDLOG_ERROR("Unknown SNMP Error");
         }
         
-        return int_response;
+        return false;
         
     }
 
@@ -119,7 +117,7 @@ int TrafficSignalControllerService::process_snmp_get_request(std::string input_o
         OID_len = MAX_OID_LEN;
     }
     
-    return int_response;
+    return true;
 }
 
 bool TrafficSignalControllerService::process_snmp_set_request(std::string input_oid, int value){

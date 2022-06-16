@@ -60,7 +60,7 @@ class TrafficSignalControllerService
         /** @brief Returns integer value for input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to request information for.
          *  @return Integer value at the oid, returns -1 if value cannot be requested or oid doesn't have an integer value to return.*/
-        int process_snmp_get_request(std::string input_oid);
+        bool process_snmp_get_request(std::string input_oid);
 
         /** @brief Sets integer value at input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to set value for.

@@ -13,7 +13,7 @@ TEST(traffic_signal_controller_service, test_process_snmp_get_request)
     std::string test_oid = "1.3.6.1.4.1.2021.11.9";
 
     // Expect get call to fail since it's looking up invalid OID
-    EXPECT_EQ(worker.process_snmp_get_request(test_oid), -1);
+    EXPECT_FALSE(worker.process_snmp_get_request(test_oid));
 
 }
 
