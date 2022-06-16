@@ -1,5 +1,6 @@
-# include <iostream>
+#include <iostream>
 #include "snmp_client.h"
+#include "spat_receive_worker.h"
 
 int main()
 {
@@ -11,6 +12,7 @@ int main()
 
     // Load config parameters from json
     std::string ip = streets_service::streets_configuration::get_string_config("ip");
+    std::string local_ip = streets_service::streets_configuration::get_string_config("local_ip");
     int port = streets_service::streets_configuration::get_int_config("port");
     std::string community = streets_service::streets_configuration::get_string_config("community");
     int community_len = community.length();
@@ -24,6 +26,12 @@ int main()
     input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.6.2";
     int set_value = 10;
     worker.process_snmp_set_request(input_oid, set_value);
+
+    //enable spat flag on tsc
+    std::string enable_spat_oid = "1.3.6.1.4.1.1206.3.5.2.9.44.1.0";
+    int enable_spat_value = 2;
+    worker.process_snmp_set_request(enable_spat_oid, enable_spat_value);
+    SpatWorker spatWorker(local_ip, port);
 
     return 0;
 }
