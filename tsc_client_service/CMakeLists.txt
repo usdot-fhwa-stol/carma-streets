@@ -15,7 +15,7 @@ add_library(${PROJECT_NAME}_lib
         src/snmp_client.cpp)
 
 add_executable( ${PROJECT_NAME} 
-src/main.cpp)
+        src/main.cpp)
 
 target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     Boost::system 
@@ -43,7 +43,7 @@ target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_lib)
 ## Testing ##
 #############
 find_package(GTest REQUIRED)
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
+file(GLOB_RECURSE {TEST_SOURCES} LIST_DIRECTORIES false test/*.h test/*.cpp)
 add_executable(${PROJECT_NAME}_test
     test/test_traffic_signal_controller_service
 )

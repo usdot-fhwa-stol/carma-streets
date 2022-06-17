@@ -1,6 +1,6 @@
 {
     "service_name": "snmp_client",
-    "loglevel": "info",
+    "loglevel": "debug",
     "configurations": [
         {
             
@@ -18,7 +18,7 @@
         {
             "name": "community",
             "value": "public",
-            "description": " ",
+            "description": "Target community for establishing snmp communication",
             "type": "STRING"  
         },
         {

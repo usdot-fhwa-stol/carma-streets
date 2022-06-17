@@ -5,8 +5,8 @@
 # include "snmp_client.h"
 
 
-TrafficSignalControllerService::TrafficSignalControllerService(std::string& ip, int& port, std::string community, int community_len, int snmp_version, int timeout)
-    : ip_(ip), port_(port), community_(community), community_len_(community_len),snmp_version_(snmp_version), timeout_(timeout)
+TrafficSignalControllerService::TrafficSignalControllerService(const std::string& ip, const int& port, const std::string& community, int snmp_version, int timeout)
+    : ip_(ip), port_(port), community_(community),snmp_version_(snmp_version), timeout_(timeout)
 {
     
     SPDLOG_DEBUG("Starting SNMP Client");
@@ -81,7 +81,7 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
 
             // get Integer value
             if(vars->type == ASN_INTEGER){
-                int integer_response = *vars->val.integer;
+                long integer_response = *vars->val.integer;
                 SPDLOG_INFO("Integer value in object: {0}", integer_response);
             }
             else{
@@ -173,12 +173,4 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
         OID_len = MAX_OID_LEN;
     }
     return true;
-}
-
-
-
-TrafficSignalControllerService::~TrafficSignalControllerService()
-{
-    SPDLOG_INFO("Closing snmp session");
-    snmp_close(ss);
 }
