@@ -118,14 +118,29 @@ void call_scheduling_thread(std::shared_ptr<streets_vehicles::vehicle_list> veh_
                 SPDLOG_INFO("schedule number #{0}", sch_count);      
                 auto t = system_clock::now() + milliseconds(int(scheduling_delta*1000));
 
+                /* schedule vehicles */
                 streets_vehicle_scheduler::intersection_schedule schedule;
                 schedule.timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
                 unordered_map<std::string, streets_vehicles::vehicle> veh_map = veh_list->get_vehicles();
                 scheduler->schedule_vehicles(veh_map, schedule);
 
-                string msg_to_send = schedule.toCSV();
-                last_schedule_timestamp = schedule.timestamp;
-                
+                /* create the schedule plan json document and write it to string */
+                Document document;
+                document.SetObject();
+                Document::AllocatorType &allocator = document.GetAllocator();
+
+                Value metadata(kObjectType);
+                metadata.AddMember("timestamp", schedule.timestamp, allocator);
+                metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
+                document.AddMember("metadata", metadata, allocator);
+
+                rapidjson::Value payload = schedule.toJson();    
+                document.AddMember("payload", payload, allocator);
+                StringBuffer buffer;                
+                Writer<StringBuffer> writer(buffer);
+                document.Accept(writer);
+                string msg_to_send = buffer.GetString();
+
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
 
@@ -135,14 +150,14 @@ void call_scheduling_thread(std::shared_ptr<streets_vehicles::vehicle_list> veh_
                         logger->info( schedule.toCSV());
                     }
                 }
-
+                
                 // update the previous scheduling time and sleep until next schedule
                 if (system_clock::now() < t){
                     this_thread::sleep_until(t);
                 }
-
+                
+                last_schedule_timestamp = schedule.timestamp;
                 sch_count += 1;
-
             }
 
         }
@@ -162,8 +177,8 @@ int main(int argc,char** argv)
 
     streets_service::streets_configuration::initialize_logger();
 
+    /* create a vehicle list object and setup the related status_intent_processor */
     std::shared_ptr<streets_vehicles::vehicle_list> veh_list;
-    // Setup the related status_intent_processor
     if (streets_service::streets_configuration::get_string_config("intersection_type") == "stop_controlled_intersection"){
         veh_list->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
         auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(veh_list->get_processor());
@@ -172,9 +187,11 @@ int main(int argc,char** argv)
         processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
     }
 
+    /* create an intersection info object */
     auto int_client = std::make_shared<scheduling_service::intersection_client>();
     auto intersection_info = int_client->get_intersection_info(); 
 
+    /* create an scheduler object */
     std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler;
     if (streets_service::streets_configuration::get_string_config("intersection_type") == "stop_controlled_intersection"){
         scheduler = std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler>(new streets_vehicle_scheduler::all_stop_vehicle_scheduler());
