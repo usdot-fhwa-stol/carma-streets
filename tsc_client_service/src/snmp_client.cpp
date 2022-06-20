@@ -64,6 +64,7 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
     }
     else{
         SPDLOG_INFO("Created OID for input: {0}", input_oid);
+        // Add OID to pdu for get request
         snmp_add_null_var(pdu, OID, OID_len);
     }
     
@@ -104,7 +105,7 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
             SPDLOG_ERROR("Timeout, no response from server");
         }
         else{
-            snmp_sess_perror("snmpget", ss);
+            snmp_sess_perror("snmpget", ss); ////Logs error to net-snmp logfile
             SPDLOG_ERROR("Unknown SNMP Error");
         }
         
@@ -126,6 +127,7 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
     // Create pdu for the data
     pdu = snmp_pdu_create(SNMP_MSG_SET);
 
+    // Read input OID into an OID variable:
     if(!read_objid(input_oid.c_str(), OID, &OID_len)){
         // If oid cannot be created
         SPDLOG_ERROR("OID could not be created from input: {0}", input_oid);
@@ -138,6 +140,7 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
             SPDLOG_ERROR("Couldn't parse oid");
             return false;
         }
+        // Add OID to pdu for set request
         snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
         
         SPDLOG_INFO("Created OID for input: {0}", input_oid);
@@ -160,7 +163,7 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
             SPDLOG_ERROR("Timeout, no response from server");
         }
         else{
-            snmp_sess_perror("snmpset", ss);
+            snmp_sess_perror("snmpset", ss);//Logs error to net-snmp logfile
             SPDLOG_ERROR("Unknown SNMP Error");
         }
 

@@ -30,19 +30,22 @@ class TrafficSignalControllerService
         int status;
 
         // Values from config
+        /*Target device IP address*/
         std::string ip_ = "";
+        /*Target device NTCIP port*/
         int port_ = 0;
+        /*Target community for establishing snmp communication*/
         std::string community_ = "public";
-
         /* net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3 
         https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/library/snmp.h */
         int snmp_version_ = 0;
+        /*Time after which the the snmp request times out*/
         int timeout_ = 10000;
 
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
          *  Uses the arguments provided to establish an snmp connection
-         * @param ip The ip ,as a string, for the host to establish snmp communication with.
+         * @param ip The ip ,as a string, for the tsc_client_service to establish an snmp communication with.
          * @param port Target port as integer on the host for snmp communication.
          * @param community The community id as a string. Defaults to "public" if unassigned.
          * @param snmp_version The snmp_version as defined in net-snmp.Default to 0 if unassigned.
@@ -54,9 +57,9 @@ class TrafficSignalControllerService
         /*Disable default copy constructor*/
         TrafficSignalControllerService() = delete;
 
-        /** @brief Returns integer value for input OID at the Traffic Signal Controller.
+        /** @brief Returns boolean value for input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to request information for.
-         *  @return Integer value at the oid, returns -1 if value cannot be requested or oid doesn't have an integer value to return.*/
+         *  @return Integer value at the oid, returns false if value cannot be requested or oid doesn't have an integer value to return.*/
         bool process_snmp_get_request(std::string input_oid);
 
         /** @brief Sets integer value at input OID at the Traffic Signal Controller.

@@ -30,7 +30,7 @@
         {
             "name": "timeout",
             "value": 10000,
-            "description": " ",
+            "description": "Time after which the the snmp request times out",
             "type": "INTEGER" 
         }
     ]
