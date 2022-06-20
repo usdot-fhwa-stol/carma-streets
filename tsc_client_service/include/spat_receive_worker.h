@@ -33,6 +33,13 @@ class SpatWorker
         void createSocket();
 
         /**
+         * 
+         * @return true if socket has successfully been created
+         * @return false if socket has not successfully been created
+         */
+        bool getSocketStatus();
+
+        /**
          * @brief ip address of TSC 
          */
         std::string ip_; 

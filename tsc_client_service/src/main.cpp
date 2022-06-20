@@ -27,11 +27,13 @@ int main()
     int set_value = 10;
     worker.process_snmp_set_request(input_oid, set_value);
 
-    //enable spat flag on tsc
+    //enable spat OID on tsc
     std::string enable_spat_oid = "1.3.6.1.4.1.1206.3.5.2.9.44.1.0";
     int enable_spat_value = 2;
     worker.process_snmp_set_request(enable_spat_oid, enable_spat_value);
+    
     SpatWorker spatWorker(local_ip, port);
+    spatWorker.createSocket();
 
     return 0;
 }

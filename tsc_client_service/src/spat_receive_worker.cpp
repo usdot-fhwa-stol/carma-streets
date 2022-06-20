@@ -9,7 +9,8 @@ SpatWorker::SpatWorker(std::string ip, int port) : ip_(ip), port_(port)
 
 void SpatWorker::createSocket()
 {
-    struct addrinfo hints, *result;
+    struct addrinfo hints;
+    struct addrinfo *result;
     struct timeval tv;
 
     int tscAddrInfo;
@@ -22,9 +23,9 @@ void SpatWorker::createSocket()
     hints.ai_protocol = IPPROTO_UDP;
 
     //getting address info for streets, 0 indicates success
-    if ((tscAddrInfo = getaddrinfo(ip_.c_str(), std::to_string(port_).c_str(), &hints, &result) != 0)) {
+    int tscAddrInfo = getaddrinfo(ip_.c_str(), std::to_string(port_).c_str(), &hints, &result);
+    if (tscAddrInfo != 0) {
         SPDLOG_DEBUG("Failed to get addr info for this streets instance");
-
         return;
     }
 
@@ -32,19 +33,17 @@ void SpatWorker::createSocket()
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == -1) {
         SPDLOG_DEBUG("Failed to create socket");
-
         return;
     }
 
     //set socket options with 10 second timeout
     tv.tv_sec = 10;
     tv.tv_usec = 0;
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
 
     //attempt to bind to socket
     if (bind(sock, result->ai_addr, result->ai_addrlen) == -1) {
         SPDLOG_DEBUG("Failed to bind to socket");
-
         return;
     }
     
@@ -54,12 +53,21 @@ void SpatWorker::createSocket()
     //reading data
     while (true)
     {
-        char spatBuf[maxDataSize];       
-        int bytesReceived = recv(sock, spatBuf, maxDataSize-1, 0);
+        std::vector<char> spatBuf(maxDataSize);
+        ssize_t bytesReceived = recv(sock, spatBuf.data(), spatBuf.size(), 0);
 
-        SPDLOG_DEBUG("Num bytes received: {0}", bytesReceived);
+        if (bytesReceived != -1)
+        {
+            spatBuf.resize(bytesReceived);
+            SPDLOG_DEBUG("Num bytes received: {0}", bytesReceived);
 
-        std::string spat_buf_str(&spatBuf[0], bytesReceived-1);
-        SPDLOG_DEBUG("Buffer contains: {0}", spat_buf_str);
+            std::string spat_buf_str(&spatBuf[0], bytesReceived-1);
+            SPDLOG_DEBUG("Buffer contains: {0}", spat_buf_str);
+        }       
     }    
 }
+
+bool SpatWorker::getSocketStatus() {
+    return socketCreated;
+}
+
