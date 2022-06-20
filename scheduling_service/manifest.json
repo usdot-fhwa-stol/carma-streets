@@ -35,7 +35,7 @@
         {
             "name": "exp_delta",
             "value": 60000,
-            "description": "Time(in seconds) without receiving status & intent updates after which a vehicle is no longer considered!",
+            "description": "Time(in milliseconds) without receiving status & intent updates after which a vehicle is no longer considered!",
             "type": "INTEGER"
         },
         {

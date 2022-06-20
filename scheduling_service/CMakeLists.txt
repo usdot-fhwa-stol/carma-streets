@@ -21,7 +21,7 @@ find_package(streets_vehicle_scheduler_lib REQUIRED)
 include_directories("/usr/local/include")
 
 add_executable(${PROJECT_NAME}  src/main.cpp
-                                src/scheduling_worker.cpp)
+                                src/intersection_client.cpp)
                                 
 target_include_directories( ${PROJECT_NAME} PUBLIC
                             ${PROJECT_SOURCE_DIR}/include)
@@ -38,7 +38,7 @@ set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${BINARY} ${TEST_SOURCES}
-                        src/scheduling_worker.cpp )
+                        src/intersection_client.cpp )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC  Boost::system Boost::filesystem kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network streets_service_base_lib::streets_service_base_lib streets_vehicle_list_lib streets_vehicle_scheduler_lib)    

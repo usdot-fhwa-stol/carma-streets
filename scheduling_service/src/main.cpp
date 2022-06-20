@@ -6,10 +6,14 @@
 #include <spdlog/spdlog.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+
 #include "kafka_client.h"
 #include "streets_configuration.h"
-#include "scheduling_worker.h"
-
+#include "intersection_client.h"
+#include "vehicle_list.h"
+#include "vehicle_scheduler.h"
+#include "all_stop_vehicle_scheduler.h"
+#include "all_stop_status_intent_processor.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -158,11 +162,25 @@ int main(int argc,char** argv)
 
     streets_service::streets_configuration::initialize_logger();
 
-    auto scheduling_worker = std::make_shared<streets_scheduling_worker::scheduling_worker>();
+    std::shared_ptr<streets_vehicles::vehicle_list> veh_list;
+    // Setup the related status_intent_processor
+    if (streets_service::streets_configuration::get_string_config("intersection_type") == "stop_controlled_intersection"){
+        veh_list->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
+        auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(veh_list->get_processor());
+        processor->set_stopping_distance(streets_service::streets_configuration::get_double_config("stop_distance"));
+        processor->set_stopping_speed(streets_service::streets_configuration::get_double_config("stop_speed"));
+        processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
+    }
 
-    auto intersection_info = scheduling_worker->get_intersection_info(); 
-    auto veh_list = scheduling_worker->create_veh_list(); 
-    auto scheduler = scheduling_worker->create_scheduler(); 
+    auto int_client = std::make_shared<scheduling_service::intersection_client>();
+    auto intersection_info = int_client->get_intersection_info(); 
+
+    std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler;
+    if (streets_service::streets_configuration::get_string_config("intersection_type") == "stop_controlled_intersection"){
+        scheduler = std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler>(new streets_vehicle_scheduler::all_stop_vehicle_scheduler());
+        scheduler->set_intersection_info(intersection_info);
+        scheduler->set_flexibility_limit(streets_service::streets_configuration::get_int_config("flexibility_limit"));
+    }
 
     boost::thread consumer(call_consumer_thread, veh_list);
     boost::thread scheduling{call_scheduling_thread, veh_list, scheduler};
