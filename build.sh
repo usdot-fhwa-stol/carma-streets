@@ -81,6 +81,7 @@ make
 
 cd /home/carma-streets/tsc_client_service
 mkdir build
+cd /home/carma-streets/tsc_client_service/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
 
