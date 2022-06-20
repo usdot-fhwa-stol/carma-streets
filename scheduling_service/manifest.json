@@ -27,8 +27,14 @@
             "type": "STRING"
         },
         {
+            "name": "intersection_type",
+            "value": "stop_controlled_intersection",
+            "description": "The type of the intersection, e.g., stop_controlled_intersection, signalized_intersection",
+            "type": "STRING"
+        },
+        {
             "name": "exp_delta",
-            "value": 300,
+            "value": 60000,
             "description": "Time(in seconds) without receiving status & intent updates after which a vehicle is no longer considered!",
             "type": "INTEGER"
         },
@@ -55,6 +61,18 @@
             "value": 1.0,
             "description": "Time(in seconds) interval between scheduling calculations.",
             "type": "DOUBLE"       
+        },
+        {
+            "name": "flexibility_limit",
+            "value": 5,
+            "description": "This limit controls how much departure position can change for any given vehicle between successive intersection schedule calculations.",
+            "type": "INTEGER"       
+        },
+        {
+            "name": "entering_time_buffer",
+            "value": 1000,
+            "description": "The time it takes a vehicle stopped before the stop bar at an entry lane to exit the entry lane and enter the link lane once given access",
+            "type": "INTEGER"       
         },
         {
             "name": "enable_schedule_logging",
