@@ -28,11 +28,3 @@ TEST(traffic_signal_controller_service, test_process_snmp_set_request){
     // Expect set call to fail since we're trying to set invalid OID
     EXPECT_FALSE(worker.process_snmp_set_request(test_oid, set_value));
 }
-
-
-int main(int argc, char** argv)
-{
-    testing::InitGoogleTest(&argc, argv);
-
-    return RUN_ALL_TESTS();
-}
