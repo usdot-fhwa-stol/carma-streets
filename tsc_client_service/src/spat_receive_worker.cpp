@@ -13,7 +13,6 @@ void SpatWorker::createSocket()
     struct addrinfo *result;
     struct timeval tv;
 
-    int tscAddrInfo;
     int maxDataSize = 1000;
 
     //set addr info criteria for results to return
