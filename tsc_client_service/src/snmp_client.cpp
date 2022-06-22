@@ -24,7 +24,7 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
     session.version = snmp_version_;
 
     // Establish the session parameters.
-    char* community_char[community_.length()];
+    char community_char[community_.length()];
     std::copy(community_.begin(), community_.end(), community_char);
     unsigned char* comm = reinterpret_cast<unsigned char*>(community_char);
     
@@ -71,7 +71,7 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
     
 
     // Send the request
-    status = snmp_synch_response(ss, pdu, &response);
+    int status = snmp_synch_response(ss, pdu, &response);
 
     // Check response
     if(status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
@@ -136,7 +136,7 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
         
     }
 
-    status = snmp_synch_response(ss, pdu, &response);
+    int status = snmp_synch_response(ss, pdu, &response);
 
     if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
         SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
