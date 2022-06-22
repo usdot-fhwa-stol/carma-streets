@@ -15,10 +15,8 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
     
 
     // Bring the IP address and port of the target SNMP device in the required form, which is "IPADDRESS:PORT":
-    char ip_port[64];
-    strcpy(ip_port,ip_.c_str());    
-    strcat(ip_port,":");
-    strcat(ip_port,(std::to_string(port_)).c_str()); 
+    std::string ip_port_string = ip_ + ":" + std::to_string(port_);    
+    char* ip_port = &ip_port_string[0];
     
     init_snmp("carma_snmp");
     snmp_sess_init(&session);
@@ -46,7 +44,7 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
 
 }
 
-bool TrafficSignalControllerService::process_snmp_get_request(std::string input_oid){
+bool TrafficSignalControllerService::process_snmp_get_request(std::string input_oid, int& integer_response){
 
     // Create pdu for the data
     pdu = snmp_pdu_create(SNMP_MSG_GET);
@@ -82,7 +80,7 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
 
             // get Integer value
             if(vars->type == ASN_INTEGER){
-                long integer_response = *vars->val.integer;
+                integer_response = *vars->val.integer;
                 SPDLOG_INFO("Integer value in object: {0}", integer_response);
             }
             else{
@@ -94,20 +92,8 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
     }
     else{
         
-        SPDLOG_ERROR("Error in response");
-        
-        if (status == STAT_SUCCESS)
-        {
-            SPDLOG_ERROR("Error in packet. {0}", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
-        }
-        else if (status == STAT_TIMEOUT)
-        { 
-            SPDLOG_ERROR("Timeout, no response from server");
-        }
-        else{
-            snmp_sess_perror("snmpget", ss); ////Logs error to net-snmp logfile
-            SPDLOG_ERROR("Unknown SNMP Error");
-        }
+        std::string request_type = "GET";
+        log_error(status, request_type);
         
         return false;
         
@@ -153,19 +139,8 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
         SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
     }
     else{
-            
-        if (status == STAT_SUCCESS)
-        {
-            SPDLOG_ERROR("Variable type: {0}",response->variables->type);
-            SPDLOG_ERROR("Error in packet.{0} ", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
-        }
-        else if (status == STAT_TIMEOUT){ 
-            SPDLOG_ERROR("Timeout, no response from server");
-        }
-        else{
-            snmp_sess_perror("snmpset", ss);//Logs error to net-snmp logfile
-            SPDLOG_ERROR("Unknown SNMP Error");
-        }
+        std::string request_type = "SET";
+        log_error(status, request_type);
 
         return false;
             
@@ -176,4 +151,29 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
         OID_len = MAX_OID_LEN;
     }
     return true;
+}
+
+void TrafficSignalControllerService::log_error(int& status, std::string& request_type)
+{
+
+    if (status == STAT_SUCCESS)
+    {
+        SPDLOG_ERROR("Variable type: {0}",response->variables->type);
+        SPDLOG_ERROR("Error in packet.{0} ", static_cast<std::string>(snmp_errstring(static_cast<int>(response->errstat))));
+    }
+    else if (status == STAT_TIMEOUT){ 
+    
+        SPDLOG_ERROR("Timeout, no response from server");
+    }
+    else{
+    
+        if(request_type == "SET"){
+            snmp_sess_perror("snmpset", ss);//Logs error to net-snmp logfile
+        }
+        else if(request_type == "GET"){
+            snmp_sess_perror("snmpget", ss); ////Logs error to net-snmp logfile
+        }
+        SPDLOG_ERROR("Unknown SNMP Error");
+    }
+    
 }

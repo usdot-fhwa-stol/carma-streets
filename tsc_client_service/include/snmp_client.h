@@ -59,14 +59,17 @@ class TrafficSignalControllerService
 
         /** @brief Returns boolean value for input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to request information for.
+         *  @param integer_response The integer value for the object returned by reference.
          *  @return Integer value at the oid, returns false if value cannot be requested or oid doesn't have an integer value to return.*/
-        bool process_snmp_get_request(std::string input_oid);
+        bool process_snmp_get_request(std::string input_oid, int& integer_response);
 
         /** @brief Sets integer value at input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to set value for.
          *  @param value The value to set.
          *  @return boolean for whether value could be set, returns true if successful and false if value cannot be set.*/
         bool process_snmp_set_request(std::string input_oid, int value);
+
+        void log_error(int& status, std::string& request_type);
 
         /** @brief Destructor for client. Closes the snmp session**/
         ~TrafficSignalControllerService(){

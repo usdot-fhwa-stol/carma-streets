@@ -43,9 +43,10 @@ target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_lib)
 ## Testing ##
 #############
 find_package(GTest REQUIRED)
-file(GLOB_RECURSE {TEST_SOURCES} LIST_DIRECTORIES false test/*.h test/*.cpp)
-add_executable(${PROJECT_NAME}_test
-    test/test_traffic_signal_controller_service
+file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
+set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
+add_executable(${PROJECT_NAME}_test 
+    ${TEST_SOURCES}
 )
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_lib ${GTEST_LIBRARIES})
 add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
