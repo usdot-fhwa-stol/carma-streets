@@ -29,7 +29,7 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
     unsigned char* comm = reinterpret_cast<unsigned char*>(community_char);
     
     session.community = comm;
-    session.community_len = strlen((const char *)session.community);
+    session.community_len = community_.length();
     session.timeout = timeout_;
 
     ss = snmp_open(&session);
