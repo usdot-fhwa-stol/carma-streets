@@ -27,7 +27,7 @@ namespace signal_opt_service
         /**
          * @brief Initialize the consumer and producer configurations
          */
-        signal_opt_service();
+        signal_opt_service() = default;
         /**
          * @brief stop the consumer and producer
          */

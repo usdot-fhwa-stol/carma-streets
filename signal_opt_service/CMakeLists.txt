@@ -14,6 +14,7 @@ find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIR
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
 
 add_library(${PROJECT_NAME}_lib
+    src/signal_opt_service.cpp
     src/signal_opt_messages_worker.cpp
 )
 
@@ -24,6 +25,8 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC
+    kafka_clients_lib
+    rdkafka++
     Boost::system
     Boost::thread
     Boost::filesystem
@@ -35,7 +38,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
     Qt5::Network
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp src/signal_opt_service.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:include>

@@ -11,6 +11,9 @@ namespace signal_opt_service
     {
         this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
         this->vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+
+        this->vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
+        auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(this->vehicle_list_ptr->get_processor());
     }
 
     bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json)
@@ -18,11 +21,14 @@ namespace signal_opt_service
         if (this->vehicle_list_ptr)
         {
             this->vehicle_list_ptr->process_update(vehicle_json);
+            return true;
         }
+        return false;
     }
 
     bool signal_opt_messages_worker::update_spat(const std::string &spat_json)
     {
+        return false;
     }
 
     bool signal_opt_messages_worker::request_intersection_info()
@@ -50,7 +56,7 @@ namespace signal_opt_service
 
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, [&](OpenAPI::OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
                 { 
-                    SPDLOG_ERROR("Error happened while issuing request : {0}",  error_str.toStdString());
+                    SPDLOG_ERROR("Error happened while issuing intersection model GET information request : {0}",  error_str.toStdString());
                     loop.quit(); });
 
         apiInstance.getIntersectionInfo();

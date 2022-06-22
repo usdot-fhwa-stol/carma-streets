@@ -1,0 +1,48 @@
+{
+    "service_name": "intersection_model",
+    "loglevel": "debug",
+    "configurations": [
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        },
+        {
+            "name": "spat_consumer_topic",
+            "value": "tsc_spat_msg_in",
+            "description": "Kafka topic for streets internal SPAT messages",
+            "type": "STRING"
+        },
+        {
+            "name": "spat_group_id",
+            "value": "spat_msg_consumer",
+            "description": "Kafka consumer group for streets internal SPAT kafka consumer.",
+            "type": "STRING"
+        },
+        {
+            "name": "vsi_consumer_topic",
+            "value": "streets_vsi_msg_in",
+            "description": "Kafka topic for vehicle status and intent messages",
+            "type": "STRING"
+        },
+        {
+            "name": "vsi_group_id",
+            "value": "vsi_msg_consumer",
+            "description": "Kafka consumer group for vehicle status and intent kafka consumer.",
+            "type": "STRING"
+        },
+        {
+            "name": "sleep_millisecs",
+            "value": "1000",
+            "description": "Kafka topic for vehicle status and intent messages",
+            "type": "STRING"
+        },
+        {
+            "name": "int_client_request_attempts",
+            "value": "10",
+            "description": "Kafka topic for vehicle status and intent messages",
+            "type": "STRING"
+        }
+    ]
+}

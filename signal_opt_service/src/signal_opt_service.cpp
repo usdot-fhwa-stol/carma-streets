@@ -2,24 +2,13 @@
 
 namespace signal_opt_service
 {
-    signal_opt_service::signal_opt_service()
-    {
-        if (initialize())
-        {
-            SPDLOG_INFO("Signal Optimization Service initialization done.");
-        }
-    }
-
     bool signal_opt_service::initialize()
     {
         try
         {
+            //Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
-
-            // kafka config
             this->bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
-
-            // consumer topics
             this->spat_topic_name = streets_service::streets_configuration::get_string_config("spat_consumer_topic");
             this->spat_group_id = streets_service::streets_configuration::get_string_config("spat_group_id");
             this->vsi_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
@@ -50,11 +39,11 @@ namespace signal_opt_service
             so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
 
             // HTTP request to update intersection information
-            if (update_intersection_info(sleep_millisecs, int_client_request_attempts))
+            if (!update_intersection_info(sleep_millisecs, int_client_request_attempts))
             {
-                SPDLOG_INFO("Intersection information is updated with valid signal group ids. ");
+                return false;
             }
-
+            SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
         }
         catch (const streets_service::streets_configuration_exception &ex)
@@ -112,6 +101,7 @@ namespace signal_opt_service
                 // Send HTTP request, and update intersection information. If updated successfully, it returns true and exit the while loop.
                 if (this->so_msgs_worker_ptr->request_intersection_info())
                 {
+                    SPDLOG_INFO("Intersection information is updated with valid signal group ids! ");
                     return true;
                 }
             }
@@ -119,6 +109,7 @@ namespace signal_opt_service
             attempt_count++;
         }
         // If failed to update the intersection information after certain numbers of attempts
+        SPDLOG_ERROR("Updating Intersection information failed. ");
         return false;
     }
 
