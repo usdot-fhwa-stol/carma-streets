@@ -31,7 +31,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
     intersection_client_api_lib
     streets_service_base_lib::streets_service_base_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib
-    Qt5::Core 
+    Qt5::Core
     Qt5::Network
 )
 
@@ -43,27 +43,29 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog intersection_client_api_lib streets_service_base_lib::streets_service_base_lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog intersection_client_api_lib streets_service_base_lib::streets_service_base_lib
+    streets_vehicle_list_lib::streets_vehicle_list_lib)
 
 # #######################
 # googletest for unit testing
 # #######################
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-# set(BINARY ${PROJECT_NAME}_test)
-# file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
-# set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
-
-# add_executable(${BINARY} ${TEST_SOURCES})
-
-# add_test(NAME ${BINARY} COMMAND ${BINARY})
-# target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-# target_link_libraries(${BINARY} PUBLIC
-#     ${PROJECT_NAME}_lib
-#     Boost::system
-#     Boost::thread
-#     Boost::filesystem
-#     spdlog::spdlog
-#     gtest
-#     Qt5::Core
-#     Qt5::Network
-# )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(BINARY ${PROJECT_NAME}_test)
+file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
+set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
+add_executable(${BINARY} ${TEST_SOURCES})
+add_test(NAME ${BINARY} COMMAND ${BINARY})
+target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(${BINARY} PUBLIC
+    ${PROJECT_NAME}_lib
+    Boost::system
+    Boost::thread
+    Boost::filesystem
+    spdlog::spdlog
+    gtest
+    Qt5::Core
+    Qt5::Network
+    intersection_client_api_lib
+    streets_service_base_lib::streets_service_base_lib
+    streets_vehicle_list_lib::streets_vehicle_list_lib
+)

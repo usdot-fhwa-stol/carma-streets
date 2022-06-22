@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsignal_opt_service_lib.a  CMakeFiles/signal_opt_service_lib.dir/src/signal_opt_messages_worker.cpp.o
-/usr/bin/ranlib libsignal_opt_service_lib.a

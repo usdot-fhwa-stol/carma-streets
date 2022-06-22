@@ -28,20 +28,23 @@ namespace signal_opt_service
     bool signal_opt_messages_worker::request_intersection_info()
     {
         int invalid_signal_group_count = 0;
+        bool signal_group_ids_valid = false;
         OpenAPI::OAIDefaultApi apiInstance;
         QEventLoop loop;
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [&](OpenAPI::OAIIntersection_info int_info)
                 {                   
-                    //Update intersection info
-                    this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>(int_info);  
                     SPDLOG_INFO("request_intersection_info succeed!");
-                    if(this->intersection_info_ptr)  
+                    QList<OpenAPI::OAILanelet_info> ll_info_list = int_info.getLinkLanelets();
+                    for(auto ll_info : ll_info_list)
                     {
-                        QList<OpenAPI::OAILanelet_info> ll_info_list = this->intersection_info_ptr->getLinkLanelets();
-                       for(auto ll_info : ll_info_list)
-                       {
-                            invalid_signal_group_count += ll_info.getSignalGroupId() == 0 ? 1 : 0;
-                       }                       
+                        invalid_signal_group_count += ll_info.getSignalGroupId() == 0 ? 1 : 0;
+                    }  
+
+                    if(invalid_signal_group_count == 0)
+                    {
+                        //Update intersection info 
+                        this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>(int_info); 
+                        signal_group_ids_valid = true;
                     }
             loop.quit(); });
 
@@ -56,11 +59,7 @@ namespace signal_opt_service
         loop.exec();
 
         SPDLOG_INFO("Done with request_intersection_info");
-        if (invalid_signal_group_count != 0)
-        {
-            return false;
-        }
-        return true;
+        return signal_group_ids_valid;
     }
 
     const std::shared_ptr<OpenAPI::OAIIntersection_info> signal_opt_messages_worker::get_intersection_info() const

@@ -1,5 +1,0 @@
-/home/focal/workspace/repos/carma-streets/signal_opt_service/build/CMakeFiles/rebuild_cache.dir
-/home/focal/workspace/repos/carma-streets/signal_opt_service/build/CMakeFiles/signal_opt_service_test.dir
-/home/focal/workspace/repos/carma-streets/signal_opt_service/build/CMakeFiles/signal_opt_service.dir
-/home/focal/workspace/repos/carma-streets/signal_opt_service/build/CMakeFiles/edit_cache.dir
-/home/focal/workspace/repos/carma-streets/signal_opt_service/build/CMakeFiles/signal_opt_service_lib.dir
