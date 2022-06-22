@@ -24,7 +24,10 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
     session.version = snmp_version_;
 
     // Establish the session parameters.
-    unsigned char comm[] = "public";
+    char* community_char[community_.length()];
+    std::copy(community_.begin(), community_.end(), community_char);
+    unsigned char* comm = reinterpret_cast<unsigned char*>(community_char);
+    
     session.community = comm;
     session.community_len = strlen((const char *)session.community);
     session.timeout = timeout_;
@@ -44,7 +47,7 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
 
 }
 
-bool TrafficSignalControllerService::process_snmp_get_request(std::string input_oid, int& integer_response){
+bool TrafficSignalControllerService::process_snmp_get_request(std::string input_oid, long& integer_response){
 
     // Create pdu for the data
     pdu = snmp_pdu_create(SNMP_MSG_GET);
@@ -153,7 +156,7 @@ bool TrafficSignalControllerService::process_snmp_set_request(std::string input_
     return true;
 }
 
-void TrafficSignalControllerService::log_error(int& status, std::string& request_type)
+void TrafficSignalControllerService::log_error(const int& status, const std::string& request_type)
 {
 
     if (status == STAT_SUCCESS)

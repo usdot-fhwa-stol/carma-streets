@@ -26,8 +26,6 @@ class TrafficSignalControllerService
         /*OID is going to hold the location of the information which we want to receive. It will need a size as well*/
         oid OID[MAX_OID_LEN];
         size_t OID_len = MAX_OID_LEN;
-        /*status of the response returned from net-snmp call, indicates whether call suceeded or not*/
-        int status;
 
         // Values from config
         /*Target device IP address*/
@@ -61,7 +59,7 @@ class TrafficSignalControllerService
          *  @param input_oid The OID to request information for.
          *  @param integer_response The integer value for the object returned by reference.
          *  @return Integer value at the oid, returns false if value cannot be requested or oid doesn't have an integer value to return.*/
-        bool process_snmp_get_request(std::string input_oid, int& integer_response);
+        bool process_snmp_get_request(std::string input_oid, long& integer_response);
 
         /** @brief Sets integer value at input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to set value for.
@@ -69,7 +67,7 @@ class TrafficSignalControllerService
          *  @return boolean for whether value could be set, returns true if successful and false if value cannot be set.*/
         bool process_snmp_set_request(std::string input_oid, int value);
 
-        void log_error(int& status, std::string& request_type);
+        void log_error(const int& status, const std::string& request_type);
 
         /** @brief Destructor for client. Closes the snmp session**/
         ~TrafficSignalControllerService(){

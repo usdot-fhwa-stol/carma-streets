@@ -11,7 +11,7 @@ TEST(traffic_signal_controller_service, test_process_snmp_get_request)
     TrafficSignalControllerService worker(dummy_ip, dummy_port);
     
     std::string test_oid = "1.3.6.1.4.1.2021.11.9";
-    int integer_response = 0;
+    long integer_response = 0;
     // Expect get call to fail since we're communicating with invalid host
     EXPECT_FALSE(worker.process_snmp_get_request(test_oid, integer_response));
     EXPECT_EQ(integer_response, 0);
