@@ -4,8 +4,10 @@
 # include <sstream>
 # include "snmp_client.h"
 
-
-TrafficSignalControllerService::TrafficSignalControllerService(const std::string& ip, const int& port, const std::string& community, int snmp_version, int timeout)
+namespace traffic_signal_controller_service
+{
+    
+snmp_client::snmp_client(const std::string& ip, const int& port, const std::string& community, int snmp_version, int timeout)
     : ip_(ip), port_(port), community_(community),snmp_version_(snmp_version), timeout_(timeout)
 {
     
@@ -47,7 +49,7 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
 
 }
 
-bool TrafficSignalControllerService::process_snmp_request(std::string& input_oid, std::string& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(std::string& input_oid, std::string& request_type, int64_t& value){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
@@ -142,7 +144,7 @@ bool TrafficSignalControllerService::process_snmp_request(std::string& input_oid
 }
 
 
-void TrafficSignalControllerService::log_error(const int& status, const std::string& request_type, snmp_pdu *response)
+void snmp_client::log_error(const int& status, const std::string& request_type, snmp_pdu *response)
 {
 
     if (status == STAT_SUCCESS)
@@ -159,4 +161,6 @@ void TrafficSignalControllerService::log_error(const int& status, const std::str
         SPDLOG_ERROR("Unknown SNMP Error for {0}", request_type);
     }
     
+}
+
 }

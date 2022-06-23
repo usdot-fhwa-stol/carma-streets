@@ -2,13 +2,15 @@
 #include <iostream>
 #include "snmp_client.h"
 
+namespace traffic_signal_controller_service
+{
 TEST(traffic_signal_controller_service, test_process_snmp_request)
 {
     std::string dummy_ip = "192.168.10.10";
     int dummy_port = 601;
     std::string test_oid = "1.3.6.1.4.1.2021.11.9";
 
-    TrafficSignalControllerService worker(dummy_ip, dummy_port);
+    snmp_client worker(dummy_ip, dummy_port);
 
     // Test GET
     std::string request_type = "GET";
@@ -44,7 +46,7 @@ TEST(traffic_signal_controller_service, test_process_snmp_request)
     worker.log_error(status, request_type,response);
     
 }
-
+}
 
 int main(int argc, char** argv)
 {

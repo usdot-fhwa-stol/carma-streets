@@ -6,7 +6,9 @@
 #include <fstream>
 # include "streets_configuration.h"
 
-class TrafficSignalControllerService
+namespace traffic_signal_controller_service
+{
+class snmp_client
 {
     private:
 
@@ -48,10 +50,10 @@ class TrafficSignalControllerService
          *                      net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3"
          * @param timeout The time in microseconds after which an snmp session request expires. Defaults to 100 if unassigned
          * **/
-        TrafficSignalControllerService(const std::string& ip, const int& port, const std::string& community = "public", int snmp_version = 0, int timeout = 100);
+        snmp_client(const std::string& ip, const int& port, const std::string& community = "public", int snmp_version = 0, int timeout = 100);
         
         /*Disable default copy constructor*/
-        TrafficSignalControllerService() = delete;
+        snmp_client() = delete;
 
         /** @brief Returns true or false depending on whether the request could be processed for given input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to request information for.
@@ -68,9 +70,10 @@ class TrafficSignalControllerService
         void log_error(const int& status, const std::string& request_type, snmp_pdu *response);
 
         /** @brief Destructor for client. Closes the snmp session**/
-        ~TrafficSignalControllerService(){
+        ~snmp_client(){
             SPDLOG_INFO("Closing snmp session");
             snmp_close(ss);
         }
 
 };
+} //namespace traffic_signal_controller_service

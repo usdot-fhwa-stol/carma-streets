@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.10.2)
 project(traffic_signal_controller_service)
 
 
-link_directories("/usr/lib" "/usr/local/lib")
-
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)

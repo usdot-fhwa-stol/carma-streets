@@ -16,7 +16,7 @@ int main()
     int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
     int timeout = streets_service::streets_configuration::get_int_config("timeout");
 
-    TrafficSignalControllerService worker(ip, port, community, snmp_version, timeout);
+    traffic_signal_controller_service::snmp_client worker(ip, port, community, snmp_version, timeout);
     
 
     return 0;
