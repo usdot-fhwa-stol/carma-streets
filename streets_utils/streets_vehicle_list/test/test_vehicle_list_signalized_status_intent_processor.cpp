@@ -183,13 +183,13 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_timeout_json)
     // Load Vehicle Update
     std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates.json");
     int i = 0;
-    // for ( auto& update: updates ) {
-    //     SPDLOG_INFO("Processing  Update {0} : {1} ", i, update);
-    //     veh_list->process_update(update);
-    //     ASSERT_EQ( veh_list->get_vehicles().size(), 0);
-    //     SPDLOG_INFO("Update Processed");
-    //     i++;
-    // }
+    for ( auto& update: updates ) {
+        SPDLOG_INFO("Processing  Update {0} : {1} ", i, update);
+        veh_list->process_update(update);
+        ASSERT_EQ( veh_list->get_vehicles().size(), 0);
+        SPDLOG_INFO("Update Processed");
+        i++;
+    }
     SPDLOG_INFO("Processed all updates!");
 
 }
