@@ -39,6 +39,13 @@
             "value": "192.168.120.100",
             "description": "local carma streets IP address",
             "type": "STRING"
+        },
+        {
+            
+            "name": "socket_timeout",
+            "value": 10,
+            "description": "timeout for udp socket to TSC",
+            "type": "INTEGER"
         }
     ]
 }

@@ -20,8 +20,9 @@ TEST(spat_receive_worker, test_create_socket)
 {
     std::string tsc_ip_bad = "192.168.120.51";
     int tsc_port = 6053;
+    int tsc_timeout = 10;
 
-    SpatWorker spatWorker(tsc_ip_bad, tsc_port);
+    SpatWorker spatWorker(tsc_ip_bad, tsc_port, tsc_timeout);
     spatWorker.createSocket();
 
     // Expect false with wrong tsc ip

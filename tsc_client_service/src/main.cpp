@@ -18,6 +18,7 @@ int main()
     int community_len = community.length();
     int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
     int timeout = streets_service::streets_configuration::get_int_config("timeout");
+    int socketTimeout = streets_service::streets_configuration::get_int_config("socket_timeout");
 
     TrafficSignalControllerService worker(ip, port, community, community_len, snmp_version, timeout);
     
@@ -32,7 +33,7 @@ int main()
     int enable_spat_value = 2;
     worker.process_snmp_set_request(enable_spat_oid, enable_spat_value);
     
-    SpatWorker spatWorker(local_ip, port);
+    SpatWorker spatWorker(local_ip, port, socketTimeout);
     spatWorker.createSocket();
 
     return 0;

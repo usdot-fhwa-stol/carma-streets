@@ -2,7 +2,7 @@
 
 using namespace std;
 
-SpatWorker::SpatWorker(std::string ip, int port) : ip_(ip), port_(port)
+SpatWorker::SpatWorker(std::string ip, int port, int socketTimeout) : ip_(ip), port_(port), socketTimeout_(socketTimeout)
 {
     SPDLOG_DEBUG("Creating Spat Worker");
 }
@@ -35,8 +35,8 @@ void SpatWorker::createSocket()
         return;
     }
 
-    //set socket options with 10 second timeout
-    tv.tv_sec = 10;
+    //set socket options with timeout from manifest json
+    tv.tv_sec = socketTimeout_;
     tv.tv_usec = 0;
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
 
@@ -49,7 +49,7 @@ void SpatWorker::createSocket()
     //if we reach here, the socket has been created successfully
     socketCreated = true;
 
-    //reading data
+    //reading data from socket
     while (true)
     {
         std::vector<char> spatBuf(maxDataSize);
@@ -60,13 +60,20 @@ void SpatWorker::createSocket()
             spatBuf.resize(bytesReceived);
             SPDLOG_DEBUG("Num bytes received: {0}", bytesReceived);
 
-            std::string spat_buf_str(&spatBuf[0], bytesReceived-1);
-            SPDLOG_DEBUG("Buffer contains: {0}", spat_buf_str);
+            std::stringstream ss;
+            ss << std::hex << std::setfill('0');
+            for (int i = 0; i < bytesReceived; i++)
+            {
+                ss << std::setw(2) << static_cast<unsigned>(spatBuf[i]);
+            }
+            std::string mystr = ss.str();
+            SPDLOG_DEBUG("Buffer contains: {0}", mystr);
+
         }       
     }    
 }
 
-bool SpatWorker::getSocketStatus() {
+bool SpatWorker::getSocketStatus() const {
     return socketCreated;
 }
 
