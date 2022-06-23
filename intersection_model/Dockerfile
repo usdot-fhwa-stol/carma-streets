@@ -19,16 +19,6 @@ RUN cmake .
 RUN make
 RUN make install
 
-# Install librdkafka
-RUN echo " ------> Install librdkafka..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
-WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
-RUN make
-RUN make install
-
-
 # Install spdlog
 RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
@@ -37,6 +27,15 @@ WORKDIR /home/carma-streets/ext/spdlog/
 RUN mkdir build 
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
+RUN make install
+
+# Install librdkafka
+RUN echo " ------> Install librdkafka..."
+WORKDIR /home/carma-streets/ext
+RUN git clone https://github.com/edenhill/librdkafka
+WORKDIR /home/carma-streets/ext/librdkafka/
+RUN ./configure --prefix=/usr
+RUN make
 RUN make install
 
 # Install rapidjson
@@ -59,7 +58,6 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-
 # Install qhttpengine
 RUN echo " ------> Install qhttpengine..."
 WORKDIR /home/carma-streets/ext
@@ -75,6 +73,16 @@ RUN echo " ------> Install streets intersection api server from streets_utils...
 WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api
 RUN mkdir build
 WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
