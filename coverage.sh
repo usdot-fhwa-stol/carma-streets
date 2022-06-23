@@ -69,3 +69,9 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --exclude=intersection_model/src/server/ --exclude=intersection_model/test/ --exclude=intersection_model/build/src/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
 
+cd /home/carma-streets/signal_opt_service/build/
+./signal_opt_service_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/signal_opt_service/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube signal_opt_service/coverage/coverage.xml -s -f signal_opt_service/ -r .
