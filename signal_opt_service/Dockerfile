@@ -56,6 +56,22 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+RUN echo " ------> Install intersection client library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+RUN echo " ------> Install streets_vehicle_list library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_vehicle_list
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_vehicle_list/build
+RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
@@ -66,16 +82,7 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-RUN echo " ------> Install intersection client library from streets_utils..."
-WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
-RUN mkdir build
-WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
-
-
-RUN echo " ------> compile scheduling-service..."
+RUN echo " ------> compile siganl-optimization-service..."
 COPY ./signal_opt_service/ /home/carma-streets/signal_opt_service/
 WORKDIR  /home/carma-streets/signal_opt_service
 RUN mkdir build
