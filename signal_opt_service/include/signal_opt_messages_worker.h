@@ -14,7 +14,7 @@
 #include "intersection_client_api_lib/OAIDefaultApi.h"
 #include "intersection_client_api_lib/OAIIntersection_info.h"
 #include "vehicle_list.h"
-#include "all_stop_status_intent_processor.h"
+#include "signalized_status_intent_processor.h"
 
 namespace signal_opt_service
 {

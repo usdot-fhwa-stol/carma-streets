@@ -11,9 +11,7 @@ namespace signal_opt_service
     {
         this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
         this->vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
-
-        this->vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
-        auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(this->vehicle_list_ptr->get_processor());
+        this->vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
     }
 
     bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json) const
