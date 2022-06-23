@@ -16,7 +16,7 @@
         },
         {
             "name": "spat_group_id",
-            "value": "spat_msg_consumer",
+            "value": "spat_msg_group",
             "description": "Kafka consumer group for streets internal SPAT kafka consumer.",
             "type": "STRING"
         },
@@ -28,20 +28,20 @@
         },
         {
             "name": "vsi_group_id",
-            "value": "vsi_msg_consumer",
+            "value": "vsi_msg_group",
             "description": "Kafka consumer group for vehicle status and intent kafka consumer.",
             "type": "STRING"
         },
         {
             "name": "sleep_millisecs",
             "value": "1000",
-            "description": "Kafka topic for vehicle status and intent messages",
+            "description": "Current thread sleep for milliseconds",
             "type": "STRING"
         },
         {
             "name": "int_client_request_attempts",
             "value": "10",
-            "description": "Kafka topic for vehicle status and intent messages",
+            "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
             "type": "STRING"
         }
     ]
