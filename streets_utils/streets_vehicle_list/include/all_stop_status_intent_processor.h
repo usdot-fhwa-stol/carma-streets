@@ -25,7 +25,9 @@ namespace streets_vehicles {
              * @param timeout time interval after which vehicle updates will no longer be considered valid in milliseconds(default = 30s).
              */
             all_stop_status_intent_processor(const double stopping_distance=1.0, const double stopping_speed=0.1, const uint64_t timeout = 30000 ): 
-                _stopping_distance(stopping_distance), _stopping_speed(stopping_speed), _timeout(timeout) {};
+                _stopping_distance(stopping_distance), _stopping_speed(stopping_speed), _timeout(timeout) {
+                    SPDLOG_INFO("All stop status and intent processor initialization.");
+                };
             /**
              * @brief Set stopping_distance stopping condition.
              * @param stopping_distance max distance from stop line at which vehicle can be considered stopped in meters.
@@ -89,7 +91,7 @@ namespace streets_vehicles {
              * 
              * @param vehicle reference to update
              */
-            void update_vehicle_state(vehicle &vehicle) const;
+            virtual void update_vehicle_state(vehicle &vehicle) const;
 
         private:
             /* max distance from stop line at which a vehicle can be considered stopped */

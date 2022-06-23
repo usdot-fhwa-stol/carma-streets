@@ -164,7 +164,8 @@ namespace streets_vehicles {
 	}
 
 	void all_stop_status_intent_processor::update_vehicle_state( vehicle &vehicle ) const {
-
+		SPDLOG_INFO("Update vehilce status with all stop status and intent processor.");
+		
 		if (vehicle._cur_state == vehicle_state::ND ){
 			if ( vehicle._cur_lane_id == vehicle._entry_lane_id ) {
 				vehicle._cur_state = vehicle_state::EV ;
