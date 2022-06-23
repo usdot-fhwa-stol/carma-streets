@@ -14,15 +14,13 @@ class TrafficSignalControllerService
         // struct that holds information about who we're going to be talking to
         // We need to declare 2 of these, one to fill info with and second which is 
         // a pointer returned by the library
-        struct snmp_session session;
-        struct snmp_session *ss;
+        snmp_session session;
+        snmp_session *ss;
 
         /*Structure to hold all of the information that we're going to send to the remote host*/
-        struct snmp_pdu *pdu;
+        snmp_pdu *pdu;
 
-        /*Structure to hold response from the remote host*/
-        struct snmp_pdu *response;
-
+        
         /*OID is going to hold the location of the information which we want to receive. It will need a size as well*/
         oid OID[MAX_OID_LEN];
         size_t OID_len = MAX_OID_LEN;
@@ -55,19 +53,19 @@ class TrafficSignalControllerService
         /*Disable default copy constructor*/
         TrafficSignalControllerService() = delete;
 
-        /** @brief Returns boolean value for input OID at the Traffic Signal Controller.
+        /** @brief Returns true or false depending on whether the request could be processed for given input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to request information for.
-         *  @param integer_response The integer value for the object returned by reference.
-         *  @return Integer value at the oid, returns false if value cannot be requested or oid doesn't have an integer value to return.*/
-        bool process_snmp_get_request(std::string input_oid, long& integer_response);
+         *  @param request_type The request type for which the error is being logged. Accepted values are "GET" and "SET" only.
+         *  @param value The integer value for the object returned by reference. For "SET" it is the value to be set. 
+         *  For "GET", it is the value returned for the returned object by reference.
+         *  @return Integer value at the oid, returns false if value cannot be set/requested or oid doesn't have an integer value to return.*/
+        bool process_snmp_request(std::string& input_oid, std::string& request_type, int64_t& value);
 
-        /** @brief Sets integer value at input OID at the Traffic Signal Controller.
-         *  @param input_oid The OID to set value for.
-         *  @param value The value to set.
-         *  @return boolean for whether value could be set, returns true if successful and false if value cannot be set.*/
-        bool process_snmp_set_request(std::string input_oid, int value);
-
-        void log_error(const int& status, const std::string& request_type);
+        /** @brief Finds error type from status and logs an error.
+         *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)
+         *  @param request_type The request type for which the error is being logged (GET/SET).
+         *  @param response The snmp_pdu struct */
+        void log_error(const int& status, const std::string& request_type, snmp_pdu *response);
 
         /** @brief Destructor for client. Closes the snmp session**/
         ~TrafficSignalControllerService(){

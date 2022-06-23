@@ -47,28 +47,50 @@ TrafficSignalControllerService::TrafficSignalControllerService(const std::string
 
 }
 
-bool TrafficSignalControllerService::process_snmp_get_request(std::string input_oid, long& integer_response){
+bool TrafficSignalControllerService::process_snmp_request(std::string& input_oid, std::string& request_type, int64_t& value){
+
+    /*Structure to hold response from the remote host*/
+    snmp_pdu *response;
 
     // Create pdu for the data
-    pdu = snmp_pdu_create(SNMP_MSG_GET);
+    if (request_type == "GET")
+    {
+        SPDLOG_DEBUG("Attemping to GET value for: {0}", input_oid);
+        pdu = snmp_pdu_create(SNMP_MSG_GET);
+    }
+    else if (request_type == "SET")
+    {
+        SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
+        pdu = snmp_pdu_create(SNMP_MSG_SET);
+    }
+    else{
+        SPDLOG_ERROR("Invalid request type, method accepts only GET and SET");
+    }
 
     // Read input OID into an OID variable:
     // net-snmp has several methods for creating an OID object
     // their documentation suggests using get_node. read_objid seems like a simpler approach
     // TO DO: investigate update to get_node
-        
     if(!read_objid(input_oid.c_str(), OID, &OID_len)){
         // If oid cannot be created
         SPDLOG_ERROR("OID could not be created from input: {0}", input_oid);
-        snmp_perror(input_oid.c_str());
         return false;
+        
     }
     else{
+        
+        if(request_type == "GET")
+        {
+            // Add OID to pdu for get request
+            snmp_add_null_var(pdu, OID, OID_len);
+        }
+        else if(request_type == "SET")
+        {
+            snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
+        }
+
         SPDLOG_INFO("Created OID for input: {0}", input_oid);
-        // Add OID to pdu for get request
-        snmp_add_null_var(pdu, OID, OID_len);
     }
-    
 
     // Send the request
     int status = snmp_synch_response(ss, pdu, &response);
@@ -77,29 +99,38 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
     if(status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
         
         SPDLOG_INFO("STAT_SUCCESS, received a response");
-        for(auto vars = response->variables; vars; vars = vars->next_variable){
-            // Get value of variable depending on ASN.1 type
-            // Variable could be a integer, string, bitstring, ojbid, counter : defined here https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/types.h
-
-            // get Integer value
-            if(vars->type == ASN_INTEGER){
-                integer_response = *vars->val.integer;
-                SPDLOG_INFO("Integer value in object: {0}", integer_response);
-            }
-            else{
-                SPDLOG_ERROR("Received a message type which isn't an Integer");
-                return false;
+        
+        if(request_type == "GET"){
+            for(auto vars = response->variables; vars; vars = vars->next_variable){
+                // Get value of variable depending on ASN.1 type
+                // Variable could be a integer, string, bitstring, ojbid, counter : defined here https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/types.h
+                // get Integer value
+                if(vars->type == ASN_INTEGER){
+                    if(vars->val.integer){
+                        value = *vars->val.integer;
+                        SPDLOG_INFO("Integer value in object: {0}", value);
+                    }
+                    else{
+                        SPDLOG_ERROR("Response specifies type integer, but no integer value found");
+                        return false;
+                    }
+                    
+                }
+                else{
+                    SPDLOG_ERROR("Received a message type which isn't an Integer");
+                    return false;
+                }
             }
         }
-        
+        else if(request_type == "SET"){
+            SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
+        }
+    
     }
-    else{
-        
-        std::string request_type = "GET";
-        log_error(status, request_type);
-        
+    else 
+    {
+        log_error(status, request_type, response);
         return false;
-        
     }
 
     if (response){
@@ -110,53 +141,8 @@ bool TrafficSignalControllerService::process_snmp_get_request(std::string input_
     return true;
 }
 
-bool TrafficSignalControllerService::process_snmp_set_request(std::string input_oid, int value){
 
-    SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
-    // Create pdu for the data
-    pdu = snmp_pdu_create(SNMP_MSG_SET);
-
-    // Read input OID into an OID variable:
-    if(!read_objid(input_oid.c_str(), OID, &OID_len)){
-        // If oid cannot be created
-        SPDLOG_ERROR("OID could not be created from input: {0}", input_oid);
-        snmp_perror(input_oid.c_str());
-        return false;
-    }
-    else{
-        
-        if (snmp_parse_oid(input_oid.c_str(), OID, &OID_len) == nullptr){
-            SPDLOG_ERROR("Couldn't parse oid");
-            return false;
-        }
-        // Add OID to pdu for set request
-        snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
-        
-        SPDLOG_INFO("Created OID for input: {0}", input_oid);
-        
-    }
-
-    int status = snmp_synch_response(ss, pdu, &response);
-
-    if (status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR){
-        SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
-    }
-    else{
-        std::string request_type = "SET";
-        log_error(status, request_type);
-
-        return false;
-            
-    }
-
-    if (response){
-        snmp_free_pdu(response);
-        OID_len = MAX_OID_LEN;
-    }
-    return true;
-}
-
-void TrafficSignalControllerService::log_error(const int& status, const std::string& request_type)
+void TrafficSignalControllerService::log_error(const int& status, const std::string& request_type, snmp_pdu *response)
 {
 
     if (status == STAT_SUCCESS)
@@ -170,13 +156,7 @@ void TrafficSignalControllerService::log_error(const int& status, const std::str
     }
     else{
     
-        if(request_type == "SET"){
-            snmp_sess_perror("snmpset", ss);//Logs error to net-snmp logfile
-        }
-        else if(request_type == "GET"){
-            snmp_sess_perror("snmpget", ss); ////Logs error to net-snmp logfile
-        }
-        SPDLOG_ERROR("Unknown SNMP Error");
+        SPDLOG_ERROR("Unknown SNMP Error for {0}", request_type);
     }
     
 }
