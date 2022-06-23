@@ -40,7 +40,7 @@ namespace signal_opt_service
          * @return true if the vehicle list is updated.
          * @return false if the vehilce list is not updated.
          */
-        bool add_update_vehicle(const std::string& vehicle_json);
+        bool add_update_vehicle(const std::string& vehicle_json) const;
         /**
          * @brief Spat string from kafka stream in JSON format. Convert the spat JSON into streets internal spat object, and update the spat with the latest spat info
          * @param spat_json Spat string from kafka stream in JSON format.
@@ -60,12 +60,12 @@ namespace signal_opt_service
          * @brief Get the const intersection info pointer which does not allow caller to update the intersection info
          * @return ** const pointer to the OpenAPI::OAIIntersection_info
          */
-        const std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info() const;
+        const std::shared_ptr<OpenAPI::OAIIntersection_info>& get_intersection_info() const;
         /**
          * @brief Get the const vehicle list pointer which does not allow caller to update the vehicle list
          * @return ** const pointer to the streets_vehicles::vehicle_list
          */
-        const std::shared_ptr<streets_vehicles::vehicle_list> get_vehicle_list() const;
+        const std::shared_ptr<streets_vehicles::vehicle_list>& get_vehicle_list() const;
         
         // ToDo get spat
     };

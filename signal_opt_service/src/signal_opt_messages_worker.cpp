@@ -16,7 +16,7 @@ namespace signal_opt_service
         auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(this->vehicle_list_ptr->get_processor());
     }
 
-    bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json)
+    bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json) const
     {
         if (this->vehicle_list_ptr)
         {
@@ -68,12 +68,12 @@ namespace signal_opt_service
         return signal_group_ids_valid;
     }
 
-    const std::shared_ptr<OpenAPI::OAIIntersection_info> signal_opt_messages_worker::get_intersection_info() const
+    const std::shared_ptr<OpenAPI::OAIIntersection_info>& signal_opt_messages_worker::get_intersection_info() const
     {
         return this->intersection_info_ptr;
     }
 
-    const std::shared_ptr<streets_vehicles::vehicle_list> signal_opt_messages_worker::get_vehicle_list() const
+    const std::shared_ptr<streets_vehicles::vehicle_list>& signal_opt_messages_worker::get_vehicle_list() const
     {
         return this->vehicle_list_ptr;
     }

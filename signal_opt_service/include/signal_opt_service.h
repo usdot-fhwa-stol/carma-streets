@@ -39,20 +39,20 @@ namespace signal_opt_service
         /**
          * @brief Create threads and consume messages
          */
-        void start();
+        void start() const;
 
         /**
          * @brief Consume the different types of kafka stream via kafka consumers
          * @param msg_json The consumed kafka stream in JSON format
          * @param consume_msg_type The type of message consumed by the kafka consumer
          */
-        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type);
+        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type) const;
         /**
          * @brief Updating the intersection info.
          * @param sleep_millisecs The current thread sleep for milliseconds after each update attempt
          * @param int_client_request_attempts The number of attempts for the loop
          * @return boolean. True if intersection information is updated, otherwise failed to update intersection information
          */
-        bool update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts);
+        bool update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const;
     };
 }

@@ -6,7 +6,7 @@ namespace signal_opt_service
     {
         try
         {
-            //Kafka config
+            // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
             this->bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
             this->spat_topic_name = streets_service::streets_configuration::get_string_config("spat_consumer_topic");
@@ -53,7 +53,7 @@ namespace signal_opt_service
         }
     }
 
-    void signal_opt_service::start()
+    void signal_opt_service::start() const
     {
         std::thread spat_t(&signal_opt_service::consume_msg, this, std::ref(this->_spat_consumer), CONSUME_MSG_TYPE::SPAT);
         std::thread vsi_t(&signal_opt_service::consume_msg, this, std::ref(this->_vsi_consumer), CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT);
@@ -61,7 +61,7 @@ namespace signal_opt_service
         vsi_t.join();
     }
 
-    void signal_opt_service::consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type)
+    void signal_opt_service::consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type) const
     {
         while (consumer->is_running())
         {
@@ -90,20 +90,18 @@ namespace signal_opt_service
         }
     }
 
-    bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts)
+    bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const
     {
-        unsigned long sleep_secs = std::round(sleep_millisecs / 1000);
+        unsigned int sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
+        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} for {1} times.", sleep_secs, int_client_request_attempts);
         int attempt_count = 0;
         while (attempt_count < int_client_request_attempts)
         {
-            if (this->so_msgs_worker_ptr)
+            // Send HTTP request, and update intersection information. If updated successfully, it returns true and exit the while loop.
+            if (this->so_msgs_worker_ptr && this->so_msgs_worker_ptr->request_intersection_info())
             {
-                // Send HTTP request, and update intersection information. If updated successfully, it returns true and exit the while loop.
-                if (this->so_msgs_worker_ptr->request_intersection_info())
-                {
-                    SPDLOG_INFO("Intersection information is updated with valid signal group ids! ");
-                    return true;
-                }
+                SPDLOG_INFO("Intersection information is updated with valid signal group ids! ");
+                return true;
             }
             sleep(sleep_secs);
             attempt_count++;
