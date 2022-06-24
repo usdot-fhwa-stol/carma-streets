@@ -9,7 +9,6 @@ namespace signal_phase_and_timing {
         // Populate movement event
         event.AddMember("event_state", static_cast<int>(event_state), allocator);
         event.AddMember("timing", timing.toJson(allocator), allocator);
-
         if ( !speeds.empty()) {
             rapidjson::Value advisory_speed_array(rapidjson::kArrayType);
             for ( const auto &speed : speeds) {
@@ -17,7 +16,6 @@ namespace signal_phase_and_timing {
             }
             event.AddMember("speeds", advisory_speed_array, allocator);
         }
-        SPDLOG_INFO("Movement Event JSON Created");
         return event;
     }
 

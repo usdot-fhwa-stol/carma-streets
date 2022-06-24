@@ -17,7 +17,6 @@ add_library(${PROJECT_NAME}_lib
                 src/models/intersection_state.cpp
                 src/models/spat.cpp
                 src/exceptions/signal_phase_and_timing_exception.cpp
-
                 )
 
 

@@ -18,18 +18,26 @@ namespace signal_phase_and_timing
     void advisory_speed::fromJson( const rapidjson::Value &val ) {
         if ( val.IsObject() ) {
             if ( val.FindMember("type")->value.IsInt() ) {
+                // REQUIRED see J2735 AdvisorySpeed definition
                 type =  static_cast<advisory_speed_type>(val["type"].GetInt());
             }
+            else {
+               throw new signal_phase_and_timing_exception("AdvisorySpeed is missing required type property!");
+            }
             if ( val.FindMember("speed_limit")->value.IsInt() ){
+                // OPTIONAL see J2735 AdvisorySpeed definition
                 speed_limit =  val["speed_limit"].GetInt();
             }
             if ( val.FindMember("speed_confidence")->value.IsInt() ) {
+                // OPTIONAL see J2735 AdvisorySpeed definition
                 confidence = static_cast<speed_confidence>(val["speed_confidence"].GetInt());
             }
             if ( val.FindMember("distance")->value.IsInt() ){
+                // OPTIONAL see J2735 AdvisorySpeed definition
                 distance =  val["distance"].GetInt();
             }
             if ( val.FindMember("vehicle_class")->value.IsInt() ){
+                // OPTIONAL see J2735 AdvisorySpeed definition
                 veh_class = val["vehicle_class"].GetInt();
             }
         }

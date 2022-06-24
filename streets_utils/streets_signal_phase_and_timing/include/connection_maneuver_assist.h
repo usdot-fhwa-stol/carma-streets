@@ -2,6 +2,7 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 
 
+#include "signal_phase_and_timing_exception.h"
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>
