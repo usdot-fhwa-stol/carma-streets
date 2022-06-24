@@ -1,16 +1,16 @@
 {
     "service_name": "snmp_client",
-    "loglevel": "debug",
+    "loglevel": "info",
     "configurations": [
         {
             
-            "name": "ip",
+            "name": "target_ip",
             "value": "192.168.120.50",
             "description": "Target device IP address",
             "type": "STRING"
         }, 
         {
-           "name": "port",
+           "name": "target_port",
            "value": 6053,
            "description": "Target device NTCIP port",
            "type": "INTEGER" 
@@ -18,7 +18,7 @@
         {
             "name": "community",
             "value": "public",
-            "description": " ",
+            "description": "Target community for establishing snmp communication",
             "type": "STRING"  
         },
         {
@@ -30,7 +30,7 @@
         {
             "name": "timeout",
             "value": 10000,
-            "description": " ",
+            "description": "Time after which the the snmp request times out",
             "type": "INTEGER" 
         },
         {
@@ -39,6 +39,13 @@
             "value": "192.168.120.100",
             "description": "local carma streets IP address",
             "type": "STRING"
+        },
+        {
+            
+            "name": "local_udp_port",
+            "value": 6053,
+            "description": "local port to receive spat messages on from TSC",
+            "type": "INTEGER"
         },
         {
             

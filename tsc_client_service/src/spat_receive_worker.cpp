@@ -2,7 +2,10 @@
 
 using namespace std;
 
-SpatWorker::SpatWorker(std::string ip, int port, int socketTimeout) : ip_(ip), port_(port), socketTimeout_(socketTimeout)
+namespace traffic_signal_controller_service
+{
+
+SpatWorker::SpatWorker(const std::string& ip, const int& port, const int& socketTimeout) : ip_(ip), port_(port), socketTimeout_(socketTimeout)
 {
     SPDLOG_DEBUG("Creating Spat Worker");
 }
@@ -77,3 +80,4 @@ bool SpatWorker::getSocketStatus() const {
     return socketCreated;
 }
 
+}

@@ -58,12 +58,12 @@ RUN make install
 
 COPY ./tsc_client_service/ /home/carma-streets/tsc_client_service
 # Install streets_service_base
-# RUN echo " ------> Install streets service base library from streets_utils..."
-# WORKDIR /home/carma-streets/tsc_client_service
-# RUN mkdir build
-# WORKDIR /home/carma-streets/tsc_client_service/build
-# RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-# RUN make
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/tsc_client_service
+RUN mkdir build
+WORKDIR /home/carma-streets/tsc_client_service/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
 
 WORKDIR /home/
 

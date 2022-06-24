@@ -11,29 +11,25 @@ int main()
     streets_service::streets_configuration::initialize_logger();
 
     // Load config parameters from json
-    std::string ip = streets_service::streets_configuration::get_string_config("ip");
-    std::string local_ip = streets_service::streets_configuration::get_string_config("local_ip");
-    int port = streets_service::streets_configuration::get_int_config("port");
+    std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
+    int target_port = streets_service::streets_configuration::get_int_config("target_port");
     std::string community = streets_service::streets_configuration::get_string_config("community");
-    int community_len = community.length();
     int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
     int timeout = streets_service::streets_configuration::get_int_config("timeout");
+    std::string local_ip = streets_service::streets_configuration::get_string_config("local_ip");
+    int local_port = streets_service::streets_configuration::get_int_config("local_udp_port");
     int socketTimeout = streets_service::streets_configuration::get_int_config("socket_timeout");
 
-    TrafficSignalControllerService worker(ip, port, community, community_len, snmp_version, timeout);
+    traffic_signal_controller_service::snmp_client worker(target_ip, target_port, community, snmp_version, timeout);
     
-    std::string input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.21.2";
-    worker.process_snmp_get_request(input_oid);
-    input_oid = "1.3.6.1.4.1.1206.4.2.1.1.2.1.6.2";
-    int set_value = 10;
-    worker.process_snmp_set_request(input_oid, set_value);
-
-    //enable spat OID on tsc
+    //enable spat udp stream on tsc
     std::string enable_spat_oid = "1.3.6.1.4.1.1206.3.5.2.9.44.1.0";
-    int enable_spat_value = 2;
-    worker.process_snmp_set_request(enable_spat_oid, enable_spat_value);
-    
-    SpatWorker spatWorker(local_ip, port, socketTimeout);
+    std::string request_type = "SET";
+    int64_t enable_spat_value = 2;
+    worker.process_snmp_request(enable_spat_oid, request_type, enable_spat_value);
+
+    //instantiate spat receive worker
+    traffic_signal_controller_service::SpatWorker spatWorker(local_ip, local_port, socketTimeout);
     spatWorker.createSocket();
 
     return 0;
