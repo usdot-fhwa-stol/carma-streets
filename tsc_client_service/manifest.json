@@ -1,0 +1,37 @@
+{
+    "service_name": "snmp_client",
+    "loglevel": "debug",
+    "configurations": [
+        {
+            
+            "name": "ip",
+            "value": "192.168.120.50",
+            "description": "Target device IP address",
+            "type": "STRING"
+        }, 
+        {
+           "name": "port",
+           "value": 6053,
+           "description": "Target device NTCIP port",
+           "type": "INTEGER" 
+        },
+        {
+            "name": "community",
+            "value": "public",
+            "description": "Target community for establishing snmp communication",
+            "type": "STRING"  
+        },
+        {
+            "name": "snmp_version",
+            "value": 0,
+            "description": "snmp version being used. net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3",
+            "type": "INTEGER" 
+        },
+        {
+            "name": "timeout",
+            "value": 10000,
+            "description": "Time after which the the snmp request times out",
+            "type": "INTEGER" 
+        }
+    ]
+}
