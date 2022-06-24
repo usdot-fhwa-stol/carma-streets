@@ -6,12 +6,28 @@ namespace signal_phase_and_timing {
         // Create intersection state JSON value
         rapidjson::Value state(rapidjson::kObjectType);
         // Populate
+        // OPTIONAL see J2735 IntersectionState definition
         state.AddMember("name", name, allocator);
+        // REQUIRED see J2735 IntersectionState definition
+        if (id == 0 ) {
+            throw new signal_phase_and_timing_exception("IntersectionState is missing required id property!");  
+        }
         state.AddMember("id", id, allocator);
+        // REQUIRED see J2735 IntersectionState definition
+        if ( message_count ==  0) {
+            throw new signal_phase_and_timing_exception("IntersectionState is missing required message_count property!");
+        }
         state.AddMember("message_count", message_count, allocator);
+        // REQUIRED see J2735 IntersectionState definition
         state.AddMember("status", status, allocator);
+        if ( status.empty() ) {
+            throw new signal_phase_and_timing_exception("IntersectionState is missing required status property!");  
+        }
+        // OPTIONAL see J2735 IntersectionState definition
         state.AddMember("minute_of_the_year", minute_of_the_year, allocator);
+        // OPTIONAL see J2735 IntersectionState definition
         state.AddMember("second", second, allocator);
+        // OPTIONAL see J2735 IntersectionState definition
         if ( !enabled_lane_list.empty() ) {
             rapidjson::Value lane_list(rapidjson::kArrayType);
             for (const auto &lane_id : enabled_lane_list) {
@@ -19,6 +35,7 @@ namespace signal_phase_and_timing {
             }
             state.AddMember("enabled_lane_list", lane_list, allocator);
         }
+        // REQUIRED see J2735 IntersectionState definition
         if ( !movement_states.empty() ) {
             rapidjson::Value states_list(rapidjson::kArrayType);
             for (const auto &state : movement_states) {
@@ -26,6 +43,10 @@ namespace signal_phase_and_timing {
             }
             state.AddMember("states", states_list, allocator);
         }
+        else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required states property!");
+        }
+        // OPTIONAL see J2735 IntersectionState definition
         if ( !maneuver_assist_list.empty() ) {
             rapidjson::Value maneuver_list(rapidjson::kArrayType);
             for (const auto &maneuver : maneuver_assist_list) {
@@ -65,14 +86,11 @@ namespace signal_phase_and_timing {
                throw new signal_phase_and_timing_exception("IntersectionState is missing required status property!");
             }
             if ( val.FindMember("minute_of_the_year")->value.IsUint64()) {
-                // REQUIRED see J2735 IntersectionState definition
+                // OPTIONAL see J2735 IntersectionState definition
                 minute_of_the_year =  val["minute_of_the_year"].GetUint64();
             }
-            else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required minute_of_the_year property!");
-            }
             if ( val.FindMember("second")->value.IsUint()) {
-                // REQUIRED see J2735 IntersectionState definition
+                // OPTIONAL see J2735 IntersectionState definition
                 second =  val["second"].GetUint();
             }
             else {

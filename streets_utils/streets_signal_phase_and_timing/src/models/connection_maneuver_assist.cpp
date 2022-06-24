@@ -5,6 +5,10 @@ namespace signal_phase_and_timing {
     rapidjson::Value connection_maneuver_assist::toJson(rapidjson::Document::AllocatorType &allocator) const {
         // Create connection maneuver assist JSON value
         rapidjson::Value manuever(rapidjson::kObjectType);
+        if ( connection_id == 0 ) {
+            // REQUIRED see J2735 ConnectionManeuverAssist Definition
+            throw new signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!"); 
+        }
         manuever.AddMember("connection_id", connection_id, allocator);
         manuever.AddMember("queue_length", queue_length, allocator);
         manuever.AddMember("available_storage_length", available_storage_length, allocator);

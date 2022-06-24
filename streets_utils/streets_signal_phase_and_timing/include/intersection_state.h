@@ -70,9 +70,15 @@ namespace signal_phase_and_timing
          *
          */
         std::string status;
-
+        /**
+         * @brief Minute of current UTC year
+         */
         uint64_t minute_of_the_year = 0;
-
+        /**
+        *  @brief LSB units of of 10 mSec, 
+        * with a range of 0.01 seconds to 10 minutes and 55.34 seconds
+        * a value of 65534 to be used for 655.34 seconds or greater
+        **/
         uint8_t second = 0;
         /**
          * @brief A list of unique lane ID for each lane object which is active. Refers to dynamic MAP contents.

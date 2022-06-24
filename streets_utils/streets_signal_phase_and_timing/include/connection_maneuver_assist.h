@@ -50,7 +50,8 @@ namespace signal_phase_and_timing {
         /**
          * @brief Serialize Connection Maneuver Assist object to rapidjson::Value for writing as JSON string
          * 
-         * @return rapidjson::Value serialize Connection Maneuver Assist object
+         * @param allocator  for writing JSON object.
+         * @return rapidjson::Value serialize Connection Maneuver Assist object.
          */
         rapidjson::Value toJson(rapidjson::Document::AllocatorType &allocator) const;
         /**

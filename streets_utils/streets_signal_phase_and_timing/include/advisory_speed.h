@@ -79,9 +79,11 @@ namespace signal_phase_and_timing{
         /**
          * @brief Serialize Advisory Speed object to rapidjson::Value for writing as JSON string
          * 
-         * @return rapidjson::Value serialize Advisory Speed object
+         * @param allocator for writing JSON object
+         * @return rapidjson::Value serialize Advisory Speed object.
          */
-        rapidjson::Value toJson(rapidjson::Document::AllocatorType &allocator) const;        /**
+        rapidjson::Value toJson(rapidjson::Document::AllocatorType &allocator) const;        
+        /**
          * @brief Deserialize Advisory Speed JSON into Advisory Speed object.
          * 
          * @param val Advisory Speed JSON.
