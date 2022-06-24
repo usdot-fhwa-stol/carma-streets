@@ -53,6 +53,10 @@ TEST_F(spat_to_json, json_test) {
     // Set intersection id
     state.id = 1909;
     // Create manuever
+    //
+    //"maneuver_assist_list":[
+    ///    {"connection_id":7,"queue_length":4,"available_storage_length":8,"wait_on_stop":true,"ped_bicycle_detect":false}]
+    //
     connection_maneuver_assist manuever;
     manuever.available_storage_length = 8;
     manuever.connection_id = 7;
@@ -109,7 +113,9 @@ TEST_F(spat_to_json, json_test) {
     ASSERT_FALSE(doc.HasParseError());
 
     json_spat.fromJson(doc);
+    ASSERT_EQ(json_spat , spat_message);
 
-    ASSERT_TRUE(json_spat == spat_message);
+
+
     
 }

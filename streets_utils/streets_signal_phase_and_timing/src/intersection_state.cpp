@@ -72,6 +72,14 @@ namespace signal_phase_and_timing {
                     movement_states.push_back( move_state);
                 }
             }
+            if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
+                maneuver_assist_list.clear();
+                for (const auto &state: val["maneuver_assist_list"].GetArray()) {
+                    connection_maneuver_assist maneuver;
+                    maneuver.fromJson( state );
+                    maneuver_assist_list.push_back( maneuver);
+                }
+            }
         }
     }
 
