@@ -91,7 +91,18 @@
             "value": "scheduleLogs",
             "description": "Filename for schedule calculation csv logging (Note: set enable_schedule_logging true).",
             "type": "STRING"
+        },
+        {
+            "name": "sleep_millisecs",
+            "value": "1000",
+            "description": "Current thread sleep for milliseconds",
+            "type": "STRING"
+        },
+        {
+            "name": "int_client_request_attempts",
+            "value": "10",
+            "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
+            "type": "STRING"
         }
-
     ]
 }
