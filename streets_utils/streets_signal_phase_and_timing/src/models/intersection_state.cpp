@@ -34,37 +34,59 @@ namespace signal_phase_and_timing {
             state.AddMember("maneuver_assist_list", maneuver_list, allocator);
 
         }
-        SPDLOG_INFO("Intersection state JSON Created");
         return state;
     }
 
     void intersection_state::fromJson(const rapidjson::Value &val) {
         if ( val.IsObject() ) {
             if ( val.FindMember("name")->value.IsString() ) {
+                // OPTIONAL see J2735 IntersectionState definition
                 name =  val["name"].GetString();
-            }
+            } 
             if ( val.FindMember("id")->value.IsInt()) {
+                // REQUIRED see J2735 IntersectionState definition
                 id =  val["id"].GetInt();
             }
+            else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required id property!");
+            }
             if ( val.FindMember("message_count")->value.IsInt()) {
+                // REQUIRED see J2735 IntersectionState definition
                 message_count =  val["message_count"].GetInt();
             }
+            else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required message_count property!");
+            }
             if ( val.FindMember("status")->value.IsString()) {
+                // REQUIRED see J2735 IntersectionState definition
                 status =  val["status"].GetString();
             }
+            else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required status property!");
+            }
             if ( val.FindMember("minute_of_the_year")->value.IsUint64()) {
+                // REQUIRED see J2735 IntersectionState definition
                 minute_of_the_year =  val["minute_of_the_year"].GetUint64();
             }
+            else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required minute_of_the_year property!");
+            }
             if ( val.FindMember("second")->value.IsUint()) {
+                // REQUIRED see J2735 IntersectionState definition
                 second =  val["second"].GetUint();
             }
+            else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required second property!");
+            }
             if ( val.FindMember("enabled_lane_list")->value.IsArray() ) {
+                // OPTIONAL see J2735 IntersectionState definition
                 enabled_lane_list.clear();
                 for (const auto &lane: val["enabled_lane_list"].GetArray()) {
                     enabled_lane_list.push_back(lane.GetInt());
                 }
             }
             if ( val.FindMember("states")->value.IsArray() ) {
+                // REQUIRED see J2735 IntersectionState definition
                 movement_states.clear();
                 for (const auto &state: val["states"].GetArray()) {
                     movement_state move_state;
@@ -72,7 +94,11 @@ namespace signal_phase_and_timing {
                     movement_states.push_back( move_state);
                 }
             }
+            else {
+               throw new signal_phase_and_timing_exception("IntersectionState is missing required states property!");
+            }
             if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
+                // OPTIONAL see J2735 IntersectionState definition
                 maneuver_assist_list.clear();
                 for (const auto &state: val["maneuver_assist_list"].GetArray()) {
                     connection_maneuver_assist maneuver;

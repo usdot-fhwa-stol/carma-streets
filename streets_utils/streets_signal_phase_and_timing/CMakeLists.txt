@@ -9,13 +9,14 @@ find_package(RapidJSON REQUIRED)
 
 
 add_library(${PROJECT_NAME}_lib
-                src/connection_maneuver_assist.cpp
-                src/movement_state.cpp
-                src/movement_event.cpp
-                src/advisory_speed.cpp
-                src/time_change_details.cpp
-                src/intersection_state.cpp
-                src/spat.cpp
+                src/models/connection_maneuver_assist.cpp
+                src/models/movement_state.cpp
+                src/models/movement_event.cpp
+                src/models/advisory_speed.cpp
+                src/models/time_change_details.cpp
+                src/models/intersection_state.cpp
+                src/models/spat.cpp
+                src/exceptions/signal_phase_and_timing_exception.cpp
 
                 )
 

@@ -22,27 +22,36 @@ namespace signal_phase_and_timing {
             } 
             move_state.AddMember("maneuver_assist_list", maneuver_list, allocator);
         }
-        SPDLOG_INFO("Movement State JSON Created");
         return move_state;
     }
 
     void movement_state::fromJson( const rapidjson::Value &val ) {
         if ( val.IsObject() ) {
             if ( val.FindMember("movement_name")->value.IsString() ) {
+                // OPTIONAL see J2735 MovementState definition
                 movement_name =  val["movement_name"].GetString();
             }
             if ( val.FindMember("signal_group_id")->value.IsInt() ) {
+                // REQUIRED see J2735 MovementState definition
                 signal_group_id = val["signal_group_id"].GetInt();
             }
+            else {
+               throw new signal_phase_and_timing_exception("MovementState is missing required signal_group_id property!");
+            }
             if ( val.FindMember("movement_event_list")->value.IsArray() ) {
+                // REQUIRED in J2735 MovementState definition 
                 movement_event_list.clear();
                 for (const auto &move_event: val["movement_event_list"].GetArray() ) {
                     movement_event event;
                     event.fromJson( move_event );
                     movement_event_list.push_back(event);
                 }
+            } 
+            else {
+               throw new signal_phase_and_timing_exception("MovementState is missing required movement_event_list property!");
             }
-             if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
+            if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
+                // OPTIONAL see J2735 MovementState definition
                 maneuver_assist_list.clear();
                 for (const auto &maneuver: val["maneuver_assist_list"].GetArray() ) {
                     connection_maneuver_assist man;

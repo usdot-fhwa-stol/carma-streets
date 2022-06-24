@@ -10,7 +10,6 @@ namespace signal_phase_and_timing {
         manuever.AddMember("available_storage_length", available_storage_length, allocator);
         manuever.AddMember("wait_on_stop", wait_on_stop, allocator);
         manuever.AddMember("ped_bicycle_detect", ped_bicycle_detect, allocator);
-        SPDLOG_INFO("Connection Maneuver Assist JSON Created");
         return manuever;
     }
 

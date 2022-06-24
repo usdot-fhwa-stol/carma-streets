@@ -17,19 +17,22 @@ namespace signal_phase_and_timing{
             }
             spat.AddMember("intersection_state_list", list, allocator);
         }
-        SPDLOG_INFO("Spat JSON Created");
         return spat;
     }
 
     void spat::fromJson(const rapidjson::Value &val ) {
         if ( val.IsObject() ) {
             if (val.FindMember("timestamp")->value.IsUint64()) {
-                timestamp =  val["timestamp"].GetUint64();
+                timestamp =  val["timestamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition but required for CARMA-Streets
+            } 
+            else {
+               throw new signal_phase_and_timing_exception("SPaT message is missing required timestamp property!");
             }
             if (val.FindMember("name")->value.IsString() ) {
-                name = val["name"].GetString();
+                name = val["name"].GetString();  // OPTIONAL see J2735 SPaT definition
             }
             if ( val.FindMember("intersection_state_list")->value.IsArray() ) {
+                // REQUIRED see J2735 SPaT definition
                 // Clear intersection state list in case it is populated.
                 intersection_state_list.clear();
                 for ( const auto &state : val["intersection_state_list"].GetArray() ){
@@ -37,6 +40,9 @@ namespace signal_phase_and_timing{
                     cur_state.fromJson(state);
                     intersection_state_list.push_back(cur_state);
                 }
+            }
+            else {
+               throw new signal_phase_and_timing_exception("SPaT message is missing required intersection_state_list property!");
             }
             
         }
