@@ -14,12 +14,12 @@ namespace signal_opt_service
     class signal_opt_service
     {
     private:
-        std::shared_ptr<signal_opt_messages_worker> so_msgs_worker_ptr;
-        std::string bootstrap_server;
-        std::string spat_group_id;
-        std::string spat_topic_name;
-        std::string vsi_group_id;
-        std::string vsi_topic_name;
+        std::shared_ptr<signal_opt_messages_worker> _so_msgs_worker_ptr;
+        std::string _bootstrap_server;
+        std::string _spat_group_id;
+        std::string _spat_topic_name;
+        std::string _vsi_group_id;
+        std::string _vsi_topic_name;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
 

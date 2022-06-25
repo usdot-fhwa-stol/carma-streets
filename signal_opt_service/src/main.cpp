@@ -9,5 +9,5 @@ int main(int argc, char **argv)
     {
         so_service.start();
     }
-    return 0;
+    return a.exec();
 }

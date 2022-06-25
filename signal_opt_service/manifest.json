@@ -34,7 +34,7 @@
         },
         {
             "name": "sleep_millisecs",
-            "value": "1000",
+            "value": "2000",
             "description": "Current thread sleep for milliseconds",
             "type": "STRING"
         },

@@ -37,7 +37,7 @@ namespace signal_opt_service
         QEventLoop loop;
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [&](OpenAPI::OAIIntersection_info int_info)
                 {                   
-                    SPDLOG_INFO("request_intersection_info succeed!");
+                    SPDLOG_INFO("request_intersection_info receives intersection information. Checking signal group ids update...");
                     QList<OpenAPI::OAILanelet_info> ll_info_list = int_info.getLinkLanelets();
                     for(auto ll_info : ll_info_list)
                     {
@@ -49,7 +49,9 @@ namespace signal_opt_service
                         //Update intersection info 
                         this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>(int_info); 
                         signal_group_ids_valid = true;
+                        SPDLOG_INFO("Intersection information is updated with valid signal group ids! ");
                     }
+                SPDLOG_INFO("Exit request_intersection_info.");
             loop.quit(); });
 
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, [&](OpenAPI::OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
@@ -61,17 +63,15 @@ namespace signal_opt_service
 
         QTimer::singleShot(5000, &loop, &QEventLoop::quit);
         loop.exec();
-
-        SPDLOG_INFO("Done with request_intersection_info");
         return signal_group_ids_valid;
     }
 
-    const std::shared_ptr<OpenAPI::OAIIntersection_info>& signal_opt_messages_worker::get_intersection_info() const
+    const std::shared_ptr<OpenAPI::OAIIntersection_info> &signal_opt_messages_worker::get_intersection_info() const
     {
         return this->intersection_info_ptr;
     }
 
-    const std::shared_ptr<streets_vehicles::vehicle_list>& signal_opt_messages_worker::get_vehicle_list() const
+    const std::shared_ptr<streets_vehicles::vehicle_list> &signal_opt_messages_worker::get_vehicle_list() const
     {
         return this->vehicle_list_ptr;
     }

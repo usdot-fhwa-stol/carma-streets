@@ -46,7 +46,7 @@
         },
         {
             "name": "map_msg_group_id",
-            "value": "mag_msg_consumer",
+            "value": "map_msg_consumer",
             "description": "Kafka consumer group for BSM kafka consumer.",
             "type": "STRING"
         }
