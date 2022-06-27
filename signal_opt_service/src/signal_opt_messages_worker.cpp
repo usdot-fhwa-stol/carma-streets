@@ -52,7 +52,7 @@ namespace signal_opt_service
                 {                   
                     SPDLOG_INFO("request_intersection_info receives intersection information. Checking signal group ids update...");
                     QList<OpenAPI::OAILanelet_info> ll_info_list = int_info.getLinkLanelets();
-                    for(auto ll_info : ll_info_list)
+                    for(const auto& ll_info : ll_info_list)
                     {
                         invalid_signal_group_count += ll_info.getSignalGroupId() == 0 ? 1 : 0;
                     }  

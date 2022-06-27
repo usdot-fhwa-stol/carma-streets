@@ -100,7 +100,7 @@ namespace signal_opt_service
 
     bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const
     {
-        unsigned int sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
+        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
         SPDLOG_INFO("Send client request to update intersection inforamtion every {0} seconds for maximum {1} times.", sleep_secs, int_client_request_attempts);
         int attempt_count = 0;
         while (attempt_count < int_client_request_attempts)
