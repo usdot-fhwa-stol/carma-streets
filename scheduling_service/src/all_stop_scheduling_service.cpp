@@ -2,7 +2,7 @@
 
 namespace scheduling_service{
 
-	bool all_stop_scheduling_service::initialize()
+	bool all_stop_scheduling_service::initialize(OpenAPI::OAIIntersection_info intersection_info)
 	{
 		try
 		{
@@ -16,7 +16,6 @@ namespace scheduling_service{
 
 			consumer_worker = client->create_consumer(bootstrap_server, consumer_topic, group_id);
 			producer_worker  = client->create_producer(bootstrap_server, producer_topic);
-
 
 			if(!consumer_worker->init())
 			{
@@ -44,25 +43,12 @@ namespace scheduling_service{
 			}
 			
 
-			// HTTP request to update intersection information
-			auto int_client = std::make_shared<scheduling_service::intersection_client>();
-			auto sleep_millisecs = std::stoul(streets_service::streets_configuration::get_string_config("sleep_millisecs"));
-            auto int_client_request_attempts = std::stoul(streets_service::streets_configuration::get_string_config("int_client_request_attempts"));
-			// SPDLOG_INFO("here !!!!!");
-			if (int_client->update_intersection_info(sleep_millisecs, int_client_request_attempts))
-            {
-				// SPDLOG_INFO("here !!!!!");
-				intersection_info_ptr = int_client->get_intersection_info();
-            }
-			else
-			{
-				return false;
-			}
+			intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>(intersection_info);
 
-
-
+			vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
 			config_vehicle_list();
 
+			scheduler_ptr = std::make_shared<streets_vehicle_scheduler::all_stop_vehicle_scheduler>();
 			config_scheduler();
 
 			scheduling_worker = std::make_shared<all_stop_scheduling_worker>();
@@ -88,22 +74,28 @@ namespace scheduling_service{
 
 	void all_stop_scheduling_service::config_vehicle_list()
     {
-		vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
-		auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(vehicle_list_ptr->get_processor());
-        processor->set_stopping_distance(streets_service::streets_configuration::get_double_config("stop_distance"));
-        processor->set_stopping_speed(streets_service::streets_configuration::get_double_config("stop_speed"));
-        processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
-		
-		SPDLOG_INFO("Vehicle list is configured successfully! ");
+		if (vehicle_list_ptr)
+		{
+			vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
+			auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(vehicle_list_ptr->get_processor());
+			processor->set_stopping_distance(streets_service::streets_configuration::get_double_config("stop_distance"));
+			processor->set_stopping_speed(streets_service::streets_configuration::get_double_config("stop_speed"));
+			processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
+			
+			SPDLOG_INFO("Vehicle list is configured successfully! ");
+		}
     }
 
 
 	void all_stop_scheduling_service::config_scheduler()
     {
-		scheduler_ptr->set_intersection_info(intersection_info_ptr);
-        scheduler_ptr->set_flexibility_limit(streets_service::streets_configuration::get_int_config("flexibility_limit"));
-		
-		SPDLOG_INFO("Scheduler is configured successfully! ");
+		if (scheduler_ptr && intersection_info_ptr)
+		{
+			scheduler_ptr->set_intersection_info(intersection_info_ptr);
+			scheduler_ptr->set_flexibility_limit(streets_service::streets_configuration::get_int_config("flexibility_limit"));
+			
+			SPDLOG_INFO("Scheduler is configured successfully! ");
+		}
     }
 
 

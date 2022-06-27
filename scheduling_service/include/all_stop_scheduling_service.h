@@ -38,12 +38,7 @@ namespace scheduling_service{
 
 		std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker;
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker;
-		
 		std::shared_ptr<all_stop_scheduling_worker> scheduling_worker;
-
-		u_int64_t last_schedule_timestamp;
-		int sch_count;
-		u_int64_t scheduling_delta;
 
 	public:
 
@@ -62,7 +57,7 @@ namespace scheduling_service{
          * @brief Initialize the consumer, producer, and scheduling workers.
 		 * Create a vehicle list and scheduler objects and configure them.
          */
-        bool initialize();
+        bool initialize(OpenAPI::OAIIntersection_info intersection_info);
 
         /**
          * @brief Create 2 threads:
