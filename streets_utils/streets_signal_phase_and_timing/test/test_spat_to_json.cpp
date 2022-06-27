@@ -51,8 +51,7 @@ TEST(spat_to_json, to_from_json_test) {
     movement_event event;
     event.event_state = movement_phase_state::stop_and_remain;
     event.timing.start_time = spat_message.timestamp;
-    event.timing.min_end_time = spat_message.timestamp +10000;
-    move_state.movement_event_list.push_back(event);
+    event.timing.min_end_time = spat_message.timestamp + 10000;
     // Add advisory speed
     advisory_speed speed;
     speed.confidence = speed_confidence::pre100ms;
@@ -60,6 +59,7 @@ TEST(spat_to_json, to_from_json_test) {
     speed.speed_limit = 4;
     speed.veh_class= 5;
     event.speeds.push_back(speed);
+    // Add Movement Event to event list
     move_state.movement_event_list.push_back(event);
     // Add MovementState to states list in IntersectionState
     state.movement_states.push_back(move_state);
@@ -81,7 +81,7 @@ TEST(spat_to_json, to_from_json_test) {
     ASSERT_FALSE(doc.HasParseError());
     json_spat.fromJson(doc);
     // Assert equal to original object
-    ASSERT_EQ(json_spat , spat_message);
+    ASSERT_EQ(json_spat, spat_message);
 
 }
 
@@ -125,6 +125,8 @@ TEST(spat_to_json, missing_intersection_id_property)  {
     move_state.signal_group_id = 4;
     // Add movement event
     movement_event event;
+    event.timing.start_time = spat_message.timestamp;
+    event.timing.min_end_time = spat_message.timestamp + 10000;
     event.event_state = movement_phase_state::stop_and_remain;
     // Add advisory speed
     advisory_speed speed;

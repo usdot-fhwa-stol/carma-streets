@@ -26,6 +26,7 @@ namespace signal_phase_and_timing {
             }
             time_change_details detail;
             detail.fromJson( val["timing"] );
+            timing = detail;
             if ( val.FindMember("speeds")->value.IsArray() ) {
                 speeds.clear();
                 for ( const auto &sp : val["speeds"].GetArray() ){
