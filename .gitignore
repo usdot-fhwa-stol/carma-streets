@@ -10,6 +10,7 @@ streets_utils/streets_vehicle_scheduler/build/
 streets_utils/streets_api/intersection_client_api/build/
 intersection_model/build
 signal_opt_service/build/
+tsc_client_service/build
 # Crash log
 crash.log
 .env
