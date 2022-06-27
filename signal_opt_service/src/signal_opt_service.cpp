@@ -68,6 +68,7 @@ namespace signal_opt_service
             const std::string payload = consumer->consume(1000);
             if (payload.length() != 0)
             {
+                SPDLOG_DEBUG("Consumed: {0}", payload);
                 if (!_so_msgs_worker_ptr)
                 {
                     SPDLOG_CRITICAL("Message worker is not initialized");
@@ -78,9 +79,16 @@ namespace signal_opt_service
                 {
                 case CONSUME_MSG_TYPE::SPAT:
                     _so_msgs_worker_ptr->update_spat(payload);
+                    if (!_so_msgs_worker_ptr->update_spat(payload))
+                    {
+                        SPDLOG_CRITICAL("Error occurred when updating SPAT.");
+                    }
                     break;
                 case CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT:
-                    _so_msgs_worker_ptr->add_update_vehicle(payload);
+                    if (!_so_msgs_worker_ptr->add_update_vehicle(payload))
+                    {
+                        SPDLOG_CRITICAL("Error occurred when updating vehicle list.");
+                    }
                     break;
                 default:
                     SPDLOG_ERROR("Unknown consumer type!");
@@ -93,7 +101,7 @@ namespace signal_opt_service
     bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const
     {
         unsigned int sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
-        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} seconds for {1} times.", sleep_secs, int_client_request_attempts);
+        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} seconds for maximum {1} times.", sleep_secs, int_client_request_attempts);
         int attempt_count = 0;
         while (attempt_count < int_client_request_attempts)
         {

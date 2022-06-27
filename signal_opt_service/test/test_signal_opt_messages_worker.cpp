@@ -25,8 +25,8 @@ TEST(signal_opt_messages_worker, add_update_vehicle)
     ASSERT_EQ(3, so_msgs_worker.get_vehicle_list()->get_vehicles().size());
 
     // Update vehicles
-    ASSERT_EQ(5, so_msgs_worker.get_vehicle_list()->get_vehicles().at("DOT-507")._cur_speed/0.02);
-    ASSERT_EQ(5, so_msgs_worker.get_vehicle_list()->get_vehicles().at("DOT-508")._cur_speed/0.02);
+    ASSERT_EQ(5, so_msgs_worker.get_vehicle_list()->get_vehicles().at("DOT-507")._cur_speed / 0.02);
+    ASSERT_EQ(5, so_msgs_worker.get_vehicle_list()->get_vehicles().at("DOT-508")._cur_speed / 0.02);
 
     cur_time += 1000;
     vsi_payload = "{ \"metadata\": { \"timestamp\": " + std::to_string(cur_time) + " }, \"payload\": { \"v_id\": \"DOT-507\", \"v_length\": 5, \"min_gap\": 15.0, \"react_t\": 2, \"max_accel\": 5.0, \"max_decel\": 5.0, \"cur_speed\": 10.0, \"cur_accel\": 0.0, \"cur_lane_id\": 7, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 7, \"link_lane_id\": 8, \"dest_lane_id\": 9, \"is_allowed\": false, \"depart_pos\": 1, \"est_paths\": [{ \"ts\": 1623677096200, \"id\": 7, \"ds\": 6.0 }, { \"ts\": 1623677096400, \"id\": 7, \"ds\": 5.0 }, { \"ts\": 1623677096600, \"id\": 7, \"ds\": 4.0 }, { \"ts\": 1623677096800, \"id\": 7, \"ds\": 3.0 }, { \"ts\": 1623677097000, \"id\": 7, \"ds\": 2.0 } ] } }";
@@ -37,8 +37,8 @@ TEST(signal_opt_messages_worker, add_update_vehicle)
     so_msgs_worker.add_update_vehicle(vsi_payload);
     ASSERT_EQ(3, so_msgs_worker.get_vehicle_list()->get_vehicles().size());
 
-    ASSERT_EQ(10, so_msgs_worker.get_vehicle_list()->get_vehicles()["DOT-507"]._cur_speed/0.02);
-    ASSERT_EQ(20, so_msgs_worker.get_vehicle_list()->get_vehicles()["DOT-508"]._cur_speed/0.02);
+    ASSERT_EQ(10, so_msgs_worker.get_vehicle_list()->get_vehicles()["DOT-507"]._cur_speed / 0.02);
+    ASSERT_EQ(20, so_msgs_worker.get_vehicle_list()->get_vehicles()["DOT-508"]._cur_speed / 0.02);
 }
 
 TEST(signal_opt_messages_worker, request_intersection_info)
@@ -53,8 +53,10 @@ TEST(signal_opt_messages_worker, request_intersection_info)
 TEST(signal_opt_messages_worker, update_spat)
 {
     signal_opt_service::signal_opt_messages_worker so_msgs_worker;
-    std::string spat_payload = "";
-    ASSERT_FALSE(so_msgs_worker.update_spat(spat_payload));
+    std::string spat_payload = "{\"timestamp\":0,\"name\":\"\",\"intersection_state_list\":[{\"name\":\"WestIntersection\",\"id\":1909,\"message_count\":12332,\"status\":\"3e21f0923e21f092\",\"minute_of_the_year\":34232,\"second\":13,\"enabled_lane_list\":[1,3,5],\"states\":[{\"movement_name\":\"RightTurn\",\"signal_group_id\":4,\"movement_event_list\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"vehicle_class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    ASSERT_TRUE(so_msgs_worker.update_spat(spat_payload));
+    ASSERT_EQ(1909, so_msgs_worker.get_latest_spat()->intersection_state_list.front().id);
+    ASSERT_EQ("WestIntersection", so_msgs_worker.get_latest_spat()->intersection_state_list.front().name);
 }
 
 TEST(signal_opt_messages_worker, get_intersection_info)
@@ -76,4 +78,7 @@ TEST(signal_opt_messages_worker, get_vehicle_list)
 TEST(signal_opt_messages_worker, get_latest_spat)
 {
     signal_opt_service::signal_opt_messages_worker so_msgs_worker;
+    auto spat_ptr = so_msgs_worker.get_latest_spat();
+    ASSERT_TRUE(spat_ptr != nullptr);
+    ASSERT_EQ(0, spat_ptr->intersection_state_list.size());
 }

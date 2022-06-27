@@ -72,6 +72,14 @@ RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAG
 RUN make
 RUN make install
 
+RUN echo " ------> Install streets_signal_phase_and_timing library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing/build
+RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients

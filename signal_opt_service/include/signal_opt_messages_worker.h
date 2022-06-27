@@ -15,6 +15,7 @@
 #include "intersection_client_api_lib/OAIIntersection_info.h"
 #include "vehicle_list.h"
 #include "signalized_status_intent_processor.h"
+#include "spat.h"
 
 namespace signal_opt_service
 {
@@ -22,7 +23,7 @@ namespace signal_opt_service
     {
     private:
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
-        // ToDo: streets SPAT
+        std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
 
     public:
@@ -58,15 +59,18 @@ namespace signal_opt_service
         bool request_intersection_info();
         /**
          * @brief Get the const intersection info pointer which does not allow caller to update the intersection info
-         * @return ** const pointer to the OpenAPI::OAIIntersection_info
+         * @return A constant intersection info pointer to prevent any update
          */
         const std::shared_ptr<OpenAPI::OAIIntersection_info>& get_intersection_info() const;
         /**
          * @brief Get the const vehicle list pointer which does not allow caller to update the vehicle list
-         * @return ** const pointer to the streets_vehicles::vehicle_list
+         * @return A constant vehicle list pointer to prevent any update
          */
         const std::shared_ptr<streets_vehicles::vehicle_list>& get_vehicle_list() const;
-        
-        // ToDo get spat
+        /**
+         * @brief Get the latest spat object pointer
+         * @return A constant spat pointer to prevent any update
+         */
+        const std::shared_ptr<signal_phase_and_timing::spat>& get_latest_spat() const;
     };
 }

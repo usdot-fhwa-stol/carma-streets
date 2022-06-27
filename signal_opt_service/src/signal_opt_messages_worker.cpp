@@ -12,6 +12,7 @@ namespace signal_opt_service
         this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
         this->vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
         this->vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+        this->spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
     }
 
     bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json) const
@@ -26,6 +27,18 @@ namespace signal_opt_service
 
     bool signal_opt_messages_worker::update_spat(const std::string &spat_json)
     {
+        if (this->spat_ptr)
+        {
+            rapidjson::Document doc;
+            doc.Parse(spat_json.c_str());
+            if (doc.HasParseError())
+            {
+                SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
+            };
+            this->spat_ptr->fromJson(doc);
+            return true;
+        }
+
         return false;
     }
 
@@ -74,5 +87,10 @@ namespace signal_opt_service
     const std::shared_ptr<streets_vehicles::vehicle_list> &signal_opt_messages_worker::get_vehicle_list() const
     {
         return this->vehicle_list_ptr;
+    }
+
+    const std::shared_ptr<signal_phase_and_timing::spat> &signal_opt_messages_worker::get_latest_spat() const
+    {
+        return this->spat_ptr;
     }
 }
