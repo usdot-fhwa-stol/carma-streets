@@ -7,7 +7,7 @@ namespace signal_phase_and_timing {
         rapidjson::Value manuever(rapidjson::kObjectType);
         if ( connection_id == 0 ) {
             // REQUIRED see J2735 ConnectionManeuverAssist Definition
-            throw new signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!"); 
+            throw signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!"); 
         }
         manuever.AddMember("connection_id", connection_id, allocator);
         manuever.AddMember("queue_length", queue_length, allocator);
@@ -24,7 +24,7 @@ namespace signal_phase_and_timing {
                 connection_id =  val["connection_id"].GetInt();
             }
             else {
-               throw new signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!");
+               throw signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!");
             }
             if ( val.FindMember("queue_length")->value.IsInt() ) {
                 // OPTIONAL see J2735 ConnectionManeuverAssist Definition

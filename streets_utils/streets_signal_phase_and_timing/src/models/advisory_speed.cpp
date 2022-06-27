@@ -22,7 +22,7 @@ namespace signal_phase_and_timing
                 type =  static_cast<advisory_speed_type>(val["type"].GetInt());
             }
             else {
-               throw new signal_phase_and_timing_exception("AdvisorySpeed is missing required type property!");
+               throw signal_phase_and_timing_exception("AdvisorySpeed is missing required type property!");
             }
             if ( val.FindMember("speed_limit")->value.IsInt() ){
                 // OPTIONAL see J2735 AdvisorySpeed definition

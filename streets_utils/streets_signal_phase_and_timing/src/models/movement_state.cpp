@@ -36,7 +36,7 @@ namespace signal_phase_and_timing {
                 signal_group_id = val["signal_group_id"].GetInt();
             }
             else {
-               throw new signal_phase_and_timing_exception("MovementState is missing required signal_group_id property!");
+               throw signal_phase_and_timing_exception("MovementState is missing required signal_group_id property!");
             }
             if ( val.FindMember("movement_event_list")->value.IsArray() ) {
                 // REQUIRED in J2735 MovementState definition 
@@ -48,7 +48,7 @@ namespace signal_phase_and_timing {
                 }
             } 
             else {
-               throw new signal_phase_and_timing_exception("MovementState is missing required movement_event_list property!");
+               throw signal_phase_and_timing_exception("MovementState is missing required movement_event_list property!");
             }
             if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
                 // OPTIONAL see J2735 MovementState definition

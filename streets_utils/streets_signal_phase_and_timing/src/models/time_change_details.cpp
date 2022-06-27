@@ -6,7 +6,14 @@ namespace signal_phase_and_timing {
         // Create time change detail JSON value
         rapidjson::Value detail(rapidjson::kObjectType);
         // Populate
+        // OPTIONAL see J2735 TimeChangeDetails definition but required for CARMA Streets future phase information
+        if ( start_time == 0 ) {
+           throw signal_phase_and_timing_exception("TimeChangeDetails is missing required start_time property!"); 
+        }
         detail.AddMember("start_time", start_time,allocator);
+        if (min_end_time == 0 ) {
+            throw signal_phase_and_timing_exception("TimeChangeDetails is missing required min_end_time property!");
+        }
         detail.AddMember("min_end_time", min_end_time,allocator);
         detail.AddMember("max_end_time",max_end_time,allocator);
         detail.AddMember("likely_time", likely_time, allocator);
@@ -21,14 +28,14 @@ namespace signal_phase_and_timing {
                 start_time =  val["start_time"].GetUint64();
             }
             else {
-               throw new signal_phase_and_timing_exception("TimeChangeDetails is missing required connection_id property!");
+               throw signal_phase_and_timing_exception("TimeChangeDetails is missing required start_time property!");
             }
             if (val.FindMember("min_end_time")->value.IsUint64() ) {
                 // REQUIRED see J2735 TimeChangeDetails definition 
                 min_end_time = val["min_end_time"].GetUint64();
             }
             else {
-               throw new signal_phase_and_timing_exception("TimeChangeDetails is missing required connection_id property!");
+               throw signal_phase_and_timing_exception("TimeChangeDetails is missing required min_end_time property!");
             }
             if (val.FindMember("max_end_time")->value.IsUint64() ) {
                 // OPTIONAL see J2735 TimeChangeDetails definition 

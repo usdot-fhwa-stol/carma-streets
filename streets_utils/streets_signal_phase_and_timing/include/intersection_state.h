@@ -24,9 +24,9 @@ namespace signal_phase_and_timing
          * unique mapping to the intersection MAP in question which provides complete location and approach/move/lane
          * data
          */
-        int id;
+        int id = 0;
 
-        int message_count;
+        int message_count = 0;
 
         /**
          * @brief BIT String of IntersectionStatusObject:

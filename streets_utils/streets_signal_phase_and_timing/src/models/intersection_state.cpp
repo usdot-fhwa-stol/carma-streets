@@ -10,18 +10,18 @@ namespace signal_phase_and_timing {
         state.AddMember("name", name, allocator);
         // REQUIRED see J2735 IntersectionState definition
         if (id == 0 ) {
-            throw new signal_phase_and_timing_exception("IntersectionState is missing required id property!");  
+            throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");  
         }
         state.AddMember("id", id, allocator);
         // REQUIRED see J2735 IntersectionState definition
         if ( message_count ==  0) {
-            throw new signal_phase_and_timing_exception("IntersectionState is missing required message_count property!");
+            throw signal_phase_and_timing_exception("IntersectionState is missing required message_count property!");
         }
         state.AddMember("message_count", message_count, allocator);
         // REQUIRED see J2735 IntersectionState definition
         state.AddMember("status", status, allocator);
         if ( status.empty() ) {
-            throw new signal_phase_and_timing_exception("IntersectionState is missing required status property!");  
+            throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");  
         }
         // OPTIONAL see J2735 IntersectionState definition
         state.AddMember("minute_of_the_year", minute_of_the_year, allocator);
@@ -44,7 +44,7 @@ namespace signal_phase_and_timing {
             state.AddMember("states", states_list, allocator);
         }
         else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required states property!");
+               throw signal_phase_and_timing_exception("IntersectionState is missing required states property!");
         }
         // OPTIONAL see J2735 IntersectionState definition
         if ( !maneuver_assist_list.empty() ) {
@@ -69,21 +69,21 @@ namespace signal_phase_and_timing {
                 id =  val["id"].GetInt();
             }
             else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required id property!");
+               throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");
             }
             if ( val.FindMember("message_count")->value.IsInt()) {
                 // REQUIRED see J2735 IntersectionState definition
                 message_count =  val["message_count"].GetInt();
             }
             else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required message_count property!");
+               throw signal_phase_and_timing_exception("IntersectionState is missing required message_count property!");
             }
             if ( val.FindMember("status")->value.IsString()) {
                 // REQUIRED see J2735 IntersectionState definition
                 status =  val["status"].GetString();
             }
             else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required status property!");
+               throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");
             }
             if ( val.FindMember("minute_of_the_year")->value.IsUint64()) {
                 // OPTIONAL see J2735 IntersectionState definition
@@ -94,7 +94,7 @@ namespace signal_phase_and_timing {
                 second =  val["second"].GetUint();
             }
             else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required second property!");
+               throw signal_phase_and_timing_exception("IntersectionState is missing required second property!");
             }
             if ( val.FindMember("enabled_lane_list")->value.IsArray() ) {
                 // OPTIONAL see J2735 IntersectionState definition
@@ -113,7 +113,7 @@ namespace signal_phase_and_timing {
                 }
             }
             else {
-               throw new signal_phase_and_timing_exception("IntersectionState is missing required states property!");
+               throw signal_phase_and_timing_exception("IntersectionState is missing required states property!");
             }
             if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
                 // OPTIONAL see J2735 IntersectionState definition
