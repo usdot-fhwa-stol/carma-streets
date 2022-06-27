@@ -22,7 +22,7 @@
         },
         {
             "name": "vsi_consumer_topic",
-            "value": "streets_vsi_msg_in",
+            "value": "vehicle_status_intent_output",
             "description": "Kafka topic for vehicle status and intent messages",
             "type": "STRING"
         },
@@ -34,7 +34,7 @@
         },
         {
             "name": "sleep_millisecs",
-            "value": "2000",
+            "value": "5000",
             "description": "Current thread sleep for milliseconds",
             "type": "STRING"
         },

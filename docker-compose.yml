@@ -18,7 +18,7 @@ services:
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
-      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,tsc_spat_msg_in:1:1,streets_vsi_msg_in:1:1"
+      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,tsc_spat_msg_in:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LOG_RETENTION_HOURS: 24
     volumes:
@@ -133,10 +133,43 @@ services:
     container_name: intersection_model
     restart: always
     network_mode: host
+    depends_on:
+      - kafka
+    environment:
+      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      WAIT_HOSTS: localhost:8080
+      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_SLEEP_INTERVAL: 30
+      WAIT_HOST_CONNECT_TIMEOUT: 30
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
       - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
       - ./intersection_model/logs/:/home/carma-streets/intersection_model/logs/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+  signal_opt_service:
+    image: usdotfhwastoldev/signal_opt_service:develop
+    command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
+    build: 
+      context: .
+      dockerfile: signal_opt_service/Dockerfile
+    container_name: signal_opt_service
+    restart: always
+    network_mode: host
+    depends_on:
+      - kafka
+      - intersection_model
+      - message_services
+      - scheduling_service    
+    environment:
+      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      WAIT_HOSTS: localhost:8080
+      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_SLEEP_INTERVAL: 30
+      WAIT_HOST_CONNECT_TIMEOUT: 30
+    volumes: 
+      - ./signal_opt_service/manifest.json:/home/carma-streets/signal_opt_service/manifest.json
+      - ./signal_opt_service/logs/:/home/carma-streets/signal_opt_service/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 secrets:

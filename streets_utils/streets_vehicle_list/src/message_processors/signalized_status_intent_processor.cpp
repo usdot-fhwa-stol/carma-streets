@@ -1,4 +1,3 @@
-
 #include "signalized_status_intent_processor.h"
 
 namespace streets_vehicles
@@ -20,18 +19,20 @@ namespace streets_vehicles
                                 vehicle._entry_lane_id, vehicle._cur_lane_id);
             }
         }
-        else if (vehicle._cur_state == vehicle_state::EV && vehicle._access)
+        // If vehicle is currently entering vehicle, but not located in entry lane
+        else if (vehicle._cur_state == vehicle_state::EV)
         {
-            if (vehicle._cur_lane_id != vehicle._link_id)
+            if (vehicle._cur_lane_id != vehicle._entry_lane_id)
             {
-                SPDLOG_CRITICAL("Departing vehicle with RDV (Ready to Depart Vehicle) VEHICLE STATE is NOT in entry lane {0} != {1}",
-                                vehicle._link_id, vehicle._cur_lane_id);
+                vehicle._cur_state = vehicle_state::DV;
+                vehicle._actual_et = vehicle._cur_time;
+                SPDLOG_DEBUG("Vehicle {0} state is updated from EV to DV.", vehicle._id);                
+            }else{
+                SPDLOG_CRITICAL("Departing vehicle with DV (Depart Vehicle) VEHICLE STATE is in entry lane {0} == current lane {1}",
+                                vehicle._entry_lane_id, vehicle._cur_lane_id);
             }
-            vehicle._cur_state = vehicle_state::DV;
-            vehicle._actual_et = vehicle._cur_time;
-            SPDLOG_DEBUG("Vehicle {0} state is updated from RDV to DV.", vehicle._id);
         }
-        else if (vehicle._cur_lane_id == vehicle._exit_lane_id && vehicle._cur_state == vehicle_state::DV)
+        else if (vehicle._cur_state == vehicle_state::DV && vehicle._cur_lane_id == vehicle._exit_lane_id)
         {
             vehicle._cur_state = vehicle_state::LV;
             vehicle._actual_dt = vehicle._cur_time;
