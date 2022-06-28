@@ -78,7 +78,10 @@ TEST(spat_to_json, to_from_json_test) {
     ASSERT_EQ(json_spat, spat_message);
 
 }
-
+/**
+ * @brief Test fromJson method with optional fields
+ * 
+ */
 TEST (spat_to_json, sample_string_read ) {
     spat spat_message;
     std::string json = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"revision\":123,\"status\":\"01001001001\",\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
@@ -88,6 +91,67 @@ TEST (spat_to_json, sample_string_read ) {
     intersection_state intersection = spat_message.intersections.front();
     ASSERT_EQ(intersection.id, 1909);
     ASSERT_EQ(intersection.status, "01001001001");
+    ASSERT_EQ(intersection.revision,123);
+    ASSERT_EQ(intersection.maneuver_assist_list.size(), 1);
+    ASSERT_EQ( intersection.moy, 34232);
+    ASSERT_EQ(intersection.time_stamp,130);
+    ASSERT_EQ(intersection.states.size(),1);
+}
+
+/**
+ * @brief Test fromJson method with missing optional string fields
+ * 
+ */
+TEST (spat_to_json, sample_string_read_without_name ) {
+    spat spat_message;
+    std::string json = "{\"timestamp\":0,\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"revision\":123,\"status\":\"01001001001\",\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    spat_message.fromJson(json);
+    ASSERT_TRUE(spat_message.name.empty());
+    ASSERT_EQ(spat_message.intersections.size(), 1);
+    intersection_state intersection = spat_message.intersections.front();
+    ASSERT_EQ(intersection.id, 1909);
+    ASSERT_EQ(intersection.status, "01001001001");
+    ASSERT_EQ(intersection.revision,123);
+    ASSERT_EQ(intersection.maneuver_assist_list.size(), 1);
+    ASSERT_EQ( intersection.moy, 34232);
+    ASSERT_EQ(intersection.time_stamp,130);
+    ASSERT_EQ(intersection.states.size(),1);
+}
+
+/**
+ * @brief Test fromJson method with missing required integer fields
+ * 
+ */
+TEST (spat_to_json, sample_string_read_without_revision ) {
+    spat spat_message;
+    std::string json = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":\"01001001001\",\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    ASSERT_THROW(spat_message.fromJson(json), signal_phase_and_timing_exception);;
+}
+
+/**
+ * @brief Test fromJson method with missing optional integer fields
+ * 
+ */
+TEST (spat_to_json, sample_string_read_optional_timemarks ) {
+    spat spat_message;
+    std::string json = "{\"timestamp\":0,\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"revision\":123,\"status\":\"01001001001\",\"moy\":34232,\"time_stamp\":130,\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":1000},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    spat_message.fromJson(json);
+    ASSERT_TRUE(spat_message.name.empty());
+    ASSERT_EQ(spat_message.intersections.size(), 1);
+    intersection_state intersection = spat_message.intersections.front();
+    ASSERT_EQ(intersection.id, 1909);
+    ASSERT_EQ(intersection.status, "01001001001");
+    ASSERT_EQ(intersection.revision,123);
+    ASSERT_EQ(intersection.maneuver_assist_list.size(), 1);
+    ASSERT_EQ( intersection.moy, 34232);
+    ASSERT_EQ(intersection.time_stamp,130);
+    ASSERT_EQ(intersection.states.size(),1);
+    movement_state move_state =  intersection.states.front();
+    ASSERT_EQ( move_state.state_time_speed.size(),1 );
+    ASSERT_EQ( move_state.state_time_speed.front().timing.max_end_time, 36001);
+    ASSERT_EQ( move_state.state_time_speed.front().timing.start_time, 0);
+    ASSERT_EQ( move_state.state_time_speed.front().timing.min_end_time, 1000);
+
 
 }
 

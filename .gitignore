@@ -7,6 +7,7 @@ scheduling_service/build/
 streets_utils/streets_service_base/build/
 streets_utils/streets_vehicle_list/build/
 streets_utils/streets_vehicle_scheduler/build/
+streets_utils/streets_signal_phase_and_timing/build/
 streets_utils/streets_api/intersection_client_api/build/
 intersection_model/build
 tsc_client_service/build
