@@ -61,8 +61,21 @@ namespace signal_phase_and_timing {
          */
         void fromJson(const rapidjson::Value &val);
 
+        /**
+         * @brief Equals operator to asses whether two objects contain equivalent data.
+         * 
+         * @param compare second object to compare current object with.
+         * @return true if both object contain equivalent data.
+         * @return false if not.
+         */
         bool operator==(const connection_maneuver_assist &other) const;
-
+         /**
+         * @brief Returns the inverse of equals operator.
+         * 
+         * @param other second object to compare current object with.
+         * @return true if both objects do not contain equivalent data.
+         * @return false if both objects do contain equivalent data.
+         */
         bool operator!=(const connection_maneuver_assist &other) const;
 
     };

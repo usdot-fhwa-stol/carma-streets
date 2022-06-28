@@ -24,7 +24,7 @@ namespace signal_phase_and_timing
          * unique mapping to the intersection MAP in question which provides complete location and approach/move/lane
          * data
          */
-        int id = 0;
+        uint16_t id = 0;
 
         int message_count = 0;
 
@@ -71,15 +71,13 @@ namespace signal_phase_and_timing
          */
         std::string status;
         /**
-         * @brief Minute of current UTC year
+         * @brief Minute of current UTC year.
          */
-        uint64_t minute_of_the_year = 0;
+        uint32_t minute_of_the_year = 0;
         /**
-        *  @brief LSB units of of 10 mSec, 
-        * with a range of 0.01 seconds to 10 minutes and 55.34 seconds
-        * a value of 65534 to be used for 655.34 seconds or greater
+        *  @brief Millisecond point in the current UTC minute that this message was created
         **/
-        uint8_t second = 0;
+        uint16_t second = 0;
         /**
          * @brief A list of unique lane ID for each lane object which is active. Refers to dynamic MAP contents.
          */
@@ -101,9 +99,21 @@ namespace signal_phase_and_timing
          * @param val Intersection State JSON.
          */
         void fromJson(const rapidjson::Value &val);
-
+        /**
+         * @brief Equals operator to asses whether two objects contain equivalent data.
+         * 
+         * @param compare second object to compare current object with.
+         * @return true if both object contain equivalent data.
+         * @return false if not.
+         */
         bool operator==(const intersection_state &other) const;
-
+         /**
+         * @brief Returns the inverse of equals operator.
+         * 
+         * @param other second object to compare current object with.
+         * @return true if both objects do not contain equivalent data.
+         * @return false if both objects do contain equivalent data.
+         */
         bool operator!=(const intersection_state &other) const;
 
     };

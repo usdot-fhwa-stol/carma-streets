@@ -19,13 +19,19 @@ namespace signal_phase_and_timing {
         }
         state.AddMember("message_count", message_count, allocator);
         // REQUIRED see J2735 IntersectionState definition
-        state.AddMember("status", status, allocator);
         if ( status.empty() ) {
             throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");  
         }
-        // OPTIONAL see J2735 IntersectionState definition
+        state.AddMember("status", status, allocator);
+        if ( minute_of_the_year == 0 ) {
+            throw signal_phase_and_timing_exception("IntersectionState is missing required minute_of_the_year property!");
+        }
+        // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
         state.AddMember("minute_of_the_year", minute_of_the_year, allocator);
-        // OPTIONAL see J2735 IntersectionState definition
+        // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
+        if ( second == 0 ) {
+            throw signal_phase_and_timing_exception("IntersectionState is missing required second property!");
+        }
         state.AddMember("second", second, allocator);
         // OPTIONAL see J2735 IntersectionState definition
         if ( !enabled_lane_list.empty() ) {
@@ -64,9 +70,9 @@ namespace signal_phase_and_timing {
                 // OPTIONAL see J2735 IntersectionState definition
                 name =  val["name"].GetString();
             } 
-            if ( val.FindMember("id")->value.IsInt()) {
+            if ( val.FindMember("id")->value.IsUint()) {
                 // REQUIRED see J2735 IntersectionState definition
-                id =  val["id"].GetInt();
+                id =  val["id"].GetUint();
             }
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");
@@ -86,11 +92,14 @@ namespace signal_phase_and_timing {
                throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");
             }
             if ( val.FindMember("minute_of_the_year")->value.IsUint64()) {
-                // OPTIONAL see J2735 IntersectionState definition
+                // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
                 minute_of_the_year =  val["minute_of_the_year"].GetUint64();
             }
+            else {
+               throw signal_phase_and_timing_exception("IntersectionState is missing required minute_of_the_year property!");
+            }
             if ( val.FindMember("second")->value.IsUint()) {
-                // OPTIONAL see J2735 IntersectionState definition
+                // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
                 second =  val["second"].GetUint();
             }
             else {

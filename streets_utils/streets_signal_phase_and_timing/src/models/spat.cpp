@@ -8,9 +8,6 @@ namespace signal_phase_and_timing{
         rapidjson::Value spat(rapidjson::kObjectType);
         
         // Populate SPat JSON
-        if ( timestamp == 0 ) {
-            throw signal_phase_and_timing_exception("SPaT message is missing required timestamp property!");
-        }
         spat.AddMember("timestamp", timestamp, allocator);
         spat.AddMember( "name", name, allocator);
         if ( !intersection_state_list.empty() ) {
@@ -28,11 +25,9 @@ namespace signal_phase_and_timing{
     void spat::fromJson(const rapidjson::Value &val ) {
         if ( val.IsObject() ) {
             if (val.FindMember("timestamp")->value.IsUint64()) {
-                timestamp =  val["timestamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition but required for CARMA-Streets
+                timestamp =  val["timestamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
             } 
-            else {
-               throw signal_phase_and_timing_exception("SPaT message is missing required timestamp property!");
-            }
+            
             if (val.FindMember("name")->value.IsString() ) {
                 name = val["name"].GetString();  // OPTIONAL see J2735 SPaT definition
             }
