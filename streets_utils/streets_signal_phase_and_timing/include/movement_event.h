@@ -1,5 +1,5 @@
 #pragma once
-#define RAPIDJSON_HAS_STDSTRING 1
+
 
 #include "time_change_details.h"
 #include "advisory_speed.h"

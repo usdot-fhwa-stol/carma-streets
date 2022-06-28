@@ -1,5 +1,4 @@
 #pragma once
-#define RAPIDJSON_HAS_STDSTRING 1
 
 #include "movement_state.h"
 #include "connection_maneuver_assist.h"
@@ -26,7 +25,7 @@ namespace signal_phase_and_timing
          */
         uint16_t id = 0;
 
-        int message_count = 0;
+        uint8_t revision = 0;
 
         /**
          * @brief BIT String of IntersectionStatusObject:
@@ -73,17 +72,17 @@ namespace signal_phase_and_timing
         /**
          * @brief Minute of current UTC year.
          */
-        uint32_t minute_of_the_year = 0;
+        uint32_t moy = 0;
         /**
         *  @brief Millisecond point in the current UTC minute that this message was created
         **/
-        uint16_t second = 0;
+        uint16_t time_stamp = 0;
         /**
          * @brief A list of unique lane ID for each lane object which is active. Refers to dynamic MAP contents.
          */
-        std::list<int> enabled_lane_list;
+        std::list<int> enabled_lanes;
 
-        std::list<movement_state> movement_states;
+        std::list<movement_state> states;
 
         std::list<connection_maneuver_assist> maneuver_assist_list;
 

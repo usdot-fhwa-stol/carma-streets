@@ -1,6 +1,7 @@
 #pragma once
 #define RAPIDJSON_HAS_STDSTRING 1
 
+
 #include "signal_phase_and_timing_exception.h"
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
@@ -60,7 +61,7 @@ namespace signal_phase_and_timing{
          * @brief Expressed in 0.1 m/s. This element is optional ONLY when superceded by the presence of a regional speed element 
          * found in Reg-AdvisorySpeed entry.
          */
-        uint16_t speed_limit = 0;
+        uint16_t speed = 0;
         /**
          * @brief A confidence value for the above speed.
          */

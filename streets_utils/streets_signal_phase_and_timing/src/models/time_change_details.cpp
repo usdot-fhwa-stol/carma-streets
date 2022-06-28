@@ -47,7 +47,7 @@ namespace signal_phase_and_timing {
             }
             if (val.FindMember("confidence")->value.IsUint() ) {
                 // OPTIONAL see J2735 TimeChangeDetails definition 
-                confidence = val["confidence"].GetUint();
+                confidence = static_cast<uint8_t>(val["confidence"].GetUint());
             }
         }
     }

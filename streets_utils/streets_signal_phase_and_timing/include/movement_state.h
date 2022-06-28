@@ -1,5 +1,5 @@
 #pragma once
-#define RAPIDJSON_HAS_STDSTRING 1
+
 
 #include "movement_event.h"
 #include "connection_maneuver_assist.h"
@@ -21,7 +21,7 @@ namespace signal_phase_and_timing{
          * @brief The group id is used to map to list of lanes (and their descriptions) which this
          * MovementState data applies to.
          */
-        uint8_t signal_group_id = 0;
+        uint8_t signal_group = 0;
         /**
          * @brief Consisting of sets of movement data with:
          *  SignalPhaseState
@@ -30,7 +30,7 @@ namespace signal_phase_and_timing{
          * Note one or more of the movement events may be for a future time and that this allows conveying
          * multiple predictive phase and movement timing for various uses for the current signal group.
          */
-        std::list<movement_event> movement_event_list;
+        std::list<movement_event> state_time_speed;
         /**
          * @brief This information may also be placed in the IntersectionState when common information applies
          * to different lanes in the same way.

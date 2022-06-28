@@ -6,13 +6,13 @@ namespace signal_phase_and_timing {
         rapidjson::Value move_state(rapidjson::kObjectType);
         // Populate
         move_state.AddMember( "movement_name", movement_name, allocator);
-        move_state.AddMember( "signal_group_id", signal_group_id, allocator );
-        if ( !movement_event_list.empty() ) {
+        move_state.AddMember( "signal_group", signal_group, allocator );
+        if ( !state_time_speed.empty() ) {
             rapidjson::Value event_list(rapidjson::kArrayType);
-            for (const auto &event: movement_event_list ) {
+            for (const auto &event: state_time_speed ) {
                 event_list.PushBack( event.toJson(allocator), allocator);
             } 
-            move_state.AddMember("movement_event_list", event_list, allocator);
+            move_state.AddMember("state_time_speed", event_list, allocator);
 
         }
         if ( !maneuver_assist_list.empty() ) {
@@ -31,24 +31,24 @@ namespace signal_phase_and_timing {
                 // OPTIONAL see J2735 MovementState definition
                 movement_name =  val["movement_name"].GetString();
             }
-            if ( val.FindMember("signal_group_id")->value.IsInt() ) {
+            if ( val.FindMember("signal_group")->value.IsUint() ) {
                 // REQUIRED see J2735 MovementState definition
-                signal_group_id = val["signal_group_id"].GetInt();
+                signal_group = static_cast<uint8_t>(val["signal_group"].GetUint());
             }
             else {
-               throw signal_phase_and_timing_exception("MovementState is missing required signal_group_id property!");
+               throw signal_phase_and_timing_exception("MovementState is missing required signal_group property!");
             }
-            if ( val.FindMember("movement_event_list")->value.IsArray() ) {
+            if ( val.FindMember("state_time_speed")->value.IsArray() ) {
                 // REQUIRED in J2735 MovementState definition 
-                movement_event_list.clear();
-                for (const auto &move_event: val["movement_event_list"].GetArray() ) {
+                state_time_speed.clear();
+                for (const auto &move_event: val["state_time_speed"].GetArray() ) {
                     movement_event event;
                     event.fromJson( move_event );
-                    movement_event_list.push_back(event);
+                    state_time_speed.push_back(event);
                 }
             } 
             else {
-               throw signal_phase_and_timing_exception("MovementState is missing required movement_event_list property!");
+               throw signal_phase_and_timing_exception("MovementState is missing required state_time_speed property!");
             }
             if ( val.FindMember("maneuver_assist_list")->value.IsArray() ) {
                 // OPTIONAL see J2735 MovementState definition
@@ -63,8 +63,8 @@ namespace signal_phase_and_timing {
     }
 
     bool movement_state::operator==(const movement_state &other) const{
-        return movement_name == other.movement_name && signal_group_id == other.signal_group_id 
-                && movement_event_list == other.movement_event_list && maneuver_assist_list == other.maneuver_assist_list;
+        return movement_name == other.movement_name && signal_group == other.signal_group 
+                && state_time_speed == other.state_time_speed && maneuver_assist_list == other.maneuver_assist_list;
     }
 
     bool movement_state::operator!=(const movement_state &other) const{

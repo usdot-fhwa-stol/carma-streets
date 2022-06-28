@@ -16,9 +16,9 @@ TEST(spat_to_json, to_from_json_test) {
     spat_message.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     intersection_state state;
     // Enabled lane list
-    state.enabled_lane_list.push_back(1);
-    state.enabled_lane_list.push_back(3);
-    state.enabled_lane_list.push_back(5);
+    state.enabled_lanes.push_back(1);
+    state.enabled_lanes.push_back(3);
+    state.enabled_lanes.push_back(5);
 
     // Set intersection id
     state.id = 1909;
@@ -32,11 +32,11 @@ TEST(spat_to_json, to_from_json_test) {
     // Add manuever
     state.maneuver_assist_list.push_back(manuever);
     // Add message count
-    state.message_count = 12332;
+    state.revision = 123;
     // Add minute of the year
-    state.minute_of_the_year = 34232;
+    state.moy = 34232;
     // Add second of the minute
-    state.second =  13;
+    state.time_stamp =  13;
     // Add name
     state.name = "West Intersection";
     // Add status
@@ -45,7 +45,7 @@ TEST(spat_to_json, to_from_json_test) {
     movement_state move_state;
     move_state.maneuver_assist_list.push_back(manuever);
     move_state.movement_name = "Right Turn";
-    move_state.signal_group_id = 4;
+    move_state.signal_group = 4;
 
     // Add movement event
     movement_event event;
@@ -56,15 +56,15 @@ TEST(spat_to_json, to_from_json_test) {
     advisory_speed speed;
     speed.confidence = speed_confidence::pre100ms;
     speed.distance = 5;
-    speed.speed_limit = 4;
+    speed.speed = 4;
     speed.veh_class= 5;
     event.speeds.push_back(speed);
     // Add Movement Event to event list
-    move_state.movement_event_list.push_back(event);
+    move_state.state_time_speed.push_back(event);
     // Add MovementState to states list in IntersectionState
-    state.movement_states.push_back(move_state);
+    state.states.push_back(move_state);
     // Add IntersectionState to SPat
-    spat_message.intersection_state_list.push_front(state);
+    spat_message.intersections.push_front(state);
 
     std::string msg_to_send = spat_message.toJson();
     SPDLOG_INFO("SPaT Json {0}", msg_to_send);
@@ -98,7 +98,7 @@ TEST(spat_to_json, missing_intersection_id)  {
     spat spat_message;
     spat_message.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     intersection_state state;
-    spat_message.intersection_state_list.push_back(state);
+    spat_message.intersections.push_back(state);
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -114,7 +114,7 @@ TEST(spat_to_json, missing_message_count)  {
     spat_message.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     intersection_state state;
     state.id=1902;
-    spat_message.intersection_state_list.push_back(state);
+    spat_message.intersections.push_back(state);
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -130,8 +130,8 @@ TEST(spat_to_json, missing_intersection_status)  {
     spat_message.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     intersection_state state;
     state.id=1902;
-    state.message_count = 202;
-    spat_message.intersection_state_list.push_back(state);
+    state.revision = 202;
+    spat_message.intersections.push_back(state);
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -149,11 +149,11 @@ TEST(spat_to_json, missing_movement_event_list)  {
     // Add intersection id 
     state.id=1902;
     // Add message count
-    state.message_count = 202;
+    state.revision = 202;
     // Add status
     state.status = "3e21f0923e21f092";
     // Add state
-    spat_message.intersection_state_list.push_back(state);
+    spat_message.intersections.push_back(state);
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -170,17 +170,14 @@ TEST(spat_to_json, missing_movement_state_signal_group_id)  {
     // Add intersection id 
     state.id=1902;
     // Add message count
-    state.message_count = 202;
+    state.revision = 202;
     // Add status
     state.status = "3e21f0923e21f092";
     // Add Movement state
     movement_state movement_state;
-
-    state.movement_states.push_back(movement_state);
-
+    state.states.push_back(movement_state);
     // Add state
-    spat_message.intersection_state_list.push_back(state);
-
+    spat_message.intersections.push_back(state);
     // Write JSON Value to string
     rapidjson::Document doc;
     ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);

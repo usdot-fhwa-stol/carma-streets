@@ -26,13 +26,13 @@ namespace signal_phase_and_timing {
             else {
                throw signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!");
             }
-            if ( val.FindMember("queue_length")->value.IsInt() ) {
+            if ( val.FindMember("queue_length")->value.IsUint() ) {
                 // OPTIONAL see J2735 ConnectionManeuverAssist Definition
-                queue_length =  val["queue_length"].GetInt();
+                queue_length =  static_cast<uint16_t>(val["queue_length"].GetUint());
             }
-            if ( val.FindMember("available_storage_length")->value.IsInt() ) {
+            if ( val.FindMember("available_storage_length")->value.IsUint() ) {
                 // OPTIONAL see J2735 ConnectionManeuverAssist Definition
-                available_storage_length =  val["available_storage_length"].GetInt();
+                available_storage_length =  static_cast<uint16_t>(val["available_storage_length"].GetUint());
             }
             if ( val.FindMember("wait_on_stop")->value.IsBool() ) {
                 // OPTIONAL see J2735 ConnectionManeuverAssist Definition

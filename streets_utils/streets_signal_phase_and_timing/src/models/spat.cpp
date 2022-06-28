@@ -7,18 +7,17 @@ namespace signal_phase_and_timing{
         auto allocator = doc.GetAllocator();
         // Create SPaT JSON value
         rapidjson::Value spat(rapidjson::kObjectType);
-        
         // Populate SPat JSON
         spat.AddMember("timestamp", timestamp, allocator);
         spat.AddMember( "name", name, allocator);
-        if ( !intersection_state_list.empty() ) {
+        if ( !intersections.empty() ) {
             rapidjson::Value list(rapidjson::kArrayType);
-            for (const auto &state : intersection_state_list ) {
-                list.PushBack(state.toJson(allocator), allocator);
+            for (const auto &intersection : intersections ) {
+                list.PushBack(intersection.toJson(allocator), allocator);
             }
-            spat.AddMember("intersection_state_list", list, allocator);
+            spat.AddMember("intersections", list, allocator);
         }else {
-            throw signal_phase_and_timing_exception("SPaT message is missing required intersection_state_list property!");
+            throw signal_phase_and_timing_exception("SPaT message is missing required intersections property!");
         }
         rapidjson::StringBuffer buffer;
         try {
@@ -44,25 +43,25 @@ namespace signal_phase_and_timing{
         if (doc.FindMember("name")->value.IsString() ) {
             name = doc["name"].GetString();  // OPTIONAL see J2735 SPaT definition
         }
-        if ( doc.FindMember("intersection_state_list")->value.IsArray() ) {
+        if ( doc.FindMember("intersections")->value.IsArray() ) {
             // REQUIRED see J2735 SPaT definition
             // Clear intersection state list in case it is populated.
-            intersection_state_list.clear();
-            for ( const auto &state : doc["intersection_state_list"].GetArray() ){
+            intersections.clear();
+            for ( const auto &intersection : doc["intersections"].GetArray() ){
                 intersection_state cur_state;
-                cur_state.fromJson(state);
-                intersection_state_list.push_back(cur_state);
+                cur_state.fromJson(intersection);
+                intersections.push_back(cur_state);
             }
         }
         else {
-            throw signal_phase_and_timing_exception("SPaT message is missing required intersection_state_list property!");
+            throw signal_phase_and_timing_exception("SPaT message is missing required intersections property!");
         }
             
         
     }
 
     bool spat::operator==(const spat &other) const{
-        return timestamp == other.timestamp && name == other.name && intersection_state_list == other.intersection_state_list;
+        return timestamp == other.timestamp && name == other.name && intersections == other.intersections;
     }
 
     bool spat::operator!=(const spat &other) const{

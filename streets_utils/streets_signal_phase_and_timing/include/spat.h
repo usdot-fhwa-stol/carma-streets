@@ -1,5 +1,4 @@
 #pragma once
-#define RAPIDJSON_HAS_STDSTRING 1
 
 
 #include "intersection_state.h"
@@ -25,7 +24,7 @@ namespace signal_phase_and_timing{
         /**
          * @brief Sets of SPaT data ( one per intersection).
          */
-        std::list<intersection_state> intersection_state_list;
+        std::list<intersection_state> intersections;
         /**
          * @brief Serialize SPaT object to rapidjson::Value for writing as JSON string
          * 
