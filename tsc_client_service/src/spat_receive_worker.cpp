@@ -72,6 +72,9 @@ namespace traffic_signal_controller_service
                 std::string mystr = ss.str();
                 SPDLOG_DEBUG("Buffer contains: {0}", mystr);
 
+            }else {
+                SPDLOG_ERROR("Timeout of {0} has elapsed. Closing SPaT Work UDP Socket" , socketTimeout_);
+                return;
             }       
         }    
     }

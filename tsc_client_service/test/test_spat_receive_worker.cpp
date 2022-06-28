@@ -28,8 +28,19 @@ namespace traffic_signal_controller_service
         SpatWorker spatWorker(tsc_ip_bad, tsc_port, tsc_timeout);
         spatWorker.createSocket();
 
-        // Expect false with wrong tsc ip
-        EXPECT_FALSE(spatWorker.getSocketStatus());
+        
+    }
+
+    TEST(spat_receive_worker, test_create_socket_timeout)
+    {
+        std::string tsc_ip_bad = "127.0.0.1";
+        int tsc_port = 6053;
+        int tsc_timeout = 5;
+
+        SpatWorker spatWorker(tsc_ip_bad, tsc_port, tsc_timeout);
+        spatWorker.createSocket();
+
+        
     }
     
 }
