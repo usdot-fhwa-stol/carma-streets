@@ -72,7 +72,7 @@ namespace scheduling_service{
 	}
 
 
-	bool all_stop_scheduling_service::config_vehicle_list()
+	bool all_stop_scheduling_service::config_vehicle_list() const
     {
 		if (vehicle_list_ptr)
 		{
@@ -92,7 +92,7 @@ namespace scheduling_service{
     }
 
 
-	bool all_stop_scheduling_service::config_scheduler()
+	bool all_stop_scheduling_service::config_scheduler() const
     {
 		if (scheduler_ptr && intersection_info_ptr)
 		{
@@ -109,71 +109,71 @@ namespace scheduling_service{
     }
 
 
-	void all_stop_scheduling_service::consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker, std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr){
+	void all_stop_scheduling_service::consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> _consumer_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const
+	{
 		
-		while (consumer_worker->is_running()) 
+		while (_consumer_worker->is_running()) 
         {
             
-            const std::string payload = consumer_worker->consume(1000);
+            const std::string payload = _consumer_worker->consume(1000);
 
-            if(payload.length() != 0 && vehicle_list_ptr)
+            if(payload.length() != 0 && _vehicle_list_ptr)
             {                
 
-                vehicle_list_ptr->process_update(payload);
+            	_vehicle_list_ptr->process_update(payload);
     
             }
         }
+		_consumer_worker->stop();
 	}
 
 
-	void all_stop_scheduling_service::schedule_veh(std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker, std::shared_ptr<all_stop_scheduling_worker> scheduling_worker, std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler_ptr){
-		
+	void all_stop_scheduling_service::schedule_veh(std::shared_ptr<kafka_clients::kafka_producer_worker> _producer_worker, std::shared_ptr<all_stop_scheduling_worker> _scheduling_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> _scheduler_ptr) const
+	{
 
-		if (this->scheduling_worker)
-		{
-			
-			u_int64_t last_schedule_timestamp = 0;
-			u_int64_t scheduling_delta = u_int64_t(streets_service::streets_configuration::get_double_config("scheduling_delta") * 1000);
-			int sch_count = 0;
-			std::unordered_map<std::string, streets_vehicles::vehicle> veh_map;
-
-			while (true)
-			{
-				if (scheduling_worker->start_next_schedule(last_schedule_timestamp, scheduling_delta))
-				{
-					SPDLOG_INFO("schedule number #{0}", sch_count);      
-					auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
-
-					
-					veh_map = vehicle_list_ptr -> get_vehicles();
-					streets_vehicle_scheduler::intersection_schedule int_schedule = scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
-
-					std::string msg_to_send = scheduling_worker->create_schedule_plan(int_schedule);
-
-					/* produce the scheduling plan to kafka */
-                	producer_worker->send(msg_to_send);
-
-					last_schedule_timestamp = int_schedule.timestamp;
-					sch_count += 1;
-
-					// sleep until next schedule
-					if (std::chrono::system_clock::now() < next_schedule_time_epoch){
-						std::this_thread::sleep_until(next_schedule_time_epoch);
-					}
-				}
-			}
-			producer_worker->stop();
-		}
-		else
+		if (!_scheduling_worker)
 		{
 			SPDLOG_CRITICAL("scheduling worker is not initialized");
 			exit(-1);
 		}
+		
+		u_int64_t last_schedule_timestamp = 0;
+		auto scheduling_delta = u_int64_t(streets_service::streets_configuration::get_double_config("scheduling_delta") * 1000);
+		int sch_count = 0;
+		std::unordered_map<std::string, streets_vehicles::vehicle> veh_map;
+
+		while (true)
+		{
+			if (_scheduling_worker->start_next_schedule(last_schedule_timestamp, scheduling_delta))
+			{
+				SPDLOG_INFO("schedule number #{0}", sch_count);      
+				auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
+
+				
+				veh_map = _vehicle_list_ptr -> get_vehicles();
+				streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, _scheduler_ptr);
+
+				std::string msg_to_send = _scheduling_worker->create_schedule_plan(int_schedule);
+
+				/* produce the scheduling plan to kafka */
+				_producer_worker->send(msg_to_send);
+
+				last_schedule_timestamp = int_schedule.timestamp;
+				sch_count += 1;
+
+				// sleep until next schedule
+				if (std::chrono::system_clock::now() < next_schedule_time_epoch){
+					std::this_thread::sleep_until(next_schedule_time_epoch);
+				}
+			}
+		}
+		_producer_worker->stop();
 
 	}
 
  
-	void all_stop_scheduling_service::configure_csv_logger() {
+	void all_stop_scheduling_service::configure_csv_logger() const
+	{
 		try{
 			auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
 				"csv_logger",  // logger name

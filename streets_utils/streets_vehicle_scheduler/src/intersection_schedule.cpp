@@ -44,7 +44,6 @@ namespace streets_vehicle_scheduler {
         
         rapidjson::Document doc;
         rapidjson::Value json_sched(rapidjson::kArrayType);
-        // auto allocator = doc.GetAllocator();
         for (const auto &veh_sched: vehicle_schedules ) {
             json_sched.PushBack(veh_sched.toJson(allocator),allocator);
         }
@@ -53,7 +52,6 @@ namespace streets_vehicle_scheduler {
 
     rapidjson::Value vehicle_schedule::toJson(rapidjson::Document::AllocatorType& allocator) const {
         rapidjson::Document doc;
-        // auto allocator = doc.GetAllocator();
         rapidjson::Value vehicle_schedule(rapidjson::kObjectType);
         vehicle_schedule.AddMember("v_id", v_id, allocator);
         vehicle_schedule.AddMember("st", st, allocator);

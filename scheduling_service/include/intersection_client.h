@@ -41,7 +41,7 @@ namespace scheduling_service{
 		 * @brief Get the intersection info object
 		 * @return std::shared_ptr<OpenAPI::OAIIntersection_info> 
 		 */
-		std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info();
+		std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info() const;
 
 	};
 

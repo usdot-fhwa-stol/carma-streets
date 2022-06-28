@@ -72,19 +72,19 @@ namespace scheduling_service{
 		/**
          * @brief Set the vehicle list processor and configure it.
          */
-		bool config_vehicle_list();
+		bool config_vehicle_list() const;
 
 		/**
          * @brief Configure the scheduler object.
          */
-		bool config_scheduler();
+		bool config_scheduler() const;
 
         /**
          * @brief Consume the status and intent messages via kafka consumer.
 		 * @param consumer_worker The consumer worker.
 		 * @param vehicle_list_ptr The vehicle list object.
          */
-        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker, std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr);
+        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> _consumer_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const;
 
         /**
          * @brief Schedule vehicles and produce the schedule plan.
@@ -93,12 +93,12 @@ namespace scheduling_service{
 		 * @param vehicle_list_ptr The vehicle list object.
 		 * @param scheduler_ptr The scheduler object.
          */
-        void schedule_veh(std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker, std::shared_ptr<all_stop_scheduling_worker> scheduling_worker, std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler_ptr);
+        void schedule_veh(std::shared_ptr<kafka_clients::kafka_producer_worker> _producer_worker, std::shared_ptr<all_stop_scheduling_worker> _scheduling_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> _scheduler_ptr) const;
 
 		/**
 		 * @brief Method to configure spdlog::logger for logging scheduling metrics into daily rotating csv file.
 		 */
-		void configure_csv_logger();
+		void configure_csv_logger() const;
 
 	};
 

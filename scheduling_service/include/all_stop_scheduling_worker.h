@@ -29,7 +29,7 @@ namespace scheduling_service{
 		 * @return true if the time for starting the next schedule has been reached.
 		 * @return false if the time for starting the next schedule has not been reached.
 		 */
-		bool start_next_schedule(u_int64_t last_schedule_timestamp, u_int64_t scheduling_delta);
+		bool start_next_schedule(u_int64_t last_schedule_timestamp, u_int64_t scheduling_delta) const;
 
 
 		/**
@@ -38,14 +38,14 @@ namespace scheduling_service{
 		 * @param scheduler The scheduler object.
 		 * @return An intersection schedule object that contains vehicles' estimated critical time points.
 		 */
-		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler);
+		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler) const;
 
 		/**
 		 * @brief Create a schedule plan to be sent to the vehicles.
 		 * @param int_schedule An intersection schedule object that contains vehicles' estimated critical time points.
 		 * @return A json string of the schedule plan.
 		 */
-		std::string create_schedule_plan(streets_vehicle_scheduler::intersection_schedule int_schedule);
+		std::string create_schedule_plan(streets_vehicle_scheduler::intersection_schedule const &int_schedule) const;
 
 
 	};
