@@ -2,8 +2,9 @@
 
 namespace signal_phase_and_timing{
 
-    rapidjson::Value spat::toJson(rapidjson::Document::AllocatorType &allocator) const{
-        
+    std::string spat::toJson() const{
+        rapidjson::Document doc;
+        auto allocator = doc.GetAllocator();
         // Create SPaT JSON value
         rapidjson::Value spat(rapidjson::kObjectType);
         
@@ -19,33 +20,45 @@ namespace signal_phase_and_timing{
         }else {
             throw signal_phase_and_timing_exception("SPaT message is missing required intersection_state_list property!");
         }
-        return spat;
+        rapidjson::StringBuffer buffer;
+        try {
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            spat.Accept(writer);
+        }
+        catch( const std::exception &e ) {
+            throw signal_phase_and_timing_exception(e.what());
+        }
+        return buffer.GetString();
     }
 
-    void spat::fromJson(const rapidjson::Value &val ) {
-        if ( val.IsObject() ) {
-            if (val.FindMember("timestamp")->value.IsUint64()) {
-                timestamp =  val["timestamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
-            } 
-            
-            if (val.FindMember("name")->value.IsString() ) {
-                name = val["name"].GetString();  // OPTIONAL see J2735 SPaT definition
-            }
-            if ( val.FindMember("intersection_state_list")->value.IsArray() ) {
-                // REQUIRED see J2735 SPaT definition
-                // Clear intersection state list in case it is populated.
-                intersection_state_list.clear();
-                for ( const auto &state : val["intersection_state_list"].GetArray() ){
-                    intersection_state cur_state;
-                    cur_state.fromJson(state);
-                    intersection_state_list.push_back(cur_state);
-                }
-            }
-            else {
-               throw signal_phase_and_timing_exception("SPaT message is missing required intersection_state_list property!");
-            }
-            
+    void spat::fromJson(const std::string &json ) {
+        rapidjson::Document doc;
+        doc.Parse(json);
+        if (doc.HasParseError()) {
+            throw signal_phase_and_timing_exception("SPaT message JSON is misformatted. JSON parsing failed!");  
         }
+
+        if (doc.FindMember("timestamp")->value.IsUint64()) {
+            timestamp =  doc["timestamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
+        } 
+        if (doc.FindMember("name")->value.IsString() ) {
+            name = doc["name"].GetString();  // OPTIONAL see J2735 SPaT definition
+        }
+        if ( doc.FindMember("intersection_state_list")->value.IsArray() ) {
+            // REQUIRED see J2735 SPaT definition
+            // Clear intersection state list in case it is populated.
+            intersection_state_list.clear();
+            for ( const auto &state : doc["intersection_state_list"].GetArray() ){
+                intersection_state cur_state;
+                cur_state.fromJson(state);
+                intersection_state_list.push_back(cur_state);
+            }
+        }
+        else {
+            throw signal_phase_and_timing_exception("SPaT message is missing required intersection_state_list property!");
+        }
+            
+        
     }
 
     bool spat::operator==(const spat &other) const{

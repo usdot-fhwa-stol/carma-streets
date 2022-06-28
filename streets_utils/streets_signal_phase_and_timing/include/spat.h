@@ -7,6 +7,8 @@
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #include <list>
 
 
@@ -29,13 +31,13 @@ namespace signal_phase_and_timing{
          * 
          * @return rapidjson::Value serialize SPaT object
          */
-        rapidjson::Value toJson(rapidjson::Document::AllocatorType &allocator) const;
+        std::string toJson() const;
         /**
          * @brief Deserialize SPaT JSON into SPaT object.
          * 
          * @param val SPaT JSON.
          */
-        void fromJson(const rapidjson::Value &val);
+        void fromJson(const std::string &json);
         /**
          * @brief Equals operator to asses whether two objects contain equivalent data.
          * 

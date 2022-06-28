@@ -65,21 +65,14 @@ TEST(spat_to_json, to_from_json_test) {
     state.movement_states.push_back(move_state);
     // Add IntersectionState to SPat
     spat_message.intersection_state_list.push_front(state);
-    // Write JSON Value to string
-    rapidjson::Document doc;
-    rapidjson::Value val = spat_message.toJson(doc.GetAllocator());
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    val.Accept(writer);
-    std::string msg_to_send = buffer.GetString();
+
+    std::string msg_to_send = spat_message.toJson();
     SPDLOG_INFO("SPaT Json {0}", msg_to_send);
 
     ASSERT_FALSE(msg_to_send.empty());
     // Read JSON string into new spat object
     spat json_spat;
-    doc.Parse(msg_to_send);
-    ASSERT_FALSE(doc.HasParseError());
-    json_spat.fromJson(doc);
+    json_spat.fromJson(msg_to_send);
     // Assert equal to original object
     ASSERT_EQ(json_spat, spat_message);
 
@@ -93,7 +86,7 @@ TEST(spat_to_json, missing_state_list)  {
     spat_message.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     // Write JSON Value to string
     rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(doc.GetAllocator()), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
     
 }
 
@@ -109,7 +102,7 @@ TEST(spat_to_json, missing_intersection_id)  {
 
     // Write JSON Value to string
     rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(doc.GetAllocator()), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
     
 }
 
@@ -125,7 +118,7 @@ TEST(spat_to_json, missing_message_count)  {
 
     // Write JSON Value to string
     rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(doc.GetAllocator()), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
     
 }
 
@@ -142,7 +135,7 @@ TEST(spat_to_json, missing_intersection_status)  {
 
     // Write JSON Value to string
     rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(doc.GetAllocator()), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
     
 }
 
@@ -164,7 +157,7 @@ TEST(spat_to_json, missing_movement_event_list)  {
 
     // Write JSON Value to string
     rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(doc.GetAllocator()), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
 }
 
 /**
@@ -190,7 +183,7 @@ TEST(spat_to_json, missing_movement_state_signal_group_id)  {
 
     // Write JSON Value to string
     rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(doc.GetAllocator()), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
     
 }
 
