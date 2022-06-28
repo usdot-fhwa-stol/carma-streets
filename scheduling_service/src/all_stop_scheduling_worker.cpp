@@ -16,11 +16,10 @@ namespace scheduling_service{
 	}
 
 
-	streets_vehicle_scheduler::intersection_schedule all_stop_scheduling_worker::schedule_vehicles(std::shared_ptr<streets_vehicles::vehicle_list> veh_list, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler){
+	streets_vehicle_scheduler::intersection_schedule all_stop_scheduling_worker::schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler){
 
 		streets_vehicle_scheduler::intersection_schedule int_schedule;
 		int_schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		std::unordered_map<std::string, streets_vehicles::vehicle> veh_map = veh_list->get_vehicles();
 		scheduler->schedule_vehicles(veh_map, int_schedule);
 
 		if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
@@ -45,7 +44,7 @@ namespace scheduling_service{
 		metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
 		document.AddMember("metadata", metadata, allocator);
 
-		rapidjson::Value payload = int_schedule.toJson();    
+		rapidjson::Value payload = int_schedule.toJson(allocator);    
 		document.AddMember("payload", payload, allocator);
 
 		rapidjson::StringBuffer buffer;                

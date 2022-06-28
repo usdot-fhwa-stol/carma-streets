@@ -1,5 +1,5 @@
-#ifndef ALL_STOP_SCHEDULING_WORKER_H
-#define ALL_STOP_SCHEDULING_WORKER_H
+
+#pragma once
 
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
@@ -19,7 +19,6 @@ namespace scheduling_service{
 
 	class all_stop_scheduling_worker
 	{
-	private:
 
 	public:
 		
@@ -39,7 +38,7 @@ namespace scheduling_service{
 		 * @param scheduler The scheduler object.
 		 * @return An intersection schedule object that contains vehicles' estimated critical time points.
 		 */
-		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::shared_ptr<streets_vehicles::vehicle_list> veh_list, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler);
+		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler);
 
 		/**
 		 * @brief Create a schedule plan to be sent to the vehicles.
@@ -53,4 +52,3 @@ namespace scheduling_service{
 
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef INTERSECTION_CLIENT_H
-#define INTERSECTION_CLIENT_H
+#pragma once
 
 #include <intersection_client_api_lib/OAIHelpers.h>
 #include "intersection_client_api_lib/OAIDefaultApi.h"
@@ -48,4 +47,4 @@ namespace scheduling_service{
 
 }
 
-#endif
+

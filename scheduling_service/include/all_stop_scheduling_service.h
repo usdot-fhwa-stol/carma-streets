@@ -1,5 +1,7 @@
-#ifndef ALL_STOP_SCHEDULING_SERVICE_H
-#define ALL_STOP_SCHEDULING_SERVICE_H
+
+#pragma once
+
+#define RAPIDJSON_HAS_STDSTRING 1
 
 #include <thread>    
 #include <chrono>  
@@ -8,6 +10,7 @@
 #include <QEventLoop>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <intersection_client_api_lib/OAIHelpers.h>
 #include "intersection_client_api_lib/OAIDefaultApi.h"
 #include "intersection_client_api_lib/OAIIntersection_info.h"
@@ -69,12 +72,12 @@ namespace scheduling_service{
 		/**
          * @brief Set the vehicle list processor and configure it.
          */
-		void config_vehicle_list();
+		bool config_vehicle_list();
 
 		/**
          * @brief Configure the scheduler object.
          */
-		void config_scheduler();
+		bool config_scheduler();
 
         /**
          * @brief Consume the status and intent messages via kafka consumer.
@@ -101,4 +104,3 @@ namespace scheduling_service{
 
 }
 
-#endif

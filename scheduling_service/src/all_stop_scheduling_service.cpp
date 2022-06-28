@@ -72,7 +72,7 @@ namespace scheduling_service{
 	}
 
 
-	void all_stop_scheduling_service::config_vehicle_list()
+	bool all_stop_scheduling_service::config_vehicle_list()
     {
 		if (vehicle_list_ptr)
 		{
@@ -83,11 +83,16 @@ namespace scheduling_service{
 			processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
 			
 			SPDLOG_INFO("Vehicle list is configured successfully! ");
+			return true;
+		}
+		else
+		{
+			return false;
 		}
     }
 
 
-	void all_stop_scheduling_service::config_scheduler()
+	bool all_stop_scheduling_service::config_scheduler()
     {
 		if (scheduler_ptr && intersection_info_ptr)
 		{
@@ -95,6 +100,11 @@ namespace scheduling_service{
 			scheduler_ptr->set_flexibility_limit(streets_service::streets_configuration::get_int_config("flexibility_limit"));
 			
 			SPDLOG_INFO("Scheduler is configured successfully! ");
+			return true;
+		}
+		else
+		{
+			return false;
 		}
     }
 
@@ -125,6 +135,7 @@ namespace scheduling_service{
 			u_int64_t last_schedule_timestamp = 0;
 			u_int64_t scheduling_delta = u_int64_t(streets_service::streets_configuration::get_double_config("scheduling_delta") * 1000);
 			int sch_count = 0;
+			std::unordered_map<std::string, streets_vehicles::vehicle> veh_map;
 
 			while (true)
 			{
@@ -133,7 +144,9 @@ namespace scheduling_service{
 					SPDLOG_INFO("schedule number #{0}", sch_count);      
 					auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
-					streets_vehicle_scheduler::intersection_schedule int_schedule = scheduling_worker->schedule_vehicles(vehicle_list_ptr, scheduler_ptr);
+					
+					veh_map = vehicle_list_ptr -> get_vehicles();
+					streets_vehicle_scheduler::intersection_schedule int_schedule = scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
 
 					std::string msg_to_send = scheduling_worker->create_schedule_plan(int_schedule);
 

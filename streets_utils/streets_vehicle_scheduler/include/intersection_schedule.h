@@ -63,7 +63,7 @@ namespace streets_vehicle_scheduler {
          * 
          * @return rapidjson::Value 
          */
-        rapidjson::Value toJson() const;
+        rapidjson::Value toJson(rapidjson::Document::AllocatorType& allocator) const;
     };
 
     
@@ -101,10 +101,10 @@ namespace streets_vehicle_scheduler {
         std::string toCSV() const;
         /**
          * @brief Method to write intersection schedule as JSON scheduling message.
-         * 
-         * @return rrapidjson::Value& reference 
+         * @param allocator json document allocator.
+         * @return rrapidjson::Value& reference.
          */
-        rapidjson::Value toJson() const;
+        rapidjson::Value toJson(rapidjson::Document::AllocatorType& allocator) const;
 
     };  
 }

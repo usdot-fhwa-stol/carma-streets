@@ -97,7 +97,11 @@ TEST_F(all_stop_json_csv_schedule_test, json_schedule){
     schedule.vehicle_schedules.push_back(sched3);
 
     ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
-    rapidjson::Value json_schedule = schedule.toJson();
+
+    rapidjson::Document document;
+    document.SetObject();
+    rapidjson::Document::AllocatorType &allocator = document.GetAllocator();
+    rapidjson::Value json_schedule = schedule.toJson(allocator);
 
     ASSERT_EQ( json_schedule.Size(), 3);
     ASSERT_TRUE ( json_schedule.IsArray() );
