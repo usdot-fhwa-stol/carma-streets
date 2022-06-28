@@ -31,7 +31,7 @@ namespace signal_phase_and_timing {
                 // OPTIONAL see J2735 MovementState definition
                 movement_name =  val["movement_name"].GetString();
             }
-            if ( val.FindMember("signal_group")->value.IsUint() ) {
+            if ( val.HasMember("signal_group") && val["signal_group"].IsUint() ) {
                 // REQUIRED see J2735 MovementState definition
                 signal_group = static_cast<uint8_t>(val["signal_group"].GetUint());
             }

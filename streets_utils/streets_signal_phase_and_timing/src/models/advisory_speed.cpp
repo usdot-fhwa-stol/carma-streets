@@ -8,7 +8,9 @@ namespace signal_phase_and_timing
         // Populate
         adv_speed.AddMember("type", static_cast<int>(type), allocator);
         adv_speed.AddMember("speed", speed, allocator);
-        adv_speed.AddMember("confidence", static_cast<int>(confidence), allocator);
+        if ( confidence != speed_confidence::unavailable ) {
+            adv_speed.AddMember("confidence", static_cast<int>(confidence), allocator);
+        }
         adv_speed.AddMember("distance", distance, allocator);
         adv_speed.AddMember("class", veh_class, allocator);
         return adv_speed;
@@ -16,28 +18,28 @@ namespace signal_phase_and_timing
 
     void advisory_speed::fromJson( const rapidjson::Value &val ) {
         if ( val.IsObject() ) {
-            if ( val.FindMember("type")->value.IsInt() ) {
+            if ( val.HasMember("type") && val["type"].IsInt() ) {
                 // REQUIRED see J2735 AdvisorySpeed definition
                 type =  static_cast<advisory_speed_type>(val["type"].GetInt());
             }
             else {
                throw signal_phase_and_timing_exception("AdvisorySpeed is missing required type property!");
             }
-            if ( val.FindMember("speed")->value.IsUint() ){
+            if ( val.HasMember("speed") && val["speed"].IsUint() ){
                 // OPTIONAL see J2735 AdvisorySpeed definition
                 speed =  static_cast<uint16_t>(val["speed"].GetUint());
 
             }
-            if ( val.FindMember("confidence")->value.IsInt() ) {
+            if ( val.HasMember("confidence") && val["confidence"].IsInt() ) {
                 // OPTIONAL see J2735 AdvisorySpeed definition
                 confidence = static_cast<speed_confidence>(val["confidence"].GetInt());
             }
-            if ( val.FindMember("distance")->value.IsUint() ){
+            if ( val.HasMember("distance") && val["distance"].IsUint() ){
                 // OPTIONAL see J2735 AdvisorySpeed definition
                 distance =  static_cast<uint16_t>(val["distance"].GetUint());
 
             }
-            if ( val.FindMember("class")->value.IsUint() ){
+            if ( val.HasMember("class") && val["class"].IsUint() ){
                 // OPTIONAL see J2735 AdvisorySpeed definition
                 veh_class = static_cast<uint8_t>(val["class"].GetUint());
 

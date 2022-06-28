@@ -8,7 +8,7 @@ namespace signal_phase_and_timing{
         // Create SPaT JSON value
         rapidjson::Value spat(rapidjson::kObjectType);
         // Populate SPat JSON
-        spat.AddMember("timestamp", timestamp, allocator);
+        spat.AddMember("time_stamp", timestamp, allocator);
         spat.AddMember( "name", name, allocator);
         if ( !intersections.empty() ) {
             rapidjson::Value list(rapidjson::kArrayType);
@@ -37,8 +37,8 @@ namespace signal_phase_and_timing{
             throw signal_phase_and_timing_exception("SPaT message JSON is misformatted. JSON parsing failed!");  
         }
 
-        if (doc.FindMember("timestamp")->value.IsUint64()) {
-            timestamp =  doc["timestamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
+        if ( doc.HasMember("time_stamp") && doc.FindMember("time_stamp")->value.IsUint64()) {
+            timestamp =  doc["time_stamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
         } 
         if (doc.FindMember("name")->value.IsString() ) {
             name = doc["name"].GetString();  // OPTIONAL see J2735 SPaT definition

@@ -70,14 +70,14 @@ namespace signal_phase_and_timing {
                 // OPTIONAL see J2735 IntersectionState definition
                 name =  val["name"].GetString();
             } 
-            if ( val.FindMember("id")->value.IsUint()) {
+            if ( val.HasMember("id") && val["id"].IsUint()) {
                 // REQUIRED see J2735 IntersectionState definition
                 id =  static_cast<uint16_t>(val["id"].GetUint());
             }
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");
             }
-            if ( val.FindMember("revision")->value.IsInt()) {
+            if ( val.HasMember("revision") && val["revision"].IsInt()) {
                 // REQUIRED see J2735 IntersectionState definition
                 revision =  val["revision"].GetInt();
             }
@@ -91,7 +91,7 @@ namespace signal_phase_and_timing {
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");
             }
-            if ( val.FindMember("moy")->value.IsUint()) {
+            if ( val.HasMember("moy") &&  val["moy"].IsUint()) {
                 // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
                 moy =  static_cast<uint32_t>(val["moy"].GetUint());
             }

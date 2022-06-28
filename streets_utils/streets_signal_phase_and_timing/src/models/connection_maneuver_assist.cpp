@@ -19,18 +19,18 @@ namespace signal_phase_and_timing {
 
     void connection_maneuver_assist::fromJson( const rapidjson::Value &val ) {
         if ( val.IsObject() ){
-            if ( val.FindMember("connection_id")->value.IsInt() ) {
+            if ( val.HasMember("connection_id") && val["connection_id"].IsInt() ) {
                 // REQUIRED see J2735 ConnectionManeuverAssist Definition
                 connection_id =  val["connection_id"].GetInt();
             }
             else {
                throw signal_phase_and_timing_exception("ConnectionManeuverAssist is missing required connection_id property!");
             }
-            if ( val.FindMember("queue_length")->value.IsUint() ) {
+            if ( val.HasMember("queue_length") && val["queue_length"].IsUint() ) {
                 // OPTIONAL see J2735 ConnectionManeuverAssist Definition
                 queue_length =  static_cast<uint16_t>(val["queue_length"].GetUint());
             }
-            if ( val.FindMember("available_storage_length")->value.IsUint() ) {
+            if ( val.HasMember("available_storage_length") && val["available_storage_length"].IsUint() ) {
                 // OPTIONAL see J2735 ConnectionManeuverAssist Definition
                 available_storage_length =  static_cast<uint16_t>(val["available_storage_length"].GetUint());
             }

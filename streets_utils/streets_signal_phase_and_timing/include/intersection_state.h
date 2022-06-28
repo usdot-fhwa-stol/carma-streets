@@ -81,9 +81,16 @@ namespace signal_phase_and_timing
          * @brief A list of unique lane ID for each lane object which is active. Refers to dynamic MAP contents.
          */
         std::list<int> enabled_lanes;
-
+        /**
+         * @brief Each Movement is given in turn and contains its signal phase state, mapping to the lanes it applies
+         * to, and point in time it will and. It may contain both active and future states 
+         * 
+         */
         std::list<movement_state> states;
-
+        /**
+         * @brief Assist Data
+         * 
+         */
         std::list<connection_maneuver_assist> maneuver_assist_list;
 
         /**

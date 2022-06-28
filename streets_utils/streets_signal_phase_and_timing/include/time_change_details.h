@@ -12,19 +12,19 @@ namespace signal_phase_and_timing{
         /**
          * @brief When this phase first started. (tenths of a second in current or next hour)
          */
-        uint64_t start_time = 0;
+        uint16_t start_time = 36001;
         /**
          * @brief Expected shortest end time. (tenths of a second in current or next hour)
          */
-        uint64_t min_end_time = 0;
+        uint16_t min_end_time = 36001;
         /**
          * @brief Expected longest end time.  (tenths of a second in current or next hour)
          */
-        uint64_t max_end_time = 0;
+        uint16_t max_end_time = 36001;
         /**
          * @brief Best predicted value based on other data (tenths of a second in current or next hour)
          */
-        uint64_t likely_time = 0;
+        uint16_t likely_time = 36001;
         /**
          * @brief Applies to the above time interval only
          * -- Value   Probability
@@ -47,6 +47,10 @@ namespace signal_phase_and_timing{
          */
         uint8_t confidence = 0;
 
+        /**
+         * @brief A rough estimate of time when this phase may next occur. (tenths of a second in current or next hour)
+         */
+        uint16_t next_time = 36001;
         /**
          * @brief Serialize Time Change Details object to rapidjson::Value for writing as JSON string
          * 

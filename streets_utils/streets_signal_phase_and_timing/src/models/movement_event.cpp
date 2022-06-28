@@ -21,7 +21,7 @@ namespace signal_phase_and_timing {
 
     void movement_event::fromJson( const rapidjson::Value &val ) {
         if ( val.IsObject() ) {
-            if ( val.FindMember("event_state")->value.IsInt() ) {
+            if ( val.HasMember("event_state") &&  val["event_state"].IsInt() ) {
                 event_state = static_cast<movement_phase_state>( val["event_state"].GetInt());
             }
             time_change_details detail;
