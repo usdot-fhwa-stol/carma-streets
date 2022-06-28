@@ -44,8 +44,8 @@ namespace signal_phase_and_timing {
         // REQUIRED see J2735 IntersectionState definition
         if ( !states.empty() ) {
             rapidjson::Value states_list(rapidjson::kArrayType);
-            for (const auto &state : states) {
-                states_list.PushBack(state.toJson(allocator), allocator);
+            for (const auto &move_state : states) {
+                states_list.PushBack(move_state.toJson(allocator), allocator);
             }
             state.AddMember("states", states_list, allocator);
         }
@@ -77,9 +77,9 @@ namespace signal_phase_and_timing {
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");
             }
-            if ( val.HasMember("revision") && val["revision"].IsInt()) {
+            if ( val.HasMember("revision") && val["revision"].IsUint()) {
                 // REQUIRED see J2735 IntersectionState definition
-                revision =  val["revision"].GetInt();
+                revision =  static_cast<uint8_t>(val["revision"].GetUint());
             }
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required revision property!");
@@ -93,12 +93,12 @@ namespace signal_phase_and_timing {
             }
             if ( val.HasMember("moy") &&  val["moy"].IsUint()) {
                 // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
-                moy =  static_cast<uint32_t>(val["moy"].GetUint());
+                moy = val["moy"].GetUint();
             }
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required moy property!");
             }
-            if ( val.FindMember("time_stamp")->value.IsUint()) {
+            if ( val.HasMember("time_stamp") && val["time_stamp"].IsUint()) {
                 // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
                 time_stamp =  static_cast<uint16_t>(val["time_stamp"].GetUint());
             }
