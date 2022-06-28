@@ -4,6 +4,8 @@ project(traffic_signal_controller_service)
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
+# Added for using SPDLOG macros, please check SPDLOG macros logging
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_library(NETSNMPAGENT "netsnmpagent")
 find_library(NETSNMPMIBS "netsnmpmibs")

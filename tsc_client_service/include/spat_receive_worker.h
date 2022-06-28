@@ -1,5 +1,4 @@
 #pragma once
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -17,24 +16,24 @@ class SpatWorker
 {
     private:
         /**
-         * @brief ip address of TSC 
+         * @brief ip address of tsc_service 
          */
         std::string ip_; 
         
         /**
-         * @brief ethernet port to receive spat messages on
+         * @brief ethernet port on tsc_service host to receive spat messages on
          */
         int port_; 
 
         /**
-        * @brief timeout for udp socket to TSC
+        * @brief timeout in milliseconds for udp socket to TSC
         */
         int socketTimeout_;
 
         /**
          * @brief boolean to verify whether socket has successfully been created
          */
-        bool socketCreated = false; 
+        bool socketCreated_ = false; 
 
     public:
         /**
