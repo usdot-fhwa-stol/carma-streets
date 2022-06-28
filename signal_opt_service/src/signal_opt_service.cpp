@@ -20,7 +20,7 @@ namespace signal_opt_service
             if (!_spat_consumer->init() || !_vsi_consumer->init())
             {
                 SPDLOG_CRITICAL("kafka consumers ( _spat_consumer_worker  or _vsi_consumer_worker) initialize error");
-                exit(-1);
+                exit(EXIT_FAILURE);
             }
             else
             {
@@ -29,7 +29,7 @@ namespace signal_opt_service
                 if (!_spat_consumer->is_running() || !_vsi_consumer->is_running())
                 {
                     SPDLOG_CRITICAL("kafka consumers ( _spat_consumer_worker or _vsi_consumer_worker) is not running");
-                    exit(-1);
+                    exit(EXIT_FAILURE);
                 }
             }
 
@@ -41,7 +41,8 @@ namespace signal_opt_service
             // HTTP request to update intersection information
             if (!update_intersection_info(sleep_millisecs, int_client_request_attempts))
             {
-                return false;
+                SPDLOG_CRITICAL("Failed to initialize signal_opt_service due to intersection client request failure!");
+                exit(EXIT_FAILURE);
             }
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;

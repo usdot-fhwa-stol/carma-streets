@@ -29,13 +29,7 @@ namespace signal_opt_service
     {
         if (this->spat_ptr)
         {
-            rapidjson::Document doc;
-            doc.Parse(spat_json.c_str());
-            if (doc.HasParseError())
-            {
-                SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
-            };
-            this->spat_ptr->fromJson(doc);
+            this->spat_ptr->fromJson(spat_json);
             return true;
         }
 

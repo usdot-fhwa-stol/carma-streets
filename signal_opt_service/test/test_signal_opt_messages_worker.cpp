@@ -53,10 +53,10 @@ TEST(signal_opt_messages_worker, request_intersection_info)
 TEST(signal_opt_messages_worker, update_spat)
 {
     signal_opt_service::signal_opt_messages_worker so_msgs_worker;
-    std::string spat_payload = "{\"timestamp\":0,\"name\":\"\",\"intersection_state_list\":[{\"name\":\"WestIntersection\",\"id\":1909,\"message_count\":12332,\"status\":\"3e21f0923e21f092\",\"minute_of_the_year\":34232,\"second\":13,\"enabled_lane_list\":[1,3,5],\"states\":[{\"movement_name\":\"RightTurn\",\"signal_group_id\":4,\"movement_event_list\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"vehicle_class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    std::string spat_payload = "{\"timestamp\":0,\"name\":\"\",\"intersections\":[{\"name\":\"WestIntersection\",\"id\":1909,\"message_count\":12332,\"status\":\"3e21f0923e21f092\",\"minute_of_the_year\":34232,\"second\":13,\"enabled_lane_list\":[1,3,5],\"revision\": 1,\"moy\": 103,\"time_stamp\": 1200,\"states\":[{\"movement_name\":\"RightTurn\",\"signal_group_id\":4,\"movement_event_list\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"vehicle_class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     ASSERT_TRUE(so_msgs_worker.update_spat(spat_payload));
-    ASSERT_EQ(1909, so_msgs_worker.get_latest_spat()->intersection_state_list.front().id);
-    ASSERT_EQ("WestIntersection", so_msgs_worker.get_latest_spat()->intersection_state_list.front().name);
+    ASSERT_EQ(1909, so_msgs_worker.get_latest_spat()->intersections.front().id);
+    ASSERT_EQ("WestIntersection", so_msgs_worker.get_latest_spat()->intersections.front().name);
 }
 
 TEST(signal_opt_messages_worker, get_intersection_info)
@@ -80,5 +80,5 @@ TEST(signal_opt_messages_worker, get_latest_spat)
     signal_opt_service::signal_opt_messages_worker so_msgs_worker;
     auto spat_ptr = so_msgs_worker.get_latest_spat();
     ASSERT_TRUE(spat_ptr != nullptr);
-    ASSERT_EQ(0, spat_ptr->intersection_state_list.size());
+    ASSERT_EQ(0, spat_ptr->intersections.size());
 }
