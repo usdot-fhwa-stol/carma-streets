@@ -27,9 +27,6 @@ namespace streets_vehicles
                 vehicle._cur_state = vehicle_state::DV;
                 vehicle._actual_et = vehicle._cur_time;
                 SPDLOG_DEBUG("Vehicle {0} state is updated from EV to DV.", vehicle._id);                
-            }else{
-                SPDLOG_CRITICAL("Departing vehicle with DV (Depart Vehicle) VEHICLE STATE is in entry lane {0} == current lane {1}",
-                                vehicle._entry_lane_id, vehicle._cur_lane_id);
             }
         }
         else if (vehicle._cur_state == vehicle_state::DV && vehicle._cur_lane_id == vehicle._exit_lane_id)

@@ -6,6 +6,8 @@ namespace signal_opt_service
     {
         try
         {
+            _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
+
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
             _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
@@ -35,14 +37,13 @@ namespace signal_opt_service
 
             // Serice config
             auto sleep_millisecs = std::stoul(streets_service::streets_configuration::get_string_config("sleep_millisecs"));
-            auto int_client_request_attempts = std::stoul(streets_service::streets_configuration::get_string_config("int_client_request_attempts"));
-            _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
+            auto int_client_request_attempts = std::stoul(streets_service::streets_configuration::get_string_config("int_client_request_attempts"));            
 
             // HTTP request to update intersection information
             if (!update_intersection_info(sleep_millisecs, int_client_request_attempts))
             {
                 SPDLOG_CRITICAL("Failed to initialize signal_opt_service due to intersection client request failure!");
-                exit(EXIT_FAILURE);
+                return false;
             }
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
@@ -82,7 +83,7 @@ namespace signal_opt_service
                     _so_msgs_worker_ptr->update_spat(payload);
                     if (!_so_msgs_worker_ptr->update_spat(payload))
                     {
-                        SPDLOG_CRITICAL("Error occurred when updating SPAT.");
+                        SPDLOG_CRITICAL("Error occurred when updating SPAT.");                       
                     }
                     break;
                 case CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT:

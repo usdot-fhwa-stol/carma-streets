@@ -29,10 +29,7 @@ namespace signal_opt_service
     public:
         signal_opt_messages_worker();
         ~signal_opt_messages_worker() = default;
-        /**
-         * @brief Initialize the instance variables: intersection info pointer, vehicle list pointer, and internal streets spat pointer
-         */
-        void initialize();
+        
         /**
          * @brief Vehicle string from kafka stream in JSON format. Convert the vehicle JSON into streets internal vehicle object, and add the vehicle object
          * to the vehicle list. If the vehicle uniquely identified by the vehilce ID exist in the vehicle list and timestamp receiving this vehicle is larger,

@@ -4,11 +4,7 @@ namespace signal_opt_service
 {
     signal_opt_messages_worker::signal_opt_messages_worker()
     {
-        initialize();
-    }
-
-    void signal_opt_messages_worker::initialize()
-    {
+        SPDLOG_DEBUG("Construct signal_opt_messages_worker");
         this->intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
         this->vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
         this->vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
