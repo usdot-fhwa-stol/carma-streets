@@ -98,13 +98,14 @@ TEST_F(all_stop_json_csv_schedule_test, json_schedule){
 
     ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
 
-    rapidjson::Document document;
-    document.SetObject();
-    rapidjson::Document::AllocatorType &allocator = document.GetAllocator();
-    rapidjson::Value json_schedule = schedule.toJson(allocator);
 
-    ASSERT_EQ( json_schedule.Size(), 3);
-    ASSERT_TRUE ( json_schedule.IsArray() );
+    std::string str_schedule = schedule.toJsonString();
+    rapidjson::Document json_sched;
+    json_sched.SetArray();
+    json_sched.Parse(str_schedule.c_str());
+
+    ASSERT_EQ( json_sched.Size(), 3);
+    ASSERT_TRUE( json_sched.IsArray() );
 }
 
 /**

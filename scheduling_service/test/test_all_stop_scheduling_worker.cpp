@@ -251,81 +251,21 @@ TEST_F(all_stop_scheduling_worker_test, convert_schedule_plan)
 
     SPDLOG_INFO("size of schedule {0}: ", schedule.vehicle_schedules.size());
 
-    std::string schedule_str = scheduling_worker -> create_schedule_plan(schedule);
+    std::string str_schedule = scheduling_worker -> create_schedule_plan(schedule);
 
 
-    SPDLOG_INFO("schedule plan (string): {0}", schedule_str);
+    SPDLOG_INFO("schedule plan (string): {0}", str_schedule);
 
-    size_t nPos;
-    int count;
+    rapidjson::Document json_sched;
+    json_sched.SetObject();
+    json_sched.Parse(str_schedule.c_str());
 
-    nPos = schedule_str.find("metadata", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("metadata", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of metadata in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
+    ASSERT_TRUE( json_sched.HasMember("metadata") );
+    ASSERT_TRUE( json_sched["metadata"].HasMember("timestamp") );
+    ASSERT_TRUE( json_sched["metadata"].HasMember("intersection_type") );
 
-
-    nPos = schedule_str.find("timestamp", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("timestamp", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of timestamp in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
-
-
-    nPos = schedule_str.find("Carma/stop_controlled_intersection", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("Carma/stop_controlled_intersection", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of Carma/stop_controlled_intersection in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
-
-
-    nPos = schedule_str.find("payload", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("payload", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of payload in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
-
-
-    nPos = schedule_str.find("TEST_DV_01", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("TEST_DV_01", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of TEST_DV_01 in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
-
-
-    nPos = schedule_str.find("TEST_RDV_01", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("TEST_RDV_01", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of TEST_RDV_01 in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
-
-
-    nPos = schedule_str.find("TEST_RDV_02", 0);
-    count = 0;
-    while (nPos != std::string::npos){
-        count++;
-        nPos = schedule_str.find("TEST_RDV_02", nPos + 1);
-    }
-    SPDLOG_INFO("number of occurrences of TEST_RDV_02 in the schedule plan : {0}", count);
-    ASSERT_EQ(count, 1);
+    ASSERT_TRUE( json_sched.HasMember("payload") );
+    ASSERT_TRUE( json_sched["payload"].IsArray() );
+    ASSERT_EQ( json_sched["payload"].Size(), 3);
 
 }

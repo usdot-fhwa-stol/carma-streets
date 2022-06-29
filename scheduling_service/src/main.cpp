@@ -1,4 +1,4 @@
-#define RAPIDJSON_HAS_STDSTRING 1
+// #define RAPIDJSON_HAS_STDSTRING 1
 
 #include <QCoreApplication>
 #include "streets_configuration.h"

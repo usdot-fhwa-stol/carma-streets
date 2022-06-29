@@ -1,8 +1,6 @@
 
 #pragma once
 
-#define RAPIDJSON_HAS_STDSTRING 1
-
 #include <thread>    
 #include <chrono>  
 #include <spdlog/spdlog.h>

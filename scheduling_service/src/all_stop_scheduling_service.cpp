@@ -21,6 +21,7 @@ namespace scheduling_service{
 			{
 				SPDLOG_CRITICAL("kafka consumer initialize error");
 				exit(-1);
+				return false;
 			}
 			else
 			{
@@ -29,6 +30,7 @@ namespace scheduling_service{
 				{
 					SPDLOG_CRITICAL("consumer_worker is not running");
 					exit(-1);
+					return false;
 				}
 			}
 
@@ -40,6 +42,7 @@ namespace scheduling_service{
 			{
 				SPDLOG_CRITICAL("kafka producer initialize error");
 				exit(-1);
+				return false;
 			}
 			
 

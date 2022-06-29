@@ -40,18 +40,26 @@ namespace streets_vehicle_scheduler {
 	    return schedule_info;
     }
 
-    rapidjson::Value intersection_schedule::toJson(rapidjson::Document::AllocatorType& allocator) const {
+    std::string intersection_schedule::toJsonString() const {
         
         rapidjson::Document doc;
+        doc.SetArray();
+        rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
         rapidjson::Value json_sched(rapidjson::kArrayType);
         for (const auto &veh_sched: vehicle_schedules ) {
-            json_sched.PushBack(veh_sched.toJson(allocator),allocator);
+            doc.PushBack(veh_sched.toJson(allocator), allocator);
         }
-        return json_sched;
+
+        rapidjson::StringBuffer buffer;                
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		doc.Accept(writer);
+		std::string string_sched = buffer.GetString();
+
+        return string_sched;
     }
 
     rapidjson::Value vehicle_schedule::toJson(rapidjson::Document::AllocatorType& allocator) const {
-        rapidjson::Document doc;
+
         rapidjson::Value vehicle_schedule(rapidjson::kObjectType);
         vehicle_schedule.AddMember("v_id", v_id, allocator);
         vehicle_schedule.AddMember("st", st, allocator);

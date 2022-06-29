@@ -16,7 +16,7 @@ find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIR
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 
-
+add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 
 include_directories("/usr/local/include")
 
