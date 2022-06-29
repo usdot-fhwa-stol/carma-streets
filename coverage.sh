@@ -33,6 +33,12 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube scheduling_service/coverage/coverage.xml -s -f scheduling_service/ -r .
 
+cd /home/carma-streets/streets_utils/streets_signal_phase_and_timing/build/
+./streets_signal_phase_and_timing_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/streets_utils/streets_signal_phase_and_timing/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_signal_phase_and_timing/coverage/coverage.xml -s -f streets_utils/streets_signal_phase_and_timing/ -r .
 
 cd /home/carma-streets/streets_utils/streets_service_base/build/
 ./streets_service_base_test --gtest_output=xml:../../../test_results/
