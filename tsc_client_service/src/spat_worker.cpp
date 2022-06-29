@@ -53,7 +53,7 @@ namespace traffic_signal_controller_service
             std::vector<char> spat_buf(max_data_size);
             ssize_t bytes_received = recv(sock, spat_buf.data(), spat_buf.size(), 0);
 
-            if (bytes_received != -1)
+            if (bytes_received > 0)
             {
                 spat_buf.resize(bytes_received);
                 SPDLOG_DEBUG("Num bytes received: {0}", bytes_received);
@@ -67,7 +67,8 @@ namespace traffic_signal_controller_service
                 std::string mystr = ss.str();
                 SPDLOG_DEBUG("Buffer contains: {0}", mystr);
 
-            }else {
+            }
+            else {
                 throw spat_worker_exception("Timeout of " + std::to_string( socket_timeout_) + " seconds has elapsed. Closing SPaT Work UDP Socket" );
             }       
         }    
