@@ -40,15 +40,22 @@ namespace streets_vehicle_scheduler {
 	    return schedule_info;
     }
 
-    std::string intersection_schedule::toJsonString() const {
+    std::string intersection_schedule::toJson() const {
         
         rapidjson::Document doc;
-        doc.SetArray();
-        rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
+        doc.SetObject();
+		rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
+
+        rapidjson::Value metadata(rapidjson::kObjectType);
+		metadata.AddMember("timestamp", timestamp, allocator);
+		metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection", allocator);
+		doc.AddMember("metadata", metadata, allocator);
+
         rapidjson::Value json_sched(rapidjson::kArrayType);
         for (const auto &veh_sched: vehicle_schedules ) {
-            doc.PushBack(veh_sched.toJson(allocator), allocator);
+            json_sched.PushBack(veh_sched.toJson(allocator), allocator);
         }
+        doc.AddMember("payload", json_sched, allocator);
 
         rapidjson::StringBuffer buffer;                
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);

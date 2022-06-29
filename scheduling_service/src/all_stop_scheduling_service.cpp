@@ -156,7 +156,7 @@ namespace scheduling_service{
 				veh_map = _vehicle_list_ptr -> get_vehicles();
 				streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, _scheduler_ptr);
 
-				std::string msg_to_send = _scheduling_worker->create_schedule_plan(int_schedule);
+				std::string msg_to_send = int_schedule.toJson();
 
 				/* produce the scheduling plan to kafka */
 				_producer_worker->send(msg_to_send);

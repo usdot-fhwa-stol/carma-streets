@@ -106,7 +106,7 @@ namespace streets_vehicle_scheduler {
          * 
          * @return std::string& reference.
          */
-        std::string toJsonString() const;
+        std::string toJson() const;
 
     };  
 }

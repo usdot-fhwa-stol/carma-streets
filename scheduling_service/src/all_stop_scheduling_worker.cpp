@@ -33,41 +33,5 @@ namespace scheduling_service{
 		return int_schedule;
 	}
 
-
-	std::string all_stop_scheduling_worker::create_schedule_plan(streets_vehicle_scheduler::intersection_schedule const &int_schedule) const
-	{
-		rapidjson::Document document;
-		document.SetObject();
-		rapidjson::Document::AllocatorType &allocator = document.GetAllocator();
-
-		rapidjson::Value metadata(rapidjson::kObjectType);
-		metadata.AddMember("timestamp", int_schedule.timestamp, allocator);
-		metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection",allocator);
-		document.AddMember("metadata", metadata, allocator);
-
-		std::string payload_str = int_schedule.toJsonString(); 
-		SPDLOG_DEBUG("payload string: {0}", payload_str);
-
-		rapidjson::Document doc;
-		doc.SetArray();
-		doc.Parse(payload_str.c_str());
-		if (doc.IsArray())
-		{
-			document.AddMember("payload", doc, allocator);
-		}
-		else
-		{
-			SPDLOG_ERROR("The Json String received from the intersection schedule object does not have member payload!");
-		}
-
-		rapidjson::StringBuffer buffer;                
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-		document.Accept(writer);
-		std::string msg_to_send = buffer.GetString();
-
-		return msg_to_send;
-	}
-
-
 }
 

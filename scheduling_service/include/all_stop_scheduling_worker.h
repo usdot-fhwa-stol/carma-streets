@@ -41,13 +41,6 @@ namespace scheduling_service{
 		 */
 		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler) const;
 
-		/**
-		 * @brief Create a schedule plan to be sent to the vehicles.
-		 * @param int_schedule An intersection schedule object that contains vehicles' estimated critical time points.
-		 * @return A json string of the schedule plan.
-		 */
-		std::string create_schedule_plan(streets_vehicle_scheduler::intersection_schedule const &int_schedule) const;
-
 
 	};
 
