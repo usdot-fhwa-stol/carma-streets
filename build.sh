@@ -33,6 +33,13 @@ cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" 
 make
 make install
 
+cd /home/carma-streets/streets_utils/streets_signal_phase_and_timing
+mkdir build
+cd /home/carma-streets/streets_utils/streets_signal_phase_and_timing/build
+cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+make
+make install
+
 cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
 mkdir build
 cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
