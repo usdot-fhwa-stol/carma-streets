@@ -1,10 +1,16 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <iostream>
 #include "snmp_client.h"
-#include "spat_receive_worker.h"
+#include "spat_worker.h"
+#include "spat_worker_exception.h"
 
 namespace traffic_signal_controller_service
 {
+    /**
+     * @brief SNMP required to enable spat using wrong OID should fail.
+     * 
+     */
     TEST(spat_receive_worker, test_enable_spat)
     {   
         std::string dummy_ip = "192.168.120.57";
@@ -18,29 +24,75 @@ namespace traffic_signal_controller_service
         // Expect set to return false with invalid enable spat OID
         EXPECT_FALSE(worker.process_snmp_request(enable_spat_oid_wrong, request_type, enable_spat_value));
     }
-
+    /**
+     * @brief Attempt to listen on a IP that is not the host of the service should fail.
+     * 
+     */
     TEST(spat_receive_worker, test_create_socket)
     {
         std::string tsc_ip_bad = "192.168.120.51";
         int tsc_port = 6053;
         int tsc_timeout = 10;
 
-        SpatWorker spatWorker(tsc_ip_bad, tsc_port, tsc_timeout);
-        spatWorker.createSocket();
+        spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
+        try{
+            worker.listen_udp_spat();
+        }
+        catch( const spat_worker_exception &e){
+            ASSERT_STREQ( e.what(), "Failed to bind to socket");
+        }
+        catch( ... ) {
+            __assert_fail;
+        }
 
         
     }
-
+    /**
+     * @brief Unit test to test UDP socket timeout parameter. Test should timeout
+     * after 5 seconds of not receiving data
+     * 
+     */
     TEST(spat_receive_worker, test_create_socket_timeout)
     {
         std::string tsc_ip_bad = "127.0.0.1";
         int tsc_port = 6053;
         int tsc_timeout = 5;
 
-        SpatWorker spatWorker(tsc_ip_bad, tsc_port, tsc_timeout);
-        spatWorker.createSocket();
+        spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
 
+        try{
+            worker.listen_udp_spat();
+        }
+        catch( const spat_worker_exception &e){
+            ASSERT_STREQ( e.what(), "Timeout of 5 seconds has elapsed. Closing SPaT Work UDP Socket");
+        }
+        catch( ... ) {
+            __assert_fail;
+        }
         
     }
-    
+
+    /**
+     * @brief Unit test to test UDP socket timeout parameter. Test should timeout
+     * after 5 seconds of not receiving data
+     * 
+     */
+    TEST(spat_receive_worker, test_invalid_ip)
+    {
+        std::string tsc_ip_bad = "asdhas.asd";
+        int tsc_port = 6053;
+        int tsc_timeout = 5;
+
+        spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
+        try{
+            worker.listen_udp_spat();
+        }
+        catch( const spat_worker_exception &e){
+            ASSERT_STREQ( e.what(), "Failed to get addr info for the tsc_service instance");
+        }
+        catch( ... ) {
+            __assert_fail;
+        }
+        
+    }  
 }

@@ -12,8 +12,9 @@ find_library(NETSNMPMIBS "netsnmpmibs")
 find_library(NETSNMP "netsnmp")
 
 add_library(${PROJECT_NAME}_lib
+        src/exceptions/spat_worker_exception.cpp
         src/snmp_client.cpp
-        src/spat_receive_worker.cpp)
+        src/spat_worker.cpp)
 
 add_executable( ${PROJECT_NAME} 
         src/main.cpp)

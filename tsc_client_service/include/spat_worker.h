@@ -9,10 +9,11 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include "spat_worker_exception.h"
 
 namespace traffic_signal_controller_service
 {
-    class SpatWorker 
+    class spat_worker 
     {
         private:
             /**
@@ -28,12 +29,12 @@ namespace traffic_signal_controller_service
             /**
             * @brief timeout in milliseconds for udp socket to tsc_service
             */
-            int socketTimeout_;
+            int socket_timeout_;
 
             /**
              * @brief boolean to verify whether socket has successfully been created
              */
-            bool socketCreated_ = false; 
+            bool socket_created_ = false; 
 
         public:
             /**
@@ -44,14 +45,16 @@ namespace traffic_signal_controller_service
              * @param port The ethernet port to receive spat messages on
              * @param socketTimeout Timeout, in seconds, for udp socket to TSC
              */
-            SpatWorker(const std::string& ip, const int& port, const int& socketTimeout);
+            spat_worker(const std::string& ip, const int& port, const int& socket_timeout);
 
             /**
-             * @brief Create a socket to the ip and port member variables. If it is successfully created, the received content will
-             * be printed to the spd log.
+             * @brief Create a UDP socket to the ip and port member variables. If it is successfully created, the received NTCIP SPaT
+             * packets and print out their content.
              * 
+             * @throw spat_worker_exception if the UDP socket fails to connect or the connection times out. The connection will timout 
+             * after a configurable ammount of time if no data is received at UDP socket.
              */
-            void createSocket();    
+            void listen_udp_spat();    
 
     };
 }

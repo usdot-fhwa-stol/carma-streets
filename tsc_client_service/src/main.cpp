@@ -1,6 +1,6 @@
 #include <iostream>
 #include "snmp_client.h"
-#include "spat_receive_worker.h"
+#include "spat_worker.h"
 
 int main()
 {
@@ -29,8 +29,9 @@ int main()
     worker.process_snmp_request(enable_spat_oid, request_type, enable_spat_value);
 
     //instantiate spat receive worker
-    traffic_signal_controller_service::SpatWorker spatWorker(local_ip, local_port, socketTimeout);
-    spatWorker.createSocket();
+    traffic_signal_controller_service::spat_worker spatWorker(local_ip, local_port, socketTimeout);
+    // We can implement a retry loop here if we would like.
+    spatWorker.listen_udp_spat();
 
     return 0;
 }
