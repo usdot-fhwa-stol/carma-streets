@@ -26,7 +26,7 @@ namespace streets_vehicles {
              */
             all_stop_status_intent_processor(const double stopping_distance=1.0, const double stopping_speed=0.1, const uint64_t timeout = 30000 ): 
                 _stopping_distance(stopping_distance), _stopping_speed(stopping_speed), _timeout(timeout) {
-                    SPDLOG_INFO("All stop status and intent processor initialization.");
+                    SPDLOG_DEBUG("All stop status and intent processor initialization.");
                 };
             /**
              * @brief Set stopping_distance stopping condition.

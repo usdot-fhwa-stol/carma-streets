@@ -5,7 +5,7 @@ namespace streets_vehicles
     // Override update_vehicle_state from based class all_stop_status_intent_processor
     void signalized_status_intent_processor::update_vehicle_state(vehicle &vehicle) const
     {
-        SPDLOG_INFO("Update vehilce status with signalized status and intent processor.");
+        SPDLOG_DEBUG("Update vehilce status with signalized status and intent processor.");
         if (vehicle._cur_state == vehicle_state::ND)
         {
             if (vehicle._cur_lane_id == vehicle._entry_lane_id)
