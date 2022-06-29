@@ -13,7 +13,7 @@ namespace streets_vehicles
     public:
         signalized_status_intent_processor() : all_stop_status_intent_processor()
         {
-            SPDLOG_INFO("Signalized status and intent processor initialization.");
+            SPDLOG_DEBUG("Signalized status and intent processor initialization.");
         };
         ~signalized_status_intent_processor() override = default;
 
