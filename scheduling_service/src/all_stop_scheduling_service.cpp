@@ -17,19 +17,19 @@ namespace scheduling_service{
 			consumer_worker = client->create_consumer(bootstrap_server, consumer_topic, group_id);
 			producer_worker  = client->create_producer(bootstrap_server, producer_topic);
 
-			if(!consumer_worker->init())
+			if(!(consumer_worker->init()))
 			{
 				SPDLOG_CRITICAL("kafka consumer initialize error");
-				exit(-1);
+				exit(EXIT_FAILURE);
 				return false;
 			}
 			else
 			{
 				consumer_worker->subscribe();
-				if(!consumer_worker->is_running())
+				if(!(consumer_worker->is_running()))
 				{
 					SPDLOG_CRITICAL("consumer_worker is not running");
-					exit(-1);
+					exit(EXIT_FAILURE);
 					return false;
 				}
 			}
@@ -38,10 +38,10 @@ namespace scheduling_service{
 			if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
 				configure_csv_logger();
 			}
-			if(!producer_worker->init())
+			if(!(producer_worker->init()))
 			{
 				SPDLOG_CRITICAL("kafka producer initialize error");
-				exit(-1);
+				exit(EXIT_FAILURE);
 				return false;
 			}
 			
@@ -137,7 +137,7 @@ namespace scheduling_service{
 		if (!_scheduling_worker)
 		{
 			SPDLOG_CRITICAL("scheduling worker is not initialized");
-			exit(-1);
+			exit(EXIT_FAILURE);
 		}
 		
 		u_int64_t last_schedule_timestamp = 0;

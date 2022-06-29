@@ -5,7 +5,7 @@ namespace scheduling_service {
 
 	bool intersection_client::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts)
 	{
-		unsigned long sleep_secs = std::round(sleep_millisecs / 1000);
+		auto sleep_secs = static_cast<unsigned long>(sleep_millisecs / 1000);
 		unsigned long attempt_count = 0;
 		while (attempt_count < int_client_request_attempts)
 		{	
