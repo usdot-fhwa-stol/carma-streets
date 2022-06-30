@@ -104,27 +104,33 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_valid_json) {
     for ( auto& update: updates ) {
         SPDLOG_INFO("Processing Update {0} ", update);
         veh_list->process_update(update);
+
+        //Vehicle DOT-507 status and intent is received and processed. DOT-507 is currently at entry lanelet
         if ( i == 0) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 1);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 1);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).begin()->_id, "DOT-507");
             ASSERT_EQ( veh_list->get_vehicles_by_lane(7).begin()->_id, "DOT-507");
         }
+        //Vehicle DOT-508 status and intent is received and processed. DOT-508 is currently at entry lanelet
         else if ( i == 1) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_lane(5).size(), 1);
             ASSERT_EQ( veh_list->get_vehicles_by_lane(5).begin()->_id, "DOT-508");
         }
+        //Vehicle DOT-507 status and intent is received and processed. DOT-507 is currently still at entry lanelet
         else if (i == 4) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).begin()->_id, "DOT-508");
         }
+        //Vehicle DOT-508 status and intent is received and processed. DOT-508 is currently still at entry lanelet
         else if (i == 5) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 2);
         }
+        //Vehicle DOT-508 status and intent is received and processed. DOT-508 is currently still at link lanelet
         else if (i == 6) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 1);
@@ -134,6 +140,7 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_valid_json) {
             ASSERT_EQ( veh_list->get_vehicles_by_lane(6).begin()->_id, "DOT-508");
             ASSERT_TRUE( veh_list->get_vehicles_by_lane(6).begin()->_cur_state == vehicle_state::DV);
         }
+        //Vehicle DOT-508 status and intent is received and processed. DOT-508 is currently still at departure lanelet
         else if (i == 7) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 1);
@@ -143,6 +150,7 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_valid_json) {
             ASSERT_EQ( veh_list->get_vehicles_by_lane(9).begin()->_id, "DOT-508");
             ASSERT_TRUE( veh_list->get_vehicles_by_lane(9).begin()->_cur_state == vehicle_state::LV);
         }
+        //Vehicle DOT-507 status and intent is received and processed. DOT-507 is currently still at link lanelet
         else if (i == 8) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::DV).size(), 1);
@@ -152,6 +160,7 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_valid_json) {
             ASSERT_EQ( veh_list->get_vehicles_by_lane(9).begin()->_id, "DOT-508");
             ASSERT_TRUE( veh_list->get_vehicles_by_lane(9).begin()->_cur_state == vehicle_state::LV);
         }
+        //Vehicle DOT-507 and DOT-508 status and intent are received and processed. Both vehicles' state should not be ND (Not Determined)
         else {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::ND).size(), 0);
