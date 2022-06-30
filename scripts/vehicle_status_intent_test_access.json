@@ -891,7 +891,7 @@
                 "cur_speed": 1000.0,
                 "cur_accel": 0.0,
                 "cur_lane_id": 11899,
-                "cur_ds": 200,
+                "cur_ds": 200.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,

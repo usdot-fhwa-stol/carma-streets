@@ -17,6 +17,7 @@ find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
 
 include_directories("/usr/local/include")
 

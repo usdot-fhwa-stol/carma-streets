@@ -188,9 +188,9 @@ namespace streets_vehicles {
 			SPDLOG_DEBUG("Vehicle {0} state is updated from EV to RDV.", vehicle._id);	 
 		}
 		else if (vehicle._cur_state == vehicle_state::RDV && vehicle._access ){
-			if ( vehicle._cur_lane_id != vehicle._link_id ){
+			if ( vehicle._cur_lane_id != vehicle._entry_lane_id ){
 				SPDLOG_CRITICAL("Departing vehicle with RDV (Ready to Depart Vehicle) VEHICLE STATE is NOT in entry lane {0} != {1}" ,
-					vehicle._link_id, vehicle._cur_lane_id );
+					vehicle._entry_lane_id, vehicle._cur_lane_id );
 			}
 			vehicle._cur_state = vehicle_state::DV;
 			vehicle._actual_et = vehicle._cur_time;

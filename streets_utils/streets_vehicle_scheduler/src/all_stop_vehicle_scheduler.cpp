@@ -125,7 +125,14 @@ namespace streets_vehicle_scheduler {
             // set st
             veh_sched.st = departing_veh._actual_st;
             // set et
-            veh_sched.et =  departing_veh._actual_et;
+            if (departing_veh._actual_et == 0)
+            {
+                veh_sched.et =  schedule.timestamp;
+            }
+            else
+            {
+                veh_sched.et =  departing_veh._actual_et;
+            }
             // departure time is equal to current time plus clearance time for DVs
             veh_sched.dt =  schedule.timestamp + clearance_time;
             // set departure position to departure position index
@@ -543,9 +550,9 @@ namespace streets_vehicle_scheduler {
         auto previously_granted_itr = rdvs_previously_granted_access.begin();
         while ( previously_granted_itr != rdvs_previously_granted_access.end() ) {
             if ( previously_granted_itr->_id == veh._id ) {
-                SPDLOG_DEBUG("Removing DV {0} to list of RDVs previously granted access.", previously_granted_itr->_id);
+                SPDLOG_INFO("Removing DV {0} from list of RDVs previously granted access.", previously_granted_itr->_id);
                 rdvs_previously_granted_access.erase(previously_granted_itr);
-                
+                break;
             }else {
                 previously_granted_itr++;
             }
