@@ -49,7 +49,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
 
 }
 
-bool snmp_client::process_snmp_request(std::string& input_oid, std::string& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(const std::string& input_oid, const std::string& request_type, int64_t& value){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
