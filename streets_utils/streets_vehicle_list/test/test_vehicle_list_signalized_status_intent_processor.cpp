@@ -99,7 +99,7 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_valid_json) {
     SPDLOG_INFO( "Set timeout to {0} days !",veh_list->get_processor()->get_timeout()/(1000*60*60*24));
     
     // Load Vehicle Update
-    std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates.json");
+    std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
     int i = 0;
     for ( auto& update: updates ) {
         SPDLOG_INFO("Processing Update {0} ", update);
@@ -125,9 +125,36 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_valid_json) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 2);
         }
+        else if (i == 6) {
+            ASSERT_EQ( veh_list->get_vehicles().size(), 2);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 1);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::DV).size(), 1);
+            ASSERT_EQ( veh_list->get_vehicles_by_lane(7).begin()->_id, "DOT-507");
+            ASSERT_TRUE( veh_list->get_vehicles_by_lane(7).begin()->_cur_state == vehicle_state::EV);
+            ASSERT_EQ( veh_list->get_vehicles_by_lane(6).begin()->_id, "DOT-508");
+            ASSERT_TRUE( veh_list->get_vehicles_by_lane(6).begin()->_cur_state == vehicle_state::DV);
+        }
+        else if (i == 7) {
+            ASSERT_EQ( veh_list->get_vehicles().size(), 2);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 1);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::LV).size(), 1);
+            ASSERT_EQ( veh_list->get_vehicles_by_lane(7).begin()->_id, "DOT-507");
+            ASSERT_TRUE( veh_list->get_vehicles_by_lane(7).begin()->_cur_state == vehicle_state::EV);
+            ASSERT_EQ( veh_list->get_vehicles_by_lane(9).begin()->_id, "DOT-508");
+            ASSERT_TRUE( veh_list->get_vehicles_by_lane(9).begin()->_cur_state == vehicle_state::LV);
+        }
+        else if (i == 8) {
+            ASSERT_EQ( veh_list->get_vehicles().size(), 2);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::DV).size(), 1);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::LV).size(), 1);
+            ASSERT_EQ( veh_list->get_vehicles_by_lane(8).begin()->_id, "DOT-507");
+            ASSERT_TRUE( veh_list->get_vehicles_by_lane(8).begin()->_cur_state == vehicle_state::DV);
+            ASSERT_EQ( veh_list->get_vehicles_by_lane(9).begin()->_id, "DOT-508");
+            ASSERT_TRUE( veh_list->get_vehicles_by_lane(9).begin()->_cur_state == vehicle_state::LV);
+        }
         else {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
-            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 2);
+            ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::ND).size(), 0);
             ASSERT_EQ( veh_list->get_vehicles_by_lane(5).size(), 1);
             ASSERT_EQ( veh_list->get_vehicles_by_lane(5).begin()->_id, "DOT-508");
             ASSERT_EQ( veh_list->get_vehicles_by_lane(7).size(), 1);
@@ -181,7 +208,7 @@ TEST_F(vehicle_list_signalized_status_intent_processor_test, parse_timeout_json)
     SPDLOG_INFO( "Set timeout to {0} seconds !", veh_list->get_processor()->get_timeout()/(1000));
     
     // Load Vehicle Update
-    std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates.json");
+    std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
     int i = 0;
     for ( auto& update: updates ) {
         SPDLOG_INFO("Processing  Update {0} : {1} ", i, update);
