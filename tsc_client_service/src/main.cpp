@@ -2,6 +2,7 @@
 #include "snmp_client.h"
 #include "spat_worker.h"
 #include "ntcip_oids.h"
+#include "spat_worker_exception.h"
 
 int main()
 {
@@ -29,9 +30,13 @@ int main()
     worker.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value);
 
     //instantiate spat receive worker
-    traffic_signal_controller_service::spat_worker spatWorker(local_ip, local_port, socketTimeout);
-    // We can implement a retry loop here if we would like.
-    spatWorker.listen_udp_spat();
-
+    traffic_signal_controller_service::spat_worker spat_worker(local_ip, local_port, socketTimeout);
+    // Create SPaT UDP socket
+    try {
+        spat_worker.listen_udp_spat();
+    }
+    catch ( const traffic_signal_controller_service::spat_worker_exception &e) {
+        SPDLOG_ERROR("Failed to create UDP socket for NTCIP SPaT data : {0} ", e.what());
+    }
     return 0;
 }

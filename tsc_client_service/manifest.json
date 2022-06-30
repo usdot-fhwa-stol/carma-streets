@@ -36,7 +36,7 @@
         {
             
             "name": "local_ip",
-            "value": "192.168.120.100",
+            "value": "127.0.0.1",
             "description": "local carma streets IP address",
             "type": "STRING"
         },
