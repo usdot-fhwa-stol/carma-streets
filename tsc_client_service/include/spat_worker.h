@@ -54,7 +54,7 @@ namespace traffic_signal_controller_service
              * @throw spat_worker_exception if the UDP socket fails to connect or the connection times out. The connection will timout 
              * after a configurable ammount of time if no data is received at UDP socket.
              */
-            void listen_udp_spat();    
+            void listen_udp_spat() const;    
 
     };
 }

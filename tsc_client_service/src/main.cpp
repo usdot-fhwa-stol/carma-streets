@@ -1,6 +1,7 @@
 #include <iostream>
 #include "snmp_client.h"
 #include "spat_worker.h"
+#include "ntcip_oids.h"
 
 int main()
 {
@@ -23,10 +24,9 @@ int main()
     traffic_signal_controller_service::snmp_client worker(target_ip, target_port, community, snmp_version, timeout);
     
     //enable spat udp stream on tsc
-    std::string enable_spat_oid = "1.3.6.1.4.1.1206.3.5.2.9.44.1.0";
     std::string request_type = "SET";
     int64_t enable_spat_value = 2;
-    worker.process_snmp_request(enable_spat_oid, request_type, enable_spat_value);
+    worker.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value);
 
     //instantiate spat receive worker
     traffic_signal_controller_service::spat_worker spatWorker(local_ip, local_port, socketTimeout);

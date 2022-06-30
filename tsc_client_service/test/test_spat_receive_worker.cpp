@@ -4,25 +4,25 @@
 #include "snmp_client.h"
 #include "spat_worker.h"
 #include "spat_worker_exception.h"
+#include "ntcip_oids.h"
 
 namespace traffic_signal_controller_service
 {
     /**
-     * @brief SNMP required to enable spat using wrong OID should fail.
+     * @brief SNMP required to enable spat using OID should fail.
      * 
      */
-    TEST(spat_receive_worker, test_enable_spat)
+    TEST(spat_receive_client, test_enable_spat)
     {   
         std::string dummy_ip = "192.168.120.57";
         int dummy_port = 6054;
 
-        snmp_client worker(dummy_ip, dummy_port);
+        snmp_client client(dummy_ip, dummy_port);
         
-        std::string enable_spat_oid_wrong = "1.3.6.1.4.1.1206.3.5.2.9.49.1.0";
         std::string request_type = "SET";
         int64_t enable_spat_value = 2;
         // Expect set to return false with invalid enable spat OID
-        EXPECT_FALSE(worker.process_snmp_request(enable_spat_oid_wrong, request_type, enable_spat_value));
+        EXPECT_FALSE(client.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value));
     }
     /**
      * @brief Attempt to listen on a IP that is not the host of the service should fail.
@@ -48,7 +48,7 @@ namespace traffic_signal_controller_service
         
     }
     /**
-     * @brief Unit test to test UDP socket timeout parameter. Test should timeout
+     * @brief Ttest UDP socket timeout parameter. Test should timeout
      * after 5 seconds of not receiving data
      * 
      */
@@ -73,8 +73,7 @@ namespace traffic_signal_controller_service
     }
 
     /**
-     * @brief Unit test to test UDP socket timeout parameter. Test should timeout
-     * after 5 seconds of not receiving data
+     * @brief Test UDP socket with invaild host address
      * 
      */
     TEST(spat_receive_worker, test_invalid_ip)

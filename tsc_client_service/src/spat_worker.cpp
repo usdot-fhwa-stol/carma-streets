@@ -10,7 +10,7 @@ namespace traffic_signal_controller_service
         SPDLOG_DEBUG("Creating Spat Worker");
     }
 
-    void spat_worker::listen_udp_spat()
+    void spat_worker::listen_udp_spat() const
     {
         addrinfo hints;
         addrinfo *result;

@@ -44,6 +44,11 @@ TEST(traffic_signal_controller_service, test_process_snmp_request)
     
     status = -7; //Random error value
     worker.log_error(status, request_type,response);
+
+    // Invalid Request type
+    request_type = "INVALID";
+    EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
+
     
 }
 }

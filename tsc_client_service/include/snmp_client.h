@@ -60,7 +60,7 @@ class snmp_client
          *  @param value The integer value for the object returned by reference. For "SET" it is the value to be set. 
          *  For "GET", it is the value returned for the returned object by reference.
          *  @return Integer value at the oid, returns false if value cannot be set/requested or oid doesn't have an integer value to return.*/
-        bool process_snmp_request(std::string& input_oid, std::string& request_type, int64_t& value);
+        bool process_snmp_request(const std::string& input_oid, const std::string& request_type, int64_t& value);
 
         /** @brief Finds error type from status and logs an error.
          *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)
