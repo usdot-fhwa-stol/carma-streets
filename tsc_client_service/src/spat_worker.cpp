@@ -52,7 +52,7 @@ namespace traffic_signal_controller_service
         {
             std::vector<char> spat_buf(max_data_size);
             ssize_t bytes_received = recv(sock, spat_buf.data(), spat_buf.size(), 0);
-
+            // see recv documentation https://man7.org/linux/man-pages/man2/recv.2.html#RETURN_VALUE
             if (bytes_received > 0)
             {
                 spat_buf.resize(bytes_received);
@@ -68,8 +68,17 @@ namespace traffic_signal_controller_service
                 SPDLOG_DEBUG("Buffer contains: {0}", mystr);
 
             }
-            else {
-                throw spat_worker_exception("Timeout of " + std::to_string( socket_timeout_) + " seconds has elapsed. Closing SPaT Work UDP Socket" );
+            else if (bytes_received == -1){
+                // see recv documentation https://man7.org/linux/man-pages/man2/recv.2.html#ERRORS
+                if (EAGAIN == errno){
+                    throw spat_worker_exception("Timeout of "+ std::to_string(socket_timeout_) + " seconds has elapsed. Closing SPaT Work UDP Socket");
+                } else {
+                    throw spat_worker_exception(strerror(errno));
+                }
+            }
+            // Should be impossible since UDP is connectionless communication protocol
+            else if (bytes_received == 0){
+                SPDLOG_ERROR("Connection terminated by server");
             }       
         }    
     }
