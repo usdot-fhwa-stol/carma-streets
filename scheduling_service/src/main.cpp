@@ -9,25 +9,16 @@ int main(int argc,char** argv)
     QCoreApplication a(argc, argv);
     streets_service::streets_configuration::initialize_logger();
 
-    // HTTP request to update intersection information
-    auto int_client = std::make_shared<scheduling_service::intersection_client>();
-    auto sleep_millisecs = std::stoul(streets_service::streets_configuration::get_string_config("sleep_millisecs"));
-    auto int_client_request_attempts = std::stoul(streets_service::streets_configuration::get_string_config("int_client_request_attempts"));
+    auto sleep_millisecs = streets_service::streets_configuration::get_int_config("sleep_millisecs");
+    auto int_client_request_attempts = streets_service::streets_configuration::get_int_config("int_client_request_attempts");
 
-    if (int_client->update_intersection_info(sleep_millisecs, int_client_request_attempts))
+    scheduling_service::all_stop_scheduling_service sched_service;
+    if (sched_service.initialize(sleep_millisecs, int_client_request_attempts))
     {
-        auto intersection_info_ptr = int_client->get_intersection_info();
+        sched_service.start();
+    }
 
-        scheduling_service::all_stop_scheduling_service sched_service;
-        if (intersection_info_ptr && sched_service.initialize(*intersection_info_ptr.get()))
-        {
-            sched_service.start();
-        }
-    }
-    else
-    {
-        return false;
-    }
+
 
     return a.exec();
 

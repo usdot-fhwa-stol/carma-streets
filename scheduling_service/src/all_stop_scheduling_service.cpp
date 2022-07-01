@@ -2,7 +2,7 @@
 
 namespace scheduling_service{
 
-	bool all_stop_scheduling_service::initialize(OpenAPI::OAIIntersection_info intersection_info)
+	bool all_stop_scheduling_service::initialize(const int sleep_millisecs, const int int_client_request_attempts)
 	{
 		try
 		{
@@ -17,7 +17,7 @@ namespace scheduling_service{
 			consumer_worker = client->create_consumer(bootstrap_server, consumer_topic, group_id);
 			producer_worker  = client->create_producer(bootstrap_server, producer_topic);
 
-			if(!(consumer_worker->init()))
+			if(!consumer_worker->init())
 			{
 				SPDLOG_CRITICAL("kafka consumer initialize error");
 				exit(EXIT_FAILURE);
@@ -26,7 +26,7 @@ namespace scheduling_service{
 			else
 			{
 				consumer_worker->subscribe();
-				if(!(consumer_worker->is_running()))
+				if(!consumer_worker->is_running())
 				{
 					SPDLOG_CRITICAL("consumer_worker is not running");
 					exit(EXIT_FAILURE);
@@ -38,15 +38,24 @@ namespace scheduling_service{
 			if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
 				configure_csv_logger();
 			}
-			if(!(producer_worker->init()))
+			if(!producer_worker->init())
 			{
 				SPDLOG_CRITICAL("kafka producer initialize error");
 				exit(EXIT_FAILURE);
 				return false;
 			}
 			
+			// HTTP request to update intersection information
+			auto int_client = std::make_shared<scheduling_service::intersection_client>();
 
-			intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>(intersection_info);
+			if (int_client->update_intersection_info(sleep_millisecs, int_client_request_attempts))
+			{
+				intersection_info_ptr = int_client->get_intersection_info();
+			}
+			else
+			{
+				return false;
+			}
 
 			vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
 			config_vehicle_list();

@@ -58,7 +58,7 @@ namespace scheduling_service{
          * @brief Initialize the consumer, producer, and scheduling workers.
 		 * Create a vehicle list and scheduler objects and configure them.
          */
-        bool initialize(OpenAPI::OAIIntersection_info intersection_info);
+        bool initialize(const int sleep_millisecs, const int int_client_request_attempts);
 
         /**
          * @brief Create 2 threads:

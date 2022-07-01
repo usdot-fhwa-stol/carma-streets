@@ -27,7 +27,7 @@ namespace scheduling_service{
          * @param int_client_request_attempts The number of attempts for the loop.
          * @return boolean. True if intersection information is updated, otherwise failed to update intersection information.
          */
-		bool update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts);
+		bool update_intersection_info(const int sleep_millisecs, const int int_client_request_attempts);
 
 		/**
          * @brief Send http GET request to intersection model at rate of configured HZ until it gets the intersection info.

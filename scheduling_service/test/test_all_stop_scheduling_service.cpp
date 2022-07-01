@@ -43,8 +43,12 @@ namespace {
 
 TEST_F(all_stop_scheduling_service_test, initialization)
 {
+    
+    int sleep_millisecs = 1000;
+    int int_client_request_attempts = 10;
+    
     all_stop_scheduling_service ss;
-    ASSERT_FALSE(ss.initialize(int_info));
+    ASSERT_FALSE(ss.initialize(sleep_millisecs, int_client_request_attempts));
 }
 
 

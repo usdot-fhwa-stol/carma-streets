@@ -3,10 +3,10 @@
 
 namespace scheduling_service {
 
-	bool intersection_client::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts)
+	bool intersection_client::update_intersection_info(const int sleep_millisecs, const int int_client_request_attempts)
 	{
 		auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
-		unsigned int attempt_count = 0;
+		int attempt_count = 0;
 		while (attempt_count < int_client_request_attempts)
 		{	
 			// Send HTTP request, and update intersection information. If updated successfully, it returns true and exit the while loop.

@@ -38,8 +38,8 @@ namespace {
 
 TEST_F(intersection_client_test, update_intersection_info)
 {
-    unsigned long sleep_millisecs = 1000;
-    unsigned long int_client_request_attempts = 10;
+    int sleep_millisecs = 1000;
+    int int_client_request_attempts = 10;
     ASSERT_FALSE(int_client->update_intersection_info(sleep_millisecs, int_client_request_attempts));
 }
 

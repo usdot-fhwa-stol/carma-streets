@@ -94,15 +94,15 @@
         },
         {
             "name": "sleep_millisecs",
-            "value": "1000",
+            "value": 1000,
             "description": "Current thread sleep for milliseconds",
-            "type": "STRING"
+            "type": "INTEGER"
         },
         {
             "name": "int_client_request_attempts",
-            "value": "10",
+            "value": 10,
             "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
-            "type": "STRING"
+            "type": "INTEGER"
         }
     ]
 }
