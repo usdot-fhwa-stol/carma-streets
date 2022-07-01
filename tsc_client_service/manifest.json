@@ -4,13 +4,13 @@
     "configurations": [
         {
             
-            "name": "ip",
+            "name": "target_ip",
             "value": "192.168.120.50",
             "description": "Target device IP address",
             "type": "STRING"
         }, 
         {
-           "name": "port",
+           "name": "target_port",
            "value": 6053,
            "description": "Target device NTCIP port",
            "type": "INTEGER" 
@@ -30,8 +30,29 @@
         {
             "name": "timeout",
             "value": 10000,
-            "description": "Time after which the the snmp request times out",
+            "description": "Time in millisecond after which the the snmp request times out",
             "type": "INTEGER" 
+        },
+        {
+            
+            "name": "local_ip",
+            "value": "127.0.0.1",
+            "description": "local carma streets IP address",
+            "type": "STRING"
+        },
+        {
+            
+            "name": "local_udp_port",
+            "value": 6053,
+            "description": "local port to receive spat messages on from TSC",
+            "type": "INTEGER"
+        },
+        {
+            
+            "name": "socket_timeout",
+            "value": 10,
+            "description": "timeout in seconds for udp socket to TSC",
+            "type": "INTEGER"
         }
     ]
 }
