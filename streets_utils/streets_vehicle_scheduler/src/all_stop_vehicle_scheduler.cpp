@@ -125,10 +125,12 @@ namespace streets_vehicle_scheduler {
             // set st
             veh_sched.st = departing_veh._actual_st;
             // set et
-            if (departing_veh._actual_et == 0)
+            // if the vehicle is a previously granted access rdv but did not confirm it has received access and thus, doesn't have an actual et
+            if (is_rdv_previously_granted_access(departing_veh))
             {
                 veh_sched.et =  schedule.timestamp;
             }
+            // otherwise
             else
             {
                 veh_sched.et =  departing_veh._actual_et;
