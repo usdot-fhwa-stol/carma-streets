@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
 find_package(spdlog REQUIRED)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
+find_package(RapidJSON REQUIRED)
+# Add definition for rapidjson to include std::string
+add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
