@@ -93,8 +93,8 @@ namespace {
 TEST_F(vehicle_list_test, parse_valid_json) {
     // Test initialization
     ASSERT_EQ(veh_list->get_vehicles().size(), 0);
-    // Set timeout to 1 year in milliseconds.
-    veh_list->get_processor()->set_timeout(3.154e10);
+    // Set timeout to 10 year in milliseconds.
+    veh_list->get_processor()->set_timeout(3.154e11);
     // Print timeout in days.
     SPDLOG_INFO( "Set timeout to {0} days !",veh_list->get_processor()->get_timeout()/(1000*60*60*24));
     
@@ -146,8 +146,8 @@ TEST_F(vehicle_list_test, parse_invalid_json) {
     // Test initialization
     auto vehicles = veh_list->get_vehicles();
     ASSERT_EQ(vehicles.size(), 0);
-    // Set timeout to 1 year in milliseconds.
-    veh_list->get_processor()->set_timeout(3.156e10);
+    // Set timeout to 10 year in milliseconds.
+    veh_list->get_processor()->set_timeout(3.156e11);
     // Print timeout in days.
     SPDLOG_INFO( "Set timeout to {0} days !", veh_list->get_processor()->get_timeout()/(1000*60*60*24));
     
