@@ -30,7 +30,6 @@ namespace scheduling_service {
 		bool intersection_info_valid = false;
         OpenAPI::OAIDefaultApi apiInstance;
 		OpenAPI::OAIIntersection_info int_info;
-		QNetworkReply::NetworkError net_error;
 		QString error_str;
         QEventLoop loop;
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [this, &int_info, &intersection_info_valid, &loop]{     
@@ -45,7 +44,7 @@ namespace scheduling_service {
             loop.quit(); });
 
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, 
-			[this, &int_info, &net_error, &error_str, &loop]{ 
+			[&error_str, &loop]{ 
 			SPDLOG_ERROR("Error happened while issuing intersection model GET information request : {0}",  error_str.toStdString());
 			loop.quit(); });
 
