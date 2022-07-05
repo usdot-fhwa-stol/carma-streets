@@ -68,7 +68,7 @@ namespace scheduling_service{
         void start();
 
 		/**
-         * @brief Set the vehicle list processor and configure it.
+         * @brief Create the vehicle list processor and configure it.
          */
 		bool config_vehicle_list() const;
 
@@ -86,7 +86,7 @@ namespace scheduling_service{
 
         /**
          * @brief Schedule vehicles and produce the schedule plan.
-		 * @param producer_worker The producer worker.
+		 * @param producer_worker The kafka producer worker.
 		 * @param scheduling_worker The scheduling worker.
 		 * @param vehicle_list_ptr The vehicle list object.
 		 * @param scheduler_ptr The scheduler object.

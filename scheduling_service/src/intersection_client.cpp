@@ -5,7 +5,7 @@ namespace scheduling_service {
 
 	bool intersection_client::update_intersection_info(const int sleep_millisecs, const int int_client_request_attempts)
 	{
-		auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
+		auto sleep_secs_micro = static_cast<unsigned int>(sleep_millisecs *1000);
 		int attempt_count = 0;
 		while (attempt_count < int_client_request_attempts)
 		{	
@@ -15,7 +15,8 @@ namespace scheduling_service {
 				SPDLOG_INFO("Intersection information is updated successfuly! ");
 				return true;
 			}
-			usleep(sleep_secs);
+			// usleep takes micro seconds
+			usleep(sleep_secs_micro);
 			attempt_count++;
 		}
 		// If failed to update the intersection information after certain numbers of attempts
@@ -28,8 +29,11 @@ namespace scheduling_service {
     {
 		bool intersection_info_valid = false;
         OpenAPI::OAIDefaultApi apiInstance;
+		OpenAPI::OAIIntersection_info int_info;
+		QNetworkReply::NetworkError net_error;
+		QString error_str;
         QEventLoop loop;
-        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [&](OpenAPI::OAIIntersection_info int_info){     
+        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [this, &int_info, &intersection_info_valid, &loop]{     
 
 			SPDLOG_INFO("request_intersection_info succeed!");
 			SPDLOG_DEBUG("intersection name: {0}", int_info.getName().toStdString());
@@ -40,7 +44,8 @@ namespace scheduling_service {
 
             loop.quit(); });
 
-        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, [&](OpenAPI::OAIIntersection_info, QNetworkReply::NetworkError, QString error_str){ 
+        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, 
+			[this, &int_info, &net_error, &error_str, &loop]{ 
 			SPDLOG_ERROR("Error happened while issuing intersection model GET information request : {0}",  error_str.toStdString());
 			loop.quit(); });
 

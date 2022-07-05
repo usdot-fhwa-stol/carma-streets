@@ -25,7 +25,7 @@ namespace scheduling_service{
 		
 		/**
 		 * @brief Checks if the time for starting the next schedule has been reached.
-		 * @param last_schedule_timestamp The timestamp of the last previous schedule.
+		 * @param last_schedule_timestamp The timestamp(in milliseconds) of the last previous schedule.
 		 * @param scheduling_delta Time(in seconds) interval between scheduling calculations.
 		 * @return true if the time for starting the next schedule has been reached.
 		 * @return false if the time for starting the next schedule has not been reached.
