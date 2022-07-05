@@ -2,6 +2,8 @@
 
 #include <spdlog/spdlog.h>
 #include <rapidjson/rapidjson.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #include "vehicle.h"
 
 namespace streets_vehicle_scheduler {
@@ -60,10 +62,10 @@ namespace streets_vehicle_scheduler {
         int link_id = 0;
         /**
          * @brief Write vehicle schedule as rapidjson::Value.
-         * 
+         * @param allocator json document allocator.
          * @return rapidjson::Value 
          */
-        rapidjson::Value toJson() const;
+        rapidjson::Value toJson(rapidjson::Document::AllocatorType& allocator) const;
     };
 
     
@@ -102,9 +104,9 @@ namespace streets_vehicle_scheduler {
         /**
          * @brief Method to write intersection schedule as JSON scheduling message.
          * 
-         * @return rrapidjson::Value& reference 
+         * @return std::string& reference.
          */
-        rapidjson::Value toJson() const;
+        std::string toJson() const;
 
     };  
 }

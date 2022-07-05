@@ -8,51 +8,53 @@
             "payload": {
                 "v_id": "DOT-507",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 200.0,
-                "cur_accel": -3.0,
+                "cur_speed": 100.0,
+                "cur_accel": -1.0,
                 "cur_lane_id": 5894,
-                "cur_ds": 2.0,
+                "cur_ds": 7.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,
+                "dest_lane_id": 11899,
 
+                "depart_pos": 0,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677096000,
                         "id": 5894,
-                        "ds": 2.0
+                        "ds": 7.0
                     },
                     {
                         "ts": 1623677096200,
                         "id": 5894,
-                        "ds": 1.6
+                        "ds": 6.6
                     },
                     {
                         "ts": 1623677096400,
                         "id": 5894,
-                        "ds": 1.2
+                        "ds": 6.2
                     },
                     {
                         "ts": 1623677096600,
                         "id": 5894,
-                        "ds": 0.8
+                        "ds": 5.8
                     },
                     {
                         "ts": 1623677096800,
                         "id": 5894,
-                        "ds": 0.4
+                        "ds": 5.4
                     },
                     {
                         "ts": 1623677097000,
                         "id": 5894,
-                        "ds": 0.0
+                        "ds": 5.0
                     }
                 ]
             }
@@ -64,51 +66,53 @@
             "payload": {
                 "v_id": "DOT-508",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 500.0,
+                "cur_speed": 100.0,
                 "cur_accel": 0.0,
                 "cur_lane_id": 19252,
-                "cur_ds": 7.0,
+                "cur_ds": 12.0,
                 "direction": "straight",
                 "entry_lane_id": 19252,
                 "link_lane_id": 22528,
+                "dest_lane_id": 12459,
 
+                "depart_pos": 2,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677096000,
                         "id": 19252,
-                        "ds": 7
+                        "ds": 12.0
                     },
                     {
                         "ts": 1623677096200,
                         "id": 19252,
-                        "ds": 6
+                        "ds": 11.5
                     },
                     {
                         "ts": 1623677096400,
                         "id": 19252,
-                        "ds": 5
+                        "ds": 11.0
                     },
                     {
                         "ts": 1623677096600,
                         "id": 19252,
-                        "ds": 4
+                        "ds": 10.5
                     },
                     {
                         "ts": 1623677096800,
                         "id": 19252,
-                        "ds": 3
+                        "ds": 10.0
                     },
                     {
                         "ts": 1623677097000,
                         "id": 19252,
-                        "ds": 2
+                        "ds": 9.5
                     }
                 ]
             }
@@ -120,55 +124,58 @@
             "payload": {
                 "v_id": "DOT-509",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 500.0,
+                "cur_speed": 100.0,
                 "cur_accel": 0.0,
                 "cur_lane_id": 13021,
-                "cur_ds": 7.0,
+                "cur_ds": 12.0,
                 "direction": "straight",
                 "entry_lane_id": 13021,
                 "link_lane_id": 22878,
+                "dest_lane_id": 16349,
 
+                "depart_pos": 1,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677096000,
                         "id": 13021,
-                        "ds": 7
+                        "ds": 12.0
                     },
                     {
                         "ts": 1623677096200,
                         "id": 13021,
-                        "ds": 6
+                        "ds": 11.5
                     },
                     {
                         "ts": 1623677096400,
                         "id": 13021,
-                        "ds": 5
+                        "ds": 11.0
                     },
                     {
                         "ts": 1623677096600,
                         "id": 13021,
-                        "ds": 4
+                        "ds": 10.5
                     },
                     {
                         "ts": 1623677096800,
                         "id": 13021,
-                        "ds": 3
+                        "ds": 10.0
                     },
                     {
                         "ts": 1623677097000,
                         "id": 13021,
-                        "ds": 2
+                        "ds": 9.5
                     }
                 ]
             }
         },
+
         {
             "metadata": {
                 "timestamp": 1623677097000
@@ -176,51 +183,53 @@
             "payload": {
                 "v_id": "DOT-507",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": -2,
+                "cur_speed": 0.0,
+                "cur_accel": -2.0,
                 "cur_lane_id": 5894,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,
+                "dest_lane_id": 11899,
 
+                "depart_pos": 0,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677097000,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677097200,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677097400,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677097600,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677097800,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098000,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     }
                 ]
             }
@@ -232,19 +241,21 @@
             "payload": {
                 "v_id": "DOT-508",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 200,
-                "cur_accel": -3,
+                "cur_speed": 50.0,
+                "cur_accel": -3.0,
                 "cur_lane_id": 19252,
-                "cur_ds": 2,
+                "cur_ds": 2.0,
                 "direction": "straight",
                 "entry_lane_id": 19252,
                 "link_lane_id": 22528,
+                "dest_lane_id": 12459,
 
+                "depart_pos": 2,
                 "is_allowed": false,
 
                 "est_paths": [
@@ -288,19 +299,21 @@
             "payload": {
                 "v_id": "DOT-509",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 200,
-                "cur_accel": -3,
+                "cur_speed": 50.0,
+                "cur_accel": -3.0,
                 "cur_lane_id": 13021,
-                "cur_ds": 2,
+                "cur_ds": 2.0,
                 "direction": "straight",
                 "entry_lane_id": 13021,
                 "link_lane_id": 22878,
+                "dest_lane_id": 16349,
 
+                "depart_pos": 1,
                 "is_allowed": false,
 
                 "est_paths": [
@@ -337,6 +350,7 @@
                 ]
             }
         },
+
         {
             "metadata": {
             "timestamp": 1623677098000
@@ -344,51 +358,53 @@
             "payload": {
                 "v_id": "DOT-507",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 5894,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,
+                "dest_lane_id": 11899,
 
+                "depart_pos": 0,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677098000,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098200,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098400,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098600,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098800,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099000,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     }
                 ]
             }
@@ -400,51 +416,53 @@
             "payload": {
                 "v_id": "DOT-508",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": -2,
+                "cur_speed": 0.0,
+                "cur_accel": -2.0,
                 "cur_lane_id": 19252,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 19252,
                 "link_lane_id": 22528,
+                "dest_lane_id": 12459,
 
+                "depart_pos": 2,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677098000,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098200,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098400,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098600,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098800,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099000,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     }
                 ]
             }
@@ -456,55 +474,58 @@
             "payload": {
                 "v_id": "DOT-509",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": -2,
+                "cur_speed": 0.0,
+                "cur_accel": -2.0,
                 "cur_lane_id": 13021,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 13021,
                 "link_lane_id": 22878,
+                "dest_lane_id": 16349,
 
+                "depart_pos": 1,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677098000,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098200,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098400,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098600,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677098800,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099000,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     }
                 ]
             }
         },
+
         {
             "metadata": {
             "timestamp": 1623677099000
@@ -512,46 +533,48 @@
             "payload": {
                 "v_id": "DOT-507",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 5894,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,
-
-                "is_allowed": false,
+                "dest_lane_id": 11899,
+                
+                "depart_pos": 0,
+                "is_allowed": true,
 
                 "est_paths": [
                     {
                         "ts": 1623677099000,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099200,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099400,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099600,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099800,
                         "id": 5894,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100000,
@@ -568,46 +591,48 @@
             "payload": {
                 "v_id": "DOT-508",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 19252,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 19252,
                 "link_lane_id": 22528,
+                "dest_lane_id": 12459,
 
+                "depart_pos": 2,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677099000,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099200,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099400,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099600,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099800,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100000,
@@ -624,46 +649,48 @@
             "payload": {
                 "v_id": "DOT-509",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 13021,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 13021,
                 "link_lane_id": 22878,
+                "dest_lane_id": 16349,
 
+                "depart_pos": 1,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677099000,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099200,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099400,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099600,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677099800,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100000,
@@ -673,6 +700,7 @@
                 ]
             }
         },
+
         {
             "metadata": {
             "timestamp": 1623677100000
@@ -680,51 +708,53 @@
             "payload": {
                 "v_id": "DOT-507",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 200,
-                "cur_accel": 2,
-                "cur_lane_id": 23490,
-                "cur_ds": 18,
+                "cur_speed": 200.0,
+                "cur_accel": 2.0,
+                "cur_lane_id": 23016,
+                "cur_ds": 18.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,
+                "dest_lane_id": 11899,
 
+                "depart_pos": 0,
                 "is_allowed": true,
 
                 "est_paths": [
                     {
                         "ts": 1623677100000,
                         "id": 23016,
-                        "ds": 18
+                        "ds": 18.0
                     },
                     {
                         "ts": 1623677100200,
                         "id": 23016,
-                        "ds": 17
+                        "ds": 17.0
                     },
                     {
                         "ts": 1623677100400,
                         "id": 23016,
-                        "ds": 16
+                        "ds": 16.0
                     },
                     {
                         "ts": 1623677100600,
                         "id": 23016,
-                        "ds": 15
+                        "ds": 15.0
                     },
                     {
                         "ts": 1623677100800,
                         "id": 23016,
-                        "ds": 14
+                        "ds": 14.0
                     },
                     {
                         "ts": 1623677101000,
                         "id": 23016,
-                        "ds": 13
+                        "ds": 13.0
                     }
                 ]
             }
@@ -736,46 +766,48 @@
             "payload": {
                 "v_id": "DOT-508",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 19252,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 19252,
                 "link_lane_id": 22528,
+                "dest_lane_id": 12459,
 
+                "depart_pos": 2,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677100000,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100200,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100400,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100600,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100800,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101000,
@@ -792,46 +824,48 @@
             "payload": {
                 "v_id": "DOT-509",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 13021,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 13021,
                 "link_lane_id": 22878,
+                "dest_lane_id": 16349,
 
+                "depart_pos": 1,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677100000,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100200,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100400,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100600,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677100800,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101000,
@@ -841,6 +875,7 @@
                 ]
             }
         },
+
         {
             "metadata": {
             "timestamp": 1623677101000
@@ -848,51 +883,53 @@
             "payload": {
                 "v_id": "DOT-507",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 1000,
-                "cur_accel": 0,
+                "cur_speed": 1000.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 11899,
-                "cur_ds": 200,
+                "cur_ds": 200.0,
                 "direction": "straight",
                 "entry_lane_id": 5894,
                 "link_lane_id": 23016,
+                "dest_lane_id": 11899,
 
+                "depart_pos": 0,
                 "is_allowed": true,
 
                 "est_paths": [
                     {
                         "ts": 1623677101000,
                         "id": 11899,
-                        "ds": 200
+                        "ds": 200.0
                     },
                     {
                         "ts": 1623677101200,
                         "id": 11899,
-                        "ds": 198
+                        "ds": 198.0
                     },
                     {
                         "ts": 1623677101400,
                         "id": 11899,
-                        "ds": 196
+                        "ds": 196.0
                     },
                     {
                         "ts": 1623677101600,
                         "id": 11899,
-                        "ds": 194
+                        "ds": 194.0
                     },
                     {
                         "ts": 1623677101800,
                         "id": 11899,
-                        "ds": 192
+                        "ds": 192.0
                     },
                     {
                         "ts": 1623677102000,
                         "id": 4,
-                        "ds": 190
+                        "ds": 190.0
                     }
                 ]
             }
@@ -904,46 +941,48 @@
             "payload": {
                 "v_id": "DOT-508",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 19252,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 19252,
                 "link_lane_id": 22528,
+                "dest_lane_id": 12459,
 
+                "depart_pos": 2,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677101000,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101200,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101400,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101600,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101800,
                         "id": 19252,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677102000,
@@ -960,46 +999,48 @@
             "payload": {
                 "v_id": "DOT-509",
                 "v_length": 500,
-                "min_gap": 10,
+                "min_gap": 10.0,
                 "react_t": 1.5,
-                "max_accel": 5,
-                "max_decel": -5,
+                "max_accel": 5.0,
+                "max_decel": -5.0,
 
-                "cur_speed": 0,
-                "cur_accel": 0,
+                "cur_speed": 0.0,
+                "cur_accel": 0.0,
                 "cur_lane_id": 13021,
-                "cur_ds": 0,
+                "cur_ds": 0.0,
                 "direction": "straight",
                 "entry_lane_id": 13021,
                 "link_lane_id": 22878,
+                "dest_lane_id": 16349,
 
+                "depart_pos": 1,
                 "is_allowed": false,
 
                 "est_paths": [
                     {
                         "ts": 1623677101000,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101200,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101400,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101600,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677101800,
                         "id": 13021,
-                        "ds": 0
+                        "ds": 0.0
                     },
                     {
                         "ts": 1623677102000,
