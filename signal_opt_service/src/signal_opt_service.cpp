@@ -36,8 +36,8 @@ namespace signal_opt_service
             }
 
             // Serice config
-            auto sleep_millisecs = std::stoul(streets_service::streets_configuration::get_string_config("sleep_millisecs"));
-            auto int_client_request_attempts = std::stoul(streets_service::streets_configuration::get_string_config("int_client_request_attempts"));            
+            auto sleep_millisecs = streets_service::streets_configuration::get_int_config("sleep_millisecs");
+            auto int_client_request_attempts = streets_service::streets_configuration::get_int_config("int_client_request_attempts");            
 
             // HTTP request to update intersection information
             if (!update_intersection_info(sleep_millisecs, int_client_request_attempts))

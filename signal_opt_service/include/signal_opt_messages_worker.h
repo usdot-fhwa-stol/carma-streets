@@ -31,16 +31,14 @@ namespace signal_opt_service
         ~signal_opt_messages_worker() = default;
         
         /**
-         * @brief Vehicle string from kafka stream in JSON format. Convert the vehicle JSON into streets internal vehicle object, and add the vehicle object
-         * to the vehicle list. If the vehicle uniquely identified by the vehilce ID exist in the vehicle list and timestamp receiving this vehicle is larger,
-         * it will update the vehicle list with latest vehicle object.
+         * @brief Vehicle string from kafka stream in JSON format. Calling vehicle list library to persist vehicles.
          * @param vehicle_json Vehicle string from kafka stream in JSON format.
          * @return true if the vehicle list is updated.
          * @return false if the vehilce list is not updated.
          */
         bool add_update_vehicle(const std::string& vehicle_json) const;
         /**
-         * @brief Spat string from kafka stream in JSON format. Convert the spat JSON into streets internal spat object, and update the spat with the latest spat info
+         * @brief Spat string from kafka stream in JSON format. Updating the spat with the latest spat info calling the signal_phase_timing library
          * @param spat_json Spat string from kafka stream in JSON format.
          * @return true if the Spat object is updated.
          * @return false if the Spat object is not updated.

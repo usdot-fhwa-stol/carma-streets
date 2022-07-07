@@ -98,9 +98,6 @@ WORKDIR  /home/carma-streets/signal_opt_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 
-WORKDIR  /home/carma-streets/signal_opt_service/build/
-
-# Set metadata labels
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
 LABEL org.label-schema.schema-version="1.0"
