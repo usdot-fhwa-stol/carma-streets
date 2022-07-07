@@ -1,5 +1,5 @@
 {
-    "service_name": "intersection_model",
+    "service_name": "signal_optmization",
     "loglevel": "debug",
     "configurations": [
         {
@@ -40,9 +40,9 @@
         },
         {
             "name": "int_client_request_attempts",
-            "value": "10",
+            "value": 10,
             "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
-            "type": "STRING"
+            "type": "INTEGER"
         }
     ]
 }
