@@ -80,7 +80,6 @@ namespace signal_opt_service
                 switch (consume_msg_type)
                 {
                 case CONSUME_MSG_TYPE::SPAT:
-                    _so_msgs_worker_ptr->update_spat(payload);
                     if (!_so_msgs_worker_ptr->update_spat(payload))
                     {
                         SPDLOG_CRITICAL("Error occurred when updating SPAT.");                       
