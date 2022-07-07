@@ -38,7 +38,7 @@ namespace signal_opt_service
         bool signal_group_ids_valid = false;
         OpenAPI::OAIDefaultApi apiInstance;
         QEventLoop loop;
-        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [&](OpenAPI::OAIIntersection_info int_info)
+        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [this, &signal_group_ids_valid, &invalid_signal_group_count, &loop](OpenAPI::OAIIntersection_info int_info)
                 {                   
                     SPDLOG_INFO("request_intersection_info receives intersection information. Checking signal group ids update...");
                     QList<OpenAPI::OAILanelet_info> ll_info_list = int_info.getLinkLanelets();
@@ -57,7 +57,7 @@ namespace signal_opt_service
                 SPDLOG_INFO("Exit request_intersection_info.");
             loop.quit(); });
 
-        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, [&](OpenAPI::OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
+        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, [this, &signal_group_ids_valid, &invalid_signal_group_count, &loop](OpenAPI::OAIIntersection_info, QNetworkReply::NetworkError, QString error_str)
                 { 
                     SPDLOG_ERROR("Error happened while issuing intersection model GET information request : {0}",  error_str.toStdString());
                     loop.quit(); });
