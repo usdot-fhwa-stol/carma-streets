@@ -34,9 +34,9 @@
         },
         {
             "name": "sleep_millisecs",
-            "value": "5000",
+            "value": 5000,
             "description": "Current thread sleep for milliseconds",
-            "type": "STRING"
+            "type": "INTEGER"
         },
         {
             "name": "int_client_request_attempts",
