@@ -49,6 +49,16 @@ namespace traffic_signal_controller_service
         request_type = "INVALID";
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
 
+        // Get Max channels
+        EXPECT_EQ(worker.get_max_channels(), 0);
+
+        // Get vehicle phase channels - using arbitrary max channels
+        int64_t maximum_channels = 6;
+        EXPECT_TRUE(worker.get_vehicle_phase_channels(maximum_channels).empty());
+
+        std::vector<int> phase_channels = {1,2,3,4};
+        worker.map_phase_and_signalgroup(phase_channels);
         
     }
+
 }

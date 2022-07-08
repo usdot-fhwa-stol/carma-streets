@@ -74,10 +74,20 @@ class snmp_client
          *  @param response The snmp_pdu struct */
         void log_error(const int& status, const std::string& request_type, snmp_pdu *response);
 
+        /** @brief Returns maximum channels for the traffic signal controller
+        **/
+        int64_t& get_max_channels();
+        
+        /** @brief Returns a vector of channels associated with a vehicle phase
+        **  @param max_channels The maximum number of channels in the traffic signal controller.
+        **/
+        std::vector<int>& get_vehicle_phase_channels(int64_t& max_channels);
+
         /** @brief Constructs a map between phase number and signal group ids
+        ** @param vehicle_phase_channels a vector of channel numbers in the traffic signal controller associated with a vehicle phase
         * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
         * **/
-        void get_phasenum_signalgroup_map();
+        void map_phase_and_signalgroup(std::vector<int>& vehicle_phase_channels);
 
         /** @brief Destructor for client. Closes the snmp session**/
         ~snmp_client(){
