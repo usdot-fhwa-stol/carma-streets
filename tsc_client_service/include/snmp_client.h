@@ -39,6 +39,12 @@ class snmp_client
         /*Time after which the the snmp request times out*/
         int timeout_ = 10000;
 
+        /* Map between phase numbers(key) and signal group ids(value) for all vehicle phases in the Traffic Signal Controller*/
+        std::unordered_map<int,int> phase_num_map_;
+
+        /* Map between signal group ids(key) and phase numbers(value) for all vehicle phases in the Traffic Signal Controller*/
+        std::unordered_map<int,int> signal_group_map_;
+
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
          *  Uses the arguments provided to establish an snmp connection
@@ -67,6 +73,11 @@ class snmp_client
          *  @param request_type The request type for which the error is being logged (GET/SET).
          *  @param response The snmp_pdu struct */
         void log_error(const int& status, const std::string& request_type, snmp_pdu *response);
+
+        /** @brief Constructs a map between phase number and signal group ids
+        * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
+        * **/
+        void get_phasenum_signalgroup_map();
 
         /** @brief Destructor for client. Closes the snmp session**/
         ~snmp_client(){
