@@ -1,9 +1,9 @@
-#include "all_stop_scheduling_worker.h"
+#include "scheduling_worker.h"
 
 namespace scheduling_service{
 
 
-	bool all_stop_scheduling_worker::start_next_schedule(u_int64_t last_schedule_timestamp, u_int64_t scheduling_delta) const
+	bool scheduling_worker::start_next_schedule(u_int64_t last_schedule_timestamp, u_int64_t scheduling_delta) const
 	{
 		if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - std::chrono::milliseconds(last_schedule_timestamp).count() >= std::chrono::milliseconds(scheduling_delta).count())
 		{
@@ -16,7 +16,8 @@ namespace scheduling_service{
 	}
 
 
-	streets_vehicle_scheduler::intersection_schedule all_stop_scheduling_worker::schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler) const
+	streets_vehicle_scheduler::intersection_schedule scheduling_worker::schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, 
+																								std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) const
 	{
 
 		streets_vehicle_scheduler::intersection_schedule int_schedule;

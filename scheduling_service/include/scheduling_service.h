@@ -9,22 +9,23 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <intersection_client_api_lib/OAIHelpers.h>
+
+#include "intersection_client_api_lib/OAIHelpers.h"
 #include "intersection_client_api_lib/OAIDefaultApi.h"
 #include "intersection_client_api_lib/OAIIntersection_info.h"
-
 #include "kafka_client.h"
 #include "streets_configuration.h"
 #include "intersection_client.h"
 #include "vehicle_list.h"
+#include "vehicle_scheduler.h"
 #include "all_stop_vehicle_scheduler.h"
 #include "all_stop_status_intent_processor.h"
-#include "all_stop_scheduling_worker.h"
+#include "scheduling_worker.h"
 
 
 namespace scheduling_service{
 
-	class all_stop_scheduling_service
+	class scheduling_service
 	{
 	private:
 
@@ -35,11 +36,11 @@ namespace scheduling_service{
 
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
-		std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler_ptr;
+		std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler_ptr;
 
 		std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker;
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker;
-		std::shared_ptr<all_stop_scheduling_worker> scheduling_worker;
+		std::shared_ptr<scheduling_worker> _scheduling_worker;
 
 	public:
 
@@ -47,12 +48,12 @@ namespace scheduling_service{
 		/**
          * @brief Initialize 
          */
-        all_stop_scheduling_service() = default;
+        scheduling_service() = default;
 
         /**
          * @brief stop the consumer and producer
          */
-        ~all_stop_scheduling_service();
+        ~scheduling_service();
 
 		/**
          * @brief Initialize the consumer, producer, and scheduling workers.
@@ -70,33 +71,36 @@ namespace scheduling_service{
 		/**
          * @brief Create the vehicle list processor and configure it.
          */
-		bool config_vehicle_list() const;
+		bool config_vehicle_list();
 
 		/**
          * @brief Configure the scheduler object.
          */
-		bool config_scheduler() const;
+		bool config_scheduler();
 
         /**
          * @brief Consume the status and intent messages via kafka consumer.
-		 * @param consumer_worker The consumer worker.
-		 * @param vehicle_list_ptr The vehicle list object.
          */
-        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> _consumer_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const;
+        void consume_msg() const;
 
         /**
          * @brief Schedule vehicles and produce the schedule plan.
-		 * @param producer_worker The kafka producer worker.
-		 * @param scheduling_worker The scheduling worker.
-		 * @param vehicle_list_ptr The vehicle list object.
-		 * @param scheduler_ptr The scheduler object.
          */
-        void schedule_veh(std::shared_ptr<kafka_clients::kafka_producer_worker> _producer_worker, std::shared_ptr<all_stop_scheduling_worker> _scheduling_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> _scheduler_ptr) const;
+        void schedule_veh() const;
 
 		/**
 		 * @brief Method to configure spdlog::logger for logging scheduling metrics into daily rotating csv file.
 		 */
 		void configure_csv_logger() const;
+
+
+        void set_scheluding_worker(std::shared_ptr<scheduling_worker> sched_worker);
+
+        void set_vehicle_list(std::shared_ptr<streets_vehicles::vehicle_list> veh_list);
+
+        void set_vehicle_scheduler(std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler);
+
+        void set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> int_info);
 
 	};
 

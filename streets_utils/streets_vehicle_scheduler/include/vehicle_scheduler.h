@@ -25,10 +25,7 @@ namespace streets_vehicle_scheduler {
              */
             std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info;
 
-            /**
-             * @brief Limits how much departure position for a given vehicle can change from current reported departure position.
-             */
-            int flexibility_limit = 5;
+        
             /**
              * @brief Method to estimate all vehicle's speed and location at a common future time. The time needs to be time since epoch in milliseconds.
              * To predict vehicle location and speed at future time, current kinematic information is used including speed and current
@@ -88,15 +85,7 @@ namespace streets_vehicle_scheduler {
              * @param _intersection_info 
              */
             void set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> _intersection_info );
-            /**
-             * @brief Set the flexibility limit. This limit controls how much departure position can change for any given vehicle between
-             * successive intersection schedule calculations. Each subsequent intersection scheduling calculation may have a slightly different
-             * departure order. This value controls how much this departure order can change.A value of 1 represents that vehicles departure 
-             * position can change by one between two intersection schedules.
-             * 
-             * @param limit How much can departure position change between schedules for any vehicle.
-             */
-            void set_flexibility_limit( const int limit );
+            
             
     };
 }

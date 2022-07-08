@@ -20,6 +20,8 @@ message(STATUS ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(Boost COMPONENTS thread system REQUIRED)
 find_package(spdlog REQUIRED)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src/models)
 

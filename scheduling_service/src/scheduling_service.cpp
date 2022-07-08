@@ -1,8 +1,8 @@
-#include "all_stop_scheduling_service.h"
+#include "scheduling_service.h"
 
 namespace scheduling_service{
 
-	bool all_stop_scheduling_service::initialize(const int sleep_millisecs, const int int_client_request_attempts)
+	bool scheduling_service::initialize(const int sleep_millisecs, const int int_client_request_attempts)
 	{
 		try
 		{
@@ -46,7 +46,7 @@ namespace scheduling_service{
 			}
 			
 			// HTTP request to update intersection information
-			auto int_client = std::make_shared<scheduling_service::intersection_client>();
+			auto int_client = std::make_shared<intersection_client>();
 
 			if (int_client->update_intersection_info(sleep_millisecs, int_client_request_attempts))
 			{
@@ -57,13 +57,12 @@ namespace scheduling_service{
 				return false;
 			}
 
-			vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+			
 			config_vehicle_list();
 
-			scheduler_ptr = std::make_shared<streets_vehicle_scheduler::all_stop_vehicle_scheduler>();
 			config_scheduler();
 
-			scheduling_worker = std::make_shared<all_stop_scheduling_worker>();
+			_scheduling_worker = std::make_shared<scheduling_worker>();
 
 			SPDLOG_INFO("all stop scheduling service initialized successfully!!!");
             return true;
@@ -75,19 +74,20 @@ namespace scheduling_service{
 	}
 
 
-	void all_stop_scheduling_service::start()
+	void scheduling_service::start()
 	{
-		std::thread consumer_thread(&all_stop_scheduling_service::consume_msg, this, std::ref(this->consumer_worker), vehicle_list_ptr);
-        std::thread scheduling_thread(&all_stop_scheduling_service::schedule_veh, this, std::ref(this->producer_worker), std::ref(this->scheduling_worker), vehicle_list_ptr, scheduler_ptr);
+		std::thread consumer_thread(&scheduling_service::consume_msg, this );
+        std::thread scheduling_thread(&scheduling_service::schedule_veh, this);
         consumer_thread.join();
         scheduling_thread.join();
 	}
 
 
-	bool all_stop_scheduling_service::config_vehicle_list() const
+	bool scheduling_service::config_vehicle_list()
     {
-		if (vehicle_list_ptr)
-		{
+		vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+		std::string intersection_type =  streets_service::streets_configuration::get_string_config("intersection_type");
+		if ( intersection_type.compare("stop_controlled_intersection") == 0) {
 			vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::all_stop_status_intent_processor>());
 			auto processor = std::dynamic_pointer_cast<streets_vehicles::all_stop_status_intent_processor>(vehicle_list_ptr->get_processor());
 			processor->set_stopping_distance(streets_service::streets_configuration::get_double_config("stop_distance"));
@@ -96,53 +96,62 @@ namespace scheduling_service{
 			
 			SPDLOG_INFO("Vehicle list is configured successfully! ");
 			return true;
-		}
-		else
-		{
+		}else {
+			SPDLOG_ERROR("Failed configuring Vehicle List. Scheduling Service does not support intersection_type : {0}!", intersection_type);
 			return false;
 		}
-    }
-
-
-	bool all_stop_scheduling_service::config_scheduler() const
-    {
-		if (scheduler_ptr && intersection_info_ptr)
-		{
-			scheduler_ptr->set_intersection_info(intersection_info_ptr);
-			scheduler_ptr->set_flexibility_limit(streets_service::streets_configuration::get_int_config("flexibility_limit"));
-			
-			SPDLOG_INFO("Scheduler is configured successfully! ");
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-    }
-
-
-	void all_stop_scheduling_service::consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> _consumer_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const
-	{
 		
-		while (_consumer_worker->is_running()) 
+    }
+
+
+	bool scheduling_service::config_scheduler() 
+    {
+		if ( intersection_info_ptr )
+		{
+			std::string intersection_type =  streets_service::streets_configuration::get_string_config("intersection_type");
+			if ( intersection_type.compare("stop_controlled_intersection") == 0) {
+				scheduler_ptr = std::make_shared<streets_vehicle_scheduler::all_stop_vehicle_scheduler>();
+				scheduler_ptr->set_intersection_info(intersection_info_ptr);
+				std::dynamic_pointer_cast<streets_vehicle_scheduler::all_stop_vehicle_scheduler>(scheduler_ptr)->set_flexibility_limit(
+						streets_service::streets_configuration::get_int_config("flexibility_limit"));
+				
+				SPDLOG_INFO("Scheduler is configured successfully! ");
+				return true;
+			}else {
+				SPDLOG_ERROR("Failed configuring Vehicle Scheduler. Scheduling Service does not support intersection_type : {0}!", intersection_type);
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+    }
+
+
+	void scheduling_service::consume_msg() const
+	{
+		SPDLOG_INFO("Starting status and intent consumer thread.");
+		while (consumer_worker->is_running()) 
         {
             
-            const std::string payload = _consumer_worker->consume(1000);
+            const std::string payload = consumer_worker->consume(1000);
 
-            if(payload.length() != 0 && _vehicle_list_ptr)
+            if(payload.length() != 0 && vehicle_list_ptr)
             {                
 
-            	_vehicle_list_ptr->process_update(payload);
+            	vehicle_list_ptr->process_update(payload);
     
             }
         }
-		_consumer_worker->stop();
+		SPDLOG_WARN("Stopping status and intent consumer thread!");
+		consumer_worker->stop();
 	}
 
 
-	void all_stop_scheduling_service::schedule_veh(std::shared_ptr<kafka_clients::kafka_producer_worker> _producer_worker, std::shared_ptr<all_stop_scheduling_worker> _scheduling_worker, std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> _scheduler_ptr) const
+	void scheduling_service::schedule_veh() const
 	{
-
+		SPDLOG_INFO("Starting scheduling thread.");
 		if (!_scheduling_worker)
 		{
 			SPDLOG_CRITICAL("scheduling worker is not initialized");
@@ -162,15 +171,15 @@ namespace scheduling_service{
 				auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
 				
-				veh_map = _vehicle_list_ptr -> get_vehicles();
-				streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, _scheduler_ptr);
+				veh_map = vehicle_list_ptr -> get_vehicles();
+				streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
 
 				std::string msg_to_send = int_schedule.toJson();
 
 				SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
 
 				/* produce the scheduling plan to kafka */
-				_producer_worker->send(msg_to_send);
+				producer_worker->send(msg_to_send);
 
 				last_schedule_timestamp = int_schedule.timestamp;
 				sch_count += 1;
@@ -181,12 +190,13 @@ namespace scheduling_service{
 				}
 			}
 		}
-		_producer_worker->stop();
+		SPDLOG_WARN("Stopping scheduling thread!");
+		producer_worker->stop();
 
 	}
 
  
-	void all_stop_scheduling_service::configure_csv_logger() const
+	void scheduling_service::configure_csv_logger() const
 	{
 		try{
 			auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
@@ -207,19 +217,37 @@ namespace scheduling_service{
 	}
 
 
-	all_stop_scheduling_service::~all_stop_scheduling_service()
+	scheduling_service::~scheduling_service()
     {
         if (consumer_worker)
         {
+			SPDLOG_WARN("Stopping consumer worker!");
             consumer_worker->stop();
         }
 
         if (producer_worker)
         {
+			SPDLOG_WARN("Stopping producer worker");
             producer_worker->stop();
         }
 
     }
+
+	void scheduling_service::set_scheluding_worker(std::shared_ptr<scheduling_worker> sched_worker) {
+		_scheduling_worker = sched_worker;
+	}
+
+	void scheduling_service::set_vehicle_list(std::shared_ptr<streets_vehicles::vehicle_list> veh_list) {
+		vehicle_list_ptr = veh_list;
+	}
+
+	void scheduling_service::set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> int_info) {
+		intersection_info_ptr = int_info;
+	}
+
+	void scheduling_service::set_vehicle_scheduler(std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) {
+		scheduler_ptr = scheduler;
+	}
 
 }
 

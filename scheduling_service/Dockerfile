@@ -74,6 +74,22 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+RUN echo " ------> Install streets_vehicle_list library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_list/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_list/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+RUN echo " ------> Install streets_vehicle_scheduler library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_scheduler/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_scheduler/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 
 RUN echo " ------> compile scheduling-service..."
 COPY ./scheduling_service/ /home/carma-streets/scheduling_service/

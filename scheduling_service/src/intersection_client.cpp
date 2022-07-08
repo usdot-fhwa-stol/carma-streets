@@ -15,8 +15,8 @@ namespace scheduling_service {
 				SPDLOG_INFO("Intersection information is updated successfuly! ");
 				return true;
 			}
-			// usleep takes micro seconds
-			sleep(sleep_secs);
+			// sleep takes seconds
+			std::this_thread::sleep_for(std::chrono::seconds(sleep_secs));
 			attempt_count++;
 		}
 		// If failed to update the intersection information after certain numbers of attempts

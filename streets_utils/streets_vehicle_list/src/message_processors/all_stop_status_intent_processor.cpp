@@ -265,7 +265,7 @@ namespace streets_vehicles {
 
 	bool all_stop_status_intent_processor::is_vehicle_stopped(const vehicle &vehicle) const {
 		SPDLOG_DEBUG("Stopping condition spd: {0}, dst: {1}; Vehicle condition spd: {2}, dst: {3} .", 
-			stopping_speed, stopping_distance, vehicle._cur_speed, vehicle._cur_distance);
+			_stopping_speed, _stopping_distance, vehicle._cur_speed, vehicle._cur_distance);
 		return vehicle._cur_speed <= _stopping_speed && vehicle._cur_distance <= _stopping_distance;
 	}
 

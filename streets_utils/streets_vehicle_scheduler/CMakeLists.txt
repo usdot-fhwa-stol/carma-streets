@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(spdlog REQUIRED)
 find_package(RapidJSON REQUIRED)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(GTest REQUIRED)
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(Qt5Core REQUIRED)

@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 find_package(spdlog REQUIRED)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+
 find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
 

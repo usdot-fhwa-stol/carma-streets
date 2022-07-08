@@ -18,7 +18,7 @@
 
 namespace scheduling_service{
 
-	class all_stop_scheduling_worker
+	class scheduling_worker
 	{
 
 	public:
@@ -39,7 +39,8 @@ namespace scheduling_service{
 		 * @param scheduler The scheduler object.
 		 * @return An intersection schedule object that contains vehicles' estimated critical time points.
 		 */
-		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::all_stop_vehicle_scheduler> scheduler) const;
+		streets_vehicle_scheduler::intersection_schedule schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, 
+																			std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) const;
 
 
 	};

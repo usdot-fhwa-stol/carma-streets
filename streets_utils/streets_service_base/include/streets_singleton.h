@@ -1,5 +1,4 @@
 #pragma once
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE // Must: define SPDLOG_ACTIVE_LEVEL before `#include "spdlog/spdlog.h"`
 #include <spdlog/spdlog.h>
 #include <typeinfo>
 

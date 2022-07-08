@@ -3,8 +3,8 @@
 #include <spdlog/spdlog.h>
 
 #include "vehicle_list.h"
-#include "all_stop_vehicle_scheduler.h"
-#include "all_stop_scheduling_worker.h"
+#include "vehicle_scheduler.h"
+#include "scheduling_worker.h"
 
 
 using namespace streets_vehicles;
@@ -17,11 +17,11 @@ namespace {
 
     protected:
         
-        std::unique_ptr<all_stop_scheduling_worker> scheduling_worker;
+        std::unique_ptr<scheduling_worker> sched_worker;
 
         std::unordered_map<std::string, vehicle> veh_map;
 
-        std::shared_ptr<all_stop_vehicle_scheduler> scheduler;
+        std::shared_ptr<vehicle_scheduler> scheduler;
 
         
         /**
@@ -30,7 +30,7 @@ namespace {
          */
         void SetUp() override {
             
-            scheduling_worker = std::unique_ptr<all_stop_scheduling_worker>(new all_stop_scheduling_worker());
+            sched_worker = std::unique_ptr<scheduling_worker>(new scheduling_worker());
             
             OpenAPI::OAIIntersection_info info;
             std::string json = "{\"departure_lanelets\":[{ \"id\":162, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":164, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":168, \"length\":34.130869420842046, \"speed_limit\":11.176 } ], \"entry_lanelets\":[ { \"id\":167, \"length\":195.73023157287864, \"speed_limit\":11.176 }, { \"id\":171, \"length\":34.130869411176431136, \"speed_limit\":11.176 }, { \"id\":163, \"length\":41.60952435603712, \"speed_limit\":11.176 } ], \"id\":9001, \"link_lanelets\":[ { \"conflict_lanelet_ids\":[ 161 ], \"id\":169, \"length\":15.85409574709938, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 165, 156, 161 ], \"id\":155, \"length\":16.796388658952235, \"speed_limit\":4.4704 }, { \"conflict_lanelet_ids\":[ 155, 161, 160 ], \"id\":165, \"length\":15.853947840111768943, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 155 ], \"id\":156, \"length\":9.744590320260139, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 169, 155, 165 ], \"id\":161, \"length\":16.043077028554038, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 165 ], \"id\":160, \"length\":10.295559117055083, \"speed_limit\":11.176 } ], \"name\":\"WestIntersection\"}";
@@ -43,7 +43,7 @@ namespace {
 
 
             scheduler = std::shared_ptr<all_stop_vehicle_scheduler>(new all_stop_vehicle_scheduler());
-            scheduler->set_flexibility_limit(2);
+            std::dynamic_pointer_cast<all_stop_vehicle_scheduler>(scheduler)->set_flexibility_limit(2);
             scheduler->set_intersection_info(intersection);
 
             SPDLOG_INFO("Test SetUp Complete");
@@ -66,7 +66,7 @@ TEST_F(all_stop_scheduling_worker_test, start_next_schedule_false)
     u_int64_t scheduling_delta = 2000;
     u_int64_t last_schedule_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     
-    ASSERT_FALSE( scheduling_worker -> start_next_schedule(last_schedule_timestamp, scheduling_delta) );
+    ASSERT_FALSE( sched_worker -> start_next_schedule(last_schedule_timestamp, scheduling_delta) );
 
 }
 
@@ -80,7 +80,7 @@ TEST_F(all_stop_scheduling_worker_test, start_next_schedule_true)
 
     last_schedule_timestamp -= 2500;
 
-    ASSERT_TRUE( scheduling_worker -> start_next_schedule(last_schedule_timestamp, scheduling_delta) );
+    ASSERT_TRUE( sched_worker -> start_next_schedule(last_schedule_timestamp, scheduling_delta) );
 
 }
 
@@ -145,7 +145,7 @@ TEST_F(all_stop_scheduling_worker_test, schedule_vehicles)
     veh_map.insert({{veh_dv._id, veh_dv}, {veh_rdv1._id, veh_rdv1}, {veh_rdv2._id, veh_rdv2}});
 
 
-    intersection_schedule schedule = scheduling_worker -> schedule_vehicles(veh_map, scheduler);
+    intersection_schedule schedule = sched_worker -> schedule_vehicles(veh_map, scheduler);
 
 
     ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
