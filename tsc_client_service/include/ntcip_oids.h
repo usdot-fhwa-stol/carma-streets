@@ -14,7 +14,7 @@ namespace ntcip_oids {
     /**
      * @brief OID for MAX_CHANNELS: The maximum number of channels this TSC supports. 
     */
-    static const std::string MAX_CHANNELS = "1.3.6.1.4.1.1206.4.2.1.8.1";
+    static const std::string MAX_CHANNELS = "1.3.6.1.4.1.1206.4.2.1.8.1.0";
 
     /**
      * @brief OID for Channel control type: Used with (.channel number)
