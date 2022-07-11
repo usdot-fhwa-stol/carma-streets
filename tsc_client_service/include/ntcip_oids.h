@@ -23,7 +23,6 @@ namespace ntcip_oids {
     */
     static const std::string CHANNEL_CONTROL_TYPE_PARAMETER = "1.3.6.1.4.1.1206.4.2.1.8.2.1.3";
 
-
     /**
      * @brief OID for Channel control source: Used with (.channel number)
         Value 00 = No Control (Not In Use)

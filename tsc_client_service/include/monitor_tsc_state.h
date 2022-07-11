@@ -4,6 +4,23 @@
 
 namespace traffic_signal_controller_service
 {
+    struct signal_group_state
+    {
+        int signal_group_id;
+        /*Phase associated with signal group*/
+        int phase_num;
+        /*Minimum green durations for each active vehicle phase*/
+        int min_green;
+        /*Maximum green durations for each active vehicle phase*/
+        int max_green;
+        /*Yellow signal duration*/
+        int yellow_duration;
+        /*Red signal duration*/
+        int red_duration;
+        /*Phase sequence in ring. Stores the sequence as ordered in the ring*/
+        std::vector<int> phase_seq;
+    };
+
     class tsc_state
     {
         private:
