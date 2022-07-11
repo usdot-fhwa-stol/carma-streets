@@ -7,13 +7,13 @@ namespace traffic_signal_controller_service
     class tsc_state
     {
         private:
-        
+        /* A local pointer to an snmp_client object to be used through the tsc_state*/
         std::shared_ptr<snmp_client> snmp_client_worker_;
 
-        /* Map between phase numbers(key) and signal group ids(value) for all vehicle phases in the Traffic Signal Controller*/
+        /* Map between phase numbers(key) and signal group ids(value) for all active vehicle phases in the Traffic Signal Controller*/
         std::unordered_map<int,int> phase_num_map_;
 
-        /* Map between signal group ids(key) and phase numbers(value) for all vehicle phases in the Traffic Signal Controller*/
+        /* Map between signal group ids(key) and phase numbers(value) for all active vehicle phases in the Traffic Signal Controller*/
         std::unordered_map<int,int> signal_group_map_;
 
         public:
