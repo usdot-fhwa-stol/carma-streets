@@ -51,9 +51,9 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
     // Map signal group ids and phase nums
     //Get phase number given a signal group id
     
-    int64_t max_channels_in_tsc = get_max_channels();
-    std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
-    map_phase_and_signalgroup(vehicle_phase_channels);
+    // int64_t max_channels_in_tsc = get_max_channels();
+    // std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
+    // map_phase_and_signalgroup(vehicle_phase_channels);
 
 }
 
@@ -171,21 +171,19 @@ void snmp_client::log_error(const int& status, const std::string& request_type, 
     
 }
 
-int64_t& snmp_client::get_max_channels(){
+int64_t snmp_client::get_max_channels(){
     std::string request_type = "GET";
     int64_t max_channels_in_tsc = 0;
 
-    try{
-        process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type, max_channels_in_tsc);
-    }
-    catch ( const traffic_signal_controller_service::spat_worker_exception &e) {
-        SPDLOG_ERROR("Failed to get max channels : {0} ", e.what());
+    if(!process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type, max_channels_in_tsc))
+    {
+        SPDLOG_ERROR("Failed to get max channels");
     }
 
     return max_channels_in_tsc;
 }
 
-std::vector<int>& snmp_client::get_vehicle_phase_channels(int64_t& max_channels){
+std::vector<int> snmp_client::get_vehicle_phase_channels(int64_t& max_channels){
     std::vector<int> vehicle_phase_channels;
     // Loop through channel control types and add channels with vehicle phase to list
     int64_t vehicle_control_type  = 0;
@@ -194,11 +192,9 @@ std::vector<int>& snmp_client::get_vehicle_phase_channels(int64_t& max_channels)
     {
         std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
 
-        try{
-            process_snmp_request(control_type_parameter_oid, request_type, vehicle_control_type);
-        }
-        catch ( const traffic_signal_controller_service::spat_worker_exception &e) {
-            SPDLOG_ERROR("Failed to get channel control type : {0} ", e.what());
+        if(!process_snmp_request(control_type_parameter_oid, request_type, vehicle_control_type))
+        {
+            SPDLOG_ERROR("Failed to get channel control type");
         }
         
         if(vehicle_control_type == 2)

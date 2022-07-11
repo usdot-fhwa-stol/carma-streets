@@ -51,7 +51,6 @@ namespace traffic_signal_controller_service
 
         // Get Max channels
         EXPECT_EQ(worker.get_max_channels(), 0);
-
         // Get vehicle phase channels - using arbitrary max channels
         int64_t maximum_channels = 6;
         EXPECT_TRUE(worker.get_vehicle_phase_channels(maximum_channels).empty());

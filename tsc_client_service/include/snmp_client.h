@@ -76,12 +76,12 @@ class snmp_client
 
         /** @brief Returns maximum channels for the traffic signal controller
         **/
-        int64_t& get_max_channels();
+        int64_t get_max_channels();
         
         /** @brief Returns a vector of channels associated with a vehicle phase
         **  @param max_channels The maximum number of channels in the traffic signal controller.
         **/
-        std::vector<int>& get_vehicle_phase_channels(int64_t& max_channels);
+        std::vector<int> get_vehicle_phase_channels(int64_t& max_channels);
 
         /** @brief Constructs a map between phase number and signal group ids
         ** @param vehicle_phase_channels a vector of channel numbers in the traffic signal controller associated with a vehicle phase
