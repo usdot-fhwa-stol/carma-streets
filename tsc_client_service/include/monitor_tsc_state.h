@@ -24,12 +24,14 @@ namespace traffic_signal_controller_service
         tsc_state(std::shared_ptr<snmp_client> snmp_client);
 
         /** 
-         * @brief Returns maximum channels for the traffic signal controller
+         * @brief Method for getting maximum channels for the traffic signal controller
+         * @return number of maximum channels in the traffic signal controller
         **/
         int get_max_channels();
         
         /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
         **  @param max_channels The maximum number of channels in the traffic signal controller.
+        **  @return a vector of active vehicle phases associated with a channel
         **/
         std::vector<int> get_vehicle_phase_channels(int max_channels);
 
