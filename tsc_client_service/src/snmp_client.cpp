@@ -50,10 +50,9 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
     
     // Map signal group ids and phase nums
     //Get phase number given a signal group id
-    
-    // int64_t max_channels_in_tsc = get_max_channels();
-    // std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
-    // map_phase_and_signalgroup(vehicle_phase_channels);
+    int64_t max_channels_in_tsc = get_max_channels();
+    std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
+    map_phase_and_signalgroup(vehicle_phase_channels);
 
 }
 
