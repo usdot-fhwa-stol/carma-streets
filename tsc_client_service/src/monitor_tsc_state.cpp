@@ -3,17 +3,16 @@
 
 namespace traffic_signal_controller_service
 {
-    tsc_state::tsc_state(std::shared_ptr<snmp_client> snmp_client) 
+    tsc_state::tsc_state(std::shared_ptr<snmp_client> snmp_client) : snmp_client_worker_(snmp_client)
     {
-        snmp_client_worker_ = snmp_client;
         // Map signal group ids and phase nums
         //Get phase number given a signal group id
-        int64_t max_channels_in_tsc = get_max_channels();
+        int max_channels_in_tsc = get_max_channels();
         std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
         map_phase_and_signalgroup(vehicle_phase_channels);
     }
 
-    int tsc_state::get_max_channels(){
+    int tsc_state::get_max_channels() const {
         int request_type = request_type::GET;
         int64_t max_channels_in_tsc = 0;
 
@@ -25,7 +24,7 @@ namespace traffic_signal_controller_service
         return (int) max_channels_in_tsc;
     }
 
-    std::vector<int> tsc_state::get_vehicle_phase_channels(int max_channels){
+    std::vector<int> tsc_state::get_vehicle_phase_channels(int max_channels) const{
         std::vector<int> vehicle_phase_channels;
         // Loop through channel control types and add channels with vehicle phase to list
         int64_t vehicle_control_type  = 0;

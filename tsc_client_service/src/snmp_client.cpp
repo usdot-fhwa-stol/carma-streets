@@ -146,7 +146,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const int& 
 }
 
 
-void snmp_client::log_error(const int& status, const int& request_type, snmp_pdu *response)
+void snmp_client::log_error(const int& status, const int& request_type, snmp_pdu *response) const
 {
 
     if (status == STAT_SUCCESS)
