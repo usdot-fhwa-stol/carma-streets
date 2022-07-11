@@ -13,7 +13,7 @@ namespace traffic_signal_controller_service
         snmp_client worker(dummy_ip, dummy_port);
 
         // Test GET
-        std::string request_type = "GET";
+        int request_type = request_type::GET;
         int64_t integer_response = 0;
         // Expect get call to fail since we're communicating with invalid host
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, integer_response));
@@ -24,7 +24,7 @@ namespace traffic_signal_controller_service
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, integer_response));
 
         // Test log_error
-        request_type = "GET";
+        request_type = request_type::GET;
         snmp_pdu *response = nullptr;
         int status = STAT_TIMEOUT;
         worker.log_error(status, request_type, response);
@@ -33,30 +33,21 @@ namespace traffic_signal_controller_service
         worker.log_error(status, request_type, response);
 
         // Test SET
-        request_type = "SET";
+        request_type = request_type::SET;
         int64_t set_value = 10;
         // Expect set call to fail since we're communicating with invalid host
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
 
         // Test log_error
         status = STAT_TIMEOUT;
-        request_type = "SET";
+        request_type = request_type::SET;
         
         status = -7; //Random error value
         worker.log_error(status, request_type,response);
 
         // Invalid Request type
-        request_type = "INVALID";
+        request_type = request_type::OTHER;
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
-
-        // Get Max channels
-        EXPECT_EQ(worker.get_max_channels(), 0);
-        // Get vehicle phase channels - using arbitrary max channels
-        int64_t maximum_channels = 6;
-        EXPECT_TRUE(worker.get_vehicle_phase_channels(maximum_channels).empty());
-
-        std::vector<int> phase_channels = {1,2,3,4};
-        worker.map_phase_and_signalgroup(phase_channels);
         
     }
 

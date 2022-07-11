@@ -19,7 +19,7 @@ namespace traffic_signal_controller_service
 
         snmp_client client(dummy_ip, dummy_port);
         
-        std::string request_type = "SET";
+        int request_type = request_type::SET;
         int64_t enable_spat_value = 2;
         // Expect set to return false with invalid enable spat OID
         EXPECT_FALSE(client.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value));
@@ -32,7 +32,7 @@ namespace traffic_signal_controller_service
     {
         std::string tsc_ip_bad = "192.168.120.51";
         int tsc_port = 6053;
-        int tsc_timeout = 10;
+        int tsc_timeout = 3;
 
         spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
         try{
@@ -49,14 +49,14 @@ namespace traffic_signal_controller_service
     }
     /**
      * @brief Ttest UDP socket timeout parameter. Test should timeout
-     * after 5 seconds of not receiving data
+     * after 2 seconds of not receiving data
      * 
      */
     TEST(spat_receive_worker, test_create_socket_timeout)
     {
         std::string tsc_ip_bad = "127.0.0.1";
         int tsc_port = 6053;
-        int tsc_timeout = 5;
+        int tsc_timeout = 2;
 
         spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
 
@@ -64,7 +64,7 @@ namespace traffic_signal_controller_service
             worker.listen_udp_spat();
         }
         catch( const spat_worker_exception &e){
-            ASSERT_STREQ( e.what(), "Timeout of 5 seconds has elapsed. Closing SPaT Work UDP Socket");
+            ASSERT_STREQ( e.what(), "Timeout of 2 seconds has elapsed. Closing SPaT Work UDP Socket");
         }
         catch( ... ) {
             __assert_fail;
@@ -80,7 +80,7 @@ namespace traffic_signal_controller_service
     {
         std::string tsc_ip_bad = "asdhas.asd";
         int tsc_port = 6053;
-        int tsc_timeout = 5;
+        int tsc_timeout = 2;
 
         spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
         try{

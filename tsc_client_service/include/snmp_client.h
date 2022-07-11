@@ -7,6 +7,14 @@
 
 namespace traffic_signal_controller_service
 {
+
+enum request_type
+{
+    GET,
+    SET,
+    OTHER //Processing this request type is not a defined behavior, included for testing only
+};
+
 class snmp_client
 {
     private:
@@ -39,11 +47,6 @@ class snmp_client
         /*Time after which the the snmp request times out*/
         int timeout_ = 10000;
 
-        /* Map between phase numbers(key) and signal group ids(value) for all vehicle phases in the Traffic Signal Controller*/
-        std::unordered_map<int,int> phase_num_map_;
-
-        /* Map between signal group ids(key) and phase numbers(value) for all vehicle phases in the Traffic Signal Controller*/
-        std::unordered_map<int,int> signal_group_map_;
 
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
@@ -66,28 +69,13 @@ class snmp_client
          *  @param value The integer value for the object returned by reference. For "SET" it is the value to be set. 
          *  For "GET", it is the value returned for the returned object by reference.
          *  @return Integer value at the oid, returns false if value cannot be set/requested or oid doesn't have an integer value to return.*/
-        bool process_snmp_request(const std::string& input_oid, const std::string& request_type, int64_t& value);
+        bool process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value);
 
         /** @brief Finds error type from status and logs an error.
          *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)
          *  @param request_type The request type for which the error is being logged (GET/SET).
          *  @param response The snmp_pdu struct */
-        void log_error(const int& status, const std::string& request_type, snmp_pdu *response);
-
-        /** @brief Returns maximum channels for the traffic signal controller
-        **/
-        int64_t get_max_channels();
-        
-        /** @brief Returns a vector of channels associated with a vehicle phase
-        **  @param max_channels The maximum number of channels in the traffic signal controller.
-        **/
-        std::vector<int> get_vehicle_phase_channels(int64_t& max_channels);
-
-        /** @brief Constructs a map between phase number and signal group ids
-        ** @param vehicle_phase_channels a vector of channel numbers in the traffic signal controller associated with a vehicle phase
-        * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
-        * **/
-        void map_phase_and_signalgroup(std::vector<int>& vehicle_phase_channels);
+        void log_error(const int& status, const int& request_type, snmp_pdu *response);
 
         /** @brief Destructor for client. Closes the snmp session**/
         ~snmp_client(){

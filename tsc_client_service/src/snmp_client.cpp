@@ -48,26 +48,21 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
         SPDLOG_INFO("Established session with device at {0}", ip_);
     }
     
-    // Map signal group ids and phase nums
-    //Get phase number given a signal group id
-    int64_t max_channels_in_tsc = get_max_channels();
-    std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
-    map_phase_and_signalgroup(vehicle_phase_channels);
 
 }
 
-bool snmp_client::process_snmp_request(const std::string& input_oid, const std::string& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
 
     // Create pdu for the data
-    if (request_type == "GET")
+    if (request_type == request_type::GET)
     {
         SPDLOG_DEBUG("Attemping to GET value for: {0}", input_oid);
         pdu = snmp_pdu_create(SNMP_MSG_GET);
     }
-    else if (request_type == "SET")
+    else if (request_type == request_type::SET)
     {
         SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
         pdu = snmp_pdu_create(SNMP_MSG_SET);
@@ -88,12 +83,12 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
     }
     else{
         
-        if(request_type == "GET")
+        if(request_type == request_type::GET)
         {
             // Add OID to pdu for get request
             snmp_add_null_var(pdu, OID, OID_len);
         }
-        else if(request_type == "SET")
+        else if(request_type == request_type::SET)
         {
             snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
         }
@@ -109,7 +104,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
         
         SPDLOG_INFO("STAT_SUCCESS, received a response");
         
-        if(request_type == "GET"){
+        if(request_type == request_type::GET){
             for(auto vars = response->variables; vars; vars = vars->next_variable){
                 // Get value of variable depending on ASN.1 type
                 // Variable could be a integer, string, bitstring, ojbid, counter : defined here https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/types.h
@@ -131,7 +126,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
                 }
             }
         }
-        else if(request_type == "SET"){
+        else if(request_type == request_type::SET){
             SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
         }
     
@@ -151,7 +146,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
 }
 
 
-void snmp_client::log_error(const int& status, const std::string& request_type, snmp_pdu *response)
+void snmp_client::log_error(const int& status, const int& request_type, snmp_pdu *response)
 {
 
     if (status == STAT_SUCCESS)
@@ -168,63 +163,6 @@ void snmp_client::log_error(const int& status, const std::string& request_type, 
         SPDLOG_ERROR("Unknown SNMP Error for {0}", request_type);
     }
     
-}
-
-int64_t snmp_client::get_max_channels(){
-    std::string request_type = "GET";
-    int64_t max_channels_in_tsc = 0;
-
-    if(!process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type, max_channels_in_tsc))
-    {
-        SPDLOG_ERROR("Failed to get max channels");
-    }
-
-    return max_channels_in_tsc;
-}
-
-std::vector<int> snmp_client::get_vehicle_phase_channels(int64_t& max_channels){
-    std::vector<int> vehicle_phase_channels;
-    // Loop through channel control types and add channels with vehicle phase to list
-    int64_t vehicle_control_type  = 0;
-    std::string request_type = "GET";
-    for(int channel_num = 0; channel_num < max_channels; ++channel_num)
-    {
-        std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
-
-        if(!process_snmp_request(control_type_parameter_oid, request_type, vehicle_control_type))
-        {
-            SPDLOG_ERROR("Failed to get channel control type");
-        }
-        
-        if(vehicle_control_type == 2)
-        {
-            vehicle_phase_channels.push_back(channel_num);
-        }
-
-    }
-
-    return vehicle_phase_channels;
-}
-
-void snmp_client::map_phase_and_signalgroup(std::vector<int>& vehicle_phase_channels)
-{
-    // According to NTCIP 1202 v03 documentation Signal Group ID in a SPAT message is the Channel Number from TSC
-
-    // Get phases associated with vehicle phase channels
-    std::string request_type = "GET";
-    for(int channel : vehicle_phase_channels)
-    {
-        int64_t phase_num = 0;
-        std::string control_source_parameter_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(channel);
-        process_snmp_request(control_source_parameter_oid, request_type, phase_num);
-
-        // According to NTCIP 1202 v03 returned value of 0 here would mean a phase is not associated with the channel
-        if(phase_num != 0)
-        {
-            phase_num_map_.insert(std::make_pair(channel, phase_num));
-            signal_group_map_.insert(std::make_pair(phase_num, channel));
-        }
-    }
 }
 
 }
