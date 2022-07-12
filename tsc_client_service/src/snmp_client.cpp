@@ -51,7 +51,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
 
 }
 
-bool snmp_client::process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(const std::string& input_oid, const request_type& request_type, int64_t& value){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
@@ -146,7 +146,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const int& 
 }
 
 
-void snmp_client::log_error(const int& status, const int& request_type, snmp_pdu *response) const
+void snmp_client::log_error(const int& status, const request_type& request_type, snmp_pdu *response) const
 {
 
     if (status == STAT_SUCCESS)
@@ -159,8 +159,12 @@ void snmp_client::log_error(const int& status, const int& request_type, snmp_pdu
         SPDLOG_ERROR("Timeout, no response from server");
     }
     else{
-    
-        SPDLOG_ERROR("Unknown SNMP Error for {0}", request_type);
+        if(request_type == request_type::GET){
+            SPDLOG_ERROR("Unknown SNMP Error for {0}", "GET");
+        }
+        else if(request_type == request_type::SET){
+            SPDLOG_ERROR("Unknown SNMP Error for {0}", "SET");
+        }
     }
     
 }

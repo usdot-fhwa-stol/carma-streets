@@ -19,7 +19,7 @@ namespace traffic_signal_controller_service
 
         snmp_client client(dummy_ip, dummy_port);
         
-        int request_type = request_type::SET;
+        request_type request_type = request_type::SET;
         int64_t enable_spat_value = 2;
         // Expect set to return false with invalid enable spat OID
         EXPECT_FALSE(client.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value));

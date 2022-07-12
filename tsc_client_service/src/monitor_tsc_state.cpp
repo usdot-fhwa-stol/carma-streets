@@ -13,7 +13,7 @@ namespace traffic_signal_controller_service
     }
 
     int tsc_state::get_max_channels() const {
-        int request_type = request_type::GET;
+        request_type request_type = request_type::GET;
         int64_t max_channels_in_tsc = 0;
 
         if(!snmp_client_worker_->process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type, max_channels_in_tsc))
@@ -28,7 +28,7 @@ namespace traffic_signal_controller_service
         std::vector<int> vehicle_phase_channels;
         // Loop through channel control types and add channels with vehicle phase to list
         int64_t vehicle_control_type  = 0;
-        int request_type = request_type::GET;
+        request_type request_type = request_type::GET;
         for(int channel_num = 0; channel_num < max_channels; ++channel_num)
         {
             std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
@@ -57,7 +57,7 @@ namespace traffic_signal_controller_service
         // According to NTCIP 1202 v03 documentation Signal Group ID in a SPAT message is the Channel Number from TSC
 
         // Get phases associated with vehicle phase channels
-        int request_type = request_type::GET;
+        request_type request_type = request_type::GET;
         for(int channel : vehicle_phase_channels)
         {
             int64_t phase_num = 0;

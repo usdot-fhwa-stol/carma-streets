@@ -13,7 +13,7 @@ namespace traffic_signal_controller_service
         snmp_client worker(dummy_ip, dummy_port);
 
         // Test GET
-        int request_type = request_type::GET;
+        request_type request_type = request_type::GET;
         int64_t integer_response = 0;
         // Expect get call to fail since we're communicating with invalid host
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, integer_response));
