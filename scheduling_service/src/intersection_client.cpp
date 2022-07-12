@@ -31,6 +31,7 @@ namespace scheduling_service {
         OpenAPI::OAIDefaultApi apiInstance;
 		QString error_str;
         QEventLoop loop;
+		// Lambda expression slot for get intersection information signal ( See Qt Signal/Slot documentation)
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [&intersection_info_valid, &loop, this](OpenAPI::OAIIntersection_info int_info){     
 
 			SPDLOG_INFO("request_intersection_info succeed!");
@@ -40,12 +41,16 @@ namespace scheduling_service {
 			intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>(int_info);
 			intersection_info_valid = true;
 
-            loop.quit(); });
-
+            loop.quit(); 
+		});
+		// Lambda expression slot for get intersection information error signal ( See Qt Signal/Slot documentation)
         connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignalE, 
-			[&loop, this](QString &error_str){ 
+			[&intersection_info_valid, &loop, this]( OpenAPI::OAIIntersection_info int_info, QNetworkReply::NetworkError error, QString error_str ){ 
 			SPDLOG_ERROR("Error happened while issuing intersection model GET information request : {0}",  error_str.toStdString());
-			loop.quit(); });
+			intersection_info_valid = false;
+			intersection_info_ptr = nullptr;
+			loop.quit(); 
+		});
 
         apiInstance.getIntersectionInfo();
 
