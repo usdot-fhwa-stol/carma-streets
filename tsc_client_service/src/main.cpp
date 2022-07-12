@@ -25,7 +25,7 @@ int main()
     traffic_signal_controller_service::snmp_client worker(target_ip, target_port, community, snmp_version, timeout);
     
     //enable spat udp stream on tsc
-    int request_type = traffic_signal_controller_service::request_type::SET;
+    traffic_signal_controller_service::request_type request_type = traffic_signal_controller_service::request_type::SET;
     int64_t enable_spat_value = 2;
     worker.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value);
 

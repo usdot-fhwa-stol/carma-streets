@@ -41,19 +41,19 @@ namespace traffic_signal_controller_service
          * @brief Constructor for the tsc_state class 
          * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
         **/
-        tsc_state(std::shared_ptr<snmp_client> snmp_client);
+        explicit tsc_state(std::shared_ptr<snmp_client> snmp_client);
 
         /** 
          * @brief Method for getting maximum channels for the traffic signal controller
          * @return number of maximum channels in the traffic signal controller
         **/
-        int get_max_channels();
+        int get_max_channels() const;
         
         /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
         **  @param max_channels The maximum number of channels in the traffic signal controller.
         **  @return a vector of active vehicle phases associated with a channel
         **/
-        std::vector<int> get_vehicle_phase_channels(int max_channels);
+        std::vector<int> get_vehicle_phase_channels(int max_channels) const;
 
         /** @brief Constructs a map between phase number and signal group ids
         ** @param vehicle_phase_channels a vector of channel numbers in the traffic signal controller associated with a vehicle phase
