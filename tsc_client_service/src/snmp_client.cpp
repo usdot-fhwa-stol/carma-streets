@@ -3,6 +3,8 @@
 # include <chrono>
 # include <sstream>
 # include "snmp_client.h"
+# include "ntcip_oids.h"
+#include "spat_worker_exception.h"
 
 namespace traffic_signal_controller_service
 {
@@ -49,18 +51,18 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
 
 }
 
-bool snmp_client::process_snmp_request(const std::string& input_oid, const std::string& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(const std::string& input_oid, const request_type& request_type, int64_t& value){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
 
     // Create pdu for the data
-    if (request_type == "GET")
+    if (request_type == request_type::GET)
     {
         SPDLOG_DEBUG("Attemping to GET value for: {0}", input_oid);
         pdu = snmp_pdu_create(SNMP_MSG_GET);
     }
-    else if (request_type == "SET")
+    else if (request_type == request_type::SET)
     {
         SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
         pdu = snmp_pdu_create(SNMP_MSG_SET);
@@ -81,12 +83,12 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
     }
     else{
         
-        if(request_type == "GET")
+        if(request_type == request_type::GET)
         {
             // Add OID to pdu for get request
             snmp_add_null_var(pdu, OID, OID_len);
         }
-        else if(request_type == "SET")
+        else if(request_type == request_type::SET)
         {
             snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
         }
@@ -102,7 +104,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
         
         SPDLOG_INFO("STAT_SUCCESS, received a response");
         
-        if(request_type == "GET"){
+        if(request_type == request_type::GET){
             for(auto vars = response->variables; vars; vars = vars->next_variable){
                 // Get value of variable depending on ASN.1 type
                 // Variable could be a integer, string, bitstring, ojbid, counter : defined here https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/types.h
@@ -124,7 +126,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
                 }
             }
         }
-        else if(request_type == "SET"){
+        else if(request_type == request_type::SET){
             SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
         }
     
@@ -144,7 +146,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const std::
 }
 
 
-void snmp_client::log_error(const int& status, const std::string& request_type, snmp_pdu *response)
+void snmp_client::log_error(const int& status, const request_type& request_type, snmp_pdu *response) const
 {
 
     if (status == STAT_SUCCESS)
@@ -157,8 +159,12 @@ void snmp_client::log_error(const int& status, const std::string& request_type, 
         SPDLOG_ERROR("Timeout, no response from server");
     }
     else{
-    
-        SPDLOG_ERROR("Unknown SNMP Error for {0}", request_type);
+        if(request_type == request_type::GET){
+            SPDLOG_ERROR("Unknown SNMP Error for {0}", "GET");
+        }
+        else if(request_type == request_type::SET){
+            SPDLOG_ERROR("Unknown SNMP Error for {0}", "SET");
+        }
     }
     
 }
