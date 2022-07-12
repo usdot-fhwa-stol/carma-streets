@@ -233,7 +233,7 @@ namespace scheduling_service{
 
     }
 
-	void scheduling_service::set_scheluding_worker(std::shared_ptr<scheduling_worker> sched_worker) {
+	void scheduling_service::set_scheduling_worker(std::shared_ptr<scheduling_worker> sched_worker) {
 		_scheduling_worker = sched_worker;
 	}
 
@@ -247,6 +247,14 @@ namespace scheduling_service{
 
 	void scheduling_service::set_vehicle_scheduler(std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) {
 		scheduler_ptr = scheduler;
+	}
+
+	void scheduling_service::set_consumer_worker(std::shared_ptr<kafka_clients::kafka_consumer_worker> worker) {
+		consumer_worker = worker;
+	}
+
+	void scheduling_service::set_producer_worker(std::shared_ptr<kafka_clients::kafka_producer_worker> worker) {
+		producer_worker = worker;
 	}
 
 }

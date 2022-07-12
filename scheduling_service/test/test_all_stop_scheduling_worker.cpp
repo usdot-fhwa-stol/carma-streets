@@ -5,6 +5,7 @@
 #include "vehicle_list.h"
 #include "vehicle_scheduler.h"
 #include "scheduling_worker.h"
+#include "scheduling_service.h"
 
 
 using namespace streets_vehicles;
@@ -84,9 +85,25 @@ TEST_F(all_stop_scheduling_worker_test, start_next_schedule_true)
 
 }
 
+TEST_F(all_stop_scheduling_worker_test, start_next_schedule_equal)
+{
+
+    u_int64_t scheduling_delta = 2000;
+    u_int64_t last_schedule_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    last_schedule_timestamp -= 2000;
+
+    ASSERT_TRUE( sched_worker -> start_next_schedule(last_schedule_timestamp, scheduling_delta) );
+
+}
+
 
 TEST_F(all_stop_scheduling_worker_test, schedule_vehicles)
 {
+    // Configure CSV logger
+    scheduling_service::scheduling_service ss;
+    ss.configure_csv_logger();
+    // End of configure CSV logger
     u_int64_t current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     vehicle veh_dv;

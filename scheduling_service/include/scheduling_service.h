@@ -93,14 +93,47 @@ namespace scheduling_service{
 		 */
 		void configure_csv_logger() const;
 
+        /**
+         * @brief Set the scheduling worker object for unit testing
+         * 
+         * @param sched_worker 
+         */
+        void set_scheduling_worker(std::shared_ptr<scheduling_worker> sched_worker);
 
-        void set_scheluding_worker(std::shared_ptr<scheduling_worker> sched_worker);
-
+        /**
+         * @brief Set the vehicle list object for unit testing
+         * 
+         * @param veh_list 
+         */
         void set_vehicle_list(std::shared_ptr<streets_vehicles::vehicle_list> veh_list);
 
+        /**
+         * @brief Set the vehicle scheduler object for unit testing
+         * 
+         * @param scheduler 
+         */
         void set_vehicle_scheduler(std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler);
 
+        /**
+         * @brief Set the intersection info object for unit testing
+         * 
+         * @param int_info 
+         */
         void set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> int_info);
+
+        /**
+         * @brief Set the consumer worker object for unit testing
+         * 
+         * @param worker 
+         */
+        void set_consumer_worker( std::shared_ptr<kafka_clients::kafka_consumer_worker> worker );
+
+        /**
+         * @brief Set the producer worker object for unit testing
+         * 
+         * @param worker 
+         */
+        void set_producer_worker( std::shared_ptr<kafka_clients::kafka_producer_worker> worker );
 
 	};
 
