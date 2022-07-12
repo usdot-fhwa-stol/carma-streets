@@ -15,6 +15,23 @@ enum class request_type
     OTHER //Processing this request type is not a defined behavior, included for testing only
 };
 
+/** @brief A struct to hold the value being sent to the TSC, can be integer or string. Type needs to be defined*/
+struct snmp_response_obj
+{
+    /** @brief The type of value being requested or set, on the TSC */
+    enum class response_type
+    {
+        INTEGER,
+        STRING
+    };
+
+    //snmp response values can be any asn.1 supported types. 
+    //Integer and string values can be processed here
+    int64_t val_int = 0;
+    std::string val_string = "";
+    response_type type;
+};
+
 class snmp_client
 {
     private:
@@ -47,10 +64,6 @@ class snmp_client
         /*Time after which the the snmp request times out*/
         int timeout_ = 10000;
 
-        // Static variables to pass as default argument for process_snmp_request
-        inline static std::string string_request_val = "";
-        inline static int64_t int_request_val = 0;
-
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
          *  Uses the arguments provided to establish an snmp connection
@@ -75,7 +88,7 @@ class snmp_client
          *  @param value_str String value for the object, returned by reference. Optional argument, if not provided the value is set as an empty string
          *  @return Integer value at the oid, returns false if value cannot be set/requested or oid doesn't have an integer value to return.*/
         
-        bool process_snmp_request(const std::string& input_oid, const request_type& request_type, int64_t& value_int = int_request_val, std::string& value_str = string_request_val);
+        bool process_snmp_request(const std::string& input_oid, const request_type& request_type, snmp_response_obj& val);
         /** @brief Finds error type from status and logs an error.
          *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)
          *  @param request_type The request type for which the error is being logged (GET/SET).

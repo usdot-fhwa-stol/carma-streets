@@ -13,8 +13,12 @@ namespace traffic_signal_controller_service
         int min_green;
         /*Maximum green durations for each active vehicle phase*/
         int max_green;
+        /*Green duration for */
+        int green_duration;
         /*Yellow signal duration*/
         int yellow_duration;
+        /* Red clearace time */
+        int red_clearance;
         /*Red signal duration*/
         int red_duration;
         /*Phase sequence in ring. Stores the sequence as ordered in the ring*/
@@ -34,6 +38,9 @@ namespace traffic_signal_controller_service
         std::unordered_map<int, int> signal_group_phase_map_;
 
         std::unordered_map<int, signal_group_state> signal_group_state_map_;
+
+        std::vector<int> phase_seq_ring1_;
+        std::vector<int> phase_seq_ring2_;
 
 
         public:
@@ -67,8 +74,10 @@ namespace traffic_signal_controller_service
 
         int get_yellow_duration(int phase_num);
 
+        int get_red_clearance(int phase_num);
+
         int get_red_duration(int phase_num);
 
-        std::vector<int> phase_seq(int phase_num);
+        std::vector<int> phase_seq(int ring_num);
     };
 }

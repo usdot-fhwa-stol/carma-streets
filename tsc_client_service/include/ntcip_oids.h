@@ -54,4 +54,13 @@ namespace ntcip_oids {
      * Used with (.sequence number)(.ring number)
      */
     static const std::string SEQUENCE_DATA = "1.3.6.1.4.1.1206.4.2.1.7.3.1.3";
+
+    /**
+     * @brief  Following the yellow change interval for each phase, the CU shall provide a red clearance interval which is 
+     * timed according to the red clearance parameter for that phase.
+     * Added Note:A clearance interval which may follow the yellow change interval during which both the terminating phase and 
+     * the next phase display Red signal indicators
+     * Used with (.phase number)
+     */
+    static const std::string RED_CLEAR_PARAMETER = "1.3.6.1.4.1.1206.4.2.1.1.2.1.9";
 }
