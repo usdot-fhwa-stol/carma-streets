@@ -33,12 +33,18 @@ The intersection schedule is the data object that holds the **vehicle_schedule(s
 }
 ```
 ### Vehicle scheduler
-The `vehicle_scheduler` class is an abstract class meant to be extended to implement custom scheduling logic (see `all_stop_vehicle_scheduler`). This class contains a protected members that stores information about intersection geometry (`intersection_info`) . To implement custom scheduling business logic simply extend this class and implement the virtual method `schedule_vehicles` which takes in a map of `vehicles` with vehicle string IDs as keys and an empty `intersection_schedule`. Using pass by reference, the implemented method should populate this intersection schedule with schedules for all the relevant vehicles in the intersection. Below is an example custom vehicle scheduler.
+The `vehicle_scheduler` class is an abstract class meant to be extended to implement custom scheduling logic (see `all_stop_vehicle_scheduler`). This class contains a protected members that stores information about intersection geometry (`intersection_info`) . To implement custom scheduling business logic simply extend this class and implement the virtual method `schedule_vehicles` which takes in a map of `vehicles` with vehicle string IDs as keys and an empty `intersection_schedule`. To produce an `intersection_schedule`, simply call this method and pass it a map of `vehicles` obtained from the `vehicle_list::get_vehicles()` method and an empty intersection_schedule. Using pass by reference, the implemented method should populate this intersection schedule with vehicle_schedule(s) for all the relevant vehicles in the intersection. Below is an example custom vehicle scheduler.
 
 ```
 class custom_vehicle_scheduler : public vehicle_scheduler {
   ...
-
+  /**
+  * @param vehicles a populated map of vehicles inside the intersection. Key values correspond to vehicle static IDs. This should be obtained from 
+  *     the vehicle_list::get_vehicles() method
+  * @param intersection_schedule an empty intersection_schedule to be populated by this method. Using pass by reference the previously empty 
+  *     intersection_schedule should be populated with vehicle_schedules for any relevant vehicles in the intersection if this method
+  *     executes without throung any scheduling_exception (s).
+  **/ 
   void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) override {
     // Custom implementation
     // Populate intersection_schedule with vehicle_schedule(s) for relevant vehicles included in vehicles map
@@ -62,8 +68,10 @@ std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler_ptr = st
 scheduler_ptr->set_intersection_info(intersection_info_ptr);
 // Get current vehicles from vehicle_list
 auto veh_map = _vehicle_list_ptr -> get_vehicles();
-// schedule vehicles
-streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, _scheduler_ptr);
+// Empty schedule
+streets_vehicle_scheduler::intersection_schedule int_schedule;
+// Schedule vehicles/populate schedule
+scheduler_ptr.schedule_vehicles(veh_map, int_schedule);
 // Serialize schedule to JSON
 std::string msg_to_send = int_schedule.toJson();
 
