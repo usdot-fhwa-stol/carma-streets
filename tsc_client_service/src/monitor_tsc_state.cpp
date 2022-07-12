@@ -86,7 +86,7 @@ namespace traffic_signal_controller_service
         {
             SPDLOG_ERROR("Max channels is 0, cannot look up vehicle phase channels");
         }
-        
+
         for(int channel_num = 1; channel_num < max_channels; ++channel_num)
         {
             std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
@@ -248,7 +248,7 @@ namespace traffic_signal_controller_service
         std::vector<int> phase_seq;
         // Read sequence 1 data for first 2 rings
         request_type request_type = request_type::GET;
-        std::string phase_seq_oid_ring1= ntcip_oids::SEQUENCE_DATA + "." + "1" + std::to_string(ring_num); //Sequence 1 for ring
+        std::string phase_seq_oid_ring1= ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(ring_num); //Sequence 1 for ring
         
         snmp_response_obj seq_data;
         seq_data.type = snmp_response_obj::response_type::STRING;
