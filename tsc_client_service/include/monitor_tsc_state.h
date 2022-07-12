@@ -31,7 +31,10 @@ namespace traffic_signal_controller_service
         std::unordered_map<int,int> phase_num_map_;
 
         /* Map between signal group ids(key) and phase numbers(value) for all active vehicle phases in the Traffic Signal Controller*/
-        std::unordered_map<int,int> signal_group_map_;
+        std::unordered_map<int, int> signal_group_phase_map_;
+
+        std::unordered_map<int, signal_group_state> signal_group_state_map_;
+
 
         public:
         /** 
@@ -58,5 +61,14 @@ namespace traffic_signal_controller_service
         * **/
         void map_phase_and_signalgroup(const std::vector<int>& vehicle_phase_channels);
 
+        int get_min_green(int signal_group_id);
+
+        int get_max_green(int signal_group_id);
+
+        int get_yellow_duration(int phase_num);
+
+        int get_red_duration(int phase_num);
+
+        std::vector<int> phase_seq(int phase_num);
     };
 }

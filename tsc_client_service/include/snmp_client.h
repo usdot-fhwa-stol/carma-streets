@@ -47,6 +47,9 @@ class snmp_client
         /*Time after which the the snmp request times out*/
         int timeout_ = 10000;
 
+        // Static variables to pass as default argument for process_snmp_request
+        inline static std::string string_request_val = "";
+        inline static int64_t int_request_val = 0;
 
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
@@ -66,10 +69,12 @@ class snmp_client
         /** @brief Returns true or false depending on whether the request could be processed for given input OID at the Traffic Signal Controller.
          *  @param input_oid The OID to request information for.
          *  @param request_type The request type for which the error is being logged. Accepted values are "GET" and "SET" only.
-         *  @param value The integer value for the object returned by reference. For "SET" it is the value to be set. 
+         *  @param value_int The integer value for the object returned by reference. For "SET" it is the value to be set. 
          *  For "GET", it is the value returned for the returned object by reference.
+         *  This is an optional argument, if not provided, defaults to 0.
+         *  @param value_str String value for the object, returned by reference. Optional argument, if not provided the value is set as an empty string
          *  @return Integer value at the oid, returns false if value cannot be set/requested or oid doesn't have an integer value to return.*/
-        bool process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value);
+        bool process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value_int = int_request_val, std::string& value_str = string_request_val);
 
         /** @brief Finds error type from status and logs an error.
          *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)

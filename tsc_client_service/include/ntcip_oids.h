@@ -35,4 +35,23 @@ namespace ntcip_oids {
     */
     static const std::string CHANNEL_CONTROL_SOURCE_PARAMETER = "1.3.6.1.4.1.1206.4.2.1.8.2.1.2";
 
+    /** @brief  Phase Minimum Green Parameter: The minimum green parameter in seconds.Used with (.phase number)*/
+    static const std::string MINIMUM_GREEN = "1.3.6.1.4.1.1206.4.2.1.1.2.1.4";
+
+    /** @brief This time shall determine the maximum length of time this phase may be held in Green in the absence of a serviceable conflicting call. In the absense of a serviceable conflicting call the 
+     * maximum green timer shall be held reset unless Max Vehicle recall is enabled for this phase. This is the default maximum value to use. 
+     * Used with (.phase number)**/
+    static const std::string MAXIMUM_GREEN = "1.3.6.1.4.1.1206.4.2.1.1.2.1.6";
+
+    /** @brief Phase Yellow Change Parameter: Following the green interval of each phase, 
+     * the CU shall provide a yellow change interval which is timed according to the yellow change parameter for that phase. 
+     * Used with (.phase number)**/
+    static const std::string YELLOW_CHANGE_PARAMETER = "1.3.6.1.4.1.1206.4.2.1.1.2.1.8";
+
+    /**
+     * @brief Each octet is a phase number within the associated ring number. 
+     * The phase number value shall not exceed the max phases object value. The order of phase numbers determines the phase sequence for that ring.
+     * Used with (.sequence number)(.ring number)
+     */
+    static const std::string SEQUENCE_DATA = "1.3.6.1.4.1.1206.4.2.1.7.3.1.3";
 }

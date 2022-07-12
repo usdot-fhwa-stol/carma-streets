@@ -16,7 +16,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
     SPDLOG_DEBUG("Starting SNMP Client");
     SPDLOG_DEBUG("Target device IP address: {0}", ip_);
     SPDLOG_INFO("Target device NTCIP port: {0}", port_);
-    
+
 
     // Bring the IP address and port of the target SNMP device in the required form, which is "IPADDRESS:PORT":
     std::string ip_port_string = ip_ + ":" + std::to_string(port_);    
@@ -51,7 +51,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
 
 }
 
-bool snmp_client::process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(const std::string& input_oid, const int& request_type, int64_t& value_int, std::string& value_str){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
@@ -64,7 +64,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const int& 
     }
     else if (request_type == request_type::SET)
     {
-        SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
+        SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value_int);
         pdu = snmp_pdu_create(SNMP_MSG_SET);
     }
     else{
@@ -90,7 +90,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const int& 
         }
         else if(request_type == request_type::SET)
         {
-            snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
+            snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value_int)).c_str());
         }
 
         SPDLOG_INFO("Created OID for input: {0}", input_oid);
@@ -111,14 +111,21 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const int& 
                 // get Integer value
                 if(vars->type == ASN_INTEGER){
                     if(vars->val.integer){
-                        value = *vars->val.integer;
-                        SPDLOG_INFO("Integer value in object: {0}", value);
+                        value_int = *vars->val.integer;
+                        SPDLOG_INFO("Integer value in object: {0}", value_int);
                     }
                     else{
                         SPDLOG_ERROR("Response specifies type integer, but no integer value found");
                         return false;
                     }
                     
+                }
+                else if(vars->type == ASN_OCTET_STR){
+                    char* sp = (char*) malloc(vars->val_len);
+                    std::memcpy(sp, vars->val.string, vars->val_len);
+                    sp[vars->val_len] = '\0';
+                    value_str.assign(sp, vars->val_len);
+                    delete sp;
                 }
                 else{
                     SPDLOG_ERROR("Received a message type which isn't an Integer");
@@ -127,7 +134,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const int& 
             }
         }
         else if(request_type == request_type::SET){
-            SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
+            SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value_int);
         }
     
     }
