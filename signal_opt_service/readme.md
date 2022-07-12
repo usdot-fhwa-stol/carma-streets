@@ -8,7 +8,7 @@
 ### Kafka topic names
 | Topic Name      | Description |
 | ------------    | ----------- |
-| tsc_spat_msg_in | The topic is used to transfer message between signal optimization and traffic signal client services. The message is carma-streets internal [spat messages in JSON format.](https://github.com/usdot-fhwa-stol/carma-streets/tree/develop/streets_utils/streets_signal_phase_and_timing) 
+| tsc_spat_msg_in | The topic is used to transfer message between signal optimization and  TSC (Traffic Signal Controller) services. The message is carma-streets internal [spat messages in JSON format.](https://github.com/usdot-fhwa-stol/carma-streets/tree/develop/streets_utils/streets_signal_phase_and_timing) 
 | vehicle_status_intent_output | This topic is used to transfer message between signal optimization and message services. The message format refers to [confluence page.](https://usdot-carma.atlassian.net/wiki/spaces/CRMTSMO/pages/2182873096/CARMA+Streets+Message+Data+Collection) 
 
 ### Additional parameters
