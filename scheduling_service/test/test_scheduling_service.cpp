@@ -97,7 +97,7 @@ TEST(scheduling_service_test, start)
     std::thread scheduling_service_thread(&scheduling_service::scheduling_service::start, ss );
     scheduling_service_thread.detach();
     // Wait 3 seconds without exception
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 
     SUCCEED();
 }
