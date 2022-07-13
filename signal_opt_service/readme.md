@@ -18,7 +18,10 @@ The SO service depends on message service, intersection model and TSC (Traffic S
 | int_client_request_attempts | The maximum numbers of loop to send HTTP request to intersection model to get the latest intersection geometry information.|
 
 ## Implementation
-The SO service consist of two main classes. The first is the `signal_opt_messages_worker`. This is a worker class the holds the pointers to all the persisted data. This includes the `intersection_info` (intersection geometry), **spat** (traffic signal current and future state information) and the `vehicle_list` (vehicle currently in the intersection).
+The SO service consist of two main classes. The first is the `signal_opt_messages_worker`. This is a worker class the holds the pointers to all the persisted data. This includes:
+- `intersection_info` (intersection geometry), 
+- **spat** (traffic signal current and future state information)
+- `vehicle_list` (vehicle currently in the intersection).
 
  `add_vehicle_update` takes a string JSON status_and_intent message as a parameter and simply calls `vehicle_list::process_update(const std::string &json)` . This will allow the `vehicle_list` to process a `status_and_intent` message and update its map of vehicles to reflect the information from this update. 
 
