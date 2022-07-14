@@ -7,6 +7,8 @@ link_directories(
                 ${catkin_INCLUDE_DIRS})
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
 find_package(spdlog REQUIRED)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+
 find_package(PROJ4)
 find_package(Eigen3 3.3 NO_MODULE)
 find_package(catkin COMPONENTS REQUIRED

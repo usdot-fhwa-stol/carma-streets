@@ -101,10 +101,12 @@ namespace kafka_clients
         if (err)
         {
             SPDLOG_CRITICAL(" {0} Failed to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
+            _run = false;
             exit(1);
+        } else {
+            SPDLOG_INFO("{0} Successfully to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
+            _run = true;
         }
-        SPDLOG_INFO("{0} Successfully to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
-        _run = true;
     }
 
     const char *kafka_consumer_worker::consume(int timeout_ms)

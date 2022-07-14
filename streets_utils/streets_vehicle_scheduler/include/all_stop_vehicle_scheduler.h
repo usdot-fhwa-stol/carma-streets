@@ -29,6 +29,10 @@ namespace streets_vehicle_scheduler {
              */
             uint64_t entering_time_buffer = 0;
             /**
+             * @brief Limits how much departure position for a given vehicle can change from current reported departure position.
+             */
+            int flexibility_limit = 5;
+            /**
              * @brief Schedule all currently Departing Vehicle (DVs). Estimate intersection departure times (dt's) for each vehicle
              * based on kinematic vehicle information and intersection geometry. Method assumes empty intersection_schedule is passed in.
              * Method will add vehicle_schedule(s) for each DV in the vector. 
@@ -220,6 +224,15 @@ namespace streets_vehicle_scheduler {
              * @param buffer entering time buff in milliseconds.
              */
             void set_entering_time_buffer( const uint64_t buffer);
+            /**
+             * @brief Set the flexibility limit. This limit controls how much departure position can change for any given vehicle between
+             * successive intersection schedule calculations. Each subsequent intersection scheduling calculation may have a slightly different
+             * departure order. This value controls how much this departure order can change.A value of 1 represents that vehicles departure 
+             * position can change by one between two intersection schedules.
+             * 
+             * @param limit How much can departure position change between schedules for any vehicle.
+             */
+            void set_flexibility_limit( const int limit );
 
 
 

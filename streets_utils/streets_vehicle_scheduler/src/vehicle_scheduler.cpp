@@ -9,9 +9,6 @@ namespace streets_vehicle_scheduler {
         intersection_info = _intersection_info;
     }
 
-    void vehicle_scheduler::set_flexibility_limit( const int limit ) {
-        flexibility_limit = limit;
-    }
 
     OpenAPI::OAILanelet_info vehicle_scheduler::get_entry_lanelet_info(const streets_vehicles::vehicle &veh) const{
         OpenAPI::OAILanelet_info entry_lane;
