@@ -23,14 +23,6 @@ namespace scheduling_service{
 
 	public:
 		
-		/**
-		 * @brief Checks if the time for starting the next schedule has been reached.
-		 * @param last_schedule_timestamp The timestamp(in milliseconds) of the last previous schedule.
-		 * @param scheduling_delta Time(in seconds) interval between scheduling calculations.
-		 * @return true if the time for starting the next schedule has been reached.
-		 * @return false if the time for starting the next schedule has not been reached.
-		 */
-		bool start_next_schedule(u_int64_t last_schedule_timestamp, u_int64_t scheduling_delta) const;
 
 
 		/**

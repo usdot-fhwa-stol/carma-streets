@@ -165,30 +165,29 @@ namespace scheduling_service{
 
 		while (true)
 		{
-			if (_scheduling_worker->start_next_schedule(last_schedule_timestamp, scheduling_delta))
-			{
-				SPDLOG_DEBUG("schedule number #{0}", sch_count);      
-				auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
+			
+			SPDLOG_DEBUG("schedule number #{0}", sch_count);      
+			auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
-				
-				veh_map = vehicle_list_ptr -> get_vehicles();
-				streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
+			
+			veh_map = vehicle_list_ptr -> get_vehicles();
+			streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
 
-				std::string msg_to_send = int_schedule.toJson();
+			std::string msg_to_send = int_schedule.toJson();
 
-				SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
+			SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
 
-				/* produce the scheduling plan to kafka */
-				producer_worker->send(msg_to_send);
+			/* produce the scheduling plan to kafka */
+			producer_worker->send(msg_to_send);
 
-				last_schedule_timestamp = int_schedule.timestamp;
-				sch_count += 1;
+			last_schedule_timestamp = int_schedule.timestamp;
+			sch_count += 1;
 
-				// sleep until next schedule
-				if (std::chrono::system_clock::now() < next_schedule_time_epoch){
-					std::this_thread::sleep_until(next_schedule_time_epoch);
-				}
+			// sleep until next schedule
+			if (std::chrono::system_clock::now() < next_schedule_time_epoch){
+				std::this_thread::sleep_until(next_schedule_time_epoch);
 			}
+			
 		}
 		SPDLOG_WARN("Stopping scheduling thread!");
 		producer_worker->stop();
