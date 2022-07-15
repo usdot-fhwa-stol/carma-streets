@@ -12,6 +12,8 @@ namespace signal_phase_and_timing
 {
     struct intersection_state
     {
+        int MIN_TO_SECONDS = 60;
+        int SECOND_TO_MILLISECONDS = 1000;
 
         /**
          * @brief Descriptive name for this collection.
@@ -121,7 +123,21 @@ namespace signal_phase_and_timing
          * @return false if both objects do contain equivalent data.
          */
         bool operator!=(const intersection_state &other) const;
+        /**
+         * @brief Convert current mimutes of the year and milliseconds of the current minute into epoch timestamp in milliseconds
+         * 
+         * @param moy The current minutes of the year
+         * @param min_mills_timestamp  The milliseconds of the current minute
+         * @return uint64_t epoch timestamp in milliseconds
+         */
+        uint64_t convert_min_mills2epoch_ts(uint16_t min_mills_timestamp) const;
 
+        /**
+         * @brief Get the epoch timestamp of the intersection state timestamp
+         * 
+         * @return ** uint64_t epoch timestamp in unit of milliseconds
+         */
+        uint64_t get_epoch_timestamp() const;
     };
 
 }

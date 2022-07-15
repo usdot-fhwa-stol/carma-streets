@@ -145,4 +145,15 @@ namespace signal_phase_and_timing {
     bool intersection_state::operator!=(const intersection_state &compare) const{
         return !operator==(compare);
     }
+
+    uint64_t intersection_state::convert_min_mills2epoch_ts(uint16_t min_mills_timestamp) const{
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        auto epoch_timestamp = std::chrono::duration_cast<std::chrono::minutes>(now.time_since_epoch()).count() * MIN_TO_SECONDS * SECOND_TO_MILLISECONDS + min_mills_timestamp;
+        return epoch_timestamp;
+    }
+
+    uint64_t intersection_state::get_epoch_timestamp() const{
+       auto epoch_timestamp = convert_min_mills2epoch_ts(time_stamp);
+       return epoch_timestamp;
+    }
 }

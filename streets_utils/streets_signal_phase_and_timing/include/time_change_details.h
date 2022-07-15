@@ -9,6 +9,8 @@
 
 namespace signal_phase_and_timing{
     struct time_change_details{
+        int HOUR_TO_SECONDS = 3600;
+        int SECOND_TO_MILLISECONDS = 1000;
         /**
          * @brief When this phase first started. (tenths of a second in current or next hour)
          */
@@ -79,6 +81,38 @@ namespace signal_phase_and_timing{
          * @return false if both objects do contain equivalent data.
          */
         bool operator!=(const time_change_details &other) const;
+        /**
+         * @brief Convert current hours of the year and milliseconds of the current hours into epoch timestamp in milliseconds
+         * 
+         * @param hour_tenth_secs  The tenth of seconds of the current hour
+         * @return uint64_t epoch timestamp in milliseconds
+         */
+        uint64_t convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const;
+
+        /**
+         * @brief Get the epoch timestamp of the start timestamp 
+         * 
+         * @return ** uint64_t epoch timestamp in unit of milliseconds
+         */
+        uint64_t get_epoch_start_time() const;
+        /**
+         * @brief Get the epoch timestamp of the min end timestamp 
+         * 
+         * @return ** uint64_t epoch timestamp in unit of milliseconds
+         */
+        uint64_t get_epoch_min_end_time() const;
+        /**
+         * @brief Get the epoch timestamp of the max end timestamp 
+         * 
+         * @return ** uint64_t epoch timestamp in unit of milliseconds
+         */
+        uint64_t get_epoch_max_end_time() const;
+        /**
+         * @brief Get the epoch timestamp of the next end timestamp  
+         * 
+         * @return ** uint64_t epoch timestamp in unit of milliseconds
+         */
+        uint64_t get_epoch_next_time() const;
     };
 
 }
