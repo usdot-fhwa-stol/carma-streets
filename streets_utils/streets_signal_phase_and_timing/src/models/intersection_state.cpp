@@ -147,8 +147,10 @@ namespace signal_phase_and_timing {
     }
 
     uint64_t intersection_state::convert_min_mills2epoch_ts(uint16_t min_mills_timestamp) const{
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        auto epoch_timestamp = std::chrono::duration_cast<std::chrono::minutes>(now.time_since_epoch()).count() * MIN_TO_SECONDS * SECOND_TO_MILLISECONDS + min_mills_timestamp;
+        auto tp = std::chrono::system_clock::now();
+        auto duration = tp.time_since_epoch();
+        auto mins_since_epoch = std::chrono::duration_cast<std::chrono::minutes>(duration).count();
+        auto epoch_timestamp = mins_since_epoch * MIN_TO_SECONDS * SECOND_TO_MILLISECONDS + min_mills_timestamp;
         return epoch_timestamp;
     }
 
