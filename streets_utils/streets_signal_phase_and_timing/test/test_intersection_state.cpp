@@ -4,7 +4,6 @@
 #include <rapidjson/stringbuffer.h>
 #include "spat.h"
 #include "signal_phase_and_timing_exception.h"
-#include "threads.h"
 
 using namespace signal_phase_and_timing;
 
