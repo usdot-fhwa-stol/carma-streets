@@ -130,7 +130,7 @@ namespace signal_phase_and_timing
          * @param min_mills_timestamp  The milliseconds of the current minute
          * @return uint64_t epoch timestamp in milliseconds
          */
-        uint64_t convert_min_mills2epoch_ts(uint16_t min_mills_timestamp) const;
+        uint64_t convert_min_mills2epoch_ts(uint32_t moy ,uint16_t min_mills_timestamp) const;
 
         /**
          * @brief Get the epoch timestamp of the intersection state timestamp
