@@ -146,13 +146,14 @@ namespace signal_phase_and_timing {
         return !operator==(compare);
     }
 
-    uint64_t intersection_state::convert_min_mills2epoch_ts(uint32_t moy , uint16_t min_mills_timestamp) const{
+    uint64_t intersection_state::convert_min_mills2epoch_ts(uint32_t moy_ll , uint16_t min_mills_timestamp) const{
         //Calculate timestamp for beginning of the year
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         time_t tt = std::chrono::system_clock::to_time_t(now);
-        struct tm *utctime = gmtime(&tt);
-        tm timeinfo = tm();
-        timeinfo.tm_year = utctime->tm_year;
+        tm utctime;
+        gmtime_r(&tt, &utctime);
+        auto timeinfo = tm();
+        timeinfo.tm_year = utctime.tm_year;
         timeinfo.tm_mon = 0; //January
         timeinfo.tm_mday = 1; //1st
         timeinfo.tm_hour = 0; //00
@@ -161,7 +162,7 @@ namespace signal_phase_and_timing {
         time_t year_begin_utc_t = timegm(&timeinfo);
         auto year_begin_utc_tp = std::chrono::system_clock::from_time_t(year_begin_utc_t);
         auto year_begin_utc_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(year_begin_utc_tp.time_since_epoch()).count();
-        auto epoch_timestamp = year_begin_utc_timestamp + static_cast<long>(moy) * MIN_TO_SECONDS * SECOND_TO_MILLISECONDS + min_mills_timestamp;
+        auto epoch_timestamp = year_begin_utc_timestamp + static_cast<long>(moy_ll) * MIN_TO_SECONDS * SECOND_TO_MILLISECONDS + min_mills_timestamp;
         return epoch_timestamp;
     }
 

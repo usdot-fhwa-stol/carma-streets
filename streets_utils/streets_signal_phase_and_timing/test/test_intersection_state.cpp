@@ -21,11 +21,12 @@ protected:
     {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         time_t tt = std::chrono::system_clock::to_time_t(now);
-        struct tm *utctime = gmtime(&tt);
+        tm utctime;
+        gmtime_r(&tt, &utctime);
 
         // Calculate the minute of the year
-        moy = utctime->tm_min + (utctime->tm_hour * 60) + (utctime->tm_yday * 24 * 60);
-        iss.moy = moy;
+        moy = utctime.tm_min + (utctime.tm_hour * 60) + (utctime.tm_yday * 24 * 60);
+        iss.moy = moy;    
 
         // Calculate the millisecond of the minute
         std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
@@ -40,7 +41,7 @@ protected:
         std::chrono::minutes epochMin = std::chrono::duration_cast<std::chrono::minutes>(now.time_since_epoch());
         SPDLOG_INFO("Epoch minutes {0}", epochMin.count());
 
-        // Epoch minutes + milliseconds of current minutes
+        // Epoch minutes + milliseconds of current minute
         epoch_intersection_state_timestamp = epochMin.count() * iss.MIN_TO_SECONDS*iss.SECOND_TO_MILLISECONDS + msOfMin;
         SPDLOG_INFO("epoch_intersection_state_timestamp {0}", epoch_intersection_state_timestamp );
     }
