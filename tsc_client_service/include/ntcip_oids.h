@@ -63,4 +63,11 @@ namespace ntcip_oids {
      * Used with (.phase number)
      */
     static const std::string RED_CLEAR_PARAMETER = "1.3.6.1.4.1.1206.4.2.1.1.2.1.9";
+
+    /**
+     * @brief Each octet contains a phase number that may run concurrently with the associated phase. Phases that are contained in the same ring may
+     * not run concurrently.
+     * Used with (.phase number)
+     */
+    static const std::string PHASE_CONCURRENCY =  "1.3.6.1.4.1.1206.4.2.1.1.2.1.23";
 }

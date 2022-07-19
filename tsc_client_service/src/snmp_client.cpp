@@ -128,13 +128,13 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
                 }
                 else if(vars->type == ASN_OCTET_STR){
                     if(vars->val.string){
-
-                        char* sp = (char*) malloc(vars->val_len);
-                        std::memcpy(sp, vars->val.string, vars->val_len);
-                        sp[vars->val_len] = '\0';
-                        val.val_string.assign(sp, vars->val_len);
-                        delete sp;
-                        SPDLOG_INFO("String value in object: {0}", val.val_string);
+                        // TODO: Current implementation stores the buffer array as a char array, improve implementation for processing strings
+                        size_t str_len = vars->val_len;
+                        for(size_t i = 0; i < str_len; ++i)
+                        {
+                            val.val_string.push_back(vars->val.string[i]);   
+                        }
+                        
                     }
                     else{
                         SPDLOG_ERROR("Response specifies type string, but no string value found");
@@ -154,7 +154,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
             }
 
             else if(val.type == snmp_response_obj::response_type::STRING){
-                SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", val.val_string);
+                // SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", val.val_string);
             }
         }
     

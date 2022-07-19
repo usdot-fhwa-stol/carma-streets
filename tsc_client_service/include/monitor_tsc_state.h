@@ -23,6 +23,8 @@ namespace traffic_signal_controller_service
         int red_duration;
         /*Phase sequence in ring. Stores the sequence as ordered in the ring*/
         std::vector<int> phase_seq;
+
+        std::vector<int> concurrent_phases;
     };
 
     class tsc_state
@@ -78,6 +80,10 @@ namespace traffic_signal_controller_service
 
         int get_red_duration(int phase_num);
 
+        std::vector<int> get_following_phases(int phase_num);
+
         std::vector<int> phase_seq(int ring_num);
+
+        std::vector<int> get_concurrent_phases(int phase_num);
     };
 }

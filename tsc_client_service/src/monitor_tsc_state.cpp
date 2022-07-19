@@ -1,6 +1,6 @@
 #include "monitor_tsc_state.h"
 # include "ntcip_oids.h"
-#include <sstream>
+#include <iostream>
 
 namespace traffic_signal_controller_service
 {
@@ -27,7 +27,9 @@ namespace traffic_signal_controller_service
             state.yellow_duration = get_yellow_duration(phase_num);
             // Define green duration as min/max as decided
             state.green_duration = state.min_green;
-
+            state.red_clearance = get_red_clearance(phase_num);
+            state.phase_seq = get_following_phases(phase_num);
+            state.concurrent_phases = get_concurrent_phases(phase_num);
             signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
         }
 
@@ -37,10 +39,11 @@ namespace traffic_signal_controller_service
             state.second.red_duration = get_red_duration(state.second.phase_num);
         }
 
+
         // Print signal_group map
         for (const auto& phase : signal_group_phase_map_)
         {
-            SPDLOG_DEBUG("Signal group id: {0}", phase.first, " phase: {1}", phase.second);
+            SPDLOG_DEBUG("Signal group id: {0} phase: {1}", phase.first, phase.second);
         }
         // Print state map
         for (const auto& state : signal_group_state_map_)
@@ -58,8 +61,45 @@ namespace traffic_signal_controller_service
             for(auto phase : state.second.phase_seq){
                 SPDLOG_DEBUG("{0}", phase);
             }
+
+            SPDLOG_DEBUG("Concurrent Phases:");
+            for(auto phase : state.second.concurrent_phases){
+                SPDLOG_DEBUG("{0}", phase);
+            }
             
         }
+    }
+
+    std::vector<int> tsc_state::get_following_phases(int phase_num)
+    {
+        std::vector<int> sequence;
+
+        // Add phase sequence to signal group state
+        for(size_t i = 0; i < phase_seq_ring1_.size();++i)
+        {
+            if(phase_seq_ring1_[i] == phase_num)
+            {
+                sequence.insert(sequence.begin(), phase_seq_ring1_.begin() + i, phase_seq_ring1_.end());
+                sequence.insert(sequence.end(), phase_seq_ring1_.begin(), phase_seq_ring1_.begin() + i);
+
+                return sequence; 
+            }
+        }
+
+        for(size_t i = 0; i < phase_seq_ring2_.size();++i)
+        {
+            if(phase_seq_ring2_[i] == phase_num)
+            {
+                sequence.insert(sequence.begin(), phase_seq_ring2_.begin() + i, phase_seq_ring2_.end());
+                sequence.insert(sequence.end(), phase_seq_ring2_.begin(), phase_seq_ring2_.begin() + i);
+
+                return sequence; 
+            }
+        }
+
+        SPDLOG_ERROR("No following phases found");
+        return sequence;
+
     }
 
     int tsc_state::get_max_channels() const {
@@ -82,7 +122,7 @@ namespace traffic_signal_controller_service
         vehicle_control_type.type = snmp_response_obj::response_type::INTEGER;
         
         request_type request_type = request_type::GET;
-        for(int channel_num = 0; channel_num < max_channels; ++channel_num)
+        for(int channel_num = 1; channel_num < max_channels; ++channel_num)
         {
             std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
 
@@ -101,7 +141,8 @@ namespace traffic_signal_controller_service
         if(vehicle_phase_channels.empty()){
             SPDLOG_WARN("Found no active vehicle phases");
         }
-
+        
+        SPDLOG_DEBUG("Number of vehicle phase channels found: {0}", vehicle_phase_channels.size());
         return vehicle_phase_channels;
     }
 
@@ -124,7 +165,7 @@ namespace traffic_signal_controller_service
             {
                 phase_num_map_.insert(std::make_pair(channel, phase_num.val_int));
                 signal_group_phase_map_.insert(std::make_pair(phase_num.val_int, channel));
-                SPDLOG_DEBUG("Found mapping between signal group: {0}", channel, " and phase num: {1}", phase_num.val_int );
+                SPDLOG_DEBUG("Found mapping between signal group: {0} and phase num: {1}", channel , phase_num.val_int );
             }
         }
         
@@ -183,7 +224,7 @@ namespace traffic_signal_controller_service
         
         snmp_client_worker_ ->process_snmp_request(yellow_duration_oid, request_type, yellow_duration);
 
-        return (int) yellow_duration.val_int;
+        return (int) yellow_duration.val_int / 10; //Divide by 10 since NTCIP returned value is in tenths of seconds
     }
 
     int tsc_state::get_red_clearance(int phase_num)
@@ -196,7 +237,7 @@ namespace traffic_signal_controller_service
 
         snmp_client_worker_->process_snmp_request(red_clearance_oid, get_request, red_clearance);
 
-        return (int) red_clearance.val_int;
+        return (int) red_clearance.val_int / 10; //Divide by 10 since NTCIP returned value is in tenths of seconds
     }
 
     int tsc_state::get_red_duration(int phase_num)
@@ -235,7 +276,7 @@ namespace traffic_signal_controller_service
 
         }
         
-        return red_duration;
+        return red_duration; 
     }
 
     std::vector<int> tsc_state::phase_seq(int ring_num)
@@ -243,24 +284,20 @@ namespace traffic_signal_controller_service
         std::vector<int> phase_seq;
         // Read sequence 1 data for first 2 rings
         request_type request_type = request_type::GET;
-        std::string phase_seq_oid_ring1= ntcip_oids::SEQUENCE_DATA + "." + "1" + std::to_string(ring_num); //Sequence 1 for ring
+        std::string phase_seq_oid_ring1= ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(ring_num); //Sequence 1 for ring
         
         snmp_response_obj seq_data;
         seq_data.type = snmp_response_obj::response_type::STRING;
         snmp_client_worker_->process_snmp_request(phase_seq_oid_ring1, request_type, seq_data);
         
         //extract phase numbers from strings
-        std::stringstream ss;
-        ss << seq_data.val_string;
-        std::string temp;
-        int num_found;
-        while(!ss.eof())
-        {
-            ss >> temp;
-            if(std::stringstream(temp) >> num_found)
-            {
-                phase_seq.push_back(num_found);
+        for(size_t i = 0; i < seq_data.val_string.size(); ++i)
+        {   
+            int phase = int(seq_data.val_string[i]);
+            if(phase_num_map_.find(phase)!= phase_num_map_.end() && phase != 0 ){
+                phase_seq.push_back(phase);
             }
+            
         }
 
         if(phase_seq.empty())
@@ -270,5 +307,32 @@ namespace traffic_signal_controller_service
 
         return phase_seq;
 
+    }
+
+    std::vector<int> tsc_state::get_concurrent_phases(int phase_num)
+    {
+
+        std::vector<int> concurrent_phases;
+        std::string concurrent_phases_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(phase_num);
+
+        snmp_response_obj concurrent_phase_data;
+        request_type request_type = request_type::GET;
+        concurrent_phase_data.type = snmp_response_obj::response_type::STRING;
+        snmp_client_worker_->process_snmp_request(concurrent_phases_oid, request_type, concurrent_phase_data);
+
+        //extract phase numbers from strings
+        for(size_t i = 0; i < concurrent_phase_data.val_string.size(); ++i)
+        {   
+            int phase = int(concurrent_phase_data.val_string[i]);
+            concurrent_phases.push_back(phase);
+            
+        }
+
+        if(concurrent_phases.empty())
+        {
+            SPDLOG_WARN("No phases found in sequence for phase {0}", phase_num);
+        }
+
+        return concurrent_phases;
     }
 }
