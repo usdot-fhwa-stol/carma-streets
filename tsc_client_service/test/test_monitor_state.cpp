@@ -19,5 +19,8 @@ namespace traffic_signal_controller_service
 
         std::vector<int> phase_channels = {1,2,3,4};
         worker.map_phase_and_signalgroup(phase_channels);
+
+
+        
     }
 }

@@ -21,9 +21,9 @@ namespace traffic_signal_controller_service
         int red_clearance;
         /*Red signal duration*/
         int red_duration;
-        /*Phase sequence in ring. Stores the sequence as ordered in the ring*/
+        /*Phase sequence in ring. Stores the sequence starting from the current phase*/
         std::vector<int> phase_seq;
-
+        /*Phases in the same barrier or concurrent group excluding phases from same ring*/
         std::vector<int> concurrent_phases;
     };
 
@@ -39,9 +39,12 @@ namespace traffic_signal_controller_service
         /* Map between signal group ids(key) and phase numbers(value) for all active vehicle phases in the Traffic Signal Controller*/
         std::unordered_map<int, int> signal_group_phase_map_;
 
+        /* Mapping between signal group ids(key) and their states(value) defined as a signal group state struct*/
         std::unordered_map<int, signal_group_state> signal_group_state_map_;
 
+        /* The sequence of phases in ring 1 of TSC*/
         std::vector<int> phase_seq_ring1_;
+        /* The sequence of phases in ring 2 of TSC*/
         std::vector<int> phase_seq_ring2_;
 
 
@@ -70,20 +73,52 @@ namespace traffic_signal_controller_service
         * **/
         void map_phase_and_signalgroup(const std::vector<int>& vehicle_phase_channels);
 
-        int get_min_green(int signal_group_id);
+        /** @brief Get minimum green time for a phase
+        ** @param phase_num The phase for which the min green needs to be requested
+        ** @return minimum green time in milliseconds
+        * **/
+        int get_min_green(int phase_num);
 
-        int get_max_green(int signal_group_id);
+        /** @brief Get maximum green time for a phase
+        ** @param phase_num The phase for which the maximum green needs to be requested
+        ** @return maximum green time in milliseconds
+        * **/
+        int get_max_green(int phase_num);
 
+        /** @brief Get yellow duration time for a phase
+        ** @param phase_num The phase for which the yellow duration needs to be requested
+        ** @return yellow duration time in milliseconds
+        * **/
         int get_yellow_duration(int phase_num);
 
+        /** @brief Get red clearance time for a phase
+        ** @param phase_num The phase for which the red clearance needs to be requested
+        ** @return red clearance time in milliseconds
+        * **/
         int get_red_clearance(int phase_num);
 
+        /** @brief Get red duration for a phase
+        ** @param phase_num The phase for which the red duration needs to be requested
+        ** @return red duration time in milliseconds
+        * **/
         int get_red_duration(int phase_num);
 
+        /** @brief Get a sequence of phases following the given phase
+        ** @param phase_num The phase for which the sequence needs to be obtained
+        ** @return a vector as a sequence of phases starting from the given phase
+        * **/
         std::vector<int> get_following_phases(int phase_num);
 
+        /** @brief Get a sequence of phases in the given ring
+        ** @param ring_num The phase for which the sequence needs to be obtained
+        ** @return a vector as a sequence of phases in the ring
+        * **/
         std::vector<int> phase_seq(int ring_num);
 
+        /** @brief The concurrent phases that the given phase can be green along with
+        ** @param ring_num The phase for which the concurrent phases needs to be obtained
+        ** @return a vector of phases that may be concurrent with the given phase
+        * **/
         std::vector<int> get_concurrent_phases(int phase_num);
     };
 }

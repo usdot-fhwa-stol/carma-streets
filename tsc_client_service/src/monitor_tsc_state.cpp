@@ -171,17 +171,9 @@ namespace traffic_signal_controller_service
         
     }
 
-    int tsc_state::get_min_green(int signal_group_id)
+    int tsc_state::get_min_green(int phase_num)
     {
         request_type request_type = request_type::GET;
-        int phase_num = 0;
-        try{
-            signal_group_phase_map_.find(signal_group_id) != signal_group_phase_map_.end();
-        }catch (std::invalid_argument const& ex){
-            std::runtime_error("Couldn't find a phase associated with signal group id: " + std::to_string(signal_group_id));
-        }
-        
-        phase_num = signal_group_phase_map_[signal_group_id];
         std::string min_green_parameter_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(phase_num);
 
         snmp_response_obj min_green;
@@ -192,18 +184,9 @@ namespace traffic_signal_controller_service
         return (int) min_green.val_int;
     }
 
-    int tsc_state::get_max_green(int signal_group_id)
+    int tsc_state::get_max_green(int phase_num)
     {
         request_type request_type = request_type::GET;
-        int phase_num = 0;
-        
-        try{
-            signal_group_phase_map_.find(signal_group_id) != signal_group_phase_map_.end();
-        }catch (std::invalid_argument const& ex){
-            std::runtime_error("Couldn't find a phase associated with signal group id: " + std::to_string(signal_group_id));
-        }
-        
-        phase_num = signal_group_phase_map_[signal_group_id];
 
         std::string max_green_parameter_oid = ntcip_oids::MAXIMUM_GREEN + "." + std::to_string(phase_num);
         snmp_response_obj max_green;
@@ -271,7 +254,12 @@ namespace traffic_signal_controller_service
                 return 0;
             }
             auto seq_signal_group_state = signal_group_state_map_[seq_signal_group];
-
+            if(phase == phase_num)
+            {
+                // Only add clearance time for current phase
+                red_duration += seq_signal_group_state.red_clearance;
+                continue;
+            }
             red_duration += seq_signal_group_state.green_duration + seq_signal_group_state.yellow_duration + seq_signal_group_state.red_clearance;
 
         }
