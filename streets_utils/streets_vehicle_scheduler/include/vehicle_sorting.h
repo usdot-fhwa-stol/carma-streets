@@ -2,6 +2,7 @@
 #include "vehicle.h"
 #include "scheduling_exception.h"
 #include "intersection_schedule.h"
+#include "all_stop_intersection_schedule.h"
 
 #include <vector>
 
@@ -48,6 +49,6 @@ namespace streets_vehicle_scheduler{
 	 * @return true if first should come before next. 
 	 * @return false if first should not come before next.
 	 */
-	bool delay_comparator( const intersection_schedule &prev_sched, const intersection_schedule &next_sched) ;
+	bool delay_comparator( const std::shared_ptr<all_stop_intersection_schedule> &prev_sched, const std::shared_ptr<all_stop_intersection_schedule> &next_sched) ;
 
 }

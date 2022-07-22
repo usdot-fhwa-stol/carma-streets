@@ -3,6 +3,7 @@
 
 #include "vehicle_list.h"
 #include "all_stop_vehicle_scheduler.h"
+#include "all_stop_intersection_schedule.h"
 
 using namespace streets_vehicles;
 using namespace streets_vehicle_scheduler;
@@ -17,6 +18,8 @@ namespace {
         std::unordered_map<std::string, vehicle> veh_list;
 
         std::unique_ptr<all_stop_vehicle_scheduler> scheduler;
+
+        std::shared_ptr<intersection_schedule> schedule;
 
         /**
          * @brief Test Setup method run before each test.
@@ -48,10 +51,13 @@ namespace {
 };
 
 TEST_F(all_stop_scheduler_test, schedule_empty_vehicle_list) {
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    scheduler->schedule_vehicles(veh_list,schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 0);
+    
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    scheduler->schedule_vehicles(veh_list, schedule);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+    ASSERT_EQ( sched->vehicle_schedules.size(), 0);
     //  
 }
 
@@ -61,8 +67,10 @@ TEST_F(all_stop_scheduler_test, schedule_empty_vehicle_list) {
  * 
  */
 TEST_F(all_stop_scheduler_test, one_ev_without_cruising){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     vehicle veh;
     veh._id = "TEST01";
     veh._accel_max = 2.0;
@@ -72,7 +80,7 @@ TEST_F(all_stop_scheduler_test, one_ev_without_cruising){
     veh._cur_distance = 60;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule.timestamp;
+    veh._cur_time = schedule->timestamp;
     veh._entry_lane_id = 167;
     veh._link_id = 169;
     veh._exit_lane_id = 168;
@@ -80,16 +88,18 @@ TEST_F(all_stop_scheduler_test, one_ev_without_cruising){
     veh_list.insert({veh._id,veh});
 
     scheduler->schedule_vehicles(veh_list,schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
-    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
-    double est_time =(schedule.vehicle_schedules.front().est-schedule.timestamp)/1000.0;
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
+    double est_time =(sched->vehicle_schedules.front().est-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EST time for scheduler  : {0}  vs calculated {1} ", est_time, 10.080 );
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.timestamp+10080);
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.vehicle_schedules.front().st);
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.vehicle_schedules.front().et);
-    double dt_time =(schedule.vehicle_schedules.front().dt-schedule.timestamp)/1000.0;
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->timestamp+10080);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().st);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().et);
+    double dt_time =(sched->vehicle_schedules.front().dt-sched->timestamp)/1000.0;
     SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 14.062);
-    ASSERT_EQ( schedule.vehicle_schedules.front().dt, schedule.timestamp+14062);
+    ASSERT_EQ( sched->vehicle_schedules.front().dt, sched->timestamp+14062);
 
 
 }
@@ -99,8 +109,10 @@ TEST_F(all_stop_scheduler_test, one_ev_without_cruising){
  * 
  */
 TEST_F(all_stop_scheduler_test, one_vehicle_with_cruising){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     vehicle veh;
     veh._id = "TEST01";
     veh._accel_max = 2.0;
@@ -110,7 +122,7 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_cruising){
     veh._cur_distance = 60.0;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule.timestamp;
+    veh._cur_time = schedule->timestamp;
     veh._entry_lane_id = 167;
     veh._link_id = 155;
     veh._exit_lane_id = 162;
@@ -119,24 +131,28 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_cruising){
     veh_list.insert({veh._id,veh});
 
     scheduler->schedule_vehicles(veh_list,schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
-    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
-    double est_time =(schedule.vehicle_schedules.front().est-schedule.timestamp)/1000.0;
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
+    double est_time =(sched->vehicle_schedules.front().est-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EST time for scheduler  : {0}  vs calculated {1} ", est_time, 9.169 );
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.timestamp+9169);
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.vehicle_schedules.front().st);
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.vehicle_schedules.front().et);
-    double dt_time =(schedule.vehicle_schedules.front().dt-schedule.timestamp)/1000.0;
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->timestamp+9169);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().st);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().et);
+    double dt_time =(sched->vehicle_schedules.front().dt-sched->timestamp)/1000.0;
     SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 14.044);
-    ASSERT_EQ( schedule.vehicle_schedules.front().dt, schedule.timestamp+14044);
+    ASSERT_EQ( sched->vehicle_schedules.front().dt, sched->timestamp+14044);
 }
 /**
  * @brief Test one EV future time kinematics estimate given no possible lane transition.
  * 
  */
 TEST_F(all_stop_scheduler_test, one_vehicle_with_future_time_estimate){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+    
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     vehicle veh;
     veh._id = "TEST01";
     veh._accel_max = 2.0;
@@ -146,7 +162,7 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_future_time_estimate){
     veh._cur_distance = 60.0;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule.timestamp-150;
+    veh._cur_time = schedule->timestamp-150;
     veh._entry_lane_id = 167;
     veh._link_id = 155;
     veh._exit_lane_id = 162;
@@ -154,10 +170,12 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_future_time_estimate){
     veh_list.insert({veh._id,veh});
 
     scheduler->schedule_vehicles(veh_list,schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
-    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
     auto estimate_veh = veh_list.find(veh._id)->second;
-    ASSERT_EQ(estimate_veh._cur_time, schedule.timestamp);
+    ASSERT_EQ(estimate_veh._cur_time, sched->timestamp);
     ASSERT_NEAR(estimate_veh._cur_distance, 59.30694, 0.00001);
     ASSERT_NEAR(estimate_veh._cur_speed, 4.7704, 0.0001);
 
@@ -169,8 +187,10 @@ TEST_F(all_stop_scheduler_test, one_vehicle_with_future_time_estimate){
  * 
  */
 TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_estimate){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     vehicle veh;
     // NOTE: This is an impossible test scenario where the vehicle cannot stop before reaching the stop bar.
     // This test is to exercise the future time kinematic estimations where a lane transition is possible.
@@ -182,7 +202,7 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_est
     veh._cur_distance = .8;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule.timestamp-600;
+    veh._cur_time = schedule->timestamp-600;
     veh._entry_lane_id = 167;
     veh._link_id = 155;
     veh._exit_lane_id = 162;
@@ -190,14 +210,16 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_est
     veh_list.insert({veh._id,veh});
 
     scheduler->schedule_vehicles(veh_list,schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
-    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+    
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
     auto estimate_veh = veh_list.find(veh._id)->second;
-    ASSERT_EQ(estimate_veh._cur_time, schedule.timestamp);
+    ASSERT_EQ(estimate_veh._cur_time, sched->timestamp);
     ASSERT_EQ(estimate_veh._cur_distance, 0.0);
-    double est_time =(schedule.vehicle_schedules.front().est-schedule.timestamp)/1000.0;
+    double est_time =(sched->vehicle_schedules.front().est-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EST time for scheduler  : {0}", est_time);
-    double dt_time =(schedule.vehicle_schedules.front().dt-schedule.timestamp)/1000.0;
+    double dt_time =(sched->vehicle_schedules.front().dt-sched->timestamp)/1000.0;
     SPDLOG_INFO( "DT time for scheduler  : {0}", dt_time);
 
     
@@ -208,8 +230,10 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_est
  * 
  */
 TEST_F(all_stop_scheduler_test, one_vehicle_lane_with_zero_acceleration_time){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     vehicle veh;
     // NOTE: This is a test to see if the vehicle trajectory will be calculated correctly for a vehicle which only has time to decelerate
     // with max deceleration.
@@ -221,7 +245,7 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_with_zero_acceleration_time){
     veh._cur_distance = .25;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule.timestamp;
+    veh._cur_time = schedule->timestamp;
     veh._entry_lane_id = 167;
     veh._link_id = 155;
     veh._exit_lane_id = 162;
@@ -229,11 +253,13 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_with_zero_acceleration_time){
     veh_list.insert({veh._id,veh});
 
     scheduler->schedule_vehicles(veh_list,schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 1);
-    ASSERT_EQ( schedule.vehicle_schedules.front().v_id, veh._id);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+    
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
     auto estimate_veh = veh_list.find(veh._id)->second;
-    ASSERT_EQ(estimate_veh._cur_time, schedule.timestamp);
-    ASSERT_EQ( schedule.vehicle_schedules.front().est, schedule.timestamp + 500);
+    ASSERT_EQ(estimate_veh._cur_time, sched->timestamp);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->timestamp + 500);
 
     
 }

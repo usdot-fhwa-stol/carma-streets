@@ -30,8 +30,8 @@ namespace streets_vehicle_scheduler {
 		return prev_veh._cur_distance < next_veh._cur_distance;
 	}
 
-	bool delay_comparator( const intersection_schedule &prev_sched, const intersection_schedule &next_sched) {
-		return prev_sched.get_delay() < next_sched.get_delay();
+	bool delay_comparator( const std::shared_ptr<all_stop_intersection_schedule> &prev_sched, const std::shared_ptr<all_stop_intersection_schedule> &next_sched) {
+		return prev_sched->get_delay() < next_sched->get_delay();
 	}
 
  

@@ -56,10 +56,10 @@ namespace {
  * @brief Test with multiple vehicle for json schedule.
  */
 TEST_F(all_stop_json_csv_schedule_test, json_schedule){
-    intersection_schedule schedule;
+    all_stop_intersection_schedule schedule;
     schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     // populated schedule 
-    vehicle_schedule sched1;
+    all_stop_vehicle_schedule sched1;
     sched1.access= true;
     sched1.dp= 1;
     sched1.state =streets_vehicles::vehicle_state::DV;
@@ -70,7 +70,7 @@ TEST_F(all_stop_json_csv_schedule_test, json_schedule){
     sched1.et = schedule.timestamp - 3000;
     sched1.dt =  schedule.timestamp + 4000;
 
-    vehicle_schedule sched2;
+    all_stop_vehicle_schedule sched2;
     sched2.access= true;
     sched2.dp= 2;
     sched2.state =streets_vehicles::vehicle_state::RDV;
@@ -81,7 +81,7 @@ TEST_F(all_stop_json_csv_schedule_test, json_schedule){
     sched2.et = schedule.timestamp + 3000;
     sched2.dt =  schedule.timestamp + 8000;
 
-    vehicle_schedule sched3;
+    all_stop_vehicle_schedule sched3;
     sched3.access= true;
     sched3.dp= 3;
     sched3.state =streets_vehicles::vehicle_state::EV;
@@ -118,10 +118,10 @@ TEST_F(all_stop_json_csv_schedule_test, json_schedule){
  * @brief Test with multiple vehicle for csv schedule.
  */
 TEST_F(all_stop_json_csv_schedule_test, csv_schedule){
-    intersection_schedule schedule;
+    all_stop_intersection_schedule schedule;
     schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     // populated schedule 
-    vehicle_schedule sched1;
+    all_stop_vehicle_schedule sched1;
     sched1.access= true;
     sched1.dp= 1;
     sched1.state =streets_vehicles::vehicle_state::DV;
@@ -132,7 +132,7 @@ TEST_F(all_stop_json_csv_schedule_test, csv_schedule){
     sched1.et = schedule.timestamp - 3000;
     sched1.dt =  schedule.timestamp + 4000;
 
-    vehicle_schedule sched2;
+    all_stop_vehicle_schedule sched2;
     sched2.access= true;
     sched2.dp= 2;
     sched2.state =streets_vehicles::vehicle_state::RDV;
@@ -143,7 +143,7 @@ TEST_F(all_stop_json_csv_schedule_test, csv_schedule){
     sched2.et = schedule.timestamp + 3000;
     sched2.dt =  schedule.timestamp + 8000;
 
-    vehicle_schedule sched3;
+    all_stop_vehicle_schedule sched3;
     sched3.access= true;
     sched3.dp= 3;
     sched3.state =streets_vehicles::vehicle_state::EV;
