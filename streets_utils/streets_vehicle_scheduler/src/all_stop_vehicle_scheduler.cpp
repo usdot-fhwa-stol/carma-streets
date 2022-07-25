@@ -2,7 +2,9 @@
 
 namespace streets_vehicle_scheduler {
 
-   
+    void all_stop_vehicle_scheduler::set_flexibility_limit( const int limit ) {
+        flexibility_limit = limit;
+    }
 
     void all_stop_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                             intersection_schedule &schedule) {

@@ -8,6 +8,8 @@
 #include <QEventLoop>
 #include <iostream>
 #include <unistd.h>
+#include <thread>         // std::this_thread::sleep_for
+#include <chrono>         // std::chrono::seconds
 
 
 namespace scheduling_service{

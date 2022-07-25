@@ -80,13 +80,13 @@ namespace streets_vehicles {
                     vehicle = vehicles.find(v_id)->second;
                     processor->process_status_intent( doc, vehicle);
                     update_vehicle(vehicle);
-                    SPDLOG_DEBUG("Update Vehicle : {0}" , vehicle.get_id());
+                    SPDLOG_DEBUG("Update Vehicle : {0}" , vehicle._id);
                 }
                 else {
                     // If vehicle is not already in Vehicle list, add vehicle
                     processor->process_status_intent( doc, vehicle);
                     add_vehicle(vehicle);
-                    SPDLOG_DEBUG("Added Vehicle : {0}" , vehicle.get_id());
+                    SPDLOG_DEBUG("Added Vehicle : {0}" , vehicle._id);
 
                 }
             }

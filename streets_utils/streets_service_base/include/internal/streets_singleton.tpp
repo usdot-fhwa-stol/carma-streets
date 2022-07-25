@@ -8,8 +8,8 @@ namespace streets_service {
                             // Instantiated on first use.
         char strAddress[20];
         snprintf(strAddress,sizeof(strAddress) ,"%p",std::addressof(instance) );
-        SPDLOG_DEBUG("Singleton class : {0}.", typeid(instance).name() );
-        SPDLOG_DEBUG("Singleton address: {0}", strAddress);
+        SPDLOG_TRACE("Singleton class : {0}.", typeid(instance).name() );
+        SPDLOG_TRACE("Singleton address: {0}", strAddress);
         return instance;
     };
         

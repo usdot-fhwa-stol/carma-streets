@@ -206,7 +206,7 @@ namespace streets_service {
         try {
             // Check last write time of manifest.json configuration file to see if updates have been made
             std::time_t time = boost::filesystem::last_write_time(filepath);
-            SPDLOG_DEBUG("Last Modified Time {0} vs Stored Last Modified Time {1}", time, last_modified);
+            SPDLOG_TRACE("Last Modified Time {0} vs Stored Last Modified Time {1}", time, last_modified);
             if ( time > last_modified) {
                 // If updates have been made parse manifest.json into Document and update loglevel and 
                 // any changed configuration parameters.

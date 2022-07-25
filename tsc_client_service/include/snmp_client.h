@@ -69,6 +69,7 @@ class snmp_client
         /*Time after which the the snmp request times out*/
         int timeout_ = 10000;
 
+
     public:
         /** @brief Constructor for Traffic Signal Controller Service client.
          *  Uses the arguments provided to establish an snmp connection
