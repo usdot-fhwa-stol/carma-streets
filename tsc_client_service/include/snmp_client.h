@@ -30,6 +30,11 @@ struct snmp_response_obj
     int64_t val_int = 0;
     std::vector<char> val_string;
     response_type type;
+
+    inline bool operator==(snmp_response_obj obj2) const
+    {
+        return val_int == obj2.val_int && val_string == obj2.val_string && type == obj2.type;
+    }
 };
 
 class snmp_client
@@ -88,15 +93,15 @@ class snmp_client
          *  @param value_str String value for the object, returned by reference. Optional argument, if not provided the value is set as an empty string
          *  @return Integer value at the oid, returns false if value cannot be set/requested or oid doesn't have an integer value to return.*/
         
-        bool process_snmp_request(const std::string& input_oid, const request_type& request_type, snmp_response_obj& val);
+        virtual bool process_snmp_request(const std::string& input_oid, const request_type& request_type, snmp_response_obj& val);
         /** @brief Finds error type from status and logs an error.
          *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)
          *  @param request_type The request type for which the error is being logged (GET/SET).
          *  @param response The snmp_pdu struct */
-        void log_error(const int& status, const request_type& request_type, snmp_pdu *response) const;
+        virtual void log_error(const int& status, const request_type& request_type, snmp_pdu *response) const;
 
         /** @brief Destructor for client. Closes the snmp session**/
-        ~snmp_client(){
+        virtual ~snmp_client(){
             SPDLOG_INFO("Closing snmp session");
             snmp_close(ss);
         }
