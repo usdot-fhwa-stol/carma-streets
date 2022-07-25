@@ -21,6 +21,12 @@
             "type": "STRING"
         },
         {
+            "name": "spat_topic",
+            "value": "modified spat",
+            "description":"Kafka topic to which the scheduling service will consume modified spat.",
+            "type": "STRING"
+        },
+        {
             "name": "group_id",
             "value": "group_1",
             "description": "Kafka consumer group ID.",
@@ -102,6 +108,18 @@
             "name": "int_client_request_attempts",
             "value": 10,
             "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "initial_green_buffer",
+            "value": 2000,
+            "description": "The configurable time interval at the beginning of a green phase that is considered for estimating vehicles' entering times.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "final_green_buffer",
+            "value": 2000,
+            "description": "The configurable time interval at the end of a green phase that is considered for estimating vehicles' entering times.",
             "type": "INTEGER"
         }
     ]

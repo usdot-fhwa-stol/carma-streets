@@ -35,12 +35,6 @@ namespace streets_vehicle_scheduler {
              * 
              */
             uint64_t final_green_buffer;
-            
-            /**
-             * @brief The duration considered for the tbd area in the modified spat list
-             * 
-             */
-            uint64_t tbd_duration;
 
             /**
              * @brief Estimate the intersection departure times (dt's) for all currently Departing Vehicle (DVs) based on kinematic vehicle 
@@ -70,11 +64,10 @@ namespace streets_vehicle_scheduler {
              * @param veh vehicle for which to estimate ET.
              * @param preceding_veh preceding vehicle of the subject vehicle (veh)
              * @param sched signalized_intersection_schedule to add EV scheduling information to.
-             * @param phase_start_time start of the phase in milliseconds.
-             * @param phase_end_time end of the phase in milliseconds.
+             * @param move_state movement state information that includes a list of current and pending phases.
              * @param schedule_timestamp timestamp of the current schedule in milliseconds. 
              */
-            void estimate_et(const streets_vehicles::vehicle &veh, const signalized_vehicle_schedule &preceding_veh, signalized_vehicle_schedule &sched, const uint64_t phase_start_time, const uint64_t phase_end_time, const uint64_t schedule_timestamp) const;
+            void estimate_et(const streets_vehicles::vehicle &veh, const signalized_vehicle_schedule &preceding_veh, signalized_vehicle_schedule &sched, const signal_phase_and_timing::movement_state &move_state, const uint64_t schedule_timestamp) const;
             /**
              * @brief Method to use vehicle kinematic information to estimate earliest possible entering time (EET) for an entering vehicle (EV).
              * Does not consider any other vehicles. Limiting factors are the vehicles current kinematic information, lane speed
@@ -177,8 +170,6 @@ namespace streets_vehicle_scheduler {
              */
             signal_phase_and_timing::movement_state find_movement_state_for_lane(const OpenAPI::OAILanelet_info &entry_lane_info) const;
 
-            // void find_next_green_start_and_end(std::list<signal_phase_and_timing::movement_event>::iterator &move_event, signal_phase_and_timing::movement_state &move_state, uint64_t &phase_start_time, uint64_t &phase_end_time);
-
         public:
             /**
              * @brief Construct a new signalized vehicle scheduler object
@@ -209,6 +200,12 @@ namespace streets_vehicle_scheduler {
              */
             void set_initial_green_buffer(const uint64_t buffer);
             /**
+             * @brief Get the initial green buffer (ms).
+             * 
+             * @return uint64_t initial green buffer.
+             */
+            uint64_t get_initial_green_buffer() const;
+            /**
              * @brief Set the final green buffer (ms). This value is used to account for safety. The assumption is that no vehicle shall 
              * enter the intersection box after the end of a green phase minus the final green buffer.
              * entering the intersection box at a green phase.
@@ -216,6 +213,12 @@ namespace streets_vehicle_scheduler {
              * @param buffer final green buffer in milliseconds.
              */
             void set_final_green_buffer(const uint64_t buffer);
+            /**
+             * @brief Get the final green buffer (ms).
+             * 
+             * @return uint64_t final green buffer.
+             */
+            uint64_t get_final_green_buffer() const;   
             /**
              * @brief Get the spat object
              * 
@@ -228,17 +231,5 @@ namespace streets_vehicle_scheduler {
              * @param spat_info signal_phase_and_timing::spat object.
              */
             void set_spat(std::shared_ptr<signal_phase_and_timing::spat> spat_info);
-            /**
-             * @brief Set the tbd duration
-             * 
-             * @param duration in milliseconds.
-             */
-            void set_tbd_duration(const uint64_t duration);
-            /**
-             * @brief Get the tbd duration
-             * 
-             * @return uint64_t tbd duration in milliseconds.
-             */
-            uint64_t get_tbd_duration() const;
     };
 }

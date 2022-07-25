@@ -110,74 +110,32 @@ namespace streets_vehicle_scheduler {
                     }
                 }
             }
-
-            std::list<streets_vehicles::vehicle>::const_iterator ev_iterator = evs_in_lane.begin();
-            OpenAPI::OAILanelet_info entry_lane_info = get_entry_lanelet_info( *ev_iterator );
-            SPDLOG_INFO("The signal group id of the entry lane {0} = {1}", entry_lane_info.getId(), entry_lane_info.getSignalGroupId());
-
-            // Get the firs phase status for the entry lane - ToDo
-            signal_phase_and_timing::movement_state move_state = find_movement_state_for_lane(entry_lane_info);
-            std::list<signal_phase_and_timing::movement_event>::iterator move_event = move_state.state_time_speed.begin();
-            uint64_t phase_start_time = move_event->timing.start_time;
-            uint64_t phase_end_time = move_event->timing.min_end_time;
-            SPDLOG_INFO("phase start time = {0}, phase end time = {1}", phase_start_time, phase_end_time);
-
-            if (!(move_event->event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed)) {
-                // find_next_green_start_and_end(move_event, move_state, phase_start_time, phase_end_time);
-                ++move_event;
-                while (move_event != move_state.state_time_speed.end() && move_event->event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
-                    ++move_event;
-                    phase_start_time = move_event->timing.start_time;
-                    phase_end_time = move_event->timing.min_end_time;
-                }
-                if (move_event == move_state.state_time_speed.end()){
-                    phase_start_time = phase_end_time;
-                    phase_end_time += tbd_duration;
+            
+            // Find the entry lane object
+            OpenAPI::OAILanelet_info entry_lane_info;
+            for ( const auto &lane : intersection_info->getEntryLanelets() ){
+                if ( lane.getId() == entry_lane ) {
+                    entry_lane_info = lane;
+                    break;
                 }
             }
-            
+            SPDLOG_DEBUG("The signal group id of the entry lane {0} = {1}", entry_lane_info.getId(), entry_lane_info.getSignalGroupId());
 
-            // Schedule all vehicles from the entry lane until the list is empty.
-            do {
+            // Get the movement_state object that connects to this entry lane
+            signal_phase_and_timing::movement_state move_state = find_movement_state_for_lane(entry_lane_info);
+
+            for (const auto &ev : evs_in_lane){
                 signalized_vehicle_schedule sched;
-
-                // streets_vehicles::vehicle ev = evs_in_lane.front();
-                streets_vehicles::vehicle ev = *ev_iterator;
                 SPDLOG_DEBUG( "Estimating schedule for {0}.", ev._id);
-                estimate_et(ev, preceding_veh, sched, phase_start_time, phase_end_time, schedule->timestamp);
+                estimate_et(ev, preceding_veh, sched, move_state, schedule->timestamp);
+                // Add vehicle schedule to the schedule list.
+                schedule->vehicle_schedules.push_back(sched);
+                // Update the preceding vehicle schedule.
+                preceding_veh = sched;
+            }
 
-                if ( sched.et <= phase_end_time - final_green_buffer ) {
-                    SPDLOG_DEBUG( "Successfully estimate an ET for vehicle {0}. The estimated ET = {1}.", ev._id, sched.et);
-                    // Add vehicle schedule to the schedule list.
-                    schedule->vehicle_schedules.push_back(sched);
-                    // Update the preceding vehicle schedule.
-                    preceding_veh = sched;
-                    // Move to the next vehicle
-                    ++ev_iterator;
-                }
-                else {
-                    // Move to the next phase and update the phase_start_time and phase_end_time - ToDo
-                    SPDLOG_DEBUG( "The estimated ET for vehicle {0} is not within the safe green duration. start of the green + buffer = {1}, end of green - buffer = {2}, estimated ET = {3}.", ev._id,  phase_start_time + initial_green_buffer, phase_end_time - final_green_buffer, sched.et);
-                    ++move_event;
-                    while (move_event != move_state.state_time_speed.end() && move_event->event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
-                        ++move_event;
-                        phase_start_time = move_event->timing.start_time;
-                        phase_end_time = move_event->timing.min_end_time;
-                    }
-                    if (move_event == move_state.state_time_speed.end()){
-                        phase_start_time = phase_end_time;
-                        phase_end_time += tbd_duration;
-                    }
-                }
+            SPDLOG_DEBUG("All vehicles in lane {0} have been scheduled!", entry_lane);
 
-
-                if ( ev_iterator == evs_in_lane.end() ) {
-                    SPDLOG_DEBUG("All vehicles in approach lanelet {0} have been scheduled!", sched.entry_lane);
-                }
-                break;
-
-            } 
-            while ( ev_iterator != evs_in_lane.end() );
         }
     }
 
@@ -200,32 +158,20 @@ namespace streets_vehicle_scheduler {
     }
 
 
-    // void signalized_vehicle_scheduler::find_next_green_start_and_end(std::list<signal_phase_and_timing::movement_event>::iterator &move_event, signal_phase_and_timing::movement_state &move_state, uint64_t &phase_start_time, uint64_t &phase_end_time) {
-    //     ++move_event;
-    //     while (move_event != move_state.state_time_speed.end() && move_event->event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
-    //         ++move_event;
-    //         phase_start_time = move_event->timing.start_time;
-    //         phase_end_time = move_event->timing.min_end_time;
-    //     }
-    //     if (move_event == move_state.state_time_speed.end()){
-    //         phase_start_time = phase_end_time;
-    //         phase_end_time += tbd_duration;
-    //     }
-    // }
-
-
-    void signalized_vehicle_scheduler::estimate_et(const streets_vehicles::vehicle &veh, const signalized_vehicle_schedule &preceding_veh, signalized_vehicle_schedule &sched, const uint64_t phase_start_time, const uint64_t phase_end_time, const uint64_t schedule_timestamp) const {
+    void signalized_vehicle_scheduler::estimate_et(const streets_vehicles::vehicle &veh, const signalized_vehicle_schedule &preceding_veh, signalized_vehicle_schedule &sched, const signal_phase_and_timing::movement_state &move_state, const uint64_t schedule_timestamp) const {
 
         // Get link lanelet information for ev
         OpenAPI::OAILanelet_info link_lane = get_link_lanelet_info( veh );
-        SPDLOG_INFO( "Link lanelet for vehicle {0} is {1}.", veh._id, link_lane.getId());
+        SPDLOG_DEBUG( "Link lanelet for vehicle {0} is {1}.", veh._id, link_lane.getId());
         // Calculate EET for vehicle
         uint64_t eet = calculate_earliest_entering_time(veh);
-        SPDLOG_INFO( "EET for vehicle {0} is {1}." ,veh._id, eet );
+        SPDLOG_DEBUG( "EET for vehicle {0} is {1}." ,veh._id, eet );
         // Calculate min_headway
         uint64_t min_headway = calculate_min_headway( veh, link_lane.getSpeedLimit() );
-        SPDLOG_INFO( "min headway for vehicle {0} is {1}.", veh._id, min_headway );
-
+        SPDLOG_DEBUG( "min headway for vehicle {0} is {1}.", veh._id, min_headway );
+        /** estimate the earliest possible ET based on the current timestamp, the preceding vehicle's estimated ET, 
+         * and the subject vehicle's minimum required safety time headway at tbe departure speed.
+        */
         uint64_t first_available_et;
         if (preceding_veh.v_id == "") {
             first_available_et = schedule_timestamp;
@@ -233,8 +179,29 @@ namespace streets_vehicle_scheduler {
         else {
             first_available_et = std::max(schedule_timestamp, preceding_veh.et + min_headway);
         }
-        uint64_t et = std::max(first_available_et, std::max(eet, phase_start_time + initial_green_buffer));
-        
+
+        // Check the movement_event list one by one until successfully estimating the vehicle's entering time (ET).
+        bool is_successful = false;
+        uint64_t et;
+        for (const auto &move_event : move_state.state_time_speed) {
+            SPDLOG_DEBUG("Moving to the next movement event from the list! start time without buffer = {0}, end time without buffer = {1}", move_event.timing.start_time, move_event.timing.min_end_time );
+            if (move_event.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
+                et = std::max(first_available_et, std::max(eet, move_event.timing.start_time + initial_green_buffer));
+                if ( et < move_event.timing.min_end_time - final_green_buffer ) {
+                    SPDLOG_DEBUG( "Successfully estimate an ET (within a green phase) for vehicle {0}. The estimated ET = {1}.", veh._id, et);
+                    is_successful = true;
+                    break;
+                }
+                SPDLOG_DEBUG( "The estimated ET for vehicle {0} is later than the end of the phase. Estimated ET = {1}, end of the phase", veh._id, et, move_event.timing.min_end_time - final_green_buffer );
+            }
+        }
+
+        // TBD area
+        if (!is_successful) {
+            et = std::max(first_available_et, std::max(eet, move_state.state_time_speed.back().timing.min_end_time + initial_green_buffer));
+            SPDLOG_DEBUG( "Successfully estimate an ET (within TBD area) for vehicle {0}. The estimated ET = {1}.", veh._id, et);
+        }
+
         // Set schedule properties
         sched.v_id =  veh._id;
         sched.eet = eet;
@@ -259,28 +226,28 @@ namespace streets_vehicle_scheduler {
             double delta_x_prime =  calculate_distance_accel_and_decel( veh, entry_lane.getSpeedLimit(), link_lane.getSpeedLimit() );
             // Distance necessary to get to the departure speed
             double delta_x_zegond =  calculate_distance_accel_or_decel( veh, link_lane.getSpeedLimit() );
-            SPDLOG_INFO("Delta X = {0}, Delta X Prime = {1}, Delta X Zegond = {2}.", delta_x, delta_x_prime, delta_x_zegond);
+            SPDLOG_DEBUG("Delta X = {0}, Delta X Prime = {1}, Delta X Zegond = {2}.", delta_x, delta_x_prime, delta_x_zegond);
 
             // Calculate v_hat
             double v_hat = calculate_v_hat(veh, entry_lane.getSpeedLimit(), link_lane.getSpeedLimit(), delta_x, delta_x_prime, delta_x_zegond);
-            SPDLOG_INFO("V hat = {0}.", v_hat);
+            SPDLOG_DEBUG("V hat = {0}.", v_hat);
 
             // calculate planned acceleration time interval
             double t_accel = calculate_acceleration_time(veh, v_hat, link_lane.getSpeedLimit(), delta_x, delta_x_zegond);
-            SPDLOG_INFO("T accel = {0}.",t_accel);
+            SPDLOG_DEBUG("T accel = {0}.",t_accel);
 
             // calculate planned deceleration time interval
             double t_decel = calculate_deceleration_time(veh, v_hat, link_lane.getSpeedLimit(), delta_x, delta_x_zegond);
-            SPDLOG_INFO("T decel = {0}.",t_decel);
+            SPDLOG_DEBUG("T decel = {0}.",t_decel);
 
             // Calculate planned cruising time interval
             double t_cruising = calculate_cruising_time(v_hat, delta_x, delta_x_prime);
-            SPDLOG_INFO("T cruising = {0}.",t_cruising);
+            SPDLOG_DEBUG("T cruising = {0}.",t_cruising);
             
             // calculate earliest entering time to stop bar
             double eet = t_accel + t_cruising + t_decel;
             if (eet <= 0) {
-                SPDLOG_INFO("The estimated eet for vehicle {0} has a negative value = {1}!", veh._id, eet);
+                SPDLOG_DEBUG("The estimated eet for vehicle {0} has a negative value = {1}!", veh._id, eet);
             }
             return static_cast<uint64_t>(ceil(eet * 1000.0)) + veh._cur_time;
         }
@@ -398,8 +365,16 @@ namespace streets_vehicle_scheduler {
         initial_green_buffer = buffer;
     }
 
+    uint64_t signalized_vehicle_scheduler::get_initial_green_buffer() const {
+        return initial_green_buffer;
+    }
+
     void signalized_vehicle_scheduler::set_final_green_buffer(const uint64_t buffer){
         final_green_buffer = buffer;
+    }
+
+    uint64_t signalized_vehicle_scheduler::get_final_green_buffer() const {
+        return final_green_buffer;
     }
 
     std::shared_ptr<signal_phase_and_timing::spat> signalized_vehicle_scheduler::get_spat() const {
@@ -410,12 +385,4 @@ namespace streets_vehicle_scheduler {
         spat_ptr = spat_info;
     }
     
-    void signalized_vehicle_scheduler::set_tbd_duration(const uint64_t duration){
-        tbd_duration = duration;
-    }
-
-    uint64_t signalized_vehicle_scheduler::get_tbd_duration() const {
-        return tbd_duration;
-    }
-
 }

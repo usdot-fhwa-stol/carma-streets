@@ -108,11 +108,11 @@ TEST_F(signalized_scheduler_test, one_ev_without_cruising){
     ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
 
     double eet_time =(sched->vehicle_schedules.front().eet-sched->timestamp)/1000.0;
-    SPDLOG_INFO( "EST time for scheduler  : {0}  vs calculated {1} ", eet_time, 5.291 );
-    ASSERT_EQ( sched->vehicle_schedules.front().eet, sched->timestamp+5391);
+    SPDLOG_INFO( "EET time for scheduler  : {0}  vs calculated {1} ", eet_time, 5.291 );
+    ASSERT_EQ( sched->vehicle_schedules.front().eet, sched->timestamp+5291);
     ASSERT_EQ( sched->vehicle_schedules.front().et, sched->vehicle_schedules.front().eet);
     double dt_time =(sched->vehicle_schedules.front().dt-sched->timestamp)/1000.0;
     SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 9.049);
-    ASSERT_EQ( sched->vehicle_schedules.front().dt, sched->timestamp+9149);
+    ASSERT_EQ( sched->vehicle_schedules.front().dt, sched->timestamp+9049);
 
 }

@@ -17,10 +17,8 @@
 #include "streets_configuration.h"
 #include "intersection_client.h"
 #include "vehicle_list.h"
-#include "vehicle_scheduler.h"
-#include "all_stop_vehicle_scheduler.h"
-#include "all_stop_status_intent_processor.h"
 #include "scheduling_worker.h"
+#include "spat.h"
 
 
 namespace scheduling_service{
@@ -33,12 +31,15 @@ namespace scheduling_service{
         std::string group_id;
         std::string consumer_topic;
         std::string producer_topic;
+        std::string spat_topic;
 
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
 		std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler_ptr;
+        std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
 
 		std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker;
+        std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer_worker;
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker;
 		std::shared_ptr<scheduling_worker> _scheduling_worker;
 
@@ -82,6 +83,11 @@ namespace scheduling_service{
          * @brief Consume the status and intent messages via kafka consumer.
          */
         void consume_msg() const;
+
+        /**
+         * @brief Consume the modified spat via kafka consumer.
+         */
+        void consume_spat() const;
 
         /**
          * @brief Schedule vehicles and produce the schedule plan.
@@ -135,6 +141,12 @@ namespace scheduling_service{
          */
         void set_producer_worker( std::shared_ptr<kafka_clients::kafka_producer_worker> worker );
 
+        /**
+         * @brief Set the spat consumer worker object for unit testing
+         * 
+         * @param worker 
+         */
+        void set_spat_consumer_worker( std::shared_ptr<kafka_clients::kafka_consumer_worker> worker );
 	};
 
 }

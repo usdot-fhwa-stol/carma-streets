@@ -13,7 +13,6 @@ namespace scheduling_service{
 			this -> consumer_topic = streets_service::streets_configuration::get_string_config("consumer_topic");
 			this -> producer_topic = streets_service::streets_configuration::get_string_config("producer_topic");
 
-
 			consumer_worker = client->create_consumer(bootstrap_server, consumer_topic, group_id);
 			producer_worker  = client->create_producer(bootstrap_server, producer_topic);
 
@@ -38,13 +37,36 @@ namespace scheduling_service{
 			if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
 				configure_csv_logger();
 			}
-			if(!producer_worker->init())
+			
+            if(!producer_worker->init())
 			{
 				SPDLOG_CRITICAL("kafka producer initialize error");
 				exit(EXIT_FAILURE);
 				return false;
 			}
 			
+            std::string intersection_type = streets_service::streets_configuration::get_string_config("intersection_type");
+            if ( intersection_type.compare("signalized_intersection") == 0 ) {
+                this -> spat_topic = streets_service::streets_configuration::get_string_config("spat_topic");
+                spat_consumer_worker = client->create_consumer(bootstrap_server, spat_topic, group_id);
+                if(!spat_consumer_worker->init())
+                {
+                    SPDLOG_CRITICAL("kafka consumer initialize error");
+                    exit(EXIT_FAILURE);
+                    return false;
+                }
+                else
+                {
+                    spat_consumer_worker->subscribe();
+                    if(!spat_consumer_worker->is_running())
+                    {
+                        SPDLOG_CRITICAL("spat_consumer_worker is not running");
+                        exit(EXIT_FAILURE);
+                        return false;
+                    }
+                }
+            }
+
 			// HTTP request to update intersection information
 			auto int_client = std::make_shared<intersection_client>();
 
@@ -78,6 +100,13 @@ namespace scheduling_service{
 	{
 		std::thread consumer_thread(&scheduling_service::consume_msg, this );
         std::thread scheduling_thread(&scheduling_service::schedule_veh, this);
+        
+        std::string intersection_type = streets_service::streets_configuration::get_string_config("intersection_type");
+        if ( intersection_type.compare("signalized_intersection") == 0 ) {
+            std::thread spat_consumer_thread(&scheduling_service::consume_spat, this );
+            spat_consumer_thread.join();
+        }
+
         consumer_thread.join();
         scheduling_thread.join();
 	}
@@ -96,7 +125,15 @@ namespace scheduling_service{
 			
 			SPDLOG_INFO("Vehicle list is configured successfully! ");
 			return true;
-		}else {
+		}
+        else if (intersection_type.compare("signalized_intersection") == 0) {
+            vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+            std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(vehicle_list_ptr->get_processor())->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
+
+            SPDLOG_INFO("Vehicle list is configured successfully! ");
+            return true;
+        }
+        else {
 			SPDLOG_ERROR("Failed configuring Vehicle List. Scheduling Service does not support intersection_type : {0}!", intersection_type);
 			return false;
 		}
@@ -117,7 +154,19 @@ namespace scheduling_service{
 				
 				SPDLOG_INFO("Scheduler is configured successfully! ");
 				return true;
-			}else {
+			}
+            else if ( intersection_type.compare("signalized_intersection") == 0 ) {
+                scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
+				scheduler_ptr->set_intersection_info(intersection_info_ptr);
+                
+                auto processor = std::dynamic_pointer_cast<streets_vehicle_scheduler::signalized_vehicle_scheduler>(scheduler_ptr);
+				processor->set_initial_green_buffer(streets_service::streets_configuration::get_int_config("initial_green_buffer"));
+                processor->set_final_green_buffer(streets_service::streets_configuration::get_int_config("final_green_buffer"));
+				
+				SPDLOG_INFO("Scheduler is configured successfully! ");
+				return true;
+            }
+            else {
 				SPDLOG_ERROR("Failed configuring Vehicle Scheduler. Scheduling Service does not support intersection_type : {0}!", intersection_type);
 				return false;
 			}
@@ -149,6 +198,26 @@ namespace scheduling_service{
 	}
 
 
+    void scheduling_service::consume_spat() const
+	{
+		SPDLOG_INFO("Starting spat consumer thread.");
+		while (spat_consumer_worker->is_running()) 
+        {
+            
+            const std::string spat_msg = spat_consumer_worker->consume(1000);
+
+            if(spat_msg.length() != 0 && spat_ptr)
+            {                
+
+            	spat_ptr->fromJson(spat_msg);
+    
+            }
+        }
+		SPDLOG_WARN("Stopping spat consumer thread!");
+		spat_consumer_worker->stop();
+	}
+
+
 	void scheduling_service::schedule_veh() const
 	{
 		SPDLOG_INFO("Starting scheduling thread.");
@@ -158,7 +227,6 @@ namespace scheduling_service{
 			exit(EXIT_FAILURE);
 		}
 		
-		u_int64_t last_schedule_timestamp = 0;
 		auto scheduling_delta = u_int64_t(streets_service::streets_configuration::get_double_config("scheduling_delta") * 1000);
 		int sch_count = 0;
 		std::unordered_map<std::string, streets_vehicles::vehicle> veh_map;
@@ -171,16 +239,15 @@ namespace scheduling_service{
 
 			
 			veh_map = vehicle_list_ptr -> get_vehicles();
-			streets_vehicle_scheduler::intersection_schedule int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
+			auto int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
 
-			std::string msg_to_send = int_schedule.toJson();
+			std::string msg_to_send = int_schedule->toJson();
 
 			SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
 
 			/* produce the scheduling plan to kafka */
 			producer_worker->send(msg_to_send);
 
-			last_schedule_timestamp = int_schedule.timestamp;
 			sch_count += 1;
 
 			// sleep until next schedule
@@ -256,5 +323,8 @@ namespace scheduling_service{
 		producer_worker = worker;
 	}
 
+    void scheduling_service::set_spat_consumer_worker(std::shared_ptr<kafka_clients::kafka_consumer_worker> worker) {
+		spat_consumer_worker = worker;
+	}
 }
 
