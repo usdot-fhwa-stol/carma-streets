@@ -272,11 +272,11 @@ namespace traffic_signal_controller_service
         std::vector<int> phase_seq;
         // Read sequence 1 data for first 2 rings
         request_type request_type = request_type::GET;
-        std::string phase_seq_oid_ring1= ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(ring_num); //Sequence 1 for ring
-        
+        std::string phase_seq_oid= ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(ring_num); //Sequence 1 for ring
+
         snmp_response_obj seq_data;
         seq_data.type = snmp_response_obj::response_type::STRING;
-        snmp_client_worker_->process_snmp_request(phase_seq_oid_ring1, request_type, seq_data);
+        snmp_client_worker_->process_snmp_request(phase_seq_oid, request_type, seq_data);
         
         //extract phase numbers from strings
         for(size_t i = 0; i < seq_data.val_string.size(); ++i)
