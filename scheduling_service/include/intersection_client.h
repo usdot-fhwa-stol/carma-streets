@@ -14,38 +14,38 @@
 
 namespace scheduling_service{
 
-	class intersection_client: public QObject
-	{
-	private:
+    class intersection_client: public QObject
+    {
+    private:
 
-		std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
+        std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
 
-	public:
+    public:
 
 
-		/**
+        /**
          * @brief Updating the intersection info.
          * @param sleep_millisecs The current thread sleep for milliseconds after each update attempt.
          * @param int_client_request_attempts The number of attempts for the loop.
          * @return boolean. True if intersection information is updated, otherwise failed to update intersection information.
          */
-		bool update_intersection_info(const int sleep_millisecs, const int int_client_request_attempts);
+        bool update_intersection_info(const int sleep_millisecs, const int int_client_request_attempts);
 
-		/**
+        /**
          * @brief Send http GET request to intersection model at rate of configured HZ until it gets the intersection info.
          * @param int_info Http response from intersection model.
          * @return true if intersection information is updated.
          * @return false if intersection information is not updated.
          */
-		bool request_intersection_info();
+        bool request_intersection_info();
 
-		/**
-		 * @brief Get the intersection info object
-		 * @return std::shared_ptr<OpenAPI::OAIIntersection_info> 
-		 */
-		std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info() const;
+        /**
+         * @brief Get the intersection info object
+         * @return std::shared_ptr<OpenAPI::OAIIntersection_info> 
+         */
+        std::shared_ptr<OpenAPI::OAIIntersection_info> get_intersection_info() const;
 
-	};
+    };
 
 }
 

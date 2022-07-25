@@ -69,7 +69,7 @@ TEST(scheduling_service_test, start)
     auto client = std::make_shared<kafka_clients::kafka_client>();
     std::string group_id = "group1";
     auto consumer = client->create_consumer("127.0.0.1:9092", "test", group_id);
-	auto producer  = client->create_producer("127.0.0.1:9092", "test");
+    auto producer  = client->create_producer("127.0.0.1:9092", "test");
     ASSERT_TRUE(producer->init());
     ASSERT_TRUE(consumer->init());
     consumer->subscribe();

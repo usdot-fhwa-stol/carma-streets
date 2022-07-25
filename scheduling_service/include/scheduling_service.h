@@ -23,11 +23,11 @@
 
 namespace scheduling_service{
 
-	class scheduling_service
-	{
-	private:
+    class scheduling_service
+    {
+    private:
 
-		std::string bootstrap_server;
+        std::string bootstrap_server;
         std::string group_id;
         std::string consumer_topic;
         std::string producer_topic;
@@ -35,18 +35,18 @@ namespace scheduling_service{
 
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
-		std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler_ptr;
+        std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler_ptr;
         std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
 
-		std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker;
+        std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer_worker;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer_worker;
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer_worker;
-		std::shared_ptr<scheduling_worker> _scheduling_worker;
+        std::shared_ptr<scheduling_worker> _scheduling_worker;
 
-	public:
+    public:
 
-		
-		/**
+        
+        /**
          * @brief Initialize 
          */
         scheduling_service() = default;
@@ -56,28 +56,28 @@ namespace scheduling_service{
          */
         ~scheduling_service();
 
-		/**
+        /**
          * @brief Initialize the consumer, producer, and scheduling workers.
-		 * Create a vehicle list and scheduler objects and configure them.
+         * Create a vehicle list and scheduler objects and configure them.
          */
         bool initialize(const int sleep_millisecs, const int int_client_request_attempts);
 
         /**
          * @brief Create 2 threads:
-		 * The first thread consumes status and intent message and updates the vehicle list.
-		 * The second thread schedule vehicles and produce the schedule plan.
+         * The first thread consumes status and intent message and updates the vehicle list.
+         * The second thread schedule vehicles and produce the schedule plan.
          */
         void start();
 
-		/**
+        /**
          * @brief Create the vehicle list processor and configure it.
          */
-		bool config_vehicle_list();
+        bool config_vehicle_list();
 
-		/**
+        /**
          * @brief Configure the scheduler object.
          */
-		bool config_scheduler();
+        bool config_scheduler();
 
         /**
          * @brief Consume the status and intent messages via kafka consumer.
@@ -94,10 +94,10 @@ namespace scheduling_service{
          */
         void schedule_veh() const;
 
-		/**
-		 * @brief Method to configure spdlog::logger for logging scheduling metrics into daily rotating csv file.
-		 */
-		void configure_csv_logger() const;
+        /**
+         * @brief Method to configure spdlog::logger for logging scheduling metrics into daily rotating csv file.
+         */
+        void configure_csv_logger() const;
 
         /**
          * @brief Set the scheduling worker object for unit testing
@@ -147,7 +147,7 @@ namespace scheduling_service{
          * @param worker 
          */
         void set_spat_consumer_worker( std::shared_ptr<kafka_clients::kafka_consumer_worker> worker );
-	};
+    };
 
 }
 
