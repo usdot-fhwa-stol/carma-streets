@@ -47,20 +47,6 @@ namespace traffic_signal_controller_service
         /* The sequence of phases in ring 2 of TSC*/
         std::vector<int> phase_seq_ring2_;
 
-        public:
-
-        /** 
-         * @brief Constructor for the tsc_state class 
-         * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
-        **/
-        explicit tsc_state(std::shared_ptr<snmp_client> snmp_client);
-
-        /** 
-         * @brief Method for getting maximum channels for the traffic signal controller
-         * @return number of maximum channels in the traffic signal controller
-        **/
-        int get_max_channels() const;
-        
         /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
         **  @param max_channels The maximum number of channels in the traffic signal controller.
         **  @return a vector of active vehicle phases associated with a channel
@@ -72,6 +58,12 @@ namespace traffic_signal_controller_service
         * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
         * **/
         void map_phase_and_signalgroup(const std::vector<int>& vehicle_phase_channels);
+
+        /** 
+         * @brief Method for getting maximum channels for the traffic signal controller
+         * @return number of maximum channels in the traffic signal controller
+        **/
+        int get_max_channels() const;
 
         /** @brief Get minimum green time for a phase
         ** @param phase_num The phase for which the min green needs to be requested
@@ -120,5 +112,18 @@ namespace traffic_signal_controller_service
         ** @return a vector of phases that may be concurrent with the given phase
         * **/
         std::vector<int> get_concurrent_phases(int phase_num) const;
+
+        public:
+
+        /** 
+         * @brief Constructor for the tsc_state class 
+         * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
+        **/
+        explicit tsc_state(std::shared_ptr<snmp_client> snmp_client);
+        
+        std::unordered_map<int, signal_group_state>& get_signal_group_state_map()
+        {
+            return signal_group_state_map_;
+        }        
     };
 }

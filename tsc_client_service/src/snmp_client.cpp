@@ -154,8 +154,8 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
 
             else if(val.type == snmp_response_obj::response_type::STRING){
                 SPDLOG_DEBUG("Success in SET for OID: {0} Value:", input_oid);
-                for(int i = 0; i < val.val_string.size(); ++i){
-                    SPDLOG_DEBUG("{0}", val.val_string[i]);
+                for(auto data : val.val_string){
+                    SPDLOG_DEBUG("{0}", data);
                 }
             }
         }

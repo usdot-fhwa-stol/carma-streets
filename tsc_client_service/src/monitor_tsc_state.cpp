@@ -1,6 +1,5 @@
 #include "monitor_tsc_state.h"
 # include "ntcip_oids.h"
-#include <iostream>
 
 namespace traffic_signal_controller_service
 {
@@ -130,7 +129,7 @@ namespace traffic_signal_controller_service
             {
                 SPDLOG_ERROR("Failed to get channel control type");
             }
-            
+
             if(vehicle_control_type.val_int == 2)
             {
                 vehicle_phase_channels.push_back(channel_num);
