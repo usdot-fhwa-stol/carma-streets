@@ -80,4 +80,28 @@ namespace signal_phase_and_timing {
     bool time_change_details::operator!=(const time_change_details &other) const{
         return !operator==(other);
     }
+
+    uint64_t time_change_details::convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const{
+        auto tp = std::chrono::system_clock::now();
+        auto duration = tp.time_since_epoch();
+        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+        auto epoch_start_time = hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS + hour_tenth_secs * 100;
+        return epoch_start_time;
+    }
+
+    uint64_t time_change_details::get_epoch_start_time() const{
+        return convert_hour_tenth_secs2epoch_ts(start_time);
+    }
+    
+    uint64_t time_change_details::get_epoch_min_end_time() const{
+        return convert_hour_tenth_secs2epoch_ts(min_end_time);
+    }
+    
+    uint64_t time_change_details::get_epoch_max_end_time() const{
+        return convert_hour_tenth_secs2epoch_ts(max_end_time);
+    }
+    
+    uint64_t time_change_details::get_epoch_next_time() const{
+       return convert_hour_tenth_secs2epoch_ts(next_time);
+    }
 }
