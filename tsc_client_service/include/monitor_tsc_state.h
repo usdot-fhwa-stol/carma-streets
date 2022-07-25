@@ -13,13 +13,13 @@ namespace traffic_signal_controller_service
         int min_green;
         /*Maximum green durations for each active vehicle phase*/
         int max_green;
-        /*Green duration for */
+        /*Default Green duration for phase */
         int green_duration;
-        /*Yellow signal duration*/
+        /*Yellow signal duration for phase */
         int yellow_duration;
-        /* Red clearace time */
+        /* Red clearace time for phase */
         int red_clearance;
-        /*Red signal duration*/
+        /*Red signal duration for phase */
         int red_duration;
         /*Phase sequence in ring. Stores the sequence starting from the current phase*/
         std::vector<int> phase_seq;

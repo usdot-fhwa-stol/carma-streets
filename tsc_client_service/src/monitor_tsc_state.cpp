@@ -258,8 +258,9 @@ namespace traffic_signal_controller_service
                 red_duration += seq_signal_group_state.red_clearance;
                 continue;
             }
-            red_duration += seq_signal_group_state.green_duration + seq_signal_group_state.yellow_duration + seq_signal_group_state.red_clearance;
-
+            else{
+                red_duration += seq_signal_group_state.green_duration + seq_signal_group_state.yellow_duration + seq_signal_group_state.red_clearance;
+            }
         }
         
         return red_duration; 
