@@ -76,25 +76,25 @@ namespace traffic_signal_controller_service
         ** @param phase_num The phase for which the min green needs to be requested
         ** @return minimum green time in milliseconds
         * **/
-        int get_min_green(int phase_num);
+        int get_min_green(int phase_num) const;
 
         /** @brief Get maximum green time for a phase
         ** @param phase_num The phase for which the maximum green needs to be requested
         ** @return maximum green time in milliseconds
         * **/
-        int get_max_green(int phase_num);
+        int get_max_green(int phase_num) const;
 
         /** @brief Get yellow duration time for a phase
         ** @param phase_num The phase for which the yellow duration needs to be requested
         ** @return yellow duration time in milliseconds
         * **/
-        int get_yellow_duration(int phase_num);
+        int get_yellow_duration(int phase_num) const;
 
         /** @brief Get red clearance time for a phase
         ** @param phase_num The phase for which the red clearance needs to be requested
         ** @return red clearance time in milliseconds
         * **/
-        int get_red_clearance(int phase_num);
+        int get_red_clearance(int phase_num) const;
 
         /** @brief Get red duration for a phase
         ** @param phase_num The phase for which the red duration needs to be requested
@@ -118,6 +118,6 @@ namespace traffic_signal_controller_service
         ** @param ring_num The phase for which the concurrent phases needs to be obtained
         ** @return a vector of phases that may be concurrent with the given phase
         * **/
-        std::vector<int> get_concurrent_phases(int phase_num);
+        std::vector<int> get_concurrent_phases(int phase_num) const;
     };
 }

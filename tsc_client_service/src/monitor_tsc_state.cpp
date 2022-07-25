@@ -171,7 +171,7 @@ namespace traffic_signal_controller_service
         
     }
 
-    int tsc_state::get_min_green(int phase_num)
+    int tsc_state::get_min_green(int phase_num) const
     {
         request_type request_type = request_type::GET;
         std::string min_green_parameter_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(phase_num);
@@ -184,7 +184,7 @@ namespace traffic_signal_controller_service
         return (int) min_green.val_int;
     }
 
-    int tsc_state::get_max_green(int phase_num)
+    int tsc_state::get_max_green(int phase_num) const
     {
         request_type request_type = request_type::GET;
 
@@ -197,7 +197,7 @@ namespace traffic_signal_controller_service
         return (int) max_green.val_int;
     }
 
-    int tsc_state::get_yellow_duration(int phase_num)
+    int tsc_state::get_yellow_duration(int phase_num) const
     {
         request_type request_type = request_type::GET;
         std::string yellow_duration_oid = ntcip_oids::YELLOW_CHANGE_PARAMETER + "." + std::to_string(phase_num);
@@ -210,7 +210,7 @@ namespace traffic_signal_controller_service
         return (int) yellow_duration.val_int / 10; //Divide by 10 since NTCIP returned value is in tenths of seconds
     }
 
-    int tsc_state::get_red_clearance(int phase_num)
+    int tsc_state::get_red_clearance(int phase_num) const
     {
         request_type get_request = request_type::GET;
         std::string red_clearance_oid = ntcip_oids::RED_CLEAR_PARAMETER + "." + std::to_string(phase_num);
@@ -227,7 +227,6 @@ namespace traffic_signal_controller_service
     {
         //red duration is calculated as red_clearance time for current phase + (green duration + yellow duration + red_clearance) for other phases in sequence
 
-        request_type request_type = request_type::GET;
         // Find signal state associated with phase num
         int current_signal_group;
         if(phase_num_map_.find(phase_num) != phase_num_map_.end())
@@ -279,9 +278,9 @@ namespace traffic_signal_controller_service
         snmp_client_worker_->process_snmp_request(phase_seq_oid, request_type, seq_data);
         
         //extract phase numbers from strings
-        for(size_t i = 0; i < seq_data.val_string.size(); ++i)
+        for(auto seq_val : seq_data.val_string)
         {   
-            int phase = int(seq_data.val_string[i]);
+            auto phase = int(seq_val);
             if(phase_num_map_.find(phase)!= phase_num_map_.end() && phase != 0 ){
                 phase_seq.push_back(phase);
             }
@@ -297,7 +296,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    std::vector<int> tsc_state::get_concurrent_phases(int phase_num)
+    std::vector<int> tsc_state::get_concurrent_phases(int phase_num) const
     {
 
         std::vector<int> concurrent_phases;
@@ -309,10 +308,9 @@ namespace traffic_signal_controller_service
         snmp_client_worker_->process_snmp_request(concurrent_phases_oid, request_type, concurrent_phase_data);
 
         //extract phase numbers from strings
-        for(size_t i = 0; i < concurrent_phase_data.val_string.size(); ++i)
+        for(auto con_phase :  concurrent_phase_data.val_string)
         {   
-            int phase = int(concurrent_phase_data.val_string[i]);
-            concurrent_phases.push_back(phase);
+            concurrent_phases.push_back(int(con_phase));
             
         }
 

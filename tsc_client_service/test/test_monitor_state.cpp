@@ -21,7 +21,7 @@ namespace traffic_signal_controller_service
         
     };   
 
-    TEST(test_monitor_tsc_state, DISABLED_test_signal_group_phase_mapping)
+    TEST(test_monitor_tsc_state, test_signal_group_phase_mapping)
     {
         std::string dummy_ip = "192.168.10.10";
         int dummy_port = 601;
