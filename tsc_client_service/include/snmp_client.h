@@ -31,7 +31,7 @@ struct snmp_response_obj
     std::vector<char> val_string;
     response_type type;
 
-    inline bool operator==(snmp_response_obj& obj2) const
+    inline bool operator==(const snmp_response_obj& obj2) const
     {
         return val_int == obj2.val_int && val_string == obj2.val_string && type == obj2.type;
     }

@@ -39,7 +39,6 @@ namespace traffic_signal_controller_service
         /* Mapping between signal group ids(key) and their states(value) defined as a signal group state struct*/
         std::unordered_map<int, signal_group_state> signal_group_state_map_;
 
-        public:
         /* Map between phase numbers(key) and signal group ids(value) for all active vehicle phases in the Traffic Signal Controller*/
         std::unordered_map<int,int> phase_num_map_;
 
@@ -47,6 +46,8 @@ namespace traffic_signal_controller_service
         std::vector<int> phase_seq_ring1_;
         /* The sequence of phases in ring 2 of TSC*/
         std::vector<int> phase_seq_ring2_;
+
+        public:
 
         /** 
          * @brief Constructor for the tsc_state class 

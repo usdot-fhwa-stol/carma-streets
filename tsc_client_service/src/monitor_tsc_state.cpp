@@ -122,7 +122,7 @@ namespace traffic_signal_controller_service
         vehicle_control_type.type = snmp_response_obj::response_type::INTEGER;
         
         request_type request_type = request_type::GET;
-        for(int channel_num = 1; channel_num < max_channels; ++channel_num)
+        for(int channel_num = 1; channel_num <= max_channels; ++channel_num)
         {
             std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
 

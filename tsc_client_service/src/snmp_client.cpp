@@ -128,7 +128,6 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
                 }
                 else if(vars->type == ASN_OCTET_STR){
                     if(vars->val.string){
-                        // TODO: Current implementation stores the buffer array as a char array, improve implementation for processing strings
                         size_t str_len = vars->val_len;
                         for(size_t i = 0; i < str_len; ++i)
                         {
@@ -150,11 +149,14 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
         else if(request_type == request_type::SET){
             
             if(val.type == snmp_response_obj::response_type::INTEGER){
-                SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", val.val_int);
+                SPDLOG_DEBUG("Success in SET for OID: {0} Value: {1}", input_oid ,val.val_int);
             }
 
             else if(val.type == snmp_response_obj::response_type::STRING){
-                // SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", val.val_string);
+                SPDLOG_DEBUG("Success in SET for OID: {0} Value:", input_oid);
+                for(int i = 0; i < val.val_string.size(); ++i){
+                    SPDLOG_DEBUG("{0}", val.val_string[i]);
+                }
             }
         }
     
