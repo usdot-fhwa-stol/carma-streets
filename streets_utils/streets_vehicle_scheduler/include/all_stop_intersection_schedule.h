@@ -20,7 +20,7 @@ namespace streets_vehicle_scheduler {
          * @brief Destroy the all_stop vehicle schedule object
          * 
          */
-        virtual ~all_stop_vehicle_schedule() = default;
+        ~all_stop_vehicle_schedule() override = default;
         /**
          * @brief Earliest possible stopping time based on kinematic information and 
          * lanelet speed limit and length. Stopping time is the time since epoch in 
@@ -85,7 +85,7 @@ namespace streets_vehicle_scheduler {
          * @brief Destroy the all_stop intersection schedule object
          * 
          */
-        virtual ~all_stop_intersection_schedule() = default;
+        ~all_stop_intersection_schedule() override = default;
         /**
          * @brief Vector of all scheduled vehicles
          */

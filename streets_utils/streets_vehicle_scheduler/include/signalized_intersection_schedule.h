@@ -20,7 +20,7 @@ namespace streets_vehicle_scheduler {
          * @brief Destroy the signalized vehicle schedule object
          * 
          */
-        virtual ~signalized_vehicle_schedule() = default;
+        ~signalized_vehicle_schedule() override = default;
         /**
          * @brief Earliest possible entering time based on kinematic information and 
          * lanelet speed limit and length. entering time is the time since epoch in 
@@ -65,7 +65,7 @@ namespace streets_vehicle_scheduler {
          * @brief Destroy the signalized intersection schedule object
          * 
          */
-        virtual ~signalized_intersection_schedule() = default;
+        ~signalized_intersection_schedule() override = default;
         /**
          * @brief Vector of all scheduled vehicles
          */
