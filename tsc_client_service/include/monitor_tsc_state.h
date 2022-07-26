@@ -3,23 +3,26 @@
 #include "snmp_client.h"
 
 namespace traffic_signal_controller_service
-{
+{   
+    /*The signal group state stores the traffic signal controller configuration parameters for a J2735 signal group
+    * The parameters within it define the phase mapped to the signal group and other data necessary to modify a given phase*/
     struct signal_group_state
     {
+        /* signal group id identifier for J2735 which is mapped to phase number in NTCIP */
         int signal_group_id;
         /*Phase associated with signal group*/
         int phase_num;
-        /*Minimum green durations for each active vehicle phase*/
+        /*Minimum green durations for each active vehicle phase in miiliseconds*/
         int min_green;
-        /*Maximum green durations for each active vehicle phase*/
+        /*Maximum green durations for each active vehicle phase in miiliseconds*/
         int max_green;
-        /*Default Green duration for phase */
+        /*Default Green duration for phase in miiliseconds*/
         int green_duration;
-        /*Yellow signal duration for phase */
+        /*Yellow signal duration for phase in miiliseconds*/
         int yellow_duration;
-        /* Red clearace time for phase */
+        /* Red clearace time for phase in miiliseconds*/
         int red_clearance;
-        /*Red signal duration for phase */
+        /*Red signal duration for phase. This is the total time a phase is predicted to be red before its next green. In milliseconds*/
         int red_duration;
         /*Phase sequence in ring. Stores the sequence starting from the current phase*/
         std::vector<int> phase_seq;
@@ -42,9 +45,9 @@ namespace traffic_signal_controller_service
         /* Map between phase numbers(key) and signal group ids(value) for all active vehicle phases in the Traffic Signal Controller*/
         std::unordered_map<int,int> phase_num_map_;
 
-        /* The sequence of phases in ring 1 of TSC*/
+        /* The sequence of vehicle phases in ring 1 of TSC*/
         std::vector<int> phase_seq_ring1_;
-        /* The sequence of phases in ring 2 of TSC*/
+        /* The sequence of vehicle phases in ring 2 of TSC*/
         std::vector<int> phase_seq_ring2_;
 
         /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)

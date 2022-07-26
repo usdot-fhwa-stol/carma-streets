@@ -162,8 +162,8 @@ namespace traffic_signal_controller_service
             // According to NTCIP 1202 v03 returned value of 0 here would mean a phase is not associated with the channel
             if(phase_num.val_int != 0)
             {
-                phase_num_map_.insert(std::make_pair(channel, phase_num.val_int));
-                signal_group_phase_map_.insert(std::make_pair(phase_num.val_int, channel));
+                phase_num_map_.insert(std::make_pair(phase_num.val_int, channel));
+                signal_group_phase_map_.insert(std::make_pair(channel, phase_num.val_int));
                 SPDLOG_DEBUG("Found mapping between signal group: {0} and phase num: {1}", channel , phase_num.val_int );
             }
         }

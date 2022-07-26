@@ -118,7 +118,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
                 if(vars->type == ASN_INTEGER){
                     if(vars->val.integer){
                         val.val_int = *vars->val.integer;
-                        SPDLOG_INFO("Integer value in object: {0}", val.val_int);
+                        SPDLOG_DEBUG("Integer value in object: {0}", val.val_int);
                     }
                     else{
                         SPDLOG_ERROR("Response specifies type integer, but no integer value found");
