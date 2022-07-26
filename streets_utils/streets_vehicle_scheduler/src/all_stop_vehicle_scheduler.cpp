@@ -181,7 +181,7 @@ namespace streets_vehicle_scheduler {
         do { 
             SPDLOG_DEBUG("Considering scheduling options with {0} as first RDV." ,rdvs.front()._id);
             // update schedule option to include already scheduled vehicles
-            std::shared_ptr<all_stop_intersection_schedule> option = std::make_shared<all_stop_intersection_schedule> (*schedule);
+            auto option = std::make_shared<all_stop_intersection_schedule> (*schedule);
             // consider current permutation of RDV departure order
             bool valid_option =  consider_departure_position_permutation(rdvs, option, starting_departure_position);
             SPDLOG_DEBUG("Scheduling option is valid : {0}.", valid_option);

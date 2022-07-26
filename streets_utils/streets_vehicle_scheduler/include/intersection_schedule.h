@@ -11,6 +11,17 @@ namespace streets_vehicle_scheduler {
      * @brief Object to represent schedule for single vehicle.
      */
     struct vehicle_schedule {
+        
+        /**
+         * @brief Construct a new vehicle schedule object
+         * 
+         */
+        vehicle_schedule() = default;
+        /**
+         * @brief Destroy the vehicle schedule object
+         * 
+         */
+        virtual ~vehicle_schedule() = default;
         /**
          * @brief string unique static vehicle id.
          */
@@ -40,6 +51,16 @@ namespace streets_vehicle_scheduler {
      * 
      */
     struct intersection_schedule {
+        /**
+         * @brief Construct a new intersection schedule object
+         * 
+         */
+        intersection_schedule() = default;
+        /**
+         * @brief Destroy the intersection schedule object
+         * 
+         */
+        virtual ~intersection_schedule() = default;
         /**
          * @brief Time since epoch in milliseconds timestamp for intersection schedule.
          */

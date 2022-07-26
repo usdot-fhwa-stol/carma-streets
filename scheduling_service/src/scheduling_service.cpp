@@ -45,8 +45,7 @@ namespace scheduling_service{
                 return false;
             }
             
-            std::string intersection_type = streets_service::streets_configuration::get_string_config("intersection_type");
-            if ( intersection_type.compare("signalized_intersection") == 0 ) {
+            if ( streets_service::streets_configuration::get_string_config("intersection_type").compare("signalized_intersection") == 0 ) {
                 this -> spat_topic = streets_service::streets_configuration::get_string_config("spat_topic");
                 spat_consumer_worker = client->create_consumer(bootstrap_server, spat_topic, group_id);
                 if(!spat_consumer_worker->init())
@@ -101,8 +100,7 @@ namespace scheduling_service{
         std::thread consumer_thread(&scheduling_service::consume_msg, this );
         std::thread scheduling_thread(&scheduling_service::schedule_veh, this);
         
-        std::string intersection_type = streets_service::streets_configuration::get_string_config("intersection_type");
-        if ( intersection_type.compare("signalized_intersection") == 0 ) {
+        if ( streets_service::streets_configuration::get_string_config("intersection_type").compare("signalized_intersection") == 0 ) {
             std::thread spat_consumer_thread(&scheduling_service::consume_spat, this );
             spat_consumer_thread.join();
         }

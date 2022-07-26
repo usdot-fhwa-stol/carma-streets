@@ -11,7 +11,16 @@ namespace streets_vehicle_scheduler {
      * @brief Object to represent schedule for single vehicle.
      */
     struct signalized_vehicle_schedule : vehicle_schedule {
-        
+        /**
+         * @brief Construct a new signalized vehicle schedule object
+         * 
+         */
+        signalized_vehicle_schedule() = default;
+        /**
+         * @brief Destroy the signalized vehicle schedule object
+         * 
+         */
+        virtual ~signalized_vehicle_schedule() = default;
         /**
          * @brief Earliest possible entering time based on kinematic information and 
          * lanelet speed limit and length. entering time is the time since epoch in 
@@ -47,7 +56,16 @@ namespace streets_vehicle_scheduler {
      * since epoch.
      */
     struct signalized_intersection_schedule : intersection_schedule {
-        
+        /**
+         * @brief Construct a new signalized intersection schedule object
+         * 
+         */
+        signalized_intersection_schedule() = default;
+        /**
+         * @brief Destroy the signalized intersection schedule object
+         * 
+         */
+        virtual ~signalized_intersection_schedule() = default;
         /**
          * @brief Vector of all scheduled vehicles
          */

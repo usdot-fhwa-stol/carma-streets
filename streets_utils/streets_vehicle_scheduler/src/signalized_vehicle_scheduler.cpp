@@ -104,10 +104,8 @@ namespace streets_vehicle_scheduler {
             // Find the last DV from the entry lane
             signalized_vehicle_schedule preceding_veh;
             for (const auto &veh_sched : schedule->vehicle_schedules ) {
-                if ( veh_sched.entry_lane == entry_lane && veh_sched.state == streets_vehicles::vehicle_state::DV) {
-                    if (preceding_veh.v_id == "" || veh_sched.et < preceding_veh.et) {
-                        preceding_veh = veh_sched;
-                    }
+                if ( veh_sched.entry_lane == entry_lane && veh_sched.state == streets_vehicles::vehicle_state::DV && (preceding_veh.v_id == "" || veh_sched.et < preceding_veh.et)) {
+                    preceding_veh = veh_sched;
                 }
             }
             
@@ -144,7 +142,7 @@ namespace streets_vehicle_scheduler {
 
         signal_phase_and_timing::movement_state move_state; 
         if (spat_ptr) {
-            for (const auto ms : spat_ptr->intersections.front().states){
+            for (const auto& ms : spat_ptr->intersections.front().states){
                 if (ms.signal_group == entry_lane_info.getSignalGroupId()) {
                     move_state = ms;
                     break;
@@ -184,21 +182,21 @@ namespace streets_vehicle_scheduler {
         bool is_successful = false;
         uint64_t et;
         for (const auto &move_event : move_state.state_time_speed) {
-            SPDLOG_DEBUG("Moving to the next movement event from the list! start time without buffer = {0}, end time without buffer = {1}", move_event.timing.start_time, move_event.timing.min_end_time );
+            SPDLOG_DEBUG("Moving to the next movement event from the list! start time without buffer = {0}, end time without buffer = {1}", move_event.timing.get_epoch_start_time(), move_event.timing.get_epoch_min_end_time() );
             if (move_event.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
-                et = std::max(first_available_et, std::max(eet, move_event.timing.start_time + initial_green_buffer));
-                if ( et < move_event.timing.min_end_time - final_green_buffer ) {
+                et = std::max(first_available_et, std::max(eet, move_event.timing.get_epoch_start_time() + initial_green_buffer));
+                if ( et < move_event.timing.get_epoch_min_end_time() - final_green_buffer ) {
                     SPDLOG_DEBUG( "Successfully estimate an ET (within a green phase) for vehicle {0}. The estimated ET = {1}.", veh._id, et);
                     is_successful = true;
                     break;
                 }
-                SPDLOG_DEBUG( "The estimated ET for vehicle {0} is later than the end of the phase. Estimated ET = {1}, end of the phase", veh._id, et, move_event.timing.min_end_time - final_green_buffer );
+                SPDLOG_DEBUG( "The estimated ET for vehicle {0} is later than the end of the phase. Estimated ET = {1}, end of the phase", veh._id, et, move_event.timing.get_epoch_min_end_time() - final_green_buffer );
             }
         }
 
         // TBD area
         if (!is_successful) {
-            et = std::max(first_available_et, std::max(eet, move_state.state_time_speed.back().timing.min_end_time + initial_green_buffer));
+            et = std::max(first_available_et, std::max(eet, move_state.state_time_speed.back().timing.get_epoch_min_end_time() + initial_green_buffer));
             SPDLOG_DEBUG( "Successfully estimate an ET (within TBD area) for vehicle {0}. The estimated ET = {1}.", veh._id, et);
         }
 
