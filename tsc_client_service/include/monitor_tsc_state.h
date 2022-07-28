@@ -16,7 +16,7 @@ namespace traffic_signal_controller_service
         int min_green;
         /*Maximum green durations for each active vehicle phase in miiliseconds*/
         int max_green;
-        /*Default Green duration for phase in miiliseconds*/
+        /*Default Green duration for phase in milliseconds*/
         int green_duration;
         /*Yellow signal duration for phase in miiliseconds*/
         int yellow_duration;
