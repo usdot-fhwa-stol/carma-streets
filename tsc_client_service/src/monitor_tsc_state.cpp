@@ -8,8 +8,11 @@ namespace traffic_signal_controller_service
         // Map signal group ids and phase nums
         //Get phase number given a signal group id
         int max_channels_in_tsc = get_max_channels();
-        std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
-        map_phase_and_signalgroup(vehicle_phase_channels);
+        std::vector<int> vehicle_phase_channels;
+        std::vector<int> ped_phase_channels;
+        get_phase_channels(max_channels_in_tsc, vehicle_phase_channels, ped_phase_channels);
+        map_phase_and_signalgroup(vehicle_phase_channels, true);
+        map_phase_and_signalgroup(ped_phase_channels, false);
 
         // Get phase sequences for ring 1 and ring 2
         phase_seq_ring1_ = phase_seq(1);
@@ -114,25 +117,29 @@ namespace traffic_signal_controller_service
         return (int) max_channels_in_tsc.val_int;
     }
 
-    std::vector<int> tsc_state::get_vehicle_phase_channels(int max_channels) const{
-        std::vector<int> vehicle_phase_channels;
+    void tsc_state::get_phase_channels(int max_channels, std::vector<int>& vehicle_phase_channels, std::vector<int>& ped_phase_channels) const{
+        
         // Loop through channel control types and add channels with vehicle phase to list
-        snmp_response_obj vehicle_control_type;
-        vehicle_control_type.type = snmp_response_obj::response_type::INTEGER;
+        snmp_response_obj control_type;
+        control_type.type = snmp_response_obj::response_type::INTEGER;
         
         request_type request_type = request_type::GET;
         for(int channel_num = 1; channel_num <= max_channels; ++channel_num)
         {
             std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
 
-            if(!snmp_client_worker_->process_snmp_request(control_type_parameter_oid, request_type, vehicle_control_type))
+            if(!snmp_client_worker_->process_snmp_request(control_type_parameter_oid, request_type, control_type))
             {
                 SPDLOG_ERROR("Failed to get channel control type");
             }
 
-            if(vehicle_control_type.val_int == 2)
+            if(control_type.val_int == 2)
             {
                 vehicle_phase_channels.push_back(channel_num);
+            }
+            else if(control_type.val_int == 3)
+            {
+                ped_phase_channels.push_back(channel_num);
             }
 
         }
@@ -140,18 +147,22 @@ namespace traffic_signal_controller_service
         if(vehicle_phase_channels.empty()){
             SPDLOG_WARN("Found no active vehicle phases");
         }
+        if(ped_phase_channels.empty()){
+            SPDLOG_DEBUG("Found no active ped phases");
+        }
         
         SPDLOG_DEBUG("Number of vehicle phase channels found: {0}", vehicle_phase_channels.size());
-        return vehicle_phase_channels;
+        SPDLOG_DEBUG("Number of ped phase channels found: {0}", ped_phase_channels.size());
+        
     }
 
-    void tsc_state::map_phase_and_signalgroup(const std::vector<int>& vehicle_phase_channels)
+    void tsc_state::map_phase_and_signalgroup(const std::vector<int>& phase_channels, bool is_source_vehicle_channel)
     {
         // According to NTCIP 1202 v03 documentation Signal Group ID in a SPAT message is the Channel Number from TSC
 
         // Get phases associated with vehicle phase channels
         request_type request_type = request_type::GET;
-        for(int channel : vehicle_phase_channels)
+        for(int channel : phase_channels)
         {
             snmp_response_obj phase_num;
             phase_num.type = snmp_response_obj::response_type::INTEGER;
@@ -162,8 +173,13 @@ namespace traffic_signal_controller_service
             // According to NTCIP 1202 v03 returned value of 0 here would mean a phase is not associated with the channel
             if(phase_num.val_int != 0)
             {
-                phase_num_map_.insert(std::make_pair(phase_num.val_int, channel));
-                signal_group_phase_map_.insert(std::make_pair(channel, phase_num.val_int));
+                if(is_source_vehicle_channel){
+                    vehicle_phase_num_map_.insert(std::make_pair(phase_num.val_int, channel));
+                    signal_group_phase_map_.insert(std::make_pair(channel, phase_num.val_int));
+                }
+                else{
+                    ped_phase_num_map_.insert(std::make_pair(phase_num.val_int, channel));
+                }
                 SPDLOG_DEBUG("Found mapping between signal group: {0} and phase num: {1}", channel , phase_num.val_int );
             }
         }
@@ -228,9 +244,9 @@ namespace traffic_signal_controller_service
 
         // Find signal state associated with phase num
         int current_signal_group;
-        if(phase_num_map_.find(phase_num) != phase_num_map_.end())
+        if(vehicle_phase_num_map_.find(phase_num) != vehicle_phase_num_map_.end())
         {
-            current_signal_group = phase_num_map_[phase_num];
+            current_signal_group = vehicle_phase_num_map_[phase_num];
         }
         else{
             SPDLOG_ERROR("No signal state associated with phase {0}", phase_num);
@@ -243,9 +259,9 @@ namespace traffic_signal_controller_service
         {
             // Find state params for each phase in seq
             int seq_signal_group;
-            if(phase_num_map_.find(phase_num) != phase_num_map_.end())
+            if(vehicle_phase_num_map_.find(phase_num) != vehicle_phase_num_map_.end())
             {
-                seq_signal_group = phase_num_map_[phase];
+                seq_signal_group = vehicle_phase_num_map_[phase];
             }
             else{
                 SPDLOG_ERROR("No signal state associated with phase {0}", phase);
@@ -281,7 +297,7 @@ namespace traffic_signal_controller_service
         for(auto seq_val : seq_data.val_string)
         {   
             auto phase = int(seq_val);
-            if(phase_num_map_.find(phase)!= phase_num_map_.end() && phase != 0 ){
+            if(vehicle_phase_num_map_.find(phase)!= vehicle_phase_num_map_.end() && phase != 0 ){
                 phase_seq.push_back(phase);
             }
             
