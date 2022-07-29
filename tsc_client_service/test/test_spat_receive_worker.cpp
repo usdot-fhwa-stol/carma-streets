@@ -20,9 +20,12 @@ namespace traffic_signal_controller_service
         snmp_client client(dummy_ip, dummy_port);
         
         request_type request_type = request_type::SET;
-        int64_t enable_spat_value = 2;
+        snmp_response_obj enable_spat;
+        enable_spat.type = snmp_response_obj::response_type::INTEGER;
+        enable_spat.val_int = 2;
+        
         // Expect set to return false with invalid enable spat OID
-        EXPECT_FALSE(client.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value));
+        EXPECT_FALSE(client.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat));
     }
     /**
      * @brief Attempt to listen on a IP that is not the host of the service should fail.

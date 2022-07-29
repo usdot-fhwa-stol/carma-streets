@@ -14,14 +14,16 @@ namespace traffic_signal_controller_service
 
         // Test GET
         request_type request_type = request_type::GET;
-        int64_t integer_response = 0;
+        snmp_response_obj int_response;
+        int_response.type = snmp_response_obj::response_type::INTEGER;
+        int_response.val_int = 0;
         // Expect get call to fail since we're communicating with invalid host
-        EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, integer_response));
-        EXPECT_EQ(integer_response, 0);
+        EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, int_response));
+        EXPECT_EQ(int_response.val_int, 0);
 
         // Test invalid OID
         test_oid = "-1";
-        EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, integer_response));
+        EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, int_response));
 
         // Test log_error
         request_type = request_type::GET;
@@ -34,7 +36,9 @@ namespace traffic_signal_controller_service
 
         // Test SET
         request_type = request_type::SET;
-        int64_t set_value = 10;
+        snmp_response_obj set_value;
+        int_response.type = snmp_response_obj::response_type::INTEGER;
+        int_response.val_int = 10;
         // Expect set call to fail since we're communicating with invalid host
         EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
 

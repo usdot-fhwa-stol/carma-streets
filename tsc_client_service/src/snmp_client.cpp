@@ -16,7 +16,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
     SPDLOG_DEBUG("Starting SNMP Client");
     SPDLOG_DEBUG("Target device IP address: {0}", ip_);
     SPDLOG_INFO("Target device NTCIP port: {0}", port_);
-    
+
 
     // Bring the IP address and port of the target SNMP device in the required form, which is "IPADDRESS:PORT":
     std::string ip_port_string = ip_ + ":" + std::to_string(port_);    
@@ -51,7 +51,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
 
 }
 
-bool snmp_client::process_snmp_request(const std::string& input_oid, const request_type& request_type, int64_t& value){
+bool snmp_client::process_snmp_request(const std::string& input_oid, const request_type& request_type, snmp_response_obj& val){
 
     /*Structure to hold response from the remote host*/
     snmp_pdu *response;
@@ -64,7 +64,7 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
     }
     else if (request_type == request_type::SET)
     {
-        SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", value);
+        SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", val.val_int);
         pdu = snmp_pdu_create(SNMP_MSG_SET);
     }
     else{
@@ -90,7 +90,13 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
         }
         else if(request_type == request_type::SET)
         {
-            snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(value)).c_str());
+            if(val.type == snmp_response_obj::response_type::INTEGER){
+                snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(val.val_int)).c_str());
+            }
+            else if(val.type == snmp_response_obj::response_type::STRING){
+                SPDLOG_ERROR("Setting string value is currently not supported");
+                return false;
+            }
         }
 
         SPDLOG_INFO("Created OID for input: {0}", input_oid);
@@ -111,8 +117,8 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
                 // get Integer value
                 if(vars->type == ASN_INTEGER){
                     if(vars->val.integer){
-                        value = *vars->val.integer;
-                        SPDLOG_INFO("Integer value in object: {0}", value);
+                        val.val_int = *vars->val.integer;
+                        SPDLOG_DEBUG("Integer value in object: {0}", val.val_int);
                     }
                     else{
                         SPDLOG_ERROR("Response specifies type integer, but no integer value found");
@@ -120,14 +126,38 @@ bool snmp_client::process_snmp_request(const std::string& input_oid, const reque
                     }
                     
                 }
+                else if(vars->type == ASN_OCTET_STR){
+                    if(vars->val.string){
+                        size_t str_len = vars->val_len;
+                        for(size_t i = 0; i < str_len; ++i)
+                        {
+                            val.val_string.push_back(vars->val.string[i]);   
+                        }
+                        
+                    }
+                    else{
+                        SPDLOG_ERROR("Response specifies type string, but no string value found");
+                        return false;
+                    }
+                }
                 else{
-                    SPDLOG_ERROR("Received a message type which isn't an Integer");
+                    SPDLOG_ERROR("Received a message type which isn't an integer or string");
                     return false;
                 }
             }
         }
         else if(request_type == request_type::SET){
-            SPDLOG_DEBUG("Success in SET for OID: {0}", input_oid," ; Value: {1}", value);
+            
+            if(val.type == snmp_response_obj::response_type::INTEGER){
+                SPDLOG_DEBUG("Success in SET for OID: {0} Value: {1}", input_oid ,val.val_int);
+            }
+
+            else if(val.type == snmp_response_obj::response_type::STRING){
+                SPDLOG_DEBUG("Success in SET for OID: {0} Value:", input_oid);
+                for(auto data : val.val_string){
+                    SPDLOG_DEBUG("{0}", data);
+                }
+            }
         }
     
     }

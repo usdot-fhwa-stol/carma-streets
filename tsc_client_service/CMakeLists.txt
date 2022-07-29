@@ -51,6 +51,6 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${PROJECT_NAME}_test 
     ${TEST_SOURCES}
 )
-target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_lib ${GTEST_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME}_lib gtest gmock)
 add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
 

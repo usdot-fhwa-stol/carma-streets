@@ -3,6 +3,7 @@
 #include "spat_worker.h"
 #include "ntcip_oids.h"
 #include "spat_worker_exception.h"
+#include "monitor_tsc_state.h"
 
 int main()
 {
@@ -23,11 +24,17 @@ int main()
     int socketTimeout = streets_service::streets_configuration::get_int_config("socket_timeout");
 
     traffic_signal_controller_service::snmp_client worker(target_ip, target_port, community, snmp_version, timeout);
+    traffic_signal_controller_service::tsc_state tsc_state_worker(std::make_shared<traffic_signal_controller_service::snmp_client> (worker));
+    
     
     //enable spat udp stream on tsc
     traffic_signal_controller_service::request_type request_type = traffic_signal_controller_service::request_type::SET;
-    int64_t enable_spat_value = 2;
-    worker.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat_value);
+    
+    traffic_signal_controller_service::snmp_response_obj enable_spat;
+    enable_spat.type = traffic_signal_controller_service::snmp_response_obj::response_type::INTEGER;
+    enable_spat.val_int = 2;
+
+    worker.process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type, enable_spat);
 
     //instantiate spat receive worker
     traffic_signal_controller_service::spat_worker spat_worker(local_ip, local_port, socketTimeout);
