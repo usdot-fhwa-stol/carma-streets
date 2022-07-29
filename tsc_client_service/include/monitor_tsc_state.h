@@ -121,20 +121,14 @@ namespace traffic_signal_controller_service
         ** @return a vector of phases that may be concurrent with the given phase
         * **/
         std::vector<int> get_concurrent_phases(int phase_num) const;
-
         public:
+            /** 
+             * @brief Constructor for the tsc_state class 
+             * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
+             **/
+            explicit tsc_state(std::shared_ptr<snmp_client> snmp_client);
 
-        /** 
-         * @brief Constructor for the tsc_state class 
-         * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
-        **/
-        explicit tsc_state(std::shared_ptr<snmp_client> snmp_client);
-        
-        std::unordered_map<int, signal_group_state>& get_signal_group_state_map()
-        {
-            return signal_group_state_map_;
-        }        
-
+            std::unordered_map<int, signal_group_state>& get_signal_group_state_map();
         /** 
          * @brief Returns a map of pedestrian phases to signal group ids
          * @return a map of pedestrian phases to signal group ids 

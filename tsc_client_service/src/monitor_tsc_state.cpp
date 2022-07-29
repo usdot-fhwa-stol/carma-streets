@@ -347,4 +347,9 @@ namespace traffic_signal_controller_service
     {
         return vehicle_phase_num_map_;
     }
+
+    std::unordered_map<int, signal_group_state>& tsc+state::get_signal_group_state_map()
+    {
+        return signal_group_state_map_;
+    }        
 }

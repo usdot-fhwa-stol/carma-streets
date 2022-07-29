@@ -1,4 +1,6 @@
 #include <iostream>
+#include <thread>
+#include "qcoreapplication.h"
 #include "snmp_client.h"
 #include "spat_worker.h"
 #include "ntcip_oids.h"
@@ -7,7 +9,8 @@
 
 int main()
 {
-    
+       
+    QCoreApplication a(argc, argv);
     std::string setCustomMibsCommand = "export MIBS=ALL";
     system(setCustomMibsCommand.c_str()); 
 
@@ -19,9 +22,7 @@ int main()
     std::string community = streets_service::streets_configuration::get_string_config("community");
     int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
     int timeout = streets_service::streets_configuration::get_int_config("timeout");
-    std::string local_ip = streets_service::streets_configuration::get_string_config("local_ip");
-    int local_port = streets_service::streets_configuration::get_int_config("local_udp_port");
-    int socketTimeout = streets_service::streets_configuration::get_int_config("socket_timeout");
+    
 
     traffic_signal_controller_service::snmp_client worker(target_ip, target_port, community, snmp_version, timeout);
     traffic_signal_controller_service::tsc_state tsc_state_worker(std::make_shared<traffic_signal_controller_service::snmp_client> (worker));
@@ -40,10 +41,11 @@ int main()
     traffic_signal_controller_service::spat_worker spat_worker(local_ip, local_port, socketTimeout);
     // Create SPaT UDP socket
     try {
-        spat_worker.listen_udp_spat();
+        std::thread spat_thread (&traffic_signal_controller_service::spat_worker::listen_udp_spat, spat_worker );
+        spat_thread.join();
     }
     catch ( const traffic_signal_controller_service::spat_worker_exception &e) {
         SPDLOG_ERROR("Failed to create UDP socket for NTCIP SPaT data : {0} ", e.what());
     }
-    return 0;
+    return a.exec();
 }
