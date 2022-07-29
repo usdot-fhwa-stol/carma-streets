@@ -37,7 +37,7 @@ namespace signal_phase_and_timing{
          * Note that the right to proceed either right or left when it is safe may be contained in lane
          * description to handle what is called a 'right on red'.
          */
-        stop_Then_proceed=2, 
+        stop_then_proceed=2, 
         /**
          * @brief e.g. called 'red light' in US.
          * Driver Action:

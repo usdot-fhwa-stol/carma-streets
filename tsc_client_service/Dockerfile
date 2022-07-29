@@ -35,12 +35,40 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
+# Install librdkafka
+RUN echo " ------> Install librdkafka..."
+WORKDIR /home/carma-streets/ext
+RUN git clone https://github.com/edenhill/librdkafka
+WORKDIR /home/carma-streets/ext/librdkafka/
+RUN ./configure --prefix=/usr
+RUN make
+RUN make install
+
 COPY ./streets_utils/ /home/carma-streets/streets_utils
 # Install streets_service_base
 RUN echo " ------> Install streets service base library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_service_base
 RUN mkdir build
 WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_signal_phase_and_timing
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install

@@ -56,7 +56,7 @@ TEST_F(test_intersection_state, fromJson)
     json.AddMember("id", 1, allocator);
     json.AddMember("revision", 1, allocator);
     json.AddMember("moy", 12, allocator);
-    json.AddMember("status", "1", allocator);
+    json.AddMember("status", 13, allocator);
     rapidjson::Value states_list(rapidjson::kArrayType);
     json.AddMember("states", states_list, allocator);
 
@@ -74,7 +74,7 @@ TEST_F(test_intersection_state, toJson)
     iss.id= 1;
     iss.revision = 1;
     iss.moy= 123;
-    iss.status = "1";
+    iss.status = 32;
     movement_state mms;
     iss.states.push_back(mms);
     auto json = iss.toJson(allocator);

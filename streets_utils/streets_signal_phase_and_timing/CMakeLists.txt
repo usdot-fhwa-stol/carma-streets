@@ -3,6 +3,8 @@ project(streets_signal_phase_and_timing)
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
+
+
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
@@ -17,6 +19,8 @@ add_library(${PROJECT_NAME}_lib
                 src/models/advisory_speed.cpp
                 src/models/time_change_details.cpp
                 src/models/intersection_state.cpp
+                src/models/ntcip_1202_ext.cpp
+                src/models/ntcip_1202_ext_phasetime.cpp
                 src/models/spat.cpp
                 src/exceptions/signal_phase_and_timing_exception.cpp
                 )
@@ -46,9 +50,9 @@ file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 install(
     TARGETS ${PROJECT_NAME}_lib
     EXPORT ${PROJECT_NAME}_libTargets
-    LIBRARY DESTINATION lib
-    INCLUDES DESTINATION include
-    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib/
+    INCLUDES DESTINATION include/
+    ARCHIVE DESTINATION lib/
 )
 install(
     EXPORT ${PROJECT_NAME}_libTargets 
@@ -66,7 +70,6 @@ install(
     DESTINATION  lib/cmake/${PROJECT_NAME}_lib/
 )
 install(FILES ${files} DESTINATION include)
-install(FILES ${templates} DESTINATION include/internal)
 
 
 ########################
@@ -88,7 +91,7 @@ target_link_libraries(${BINARY} PUBLIC
                 Boost::thread
                 Boost::filesystem 
                 spdlog::spdlog
-                gtest 
+                gtest
                 rapidjson
                 ${PROJECT_NAME}_lib
                 )
