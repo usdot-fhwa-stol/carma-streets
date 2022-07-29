@@ -10,7 +10,7 @@
         },
         {
             "name": "spat_consumer_topic",
-            "value": "tsc_spat_msg_in",
+            "value": "modified_spat",
             "description": "Kafka topic for streets internal SPAT messages",
             "type": "STRING"
         },
