@@ -67,7 +67,6 @@ namespace traffic_signal_controller_service
         * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
         * **/
         void map_phase_and_signalgroup(const std::vector<int>& phase_channels, bool is_source_vehicle_channel);
-
         /** 
          * @brief Method for getting maximum channels for the traffic signal controller
          * @return number of maximum channels in the traffic signal controller
@@ -121,6 +120,7 @@ namespace traffic_signal_controller_service
         ** @return a vector of phases that may be concurrent with the given phase
         * **/
         std::vector<int> get_concurrent_phases(int phase_num) const;
+
         public:
             /** 
              * @brief Constructor for the tsc_state class 
@@ -140,5 +140,6 @@ namespace traffic_signal_controller_service
          * @return a map of pedestrian phases to signal group ids
         **/
         const std::unordered_map<int,int>& get_vehicle_phase_map();
+
     };
 }
