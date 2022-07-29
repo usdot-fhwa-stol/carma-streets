@@ -8,8 +8,11 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(spdlog REQUIRED)
 find_package(RapidJSON REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 find_package(GTest REQUIRED)
+find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_package(streets_vehicle_list_lib REQUIRED)
+find_package(streets_signal_phase_and_timing_lib REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Boost COMPONENTS thread)
@@ -18,13 +21,15 @@ find_package(Boost COMPONENTS thread)
 add_library(${PROJECT_NAME}_lib
                 src/scheduling_exception.cpp
                 src/vehicle_sorting.cpp
-                src/intersection_schedule.cpp
+                src/all_stop_intersection_schedule.cpp
+                src/signalized_intersection_schedule.cpp
                 src/vehicle_scheduler.cpp
                 src/all_stop_vehicle_scheduler.cpp
+                src/signalized_vehicle_scheduler.cpp
 
                 )
 
-target_link_libraries(${PROJECT_NAME}_lib PUBLIC spdlog::spdlog rapidjson Qt5::Core Qt5::Network intersection_client_api_lib streets_vehicle_list_lib)
+target_link_libraries(${PROJECT_NAME}_lib PUBLIC spdlog::spdlog rapidjson Qt5::Core Qt5::Network intersection_client_api_lib streets_service_base_lib::streets_service_base_lib streets_vehicle_list_lib streets_signal_phase_and_timing_lib)
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
                             $<INSTALL_INTERFACE:include>
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -72,9 +77,12 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${BINARY} ${TEST_SOURCES} 
                 src/scheduling_exception.cpp
                 src/vehicle_sorting.cpp
-                src/intersection_schedule.cpp
+                src/all_stop_intersection_schedule.cpp
+                src/signalized_intersection_schedule.cpp
                 src/vehicle_scheduler.cpp
                 src/all_stop_vehicle_scheduler.cpp
+                src/signalized_vehicle_scheduler.cpp
+                
                 )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})

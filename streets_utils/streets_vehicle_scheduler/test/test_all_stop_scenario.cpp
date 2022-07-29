@@ -3,6 +3,7 @@
 
 #include "vehicle_list.h"
 #include "all_stop_vehicle_scheduler.h"
+#include "all_stop_intersection_schedule.h"
 
 using namespace streets_vehicles;
 using namespace streets_vehicle_scheduler;
@@ -17,6 +18,8 @@ namespace {
         std::unordered_map<std::string, vehicle> veh_list;
 
         std::unique_ptr<all_stop_vehicle_scheduler> scheduler;
+
+        std::shared_ptr<intersection_schedule> schedule;
 
         /**
          * @brief Test Setup method run before each test.
@@ -57,8 +60,10 @@ namespace {
  * This test checks if the schedule plan information (e.g., est, st, et, dt, access, dp, state) is correct.
  */
 TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    
+
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     vehicle veh_dv;
     veh_dv._id = "TEST_DV_01";
@@ -69,15 +74,15 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
     veh_dv._cur_distance = 9.3;
     veh_dv._cur_lane_id = 160;
     veh_dv._cur_state = vehicle_state::DV;
-    veh_dv._cur_time = schedule.timestamp;
+    veh_dv._cur_time = schedule->timestamp;
     veh_dv._entry_lane_id = 163;
     veh_dv._link_id = 160;
     veh_dv._exit_lane_id = 164;
     veh_dv._direction = "right";
     veh_dv._departure_position = 1;
     veh_dv._access = true;
-    veh_dv._actual_st = schedule.timestamp - 3000;
-    veh_dv._actual_et = schedule.timestamp - 1000;
+    veh_dv._actual_st = schedule->timestamp - 3000;
+    veh_dv._actual_et = schedule->timestamp - 1000;
 
     vehicle veh_rdv1;
     veh_rdv1._id = "TEST_RDV_01";
@@ -88,13 +93,13 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
     veh_rdv1._cur_distance = 1.0;
     veh_rdv1._cur_lane_id = 171;
     veh_rdv1._cur_state = vehicle_state::RDV;
-    veh_rdv1._cur_time = schedule.timestamp;
+    veh_rdv1._cur_time = schedule->timestamp;
     veh_rdv1._entry_lane_id = 171;
     veh_rdv1._link_id = 165;
     veh_rdv1._exit_lane_id = 164;
     veh_rdv1._direction = "straight";
     veh_rdv1._departure_position = 2;
-    veh_rdv1._actual_st = schedule.timestamp - 1000;
+    veh_rdv1._actual_st = schedule->timestamp - 1000;
 
     vehicle veh_rdv2;
     veh_rdv2._id = "TEST_RDV_02";
@@ -105,22 +110,26 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
     veh_rdv2._cur_distance = 1.0;
     veh_rdv2._cur_lane_id = 167;
     veh_rdv2._cur_state = vehicle_state::RDV;
-    veh_rdv2._cur_time = schedule.timestamp;
+    veh_rdv2._cur_time = schedule->timestamp;
     veh_rdv2._entry_lane_id = 167;
     veh_rdv2._link_id = 169;
     veh_rdv2._exit_lane_id = 168;
     veh_rdv2._direction = "straight";
     veh_rdv2._departure_position = 3;
-    veh_rdv2._actual_st = schedule.timestamp - 1000;
+    veh_rdv2._actual_st = schedule->timestamp - 1000;
 
     veh_list.insert({{veh_dv._id, veh_dv}, {veh_rdv1._id, veh_rdv1}, {veh_rdv2._id, veh_rdv2}});
-
+  
     scheduler->schedule_vehicles(veh_list, schedule);
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
-    vehicle_schedule veh_dv_schedule;
-    vehicle_schedule veh_rdv1_schedule;
-    vehicle_schedule veh_rdv2_schedule;
-    for (auto veh_sched : schedule.vehicle_schedules){
+    
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+    
+    ASSERT_EQ( sched->vehicle_schedules.size(), 3);
+
+    all_stop_vehicle_schedule veh_dv_schedule;
+    all_stop_vehicle_schedule veh_rdv1_schedule;
+    all_stop_vehicle_schedule veh_rdv2_schedule;
+    for (auto veh_sched : sched->vehicle_schedules){
         if (veh_sched.v_id == veh_dv._id){
             veh_dv_schedule = veh_sched;
         }
@@ -144,7 +153,7 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
     ASSERT_EQ(veh_rdv2_schedule.v_id, veh_rdv2._id);
     ASSERT_EQ(veh_rdv2_schedule.est, veh_rdv2._actual_st);
     ASSERT_EQ(veh_rdv2_schedule.st, veh_rdv2._actual_st);
-    ASSERT_EQ(veh_rdv2_schedule.et, schedule.timestamp);
+    ASSERT_EQ(veh_rdv2_schedule.et, sched->timestamp);
     ASSERT_EQ(veh_rdv2_schedule.dp, 2);
     ASSERT_EQ(veh_rdv2_schedule.state, vehicle_state::DV);
     ASSERT_EQ(veh_rdv2_schedule.access, true);
@@ -172,8 +181,11 @@ TEST_F(all_stop_scenario_test, one_dv_two_rdvs){
  * This test checks if the schedule plan information (e.g., est, st, et, dt, access, dp, state) is correct.
  */
 TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
-    intersection_schedule schedule;
-    schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     
     vehicle veh_dv1;
     veh_dv1._id = "TEST_DV_01";
@@ -184,15 +196,15 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_dv1._cur_distance = 9.3;
     veh_dv1._cur_lane_id = 160;
     veh_dv1._cur_state = vehicle_state::DV;
-    veh_dv1._cur_time = schedule.timestamp;
+    veh_dv1._cur_time = schedule->timestamp;
     veh_dv1._entry_lane_id = 163;
     veh_dv1._link_id = 160;
     veh_dv1._exit_lane_id = 164;
     veh_dv1._direction = "right";
     veh_dv1._departure_position = 2;
     veh_dv1._access = true;
-    veh_dv1._actual_st = schedule.timestamp - 3000;
-    veh_dv1._actual_et = schedule.timestamp - 1000;
+    veh_dv1._actual_st = schedule->timestamp - 3000;
+    veh_dv1._actual_et = schedule->timestamp - 1000;
 
     vehicle veh_dv2;
     veh_dv2._id = "TEST_DV_02";
@@ -203,15 +215,15 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_dv2._cur_distance = 2.0;
     veh_dv2._cur_lane_id = 169;
     veh_dv2._cur_state = vehicle_state::DV;
-    veh_dv2._cur_time = schedule.timestamp;
+    veh_dv2._cur_time = schedule->timestamp;
     veh_dv2._entry_lane_id = 167;
     veh_dv2._link_id = 169;
     veh_dv2._exit_lane_id = 168;
     veh_dv2._direction = "straight";
     veh_dv2._departure_position = 1;
     veh_dv2._access = true;
-    veh_dv2._actual_st = schedule.timestamp - 5000;
-    veh_dv2._actual_et = schedule.timestamp - 3000;
+    veh_dv2._actual_st = schedule->timestamp - 5000;
+    veh_dv2._actual_et = schedule->timestamp - 3000;
 
     vehicle veh_rdv1;
     veh_rdv1._id = "TEST_RDV_01";
@@ -222,13 +234,13 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_rdv1._cur_distance = 1.0;
     veh_rdv1._cur_lane_id = 171;
     veh_rdv1._cur_state = vehicle_state::RDV;
-    veh_rdv1._cur_time = schedule.timestamp;
+    veh_rdv1._cur_time = schedule->timestamp;
     veh_rdv1._entry_lane_id = 171;
     veh_rdv1._link_id = 165;
     veh_rdv1._exit_lane_id = 164;
     veh_rdv1._direction = "straight";
     veh_rdv1._departure_position = 3;
-    veh_rdv1._actual_st = schedule.timestamp - 1000;
+    veh_rdv1._actual_st = schedule->timestamp - 1000;
 
     vehicle veh_rdv2;
     veh_rdv2._id = "TEST_RDV_02";
@@ -239,13 +251,13 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_rdv2._cur_distance = 1.0;
     veh_rdv2._cur_lane_id = 167;
     veh_rdv2._cur_state = vehicle_state::RDV;
-    veh_rdv2._cur_time = schedule.timestamp;
+    veh_rdv2._cur_time = schedule->timestamp;
     veh_rdv2._entry_lane_id = 167;
     veh_rdv2._link_id = 155;
     veh_rdv2._exit_lane_id = 154;
     veh_rdv2._direction = "left";
     veh_rdv2._departure_position = 4;
-    veh_rdv2._actual_st = schedule.timestamp;
+    veh_rdv2._actual_st = schedule->timestamp;
 
     vehicle veh_ev1;
     veh_ev1._id = "TEST_EV_01";
@@ -256,7 +268,7 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_ev1._cur_distance = 35.0;
     veh_ev1._cur_lane_id = 163;
     veh_ev1._cur_state = vehicle_state::EV;
-    veh_ev1._cur_time = schedule.timestamp;
+    veh_ev1._cur_time = schedule->timestamp;
     veh_ev1._entry_lane_id = 163;
     veh_ev1._link_id = 160;
     veh_ev1._exit_lane_id = 164;
@@ -271,7 +283,7 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_ev2._cur_distance = 25.0;
     veh_ev2._cur_lane_id = 167;
     veh_ev2._cur_state = vehicle_state::EV;
-    veh_ev2._cur_time = schedule.timestamp;
+    veh_ev2._cur_time = schedule->timestamp;
     veh_ev2._entry_lane_id = 167;
     veh_ev2._link_id = 169;
     veh_ev2._exit_lane_id = 168;
@@ -286,7 +298,7 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_ev3._cur_distance = 50.0;
     veh_ev3._cur_lane_id = 167;
     veh_ev3._cur_state = vehicle_state::EV;
-    veh_ev3._cur_time = schedule.timestamp;
+    veh_ev3._cur_time = schedule->timestamp;
     veh_ev3._entry_lane_id = 167;
     veh_ev3._link_id = 155;
     veh_ev3._exit_lane_id = 154;
@@ -297,16 +309,17 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     veh_list.insert({{veh_dv1._id, veh_dv1}, {veh_dv2._id, veh_dv2}, {veh_rdv1._id, veh_rdv1}, {veh_rdv2._id, veh_rdv2}, {veh_ev1._id, veh_ev1}, {veh_ev2._id, veh_ev2}, {veh_ev3._id, veh_ev3}});
 
     scheduler->schedule_vehicles(veh_list, schedule);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
 
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 7);
-    vehicle_schedule veh_dv1_schedule;
-    vehicle_schedule veh_dv2_schedule;
-    vehicle_schedule veh_rdv1_schedule;
-    vehicle_schedule veh_rdv2_schedule;
-    vehicle_schedule veh_ev1_schedule;
-    vehicle_schedule veh_ev2_schedule;
-    vehicle_schedule veh_ev3_schedule;
-    for (auto veh_sched : schedule.vehicle_schedules){
+    ASSERT_EQ( sched->vehicle_schedules.size(), 7);
+    all_stop_vehicle_schedule veh_dv1_schedule;
+    all_stop_vehicle_schedule veh_dv2_schedule;
+    all_stop_vehicle_schedule veh_rdv1_schedule;
+    all_stop_vehicle_schedule veh_rdv2_schedule;
+    all_stop_vehicle_schedule veh_ev1_schedule;
+    all_stop_vehicle_schedule veh_ev2_schedule;
+    all_stop_vehicle_schedule veh_ev3_schedule;
+    for (auto veh_sched : sched->vehicle_schedules){
         if (veh_sched.v_id == veh_dv1._id){
             veh_dv1_schedule = veh_sched;
         }
@@ -374,7 +387,7 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     ASSERT_EQ(veh_rdv1_schedule.access, false);
 
     ASSERT_EQ(veh_ev2_schedule.v_id, veh_ev2._id);
-    ASSERT_EQ(veh_ev2_schedule.est, schedule.timestamp + (5.132 * 1000));
+    ASSERT_EQ(veh_ev2_schedule.est, sched->timestamp + (5.132 * 1000));
     ASSERT_EQ(veh_ev2_schedule.st, std::max(veh_ev2_schedule.est, veh_rdv2_schedule.et));
     ASSERT_EQ(veh_ev2_schedule.et, std::max(veh_ev2_schedule.st, veh_rdv2_schedule.dt));
     ASSERT_EQ(veh_ev2_schedule.dp, 5);
@@ -382,7 +395,7 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     ASSERT_EQ(veh_ev2_schedule.access, false);
     
     ASSERT_EQ(veh_ev1_schedule.v_id, veh_ev1._id);
-    ASSERT_EQ(veh_ev1_schedule.est, schedule.timestamp + (6.1 * 1000));
+    ASSERT_EQ(veh_ev1_schedule.est, sched->timestamp + (6.1 * 1000));
     ASSERT_EQ(veh_ev1_schedule.st, veh_ev1_schedule.est);
     ASSERT_EQ(veh_ev1_schedule.et, std::max(veh_ev1_schedule.st, veh_rdv1_schedule.dt));
     ASSERT_EQ(veh_ev1_schedule.dp, 6);
@@ -390,7 +403,7 @@ TEST_F(all_stop_scenario_test, two_dvs_two_rdvs_three_evs){
     ASSERT_EQ(veh_ev1_schedule.access, false);
 
     ASSERT_EQ(veh_ev3_schedule.v_id, veh_ev3._id);
-    ASSERT_EQ(veh_ev3_schedule.est, schedule.timestamp + (7.494 * 1000));
+    ASSERT_EQ(veh_ev3_schedule.est, sched->timestamp + (7.494 * 1000));
     ASSERT_EQ(veh_ev3_schedule.st, std::max(veh_ev3_schedule.est, veh_ev2_schedule.et));
     ASSERT_EQ(veh_ev3_schedule.et, std::max(veh_ev1_schedule.st, std::max(veh_ev2_schedule.dt, veh_rdv1_schedule.dt)));
     ASSERT_EQ(veh_ev3_schedule.dp, 7);
