@@ -8,7 +8,7 @@
 
 namespace streets_vehicle_scheduler {
     /**
-     * @brief Object to represent schedule for single vehicle.
+     * @brief Object to represent all_stop schedule for single vehicle.
      */
     struct all_stop_vehicle_schedule : vehicle_schedule {
         /**

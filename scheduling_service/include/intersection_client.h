@@ -33,7 +33,6 @@ namespace scheduling_service{
 
         /**
          * @brief Send http GET request to intersection model at rate of configured HZ until it gets the intersection info.
-         * @param int_info Http response from intersection model.
          * @return true if intersection information is updated.
          * @return false if intersection information is not updated.
          */

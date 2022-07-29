@@ -5,6 +5,7 @@
 #include <set>
 #include "vehicle.h"
 #include "vehicle_scheduler.h"
+#include "streets_configuration.h"
 #include "intersection_schedule.h"
 #include "all_stop_intersection_schedule.h"
 #include "scheduling_exception.h"
@@ -41,7 +42,7 @@ namespace streets_vehicle_scheduler {
              * @param dvs vector of unscheduled DVs
              * @param schedule all_stop_intersection_schedule to add DV scheduling information to.
              */
-            void schedule_dvs( std::list<streets_vehicles::vehicle> &dvs, std::shared_ptr<all_stop_intersection_schedule> &schedule) const;
+            void schedule_dvs( std::list<streets_vehicles::vehicle> &dvs, const std::shared_ptr<all_stop_intersection_schedule> &schedule) const;
             /**
              * @brief Schedule all currently Ready to Depart Vehicles (RDVs). Consider all possible RDV departure orders. Select
              * the one with the least calculated delay. Delay for a given vehicle is the difference between Entering Time and Stopping 
@@ -51,7 +52,7 @@ namespace streets_vehicle_scheduler {
              * @param rdvs vector of unscheduled RDVs
              * @param schedule all_stop_intersection_schedule to add RDV scheduling information to.
              */
-            void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, std::shared_ptr<all_stop_intersection_schedule> &schedule);
+            void schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, const std::shared_ptr<all_stop_intersection_schedule> &schedule);
         
             /**
              * @brief Method to determine whether vehicle was granted access to the intersection in previous schedules. To avoid granting
@@ -88,13 +89,24 @@ namespace streets_vehicle_scheduler {
              * lane. These list are order in ascending order with the vehicle closest to the intersection in a given lane 
              * being the first vehicle in that entry lanes vehicle list. Then stopping time (ST) for the unscheduled front EVs 
              * from every approach are calculated and the vehicle with the lowest (earliest) stopping times is scheduled. This
-             * is repeated until all evs from all approach lanelets are scheduled 
+             * is repeated until all evs from all approach lanelets are scheduled.
              * 
-             * @param vehicles 
-             * @param evs 
-             * @param all_stop_intersection_schedule 
+             * @param evs vector of unscheduled EVs.
+             * @param schedule all_stop_intersection_schedule to add EV scheduling information to.
              */
-            void schedule_evs( std::list<streets_vehicles::vehicle> &evs, std::shared_ptr<all_stop_intersection_schedule> &schedule ) const;
+            void schedule_evs( std::list<streets_vehicles::vehicle> &evs, const std::shared_ptr<all_stop_intersection_schedule> &schedule ) const;
+            
+            /**
+             * @brief Estimates an entering time (ET) for a given Entering Vehicle (EV). This method first searches among the 
+             * existing scheduled vehicles and find the departure time (DT) of the last scheduled vehicle with conflicting direction.
+             * The ET of the vehicle is calculated based on this DT (if exist) and the estimated stopping time (ST) oft the vehicle.  
+             * 
+             * @param schedule all_stop_intersection_schedule.
+             * @param ev vehicle for which to estimate ET.
+             * @param st estimated stopping time.
+             */
+            uint64_t estimate_entering_time_for_ev(const std::vector<all_stop_vehicle_schedule> &vehicle_schedules, const streets_vehicles::vehicle &ev, const uint64_t st) const;
+
 
             /**
              * @brief Creates and intersection schedule for a given RDV departure order. RDV departure order is based on 
@@ -112,7 +124,7 @@ namespace streets_vehicle_scheduler {
              */
             bool consider_departure_position_permutation( 
                                                     const std::list<streets_vehicles::vehicle> &rdvs, 
-                                                    std::shared_ptr<all_stop_intersection_schedule> &option,
+                                                    const std::shared_ptr<all_stop_intersection_schedule> &option,
                                                     int starting_departure_position ) const;
 
             /**

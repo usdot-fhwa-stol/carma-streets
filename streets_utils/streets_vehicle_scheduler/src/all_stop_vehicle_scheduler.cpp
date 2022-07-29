@@ -9,54 +9,59 @@ namespace streets_vehicle_scheduler {
     void all_stop_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                             std::shared_ptr<intersection_schedule> &i_sched) {
         
-        auto schedule = std::dynamic_pointer_cast<all_stop_intersection_schedule> (i_sched);
+        try 
+        {
+            auto schedule = std::dynamic_pointer_cast<all_stop_intersection_schedule> (i_sched);
 
-        if ( vehicles.empty() ) {
-            SPDLOG_INFO("No vehicles to schedule.");
-            return;
-        }
-        // Estimate Vehicles at common time 
-        estimate_vehicles_at_common_time( vehicles, schedule->timestamp);
-        // Create vectors of EVs RDVs and DVs
-        std::list<streets_vehicles::vehicle> DVs;
-        std::list<streets_vehicles::vehicle> RDVs;
-
-        std::list<streets_vehicles::vehicle> EVs;
-        for ( const auto &[v_id, veh] : vehicles) {
-            if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
-                // Once vehicle is considered as DV it has confirmed that it has received access.
-                if ( is_rdv_previously_granted_access(veh) ) {
-                    remove_rdv_previously_granted_access(veh);
-                }
-                DVs.push_back(veh);
+            if ( vehicles.empty() ) {
+                SPDLOG_INFO("No vehicles to schedule.");
+                return;
             }
-            else if ( veh._cur_state == streets_vehicles::vehicle_state::RDV ) {
-                // Consider any RDVs previously granted access as a DV
-                if ( is_rdv_previously_granted_access(veh) ) {
+            // Estimate Vehicles at common time 
+            estimate_vehicles_at_common_time( vehicles, schedule->timestamp);
+            // Create vectors of EVs RDVs and DVs
+            std::list<streets_vehicles::vehicle> DVs;
+            std::list<streets_vehicles::vehicle> RDVs;
+
+            std::list<streets_vehicles::vehicle> EVs;
+            for ( const auto &[v_id, veh] : vehicles) {
+                if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
+                    // Once vehicle is considered as DV it has confirmed that it has received access.
+                    if ( is_rdv_previously_granted_access(veh) ) {
+                        remove_rdv_previously_granted_access(veh);
+                    }
                     DVs.push_back(veh);
-                } 
-                else {
-                    RDVs.push_back(veh);
+                }
+                else if ( veh._cur_state == streets_vehicles::vehicle_state::RDV ) {
+                    // Consider any RDVs previously granted access as a DV
+                    if ( is_rdv_previously_granted_access(veh) ) {
+                        DVs.push_back(veh);
+                    } 
+                    else {
+                        RDVs.push_back(veh);
+                    }
+                }
+                else if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
+                    EVs.push_back(veh);
                 }
             }
-            else if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
-                EVs.push_back(veh);
-            }
-        }
-        
-        SPDLOG_DEBUG("Vehicles to schedule are DVs : {0}, RDVs : {1}, EVs {2} ", DVs.size(), RDVs.size(), EVs.size());
+            
+            SPDLOG_DEBUG("Vehicles to schedule are DVs : {0}, RDVs : {1}, EVs {2} ", DVs.size(), RDVs.size(), EVs.size());
 
-        // Schedule DVs
-        if ( !DVs.empty() )
-            schedule_dvs( DVs, schedule);
-        // Schedule RDVs
-        if ( !RDVs.empty() )
-            schedule_rdvs( RDVs, schedule);
-        // Schedule EVs
-        if ( !EVs.empty() )
-            schedule_evs( EVs, schedule);
+            // Schedule DVs
+            if ( !DVs.empty() )
+                schedule_dvs( DVs, schedule);
+            // Schedule RDVs
+            if ( !RDVs.empty() )
+                schedule_rdvs( RDVs, schedule);
+            // Schedule EVs
+            if ( !EVs.empty() )
+                schedule_evs( EVs, schedule);
         
-        
+        }
+        catch ( const streets_service::streets_configuration_exception &ex ) {
+            SPDLOG_ERROR("all stop scheduler failure: {0} ", ex.what());
+        }
 
     }
 
@@ -109,7 +114,7 @@ namespace streets_vehicle_scheduler {
     }
 
     void all_stop_vehicle_scheduler::schedule_dvs( std::list<streets_vehicles::vehicle> &dvs,
-                                                std::shared_ptr<all_stop_intersection_schedule> &schedule) const{       
+                                                const std::shared_ptr<all_stop_intersection_schedule> &schedule) const{       
         // Sort based on departure position
         dvs.sort( departure_position_comparator);
         // Regardless of previously set departure index, set DV with lowest departure position to departure position 1
@@ -162,7 +167,7 @@ namespace streets_vehicle_scheduler {
 
     }
 
-    void all_stop_vehicle_scheduler::schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, std::shared_ptr<all_stop_intersection_schedule> &schedule ) {
+    void all_stop_vehicle_scheduler::schedule_rdvs( std::list<streets_vehicles::vehicle> &rdvs, const std::shared_ptr<all_stop_intersection_schedule> &schedule ) {
         // Vector of considered intersection_schedule_options
         std::vector<std::shared_ptr<all_stop_intersection_schedule>> schedule_options;
         // Sort rdvs ascending order based on departure position
@@ -221,7 +226,7 @@ namespace streets_vehicle_scheduler {
         SPDLOG_DEBUG("Schedule for RDVs: \n" + schedule->toCSV());
     }
 
-    void all_stop_vehicle_scheduler::schedule_evs( std::list<streets_vehicles::vehicle> &evs, std::shared_ptr<all_stop_intersection_schedule> &schedule ) const {
+    void all_stop_vehicle_scheduler::schedule_evs( std::list<streets_vehicles::vehicle> &evs, const std::shared_ptr<all_stop_intersection_schedule> &schedule ) const {
         // Map of entry lane ids to preceding already scheduled vehicle
         std::unordered_map<int , all_stop_vehicle_schedule> preceding_vehicle_entry_lane_map;
         for ( const auto &entry_lane : intersection_info->getEntryLanelets() ) {
@@ -328,24 +333,7 @@ namespace streets_vehicle_scheduler {
                     sched.state = streets_vehicles::vehicle_state::EV;
                     sched.access = false;
                     sched.dp = last_departure_index;
-
-                    // Get schedule of conflicting vehicle with largest dt from already scheduled vehicles
-                    if ( !schedule->vehicle_schedules.empty() ) {
-                        std::shared_ptr<all_stop_vehicle_schedule> conflict_with_largest_dt = get_latest_conflicting(link_lane,schedule->vehicle_schedules);
-                        
-                        if ( conflict_with_largest_dt != nullptr) {
-                            SPDLOG_DEBUG("Vehicle with largest conflict to {0} is {1}.", ev._id, conflict_with_largest_dt->v_id);
-                            // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
-                            sched.et = std::max(conflict_with_largest_dt->dt, sched.st);
-                        }else{
-                            // If there is no conflicting scheduled vehicle, st == et
-                            sched.et = sched.st;
-                        }
-                    }
-                    else {
-                        // If schedule is empty there can be no conflict
-                        sched.et = sched.st;
-                    }
+                    sched.et = estimate_entering_time_for_ev(schedule->vehicle_schedules, ev, st);
                     // Departure time is equal to entering time + clearance time
                     sched.dt = sched.et + estimate_clearance_time( ev, link_lane );
             
@@ -374,6 +362,28 @@ namespace streets_vehicle_scheduler {
             
         }
         while ( !vehicle_to_be_scheduled_next.empty() );
+    }
+
+    uint64_t all_stop_vehicle_scheduler::estimate_entering_time_for_ev( const std::vector<all_stop_vehicle_schedule> &vehicle_schedules, const streets_vehicles::vehicle &ev, const uint64_t st) const {
+        // Get link lanelet information for ev
+        OpenAPI::OAILanelet_info link_lane = get_link_lanelet_info( ev );
+        // Get schedule of conflicting vehicle with largest dt from already scheduled vehicles
+        if ( !vehicle_schedules.empty() ) {
+            std::shared_ptr<all_stop_vehicle_schedule> conflict_with_largest_dt = get_latest_conflicting(link_lane, vehicle_schedules);
+            
+            if ( conflict_with_largest_dt != nullptr) {
+                SPDLOG_DEBUG("Vehicle with largest conflict to {0} is {1}.", ev._id, conflict_with_largest_dt->v_id);
+                // Entering time is the maximum between the conflicting vehicles departure time and the current vehicles stopping time
+                return std::max(conflict_with_largest_dt->dt, st);
+            }else{
+                // If there is no conflicting scheduled vehicle, st == et
+                return st;
+            }
+        }
+        else {
+            // If schedule is empty there can be no conflict
+            return st;
+        }
     }
 
     uint64_t all_stop_vehicle_scheduler::estimate_earliest_time_to_stop_bar(const streets_vehicles::vehicle &veh) const{
@@ -420,7 +430,7 @@ namespace streets_vehicle_scheduler {
 
     bool all_stop_vehicle_scheduler::consider_departure_position_permutation( 
                                                                                 const std::list<streets_vehicles::vehicle> &rdvs, 
-                                                                                std::shared_ptr<all_stop_intersection_schedule> &option,
+                                                                                const std::shared_ptr<all_stop_intersection_schedule> &option,
                                                                                 int starting_departure_position ) const {
         for ( const auto &veh : rdvs ) {
             // If scheduling option moves vehicle departure position more than flexibility limit it is not a valid option.

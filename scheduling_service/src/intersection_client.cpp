@@ -5,7 +5,7 @@ namespace scheduling_service {
 
     bool intersection_client::update_intersection_info(const int sleep_millisecs, const int int_client_request_attempts)
     {
-        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs/1000);
+        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs);
         int attempt_count = 0;
         while (attempt_count < int_client_request_attempts)
         {	
@@ -16,7 +16,7 @@ namespace scheduling_service {
                 return true;
             }
             // sleep takes seconds
-            std::this_thread::sleep_for(std::chrono::seconds(sleep_secs));
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep_secs));
             attempt_count++;
         }
         // If failed to update the intersection information after certain numbers of attempts

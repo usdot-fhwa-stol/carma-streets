@@ -4,41 +4,46 @@ namespace streets_vehicle_scheduler {
 
     void signalized_vehicle_scheduler::schedule_vehicles( std::unordered_map<std::string, streets_vehicles::vehicle> &vehicles, std::shared_ptr<intersection_schedule> &i_sched) {
         
-        auto schedule = std::dynamic_pointer_cast<signalized_intersection_schedule> (i_sched);
-        
-        if ( vehicles.empty() ) {
-            SPDLOG_INFO("No vehicles to schedule.");
-            return;
-        }
-
-        // Estimate Vehicles at common time 
-        estimate_vehicles_at_common_time( vehicles, schedule->timestamp);
-        // Create vectors of DVs and EVs
-        std::list<streets_vehicles::vehicle> DVs;
-        std::list<streets_vehicles::vehicle> EVs;
-        
-        for ( const auto &[v_id, veh] : vehicles) {
-            if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
-                EVs.push_back(veh);
+        try {
+            auto schedule = std::dynamic_pointer_cast<signalized_intersection_schedule> (i_sched);
+            
+            if ( vehicles.empty() ) {
+                SPDLOG_DEBUG("No vehicles to schedule.");
+                return;
             }
-            else if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
-                DVs.push_back(veh);
-            }
-        }
-        
-        SPDLOG_DEBUG("Number of Entering Vehicles (EVs) to schedule are : {0} ", EVs.size());
 
-        // Schedule DVs
-        if ( !DVs.empty() )
-            schedule_dvs( DVs, schedule);
-        // Schedule EVs
-        if ( !EVs.empty() )
-            schedule_evs( EVs, schedule);
+            // Estimate Vehicles at common time 
+            estimate_vehicles_at_common_time( vehicles, schedule->timestamp);
+            // Create vectors of DVs and EVs
+            std::list<streets_vehicles::vehicle> DVs;
+            std::list<streets_vehicles::vehicle> EVs;
+            
+            for ( const auto &[v_id, veh] : vehicles) {
+                if ( veh._cur_state == streets_vehicles::vehicle_state::EV) {
+                    EVs.push_back(veh);
+                }
+                else if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
+                    DVs.push_back(veh);
+                }
+            }
+            
+            SPDLOG_DEBUG("Number of Entering Vehicles (EVs) to schedule are : {0} ", EVs.size());
+
+            // Schedule DVs
+            if ( !DVs.empty() )
+                schedule_dvs( DVs, schedule);
+            // Schedule EVs
+            if ( !EVs.empty() )
+                schedule_evs( EVs, schedule);
+        }
+        catch ( const streets_service::streets_configuration_exception &ex ) {
+            SPDLOG_ERROR("signalized scheduler failure: {0} ", ex.what());
+        }
 
     }
 
 
-    void signalized_vehicle_scheduler::schedule_dvs( std::list<streets_vehicles::vehicle> &dvs, std::shared_ptr<signalized_intersection_schedule> &schedule ) const {
+    void signalized_vehicle_scheduler::schedule_dvs( const std::list<streets_vehicles::vehicle> &dvs, const std::shared_ptr<signalized_intersection_schedule> &schedule ) const {
         
         for ( const auto &departing_veh : dvs ) {
             SPDLOG_DEBUG("Scheduling the departure time for DV with ID {0} .", departing_veh._id);
@@ -70,7 +75,7 @@ namespace streets_vehicle_scheduler {
 
 
 
-    void signalized_vehicle_scheduler::schedule_evs( std::list<streets_vehicles::vehicle> &evs, std::shared_ptr<signalized_intersection_schedule> &schedule ) const {
+    void signalized_vehicle_scheduler::schedule_evs( std::list<streets_vehicles::vehicle> &evs, const std::shared_ptr<signalized_intersection_schedule> &schedule ) const {
         
         // Sort vehicles based on distance
         evs.sort(distance_comparator);
@@ -141,18 +146,22 @@ namespace streets_vehicle_scheduler {
     signal_phase_and_timing::movement_state signalized_vehicle_scheduler::find_movement_state_for_lane(const OpenAPI::OAILanelet_info &entry_lane_info) const {
 
         signal_phase_and_timing::movement_state move_state; 
-        if (spat_ptr) {
+        if ( spat_ptr || entry_lane_info.getSignalGroupId() ) {
             for (const auto& ms : spat_ptr->intersections.front().states){
                 if (ms.signal_group == entry_lane_info.getSignalGroupId()) {
-                    move_state = ms;
-                    break;
+                    return move_state;
                 }
             }
-            return move_state;
         }
         else {
-            throw scheduling_exception("SPaT is not found!");
+            if ( spat_ptr ) {
+                throw scheduling_exception("SPaT is not found!");
+            }
+            else {
+                throw scheduling_exception("the lanelet does not have group_id!");
+            }
         }
+        return move_state;
     }
 
 
@@ -252,6 +261,7 @@ namespace streets_vehicle_scheduler {
         else
         {
             SPDLOG_DEBUG("Cannot estimate the earliest entering time for vehicle {0} which is not an EV!", veh._id);
+            return -1;
         }
         
     }

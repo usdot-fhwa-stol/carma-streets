@@ -5,6 +5,7 @@
 #include <set>
 #include "vehicle.h"
 #include "vehicle_scheduler.h"
+#include "streets_configuration.h"
 #include "intersection_schedule.h"
 #include "signalized_intersection_schedule.h"
 #include "scheduling_exception.h"
@@ -25,14 +26,14 @@ namespace streets_vehicle_scheduler {
             /**
              * @brief The configurable time interval at the beginning of a green phase that is considered for estimating vehicles' entering times.
              * The earliest possible entering time during a phase is set to the beginning of the green phase plus the initial_green_buffer.
-             * 
+             * to-do add unit
              */
             uint64_t initial_green_buffer;
 
             /**
              * @brief The configurable time interval at the end of a green phase that is considered for estimating vehicles' entering times.
              * The latest possible entering time during a phase is set to the end of the green phase minus the final_green_buffer.
-             * 
+             * to-do add unit
              */
             uint64_t final_green_buffer;
 
@@ -44,7 +45,7 @@ namespace streets_vehicle_scheduler {
              * @param dvs vector of unscheduled DVs.
              * @param schedule signalized_intersection_schedule to add DV scheduling information to.
              */
-            void schedule_dvs( std::list<streets_vehicles::vehicle> &dvs, std::shared_ptr<signalized_intersection_schedule> &schedule ) const;
+            void schedule_dvs( const std::list<streets_vehicles::vehicle> &dvs, const std::shared_ptr<signalized_intersection_schedule> &schedule ) const;
             /**
              * @brief Schedule all Entering Vehicles (EVs). Method first organizes all EVs into lists based on their entry
              * lane. These list are ordered in ascending order with the vehicle closest to the intersection in a given lane 
@@ -56,7 +57,7 @@ namespace streets_vehicle_scheduler {
              * @param evs list of all EVs.
              * @param schedule signalized_intersection_schedule to add EV scheduling information to.
              */
-            void schedule_evs( std::list<streets_vehicles::vehicle> &evs, std::shared_ptr<signalized_intersection_schedule> &schedule ) const;
+            void schedule_evs( std::list<streets_vehicles::vehicle> &evs, const std::shared_ptr<signalized_intersection_schedule> &schedule ) const;
             /**
              * @brief Estimate an entering time (ET) for a given Entering Vehicle (EV). ET is estimated based on the EV's 
              * earliest entering time (EET), its preceding vehicle's estimated ET, and the modifed spat.
@@ -89,7 +90,7 @@ namespace streets_vehicle_scheduler {
             double calculate_distance_accel_and_decel( const streets_vehicles::vehicle &veh, const double max_speed, const double departure_speed ) const;
             /**
              * @brief Calculate the distance required to speed up (slow down) to departure speed with maximum acceleration (maximum deceleration). 
-             * If the departure speed is grater than the vehicle's current speed, the vehicle has to speed up with maximum acceleration. Otherwise, 
+             * If the departure speed is greater than the vehicle's current speed, the vehicle has to speed up with maximum acceleration. Otherwise, 
              * the vehicle has to slow down with maximum deceleration. This is used to calculate the earliest entering time (EET) for the vehicle. 
              * 
              * @param veh vehicle for which to calculate distance.

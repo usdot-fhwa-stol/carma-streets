@@ -33,7 +33,6 @@ namespace scheduling_service{
         std::string producer_topic;
         std::string spat_topic;
 
-        std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
         std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler_ptr;
         std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
@@ -76,8 +75,9 @@ namespace scheduling_service{
 
         /**
          * @brief Configure the scheduler object.
+         * @param intersection_info_ptr an intersection_info object
          */
-        bool config_scheduler();
+        bool config_scheduler(std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr);
 
         /**
          * @brief Consume the status and intent messages via kafka consumer.
@@ -119,13 +119,6 @@ namespace scheduling_service{
          * @param scheduler 
          */
         void set_vehicle_scheduler(std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler);
-
-        /**
-         * @brief Set the intersection info object for unit testing
-         * 
-         * @param int_info 
-         */
-        void set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> int_info);
 
         /**
          * @brief Set the consumer worker object for unit testing

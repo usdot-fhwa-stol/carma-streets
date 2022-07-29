@@ -66,22 +66,18 @@ namespace scheduling_service{
                 }
             }
 
+            config_vehicle_list();
+
             // HTTP request to update intersection information
             auto int_client = std::make_shared<intersection_client>();
-
             if (int_client->update_intersection_info(sleep_millisecs, int_client_request_attempts))
             {
-                intersection_info_ptr = int_client->get_intersection_info();
+                config_scheduler(int_client->get_intersection_info());
             }
             else
             {
                 return false;
             }
-
-            
-            config_vehicle_list();
-
-            config_scheduler();
 
             _scheduling_worker = std::make_shared<scheduling_worker>();
 
@@ -139,40 +135,34 @@ namespace scheduling_service{
     }
 
 
-    bool scheduling_service::config_scheduler() 
+    bool scheduling_service::config_scheduler(std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr) 
     {
-        if ( intersection_info_ptr )
-        {
-            std::string intersection_type =  streets_service::streets_configuration::get_string_config("intersection_type");
-            if ( intersection_type.compare("stop_controlled_intersection") == 0) {
-                scheduler_ptr = std::make_shared<streets_vehicle_scheduler::all_stop_vehicle_scheduler>();
-                scheduler_ptr->set_intersection_info(intersection_info_ptr);
-                std::dynamic_pointer_cast<streets_vehicle_scheduler::all_stop_vehicle_scheduler>(scheduler_ptr)->set_flexibility_limit(
-                        streets_service::streets_configuration::get_int_config("flexibility_limit"));
-                
-                SPDLOG_INFO("Scheduler is configured successfully! ");
-                return true;
-            }
-            else if ( intersection_type.compare("signalized_intersection") == 0 ) {
-                scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
-                scheduler_ptr->set_intersection_info(intersection_info_ptr);
-                
-                auto processor = std::dynamic_pointer_cast<streets_vehicle_scheduler::signalized_vehicle_scheduler>(scheduler_ptr);
-                processor->set_initial_green_buffer(streets_service::streets_configuration::get_int_config("initial_green_buffer"));
-                processor->set_final_green_buffer(streets_service::streets_configuration::get_int_config("final_green_buffer"));
-                
-                SPDLOG_INFO("Scheduler is configured successfully! ");
-                return true;
-            }
-            else {
-                SPDLOG_ERROR("Failed configuring Vehicle Scheduler. Scheduling Service does not support intersection_type : {0}!", intersection_type);
-                return false;
-            }
+        std::string intersection_type =  streets_service::streets_configuration::get_string_config("intersection_type");
+        if ( intersection_type.compare("stop_controlled_intersection") == 0) {
+            scheduler_ptr = std::make_shared<streets_vehicle_scheduler::all_stop_vehicle_scheduler>();
+            scheduler_ptr->set_intersection_info(intersection_info_ptr);
+            std::dynamic_pointer_cast<streets_vehicle_scheduler::all_stop_vehicle_scheduler>(scheduler_ptr)->set_flexibility_limit(
+                    streets_service::streets_configuration::get_int_config("flexibility_limit"));
+            
+            SPDLOG_INFO("Scheduler is configured successfully! ");
+            return true;
         }
-        else
-        {
+        else if ( intersection_type.compare("signalized_intersection") == 0 ) {
+            scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
+            scheduler_ptr->set_intersection_info(intersection_info_ptr);
+            
+            auto processor = std::dynamic_pointer_cast<streets_vehicle_scheduler::signalized_vehicle_scheduler>(scheduler_ptr);
+            processor->set_initial_green_buffer(streets_service::streets_configuration::get_int_config("initial_green_buffer"));
+            processor->set_final_green_buffer(streets_service::streets_configuration::get_int_config("final_green_buffer"));
+            
+            SPDLOG_INFO("Scheduler is configured successfully! ");
+            return true;
+        }
+        else {
+            SPDLOG_ERROR("Failed configuring Vehicle Scheduler. Scheduling Service does not support intersection_type : {0}!", intersection_type);
             return false;
         }
+
     }
 
 
@@ -303,10 +293,6 @@ namespace scheduling_service{
 
     void scheduling_service::set_vehicle_list(std::shared_ptr<streets_vehicles::vehicle_list> veh_list) {
         vehicle_list_ptr = veh_list;
-    }
-
-    void scheduling_service::set_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> int_info) {
-        intersection_info_ptr = int_info;
     }
 
     void scheduling_service::set_vehicle_scheduler(std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) {
