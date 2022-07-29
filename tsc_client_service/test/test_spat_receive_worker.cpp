@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <iostream>
 #include "snmp_client.h"
-#include "spat_worker.h"
+#include "udp_socket_listener.h"
 #include "spat_worker_exception.h"
 #include "ntcip_oids.h"
 
@@ -37,18 +37,10 @@ namespace traffic_signal_controller_service
         int tsc_port = 6053;
         int tsc_timeout = 3;
 
-        spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
-        try{
-            worker.listen_udp_spat();
-        }
-        catch( const spat_worker_exception &e){
-            ASSERT_STREQ( e.what(), "Failed to bind to socket");
-        }
-        catch( ... ) {
-            __assert_fail;
-        }
+        upd_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
+        bool initialized = listener.initialize();
+        ASSERT_FALSE( initialized );
 
-        
     }
     /**
      * @brief Ttest UDP socket timeout parameter. Test should timeout
@@ -61,18 +53,9 @@ namespace traffic_signal_controller_service
         int tsc_port = 6053;
         int tsc_timeout = 2;
 
-        spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
-
-        try{
-            worker.listen_udp_spat();
-        }
-        catch( const spat_worker_exception &e){
-            ASSERT_STREQ( e.what(), "Timeout of 2 seconds has elapsed. Closing SPaT Work UDP Socket");
-        }
-        catch( ... ) {
-            __assert_fail;
-        }
-        
+        upd_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
+        bool initialized = listener.initialize();
+        ASSERT_FALSE( initialized );
     }
 
     /**
@@ -85,16 +68,10 @@ namespace traffic_signal_controller_service
         int tsc_port = 6053;
         int tsc_timeout = 2;
 
-        spat_worker worker(tsc_ip_bad, tsc_port, tsc_timeout);
-        try{
-            worker.listen_udp_spat();
-        }
-        catch( const spat_worker_exception &e){
-            ASSERT_STREQ( e.what(), "Failed to get addr info for the tsc_service instance");
-        }
-        catch( ... ) {
-            __assert_fail;
-        }
+        upd_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
+        bool initialized = listener.initialize();
+        ASSERT_FALSE( initialized );
+        
         
     }  
 }
