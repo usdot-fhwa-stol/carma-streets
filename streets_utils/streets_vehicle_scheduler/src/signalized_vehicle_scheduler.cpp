@@ -149,6 +149,7 @@ namespace streets_vehicle_scheduler {
         if ( spat_ptr || entry_lane_info.getSignalGroupId() ) {
             for (const auto& ms : spat_ptr->intersections.front().states){
                 if (ms.signal_group == entry_lane_info.getSignalGroupId()) {
+                    move_state = ms;
                     return move_state;
                 }
             }
