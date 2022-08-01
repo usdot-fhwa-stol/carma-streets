@@ -40,7 +40,9 @@ namespace streets_vehicle_scheduler {
 
         rapidjson::Value json_sched(rapidjson::kArrayType);
         for (const auto &veh_sched: vehicle_schedules ) {
-            json_sched.PushBack(veh_sched.toJson(allocator), allocator);
+            if (veh_sched.state == streets_vehicles::vehicle_state::EV) {
+                json_sched.PushBack(veh_sched.toJson(allocator), allocator);
+            }
         }
         doc.AddMember("payload", json_sched, allocator);
 

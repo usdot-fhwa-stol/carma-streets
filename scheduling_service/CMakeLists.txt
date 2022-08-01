@@ -38,8 +38,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     intersection_client_api_lib 
     streets_service_base_lib::streets_service_base_lib 
     streets_vehicle_list_lib::streets_vehicle_list_lib 
-    streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib
-    streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib)
+    streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network )
 
 

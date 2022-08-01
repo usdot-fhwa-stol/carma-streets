@@ -107,10 +107,10 @@ namespace streets_vehicle_scheduler {
             SPDLOG_DEBUG("Scheduling EVs from entry lane {0} ", entry_lane);
 
             // Find the last DV from the entry lane
-            signalized_vehicle_schedule preceding_veh;
+            std::shared_ptr<signalized_vehicle_schedule> preceding_veh = nullptr;
             for (const auto &veh_sched : schedule->vehicle_schedules ) {
-                if ( veh_sched.entry_lane == entry_lane && veh_sched.state == streets_vehicles::vehicle_state::DV && (preceding_veh.v_id == "" || veh_sched.et < preceding_veh.et)) {
-                    preceding_veh = veh_sched;
+                if ( veh_sched.entry_lane == entry_lane && veh_sched.state == streets_vehicles::vehicle_state::DV && (preceding_veh == nullptr || veh_sched.et < preceding_veh->et)) {
+                    preceding_veh = std::make_shared<signalized_vehicle_schedule>(veh_sched);
                 }
             }
             
@@ -134,7 +134,7 @@ namespace streets_vehicle_scheduler {
                 // Add vehicle schedule to the schedule list.
                 schedule->vehicle_schedules.push_back(sched);
                 // Update the preceding vehicle schedule.
-                preceding_veh = sched;
+                preceding_veh = std::make_shared<signalized_vehicle_schedule>(sched);
             }
 
             SPDLOG_DEBUG("All vehicles in lane {0} have been scheduled!", entry_lane);
@@ -166,7 +166,7 @@ namespace streets_vehicle_scheduler {
     }
 
 
-    void signalized_vehicle_scheduler::estimate_et(const streets_vehicles::vehicle &veh, const signalized_vehicle_schedule &preceding_veh, signalized_vehicle_schedule &sched, const signal_phase_and_timing::movement_state &move_state, const uint64_t schedule_timestamp) const {
+    void signalized_vehicle_scheduler::estimate_et(const streets_vehicles::vehicle &veh, const std::shared_ptr<signalized_vehicle_schedule> &preceding_veh, signalized_vehicle_schedule &sched, const signal_phase_and_timing::movement_state &move_state, const uint64_t schedule_timestamp) const {
 
         // Get link lanelet information for ev
         OpenAPI::OAILanelet_info link_lane = get_link_lanelet_info( veh );
@@ -181,14 +181,16 @@ namespace streets_vehicle_scheduler {
          * and the subject vehicle's minimum required safety time headway at tbe departure speed.
         */
         uint64_t first_available_et;
-        if (preceding_veh.v_id == "") {
+        if (preceding_veh == nullptr) {
             first_available_et = schedule_timestamp;
         }
         else {
-            first_available_et = std::max(schedule_timestamp, preceding_veh.et + min_headway);
+            first_available_et = std::max(schedule_timestamp, preceding_veh->et + min_headway);
         }
 
         // Check the movement_event list one by one until successfully estimating the vehicle's entering time (ET).
+        // The assumption is that the movement_event list is sorted based on the movement_event timing.
+        // (example: the second phase's start time shall be equal to the first phase's min_end_time).
         bool is_successful = false;
         uint64_t et;
         for (const auto &move_event : move_state.state_time_speed) {
@@ -262,9 +264,9 @@ namespace streets_vehicle_scheduler {
         else
         {
             SPDLOG_DEBUG("Cannot estimate the earliest entering time for vehicle {0} which is not an EV!", veh._id);
-            return -1;
+            throw scheduling_exception("Trying to calculate earliest entering time (EET) for a vehicle that is not an EV!");
         }
-        
+        return -1;
     }
 
 
@@ -362,7 +364,7 @@ namespace streets_vehicle_scheduler {
         // Get Link Lane
         OpenAPI::OAILanelet_info link_lane =  get_link_lanelet_info( veh );
         if ( veh._cur_state == streets_vehicles::vehicle_state::DV ) {
-            return static_cast<uint64_t>( ceil(1000 * veh._cur_distance / link_lane.getSpeedLimit()) );
+            return static_cast<uint64_t>( ceil(1000 * veh._cur_distance / veh._cur_speed) );
         }
         else {
             return static_cast<uint64_t>( ceil(1000 * link_lane.getLength() / link_lane.getSpeedLimit()) );

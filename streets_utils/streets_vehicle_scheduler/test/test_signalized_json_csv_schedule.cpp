@@ -80,11 +80,11 @@ TEST_F(signalized_json_csv_schedule_test, json_schedule){
     sched3.et =  schedule.timestamp + 6000;
 
     signalized_vehicle_schedule sched4;
-    sched3.state =streets_vehicles::vehicle_state::EV;
-    sched3.entry_lane = 3;
-    sched3.link_id = 4;
-    sched3.eet = schedule.timestamp + 3000;
-    sched3.et =  schedule.timestamp + 10000;
+    sched4.state =streets_vehicles::vehicle_state::EV;
+    sched4.entry_lane = 3;
+    sched4.link_id = 4;
+    sched4.eet = schedule.timestamp + 3000;
+    sched4.et =  schedule.timestamp + 10000;
 
     schedule.vehicle_schedules.push_back(sched1);
     schedule.vehicle_schedules.push_back(sched2);
@@ -105,7 +105,7 @@ TEST_F(signalized_json_csv_schedule_test, json_schedule){
 
     ASSERT_TRUE( json_sched.HasMember("payload") );
     ASSERT_TRUE( json_sched["payload"].IsArray() );
-    ASSERT_EQ( json_sched["payload"].Size(), 4);
+    ASSERT_EQ( json_sched["payload"].Size(), 3);
 
 }
 
@@ -138,11 +138,11 @@ TEST_F(signalized_json_csv_schedule_test, csv_schedule){
     sched3.et =  schedule.timestamp + 6000;
 
     signalized_vehicle_schedule sched4;
-    sched3.state =streets_vehicles::vehicle_state::EV;
-    sched3.entry_lane = 3;
-    sched3.link_id = 4;
-    sched3.eet = schedule.timestamp + 3000;
-    sched3.et =  schedule.timestamp + 10000;
+    sched4.state =streets_vehicles::vehicle_state::EV;
+    sched4.entry_lane = 3;
+    sched4.link_id = 4;
+    sched4.eet = schedule.timestamp + 3000;
+    sched4.et =  schedule.timestamp + 10000;
 
     schedule.vehicle_schedules.push_back(sched1);
     schedule.vehicle_schedules.push_back(sched2);

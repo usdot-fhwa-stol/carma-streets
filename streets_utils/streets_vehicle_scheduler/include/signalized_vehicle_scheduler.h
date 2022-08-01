@@ -24,16 +24,17 @@ namespace streets_vehicle_scheduler {
             std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
 
             /**
-             * @brief The configurable time interval at the beginning of a green phase that is considered for estimating vehicles' entering times.
-             * The earliest possible entering time during a phase is set to the beginning of the green phase plus the initial_green_buffer.
-             * to-do add unit
+             * @brief The configurable time interval at the beginning of a green phase in milliseconds that is considered for estimating 
+             * vehicles' entering times. The earliest possible entering time during a phase is set to the beginning of the green phase plus 
+             * the initial_green_buffer.
+             * 
              */
             uint64_t initial_green_buffer;
 
             /**
-             * @brief The configurable time interval at the end of a green phase that is considered for estimating vehicles' entering times.
-             * The latest possible entering time during a phase is set to the end of the green phase minus the final_green_buffer.
-             * to-do add unit
+             * @brief The configurable time interval at the end of a green phase in milliseconds that is considered for estimating vehicles' 
+             * entering times. The latest possible entering time during a phase is set to the end of the green phase minus the final_green_buffer.
+             *
              */
             uint64_t final_green_buffer;
 
@@ -63,12 +64,12 @@ namespace streets_vehicle_scheduler {
              * earliest entering time (EET), its preceding vehicle's estimated ET, and the modifed spat.
              * 
              * @param veh vehicle for which to estimate ET.
-             * @param preceding_veh preceding vehicle of the subject vehicle (veh)
+             * @param preceding_veh shared pointer of the preceding vehicle of the subject vehicle (veh)
              * @param sched signalized_intersection_schedule to add EV scheduling information to.
              * @param move_state movement state information that includes a list of current and pending phases.
              * @param schedule_timestamp timestamp of the current schedule in milliseconds. 
              */
-            void estimate_et(const streets_vehicles::vehicle &veh, const signalized_vehicle_schedule &preceding_veh, signalized_vehicle_schedule &sched, const signal_phase_and_timing::movement_state &move_state, const uint64_t schedule_timestamp) const;
+            void estimate_et(const streets_vehicles::vehicle &veh, const std::shared_ptr<signalized_vehicle_schedule> &preceding_veh, signalized_vehicle_schedule &sched, const signal_phase_and_timing::movement_state &move_state, const uint64_t schedule_timestamp) const;
             /**
              * @brief Method to use vehicle kinematic information to estimate earliest possible entering time (EET) for an entering vehicle (EV).
              * Does not consider any other vehicles. Limiting factors are the vehicles current kinematic information, lane speed
@@ -157,9 +158,9 @@ namespace streets_vehicle_scheduler {
              */
             uint64_t calculate_min_headway(const streets_vehicles::vehicle &veh, const double speed) const;
             /**
-             * @brief Estimate clearance time any vehicle given it's link lanelet information.  
+             * @brief Estimate clearance time of a vehicle given it's current speed.  
              * 
-             * @param veh vehicle for which to estimate clearance time=. 
+             * @param veh vehicle for which to estimate clearance time. 
              * @return uint64_t clearance time in milliseconds. 
              */
             uint64_t estimate_clearance_time( const streets_vehicles::vehicle &veh ) const;

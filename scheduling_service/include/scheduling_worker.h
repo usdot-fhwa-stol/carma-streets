@@ -33,8 +33,7 @@ namespace scheduling_service{
          * @param scheduler The scheduler object.
          * @return An intersection schedule object that contains vehicles' estimated critical time points.
          */
-        std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, 
-                                                                            std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) const;
+        std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) const;
 
 
     };

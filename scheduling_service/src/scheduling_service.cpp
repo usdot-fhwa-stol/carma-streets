@@ -81,11 +81,11 @@ namespace scheduling_service{
 
             _scheduling_worker = std::make_shared<scheduling_worker>();
 
-            SPDLOG_INFO("all stop scheduling service initialized successfully!!!");
+            SPDLOG_INFO("scheduling service initialized successfully!!!");
             return true;
         }
         catch ( const streets_service::streets_configuration_exception &ex ) {
-            SPDLOG_ERROR("all stop scheduling service Initialization failure: {0} ", ex.what());
+            SPDLOG_ERROR("scheduling service Initialization failure: {0} ", ex.what());
             return false;
         }
     }
@@ -117,14 +117,14 @@ namespace scheduling_service{
             processor->set_stopping_speed(streets_service::streets_configuration::get_double_config("stop_speed"));
             processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
             
-            SPDLOG_INFO("Vehicle list is configured successfully! ");
+            SPDLOG_DEBUG("The processor of the vehicle list object is set to all_stop_status_intent_processor successfully! ");
             return true;
         }
         else if (intersection_type.compare("signalized_intersection") == 0) {
             vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
             std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(vehicle_list_ptr->get_processor())->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
 
-            SPDLOG_INFO("Vehicle list is configured successfully! ");
+            SPDLOG_DEBUG("The processor of the vehicle list object is set to signalized_status_intent_processor successfully!");
             return true;
         }
         else {
@@ -144,7 +144,7 @@ namespace scheduling_service{
             std::dynamic_pointer_cast<streets_vehicle_scheduler::all_stop_vehicle_scheduler>(scheduler_ptr)->set_flexibility_limit(
                     streets_service::streets_configuration::get_int_config("flexibility_limit"));
             
-            SPDLOG_INFO("Scheduler is configured successfully! ");
+            SPDLOG_DEBUG("All_stop scheduler is configured successfully! ");
             return true;
         }
         else if ( intersection_type.compare("signalized_intersection") == 0 ) {
@@ -155,7 +155,7 @@ namespace scheduling_service{
             processor->set_initial_green_buffer(streets_service::streets_configuration::get_int_config("initial_green_buffer"));
             processor->set_final_green_buffer(streets_service::streets_configuration::get_int_config("final_green_buffer"));
             
-            SPDLOG_INFO("Scheduler is configured successfully! ");
+            SPDLOG_DEBUG("Signalized scheduler is configured successfully! ");
             return true;
         }
         else {
@@ -190,15 +190,17 @@ namespace scheduling_service{
     {
         SPDLOG_INFO("Starting spat consumer thread.");
         while (spat_consumer_worker->is_running()) 
-        {
-            
+        {  
             const std::string spat_msg = spat_consumer_worker->consume(1000);
-
             if(spat_msg.length() != 0 && spat_ptr)
             {                
-
-                spat_ptr->fromJson(spat_msg);
-    
+                try {
+                    spat_ptr->fromJson(spat_msg);
+                }
+                catch(const signal_phase_and_timing::signal_phase_and_timing_exception &ex) {
+                    SPDLOG_ERROR("Failure in reading the spat message : {0}", ex.what());
+                }
+                    
             }
         }
         SPDLOG_WARN("Stopping spat consumer thread!");

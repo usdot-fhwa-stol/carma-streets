@@ -14,7 +14,7 @@ namespace streets_vehicle_scheduler {
             auto schedule = std::dynamic_pointer_cast<all_stop_intersection_schedule> (i_sched);
 
             if ( vehicles.empty() ) {
-                SPDLOG_INFO("No vehicles to schedule.");
+                SPDLOG_DEBUG("No vehicles to schedule.");
                 return;
             }
             // Estimate Vehicles at common time 
@@ -76,6 +76,7 @@ namespace streets_vehicle_scheduler {
         else {
             SPDLOG_WARN("Cannot estimate delta x prime for vehicle {0} because it's state {1} != EV !" );
         }
+        return -1;
     }
 
     double all_stop_vehicle_scheduler::calculate_v_hat(const streets_vehicles::vehicle &veh) const {

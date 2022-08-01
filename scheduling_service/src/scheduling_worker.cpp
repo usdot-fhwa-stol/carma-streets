@@ -4,8 +4,7 @@ namespace scheduling_service{
 
 
 
-    std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> scheduling_worker::schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, 
-                                                                                                std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) const
+    std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> scheduling_worker::schedule_vehicles(std::unordered_map<std::string, streets_vehicles::vehicle> veh_map, std::shared_ptr<streets_vehicle_scheduler::vehicle_scheduler> scheduler) const
     {
 
         std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> int_schedule;
