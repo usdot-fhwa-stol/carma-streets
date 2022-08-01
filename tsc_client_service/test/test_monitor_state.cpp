@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "monitor_tsc_state.h"
 #include <gmock/gmock.h>
-#include "ntcip_oids.h"
 #include <gtest/gtest_prod.h>
+
+#include "ntcip_oids.h"
+#include "monitor_tsc_state.h"
+#include "streets_configuration.h"
 
 using testing::_;
 
@@ -114,6 +116,7 @@ namespace traffic_signal_controller_service
         
         std::shared_ptr<mock_snmp_client> shared_client = std::move(unique_client);
         traffic_signal_controller_service::tsc_state worker(shared_client);
+        worker.initialize();
 
         std::unordered_map<int, signal_group_state> state_map = worker.get_signal_group_state_map();
 

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "snmp_client.h"
+#include "snmp_client_exception.h"
+#include "ntcip_oids.h"
 
 namespace traffic_signal_controller_service
 {   

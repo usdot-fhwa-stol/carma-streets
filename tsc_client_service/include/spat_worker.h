@@ -1,27 +1,18 @@
 #pragma once
 
-#include <fstream>
 #include <spdlog/spdlog.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <iomanip>
-#include <QTimer>
-#include <QEventLoop>
 
 #include "ntcip_1202_ext.h"
-#include "spat_worker_exception.h"
 #include "spat.h"
 #include "udp_socket_listener.h"
-#include "intersection_client_api_lib/OAIDefaultApi.h"
-#include "intersection_client_api_lib/OAIIntersection_info.h"
+#include "udp_socket_listener_exception.h"
+
 
 namespace traffic_signal_controller_service
 {
-    class spat_worker: public QObject
+    class spat_worker
     {
         private:
             /**
@@ -44,19 +35,11 @@ namespace traffic_signal_controller_service
              */
             bool socket_created_ = false; 
 
-            std::string intersection_name_;
-
-            int intersection_id_;
-
-            std::unordered_map<int, int> phase_number_to_signal_group_;
-
             /**
-             * @brief Shared ptr to spat object.
+             * @brief UDP Socket listener to receive UDP NTCIP data packets from Traffic Signal Controller 
              * 
              */
-            std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
-
-            upd_socket_listener spat_listener;
+            std::unique_ptr<udp_socket_listener> spat_listener;
 
         public:
             /**
@@ -68,18 +51,23 @@ namespace traffic_signal_controller_service
              * @param socketTimeout Timeout, in seconds, for udp socket to TSC
              */
             spat_worker(const std::string& ip, const int& port, const int& socket_timeout);
-
+            
+            /**
+             * @brief Initilaize UDP Listener socket.
+             * 
+             * @return true if initialization is successful.
+             * @return false if initialization is unsuccessful.
+             */
             bool initialize();
             /**
              * @brief Create a UDP socket to the ip and port member variables. If it is successfully created, the received NTCIP SPaT
              * packets and print out their content.
              * 
-             * @throw spat_worker_exception if the UDP socket fails to connect or the connection times out. The connection will timout 
+             * @throw udp_socket_listener_exception if the UDP socket fails to connect or the connection times out. The connection will timout 
              * after a configurable ammount of time if no data is received at UDP socket.
              */
-            void listen_udp_spat(); 
+            void receive_spat(const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr) ; 
 
-            bool request_intersection_info();
-
+           
     };
 }

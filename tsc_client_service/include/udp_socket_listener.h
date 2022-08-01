@@ -3,11 +3,14 @@
 #include <spdlog/spdlog.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netdb.h>
+
+#include "udp_socket_listener_exception.h"
 
 
 namespace traffic_signal_controller_service
 {
-    class upd_socket_listener{
+    class udp_socket_listener{
         private:
             /**
              * @brief ip address of tsc_service 
@@ -29,6 +32,8 @@ namespace traffic_signal_controller_service
              */
             bool socket_created_ = false; 
 
+            int sock = -1;
+
 
         public:
             /**
@@ -39,7 +44,7 @@ namespace traffic_signal_controller_service
              * @param port The ethernet port to receive spat messages on
              * @param socketTimeout Timeout, in seconds, for udp socket to TSC
              */
-            upd_socket_listener(const std::string& ip, const int& port, const int& socket_timeout );
+            udp_socket_listener(const std::string& ip, const int port, const int socket_timeout );
 
             bool initialize();
 

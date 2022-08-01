@@ -53,6 +53,19 @@
             "value": 100,
             "description": "Timeout in seconds for UDP Socket Listener. If UDP Socket Listener does not receive messages for this amount of time it will shutdown and thrown an exception. ",
             "type": "INTEGER"
+        },
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        },
+        {
+            "name": "spat_producer_topic",
+            "value": "modified_spat",
+            "description": "Kafka topic for streets internal SPAT messages",
+            "type": "STRING"
         }
+
     ]
 }

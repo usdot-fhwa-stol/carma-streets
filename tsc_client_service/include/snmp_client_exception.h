@@ -6,20 +6,20 @@
 
 namespace traffic_signal_controller_service {
     /**
-     * @brief Runtime error related to spat worker and the UDP socket it uses to listen for incoming UDP NTCIP SPaT data.
+     * @brief Runtime error related to SNMP client used to communicate with Traffic Signal Controller (NTCIP).
      * 
      * @author Paul Bourelly 
      */ 
-    class spat_worker_exception : public std::runtime_error{
+    class snmp_client_exception : public std::runtime_error{
         public:
             /**
              * @brief Destructor.
              */ 
-            ~spat_worker_exception() override;
+            ~snmp_client_exception() override;
             /**
              * @brief Constructor. 
              * @param msg String exception message.
              */  
-            explicit spat_worker_exception(const std::string &msg );
+            explicit snmp_client_exception(const std::string &msg );
     };
 }
