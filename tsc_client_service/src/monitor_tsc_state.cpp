@@ -1,10 +1,14 @@
 #include "monitor_tsc_state.h"
-# include "ntcip_oids.h"
 
 namespace traffic_signal_controller_service
 {
     tsc_state::tsc_state(std::shared_ptr<snmp_client> snmp_client) : snmp_client_worker_(snmp_client)
     {
+        
+    }
+
+    bool tsc_state::initialize() {
+
         // Map signal group ids and phase nums
         //Get phase number given a signal group id
         int max_channels_in_tsc = get_max_channels();
@@ -32,10 +36,15 @@ namespace traffic_signal_controller_service
             signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
         }
 
-        // Loop through states once other state parameters are defined to get the red duration
-        for(auto& state : signal_group_state_map_)
-        {
-            state.second.red_duration = get_red_duration(state.second.phase_num);
+        try {
+            // Loop through states once other state parameters are defined to get the red duration
+            for(auto& state : signal_group_state_map_)
+            {
+                
+                state.second.red_duration = get_red_duration(state.second.phase_num);
+            }
+        } catch ( const snmp_client_exception &e) {
+            SPDLOG_ERROR("Error Occured calculating Red Duration : \n {0}", e.what());
         }
 
 
@@ -96,7 +105,7 @@ namespace traffic_signal_controller_service
             }
         }
 
-        SPDLOG_ERROR("No following phases found");
+        throw snmp_client_exception("No following phases found");
         return sequence;
 
     }
@@ -108,7 +117,7 @@ namespace traffic_signal_controller_service
 
         if(!snmp_client_worker_->process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type, max_channels_in_tsc))
         {
-            SPDLOG_ERROR("Failed to get max channels");
+            throw snmp_client_exception("Failed to get max channels!");
         }
 
         return (int) max_channels_in_tsc.val_int;
@@ -127,7 +136,7 @@ namespace traffic_signal_controller_service
 
             if(!snmp_client_worker_->process_snmp_request(control_type_parameter_oid, request_type, vehicle_control_type))
             {
-                SPDLOG_ERROR("Failed to get channel control type");
+                throw snmp_client_exception("Failed to get channel control type");
             }
 
             if(vehicle_control_type.val_int == 2)
@@ -233,8 +242,7 @@ namespace traffic_signal_controller_service
             current_signal_group = phase_num_map_[phase_num];
         }
         else{
-            SPDLOG_ERROR("No signal state associated with phase {0}", phase_num);
-            return 0;
+            throw snmp_client_exception("No signal state associated with phase " + std::to_string(phase_num) + ".");
         }
         auto current_signal_group_state = signal_group_state_map_[current_signal_group];
         int red_duration = current_signal_group_state.red_clearance;
@@ -248,8 +256,7 @@ namespace traffic_signal_controller_service
                 seq_signal_group = phase_num_map_[phase];
             }
             else{
-                SPDLOG_ERROR("No signal state associated with phase {0}", phase);
-                return 0;
+                throw snmp_client_exception("No signal state associated with phase " + std::to_string(phase) + ".");
             }
             auto seq_signal_group_state = signal_group_state_map_[seq_signal_group];
             if(phase == phase_num)
@@ -320,5 +327,13 @@ namespace traffic_signal_controller_service
         }
 
         return concurrent_phases;
+    }
+
+    std::unordered_map<int,int> tsc_state::get_phase_num_map() const {
+            return phase_num_map_;
+    }  
+
+    std::unordered_map<int, signal_group_state> tsc_state::get_signal_group_state_map() const  {
+        return signal_group_state_map_;
     }
 }

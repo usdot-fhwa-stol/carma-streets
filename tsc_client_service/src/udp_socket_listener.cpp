@@ -2,7 +2,7 @@
 
 namespace traffic_signal_controller_service
 {
-    udp_socket_listener::udp_socket_listener(const std::string& ip, const int& port, const int& socket_timeout) 
+    udp_socket_listener::udp_socket_listener(const std::string& ip, const int port, const int socket_timeout) 
                                                 : ip_(ip), port_(port), socket_timeout_(socket_timeout) {
 
     }
@@ -28,7 +28,7 @@ namespace traffic_signal_controller_service
         }
 
         //creating socket
-        int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
         if (sock == -1) {
             SPDLOG_ERROR("Failed to create socket");
             return false;
@@ -49,7 +49,7 @@ namespace traffic_signal_controller_service
     }
 
 
-    std::vector<char> udp_socket_listener::receive() const {
+    std::vector<char> udp_socket_listener::receive()  {
         std::vector<char> spat_buf(1024);
         if (socket_created_) {
             std::vector<char> spat_buf(1024);
@@ -62,14 +62,14 @@ namespace traffic_signal_controller_service
             else if (bytes_received == -1){
                 // see recv documentation https://man7.org/linux/man-pages/man2/recv.2.html#ERRORS
                 if (EAGAIN == errno){
-                    throw spat_worker_exception("Timeout of "+ std::to_string(socket_timeout_) + " seconds has elapsed. Closing SPaT Work UDP Socket");
+                    throw udp_socket_listener_exception("Timeout of "+ std::to_string(socket_timeout_) + " seconds has elapsed. Closing SPaT Work UDP Socket");
                 } else {
-                    throw spat_worker_exception(strerror(errno));
+                    throw udp_socket_listener_exception(strerror(errno));
                 }
             }
             // Should be impossible since UDP is connectionless communication protocol
             else if (bytes_received == 0){
-                throw spat_worker_exception("Connection terminated by server");
+                throw udp_socket_listener_exception("Connection terminated by server");
             }    
         }
         return spat_buf;   

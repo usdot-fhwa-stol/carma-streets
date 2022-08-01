@@ -1,10 +1,4 @@
-# include <iostream>
-# include <bits/stdc++.h> 
-# include <chrono>
-# include <sstream>
-# include "snmp_client.h"
-# include "ntcip_oids.h"
-#include "spat_worker_exception.h"
+#include "snmp_client.h"
 
 namespace traffic_signal_controller_service
 {
@@ -48,7 +42,6 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
         SPDLOG_INFO("Established session with device at {0}", ip_);
     }
     
-
 }
 
 bool snmp_client::process_snmp_request(const std::string& input_oid, const request_type& request_type, snmp_response_obj& val){
