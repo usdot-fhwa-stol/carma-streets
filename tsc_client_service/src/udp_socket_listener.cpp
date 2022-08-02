@@ -7,6 +7,10 @@ namespace traffic_signal_controller_service
 
     }
 
+    udp_socket_listener::~udp_socket_listener() {
+        shutdown(sock, SHUT_RD);
+    }
+
     bool udp_socket_listener::initialize() {
         addrinfo hints;
         addrinfo *result;
@@ -47,7 +51,7 @@ namespace traffic_signal_controller_service
     }
 
 
-    std::vector<char> udp_socket_listener::receive()  {
+    std::vector<char> udp_socket_listener::receive() const{
         // Max size 1 kb
         std::vector<char> spat_buf(1024);
         if (socket_created_) {
@@ -75,5 +79,6 @@ namespace traffic_signal_controller_service
         }
         return spat_buf;   
     }
+
     
 } // namespace traffic_signal_controller_service
