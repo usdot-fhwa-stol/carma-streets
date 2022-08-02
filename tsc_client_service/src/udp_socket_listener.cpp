@@ -39,7 +39,7 @@ namespace traffic_signal_controller_service
 
         //attempt to bind to socket
         if (bind(sock, result->ai_addr, result->ai_addrlen) == -1) {
-            SPDLOG_ERROR("Failed to bind to socket");
+            SPDLOG_ERROR("Failed to bind to socket error number : {0}", errno);
             return false;
         }
         socket_created_ = true;
