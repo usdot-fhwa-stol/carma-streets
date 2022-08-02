@@ -19,7 +19,7 @@ namespace signal_phase_and_timing{
         /**
          * @brief Timestamp Minute of the UTC year
          */
-        u_int64_t timestamp = 0;
+        u_int32_t timestamp = 0;
         /**
          * @brief Descriptive name for this collection.
          */

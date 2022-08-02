@@ -78,7 +78,7 @@ namespace signal_phase_and_timing{
         }
         intersection_state cur_state;
         cur_state.name = intersection_name;
-        cur_state.id =  intersection_id;
+        cur_state.id =  (uint16_t) intersection_id;
         phase_to_signal_group = _phase_number_to_signal_group;
         cur_state.initialize_movement_states( phase_to_signal_group );
         intersections.push_back(cur_state);
@@ -88,6 +88,7 @@ namespace signal_phase_and_timing{
         if ( !intersections.empty()) {
             intersection_state &intersection = intersections.front();
             intersection.set_timestamp_ntcip(second_of_day, millisecond_of_second);
+            timestamp = intersection.moy;
         }
         else {
             throw signal_phase_and_timing_exception("Intersection State List is empty! Cannot populate timestamp information!");
@@ -98,6 +99,7 @@ namespace signal_phase_and_timing{
         if ( !intersections.empty() ) {
             intersection_state &intersection = intersections.front();
             intersection.set_timestamp_local();
+            timestamp =  intersection.moy;
         }
         else {
             throw signal_phase_and_timing_exception("Intersection State List is empty! Cannot populate timestamp information!");

@@ -14,7 +14,7 @@ namespace traffic_signal_controller_service {
             int intersection_id;
         public: 
             bool request_intersection_info();
-            std::string get_intersection_name();
-            int get_intersection_id();
+            std::string get_intersection_name() const;
+            int get_intersection_id() const;
     };
 }

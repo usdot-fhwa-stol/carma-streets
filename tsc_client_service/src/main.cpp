@@ -15,5 +15,5 @@ int main(int argc, char **argv)
     traffic_signal_controller_service::tsc_service service;
     service.initialize();
     service.start();
-    return a.exec();
+    return QCoreApplication::exec();
 }

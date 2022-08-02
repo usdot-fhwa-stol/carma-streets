@@ -20,7 +20,7 @@ namespace traffic_signal_controller_service
         return true;
     }
 
-    void spat_worker::receive_spat(const shared_ptr<signal_phase_and_timing::spat> _spat_ptr) 
+    void spat_worker::receive_spat(const shared_ptr<signal_phase_and_timing::spat> _spat_ptr) const
     {
         std::vector<char> spat_buf = spat_listener->receive();
         ntcip::ntcip_1202_ext ntcip_1202_data;
