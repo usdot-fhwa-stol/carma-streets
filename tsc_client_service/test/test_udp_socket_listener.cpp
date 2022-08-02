@@ -41,7 +41,7 @@ namespace traffic_signal_controller_service
         }
         catch( const udp_socket_listener_exception &ex){
             SPDLOG_INFO("Catching correct exception");
-            // ASSERT_STREQ( ex.what(), "Timeout of 2 seconds has elapsed. Closing SPaT Work UDP Socket");
+            ASSERT_STREQ( ex.what(), "Timeout of 2 seconds has elapsed. Closing SPaT Work UDP Socket");
         }
         catch( ... ) {
             GTEST_FAIL();
@@ -62,7 +62,5 @@ namespace traffic_signal_controller_service
         udp_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
         bool initialized = listener.initialize();
         ASSERT_FALSE( initialized );
-        
-        
     }  
 }

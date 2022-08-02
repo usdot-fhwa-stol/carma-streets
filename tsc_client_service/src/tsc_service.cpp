@@ -77,7 +77,7 @@ namespace traffic_signal_controller_service {
         }
     }
 
-    void tsc_service::produce_spat_json() {
+    void tsc_service::produce_spat_json() const {
         try {
             while(true) {
                 spat_worker_ptr->receive_spat(spat_ptr);

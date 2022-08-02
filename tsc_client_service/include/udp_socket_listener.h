@@ -31,7 +31,7 @@ namespace traffic_signal_controller_service
              * @brief boolean to verify whether socket has successfully been created
              */
             bool socket_created_ = false; 
-
+                
             int sock = -1;
 
 
@@ -46,9 +46,11 @@ namespace traffic_signal_controller_service
              */
             udp_socket_listener(const std::string& ip, const int port, const int socket_timeout );
 
+            ~udp_socket_listener();
+
             bool initialize();
 
-            std::vector<char> receive();
+            std::vector<char> receive() const;
     };
 
     

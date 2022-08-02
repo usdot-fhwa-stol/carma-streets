@@ -45,7 +45,7 @@ namespace traffic_signal_controller_service {
 
             void start() ;
 
-            void produce_spat_json();
+            void produce_spat_json() const;
 
     };
 }
