@@ -8,73 +8,74 @@ namespace traffic_signal_controller_service
     }
 
     bool tsc_state::initialize() {
-
-        // Map signal group ids and phase nums
-        //Get phase number given a signal group id
-        int max_channels_in_tsc = get_max_channels();
-        std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
-        map_phase_and_signalgroup(vehicle_phase_channels);
-
-        // Get phase sequences for ring 1 and ring 2
-        phase_seq_ring1_ = phase_seq(1);
-        phase_seq_ring2_ = phase_seq(2);
-
-        // Define state of each signal group
-        for (const auto& signal_group : signal_group_phase_map_)
-        {
-            int phase_num = signal_group.second;
-            signal_group_state state;
-            state.phase_num = phase_num;
-            state.max_green = get_max_green(phase_num);
-            state.min_green = get_min_green(phase_num);
-            state.yellow_duration = get_yellow_duration(phase_num);
-            // Define green duration as min/max as decided
-            state.green_duration = state.min_green;
-            state.red_clearance = get_red_clearance(phase_num);
-            state.phase_seq = get_following_phases(phase_num);
-            state.concurrent_phases = get_concurrent_phases(phase_num);
-            signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
-        }
-
         try {
+            // Map signal group ids and phase nums
+            //Get phase number given a signal group id
+            int max_channels_in_tsc = get_max_channels();
+            std::vector<int> vehicle_phase_channels = get_vehicle_phase_channels(max_channels_in_tsc);
+            map_phase_and_signalgroup(vehicle_phase_channels);
+            
+            // Get phase sequences for ring 1 and ring 2
+            phase_seq_ring1_ = phase_seq(1);
+            phase_seq_ring2_ = phase_seq(2);
+
+            // Define state of each signal group
+            for (const auto& signal_group : signal_group_phase_map_)
+            {
+                int phase_num = signal_group.second;
+                signal_group_state state;
+                state.phase_num = phase_num;
+                state.max_green = get_max_green(phase_num);
+                state.min_green = get_min_green(phase_num);
+                state.yellow_duration = get_yellow_duration(phase_num);
+                // Define green duration as min/max as decided
+                state.green_duration = state.min_green;
+                state.red_clearance = get_red_clearance(phase_num);
+                state.phase_seq = get_following_phases(phase_num);
+                state.concurrent_phases = get_concurrent_phases(phase_num);
+                signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
+            }
+
+        
             // Loop through states once other state parameters are defined to get the red duration
             for(auto& state : signal_group_state_map_)
             {
                 
                 state.second.red_duration = get_red_duration(state.second.phase_num);
             }
-        } catch ( const snmp_client_exception &e) {
-            SPDLOG_ERROR("Error Occured calculating Red Duration : \n {0}", e.what());
-        }
-
-
-        // Print signal_group map
-        for (const auto& phase : signal_group_phase_map_)
-        {
-            SPDLOG_DEBUG("Signal group id: {0} phase: {1}", phase.first, phase.second);
-        }
-        // Print state map
-        for (const auto& state : signal_group_state_map_)
-        {
-            SPDLOG_DEBUG("Signal group id: {0}", state.first);
-            SPDLOG_DEBUG("Phase num: {0}", state.second.phase_num);
-            SPDLOG_DEBUG("Max green: {0}", state.second.max_green);
-            SPDLOG_DEBUG("Min green: {0}", state.second.min_green);
-            SPDLOG_DEBUG("Green Duration: {0}", state.second.green_duration);
-            SPDLOG_DEBUG("yellow duration: {0}", state.second.yellow_duration);
-            SPDLOG_DEBUG("Red clearance: {0}", state.second.red_clearance);
-            SPDLOG_DEBUG("Red duration: {0}", state.second.red_duration);
-
-            SPDLOG_DEBUG("Phase sequence:");
-            for(auto phase : state.second.phase_seq){
-                SPDLOG_DEBUG("{0}", phase);
-            }
-
-            SPDLOG_DEBUG("Concurrent Phases:");
-            for(auto phase : state.second.concurrent_phases){
-                SPDLOG_DEBUG("{0}", phase);
-            }
             
+            // Print signal_group map
+            for (const auto& phase : signal_group_phase_map_)
+            {
+                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", phase.first, phase.second);
+            }
+            // Print state map
+            for (const auto& state : signal_group_state_map_)
+            {
+                SPDLOG_DEBUG("Signal group id: {0}", state.first);
+                SPDLOG_DEBUG("Phase num: {0}", state.second.phase_num);
+                SPDLOG_DEBUG("Max green: {0}", state.second.max_green);
+                SPDLOG_DEBUG("Min green: {0}", state.second.min_green);
+                SPDLOG_DEBUG("Green Duration: {0}", state.second.green_duration);
+                SPDLOG_DEBUG("yellow duration: {0}", state.second.yellow_duration);
+                SPDLOG_DEBUG("Red clearance: {0}", state.second.red_clearance);
+                SPDLOG_DEBUG("Red duration: {0}", state.second.red_duration);
+
+                SPDLOG_DEBUG("Phase sequence:");
+                for(auto phase : state.second.phase_seq){
+                    SPDLOG_DEBUG("{0}", phase);
+                }
+
+                SPDLOG_DEBUG("Concurrent Phases:");
+                for(auto phase : state.second.concurrent_phases){
+                    SPDLOG_DEBUG("{0}", phase);
+                }
+                
+            }
+            return true;
+        }catch ( const snmp_client_exception &e ) {
+            SPDLOG_ERROR("Exception encounters during initialization: \n {0}",e.what());
+            return false;
         }
     }
 
@@ -104,10 +105,8 @@ namespace traffic_signal_controller_service
                 return sequence; 
             }
         }
-
+        // No following phase information found
         throw snmp_client_exception("No following phases found");
-        return sequence;
-
     }
 
     int tsc_state::get_max_channels() const {

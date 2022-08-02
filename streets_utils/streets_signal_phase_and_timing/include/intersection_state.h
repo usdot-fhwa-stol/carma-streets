@@ -199,7 +199,7 @@ namespace signal_phase_and_timing
          * @param offset_tenths_of_sec tenths of seconds from current time.
          * @return uint32_t tenths of seconds from current hour.
          */
-        uint32_t convert_offset(const uint16_t offset_tenths_of_sec );
+        uint16_t convert_offset(const uint16_t offset_tenths_of_sec ) const;
     };
 
 }

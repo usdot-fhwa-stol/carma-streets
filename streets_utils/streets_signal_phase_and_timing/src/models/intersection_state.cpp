@@ -83,7 +83,7 @@ namespace signal_phase_and_timing {
             }
             if ( val.FindMember("status")->value.IsUint()) {
                 // REQUIRED see J2735 IntersectionState definition
-                status =  val["status"].GetUint();
+                status =  (uint8_t) val["status"].GetUint();
             }
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");
@@ -171,9 +171,10 @@ namespace signal_phase_and_timing {
     void intersection_state::set_timestamp_ntcip(const uint32_t second_of_day, const uint16_t millisecond_of_second ) {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         time_t tt = std::chrono::system_clock::to_time_t(now);
-        tm utc_tm = *gmtime(&tt);
+        tm utc_tm;
+        gmtime_r(&tt, &utc_tm);
         // Day of the year * 24 hours * 60 minutes + second of the day / 60 = minute of the year
-        moy = utc_tm.tm_yday*24*60+ trunc(second_of_day/ 60); 
+        moy = (uint32_t)(utc_tm.tm_yday*24*60+ trunc(second_of_day/ 60)); 
         // Remaineder of (second of the day/ 60 ) * 1000 + millisecond of the current second
         time_stamp = ((second_of_day%60)*1000) + millisecond_of_second;
     }
@@ -182,22 +183,22 @@ namespace signal_phase_and_timing {
     void intersection_state::set_timestamp_local() {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         time_t tt = std::chrono::system_clock::to_time_t(now);
-        tm utc_tm = *gmtime(&tt);
-        moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
+        tm utc_tm;
+        gmtime_r(&tt, &utc_tm);
+        moy = (uint32_t)(utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min);
         auto millisecond_of_second = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
         // Millisecond of second + second of minute * 1000
-        time_stamp = millisecond_of_second + utc_tm.tm_sec*1000;
+        time_stamp = (uint16_t)(millisecond_of_second + utc_tm.tm_sec*1000);
        
     }
 
     void intersection_state::update_intersection_state( const uint8_t _status, const uint8_t message_count) {
-        status = status;
+        status = _status;
         revision = message_count;
     }
 
     movement_state& intersection_state::get_movement(const int signal_group_id ) {
-        // std::iterator<movement_state> it = states.begin();
-        for ( std::list<movement_state>::iterator it = states.begin(); it != states.end(); it++) {
+        for ( auto it = states.begin(); it != states.end(); it++) {
             if ( it->signal_group ==  signal_group_id ) {
                 return *it;
             }
@@ -211,7 +212,7 @@ namespace signal_phase_and_timing {
         }
         for (const auto &phase_2_sig_group : phase_number_to_signal_group) {
             movement_state state;
-            state.signal_group =  phase_2_sig_group.second;
+            state.signal_group = (uint8_t) phase_2_sig_group.second;
             states.push_back(state);
         }
     }
@@ -263,7 +264,7 @@ namespace signal_phase_and_timing {
         }
     }
 
-    uint32_t intersection_state::convert_offset( const uint16_t offset_tenths_of_seconds) {
+    uint16_t intersection_state::convert_offset( const uint16_t offset_tenths_of_seconds)  const{
         // Convert tenths of seconds to milliseconds
         int offset_ms = offset_tenths_of_seconds * 100;
 
@@ -286,6 +287,6 @@ namespace signal_phase_and_timing {
         double fractionSeconds = s.count() + (ms.count()/1000.0);
         double retTimeD = ((m.count() * 60) + fractionSeconds) * 10;
         SPDLOG_INFO("Converted offset {0} to {1}", offset_tenths_of_seconds, retTimeD);
-        return (uint32_t) retTimeD;
+        return (uint16_t) retTimeD;
     }
 }
