@@ -20,9 +20,8 @@ namespace traffic_signal_controller_service
             phase_seq_ring2_ = phase_seq(2);
 
             // Define state of each signal group
-            for (const auto& signal_group : signal_group_phase_map_)
+            for (const auto& [signal_group, phase_num] : signal_group_phase_map_)
             {
-                int phase_num = signal_group.second;
                 signal_group_state state;
                 state.phase_num = phase_num;
                 state.max_green = get_max_green(phase_num);
@@ -33,44 +32,43 @@ namespace traffic_signal_controller_service
                 state.red_clearance = get_red_clearance(phase_num);
                 state.phase_seq = get_following_phases(phase_num);
                 state.concurrent_phases = get_concurrent_phases(phase_num);
-                signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
+                signal_group_state_map_.try_emplace(signal_group, state);
             }
 
         
             // Loop through states once other state parameters are defined to get the red duration
-            for(auto& state : signal_group_state_map_)
+            for(auto& [signal_group, state] : signal_group_state_map_)
             {
                 
-                state.second.red_duration = get_red_duration(state.second.phase_num);
+                state.red_duration = get_red_duration(state.phase_num);
             }
             
             // Print signal_group map
-            for (const auto& phase : signal_group_phase_map_)
+            for (const auto& [signal_group, phase] : signal_group_phase_map_)
             {
-                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", phase.first, phase.second);
+                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", signal_group, phase);
             }
             // Print state map
-            for (const auto& state : signal_group_state_map_)
+            for (const auto& [signal_group, state] : signal_group_state_map_)
             {
-                SPDLOG_DEBUG("Signal group id: {0}", state.first);
-                SPDLOG_DEBUG("Phase num: {0}", state.second.phase_num);
-                SPDLOG_DEBUG("Max green: {0}", state.second.max_green);
-                SPDLOG_DEBUG("Min green: {0}", state.second.min_green);
-                SPDLOG_DEBUG("Green Duration: {0}", state.second.green_duration);
-                SPDLOG_DEBUG("yellow duration: {0}", state.second.yellow_duration);
-                SPDLOG_DEBUG("Red clearance: {0}", state.second.red_clearance);
-                SPDLOG_DEBUG("Red duration: {0}", state.second.red_duration);
+                SPDLOG_DEBUG("Signal group id: {0}", signal_group);
+                SPDLOG_DEBUG("Phase num: {0}", state.phase_num);
+                SPDLOG_DEBUG("Max green: {0}", state.max_green);
+                SPDLOG_DEBUG("Min green: {0}", state.min_green);
+                SPDLOG_DEBUG("Green Duration: {0}", state.green_duration);
+                SPDLOG_DEBUG("yellow duration: {0}", state.yellow_duration);
+                SPDLOG_DEBUG("Red clearance: {0}", state.red_clearance);
+                SPDLOG_DEBUG("Red duration: {0}", state.red_duration);
 
                 SPDLOG_DEBUG("Phase sequence:");
-                for(auto phase : state.second.phase_seq){
+                for(auto phase : state.phase_seq){
                     SPDLOG_DEBUG("{0}", phase);
                 }
 
                 SPDLOG_DEBUG("Concurrent Phases:");
-                for(auto phase : state.second.concurrent_phases){
+                for(auto phase : state.concurrent_phases){
                     SPDLOG_DEBUG("{0}", phase);
-                }
-                
+                }  
             }
             return true;
         }catch ( const snmp_client_exception &e ) {

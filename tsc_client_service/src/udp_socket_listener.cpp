@@ -12,8 +12,6 @@ namespace traffic_signal_controller_service
         addrinfo *result;
         timeval tv;
 
-        int max_data_size = 1000;
-
         //set addr info criteria for results to return
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = AF_UNSPEC;
@@ -50,9 +48,9 @@ namespace traffic_signal_controller_service
 
 
     std::vector<char> udp_socket_listener::receive()  {
+        // Max size 1 kb
         std::vector<char> spat_buf(1024);
         if (socket_created_) {
-            std::vector<char> spat_buf(1024);
             ssize_t bytes_received = recv(sock, spat_buf.data(), spat_buf.size(), 0);
             // see recv documentation https://man7.org/linux/man-pages/man2/recv.2.html#RETURN_VALUE
             if (bytes_received > 0)
@@ -71,6 +69,9 @@ namespace traffic_signal_controller_service
             else if (bytes_received == 0){
                 throw udp_socket_listener_exception("Connection terminated by server");
             }    
+        }
+        else {
+            SPDLOG_ERROR("UPD socket initialization failed or was never executed!");
         }
         return spat_buf;   
     }

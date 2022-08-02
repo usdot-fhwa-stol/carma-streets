@@ -284,9 +284,9 @@ namespace signal_phase_and_timing {
 
         std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp);
 
-        double fractionSeconds = s.count() + (ms.count()/1000.0);
-        double retTimeD = ((m.count() * 60) + fractionSeconds) * 10;
-        SPDLOG_INFO("Converted offset {0} to {1}", offset_tenths_of_seconds, retTimeD);
+        double fractionSeconds = ((double)s.count()) + ((double)ms.count()/1000.0);
+        double retTimeD = ((double)(m.count() * 60) + fractionSeconds) * 10.0;
+        SPDLOG_TRACE("Converted offset {0} to {1}", offset_tenths_of_seconds, retTimeD);
         return (uint16_t) retTimeD;
     }
 }

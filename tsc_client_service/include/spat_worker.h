@@ -66,7 +66,7 @@ namespace traffic_signal_controller_service
              * @throw udp_socket_listener_exception if the UDP socket fails to connect or the connection times out. The connection will timout 
              * after a configurable ammount of time if no data is received at UDP socket.
              */
-            void receive_spat(const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr) ; 
+            void receive_spat(const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr) const ; 
 
            
     };

@@ -99,7 +99,10 @@ namespace traffic_signal_controller_service {
 
     tsc_service::~tsc_service()
     {
-    
-
+        if (spat_producer)
+        {
+			SPDLOG_WARN("Stopping spat producer!");
+            spat_producer->stop();
+        }
     }
 }
