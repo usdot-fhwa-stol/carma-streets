@@ -12,15 +12,15 @@ namespace traffic_signal_controller_service
         int signal_group_id;
         /*Phase associated with signal group*/
         int phase_num;
-        /*Minimum green durations for each active vehicle phase in miiliseconds*/
+        /*Minimum green durations for each active vehicle phase in milliseconds*/
         int min_green;
-        /*Maximum green durations for each active vehicle phase in miiliseconds*/
+        /*Maximum green durations for each active vehicle phase in milliseconds*/
         int max_green;
-        /*Default Green duration for phase in miiliseconds*/
+        /*Default Green duration for phase in milliseconds*/
         int green_duration;
-        /*Yellow signal duration for phase in miiliseconds*/
+        /*Yellow signal duration for phase in milliseconds*/
         int yellow_duration;
-        /* Red clearace time for phase in miiliseconds*/
+        /* Red clearace time for phase in milliseconds*/
         int red_clearance;
         /*Red signal duration for phase. This is the total time a phase is predicted to be red before its next green. In milliseconds*/
         int red_duration;
