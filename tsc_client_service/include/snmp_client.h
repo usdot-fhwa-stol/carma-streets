@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "ntcip_oids.h"
+#include "snmp_client_exception.h"
 
 
 namespace traffic_signal_controller_service

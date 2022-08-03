@@ -16,18 +16,6 @@ namespace traffic_signal_controller_service {
     class tsc_service {
         private:
             /**
-             * @brief kafka broker host
-             */
-            std::string _bootstrap_server;
-            /**
-             * @brief Kafka spat topic group id
-             */
-            std::string _spat_group_id;
-            /**
-             * @brief kafka spat topic name
-             */
-            std::string _spat_topic_name;
-            /**
              * @brief Kafka producer for spat JSON
              */
             std::shared_ptr<kafka_clients::kafka_producer_worker> spat_producer;
@@ -70,6 +58,25 @@ namespace traffic_signal_controller_service {
              * @return false if not successful.
              */
             bool initialize();
+            
+            bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &spat_producer_topic );
+
+            bool initialize_snmp_client( const std::string &server_ip, const int server_port, const std::string &community,
+                                        const int snmp_version, const int timeout);
+
+            bool initialize_tsc_state( const std::shared_ptr<snmp_client> _snmp_client_ptr);
+
+            bool enable_spat() const;
+
+            bool initialize_spat_worker(const std::string &udp_socket_ip, const int udp_socket_port, 
+                                        const int timeout, const bool use_tsc_timestamp);
+            
+            bool initialize_intersection_client();
+
+            void initialize_spat( const std::string &intersection_name, const int intersection_id, 
+                                const std::unordered_map<int,int> &phase_number_to_signal_group);
+                    
+
             /**
              * @brief Method to start all threads included in the tsc_service.
              */

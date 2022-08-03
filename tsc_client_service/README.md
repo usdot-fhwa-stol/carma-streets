@@ -17,10 +17,11 @@ The final responsibility of the **TSC** is to make **SNMP SET** calls to the **T
 - HOLD
 - OMIT
 - FORCE_OFF
-Modification of the **TSC** default signal phase sequence and timing is done based on the output of the **SO Service (Signal Optimization)**. This output is referred to as the **Desired Phase Plan** and consists of 
+Modification of the **TSC** default signal phase sequence and timing is done based on the output of the **SO Service (Signal Optimization)**. This output is referred to as the **Desired Phase Plan** and consists of future desired phases and green timing intervals. The **TSC Service** will consume these messages from the **SO Service** on every phase transition (Yellow Change) and attempt to send the appropriate SNMP commands to NTCIP OIDs to make the **TSC** reflect this behavior. The **TSC Service** will also populate the JSON J2735 **SPaT** with **Desired Phase Plan** information as future state informat in the form of **MovementEvents** (See J2735 SPaT definition). 
 
 
 ## tsc_service
+The main class in the **TSC Service** is the `tsc_service` class. This class is used to load configuration values from the `manifest.json` file, initialize any objects, pointers, or workers and launch any joined or detached threads of execution. Some important data stored in this class include the `spat` pointer, which is the object which will be updated by NTCIP UDP update messages, desired phase plan messages,
 
 This information is requested and stored in the `tsc_state` object, which on intialization, uses an `snmp_client` to query this information from the TSC.
 

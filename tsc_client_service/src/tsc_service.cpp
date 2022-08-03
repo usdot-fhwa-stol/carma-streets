@@ -7,16 +7,11 @@ namespace traffic_signal_controller_service {
         try
         {
             // Intialize spat kafka producer
-            auto client = std::make_unique<kafka_clients::kafka_client>();
-            _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
-            _spat_topic_name = streets_service::streets_configuration::get_string_config("spat_producer_topic");
-            spat_producer = client->create_producer(_bootstrap_server, _spat_topic_name);
-            if (!spat_producer->init())
-            {
-                SPDLOG_CRITICAL("Kafka spat producer initialize error");
+            std::string bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
+            std::string spat_topic_name = streets_service::streets_configuration::get_string_config("spat_producer_topic");
+            if (!initialize_kafka_producer(bootstrap_server, spat_topic_name)) {
                 return false;
             }
-            SPDLOG_DEBUG("Initialized SPAT Kafka producer!");
             
             // Initialize SNMP Client
             std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
@@ -24,50 +19,32 @@ namespace traffic_signal_controller_service {
             std::string community = streets_service::streets_configuration::get_string_config("community");
             int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
             int timeout = streets_service::streets_configuration::get_int_config("timeout");
-            snmp_client_ptr = std::make_shared<snmp_client>(target_ip, target_port, community, snmp_version, timeout);
-            SPDLOG_DEBUG("SNMP Client initialized!");
+            if (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
+                return false;
+            }
             //Initialize TSC State
-            tsc_state_ptr = std::make_shared<tsc_state>(snmp_client_ptr );
-            if ( !tsc_state_ptr->initialize() ){
-                SPDLOG_ERROR("Failed to initialize tsc_state!");
+            if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
-            SPDLOG_DEBUG("TSC State initialized!");
-            // Enable SPaT 
-            snmp_response_obj enable_spat;
-            enable_spat.type = snmp_response_obj::response_type::INTEGER;
-            enable_spat.val_int = 2;
-            if (!snmp_client_ptr->process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type::SET, enable_spat)){
-                SPDLOG_ERROR("Failed to enable SPaT broadcasting on Traffic Signal Controller!");
+            // Enable SPaT
+            if (!enable_spat()) {
                 return false;
             }
-
-
             // Initialize spat_worker
             std::string socket_ip = streets_service::streets_configuration::get_string_config("udp_socket_ip");
             int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
             int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
             bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
-
-            spat_worker_ptr = std::make_shared<spat_worker>(socket_ip, socket_port, socket_timeout,use_msg_timestamp);
-            // HTTP request to update intersection information
-            if (!spat_worker_ptr->initialize())
-            {
-                SPDLOG_ERROR("Failed to initialize spat worker!");
+            if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
                 return false;
             }
-
-            intersection_client_ptr = std::make_shared<intersection_client>();
-            if ( !intersection_client_ptr->request_intersection_info() ) {
-                SPDLOG_ERROR("Failed to retrieve intersection information from intersection model!");
+            if (!initialize_intersection_client()) {
                 return false;
             }
-            spat_ptr =  std::make_shared<signal_phase_and_timing::spat>();
-            spat_ptr->initialize_intersection( 
-                    intersection_client_ptr->get_intersection_name(), 
-                    intersection_client_ptr->get_intersection_id(), 
-                    tsc_state_ptr->get_phase_num_map());
-
+            initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
+                                tsc_state_ptr->get_phase_num_map());
+            
+            // Initialize spat ptr
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -77,6 +54,83 @@ namespace traffic_signal_controller_service {
             return false;
         }
     }
+
+    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &spat_producer_topc) {
+        auto client = std::make_unique<kafka_clients::kafka_client>();
+        spat_producer = client->create_producer(bootstrap_server, spat_producer_topc);
+        if (!spat_producer->init())
+        {
+            SPDLOG_CRITICAL("Kafka spat producer initialize error");
+            return false;
+        }
+        SPDLOG_DEBUG("Initialized SPAT Kafka producer!");
+        return true;
+    }
+
+    bool tsc_service::initialize_snmp_client(const std::string &server_ip, const int server_port, const std::string &community,
+                                        const int snmp_version, const int timeout) {
+        try {
+            snmp_client_ptr = std::make_shared<snmp_client>(server_ip, server_port, community, snmp_version, timeout);
+            SPDLOG_DEBUG("SNMP Client initialized!");
+            return true;
+        }
+        catch (const snmp_client_exception &e) {
+            SPDLOG_ERROR("Exception encountered initializing snmp client : \n {0}", e.what());
+            return false;
+        }
+    }
+
+    bool tsc_service::initialize_tsc_state(const std::shared_ptr<snmp_client> _snmp_client_ptr ) {
+        tsc_state_ptr = std::make_shared<tsc_state>(_snmp_client_ptr );
+        if ( !tsc_state_ptr->initialize() ){
+            SPDLOG_ERROR("Failed to initialize tsc_state!");
+            return false;
+        }
+        SPDLOG_DEBUG("TSC State initialized!");
+        return true;
+    }
+    bool tsc_service::enable_spat() const{
+        // Enable SPaT 
+        snmp_response_obj enable_spat;
+        enable_spat.type = snmp_response_obj::response_type::INTEGER;
+        enable_spat.val_int = 2;
+        if (!snmp_client_ptr->process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type::SET, enable_spat)){
+            SPDLOG_ERROR("Failed to enable SPaT broadcasting on Traffic Signal Controller!");
+            return false;
+        }
+        SPDLOG_DEBUG("Enabled UDP broadcasting of NTCIP SPaT data from TSC!");
+        return true;
+    }
+
+    bool tsc_service::initialize_spat_worker(const std::string &udp_socket_ip, const int udp_socket_port, 
+                                        const int timeout, const bool use_tsc_timestamp) {
+        spat_worker_ptr = std::make_shared<spat_worker>(udp_socket_ip, udp_socket_port, timeout, use_tsc_timestamp);
+        // HTTP request to update intersection information
+        if (!spat_worker_ptr->initialize())
+        {
+            SPDLOG_ERROR("Failed to initialize spat worker!");
+            return false;
+        }
+        SPDLOG_DEBUG("Spat worker initialized successfully!");
+        return true;
+    }
+
+    bool tsc_service::initialize_intersection_client() {
+        intersection_client_ptr = std::make_shared<intersection_client>();
+        if ( !intersection_client_ptr->request_intersection_info() ) {
+            SPDLOG_ERROR("Failed to retrieve intersection information from intersection model!");
+            return false;
+        }
+        SPDLOG_DEBUG("Intersection client initialized successfully!");
+        return true;
+    }
+    
+    void tsc_service::initialize_spat(const std::string &intersection_name, const int intersection_id, 
+                                const std::unordered_map<int,int> &phase_number_to_signal_group) {
+        spat_ptr =  std::make_shared<signal_phase_and_timing::spat>();
+        spat_ptr->initialize_intersection( intersection_name, intersection_id, phase_number_to_signal_group);
+    }
+
 
     void tsc_service::produce_spat_json() const {
         try {
@@ -92,6 +146,8 @@ namespace traffic_signal_controller_service {
             SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
         }
     }
+
+    
 
     void tsc_service::start() {
         std::thread spat_t(&tsc_service::produce_spat_json, this);

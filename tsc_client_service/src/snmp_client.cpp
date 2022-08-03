@@ -36,6 +36,7 @@ snmp_client::snmp_client(const std::string& ip, const int& port, const std::stri
     {
         SPDLOG_ERROR("Failed to establish session with target device");
         snmp_sess_perror("snmpget", &session);
+        throw snmp_client_exception("Failed to establish session with target device");
     }
     else
     {
