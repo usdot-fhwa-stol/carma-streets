@@ -1,18 +1,17 @@
-#define RAPIDJSON_HAS_STDSTRING 1
 
-#include "intersection_schedule.h"
+#include "all_stop_intersection_schedule.h"
 
 namespace streets_vehicle_scheduler {
-    uint64_t intersection_schedule::get_delay() const{
-        uint64_t delay = 0; 
+    uint64_t all_stop_intersection_schedule::get_delay() const{
+        uint64_t delay = 0;
         for (const auto &veh_sched : vehicle_schedules ) {
             delay += veh_sched.et - veh_sched.st; 
         }
         return delay;
     }
 
-    std::string intersection_schedule::toCSV() const {
-	
+    std::string all_stop_intersection_schedule::toCSV() const {
+    
         std::string schedule_info = "";
         for (const auto &sched : vehicle_schedules ){
             schedule_info += std::to_string(timestamp) + ",";
@@ -37,19 +36,19 @@ namespace streets_vehicle_scheduler {
             schedule_info += "\n";	
         }
 
-	    return schedule_info;
+        return schedule_info;
     }
 
-    std::string intersection_schedule::toJson() const {
+    std::string all_stop_intersection_schedule::toJson() const {
         
         rapidjson::Document doc;
         doc.SetObject();
-		rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
+        rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
 
         rapidjson::Value metadata(rapidjson::kObjectType);
-		metadata.AddMember("timestamp", timestamp, allocator);
-		metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection", allocator);
-		doc.AddMember("metadata", metadata, allocator);
+        metadata.AddMember("timestamp", timestamp, allocator);
+        metadata.AddMember("intersection_type", "Carma/stop_controlled_intersection", allocator);
+        doc.AddMember("metadata", metadata, allocator);
 
         rapidjson::Value json_sched(rapidjson::kArrayType);
         for (const auto &veh_sched: vehicle_schedules ) {
@@ -58,22 +57,22 @@ namespace streets_vehicle_scheduler {
         doc.AddMember("payload", json_sched, allocator);
 
         rapidjson::StringBuffer buffer;                
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-		doc.Accept(writer);
-		std::string string_sched = buffer.GetString();
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        doc.Accept(writer);
+        std::string string_sched = buffer.GetString();
 
         return string_sched;
     }
 
-    rapidjson::Value vehicle_schedule::toJson(rapidjson::Document::AllocatorType& allocator) const {
+    rapidjson::Value all_stop_vehicle_schedule::toJson(rapidjson::Document::AllocatorType& allocator) const {
 
-        rapidjson::Value vehicle_schedule(rapidjson::kObjectType);
-        vehicle_schedule.AddMember("v_id", v_id, allocator);
-        vehicle_schedule.AddMember("st", st, allocator);
-        vehicle_schedule.AddMember("et", et, allocator);
-        vehicle_schedule.AddMember("dt", dt, allocator);
-        vehicle_schedule.AddMember("dp", dp, allocator);
-        vehicle_schedule.AddMember("access", access, allocator);
-        return vehicle_schedule;
+        rapidjson::Value vehicle_sched(rapidjson::kObjectType);
+        vehicle_sched.AddMember("v_id", v_id, allocator);
+        vehicle_sched.AddMember("st", st, allocator);
+        vehicle_sched.AddMember("et", et, allocator);
+        vehicle_sched.AddMember("dt", dt, allocator);
+        vehicle_sched.AddMember("dp", dp, allocator);
+        vehicle_sched.AddMember("access", access, allocator);
+        return vehicle_sched;
     }
 }

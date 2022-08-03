@@ -70,9 +70,9 @@ namespace streets_vehicle_scheduler {
              * business logic for scheduling vehicle while taking advantage of polymorphism to dynamically assign class at runtime.
              * 
              * @param vehicles unordered map of vehicles to schedule.
-             * @param schedule empty intersection_schedule object which is returned by reference to provide calculated scheduling information.
+             * @param schedule empty intersection_schedule shared pointer which is returned by reference to provide calculated scheduling information.
              */
-            virtual void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, intersection_schedule &schedule) = 0;
+            virtual void schedule_vehicles( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, std::shared_ptr<intersection_schedule> &schedule) = 0;
             /**
              * @brief Get the intersection info object
              * 

@@ -3,16 +3,16 @@
 #include <boost/range/algorithm/count.hpp>
 
 #include "vehicle_list.h"
-#include "all_stop_vehicle_scheduler.h"
+#include "signalized_vehicle_scheduler.h"
 
 using namespace streets_vehicles;
 using namespace streets_vehicle_scheduler;
 namespace {
     /**
-     * @brief Test class to test intersection_schedule toCSV and toJSON methods.
+     * @brief Test class to test signalized_intersection_schedule toCSV and toJSON methods.
      * 
      */
-    class all_stop_json_csv_schedule_test : public ::testing::Test {
+    class signalized_json_csv_schedule_test : public ::testing::Test {
     private:
 
        
@@ -20,14 +20,14 @@ namespace {
     protected:
         std::unordered_map<std::string, vehicle> veh_list;
 
-        std::unique_ptr<vehicle_scheduler> scheduler;
+        std::unique_ptr<signalized_vehicle_scheduler> scheduler;
 
         /**
          * @brief Test Setup method run before each test.
          * 
          */
         void SetUp() override {
-            scheduler = std::unique_ptr<all_stop_vehicle_scheduler>(new all_stop_vehicle_scheduler());
+            scheduler = std::unique_ptr<signalized_vehicle_scheduler>(new signalized_vehicle_scheduler());
             OpenAPI::OAIIntersection_info info;
             std::string json = "{\"departure_lanelets\":[{ \"id\":162, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":164, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":168, \"length\":34.130869420842046, \"speed_limit\":11.176 } ], \"entry_lanelets\":[ { \"id\":167, \"length\":195.73023157287864, \"speed_limit\":11.176 }, { \"id\":171, \"length\":34.130869411176431136, \"speed_limit\":11.176 }, { \"id\":163, \"length\":41.60952435603712, \"speed_limit\":11.176 } ], \"id\":9001, \"link_lanelets\":[ { \"conflict_lanelet_ids\":[ 161 ], \"id\":169, \"length\":15.85409574709938, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 165, 156, 161 ], \"id\":155, \"length\":16.796388658952235, \"speed_limit\":4.4704 }, { \"conflict_lanelet_ids\":[ 155, 161, 160 ], \"id\":165, \"length\":15.853947840111768943, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 155 ], \"id\":156, \"length\":9.744590320260139, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 169, 155, 165 ], \"id\":161, \"length\":16.043077028554038, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 165 ], \"id\":160, \"length\":10.295559117055083, \"speed_limit\":11.176 } ], \"name\":\"WestIntersection\"}";
             info.fromJson(QString::fromStdString(json));
@@ -54,48 +54,44 @@ namespace {
 /**
  * @brief Test with multiple vehicle for json schedule.
  */
-TEST_F(all_stop_json_csv_schedule_test, json_schedule){
-    all_stop_intersection_schedule schedule;
+TEST_F(signalized_json_csv_schedule_test, json_schedule){
+    signalized_intersection_schedule schedule;
     schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     // populated schedule 
-    all_stop_vehicle_schedule sched1;
-    sched1.access= true;
-    sched1.dp= 1;
+    signalized_vehicle_schedule sched1;
     sched1.state =streets_vehicles::vehicle_state::DV;
     sched1.entry_lane = 1;
-    sched1.link_id =2;
-    sched1.est = schedule.timestamp - 4000;
-    sched1.st =  schedule.timestamp - 4000;
-    sched1.et = schedule.timestamp - 3000;
-    sched1.dt =  schedule.timestamp + 4000;
+    sched1.link_id = 2;
+    sched1.eet = 0;
+    sched1.et = schedule.timestamp - 2000;
 
-    all_stop_vehicle_schedule sched2;
-    sched2.access= true;
-    sched2.dp= 2;
-    sched2.state =streets_vehicles::vehicle_state::RDV;
-    sched2.entry_lane = 3;
-    sched2.link_id =4;
-    sched2.est = schedule.timestamp - 2000;
-    sched2.st =  schedule.timestamp - 2000;
-    sched2.et = schedule.timestamp + 3000;
-    sched2.dt =  schedule.timestamp + 8000;
+    signalized_vehicle_schedule sched2;
+    sched2.state =streets_vehicles::vehicle_state::EV;
+    sched2.entry_lane = 1;
+    sched2.link_id = 2;
+    sched2.eet = schedule.timestamp + 2000;
+    sched2.et = schedule.timestamp + 2000;
 
-    all_stop_vehicle_schedule sched3;
-    sched3.access= true;
-    sched3.dp= 3;
+    signalized_vehicle_schedule sched3;
     sched3.state =streets_vehicles::vehicle_state::EV;
     sched3.entry_lane = 1;
-    sched3.link_id =2;
-    sched3.est = schedule.timestamp + 4000;
-    sched3.st =  schedule.timestamp + 6000;
-    sched3.et = schedule.timestamp + 8000;
-    sched3.dt =  schedule.timestamp + 16000;
+    sched3.link_id = 2;
+    sched3.eet = schedule.timestamp + 4000;
+    sched3.et =  schedule.timestamp + 6000;
+
+    signalized_vehicle_schedule sched4;
+    sched4.state =streets_vehicles::vehicle_state::EV;
+    sched4.entry_lane = 3;
+    sched4.link_id = 4;
+    sched4.eet = schedule.timestamp + 3000;
+    sched4.et =  schedule.timestamp + 10000;
 
     schedule.vehicle_schedules.push_back(sched1);
     schedule.vehicle_schedules.push_back(sched2);
     schedule.vehicle_schedules.push_back(sched3);
+    schedule.vehicle_schedules.push_back(sched4);
 
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
+    ASSERT_EQ( schedule.vehicle_schedules.size(), 4);
 
 
     std::string str_schedule = schedule.toJson();
@@ -116,48 +112,44 @@ TEST_F(all_stop_json_csv_schedule_test, json_schedule){
 /**
  * @brief Test with multiple vehicle for csv schedule.
  */
-TEST_F(all_stop_json_csv_schedule_test, csv_schedule){
-    all_stop_intersection_schedule schedule;
+TEST_F(signalized_json_csv_schedule_test, csv_schedule){
+    signalized_intersection_schedule schedule;
     schedule.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     // populated schedule 
-    all_stop_vehicle_schedule sched1;
-    sched1.access= true;
-    sched1.dp= 1;
+    signalized_vehicle_schedule sched1;
     sched1.state =streets_vehicles::vehicle_state::DV;
     sched1.entry_lane = 1;
-    sched1.link_id =2;
-    sched1.est = schedule.timestamp - 4000;
-    sched1.st =  schedule.timestamp - 4000;
-    sched1.et = schedule.timestamp - 3000;
-    sched1.dt =  schedule.timestamp + 4000;
+    sched1.link_id = 2;
+    sched1.eet = 0;
+    sched1.et = schedule.timestamp - 2000;
 
-    all_stop_vehicle_schedule sched2;
-    sched2.access= true;
-    sched2.dp= 2;
-    sched2.state =streets_vehicles::vehicle_state::RDV;
-    sched2.entry_lane = 3;
-    sched2.link_id =4;
-    sched2.est = schedule.timestamp - 2000;
-    sched2.st =  schedule.timestamp - 2000;
-    sched2.et = schedule.timestamp + 3000;
-    sched2.dt =  schedule.timestamp + 8000;
+    signalized_vehicle_schedule sched2;
+    sched2.state =streets_vehicles::vehicle_state::EV;
+    sched2.entry_lane = 1;
+    sched2.link_id = 2;
+    sched2.eet = schedule.timestamp + 2000;
+    sched2.et = schedule.timestamp + 2000;
 
-    all_stop_vehicle_schedule sched3;
-    sched3.access= true;
-    sched3.dp= 3;
+    signalized_vehicle_schedule sched3;
     sched3.state =streets_vehicles::vehicle_state::EV;
     sched3.entry_lane = 1;
-    sched3.link_id =2;
-    sched3.est = schedule.timestamp + 4000;
-    sched3.st =  schedule.timestamp + 6000;
-    sched3.et = schedule.timestamp + 8000;
-    sched3.dt =  schedule.timestamp + 16000;
+    sched3.link_id = 2;
+    sched3.eet = schedule.timestamp + 4000;
+    sched3.et =  schedule.timestamp + 6000;
+
+    signalized_vehicle_schedule sched4;
+    sched4.state =streets_vehicles::vehicle_state::EV;
+    sched4.entry_lane = 3;
+    sched4.link_id = 4;
+    sched4.eet = schedule.timestamp + 3000;
+    sched4.et =  schedule.timestamp + 10000;
 
     schedule.vehicle_schedules.push_back(sched1);
     schedule.vehicle_schedules.push_back(sched2);
     schedule.vehicle_schedules.push_back(sched3);
+    schedule.vehicle_schedules.push_back(sched4);
 
     int new_lines = boost::count( schedule.toCSV(), '\n');
-    ASSERT_EQ( new_lines, 3);
+    ASSERT_EQ( new_lines, 4);
 
 }

@@ -127,14 +127,14 @@ TEST_F(all_stop_scheduling_worker_test, schedule_vehicles)
     veh_map.insert({{veh_dv._id, veh_dv}, {veh_rdv1._id, veh_rdv1}, {veh_rdv2._id, veh_rdv2}});
 
 
-    intersection_schedule schedule = sched_worker -> schedule_vehicles(veh_map, scheduler);
+    std::shared_ptr<intersection_schedule> sched = sched_worker -> schedule_vehicles(veh_map, scheduler);
+    auto schedule = std::dynamic_pointer_cast<all_stop_intersection_schedule> (sched);
 
-
-    ASSERT_EQ( schedule.vehicle_schedules.size(), 3);
-    vehicle_schedule veh_dv_schedule;
-    vehicle_schedule veh_rdv1_schedule;
-    vehicle_schedule veh_rdv2_schedule;
-    for (auto veh_sched : schedule.vehicle_schedules){
+    ASSERT_EQ( schedule->vehicle_schedules.size(), 3);
+    all_stop_vehicle_schedule veh_dv_schedule;
+    all_stop_vehicle_schedule veh_rdv1_schedule;
+    all_stop_vehicle_schedule veh_rdv2_schedule;
+    for (auto veh_sched : schedule->vehicle_schedules){
         if (veh_sched.v_id == veh_dv._id){
             veh_dv_schedule = veh_sched;
         }
@@ -158,7 +158,7 @@ TEST_F(all_stop_scheduling_worker_test, schedule_vehicles)
     ASSERT_EQ(veh_rdv2_schedule.v_id, veh_rdv2._id);
     ASSERT_EQ(veh_rdv2_schedule.est, veh_rdv2._actual_st);
     ASSERT_EQ(veh_rdv2_schedule.st, veh_rdv2._actual_st);
-    ASSERT_EQ(veh_rdv2_schedule.et, schedule.timestamp);
+    ASSERT_EQ(veh_rdv2_schedule.et, schedule->timestamp);
     ASSERT_EQ(veh_rdv2_schedule.dp, 2);
     ASSERT_EQ(veh_rdv2_schedule.state, vehicle_state::DV);
     ASSERT_EQ(veh_rdv2_schedule.access, true);

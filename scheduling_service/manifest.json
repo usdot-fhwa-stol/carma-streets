@@ -21,6 +21,12 @@
             "type": "STRING"
         },
         {
+            "name": "spat_topic",
+            "value": "modified_spat",
+            "description":"Kafka topic to which the scheduling service will consume modified spat.",
+            "type": "STRING"
+        },
+        {
             "name": "group_id",
             "value": "group_1",
             "description": "Kafka consumer group ID.",
@@ -102,6 +108,18 @@
             "name": "int_client_request_attempts",
             "value": 10,
             "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "initial_green_buffer",
+            "value": 2000,
+            "description": "The time buffer in milliseconds to apply to the time when the phase will become green to avoid vehicles that are ahead of schedule entering before the phase is green.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "final_green_buffer",
+            "value": 2000,
+            "description": "Additional buffer in milliseconds for the end of a green phase that allows additional safety on top of the yellow clearance and red clearance.",
             "type": "INTEGER"
         }
     ]
