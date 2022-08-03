@@ -6,7 +6,7 @@ namespace traffic_signal_controller_service
 {
 
     spat_worker::spat_worker(const std::string& ip, const int& port, const int& socket_timeout, const bool use_msg_timestamp ) :
-                          socket_ip_(ip), socket_port_(port), socket_timeout_(socket_timeout), _use_msg_timestamp()
+                          socket_ip_(ip), socket_port_(port), socket_timeout_(socket_timeout), _use_msg_timestamp(use_msg_timestamp)
     {
         SPDLOG_DEBUG("Creating Spat Worker");
         

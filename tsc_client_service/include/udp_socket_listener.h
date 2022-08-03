@@ -45,8 +45,16 @@ namespace traffic_signal_controller_service
              * @param socketTimeout Timeout, in seconds, for udp socket to TSC
              */
             udp_socket_listener(const std::string& ip, const int port, const int socket_timeout );
-
+            /**
+             * @brief Destroy the udp socket listener
+             */
             ~udp_socket_listener();
+
+            // Remvoe copy constructor
+            udp_socket_listener(const udp_socket_listener &) = delete;
+            // Remove copy assignment operator
+            udp_socket_listener& operator=(const udp_socket_listener &) = delete;
+
 
             bool initialize();
 

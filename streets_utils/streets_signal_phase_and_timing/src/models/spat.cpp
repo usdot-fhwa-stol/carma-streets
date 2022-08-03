@@ -38,7 +38,7 @@ namespace signal_phase_and_timing{
         }
 
         if ( doc.HasMember("time_stamp") && doc.FindMember("time_stamp")->value.IsUint64()) {
-            timestamp =  doc["time_stamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
+            timestamp =  (uint32_t) doc["time_stamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
         } 
         if (doc.FindMember("name")->value.IsString() ) {
             name = doc["name"].GetString();  // OPTIONAL see J2735 SPaT definition
