@@ -36,6 +36,11 @@ namespace traffic_signal_controller_service
             bool socket_created_ = false; 
 
             /**
+             * @brief bool flag which controls whether spat_worker will use timestamp received from TSC
+             * of local system time to populate spat message.
+             */
+            bool _use_msg_timestamp;
+            /**
              * @brief UDP Socket listener to receive UDP NTCIP data packets from Traffic Signal Controller 
              * 
              */
@@ -49,8 +54,10 @@ namespace traffic_signal_controller_service
              * @param ip The ip address of the tsc_service
              * @param port The ethernet port to receive spat messages on
              * @param socketTimeout Timeout, in seconds, for udp socket to TSC
+             * @param use_msg_timestamp bool flag which controls whether spat_worker will use timestamp received from TSC
+             * of local system time to populate spat message.
              */
-            spat_worker(const std::string& ip, const int& port, const int& socket_timeout);
+            spat_worker(const std::string& ip, const int& port, const int& socket_timeout, const bool use_msg_timestamp);
             
             /**
              * @brief Initilaize UDP Listener socket.

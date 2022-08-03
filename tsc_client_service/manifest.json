@@ -65,6 +65,12 @@
             "value": "modified_spat",
             "description": "Kafka topic for streets internal SPAT messages",
             "type": "STRING"
+        },
+        {
+            "name": "use_tsc_timestamp",
+            "value": "FALSE",
+            "description": "Boolean flag on whether to use timestamp from traffic signal controller (tsc) and local system time for SPaT messages.",
+            "type": "BOOL"
         }
 
     ]

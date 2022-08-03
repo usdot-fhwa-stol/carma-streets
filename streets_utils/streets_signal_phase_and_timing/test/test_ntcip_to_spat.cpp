@@ -152,3 +152,21 @@ TEST_F( test_ntcip_to_spat, test_update) {
     ASSERT_EQ( event_cur_4.timing.min_end_time,intersection.convert_offset(38) );
     ASSERT_EQ( event_cur_4.timing.max_end_time,intersection.convert_offset(158) );
 }
+
+TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
+    // Assert Initiliazition added a single intersection with correct name and id
+    ASSERT_TRUE(!spat_ptr->intersections.empty());
+    intersection_state &intersection =  spat_ptr->intersections.front();
+    ASSERT_EQ( intersection.name , "Test Intersection" );
+    ASSERT_EQ( intersection.id , 12902 );
+    ASSERT_EQ( intersection.states.size(), phase_to_signal_group.size());
+
+    read_next_line();
+    SPDLOG_INFO("NTCIP SPat {0}", spat_ntcip_data.to_string());
+    spat_ptr->update( spat_ntcip_data, true);
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    time_t tt = std::chrono::system_clock::to_time_t(now);
+    tm utc_tm = *gmtime(&tt);
+    uint32_t moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
+    ASSERT_FALSE( intersection.moy == moy );
+}

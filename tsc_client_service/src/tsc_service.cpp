@@ -46,9 +46,10 @@ namespace traffic_signal_controller_service {
             // Initialize spat_worker
             std::string socket_ip = streets_service::streets_configuration::get_string_config("udp_socket_ip");
             int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
-            int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");            
+            int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
+            bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
 
-            spat_worker_ptr = std::make_shared<spat_worker>(socket_ip, socket_port, socket_timeout);
+            spat_worker_ptr = std::make_shared<spat_worker>(socket_ip, socket_port, socket_timeout,use_msg_timestamp);
             // HTTP request to update intersection information
             if (!spat_worker_ptr->initialize())
             {
