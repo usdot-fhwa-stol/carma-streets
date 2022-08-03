@@ -68,7 +68,7 @@
         },
         {
             "name": "use_tsc_timestamp",
-            "value": "FALSE",
+            "value": false,
             "description": "Boolean flag on whether to use timestamp from traffic signal controller (tsc) and local system time for SPaT messages.",
             "type": "BOOL"
         }

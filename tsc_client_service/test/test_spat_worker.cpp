@@ -5,7 +5,7 @@
 using namespace traffic_signal_controller_service;
 
 TEST(test_spat_worker, test_initialization) {
-    spat_worker worker("127.0.0.1", 67921, 2);
+    spat_worker worker("127.0.0.1", 67921, 2, false);
     auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
     ASSERT_TRUE( worker.initialize());
     try{
