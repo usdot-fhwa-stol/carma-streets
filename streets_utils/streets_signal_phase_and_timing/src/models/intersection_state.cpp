@@ -245,6 +245,8 @@ namespace signal_phase_and_timing {
             cur_event.event_state = movement_phase_state::dark;
         }
         // Set event timing
+        // TODO Calculate start time of a phase based on min_offset and min_green 
+        cur_event.timing.start_time = convert_offset(0);
         cur_event.timing.max_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_max_time_to_change());
         cur_event.timing.min_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_min_time_to_change());
 
