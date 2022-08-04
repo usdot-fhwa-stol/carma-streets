@@ -17,15 +17,20 @@ The final responsibility of the **TSC** is to make **SNMP SET** calls to the **T
 - HOLD
 - OMIT
 - FORCE_OFF
+
 Modification of the **TSC** default signal phase sequence and timing is done based on the output of the **SO Service (Signal Optimization)**. This output is referred to as the **Desired Phase Plan** and consists of future desired phases and green timing intervals. The **TSC Service** will consume these messages from the **SO Service** on every phase transition (Yellow Change) and attempt to send the appropriate SNMP commands to NTCIP OIDs to make the **TSC** reflect this behavior. The **TSC Service** will also populate the JSON J2735 **SPaT** with **Desired Phase Plan** information as future state informat in the form of **MovementEvents** (See J2735 SPaT definition). 
 
 
 ## tsc_service
-The main class in the **TSC Service** is the `tsc_service` class. This class is used to load configuration values from the `manifest.json` file, initialize any objects, pointers, or workers and launch any joined or detached threads of execution. Some important data stored in this class include the `spat` pointer, which is the object which will be updated by NTCIP UDP update messages, desired phase plan messages,
+The main class in the **TSC Service** is the `tsc_service` class. This class is used to load configuration values from the `manifest.json` file, initialize any objects and launches any joined or detached threads of execution. Some important data stored in this class include the `spat` pointer (see streets_utils/streets_signal_phase_and_timing/README.md) and  `tsc_state`. Some important classes initialize here as well include the `snmp_client`, `intersection_client`, `spat_worker` and a `kafka_producer` for producing modified SPaT JSON messages (see kafka_clients README.md).
 
 This information is requested and stored in the `tsc_state` object, which on intialization, uses an `snmp_client` to query this information from the TSC.
 
-The `snmp_client` is a class which encapsulates the **net-snmp** connection logic and converts SNMP responses to their `std::string` or `int` equivalents. The constructor requires **host**, **port**, **version**, **community** and **timeout** information to initialize a connection. To make a request simply use the `process_snmp_request` method. It requires 
+The `snmp_client` is a class which encapsulates the **net-snmp** connection logic and converts SNMP responses to their `std::string` or `int` equivalents. The constructor requires **host**, **port**, **version**, **community** and **timeout** information to initialize a connection. To make a request simply use the `process_snmp_request` method. It takes an **NTCIP OID** which describes the data you are querying/setting on the **TSC**, a **request_type** which is an enumeration describing whether you want to use SNMP SET/GET, and a `snmp_response_obj` which is a struct that will be populated by the metho with the SNMP server response.
+
+The `intersection_client` is a REST client implemented using the `streets_utils/streets_api/intersection_client_api` library ( see README.md for further documentation). It is used to obtain information from the J2735 MAP message, mainly the intersection id and intersection name, to populate the outgoing SPaT message.
+
+The `spat_worker` is a class which encapsulates a UDP socket listener. This socket listener, listens for UDP NTCIP data packets set from the **TSC** at 10 hz that provide traffic signal state information required for populating the **SPaT**. The `spat_worker` contains a method to consume a UDP datapacket and update the `spat` pointer which stores the most up-to-date information of the traffic signal controller state. The `tsc_service` `spat_thread` then continously consumes these messages and publishes the resulting **SPaT** JSON on the CARMA-Streets Kafka broker.
 
 
 
