@@ -13,10 +13,6 @@ namespace signal_phase_and_timing {
             throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");  
         }
         state.AddMember("id", id, allocator);
-        // REQUIRED see J2735 IntersectionState definition
-        if ( revision ==  255) {
-            throw signal_phase_and_timing_exception("IntersectionState is missing required revision property!");
-        }
         state.AddMember("revision", revision, allocator);
         // REQUIRED see J2735 IntersectionState definition
         state.AddMember("status", status, allocator);
