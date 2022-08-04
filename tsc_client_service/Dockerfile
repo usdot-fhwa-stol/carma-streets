@@ -102,16 +102,21 @@ WORKDIR /home/carma-streets/tsc_client_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 
-WORKDIR /home/
-
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
 LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="snmp_client"
-LABEL org.label-schema.description="Base image for snmp_client"
+LABEL org.label-schema.name="tsc_service"
+LABEL org.label-schema.description="Base image for tsc_service"
 LABEL org.label-schema.vendor="Leidos"
 LABEL org.label-schema.version="${VERSION}"
 LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/operations"
 LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets"
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
+
+# Add docker-compose-wait tool -------------------
+ENV WAIT_VERSION 2.7.2
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
+RUN chmod +x /wait
+
+CMD ["/home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"]
