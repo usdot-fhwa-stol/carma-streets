@@ -81,7 +81,14 @@ namespace traffic_signal_controller_service {
         try {
             while(true) {
                 spat_worker_ptr->receive_spat(spat_ptr);
+                try{
+                    tsc_state_ptr->get_future_movement_events(spat_ptr);
+                }
+                catch(const traffic_signal_controller_service::snmp_client_exception){
+                    SPDLOG_ERROR("Updating spat failure: {0} ", ex.what());
+                }
                 spat_producer->send(spat_ptr->toJson());
+                
             }
         }
         catch( const udp_socket_listener_exception &e) {

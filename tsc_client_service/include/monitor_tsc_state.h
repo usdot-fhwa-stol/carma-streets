@@ -52,6 +52,13 @@ namespace traffic_signal_controller_service
             /* The sequence of vehicle phases in ring 2 of TSC*/
             std::vector<int> phase_seq_ring2_;
 
+            // Number of required following movements on receiving a spat_ptr
+            int required_following_movements_ = 3;
+
+            // Conversion constants
+            int HOUR_TO_SECONDS_ = 3600;
+            int SECOND_TO_MILLISECONDS_ = 1000;
+
             /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
             **  @param max_channels The maximum number of channels in the traffic signal controller.
             **  @return a vector of active vehicle phases associated with a channel
@@ -118,6 +125,18 @@ namespace traffic_signal_controller_service
             * **/
             std::vector<int> get_concurrent_phases(int phase_num) const;
 
+            /** @brief Helper function to convert epoch time to hour-tenths time
+            ** @param epoch_time_ms epoch time in milliseconds
+            ** @return tenths of a second in current or next hour
+            * **/
+            uint16_t convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const;
+
+            /** @brief Helper function to convert hour-tenths time to epoch time
+            ** @param hour_tenth_secs tenths of a second in current or next hour
+            ** @return epoch time in milliseconds
+            * **/
+            uint64_t convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const;
+
         public:
 
             /** 
@@ -143,5 +162,11 @@ namespace traffic_signal_controller_service
              * 
              */
             bool initialize();
+            
+            /** @brief Updates spat with future movement events for vehicle phases
+            ** @param spat_ptr pointer to spat message to update
+            ** @return true if update was successful, false if it failed
+            * **/
+            bool get_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
     };
 }

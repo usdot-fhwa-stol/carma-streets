@@ -9,6 +9,7 @@ namespace traffic_signal_controller_service
 
     bool tsc_state::initialize() {
         try {
+            spat_ptr ->getfromtsc_service();
             // Map signal group ids and phase nums
             //Get phase number given a signal group id
             int max_channels_in_tsc = get_max_channels();
@@ -75,6 +76,97 @@ namespace traffic_signal_controller_service
             SPDLOG_ERROR("Exception encounters during initialization: \n {0}",e.what());
             return false;
         }
+    }
+
+    signal_phase_and_timing::movement_event& tsc_state::get_following_event(signal_phase_and_timing::movement_event& current_event,
+                                                                 uint16_t current_event_end_time, const signal_group_state& phase_state)
+    {
+        signal_phase_and_timing::movement_event next_event;
+        switch (current_event.event_state){
+            case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: //Green
+                // Create next movement - yellow
+                next_event.event_state = signal_phase_and_timing::movement_phase_state::protected_clearance;
+                next_event.timing.start_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time);
+                next_event.timing.min_end_time = current_event_end_time(current_event_end_time + phase_state.yellow_duration);
+                
+                break;
+
+            case signal_phase_and_timing::movement_phase_state::protected_clearance: //Yellow
+                // Create next movement - red
+                next_event.event_state = signal_phase_and_timing::movement_phase_state::stop_and_remain;
+                next_event.timing.start_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time); 
+                next_event.timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time + phase_state.red_duration);
+                
+                break;
+            case signal_phase_and_timing::movement_phase_state::stop_and_remain:  //Red
+                // Create next movement - green
+                next_event.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed;
+                next_event.timing.start_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time);
+                next_event.timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time + phase_state.green_duration);
+                
+                break;
+            default:
+                SPDLOG_ERROR("This movement phase is not supported. Movement phase type: {0}", movement.state_time_speed.front().event_state);
+                throw snmp_client_exception("Failed request for unsupported movement phase type: "<< movement.state_time_speed.front().event_state);
+        }
+        next_event.timing.max_end_time = next_event.timing.min_end_time;
+        return next_event;
+    }
+
+
+    bool tsc_state::get_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
+    {
+        // Modify spat according to phase configuration
+        // Note: Only first intersection is populated
+        for (auto movement : spat_ptr->intersections.front().states)
+        {
+            int signal_group_id = movement.signal_group;
+            // Get movement_state by reference
+            auto current_movement = spat_ptr->intersections.front().get_movement(signal_group_id);
+            // Get start time as epoch time
+            uint64_t start_time = movement.state_time_speed.front().timing.get_epoch_start_time();
+            
+            // Check if signal_group_id is associated with a vehicle phase : Only vehicle phases mapped to signal_group_states
+            signal_group_state phase_state;
+            if(signal_group_state_map_.find(signal_group_id) == signal_group_state_map_.end()){
+                continue;
+            }
+            
+            phase_state = signal_group_state_map_[signal_group_id];
+
+            uint64_t current_event_end_time = 0;
+            signal_phase_and_timing::movement_event current_event = current_movement.state_time_speed.front();
+
+            switch(current_event.event_state){
+                case signal_phase_and_timing::movement_phase_state::stop_and_remain : //Red
+                    current_event_end_time = start_time + phase_state.red_duration;
+                    break;
+
+                case signal_phase_and_timing::movement_phase_state::permissive_movement_allowed : //Green
+                    current_event_end_time = start_time + phase_state.green_duration;
+                    break;                                                                
+
+                case signal_phase_and_timing::movement_phase_state::permissive_clearance : //Yellow
+                    current_event_end_time = start_time + phase_state.yellow_duration
+                    break;
+
+                default:
+                    SPDLOG_ERROR("This movement phase is not supported. Movement phase type: {0}", current_movement.state_time_speed.front().event_state);
+                    return false; //TODO: Should this be an exit condition?
+            }
+            
+            
+            for(int i = 0; i < required_following_movements_; ++i)
+            {
+                signal_phase_and_timing::movement_event next_event = get_following_event(current_event, current_event_end_time, phase_state);
+                current_event = next_event;
+                current_event_end_time = convert_hour_tenth_secs2epoch_ts(next_event.timing.min_end_time);
+                //Add events to list
+                current_movement.state_time_speed.push_back(next_event);
+            }
+            
+        }
+        return true;
     }
 
     std::vector<int> tsc_state::get_following_phases(int phase_num)
@@ -332,5 +424,21 @@ namespace traffic_signal_controller_service
 
     std::unordered_map<int, signal_group_state> tsc_state::get_signal_group_state_map() const  {
         return signal_group_state_map_;
+    }
+
+    uint16_t tsc_state::convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const{
+        auto system_time = std::chrono::system_clock::now();
+        auto duration = system_time.time_since_epoch();
+        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+        auto hour_tenth_secs = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS_ * SECOND_TO_MILLISECONDS_))/100;
+        return hour_tenth_secs;
+    }
+
+    uint64_t tsc_state::convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const{
+        auto tp = std::chrono::system_clock::now();
+        auto duration = tp.time_since_epoch();
+        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+        auto epoch_start_time = hours_since_epoch * HOUR_TO_SECONDS_ * SECOND_TO_MILLISECONDS_ + hour_tenth_secs * 100;
+        return epoch_start_time;
     }
 }
