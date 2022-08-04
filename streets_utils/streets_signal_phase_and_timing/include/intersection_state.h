@@ -30,7 +30,7 @@ namespace signal_phase_and_timing
          */
         uint16_t id = 0;
 
-        uint8_t revision = -1;
+        uint8_t revision = 255;
 
         /**
          * @brief BIT String of IntersectionStatusObject:
