@@ -188,11 +188,6 @@ namespace signal_phase_and_timing {
        
     }
 
-    void intersection_state::update_intersection_state( const uint8_t _status, const uint8_t message_count) {
-        status = _status;
-        revision = message_count;
-    }
-
     movement_state& intersection_state::get_movement(const int signal_group_id ) {
         for ( auto it = states.begin(); it != states.end(); it++) {
             if ( it->signal_group ==  signal_group_id ) {

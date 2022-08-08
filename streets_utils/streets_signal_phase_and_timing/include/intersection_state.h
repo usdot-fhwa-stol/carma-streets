@@ -143,7 +143,7 @@ namespace signal_phase_and_timing
         uint64_t get_epoch_timestamp() const;
 
         /**
-         * @brief Set timestamp for intersection state based on NTCIP SPaT information
+         * @brief Set timestamp for intersection state based on NTCIP SPaT UDP message timestamp.
          * 
          * @param second_of_day 
          * @param millisecond_of_second 
@@ -155,13 +155,6 @@ namespace signal_phase_and_timing
          * 
          */
         void set_timestamp_local();
-        /**
-         * @brief Method to update status and message count
-         * 
-         * @param _status 
-         * @param message_count 
-         */
-        void update_intersection_state( const uint8_t _status, const uint8_t message_count);
 
         /**
          * @brief Method to update movement_state with signal_group_id using ntcip spat data.

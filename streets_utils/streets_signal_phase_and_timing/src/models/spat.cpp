@@ -109,8 +109,11 @@ namespace signal_phase_and_timing{
     void spat::update_intersection_state( ntcip::ntcip_1202_ext &spat_data ) {
         if ( !intersections.empty() ) {
             intersection_state &intersection = intersections.front();
-            intersection.update_intersection_state(spat_data.spat_intersection_status, spat_data.spat_message_seq_counter );
             intersection.update_movements(spat_data, phase_to_signal_group);
+            // Update Intersection Status
+            intersection.status = spat_data.spat_intersection_status;
+            // Update intersection message count (TODO: is this correct, SPaTPlugin just sets revision to 1)
+            intersection.revision = spat_data.spat_message_seq_counter;
         }
         else {
             throw signal_phase_and_timing_exception("Intersection State List is empty! Cannot populate status information!");
