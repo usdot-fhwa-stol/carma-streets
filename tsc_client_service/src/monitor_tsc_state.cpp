@@ -337,4 +337,14 @@ namespace traffic_signal_controller_service
 
         return concurrent_phases;
     }
+
+    const std::unordered_map<int,int>& tsc_state::get_ped_phase_map()
+    {
+        return vehicle_phase_num_map_;
+    }
+
+    const std::unordered_map<int,int>& tsc_state::get_vehicle_phase_map()
+    {
+        return ped_phase_num_map_;
+    }
 }

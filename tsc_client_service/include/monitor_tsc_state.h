@@ -53,7 +53,7 @@ namespace traffic_signal_controller_service
         /* The sequence of vehicle phases in ring 2 of TSC*/
         std::vector<int> phase_seq_ring2_;
 
-        /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
+        /** @brief Creates vectors of channels associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
         **  @param max_channels The maximum number of channels in the traffic signal controller.
         **  @param vehicle_phase_channels a vector of active vehicle phases associated with a channel
         **  @param ped_phase_channels a vector of active pedestrian phases associated with a channel
@@ -134,5 +134,17 @@ namespace traffic_signal_controller_service
         {
             return signal_group_state_map_;
         }        
+
+        /** 
+         * @brief Returns a map of pedestrian phases to signal group ids
+         * @return a map of pedestrian phases to signal group ids 
+        **/
+        const std::unordered_map<int,int> & get_ped_phase_map();
+
+        /** 
+         * @brief Returns a map of pedestrian phases to signal group ids
+         * @return a map of pedestrian phases to signal group ids
+        **/
+        const std::unordered_map<int,int>& get_vehicle_phase_map();
     };
 }
