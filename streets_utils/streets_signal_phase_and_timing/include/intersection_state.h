@@ -165,10 +165,14 @@ namespace signal_phase_and_timing
         void update_movement_state( ntcip::ntcip_1202_ext &spat_data, const int signal_group_id, const int phase_number);
 
         /**
-         * @brief Method to call update_method_state on all phase_number/signal groups.
+         * @brief Clears old movement event data for all movement_states. Adds one movement_event to the state_time_speed
+         * list as the current event for each movement state. Then calls update_movement_state on every phase number/signal
+         * group mapping included in the phase_number to signal group map. This method is meant to be executed each time a
+         * nticp_1202_ext UDP packet is received to update the current movement event data of each phase with the timing information
+         * received.
          * 
-         * @param spat_data 
-         * @param phase_number_to_signal_group 
+         * @param spat_data UDP TSC information.
+         * @param phase_number_to_signal_group phase number to signal group map. 
          */
         void update_movements( ntcip::ntcip_1202_ext &spat_data,const std::unordered_map<int,int> &phase_number_to_signal_group );
         /**
@@ -179,7 +183,9 @@ namespace signal_phase_and_timing
          */
         movement_state& get_movement(const int signal_group_id);
         /**
-         * @brief Initialize list<movement_state> to include a movement for each phase_numer/signal_group.
+         * @brief Initialize list<movement_state> to include a movement for each phase_numer/signal_group entry in the phase number
+         * to signal group map. This method is meant to be run once, while initializing the spat object to contain movement states
+         * for all relevant signal groups.
          * 
          * @param phase_number_to_signal_group std::unordered_map<int,int> of phase number (keys) to signal group (values). Map used to translate 
          * phase_number (NTICP) to signal group (J2735).
