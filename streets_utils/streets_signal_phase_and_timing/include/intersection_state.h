@@ -151,7 +151,7 @@ namespace signal_phase_and_timing
         void set_timestamp_ntcip(const uint32_t second_of_day , const uint16_t millisecond_of_second );
 
         /**
-         * @brief Set timestamp for intersection state based on machine time.
+         * @brief Set timestamp for intersection state based on host machine unix time.
          * 
          */
         void set_timestamp_local();
@@ -188,15 +188,16 @@ namespace signal_phase_and_timing
          * for all relevant signal groups.
          * 
          * @param phase_number_to_signal_group std::unordered_map<int,int> of phase number (keys) to signal group (values). Map used to translate 
-         * phase_number (NTICP) to signal group (J2735).
+         * phase_number (NTCIP) to signal group (J2735).
          */
         void initialize_movement_states(const std::unordered_map<int,int> &phase_number_to_signal_group);
         /**
-         * @brief Convert time offset (in tenths of seconds) from current time (NTCIP SPaT timing information) to
-         * tenths of seconds from current hour (J2735 SPaT) timing information.
+         * @brief Convert time offset (in tenths of seconds) from current time (NTCIP SPaT timing information units) to
+         * tenths of seconds from current hour (J2735 SPaT timing information units). For reference please see J2735 and 
+         * NTCIP documentation.
          * 
          * @param offset_tenths_of_sec tenths of seconds from current time.
-         * @return uint32_t tenths of seconds from current hour.
+         * @return uint16_t tenths of seconds from current hour.
          */
         uint16_t convert_offset(const uint16_t offset_tenths_of_sec ) const;
     };

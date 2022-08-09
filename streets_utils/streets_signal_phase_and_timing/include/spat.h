@@ -17,7 +17,7 @@
 namespace signal_phase_and_timing{
     struct spat{
         /**
-         * @brief Timestamp Minute of the UTC year
+         * @brief Timestamp in minutes of the UTC year (see J2735 SPaT message documentation for reference).
          */
         u_int32_t timestamp = 0;
         /**
@@ -47,14 +47,15 @@ namespace signal_phase_and_timing{
          */
         void fromJson(const std::string &json);
         /**
-         * @brief Update spat object data using ntcip_1202_ext spat data received via UDP socket. 
-         * Bool flag to control whether to use message provided timestamp or system timestamp.
+         * @brief Update spat object data using ntcip_1202_ext data received via UDP socket. 
+         * Bool flag to control whether to use ntcip_1202_ext message provided timestamp or 
+         * host unix timestamp information.
          * 
-         * @param spat_data bytes from UDP socket, read into a struct
-         * @param use_spat_timestamp bool flag to control whether to use message timestamp or system 
-         * time stamp. If true will use message timestamp. 
+         * @param ntcip_data bytes from UDP socket, read into a struct
+         * @param use_ntcip_timestamp Bool flag to control whether to use ntcip_1202_ext message provided timestamp or 
+         * host unix timestamp information. If true will use message timestamp. 
          */
-        void update(ntcip::ntcip_1202_ext &spat_data, bool use_spat_timestamp );
+        void update(ntcip::ntcip_1202_ext &ntcip_data, bool use_ntcip_timestamp );
 
         /**
          * @brief Method to initialize intersection information not provided in the ntcip SPaT UDP
@@ -72,8 +73,8 @@ namespace signal_phase_and_timing{
          * of a seconds_of_day and a milliseconds of second field. This method will get the current day from system time
          * and then apply seconds and milliseconds informat as a offset for the current day.
          * 
-         * @param second_of_day the message time of day in seconds
-         * @param millisecond_of_second the message millisecond of second timestamp
+         * @param second_of_day NTCIP message timestamp information (seconds of the current UTC day).
+         * @param millisecond_of_second NTCIP message timestamp information (millisecond of the current second).
          */
         void set_timestamp_ntcip(const uint32_t second_of_day , const uint16_t millisecond_of_second );
 
@@ -87,9 +88,9 @@ namespace signal_phase_and_timing{
          * @brief Method to update the front entry in the intersections list of
          * intersection_state(s) with the provided NTCIP SPaT data.
          * 
-         * @param spat_data 
+         * @param ntcip_data 
          */
-        void update_intersection_state( ntcip::ntcip_1202_ext &spat_data );
+        void update_intersection_state( ntcip::ntcip_1202_ext &ntcip_data );
 
         /**
          * @brief Equals operator to asses whether two objects contain equivalent data.

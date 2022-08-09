@@ -60,14 +60,18 @@ namespace signal_phase_and_timing{
         
     }
 
-    void spat::update( ntcip::ntcip_1202_ext &spat_data, bool use_spat_timestamp ){
-        if ( use_spat_timestamp ) {
-            set_timestamp_ntcip( spat_data.get_timestamp_seconds_of_day(), spat_data.spat_timestamp_msec);
+    void spat::update( ntcip::ntcip_1202_ext &ntcip_data, bool use_ntcip_timestamp ){
+        if ( phase_to_signal_group.empty() || intersections.front().name.empty() || intersections.front().id == 0) {
+            throw signal_phase_and_timing_exception("Before updating SPAT with NTCIP information spat::initialize() must be called! See README documentation!");
+        }
+        if ( use_ntcip_timestamp ) {
+            set_timestamp_ntcip( ntcip_data.get_timestamp_seconds_of_day(), ntcip_data.spat_timestamp_msec);
         } 
         else {
             set_timestamp_local();
         }
-        update_intersection_state( spat_data );
+        update_intersection_state( ntcip_data );
+        
         
         
     }
@@ -106,14 +110,14 @@ namespace signal_phase_and_timing{
         }
     }
 
-    void spat::update_intersection_state( ntcip::ntcip_1202_ext &spat_data ) {
+    void spat::update_intersection_state( ntcip::ntcip_1202_ext &ntcip_data ) {
         if ( !intersections.empty() ) {
             intersection_state &intersection = intersections.front();
-            intersection.update_movements(spat_data, phase_to_signal_group);
+            intersection.update_movements(ntcip_data, phase_to_signal_group);
             // Update Intersection Status
-            intersection.status = spat_data.spat_intersection_status;
+            intersection.status = ntcip_data.spat_intersection_status;
             // Update intersection message count (TODO: is this correct, SPaTPlugin just sets revision to 1)
-            intersection.revision = spat_data.spat_message_seq_counter;
+            intersection.revision = ntcip_data.spat_message_seq_counter;
         }
         else {
             throw signal_phase_and_timing_exception("Intersection State List is empty! Cannot populate status information!");

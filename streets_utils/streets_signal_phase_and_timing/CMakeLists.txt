@@ -50,9 +50,9 @@ file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 install(
     TARGETS ${PROJECT_NAME}_lib
     EXPORT ${PROJECT_NAME}_libTargets
-    LIBRARY DESTINATION lib/
-    INCLUDES DESTINATION include/
-    ARCHIVE DESTINATION lib/
+    LIBRARY DESTINATION lib
+    INCLUDES DESTINATION include
+    ARCHIVE DESTINATION lib
 )
 install(
     EXPORT ${PROJECT_NAME}_libTargets 

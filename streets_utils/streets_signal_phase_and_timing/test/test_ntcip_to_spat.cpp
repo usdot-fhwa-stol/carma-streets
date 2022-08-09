@@ -39,7 +39,7 @@ class test_ntcip_to_spat : public ::testing::Test {
         }
         
         /**
-         * @brief Conver string hex to char byte vector
+         * @brief Convert string hex to char byte vector
          * 
          * @param hex string hex to conver
          * @return std::vector<char> byte vector

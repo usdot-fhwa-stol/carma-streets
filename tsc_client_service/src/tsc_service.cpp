@@ -135,16 +135,19 @@ namespace traffic_signal_controller_service {
     void tsc_service::produce_spat_json() const {
         try {
             while(true) {
-                spat_worker_ptr->receive_spat(spat_ptr);
-                spat_producer->send(spat_ptr->toJson());
+                try {
+                    spat_worker_ptr->receive_spat(spat_ptr);
+                    spat_producer->send(spat_ptr->toJson());
+                }
+                catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
+                    SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+                }   
             }
         }
         catch( const udp_socket_listener_exception &e) {
             SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
         }
-        catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
-            SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
-        }
+        
     }
 
     
@@ -158,7 +161,7 @@ namespace traffic_signal_controller_service {
     {
         if (spat_producer)
         {
-			SPDLOG_WARN("Stopping spat producer!");
+            SPDLOG_WARN("Stopping spat producer!");
             spat_producer->stop();
         }
     }

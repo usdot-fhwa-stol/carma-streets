@@ -69,7 +69,7 @@
         {
             "name": "use_tsc_timestamp",
             "value": false,
-            "description": "Boolean flag on whether to use timestamp from traffic signal controller (tsc) and local system time for SPaT messages.",
+            "description": "If false will use host machine unix time for SPaT timestamp, If true will use ntcip message provided timestamp for SPaT timestamp.",
             "type": "BOOL"
         }
 

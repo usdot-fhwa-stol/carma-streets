@@ -13,7 +13,7 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
             "revision":123,
             "status":"01001001001",
             "moy":34232,
-            "time_stamp":130,
+            "timestamp":130,
             "enabled_lanes":[1,3,5],
             "states":[
                 {
@@ -122,4 +122,35 @@ To include this library in your CARMA-Streets service simply add the following t
 find_package( streets_signal_phase_and_timing_lib REQUIRED )
 ...
 target_link_libraries( <target> PUBLIC streets_signal_phase_and_timing_lib )
+```
+
+## Initializing SPaT Object for consuming NTCIP UDP data
+This `spat` object contains methods to update based on json SPaT updates or ntcip_1202_ext UDP data. For updating using JSON SPaT messages no initialization is required since each update will contain all the required information. Below is an example of how to consume an update.
+```
+std::string json; // This string needs to be populated with JSON spat update.
+auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+// Method to update spat based on SPaT JSON update
+spat_ptr->fromJson( json )
+```
+
+For consuming **NTCIP** UDP update messages the `spat` requires initialization since it requires mapping information between phase numbers (from NTCIP) to signal group ids (from J2735), intersection name, and intersection id not included in the UDP message. An example below illustrates this process.
+```
+auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+
+// Initialize methods takes parameters : std::string intersection_name (corresponds to J2735 intersection name from MAP 
+// SPaT), int intersection_id (corresponds to J2735 intersection id from MAP and SPaT), std::unordered_hashmap<int,int>
+// phase_number_to_signal_group (Map of phase numbers from NTCIP to signal groups defined in MAP. This information can be
+// obtained from the channeltable in the NTCIP server on the TSC, see monitor_tsc_state in tsc_service) 
+
+spat_ptr->initialize_intersection( intersection_name, intersection_id, phase_number_to_signal_group)
+
+std::vector<char> udp_packet                            // buffer of udp message( this needs to be populated from UDP socket!)
+ntcip::ntcip_1202_ext ntcip_1202_data;                  // struct with byte mapping to values for udp message
+
+// copy buffer into struct
+std::memcpy(&ntcip_1202_data, spat_buf.data(), spat_buf.size()); 
+
+spat_ptr->update(ntcip_1202_data, _use_msg_timestamp);  // use struct to update spat, bool flag controls whether to use 
+                                                        // host machine unix time(if false) or NTCIP UDP message timestamp 
+                                                        // (if true) 
 ```
