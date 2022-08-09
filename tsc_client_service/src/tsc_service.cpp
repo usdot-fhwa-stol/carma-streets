@@ -41,8 +41,13 @@ namespace traffic_signal_controller_service {
             if (!initialize_intersection_client()) {
                 return false;
             }
+            // Add all phases to a single map
+            auto all_phases = tsc_state_ptr->get_vehicle_phase_map();
+            auto ped_phases = tsc_state_ptr->get_ped_phase_map();
+            // Insert pedestrian phases into map of vehicle phases.
+            all_phases.insert(ped_phases.begin(), ped_phases.end());
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
-                                tsc_state_ptr->get_phase_num_map());
+                                all_phases);
             
             // Initialize spat ptr
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
