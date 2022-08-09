@@ -126,5 +126,10 @@ namespace traffic_signal_controller_service
             EXPECT_EQ(state.second.red_clearance,1);
         }
 
+        std::unordered_map<int,int> ped_phase_map = worker.get_ped_phase_map();
+        EXPECT_TRUE(ped_phase_map.empty());
+        std::unordered_map<int,int> vehicle_phase_map = worker.get_vehicle_phase_map();
+        EXPECT_FALSE(vehicle_phase_map.empty());
+
     }
 }

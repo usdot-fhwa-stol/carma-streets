@@ -12,15 +12,15 @@ namespace traffic_signal_controller_service
         int signal_group_id;
         /*Phase associated with signal group*/
         int phase_num;
-        /*Minimum green durations for each active vehicle phase in miiliseconds*/
+        /*Minimum green durations for each active vehicle phase in milliseconds*/
         int min_green;
-        /*Maximum green durations for each active vehicle phase in miiliseconds*/
+        /*Maximum green durations for each active vehicle phase in milliseconds*/
         int max_green;
         /*Default Green duration for phase in milliseconds*/
         int green_duration;
-        /*Yellow signal duration for phase in miiliseconds*/
+        /*Yellow signal duration for phase in milliseconds*/
         int yellow_duration;
-        /* Red clearace time for phase in miiliseconds*/
+        /* Red clearace time for phase in milliseconds*/
         int red_clearance;
         /*Red signal duration for phase. This is the total time a phase is predicted to be red before its next green. In milliseconds*/
         int red_duration;
@@ -43,24 +43,30 @@ namespace traffic_signal_controller_service
         std::unordered_map<int, signal_group_state> signal_group_state_map_;
 
         /* Map between phase numbers(key) and signal group ids(value) for all active vehicle phases in the Traffic Signal Controller*/
-        std::unordered_map<int,int> phase_num_map_;
+        std::unordered_map<int,int> vehicle_phase_num_map_;
+
+        /* Map between phase numbers(key) and signal group ids(value) for all active pedestrian phases in the Traffic Signal Controller*/
+        std::unordered_map<int,int> ped_phase_num_map_;
 
         /* The sequence of vehicle phases in ring 1 of TSC*/
         std::vector<int> phase_seq_ring1_;
         /* The sequence of vehicle phases in ring 2 of TSC*/
         std::vector<int> phase_seq_ring2_;
 
-        /** @brief Returns a vector of channels associated with a vehicle phase. Ignores pedestrian phase, overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
+        /** @brief Creates vectors of channels associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
         **  @param max_channels The maximum number of channels in the traffic signal controller.
-        **  @return a vector of active vehicle phases associated with a channel
+        **  @param vehicle_phase_channels a vector of active vehicle phases associated with a channel
+        **  @param ped_phase_channels a vector of active pedestrian phases associated with a channel
         **/
-        std::vector<int> get_vehicle_phase_channels(int max_channels) const;
+        void get_phase_channels(int max_channels, std::vector<int>& vehicle_phase_channels, std::vector<int>& ped_phase_channels) const;
 
         /** @brief Constructs a map between phase number and signal group ids
-        ** @param vehicle_phase_channels a vector of channel numbers in the traffic signal controller associated with a vehicle phase
+        ** @param phase_channels a vector of channel numbers in the traffic signal controller associated with a phase
+        ** @param is_source_vehicle_channel a boolean that indicates whether the phase_channels arg is for channels associated with vehicle phases. 
+        ** In case they are not its assumed that they are pedestrian phases
         * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
         * **/
-        void map_phase_and_signalgroup(const std::vector<int>& vehicle_phase_channels);
+        void map_phase_and_signalgroup(const std::vector<int>& phase_channels, bool is_source_vehicle_channel);
 
         /** 
          * @brief Method for getting maximum channels for the traffic signal controller
@@ -128,5 +134,17 @@ namespace traffic_signal_controller_service
         {
             return signal_group_state_map_;
         }        
+
+        /** 
+         * @brief Returns a map of pedestrian phases to signal group ids
+         * @return a map of pedestrian phases to signal group ids 
+        **/
+        const std::unordered_map<int,int> & get_ped_phase_map();
+
+        /** 
+         * @brief Returns a map of pedestrian phases to signal group ids
+         * @return a map of pedestrian phases to signal group ids
+        **/
+        const std::unordered_map<int,int>& get_vehicle_phase_map();
     };
 }
