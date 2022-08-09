@@ -230,6 +230,7 @@ namespace signal_phase_and_timing {
             }
         }
         else if ( spat_data.get_phase_green_status(phase_number)) {
+            // TODO: Add Support Permissive Green Phase
             cur_event.event_state = movement_phase_state::protected_movement_allowed;
         }
         else {

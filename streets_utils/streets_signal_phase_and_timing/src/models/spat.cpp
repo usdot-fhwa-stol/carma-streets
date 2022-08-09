@@ -116,8 +116,8 @@ namespace signal_phase_and_timing{
             intersection.update_movements(ntcip_data, phase_to_signal_group);
             // Update Intersection Status
             intersection.status = ntcip_data.spat_intersection_status;
-            // Update intersection message count (TODO: is this correct, SPaTPlugin just sets revision to 1)
-            intersection.revision = ntcip_data.spat_message_seq_counter;
+            // From V2X-Hub TODO: Investigate
+            intersection.revision = 1;
         }
         else {
             throw signal_phase_and_timing_exception("Intersection State List is empty! Cannot populate status information!");

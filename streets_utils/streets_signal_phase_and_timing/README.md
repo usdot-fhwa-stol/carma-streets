@@ -4,7 +4,7 @@
 This CARMA-Streets library is meant to handle JSON serialization and deserialization for the CARMA-Streets internal SPaT JSON message. The message structure is heavily based on the J2735 SPaT message but does not contain any regional extension data since we are currently not using it. Below is a sample SPaT JSON message created by this library.
 ```
 {
-    "timestamp":0,
+    "time_stamp":130,
     "name":"",
     "intersections":[
         {
@@ -13,7 +13,7 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
             "revision":123,
             "status":"01001001001",
             "moy":34232,
-            "timestamp":130,
+            "time_stamp":130,
             "enabled_lanes":[1,3,5],
             "states":[
                 {
