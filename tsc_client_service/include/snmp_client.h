@@ -3,7 +3,14 @@
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <fstream>
-# include "streets_configuration.h"
+#include <iostream>
+#include <bits/stdc++.h> 
+#include <chrono>
+#include <sstream>
+
+#include "ntcip_oids.h"
+#include "snmp_client_exception.h"
+
 
 namespace traffic_signal_controller_service
 {
@@ -102,10 +109,7 @@ class snmp_client
         virtual void log_error(const int& status, const request_type& request_type, snmp_pdu *response) const;
 
         /** @brief Destructor for client. Closes the snmp session**/
-        virtual ~snmp_client(){
-            SPDLOG_INFO("Closing snmp session");
-            snmp_close(ss);
-        }
+        virtual ~snmp_client();
 
 };
 } //namespace traffic_signal_controller_service

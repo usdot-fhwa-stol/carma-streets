@@ -13,15 +13,8 @@ namespace signal_phase_and_timing {
             throw signal_phase_and_timing_exception("IntersectionState is missing required id property!");  
         }
         state.AddMember("id", id, allocator);
-        // REQUIRED see J2735 IntersectionState definition
-        if ( revision ==  0) {
-            throw signal_phase_and_timing_exception("IntersectionState is missing required revision property!");
-        }
         state.AddMember("revision", revision, allocator);
         // REQUIRED see J2735 IntersectionState definition
-        if ( status.empty() ) {
-            throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");  
-        }
         state.AddMember("status", status, allocator);
         if ( moy == 0 ) {
             throw signal_phase_and_timing_exception("IntersectionState is missing required moy property!");
@@ -84,9 +77,9 @@ namespace signal_phase_and_timing {
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required revision property!");
             }
-            if ( val.FindMember("status")->value.IsString()) {
+            if ( val.FindMember("status")->value.IsUint()) {
                 // REQUIRED see J2735 IntersectionState definition
-                status =  val["status"].GetString();
+                status =  (uint8_t) val["status"].GetUint();
             }
             else {
                throw signal_phase_and_timing_exception("IntersectionState is missing required status property!");
@@ -169,5 +162,125 @@ namespace signal_phase_and_timing {
     uint64_t intersection_state::get_epoch_timestamp() const{
        auto epoch_timestamp = convert_min_mills2epoch_ts(moy, time_stamp);
        return epoch_timestamp;
+    }
+
+    void intersection_state::set_timestamp_ntcip(const uint32_t second_of_day, const uint16_t millisecond_of_second ) {
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        time_t tt = std::chrono::system_clock::to_time_t(now);
+        tm utc_tm;
+        gmtime_r(&tt, &utc_tm);
+        // Day of the year * 24 hours * 60 minutes + second of the day / 60 = minute of the year
+        moy = (uint32_t)(utc_tm.tm_yday*24*60+ trunc(second_of_day/ 60)); 
+        // Remaineder of (second of the day/ 60 ) * 1000 + millisecond of the current second
+        time_stamp = ((second_of_day%60)*1000) + millisecond_of_second;
+    }
+       
+
+    void intersection_state::set_timestamp_local() {
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        time_t tt = std::chrono::system_clock::to_time_t(now);
+        tm utc_tm;
+        gmtime_r(&tt, &utc_tm);
+        moy = (uint32_t)(utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min);
+        auto millisecond_of_second = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
+        // Millisecond of second + second of minute * 1000
+        time_stamp = (uint16_t)(millisecond_of_second + utc_tm.tm_sec*1000);
+       
+    }
+
+    movement_state& intersection_state::get_movement(const int signal_group_id ) {
+        for ( auto it = states.begin(); it != states.end(); it++) {
+            if ( it->signal_group ==  signal_group_id ) {
+                return *it;
+            }
+        }
+        throw signal_phase_and_timing_exception("No movement_state found for movement with signal group id " + std::to_string(signal_group_id) + "!");   
+    }
+
+    void intersection_state::initialize_movement_states( const std::unordered_map<int,int> &phase_number_to_signal_group) {
+        if (!states.empty()) {
+            states.clear();
+        }
+        for (const auto &phase_2_sig_group : phase_number_to_signal_group) {
+            movement_state state;
+            state.signal_group = (uint8_t) phase_2_sig_group.second;
+            states.push_back(state);
+        }
+    }
+
+    void intersection_state::update_movement_state( ntcip::ntcip_1202_ext &spat_data, const int signal_group_id, const int phase_number ) {
+        movement_state &movement = get_movement(signal_group_id);
+        // Get current movement_event
+        movement_event &cur_event = movement.state_time_speed.front();
+        // Set event state 
+        bool is_flashing = spat_data.get_phase_flashing_status( phase_number );
+        if ( spat_data.get_phase_red_status(phase_number) ) {
+            if (is_flashing) {
+                cur_event.event_state = movement_phase_state::stop_then_proceed; 
+            }else {
+                cur_event.event_state =  movement_phase_state::stop_and_remain;
+            }
+
+        }
+        else if ( spat_data.get_phase_yellow_status( phase_number ) ) {
+            if ( is_flashing ) {
+                cur_event.event_state =  movement_phase_state::caution_conflicting_traffic;
+            }else {
+                cur_event.event_state =  movement_phase_state::protected_clearance;
+            }
+        }
+        else if ( spat_data.get_phase_green_status(phase_number)) {
+            // TODO: Add Support Permissive Green Phase
+            cur_event.event_state = movement_phase_state::protected_movement_allowed;
+        }
+        else {
+            cur_event.event_state = movement_phase_state::dark;
+        }
+        // Set event timing
+        // TODO Calculate start time of a phase based on min_offset and min_green 
+        cur_event.timing.start_time = convert_offset(0);
+        cur_event.timing.max_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_max_time_to_change());
+        cur_event.timing.min_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_min_time_to_change());
+
+    }
+
+    void intersection_state::update_movements(ntcip::ntcip_1202_ext &spat_data, const std::unordered_map<int,int> &phase_number_to_signal_group ) {
+        for ( auto &move_state : states ) {
+            // Clear any previous movement events
+            move_state.state_time_speed.clear();
+            // Add current movement_event
+            movement_event cur_event;
+            move_state.state_time_speed.push_front(cur_event);
+        }
+        
+        for ( const auto &phase_2_signal_group : phase_number_to_signal_group ) {
+            update_movement_state(spat_data, phase_2_signal_group.second, phase_2_signal_group.first);
+        }
+    }
+
+    uint16_t intersection_state::convert_offset( const uint16_t offset_tenths_of_seconds)  const{
+        // Convert tenths of seconds to milliseconds
+        int offset_ms = offset_tenths_of_seconds * 100;
+
+        std::chrono::system_clock::time_point nowTimePoint = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point nowPlusOffsetTimePoint = nowTimePoint +  std::chrono::milliseconds(offset_ms);
+
+        std::chrono::system_clock::duration tp = nowPlusOffsetTimePoint.time_since_epoch();
+
+        std::chrono::hours h =  std::chrono::duration_cast<std::chrono::hours>(tp);
+        tp -= h;
+
+        std::chrono::minutes m =  std::chrono::duration_cast<std::chrono::minutes>(tp);
+        tp -= m;
+
+        std::chrono::seconds s =  std::chrono::duration_cast<std::chrono::seconds>(tp);
+        tp -= s;
+
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp);
+
+        double fractionSeconds = ((double)s.count()) + ((double)ms.count()/1000.0);
+        double retTimeD = ((double)(m.count() * 60) + fractionSeconds) * 10.0;
+        SPDLOG_TRACE("Converted offset {0} to {1}", offset_tenths_of_seconds, retTimeD);
+        return (uint16_t) retTimeD;
     }
 }

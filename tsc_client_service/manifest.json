@@ -35,24 +35,43 @@
         },
         {
             
-            "name": "local_ip",
+            "name": "udp_socket_ip",
             "value": "127.0.0.1",
-            "description": "local carma streets IP address",
+            "description": "IP for UDP socket listener to listen on. Should be localhost IP of container or VM running TSC Service.",
             "type": "STRING"
         },
         {
             
-            "name": "local_udp_port",
+            "name": "udp_socket_port",
             "value": 6053,
-            "description": "local port to receive spat messages on from TSC",
+            "description": "Port for UDP Socket Listener to list on. TSC configuration sets which port/host NTCIP SPaT data will be broadcast to.",
             "type": "INTEGER"
         },
         {
             
             "name": "socket_timeout",
-            "value": 10,
-            "description": "timeout in seconds for udp socket to TSC",
+            "value": 100,
+            "description": "Timeout in seconds for UDP Socket Listener. If UDP Socket Listener does not receive messages for this amount of time it will shutdown and thrown an exception. ",
             "type": "INTEGER"
+        },
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        },
+        {
+            "name": "spat_producer_topic",
+            "value": "modified_spat",
+            "description": "Kafka topic for streets internal SPAT messages",
+            "type": "STRING"
+        },
+        {
+            "name": "use_tsc_timestamp",
+            "value": false,
+            "description": "If false will use host machine unix time for SPaT timestamp, If true will use ntcip message provided timestamp for SPaT timestamp.",
+            "type": "BOOL"
         }
+
     ]
 }

@@ -8,6 +8,7 @@
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>
+#include <list>
 
 
 namespace signal_phase_and_timing{

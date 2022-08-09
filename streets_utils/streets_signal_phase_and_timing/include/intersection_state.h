@@ -3,10 +3,13 @@
 #include "movement_state.h"
 #include "connection_maneuver_assist.h"
 #include "signal_phase_and_timing_exception.h"
+#include "ntcip_1202_ext.h"
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>
 #include <list>
+#include <chrono>
+
 
 namespace signal_phase_and_timing
 {
@@ -70,7 +73,7 @@ namespace signal_phase_and_timing
          * } (SIZE(16))
          *
          */
-        std::string status;
+        uint8_t status;
         /**
          * @brief Minute of current UTC year.
          */
@@ -138,6 +141,68 @@ namespace signal_phase_and_timing
          * @return ** uint64_t epoch timestamp in unit of milliseconds
          */
         uint64_t get_epoch_timestamp() const;
+
+        /**
+         * @brief Set timestamp for intersection state based on NTCIP SPaT UDP message timestamp which is
+         * transmitted as second of the UTC day and millisecond of the UTC second. This information can be
+         * combined with the unix host time day of the year to get minute of the UTC year and millisecond of 
+         * the UTC minute (J2735 Intersection State timeStamp units).
+         * 
+         * @param second_of_day second of the UTC year.
+         * @param millisecond_of_second millisecond of the UTC second.
+         */
+        void set_timestamp_ntcip(const uint32_t second_of_day , const uint16_t millisecond_of_second );
+
+        /**
+         * @brief Set timestamp for intersection state based on host machine unix time.
+         * 
+         */
+        void set_timestamp_local();
+
+        /**
+         * @brief Method to update movement_state with signal_group_id using ntcip spat data.
+         * 
+         * @param spat_data NTCIP SPaT data.
+         * @param signal_group_id signal group id of movement to update. 
+         */
+        void update_movement_state( ntcip::ntcip_1202_ext &spat_data, const int signal_group_id, const int phase_number);
+
+        /**
+         * @brief Clears old movement event data for all movement_states. Adds one movement_event to the state_time_speed
+         * list as the current event for each movement state. Then calls update_movement_state on every phase number/signal
+         * group mapping included in the phase_number to signal group map. This method is meant to be executed each time a
+         * nticp_1202_ext UDP packet is received to update the current movement event data of each phase with the timing information
+         * received.
+         * 
+         * @param spat_data UDP TSC information.
+         * @param phase_number_to_signal_group phase number to signal group map. 
+         */
+        void update_movements( ntcip::ntcip_1202_ext &spat_data,const std::unordered_map<int,int> &phase_number_to_signal_group );
+        /**
+         * @brief Return reference to movement_state for signal group
+         * 
+         * @param signal_group_id 
+         * @return movement_state& 
+         */
+        movement_state& get_movement(const int signal_group_id);
+        /**
+         * @brief Initialize list<movement_state> to include a movement for each phase_numer/signal_group entry in the phase number
+         * to signal group map. This method is meant to be run once, while initializing the spat object to contain movement states
+         * for all relevant signal groups.
+         * 
+         * @param phase_number_to_signal_group std::unordered_map<int,int> of phase number (keys) to signal group (values). Map used to translate 
+         * phase_number (NTCIP) to signal group (J2735).
+         */
+        void initialize_movement_states(const std::unordered_map<int,int> &phase_number_to_signal_group);
+        /**
+         * @brief Convert time offset (in tenths of seconds) from current time (NTCIP SPaT timing information units) to
+         * tenths of seconds from current hour (J2735 SPaT timing information units). For reference please see J2735 and 
+         * NTCIP documentation.
+         * 
+         * @param offset_tenths_of_sec tenths of seconds from current time.
+         * @return uint16_t tenths of seconds from current hour.
+         */
+        uint16_t convert_offset(const uint16_t offset_tenths_of_sec ) const;
     };
 
 }

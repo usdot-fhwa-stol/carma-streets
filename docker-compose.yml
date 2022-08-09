@@ -56,7 +56,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
 
   php:
-    image: usdotfhwaops/php:7.1
+    image: usdotfhwaops/php:latest
     container_name: php
     network_mode: host
     depends_on:
@@ -65,7 +65,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:7.1
+    image: usdotfhwaops/v2xhubamd:latest
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -166,6 +166,29 @@ services:
     volumes: 
       - ./signal_opt_service/manifest.json:/home/carma-streets/signal_opt_service/manifest.json
       - ./signal_opt_service/logs/:/home/carma-streets/signal_opt_service/logs/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+  tsc_service:
+    image: usdotfhwastoldev/tsc_service:develop
+    command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
+    build: 
+      context: .
+      dockerfile: tsc_client_service/Dockerfile
+    container_name: tsc_service
+    restart: always
+    network_mode: host
+    depends_on:
+      - kafka
+      - intersection_model
+    environment:
+      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      WAIT_HOSTS: localhost:8080
+      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_SLEEP_INTERVAL: 30
+      WAIT_HOST_CONNECT_TIMEOUT: 30
+    volumes: 
+      - ./tsc_client_service/manifest.json:/home/carma-streets/tsc_client_service/manifest.json
+      - ./tsc_client_service/logs/:/home/carma-streets/tsc_client_service/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 secrets:
