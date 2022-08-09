@@ -50,7 +50,7 @@ namespace traffic_signal_controller_service
              */
             ~udp_socket_listener();
 
-            // Remvoe copy constructor
+            // Remove copy constructor
             udp_socket_listener(const udp_socket_listener &) = delete;
             // Remove copy assignment operator
             udp_socket_listener& operator=(const udp_socket_listener &) = delete;

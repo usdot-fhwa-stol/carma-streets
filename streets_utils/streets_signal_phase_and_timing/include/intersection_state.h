@@ -143,10 +143,13 @@ namespace signal_phase_and_timing
         uint64_t get_epoch_timestamp() const;
 
         /**
-         * @brief Set timestamp for intersection state based on NTCIP SPaT UDP message timestamp.
+         * @brief Set timestamp for intersection state based on NTCIP SPaT UDP message timestamp which is
+         * transmitted as second of the UTC day and millisecond of the UTC second. This information can be
+         * combined with the unix host time day of the year to get minute of the UTC year and millisecond of 
+         * the UTC minute (J2735 Intersection State timeStamp units).
          * 
-         * @param second_of_day 
-         * @param millisecond_of_second 
+         * @param second_of_day second of the UTC year.
+         * @param millisecond_of_second millisecond of the UTC second.
          */
         void set_timestamp_ntcip(const uint32_t second_of_day , const uint16_t millisecond_of_second );
 
