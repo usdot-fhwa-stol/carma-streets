@@ -142,7 +142,14 @@ namespace traffic_signal_controller_service {
             while(true) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
-                    spat_producer->send(spat_ptr->toJson());
+                    if(tsc_state_ptr->add_future_movement_events(spat_ptr))
+                    {
+                        spat_producer->send(spat_ptr->toJson());
+                    }
+                    else{
+                        SPDLOG_ERROR("Could not update movement events, spat not published");
+                    }
+                    
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
