@@ -202,8 +202,6 @@ namespace traffic_signal_controller_service
         phase_3_state.signal_group_id = 3;
         phase_3_state.phase_num = 3;
 
-        worker.signal_group_state_map_.insert({3, phase_3_state});
-
         spat_msg_ptr->intersections.push_back(intersection_state);
         worker.add_future_movement_events(spat_msg_ptr);
         

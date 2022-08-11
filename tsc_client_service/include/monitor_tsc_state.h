@@ -150,8 +150,8 @@ namespace traffic_signal_controller_service
             ** @param phase_state signal_group_state for the phase of which the movement events are a part
             ** @return predicted next movement event
             * **/
-            signal_phase_and_timing::movement_event get_following_event(signal_phase_and_timing::movement_event& current_event,
-                                                                 uint64_t current_event_end_time, const signal_group_state& phase_state);
+            signal_phase_and_timing::movement_event get_following_event(const signal_phase_and_timing::movement_event& current_event,
+                                                                 uint64_t current_event_end_time, const signal_group_state& phase_state) const;
 
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_get_following_movement_events);                                                              

@@ -80,8 +80,8 @@ namespace traffic_signal_controller_service
         }
     }
 
-    signal_phase_and_timing::movement_event tsc_state::get_following_event(signal_phase_and_timing::movement_event& current_event,
-                                                                 uint64_t current_event_end_time, const signal_group_state& phase_state)
+    signal_phase_and_timing::movement_event tsc_state::get_following_event(const signal_phase_and_timing::movement_event& current_event,
+                                                                 uint64_t current_event_end_time, const signal_group_state& phase_state) const
     {
         signal_phase_and_timing::movement_event next_event;
         switch (current_event.event_state){
@@ -453,7 +453,7 @@ namespace traffic_signal_controller_service
         auto duration = system_time.time_since_epoch();
         auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
         auto hour_tenth_secs = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS_ * SECOND_TO_MILLISECONDS_))/100;
-        return hour_tenth_secs;
+        return static_cast<uint16_t>(hour_tenth_secs);
     }
 
     uint64_t tsc_state::convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const{
