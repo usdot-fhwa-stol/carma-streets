@@ -293,7 +293,7 @@ namespace traffic_signal_controller_service
 
         snmp_client_worker_->process_snmp_request(min_green_parameter_oid, request_type, min_green);
 
-        return (int) min_green.val_int;
+        return (int) min_green.val_int * 1000; //Convert to milliseconds
     }
 
     int tsc_state::get_max_green(int phase_num) const
@@ -306,7 +306,7 @@ namespace traffic_signal_controller_service
         
         snmp_client_worker_->process_snmp_request(max_green_parameter_oid, request_type, max_green);
 
-        return (int) max_green.val_int;
+        return (int) max_green.val_int * 1000; //Convert to milliseconds
     }
 
     int tsc_state::get_yellow_duration(int phase_num) const
@@ -319,7 +319,7 @@ namespace traffic_signal_controller_service
         
         snmp_client_worker_ ->process_snmp_request(yellow_duration_oid, request_type, yellow_duration);
 
-        return (int) yellow_duration.val_int / 10; //Divide by 10 since NTCIP returned value is in tenths of seconds
+        return (int) yellow_duration.val_int * 100; //Convert to milliseconds. NTCIP returned value is in tenths of seconds
     }
 
     int tsc_state::get_red_clearance(int phase_num) const
@@ -332,7 +332,7 @@ namespace traffic_signal_controller_service
 
         snmp_client_worker_->process_snmp_request(red_clearance_oid, get_request, red_clearance);
 
-        return (int) red_clearance.val_int / 10; //Divide by 10 since NTCIP returned value is in tenths of seconds
+        return (int) red_clearance.val_int * 100; //Convert to milliseconds. NTCIP returned value is in tenths of seconds
     }
 
     int tsc_state::get_red_duration(int phase_num)

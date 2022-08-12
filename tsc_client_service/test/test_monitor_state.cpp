@@ -123,10 +123,10 @@ namespace traffic_signal_controller_service
         for(auto const& state : state_map)
         {
             EXPECT_TRUE(state.second.phase_num <= 4); //Test defined for phases 1,2,3,4
-            EXPECT_EQ(state.second.min_green, 20);
-            EXPECT_EQ(state.second.max_green, 30);
-            EXPECT_EQ(state.second.yellow_duration, 4);
-            EXPECT_EQ(state.second.red_clearance,1);
+            EXPECT_EQ(state.second.min_green, 20000);
+            EXPECT_EQ(state.second.max_green, 30000);
+            EXPECT_EQ(state.second.yellow_duration, 4000);
+            EXPECT_EQ(state.second.red_clearance,1000);
         }
 
         std::unordered_map<int,int> ped_phase_map = worker.get_ped_phase_map();
