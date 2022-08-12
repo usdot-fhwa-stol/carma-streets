@@ -219,5 +219,17 @@ namespace traffic_signal_controller_service
                 EXPECT_EQ(it.timing.min_end_time - it.timing.start_time, phase_1_state.red_duration/100);
         }       
 
+        // Test exception 
+        signal_phase_and_timing::intersection_state intersection_state_2;
+
+        signal_phase_and_timing::movement_state state_4;
+        state_4.state_time_speed.push_back(event_1);
+        state_4.state_time_speed.push_back(event_2);
+        intersection_state_2.states.push_back(state_4);
+        
+        auto spat_msg_ptr_2 = std::make_shared<signal_phase_and_timing::spat>();
+        spat_msg_ptr->intersections.push_back(intersection_state_2);
+        EXPECT_THROW(worker.add_future_movement_events(spat_msg_ptr),snmp_client_exception);
+
     }
 }

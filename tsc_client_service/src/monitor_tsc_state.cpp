@@ -121,6 +121,15 @@ namespace traffic_signal_controller_service
         for (auto movement : spat_ptr->intersections.front().states)
         {
             int signal_group_id = movement.signal_group;
+
+            // Assumption here is that the movement states have only one event, since this method adds future events to the list.
+            //Throw exception is list size is great than 1
+            if (movement.state_time_speed.size() > 1)
+            {
+                SPDLOG_ERROR("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group: {0}", signal_group_id);
+                throw snmp_client_exception("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group:" + std::to_string(signal_group_id));
+            }
+
             // Get movement_state by reference
             auto& current_movement = spat_ptr->intersections.front().get_movement(signal_group_id);
 
@@ -293,7 +302,7 @@ namespace traffic_signal_controller_service
 
         snmp_client_worker_->process_snmp_request(min_green_parameter_oid, request_type, min_green);
 
-        return (int) min_green.val_int * 1000; //Convert to milliseconds
+        return (int) min_green.val_int * 1000; //Convert seconds to milliseconds
     }
 
     int tsc_state::get_max_green(int phase_num) const
@@ -306,7 +315,7 @@ namespace traffic_signal_controller_service
         
         snmp_client_worker_->process_snmp_request(max_green_parameter_oid, request_type, max_green);
 
-        return (int) max_green.val_int * 1000; //Convert to milliseconds
+        return (int) max_green.val_int * 1000; //Convert seconds to milliseconds
     }
 
     int tsc_state::get_yellow_duration(int phase_num) const
@@ -349,6 +358,7 @@ namespace traffic_signal_controller_service
             throw snmp_client_exception("No signal state associated with phase " + std::to_string(phase_num) + ".");
         }
         auto current_signal_group_state = signal_group_state_map_[current_signal_group];
+        // Only add clearance time for current phase
         int red_duration = current_signal_group_state.red_clearance;
         
         for(auto phase : current_signal_group_state.phase_seq)
@@ -365,8 +375,6 @@ namespace traffic_signal_controller_service
             auto seq_signal_group_state = signal_group_state_map_[seq_signal_group];
             if(phase == phase_num)
             {
-                // Only add clearance time for current phase
-                red_duration += seq_signal_group_state.red_clearance;
                 continue;
             }
             else{
