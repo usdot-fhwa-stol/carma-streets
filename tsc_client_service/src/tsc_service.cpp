@@ -150,6 +150,8 @@ namespace traffic_signal_controller_service {
                         SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
                     }
                     
+                    spat_producer->send(spat_ptr->toJson());
+                    
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
