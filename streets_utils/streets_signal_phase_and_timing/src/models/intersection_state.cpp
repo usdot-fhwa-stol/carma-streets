@@ -216,29 +216,51 @@ namespace signal_phase_and_timing {
         bool is_flashing = spat_data.get_phase_flashing_status( phase_number );
         if ( spat_data.get_phase_red_status(phase_number) ) {
             if (is_flashing) {
+                if ( cur_event.event_state !=  movement_phase_state::stop_then_proceed ) {
+                    SPDLOG_DEBUG("Setting start time to current time");
+                    cur_event.timing.start_time = convert_offset(0);
+                }
                 cur_event.event_state = movement_phase_state::stop_then_proceed; 
             }else {
+                if ( cur_event.event_state !=  movement_phase_state::stop_and_remain ) {
+                    SPDLOG_DEBUG("Setting start time to current time");
+                    cur_event.timing.start_time = convert_offset(0);
+                }
                 cur_event.event_state =  movement_phase_state::stop_and_remain;
             }
 
         }
         else if ( spat_data.get_phase_yellow_status( phase_number ) ) {
             if ( is_flashing ) {
+                if ( cur_event.event_state !=  movement_phase_state::caution_conflicting_traffic ) {
+                    SPDLOG_DEBUG("Setting start time to current time");
+                    cur_event.timing.start_time = convert_offset(0);
+                }
                 cur_event.event_state =  movement_phase_state::caution_conflicting_traffic;
             }else {
+                if ( cur_event.event_state !=  movement_phase_state::protected_clearance ) {
+                    SPDLOG_DEBUG("Setting start time to current time");
+                    cur_event.timing.start_time = convert_offset(0);
+                }
                 cur_event.event_state =  movement_phase_state::protected_clearance;
             }
         }
         else if ( spat_data.get_phase_green_status(phase_number)) {
             // TODO: Add Support Permissive Green Phase
+            if ( cur_event.event_state !=  movement_phase_state::protected_movement_allowed ) {
+                    SPDLOG_DEBUG("Setting start time to current time");
+                    cur_event.timing.start_time = convert_offset(0);
+            }
             cur_event.event_state = movement_phase_state::protected_movement_allowed;
         }
         else {
+            if ( cur_event.event_state !=  movement_phase_state::dark ) {
+                    SPDLOG_DEBUG("Setting start time to current time");
+                    cur_event.timing.start_time = convert_offset(0);
+            }
             cur_event.event_state = movement_phase_state::dark;
         }
         // Set event timing
-        // TODO Calculate start time of a phase based on min_offset and min_green 
-        cur_event.timing.start_time = convert_offset(0);
         cur_event.timing.max_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_max_time_to_change());
         cur_event.timing.min_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_min_time_to_change());
 
@@ -246,11 +268,20 @@ namespace signal_phase_and_timing {
 
     void intersection_state::update_movements(ntcip::ntcip_1202_ext &spat_data, const std::unordered_map<int,int> &phase_number_to_signal_group ) {
         for ( auto &move_state : states ) {
-            // Clear any previous movement events
-            move_state.state_time_speed.clear();
-            // Add current movement_event
-            movement_event cur_event;
-            move_state.state_time_speed.push_front(cur_event);
+            // If movement event list is empty, create a current event.
+            if ( move_state.state_time_speed.empty()) {
+                // Add current movement_event
+                movement_event cur_event;
+                move_state.state_time_speed.push_front(cur_event);
+            }
+            // If movememtn event list contains future events, clear future events.
+            if ( move_state.state_time_speed.size() > 1) {
+                while ( move_state.state_time_speed.size() > 1 ) {
+                    // Remove all movement events except the front movement event.
+                    move_state.state_time_speed.pop_back();
+                }
+            }
+           
         }
         
         for ( const auto &phase_2_signal_group : phase_number_to_signal_group ) {
