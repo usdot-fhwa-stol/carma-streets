@@ -75,20 +75,24 @@ TEST_F( test_ntcip_to_spat, test_update) {
     ASSERT_EQ( intersection.id , 12902 );
     ASSERT_EQ( intersection.states.size(), phase_to_signal_group.size());
 
+    // Consume NTCIP SPaT update 
     read_next_line();
-    SPDLOG_INFO("NTCIP SPat {0}", spat_ntcip_data.to_string());
     spat_ptr->update( spat_ntcip_data, false);
+    // Calculate current minute of the UTC year
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     time_t tt = std::chrono::system_clock::to_time_t(now);
     tm utc_tm = *gmtime(&tt);
     uint32_t moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
     ASSERT_EQ( intersection.moy, moy );
+
     // Get phase number 6
     movement_state &state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
     ASSERT_EQ( state_6.signal_group, phase_to_signal_group.find(6)->second );
-
-    movement_event &event_cur_6 = state_6.state_time_speed.front(); 
+    movement_event &event_cur_6 = state_6.state_time_speed.front();
+    // Update is green for phase 6 
     ASSERT_EQ( event_cur_6.event_state, movement_phase_state::protected_movement_allowed);
+    // Start time is current time, min end time is current time. Max end time is 
+    ASSERT_EQ( event_cur_6.timing.start_time, intersection.convert_offset(0));
     ASSERT_EQ( event_cur_6.timing.min_end_time,intersection.convert_offset(0) );
     ASSERT_EQ( event_cur_6.timing.max_end_time,intersection.convert_offset(50) );
     // Get phase number 4
@@ -97,13 +101,14 @@ TEST_F( test_ntcip_to_spat, test_update) {
 
     movement_event &event_cur_4 = state_4.state_time_speed.front(); 
     ASSERT_EQ( event_cur_4.event_state, movement_phase_state::stop_and_remain);
-
+    // Start time set to current time on phase state transition
+    uint16_t start_time_4 =  intersection.convert_offset(0);
+    ASSERT_EQ( event_cur_4.timing.start_time, start_time_4);
     ASSERT_EQ( event_cur_4.timing.min_end_time,intersection.convert_offset(50) );
     ASSERT_EQ( event_cur_4.timing.max_end_time,intersection.convert_offset(100) );
 
     read_next_line();
     
-    SPDLOG_INFO("NTCIP SPat {0}", spat_ntcip_data.to_string());
     spat_ptr->update( spat_ntcip_data, false);
     now = std::chrono::system_clock::now();
     tt = std::chrono::system_clock::to_time_t(now);
@@ -123,6 +128,8 @@ TEST_F( test_ntcip_to_spat, test_update) {
     ASSERT_EQ( state_4.signal_group, phase_to_signal_group.find(4)->second);
 
     event_cur_4 = state_4.state_time_speed.front(); 
+    start_time_4 =  intersection.convert_offset(0);
+    ASSERT_EQ( event_cur_4.timing.start_time, start_time_4);
     ASSERT_EQ( event_cur_4.event_state, movement_phase_state::protected_movement_allowed);
     ASSERT_EQ( event_cur_4.timing.min_end_time,intersection.convert_offset(39) );
     ASSERT_EQ( event_cur_4.timing.max_end_time,intersection.convert_offset(159) );
@@ -151,6 +158,24 @@ TEST_F( test_ntcip_to_spat, test_update) {
     ASSERT_EQ( event_cur_4.event_state, movement_phase_state::protected_movement_allowed);
     ASSERT_EQ( event_cur_4.timing.min_end_time,intersection.convert_offset(38) );
     ASSERT_EQ( event_cur_4.timing.max_end_time,intersection.convert_offset(158) );
+    ASSERT_EQ( event_cur_4.timing.start_time, start_time_4);
+
+    // Read Last update
+    read_next_line();
+    read_next_line();
+    SPDLOG_INFO("NTCIP SPat {0}", spat_ntcip_data.to_string());
+    spat_ptr->update(spat_ntcip_data, false);
+    // Protected clearance for 4 and 8
+    event_cur_4 = state_4.state_time_speed.front(); 
+    ASSERT_EQ( event_cur_4.event_state, movement_phase_state::protected_clearance);
+    ASSERT_EQ( event_cur_4.timing.start_time, intersection.convert_offset(0));
+
+    movement_state &state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    movement_event event_cur_8 = state_8.state_time_speed.front(); 
+    ASSERT_EQ( event_cur_8.event_state, movement_phase_state::protected_clearance);
+    ASSERT_EQ( event_cur_8.timing.start_time, intersection.convert_offset(0));
+
+
 }
 
 TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
@@ -162,7 +187,6 @@ TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
     ASSERT_EQ( intersection.states.size(), phase_to_signal_group.size());
 
     read_next_line();
-    SPDLOG_INFO("NTCIP SPat {0}", spat_ntcip_data.to_string());
     spat_ptr->update( spat_ntcip_data, true);
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     time_t tt = std::chrono::system_clock::to_time_t(now);

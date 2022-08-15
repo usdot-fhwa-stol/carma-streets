@@ -68,8 +68,6 @@ TEST(spat_to_json, to_from_json_test) {
     spat_message.intersections.push_front(state);
 
     std::string msg_to_send = spat_message.toJson();
-    SPDLOG_INFO("SPaT Json {0}", msg_to_send);
-
     ASSERT_FALSE(msg_to_send.empty());
     // Read JSON string into new spat object
     spat json_spat;
