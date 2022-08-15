@@ -10,6 +10,7 @@
 #include "udp_socket_listener.h"
 #include "intersection_client.h"
 #include "ntcip_oids.h"
+#include "monitor_states_exception.h"
 
 namespace traffic_signal_controller_service {
 

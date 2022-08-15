@@ -229,7 +229,7 @@ namespace traffic_signal_controller_service
         
         auto spat_msg_ptr_2 = std::make_shared<signal_phase_and_timing::spat>();
         spat_msg_ptr->intersections.push_back(intersection_state_2);
-        EXPECT_THROW(worker.add_future_movement_events(spat_msg_ptr),snmp_client_exception);
+        EXPECT_THROW(worker.add_future_movement_events(spat_msg_ptr),monitor_states_exception);
 
     }
 }

@@ -114,7 +114,7 @@ namespace traffic_signal_controller_service
         return next_event;
     }
 
-    bool tsc_state::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
+    void tsc_state::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
     {
         // Modify spat according to phase configuration
         // Note: Only first intersection is populated
@@ -127,7 +127,7 @@ namespace traffic_signal_controller_service
             if (movement.state_time_speed.size() > 1)
             {
                 SPDLOG_ERROR("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group: {0}", signal_group_id);
-                throw snmp_client_exception("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group:" + std::to_string(signal_group_id));
+                throw monitor_states_exception("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group:" + std::to_string(signal_group_id));
             }
 
             // Get movement_state by reference
@@ -161,11 +161,12 @@ namespace traffic_signal_controller_service
                     break;
 
                 default:
-                    SPDLOG_ERROR("This movement phase is not supported. Movement phase type: {0}", int(current_movement.state_time_speed.front().event_state));
-                    return false; //TODO: Should this be an exit condition?
+                    SPDLOG_DEBUG("This movement phase is not supported. Movement phase type: {0}", int(current_movement.state_time_speed.front().event_state));
+                    throw monitor_states_exception("This movement phase is not supported. Movement phase type: " + std::to_string(int(current_movement.state_time_speed.front().event_state)));
             }
             // Update end_time for current_event
             current_movement.state_time_speed.front().timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time_epoch);
+            current_movement.state_time_speed.front().timing.max_end_time = current_movement.state_time_speed.front().timing.min_end_time;
 
             for(int i = 0; i < required_following_movements_; ++i)
             {
@@ -177,7 +178,7 @@ namespace traffic_signal_controller_service
             }
             
         }
-        return true;
+        
     }
 
     std::vector<int> tsc_state::get_following_phases(int phase_num)

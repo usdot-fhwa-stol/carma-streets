@@ -5,6 +5,7 @@
 #include "ntcip_oids.h"
 #include "spat.h"
 #include <gtest/gtest_prod.h>
+#include "monitor_states_exception.h"
 
 namespace traffic_signal_controller_service
 {   
@@ -191,7 +192,7 @@ namespace traffic_signal_controller_service
             ** @param spat_ptr pointer to spat message to update
             ** @return true if update was successful, false if it failed
             * **/
-            bool add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr);
+            void add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr);
 
     };
 }
