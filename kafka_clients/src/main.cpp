@@ -10,14 +10,14 @@ void call_consumer_thread()
     auto consumer_worker = client->create_consumer(bootstrap_server, topic, group_id);
     if (!consumer_worker->init())
     {
-        spdlog::critical("kafka consumer initialize error");
+        SPDLOG_CRITICAL("kafka consumer initialize error");
     }
     else
     {
         consumer_worker->subscribe();
         if (!consumer_worker->is_running())
         {
-            spdlog::critical("consumer_worker is not running");
+            SPDLOG_CRITICAL("consumer_worker is not running");
         }
 
         while (consumer_worker->is_running())
@@ -25,7 +25,7 @@ void call_consumer_thread()
             const std::string payload = consumer_worker->consume(1000);
             if(payload.length() > 0)
             {
-                spdlog::info("message payload: {0}", payload);
+                SPDLOG_INFO("message payload: {0}", payload);
             }
         }
 
@@ -42,11 +42,11 @@ void call_producer_thread()
     auto producer_worker = client->create_producer(bootstrap_server, topic);
     if (!producer_worker->init())
     {
-        spdlog::critical("kafka producer initialize error");
+        SPDLOG_CRITICAL("kafka producer initialize error");
     }
     else
     {
-        spdlog::info("Type message and hit enter to producer message. Exit type \"exit\"");
+        SPDLOG_INFO("Type message and hit enter to producer message. Exit type \"exit\"");
         for (std::string msg_to_send; std::getline(std::cin, msg_to_send);)
         {
             if (strcmp(msg_to_send.c_str(), "exit") == 0)
