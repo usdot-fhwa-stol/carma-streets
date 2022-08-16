@@ -274,12 +274,12 @@ namespace signal_phase_and_timing {
                 movement_event cur_event;
                 move_state.state_time_speed.push_front(cur_event);
             }
-            // If movememtn event list contains future events, clear future events.
+            // If movement event list contains future events, clear future events.
             if ( move_state.state_time_speed.size() > 1) {
-                while ( move_state.state_time_speed.size() > 1 ) {
-                    // Remove all movement events except the front movement event.
-                    move_state.state_time_speed.pop_back();
-                }
+                // Clear all movement events except current (front)
+                movement_event cur_event = move_state.state_time_speed.front();
+                move_state.state_time_speed.clear();
+                move_state.state_time_speed.push_front(cur_event);
             }
            
         }

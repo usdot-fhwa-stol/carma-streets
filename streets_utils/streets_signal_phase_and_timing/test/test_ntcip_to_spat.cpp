@@ -57,6 +57,7 @@ class test_ntcip_to_spat : public ::testing::Test {
     protected:
         void SetUp() override {
             spat_ptr = std::make_shared<spat>();
+            // Comment describing contents of updates inside test data
             // Line 1 : Green 6 and 2 , Red 8 and 4
             // Line 2 : Green 8 and 4 , Red 6 and 2
             // Line 3 : Green 8 and 4 , Red 6 and 2
@@ -283,4 +284,28 @@ TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
     tm utc_tm = *gmtime(&tt);
     uint32_t moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
     ASSERT_FALSE( intersection.moy == moy );
+}
+
+TEST_F( test_ntcip_to_spat, test_update_clear_future_events) {
+    intersection_state &intersection =  spat_ptr->intersections.front();
+    // Line 1 : Green 6 and 2 , Red 8 and 4        
+    read_next_line();
+    spat_ptr->update( spat_ntcip_data, false);
+    // Get movement state and current event references
+    movement_state &state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    ASSERT_EQ(state_2.state_time_speed.size(), 1);
+    // Add future event
+    movement_event future_event;
+    future_event.event_state = movement_phase_state::protected_clearance;
+    future_event.timing.start_time = intersection.convert_offset(0);
+    future_event.timing.min_end_time =  intersection.convert_offset(20);
+    future_event.timing.max_end_time = intersection.convert_offset(20);
+    state_2.state_time_speed.push_back(future_event);
+    ASSERT_EQ(state_2.state_time_speed.size(), 2);
+    // Update spat
+    // Line 2 : Green 8 and 4 , Red 6 and 2
+    read_next_line();
+    spat_ptr->update( spat_ntcip_data, false);
+    ASSERT_EQ(state_2.state_time_speed.size(), 1);
+    ASSERT_EQ(state_2.state_time_speed.front().event_state, movement_phase_state::stop_and_remain);
 }
