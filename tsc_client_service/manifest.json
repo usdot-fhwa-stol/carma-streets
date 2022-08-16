@@ -71,6 +71,12 @@
             "value": false,
             "description": "If false will use host machine unix time for SPaT timestamp, If true will use ntcip message provided timestamp for SPaT timestamp.",
             "type": "BOOL"
+        },
+        {
+            "name": "use_tsc_state_spat_update",
+            "value": true,
+            "description": "If true will enable tsc_state to update incoming spat with calculated future movement events, using traffic signal controller configuration information",
+            "type": "BOOL"
         }
 
     ]

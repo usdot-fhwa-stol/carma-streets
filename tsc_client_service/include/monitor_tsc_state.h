@@ -3,6 +3,9 @@
 #include "snmp_client.h"
 #include "snmp_client_exception.h"
 #include "ntcip_oids.h"
+#include "spat.h"
+#include <gtest/gtest_prod.h>
+#include "monitor_states_exception.h"
 
 namespace traffic_signal_controller_service
 {   
@@ -38,11 +41,11 @@ namespace traffic_signal_controller_service
             /* A local pointer to an snmp_client object to be used through the tsc_state*/
             std::shared_ptr<snmp_client> snmp_client_worker_;
 
+            /* Mapping between signal group ids(key) and their states(value) defined as a signal group state struct for all active vehicle phases*/
+            std::unordered_map<int, signal_group_state> signal_group_state_map_;
+            
             /* Map between signal group ids(key) and phase numbers(value) for all active vehicle phases in the Traffic Signal Controller*/
             std::unordered_map<int, int> signal_group_phase_map_;
-
-            /* Mapping between signal group ids(key) and their states(value) defined as a signal group state struct*/
-            std::unordered_map<int, signal_group_state> signal_group_state_map_;
 
             /* Map between phase numbers(key) and signal group ids(value) for all active vehicle phases in the Traffic Signal Controller*/
             std::unordered_map<int,int> vehicle_phase_num_map_;
@@ -54,6 +57,13 @@ namespace traffic_signal_controller_service
             std::vector<int> phase_seq_ring1_;
             /* The sequence of vehicle phases in ring 2 of TSC*/
             std::vector<int> phase_seq_ring2_;
+
+            // Number of required following movements on receiving a spat_ptr
+            int required_following_movements_ = 3;
+
+            // Conversion constants
+            int HOUR_TO_SECONDS_ = 3600;
+            int SECOND_TO_MILLISECONDS_ = 1000;
 
             /** @brief Creates vectors of channels associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
             **  @param max_channels The maximum number of channels in the traffic signal controller.
@@ -123,6 +133,30 @@ namespace traffic_signal_controller_service
             * **/
             std::vector<int> get_concurrent_phases(int phase_num) const;
 
+            /** @brief Helper function to convert epoch time to hour-tenths time
+            ** @param epoch_time_ms epoch time in milliseconds
+            ** @return tenths of a second in current or next hour
+            * **/
+            uint16_t convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const;
+
+            /** @brief Helper function to convert hour-tenths time to epoch time
+            ** @param hour_tenth_secs tenths of a second in current or next hour
+            ** @return epoch time in milliseconds
+            * **/
+            uint64_t convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const;
+
+            /** @brief Get predicted next movement event given a current event
+            ** @param current_event movement_event from the next movement needs to be predicted
+            ** @param current_event_end_time End time of the current event in epoch time (milliseconds)
+            ** @param phase_state signal_group_state for the phase of which the movement events are a part
+            ** @return predicted next movement event
+            * **/
+            signal_phase_and_timing::movement_event get_following_event(const signal_phase_and_timing::movement_event& current_event,
+                                                                 uint64_t current_event_end_time, const signal_group_state& phase_state) const;
+
+            //Add Friend Test to share private members
+            FRIEND_TEST(traffic_signal_controller_service, test_get_following_movement_events);                                                              
+
         public:
             /** 
              * @brief Constructor for the tsc_state class 
@@ -153,6 +187,12 @@ namespace traffic_signal_controller_service
              * @return true if initialization is successful.
              */
             bool initialize();
+
+            /** @brief Updates spat with future movement events for vehicle phases
+            ** @param spat_ptr pointer to spat message to update
+            ** @return true if update was successful, false if it failed
+            * **/
+            void add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr);
 
     };
 }

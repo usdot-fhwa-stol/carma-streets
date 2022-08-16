@@ -123,16 +123,113 @@ namespace traffic_signal_controller_service
         for(auto const& state : state_map)
         {
             EXPECT_TRUE(state.second.phase_num <= 4); //Test defined for phases 1,2,3,4
-            EXPECT_EQ(state.second.min_green, 20);
-            EXPECT_EQ(state.second.max_green, 30);
-            EXPECT_EQ(state.second.yellow_duration, 4);
-            EXPECT_EQ(state.second.red_clearance,1);
+            EXPECT_EQ(state.second.min_green, 20000);
+            EXPECT_EQ(state.second.max_green, 30000);
+            EXPECT_EQ(state.second.yellow_duration, 4000);
+            EXPECT_EQ(state.second.red_clearance,1000);
         }
 
         std::unordered_map<int,int> ped_phase_map = worker.get_ped_phase_map();
         EXPECT_TRUE(ped_phase_map.empty());
         std::unordered_map<int,int> vehicle_phase_map = worker.get_vehicle_phase_map();
         EXPECT_FALSE(vehicle_phase_map.empty());
+
+    }
+
+    TEST(traffic_signal_controller_service, test_get_following_movement_events)
+    {
+        // Create mock spat
+        auto spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
+
+        signal_phase_and_timing::intersection_state intersection_state;
+
+        signal_phase_and_timing::movement_state state_1;
+        state_1.signal_group = 1;
+        signal_phase_and_timing::movement_event event_1;
+        event_1.event_state = signal_phase_and_timing::movement_phase_state::stop_and_remain; //Red
+        event_1.timing.start_time = 1000;
+        event_1.timing.min_end_time = 1100;
+        state_1.state_time_speed.push_back(event_1);
+        intersection_state.states.push_back(state_1);
+
+        signal_phase_and_timing::movement_state state_2;
+        state_2.signal_group = 2;
+        signal_phase_and_timing::movement_event event_2;
+        event_2.event_state = signal_phase_and_timing::movement_phase_state::protected_clearance; //Yellow
+        event_2.timing.start_time = 20;
+        state_2.state_time_speed.push_back(event_2);
+
+        intersection_state.states.push_back(state_2);
+
+        signal_phase_and_timing::movement_state state_3;
+        state_3.signal_group = 3;
+        signal_phase_and_timing::movement_event event_3;
+        event_3.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed; //Green
+        event_3.timing.start_time = 30;
+        state_3.state_time_speed.push_back(event_3);
+
+        intersection_state.states.push_back(state_3);
+
+        streets_service::streets_configuration::initialize_logger();
+        std::string dummy_ip = "192.168.10.10";
+        int dummy_port = 601;
+        mock_snmp_client mock_client_worker(dummy_ip, dummy_port);
+
+        auto unique_client = std::make_unique<mock_snmp_client>(mock_client_worker);
+
+        traffic_signal_controller_service::tsc_state worker(std::move(unique_client));
+        traffic_signal_controller_service::signal_group_state phase_1_state;
+        phase_1_state.signal_group_id = 1;
+        phase_1_state.phase_num = 1;
+        phase_1_state.min_green = 1000;
+        phase_1_state.max_green = 2000;
+        phase_1_state.green_duration = 1000;
+        phase_1_state.yellow_duration = 1000;
+        phase_1_state.red_clearance = 1000;
+        phase_1_state.red_duration = 10000;
+        
+        worker.signal_group_state_map_.insert({1, phase_1_state});
+
+        traffic_signal_controller_service::signal_group_state phase_2_state;
+        phase_2_state = phase_1_state;
+        phase_2_state.signal_group_id = 2;
+        phase_2_state.phase_num = 2;
+
+        worker.signal_group_state_map_.insert({2, phase_2_state});
+
+        traffic_signal_controller_service::signal_group_state phase_3_state;
+        phase_3_state = phase_1_state;
+        phase_3_state.signal_group_id = 3;
+        phase_3_state.phase_num = 3;
+
+        spat_msg_ptr->intersections.push_back(intersection_state);
+        worker.add_future_movement_events(spat_msg_ptr);
+        
+        // Check if movement events have been added
+        EXPECT_TRUE(spat_msg_ptr->intersections.front().states.front().state_time_speed.size() > 1);
+        for(auto it : spat_msg_ptr->intersections.front().states.front().state_time_speed){
+            
+            if(it.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed)
+                EXPECT_EQ(it.timing.min_end_time - it.timing.start_time , phase_1_state.green_duration/100);
+            
+            else if(it.event_state == signal_phase_and_timing::movement_phase_state::protected_clearance)
+                EXPECT_EQ(it.timing.min_end_time - it.timing.start_time, phase_1_state.yellow_duration/100);
+            
+            else if(it.event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain)
+                EXPECT_EQ(it.timing.min_end_time - it.timing.start_time, phase_1_state.red_duration/100);
+        }       
+
+        // Test exception 
+        signal_phase_and_timing::intersection_state intersection_state_2;
+
+        signal_phase_and_timing::movement_state state_4;
+        state_4.state_time_speed.push_back(event_1);
+        state_4.state_time_speed.push_back(event_2);
+        intersection_state_2.states.push_back(state_4);
+        
+        auto spat_msg_ptr_2 = std::make_shared<signal_phase_and_timing::spat>();
+        spat_msg_ptr->intersections.push_back(intersection_state_2);
+        EXPECT_THROW(worker.add_future_movement_events(spat_msg_ptr),monitor_states_exception);
 
     }
 }

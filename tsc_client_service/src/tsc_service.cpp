@@ -23,6 +23,7 @@ namespace traffic_signal_controller_service {
                 return false;
             }
             //Initialize TSC State
+            use_tsc_state_spat_update_ = streets_service::streets_configuration::get_boolean_config("use_tsc_state_spat_update");
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
@@ -142,7 +143,18 @@ namespace traffic_signal_controller_service {
             while(true) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
+                    
+                    if(use_tsc_state_spat_update_){
+                        try{
+                            tsc_state_ptr->add_future_movement_events(spat_ptr);
+                        }
+                        catch(const traffic_signal_controller_service::monitor_states_exception &e){
+                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                        }
+                    }
+                    
                     spat_producer->send(spat_ptr->toJson());
+                    
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
