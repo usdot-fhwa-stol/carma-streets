@@ -143,11 +143,13 @@ namespace traffic_signal_controller_service {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
                     
-                    try{
-                        tsc_state_ptr->add_future_movement_events(spat_ptr);
-                    }
-                    catch(const traffic_signal_controller_service::monitor_states_exception &e){
-                        SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                    if(use_tsc_state_spat_update_){
+                        try{
+                            tsc_state_ptr->add_future_movement_events(spat_ptr);
+                        }
+                        catch(const traffic_signal_controller_service::monitor_states_exception &e){
+                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                        }
                     }
                     
                     spat_producer->send(spat_ptr->toJson());
