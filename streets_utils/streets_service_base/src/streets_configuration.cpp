@@ -180,7 +180,8 @@ namespace streets_service {
             // Create logger thread pool
             spdlog::init_thread_pool(8192, 1);
             // Create logger file and stdout sinks
-            auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/" + service_name, 23, 3);
+            // Rotate files at 11:59 PM
+            auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/" + service_name, 23, 59, false, 3);
             auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
             // Link thread pool and sinks to async logger
             auto logger = std::make_shared<spdlog::async_logger>("main",  spdlog::sinks_init_list({console_sink, file_sink}),spdlog::thread_pool());
