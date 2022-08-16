@@ -23,6 +23,7 @@ namespace traffic_signal_controller_service {
                 return false;
             }
             //Initialize TSC State
+            bool use_tsc_state_spat_update_ = streets_service::streets_configuration::get_boolean_config("use_tsc_state_spat_update");
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }

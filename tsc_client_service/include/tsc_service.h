@@ -48,6 +48,11 @@ namespace traffic_signal_controller_service {
              * 
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
+
+            // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
+            // traffic signal controller configuration information
+            bool use_tsc_state_spat_update_ = true;
+            
         public:
             tsc_service() = default;
 
@@ -150,10 +155,6 @@ namespace traffic_signal_controller_service {
              * the carma-streets kafka broker.
              */
             void produce_spat_json() const;
-
-            // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
-            // traffic signal controller configuration information
-            bool use_tsc_state_spat_update_ = true;
 
     };
 }
