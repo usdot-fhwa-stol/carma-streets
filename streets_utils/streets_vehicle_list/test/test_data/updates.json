@@ -294,6 +294,9 @@
                     }
                 ]
             }
+        },
+        {   "metadata":{"timestamp":1660853351505},
+            "payload":{"v_id":"DOT-45244","v_length":500,"cur_speed":0.0,"cur_accel":0.0,"react_t":5.0,"max_accel":1.3,"max_decel":-1.3,"min_gap":3.0,"depart_pos":4294967295,"is_allowed":false,"cur_lane_id":14590,"cur_ds":121.55904757135134,"entry_lane_id":14590,"dest_lane_id":16241,"link_lane_id":24517,"direction":"straight"}
         }
     ]
 }

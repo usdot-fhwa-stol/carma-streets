@@ -104,6 +104,7 @@ TEST_F(vehicle_list_test, parse_valid_json) {
     for ( auto& update: updates ) {
         SPDLOG_INFO("Processing Update {0} ", update);
         veh_list->process_update(update);
+       
         if ( i == 0) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 1);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::EV).size(), 1);
@@ -126,6 +127,9 @@ TEST_F(vehicle_list_test, parse_valid_json) {
         else if (i == 5) {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
             ASSERT_EQ( veh_list->get_vehicles_by_state(vehicle_state::RDV).size(), 2);
+        }
+        else if (i == 6) {
+            SPDLOG_INFO("Vehicle update departure position {0}", veh_list->get_vehicles().find("DOT-45244")->second._departure_position);
         }
         else {
             ASSERT_EQ( veh_list->get_vehicles().size(), 2);
