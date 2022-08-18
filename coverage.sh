@@ -61,6 +61,13 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_vehicle_scheduler/coverage/coverage.xml -s -f streets_utils/streets_vehicle_scheduler/ -r .
 
+cd /home/carma-streets/streets_utils/streets_desired_phase_plan/build/
+./streets_desired_phase_plan_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_desired_phase_plan
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_desired_phase_plan/coverage/coverage.xml -s -f streets_utils/streets_desired_phase_plan/ -r .
+
 # cd /home/carma-streets/message_services/build/
 # ./message_services_test --gtest_output=xml:../../test_results/
 # cd /home/carma-streets/message_services/
