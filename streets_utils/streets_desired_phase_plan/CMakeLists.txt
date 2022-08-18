@@ -24,9 +24,6 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
                             PRIVATE
                             ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
-                Boost::system 
-                Boost::thread 
-                Boost::filesystem
                 spdlog::spdlog
                 rapidjson
                 )
@@ -79,9 +76,6 @@ add_executable(${BINARY} ${TEST_SOURCES}
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC 
-                Boost::system 
-                Boost::thread
-                Boost::filesystem 
                 spdlog::spdlog
                 gtest
                 rapidjson
