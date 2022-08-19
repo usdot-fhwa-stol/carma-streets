@@ -12,7 +12,7 @@ namespace streets_desired_phase_plan
         // Populate streets_desired_phase_plan JSON
         streets_desired_phase_plan_value.AddMember("timestamp", timestamp, allocator);
         rapidjson::Value desired_phase_plan_value(rapidjson::kArrayType);
-        for (auto desired_phase : desired_phase_plan)
+        for (const auto& desired_phase : desired_phase_plan)
         {
             rapidjson::Value sg2green_phase_timing_value(rapidjson::kObjectType);
             rapidjson::Value signal_groups_value(rapidjson::kArrayType);
@@ -53,7 +53,7 @@ namespace streets_desired_phase_plan
 
         if (doc.HasMember("timestamp") && doc.FindMember("timestamp")->value.IsUint64())
         {
-            timestamp = (uint64_t)doc["timestamp"].GetUint64();
+            timestamp = doc["timestamp"].GetUint64();
         }
         else
         {
@@ -79,7 +79,7 @@ namespace streets_desired_phase_plan
 
                 if (desired_phase_value.HasMember("start_time") && desired_phase_value.FindMember("start_time")->value.IsUint64())
                 {
-                    sg2gpt.start_time = (uint64_t)desired_phase_value["start_time"].GetUint64();
+                    sg2gpt.start_time = desired_phase_value["start_time"].GetUint64();
                 }
                 else
                 {
@@ -88,7 +88,7 @@ namespace streets_desired_phase_plan
 
                 if (desired_phase_value.HasMember("end_time") && desired_phase_value.FindMember("end_time")->value.IsUint64())
                 {
-                    sg2gpt.end_time = (uint64_t)desired_phase_value["end_time"].GetUint64();
+                    sg2gpt.end_time = desired_phase_value["end_time"].GetUint64();
                 }
                 else
                 {
