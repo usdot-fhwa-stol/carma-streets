@@ -53,6 +53,8 @@ namespace streets_vehicle_scheduler {
             double delta_t = (double)(timestamp - veh._cur_time)/1000.0;
             if ( delta_t > 500.0 ) {
                 SPDLOG_WARN("Vehicle update {0} is older than 5 times the vehicle update interval (500 ms)!", veh._id);
+                throw scheduling_exception("Timestamp "+ std::to_string(timestamp) + " is earlier that latest vehicle update " 
+                    + std::to_string(veh._cur_time) + " Vehicles can only be scheduled for current or future time.");
             }
             else if ( delta_t > 200.0) {
                 SPDLOG_WARN("Vehicle update {0} is older than double the vehicle update interval (200 ms)!", veh._id);

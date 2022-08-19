@@ -30,8 +30,9 @@ namespace streets_vehicles {
     }
 
     std::unordered_map<std::string,vehicle> vehicle_list::get_vehicles() {
-        // Read Lock
-        std::shared_lock  lock(vehicle_list_lock);
+        // Write Lock
+        std::unique_lock  lock(vehicle_list_lock);
+        purge_old_vehicles( processor->get_timeout());
         return vehicles;
     }
 
