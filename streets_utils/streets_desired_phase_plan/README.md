@@ -21,6 +21,8 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
     ]
 }
 ```
+The desired phase plan will be used and populated by signal optimization service, and publish the populated desired phase plan to a kafka topic. The TSC (Traffic Signal Client service) will subscribe to the kafka topic and consume the desired phase plan. The TSC service will make SNMP call to update the physical Traffic Signal controller based on the desired phase plan. Also, the TSC service will update the streets version modified spat with the desired phase plan and publish it to another kafka topic.
+
 ### Message specs
 | Parameter Name | Description |
 | -------------- | ----------- |
