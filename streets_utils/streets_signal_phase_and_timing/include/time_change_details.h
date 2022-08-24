@@ -120,13 +120,13 @@ namespace signal_phase_and_timing{
          * @return uint64_t epoch timestamp in milliseconds
          */
         uint16_t convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const;
-        uint64_t set_start_time(uint64_t epoch_time_ms);
+        void set_start_time(uint64_t epoch_time_ms);
         
-        uint64_t set_min_end_time(uint64_t epoch_time_ms);
+        void set_min_end_time(uint64_t epoch_time_ms);
         
-        uint64_t set_max_end_time(uint64_t epoch_time_ms);
+        void  set_max_end_time(uint64_t epoch_time_ms);
         
-        uint64_t set_next_time(uint64_t epoch_time_ms);
+        void set_next_time(uint64_t epoch_time_ms);
     };
 
 }

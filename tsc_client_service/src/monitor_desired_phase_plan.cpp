@@ -91,7 +91,7 @@ namespace traffic_signal_controller_service
 
         // If SPAT Current signal group id is in the current desired phase plan signal group ids, process desired green event for the SPAT current movement event
         int current_signal_group_id = cur_movement_state_ref.signal_group;
-        std::cout << "process signal group = " << current_signal_group_id << ". AND desired sg ids = " << desired_green_signal_group_ids.front() << "," << desired_green_signal_group_ids.back() << std::endl;
+        SPDLOG_DEBUG("process signal group = {0} \t AND First desired sg ids = [{1} , {2}]", current_signal_group_id, desired_green_signal_group_ids.front(), desired_green_signal_group_ids.back());
         if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             /**
@@ -194,7 +194,7 @@ namespace traffic_signal_controller_service
          * - Adding RED event state start time to the above YELLO end time and end time euqals to start time + red clearance.
          **/
         int current_signal_group_id = cur_movement_state_ref.signal_group;
-        std::cout << "process seconds signal group = " << current_signal_group_id << ". AND desired sg ids = " << desired_green_signal_group_ids.front() << "," << desired_green_signal_group_ids.back() << std::endl;
+        SPDLOG_DEBUG("process signal group = {0} \t AND second and onwards desired sg ids = [{1} , {2}]", current_signal_group_id,  desired_green_signal_group_ids.front(), desired_green_signal_group_ids.back());
         if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             if (cur_movement_state_ref.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain)

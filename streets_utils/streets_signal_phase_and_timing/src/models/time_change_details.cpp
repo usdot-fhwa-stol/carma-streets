@@ -113,19 +113,19 @@ namespace signal_phase_and_timing {
        return convert_hour_tenth_secs2epoch_ts(next_time);
     }
 
-    uint64_t time_change_details::set_start_time(uint64_t epoch_time_ms) {
-        return convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    void time_change_details::set_start_time(uint64_t epoch_time_ms) {
+        start_time = convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
     }
     
-    uint64_t time_change_details::set_min_end_time(uint64_t epoch_time_ms) {
-        return convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    void time_change_details::set_min_end_time(uint64_t epoch_time_ms) {
+        min_end_time = convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
     }
     
-    uint64_t time_change_details::set_max_end_time(uint64_t epoch_time_ms) {
-        return convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    void time_change_details::set_max_end_time(uint64_t epoch_time_ms) {
+        max_end_time =  convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
     }
     
-    uint64_t time_change_details::set_next_time(uint64_t epoch_time_ms) {
-        return convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    void time_change_details::set_next_time(uint64_t epoch_time_ms) {
+        next_time =  convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
     }
 }
