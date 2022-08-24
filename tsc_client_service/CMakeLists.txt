@@ -25,7 +25,8 @@ add_library(${PROJECT_NAME}_lib
         src/tsc_service.cpp
         src/snmp_client.cpp
         src/spat_worker.cpp
-        src/monitor_tsc_state.cpp)
+        src/monitor_tsc_state.cpp        
+        src/monitor_desired_phase_plan.cpp)
 
 add_executable( ${PROJECT_NAME} 
         src/main.cpp
@@ -38,6 +39,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     spdlog::spdlog
     streets_service_base_lib::streets_service_base_lib
     streets_signal_phase_and_timing_lib
+    streets_desired_phase_plan_lib
     intersection_client_api_lib
     rdkafka++ 
     kafka_clients_lib

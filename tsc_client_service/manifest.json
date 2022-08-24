@@ -67,6 +67,18 @@
             "type": "STRING"
         },
         {
+            "name": "desired_phase_plan_consumer_topic",
+            "value": "desired_phase_plan",
+            "description": "Kafka topic for streets internal desired phase plan messages",
+            "type": "STRING"
+        },
+        {
+            "name": "desired_phase_plan_consumer_group",
+            "value": "desired_phase_plan_group",
+            "description": "Kafka consumer group for desired phase plan topic",
+            "type": "STRING"
+        },
+        {
             "name": "use_tsc_timestamp",
             "value": false,
             "description": "If false will use host machine unix time for SPaT timestamp, If true will use ntcip message provided timestamp for SPaT timestamp.",
@@ -76,6 +88,12 @@
             "name": "use_tsc_state_spat_update",
             "value": true,
             "description": "If true will enable tsc_state to update incoming spat with calculated future movement events, using traffic signal controller configuration information",
+            "type": "BOOL"
+        },
+        {
+            "name": "use_desired_phase_plan_update",
+            "value": true,
+            "description": "If true will enable monitor_desired_phase_plan to update incoming spat with calculated future movement events, using desired phase plan information from signal optimization service.",
             "type": "BOOL"
         }
 

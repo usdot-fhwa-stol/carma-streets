@@ -2,6 +2,7 @@
 
 namespace traffic_signal_controller_service {
     
+    std::mutex dpp_mtx;
 
     bool tsc_service::initialize() {
         try
@@ -9,10 +10,15 @@ namespace traffic_signal_controller_service {
             // Intialize spat kafka producer
             std::string bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
             std::string spat_topic_name = streets_service::streets_configuration::get_string_config("spat_producer_topic");
+            std::string dpp_consumer_topic = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
+            std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
             if (!initialize_kafka_producer(bootstrap_server, spat_topic_name)) {
                 return false;
             }
-            
+
+            if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group)) {
+                return false;
+            }            
             // Initialize SNMP Client
             std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
             int target_port = streets_service::streets_configuration::get_int_config("target_port");
@@ -24,6 +30,7 @@ namespace traffic_signal_controller_service {
             }
             //Initialize TSC State
             use_tsc_state_spat_update_ = streets_service::streets_configuration::get_boolean_config("use_tsc_state_spat_update");
+            use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
@@ -61,15 +68,27 @@ namespace traffic_signal_controller_service {
         }
     }
 
-    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &spat_producer_topc) {
+    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &spat_producer_topic) {
         auto client = std::make_unique<kafka_clients::kafka_client>();
-        spat_producer = client->create_producer(bootstrap_server, spat_producer_topc);
+        spat_producer = client->create_producer(bootstrap_server, spat_producer_topic);
         if (!spat_producer->init())
         {
             SPDLOG_CRITICAL("Kafka spat producer initialize error");
             return false;
         }
         SPDLOG_DEBUG("Initialized SPAT Kafka producer!");
+        return true;
+    }
+
+    bool tsc_service::initialize_kafka_consumer(const std::string &bootstrap_server, const std::string &desired_phase_plan_consumer_topic,  std::string &consumer_group) {
+        auto client = std::make_unique<kafka_clients::kafka_client>();
+        desired_phase_plan_consumer = client->create_consumer(bootstrap_server, desired_phase_plan_consumer_topic, consumer_group);
+        if (!desired_phase_plan_consumer->init())
+        {
+            SPDLOG_CRITICAL("Kafka desired phase plan initialize error");
+            return false;
+        }
+        SPDLOG_DEBUG("Initialized desired phase plan Kafka consumer!");
         return true;
     }
 
@@ -151,6 +170,9 @@ namespace traffic_signal_controller_service {
                         catch(const traffic_signal_controller_service::monitor_states_exception &e){
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
                         }
+                    }else if(use_desired_phase_plan_update_){
+                        std::lock_guard<std::mutex> lck(dpp_mtx);
+                        monitor_dpp_ptr->add_future_movement_events(spat_ptr, tsc_state_ptr);
                     }
                     
                     spat_producer->send(spat_ptr->toJson());
@@ -167,11 +189,25 @@ namespace traffic_signal_controller_service {
         
     }
 
+    void tsc_service::consume_desired_phase_plan() const {
+       while (desired_phase_plan_consumer->is_running())
+        {
+            const std::string payload = desired_phase_plan_consumer->consume(1000);
+            if (payload.length() != 0)
+            {
+                SPDLOG_DEBUG("Consumed: {0}", payload);
+                std::lock_guard<std::mutex> lck(dpp_mtx);
+                monitor_dpp_ptr->update_desired_phase_plan(payload);
+            }
+        }        
+    }
     
 
     void tsc_service::start() {
         std::thread spat_t(&tsc_service::produce_spat_json, this);
+        std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
         spat_t.join();
+        desired_phase_plan_t.join();
     }
 
     tsc_service::~tsc_service()

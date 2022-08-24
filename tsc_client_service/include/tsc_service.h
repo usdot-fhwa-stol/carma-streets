@@ -11,6 +11,8 @@
 #include "intersection_client.h"
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
+#include "monitor_desired_phase_plan.h"
+#include <mutex>    
 
 namespace traffic_signal_controller_service {
 
@@ -20,6 +22,10 @@ namespace traffic_signal_controller_service {
              * @brief Kafka producer for spat JSON
              */
             std::shared_ptr<kafka_clients::kafka_producer_worker> spat_producer;
+            /**
+             * @brief Kafka consumer for consuming desired phase plan JSON
+             */
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> desired_phase_plan_consumer;
             /**
              * @brief spat_worker contains udp_socket_listener and consumes UDP data 
              * packets and updates spat accordingly.
@@ -31,6 +37,7 @@ namespace traffic_signal_controller_service {
              * and red clearance, yellow change, min/max green times.
              */
             std::shared_ptr<tsc_state> tsc_state_ptr;
+            std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
             /**
              * @brief snmp_client used for making SNMP GET and SET calls th NTCIP OIDs to set
              * and retrieve information from the traffic signal controller.
@@ -52,6 +59,10 @@ namespace traffic_signal_controller_service {
             // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
             // traffic signal controller configuration information
             bool use_tsc_state_spat_update_ = true;
+            
+            // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
+            // desired phase plan information consumed from desire_phase_plan Kafka topic
+            bool use_desired_phase_plan_update_ = false;
             
         public:
             tsc_service() = default;
@@ -79,7 +90,14 @@ namespace traffic_signal_controller_service {
              * @return false if initialization is not successful.
              */
             bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &spat_producer_topic );
-
+            /**
+             * @brief Initialize Kafka Desired phase plan consumer. 
+             * @param bootstap_server for CARMA-Streets Kafka broker.
+             * @param desired_phase_plan_consumer_topic name of topic to produce to.
+             * @return true if initialization is successful.
+             * @return false if initialization is not successful.
+             */
+            bool initialize_kafka_consumer(const std::string &bootstrap_server, const std::string &desired_phase_plan_consumer_topic, std::string &consumer_group);
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.
              * 
@@ -155,6 +173,8 @@ namespace traffic_signal_controller_service {
              * the carma-streets kafka broker.
              */
             void produce_spat_json() const;
+
+            void consume_desired_phase_plan() const;
 
     };
 }

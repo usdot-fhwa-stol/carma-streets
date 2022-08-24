@@ -72,6 +72,15 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install streets_desired_phase_plan
+RUN echo " ------> Install streets desired phase plan from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
