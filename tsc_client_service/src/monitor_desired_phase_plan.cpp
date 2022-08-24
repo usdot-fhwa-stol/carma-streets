@@ -8,7 +8,12 @@ namespace traffic_signal_controller_service
         desired_phase_plan_ptr->fromJson(payload);
     }
 
-    void monitor_desired_phase_plan::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr)
+    const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> monitor_desired_phase_plan::get_desired_phase_plan_ptr() const
+    {
+        return desired_phase_plan_ptr;
+    }
+
+    void monitor_desired_phase_plan::update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr)
     {
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr)
         {
@@ -28,7 +33,7 @@ namespace traffic_signal_controller_service
             return;
         }
 
-        if (desired_phase_plan_ptr->desired_phase_plan.empty())
+        if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
         {
             SPDLOG_ERROR("Desired phase plan is empty. No update.");
             return;
@@ -81,11 +86,13 @@ namespace traffic_signal_controller_service
         auto desired_green_end_time_epoch = desired_sg_green_timing.end_time;
 
         // Assuming signal groups(e.g [1,5]) within the same movement group(e.g. A) has the same red_clearance and yellow_duration
-        uint16_t desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map().at(desired_green_signal_group_ids.front()).yellow_duration;
-        uint16_t desired_red_clearance = tsc_state_ptr->get_signal_group_state_map().at(desired_green_signal_group_ids.front()).red_clearance;
+        uint16_t desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].yellow_duration;
+        uint16_t desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].red_clearance;
 
         // If SPAT Current signal group id is in the current desired phase plan signal group ids, process desired green event for the SPAT current movement event
-        if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), cur_movement_state_ref.signal_group))
+        int current_signal_group_id = cur_movement_state_ref.signal_group;
+        std::cout << "process signal group = " << current_signal_group_id << ". AND desired sg ids = " << desired_green_signal_group_ids.front() << "," << desired_green_signal_group_ids.back() << std::endl;
+        if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             /**
              * @brief If the SPAT current movement event is GREEN event state,
@@ -152,7 +159,7 @@ namespace traffic_signal_controller_service
             else if (cur_movement_state_ref.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance) // YELLOW
             {
                 // Updating the current YELLOW movement event
-                uint16_t spat_current_yellow_duration = tsc_state_ptr->get_signal_group_state_map().at(cur_movement_state_ref.signal_group).yellow_duration;
+                uint16_t spat_current_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].yellow_duration;
                 uint64_t calculated_yellow_end_time_epoch = cur_movement_state_ref.state_time_speed.front().timing.get_epoch_start_time() + spat_current_yellow_duration;
                 cur_movement_state_ref.state_time_speed.front().timing.set_min_end_time(calculated_yellow_end_time_epoch);
 
@@ -177,9 +184,8 @@ namespace traffic_signal_controller_service
         auto desired_green_end_time_epoch = desired_sg_green_timing.end_time;
 
         // Assuming signal groups(e.g [1,5]) within the same movement group(e.g. A) has the same red_clearance and yellow_duration
-        uint16_t desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map().at(desired_green_signal_group_ids.front()).yellow_duration;
-        uint16_t desired_red_clearance = tsc_state_ptr->get_signal_group_state_map().at(desired_green_signal_group_ids.front()).red_clearance;
-
+        uint16_t desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].yellow_duration;
+        uint16_t desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].red_clearance;
         /***
          * If current signal group id is in the current desired phase plan signal group ids,
          * - Updating the last RED movement event from movement event list. Updating the last RED movement event end time equals to desired green start time.
@@ -187,7 +193,9 @@ namespace traffic_signal_controller_service
          * - Adding YELLOW event state start time to desired green end time and end time euqals to start time + yellow duration.
          * - Adding RED event state start time to the above YELLO end time and end time euqals to start time + red clearance.
          **/
-        if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), cur_movement_state_ref.signal_group))
+        int current_signal_group_id = cur_movement_state_ref.signal_group;
+        std::cout << "process seconds signal group = " << current_signal_group_id << ". AND desired sg ids = " << desired_green_signal_group_ids.front() << "," << desired_green_signal_group_ids.back() << std::endl;
+        if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             if (cur_movement_state_ref.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain)
             {

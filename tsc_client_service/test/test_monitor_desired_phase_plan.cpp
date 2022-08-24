@@ -3,14 +3,15 @@
 #include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
 
-using testing::_;
-
 namespace traffic_signal_controller_service
 {
+
     class test_monitor_desired_phase_plan : public ::testing::Test
     {
     public:
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_ptr;
+        std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
+        std::shared_ptr<tsc_state> tsc_state_ptr;
 
     protected:
         void SetUp() override
@@ -84,30 +85,98 @@ namespace traffic_signal_controller_service
             event_8.timing.start_time = 30;
             state_8.state_time_speed.push_back(event_8);
             intersection_state.states.push_back(state_8);
+            spat_msg_ptr->intersections.push_back(intersection_state);
+
+            // mock tsc_state
+            std::string dummy_ip = "192.168.10.10";
+            int dummy_port = 601;
+            snmp_client mock_client_worker(dummy_ip, dummy_port);
+            auto unique_client = std::make_unique<snmp_client>(mock_client_worker);
+            tsc_state_ptr = std::make_shared<tsc_state>(std::move(unique_client));
+            signal_group_state phase_1_state;
+            phase_1_state.signal_group_id = 1;
+            phase_1_state.phase_num = 1;
+            phase_1_state.min_green = 1000;
+            phase_1_state.max_green = 2000;
+            phase_1_state.green_duration = 1000;
+            phase_1_state.yellow_duration = 1000;
+            phase_1_state.red_clearance = 1000;
+            phase_1_state.red_duration = 10000;
+            // tsc_state_ptr->signal_group_state_map_.insert({1, phase_1_state});
         }
     };
 
-    TEST(test_monitor_desired_phase_plan, update_desired_phase_plan)
+    TEST_F(test_monitor_desired_phase_plan, update_desired_phase_plan)
+    {
+        monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+        ASSERT_TRUE(monitor_dpp_ptr->get_desired_phase_plan_ptr() == nullptr);
+        std::string streets_desired_phase_plan_str = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":1660747993,\"end_time\":1660757998},{\"signal_groups\":[2,6],\"start_time\":1660749993,\"end_time\":1660749098},{\"signal_groups\":[3,7],\"start_time\":1660750993,\"end_time\":1660750998},{\"signal_groups\":[4,8],\"start_time\":1660757993,\"end_time\":1660757998}]}";
+        monitor_dpp_ptr->update_desired_phase_plan(streets_desired_phase_plan_str);
+        ASSERT_EQ(12121212121, monitor_dpp_ptr->get_desired_phase_plan_ptr()->timestamp);
+        ASSERT_EQ(4, monitor_dpp_ptr->get_desired_phase_plan_ptr()->desired_phase_plan.size());
+        ASSERT_EQ(1660747993, monitor_dpp_ptr->get_desired_phase_plan_ptr()->desired_phase_plan.front().start_time);
+        ASSERT_EQ(1660757998, monitor_dpp_ptr->get_desired_phase_plan_ptr()->desired_phase_plan.front().end_time);
+        ASSERT_EQ(1, monitor_dpp_ptr->get_desired_phase_plan_ptr()->desired_phase_plan.front().signal_groups.front());
+        ASSERT_EQ(5, monitor_dpp_ptr->get_desired_phase_plan_ptr()->desired_phase_plan.front().signal_groups.back());
+    }
+
+    TEST_F(test_monitor_desired_phase_plan, update_spat_future_movement_events)
+    {
+        monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+        std::string streets_desired_phase_plan_str = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":1660747993,\"end_time\":1660757998},{\"signal_groups\":[2,6],\"start_time\":1660749993,\"end_time\":1660749098},{\"signal_groups\":[3,7],\"start_time\":1660750993,\"end_time\":1660750998},{\"signal_groups\":[4,8],\"start_time\":1660757993,\"end_time\":1660757998}]}";
+        monitor_dpp_ptr->update_desired_phase_plan(streets_desired_phase_plan_str);
+
+        // Current spat should only contain the ONLY one current movement event for each movement state.
+        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        {
+            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(1, movement_state.state_time_speed.size());
+        }
+
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+
+        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        {
+            int sg = (int)movement_state.signal_group;
+            std::cout << "\n\n signal group = " << sg << std::endl;
+            // ASSERT_NE(1, movement_state.state_time_speed.size());
+            std::cout << "\t phase_state \t start_time \t min_end_time\n";
+            for (auto movement_event : movement_state.state_time_speed)
+            {
+                std::string state_name = "";
+                switch (movement_event.event_state)
+                {
+                case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                    state_name = "red";
+                    break;
+                case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                    state_name = "yellow";
+                    break;
+                case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                    state_name = "green";
+                    break;
+
+                default:
+                    break;
+                }
+                std::cout << "\t " << state_name << " \t " << movement_event.timing.start_time << " \t\t\t " << movement_event.timing.min_end_time << "\n";
+            }
+        }
+    }
+
+    TEST_F(test_monitor_desired_phase_plan, process_first_desired_green)
     {
     }
 
-    TEST(test_monitor_desired_phase_plan, add_future_movement_events)
+    TEST_F(test_monitor_desired_phase_plan, process_second_onward_desired_green)
     {
     }
 
-    TEST(test_monitor_desired_phase_plan, process_first_desired_green)
+    TEST_F(test_monitor_desired_phase_plan, populate_movement_event)
     {
     }
 
-    TEST(test_monitor_desired_phase_plan, process_second_onward_desired_green)
-    {
-    }
-
-    TEST(test_monitor_desired_phase_plan, populate_movement_event)
-    {
-    }
-
-    TEST(test_monitor_desired_phase_plan, append_full_green_yellow_red_phases_by_desired_green)
+    TEST_F(test_monitor_desired_phase_plan, append_full_green_yellow_red_phases_by_desired_green)
     {
     }
 }

@@ -172,7 +172,7 @@ namespace traffic_signal_controller_service {
                         }
                     }else if(use_desired_phase_plan_update_){
                         std::lock_guard<std::mutex> lck(dpp_mtx);
-                        monitor_dpp_ptr->add_future_movement_events(spat_ptr, tsc_state_ptr);
+                        monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
                     }
                     
                     spat_producer->send(spat_ptr->toJson());
