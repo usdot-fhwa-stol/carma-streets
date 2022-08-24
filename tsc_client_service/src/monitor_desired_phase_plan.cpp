@@ -2,7 +2,7 @@
 
 namespace traffic_signal_controller_service
 {
-    void monitor_desired_phase_plan::update_desired_phase_plan(const std::string& payload)
+    void monitor_desired_phase_plan::update_desired_phase_plan(const std::string &payload)
     {
         desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan_ptr->fromJson(payload);
@@ -86,8 +86,9 @@ namespace traffic_signal_controller_service
         auto desired_green_end_time_epoch = desired_sg_green_timing.end_time;
 
         // Assuming signal groups(e.g [1,5]) within the same movement group(e.g. A) has the same red_clearance and yellow_duration
-        uint16_t desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].yellow_duration;
-        uint16_t desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].red_clearance;
+        int desired_sg_id = find_max_desired_yellow_duration_red_clearance_pair(desired_green_signal_group_ids, tsc_state_ptr);
+        int desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[desired_sg_id].yellow_duration;
+        int desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[desired_sg_id].red_clearance;
 
         // If SPAT Current signal group id is in the current desired phase plan signal group ids, process desired green event for the SPAT current movement event
         int current_signal_group_id = cur_movement_state_ref.signal_group;
@@ -184,8 +185,9 @@ namespace traffic_signal_controller_service
         auto desired_green_end_time_epoch = desired_sg_green_timing.end_time;
 
         // Assuming signal groups(e.g [1,5]) within the same movement group(e.g. A) has the same red_clearance and yellow_duration
-        uint16_t desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].yellow_duration;
-        uint16_t desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[desired_green_signal_group_ids.front()].red_clearance;
+        int desired_sg_id = find_max_desired_yellow_duration_red_clearance_pair(desired_green_signal_group_ids, tsc_state_ptr);
+        int desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[desired_sg_id].yellow_duration;
+        int desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[desired_sg_id].red_clearance;
         /***
          * If current signal group id is in the current desired phase plan signal group ids,
          * - Updating the last RED movement event from movement event list. Updating the last RED movement event end time equals to desired green start time.
@@ -194,7 +196,7 @@ namespace traffic_signal_controller_service
          * - Adding RED event state start time to the above YELLO end time and end time euqals to start time + red clearance.
          **/
         int current_signal_group_id = cur_movement_state_ref.signal_group;
-        SPDLOG_DEBUG("process signal group = {0} \t AND second and onwards desired sg ids = [{1} , {2}]", current_signal_group_id,  desired_green_signal_group_ids.front(), desired_green_signal_group_ids.back());
+        SPDLOG_DEBUG("process signal group = {0} \t AND second and onwards desired sg ids = [{1} , {2}]", current_signal_group_id, desired_green_signal_group_ids.front(), desired_green_signal_group_ids.back());
         if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             if (cur_movement_state_ref.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain)
@@ -257,4 +259,19 @@ namespace traffic_signal_controller_service
         cur_movement_state_ref.state_time_speed.push_back(red_movement_event);
     }
 
+    int monitor_desired_phase_plan::find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<tsc_state> tsc_state_ptr) const
+    {
+        int return_sg_id = desired_signal_groups.front();
+        int total = 0;
+        for (auto sg : desired_signal_groups)
+        {
+            int local_total = tsc_state_ptr->get_signal_group_state_map()[sg].red_clearance + tsc_state_ptr->get_signal_group_state_map()[sg].yellow_duration;
+            if (local_total > total)
+            {
+                total = local_total;
+                return_sg_id = sg;
+            }
+        }
+        return return_sg_id;
+    }
 }
