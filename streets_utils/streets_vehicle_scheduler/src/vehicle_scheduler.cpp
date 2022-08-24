@@ -51,12 +51,12 @@ namespace streets_vehicle_scheduler {
         for ( auto &[v_id, veh]: vehicles) {
             // Time difference in seconds
             double delta_t = (double)(timestamp - veh._cur_time)/1000.0;
-            if ( delta_t > 500.0 ) {
+            if ( delta_t > 0.5 ) {
                 SPDLOG_WARN("Vehicle update {0} is older than 5 times the vehicle update interval (500 ms)!", veh._id);
                 throw scheduling_exception("Timestamp "+ std::to_string(timestamp) + " is earlier that latest vehicle update " 
                     + std::to_string(veh._cur_time) + " Vehicles can only be scheduled for current or future time.");
             }
-            else if ( delta_t > 200.0) {
+            else if ( delta_t > 0.2) {
                 SPDLOG_WARN("Vehicle update {0} is older than double the vehicle update interval (200 ms)!", veh._id);
             }
             else if ( delta_t < 0) {
@@ -67,7 +67,7 @@ namespace streets_vehicle_scheduler {
             double v_final = veh._cur_speed + veh._cur_accel*delta_t;
             // estimate change in distance
             double delta_x = ((v_final + veh._cur_speed)/2.0)*delta_t;
-            SPDLOG_DEBUG("Setting speed for vehicle {0} from {1}m/s to {2}m/s.", 
+            SPDLOG_TRACE("Setting speed for vehicle {0} from {1}m/s to {2}m/s.", 
                             veh._id, 
                             veh._cur_speed, 
                             v_final );
@@ -75,7 +75,7 @@ namespace streets_vehicle_scheduler {
             veh._cur_time =  timestamp;
             // Estimate distance to end of lanelet
             if ( veh._cur_distance - delta_x >= 0.0) {
-                SPDLOG_DEBUG("Setting distance for vehicle {0} from {1}m to {2}m.", 
+                SPDLOG_TRACE("Setting distance for vehicle {0} from {1}m to {2}m.", 
                             veh._id, 
                             veh._cur_distance, 
                             veh._cur_distance-delta_x );
