@@ -2,18 +2,18 @@
 
 namespace traffic_signal_controller_service
 {
-    void monitor_desired_phase_plan::update_desired_phase_plan(std::string payload)
+    void monitor_desired_phase_plan::update_desired_phase_plan(const std::string& payload)
     {
         desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan_ptr->fromJson(payload);
     }
 
-    const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> monitor_desired_phase_plan::get_desired_phase_plan_ptr() const
+    std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> monitor_desired_phase_plan::get_desired_phase_plan_ptr() const
     {
         return desired_phase_plan_ptr;
     }
 
-    void monitor_desired_phase_plan::update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr)
+    void monitor_desired_phase_plan::update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr)
         {
@@ -50,7 +50,7 @@ namespace traffic_signal_controller_service
             }
 
             // Loop through current spat and assuming that current spat only has the current movement event and does not contain future movement events
-            for (auto &movement_state : states)
+            for (const auto &movement_state : states)
             {
                 int current_signal_group_id = movement_state.signal_group;
 
@@ -79,7 +79,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    void monitor_desired_phase_plan::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, const std::shared_ptr<tsc_state> tsc_state_ptr)
+    void monitor_desired_phase_plan::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
         auto desired_green_signal_group_ids = desired_sg_green_timing.signal_groups;
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;
@@ -177,7 +177,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    void monitor_desired_phase_plan::process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, const std::shared_ptr<tsc_state> tsc_state_ptr)
+    void monitor_desired_phase_plan::process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
         auto desired_green_signal_group_ids = desired_sg_green_timing.signal_groups;
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;
