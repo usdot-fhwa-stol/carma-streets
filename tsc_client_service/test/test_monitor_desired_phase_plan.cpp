@@ -12,6 +12,7 @@ namespace traffic_signal_controller_service
     {
     public:
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_ptr;
+        std::shared_ptr<signal_phase_and_timing::spat> spat_msg_two_ptr;
         std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
         std::shared_ptr<tsc_state> tsc_state_ptr;
         uint16_t current_hour_in_tenths_secs;
@@ -27,8 +28,10 @@ namespace traffic_signal_controller_service
 
             // Create mock spat
             spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
+            spat_msg_two_ptr = std::make_shared<signal_phase_and_timing::spat>();
 
             signal_phase_and_timing::intersection_state intersection_state;
+            signal_phase_and_timing::intersection_state intersection_state_two;
 
             signal_phase_and_timing::movement_state state_1;
             state_1.signal_group = 1;
@@ -38,6 +41,7 @@ namespace traffic_signal_controller_service
             event_1.timing.min_end_time = current_hour_in_tenths_secs + 10;
             state_1.state_time_speed.push_back(event_1);
             intersection_state.states.push_back(state_1);
+            intersection_state_two.states.push_back(state_1);
 
             signal_phase_and_timing::movement_state state_2;
             state_2.signal_group = 2;
@@ -48,6 +52,9 @@ namespace traffic_signal_controller_service
             state_2.state_time_speed.push_back(event_2);
             intersection_state.states.push_back(state_2);
 
+            state_2.state_time_speed.front().event_state = signal_phase_and_timing::movement_phase_state::protected_clearance; // Yellow
+            intersection_state_two.states.push_back(state_2);
+
             signal_phase_and_timing::movement_state state_3;
             state_3.signal_group = 3;
             signal_phase_and_timing::movement_event event_3;
@@ -56,6 +63,7 @@ namespace traffic_signal_controller_service
             event_3.timing.min_end_time = current_hour_in_tenths_secs + 10;
             state_3.state_time_speed.push_back(event_3);
             intersection_state.states.push_back(state_3);
+            intersection_state_two.states.push_back(state_3);
 
             signal_phase_and_timing::movement_state state_4;
             state_4.signal_group = 4;
@@ -65,15 +73,17 @@ namespace traffic_signal_controller_service
             event_4.timing.min_end_time = current_hour_in_tenths_secs + 10;
             state_4.state_time_speed.push_back(event_4);
             intersection_state.states.push_back(state_4);
+            intersection_state_two.states.push_back(state_4);
 
             signal_phase_and_timing::movement_state state_5;
             state_5.signal_group = 5;
             signal_phase_and_timing::movement_event event_5;
-            event_5.event_state = signal_phase_and_timing::movement_phase_state::stop_and_remain; // Red
+            event_5.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed; // Green
             event_5.timing.start_time = current_hour_in_tenths_secs;
             event_5.timing.min_end_time = current_hour_in_tenths_secs + 10;
             state_5.state_time_speed.push_back(event_5);
             intersection_state.states.push_back(state_5);
+            intersection_state_two.states.push_back(state_5);
 
             signal_phase_and_timing::movement_state state_6;
             state_6.signal_group = 6;
@@ -84,14 +94,18 @@ namespace traffic_signal_controller_service
             state_6.state_time_speed.push_back(event_6);
             intersection_state.states.push_back(state_6);
 
+            state_6.state_time_speed.front().event_state = signal_phase_and_timing::movement_phase_state::protected_clearance; // Yellow
+            intersection_state_two.states.push_back(state_6);
+
             signal_phase_and_timing::movement_state state_7;
             state_7.signal_group = 7;
             signal_phase_and_timing::movement_event event_7;
-            event_7.event_state = signal_phase_and_timing::movement_phase_state::stop_and_remain; // Green
+            event_7.event_state = signal_phase_and_timing::movement_phase_state::stop_and_remain; // RED
             event_7.timing.start_time = current_hour_in_tenths_secs;
             event_7.timing.min_end_time = current_hour_in_tenths_secs + 10;
             state_7.state_time_speed.push_back(event_7);
             intersection_state.states.push_back(state_7);
+            intersection_state_two.states.push_back(state_7);
 
             signal_phase_and_timing::movement_state state_8;
             state_8.signal_group = 8;
@@ -101,7 +115,10 @@ namespace traffic_signal_controller_service
             event_8.timing.min_end_time = current_hour_in_tenths_secs + 10;
             state_8.state_time_speed.push_back(event_8);
             intersection_state.states.push_back(state_8);
+            intersection_state_two.states.push_back(state_8);
+
             spat_msg_ptr->intersections.push_back(intersection_state);
+            spat_msg_two_ptr->intersections.push_back(intersection_state_two);
 
             // mock tsc_state
             std::string dummy_ip = "192.168.10.10";
@@ -146,14 +163,16 @@ namespace traffic_signal_controller_service
         monitor_dpp_ptr->update_desired_phase_plan(streets_desired_phase_plan_str);
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
+        /****
+         * START: Test Scenario one:  There are two green phases [1,5] in the current SPAT movement event.
+         * ***/
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
-
+        // Add future movement events
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
-
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -320,5 +339,191 @@ namespace traffic_signal_controller_service
                 }
             }
         }
+        /****
+         * END: Test Scenario two
+         * ***/
+
+        // Current spat should only contain the ONLY one current movement event for each movement state.
+        /****
+         * START: Test Scenario two: There are two Yellow phases [1,5] in the current SPAT movement event
+         * ***/
+        // Add future movement events
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_two_ptr, tsc_state_ptr);
+        for (auto movement_state : spat_msg_two_ptr->intersections.front().states)
+        {
+            int sg = (int)movement_state.signal_group;
+            SPDLOG_DEBUG("\n");
+            if (sg == 1 || sg == 5)
+            {
+                SPDLOG_DEBUG("current_hour_in_tenths_secs {0}", current_hour_in_tenths_secs);
+                SPDLOG_DEBUG("signal group =  {0}", sg);
+                SPDLOG_DEBUG("phase_state \t start_time \t min_end_time");
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            // ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            // ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                        }
+                        else
+                        {
+                            // ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.start_time);
+                            // ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 30 secs
+                        }
+                        state_name = "red";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                        // ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.start_time);
+                        // ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        state_name = "yellow";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                        // ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                        // ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); // last 10 secs
+                        state_name = "green";
+                        break;
+
+                    default:
+                        break;
+                    }
+                    SPDLOG_DEBUG("{0} \t\t {1} \t\t {2}", state_name, movement_event.timing.start_time, movement_event.timing.min_end_time);
+                }
+            }
+            else if (sg == 2 || sg == 6)
+            {
+                SPDLOG_DEBUG("current_hour_in_tenths_secs {0}", current_hour_in_tenths_secs);
+                SPDLOG_DEBUG("signal group =  {0}", sg);
+                SPDLOG_DEBUG("phase_state \t start_time \t min_end_time");
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain: // Red
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); // start with yellow (current yellow duration intial =0), and change red start time = yellow start time and end time to green start time
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 20 secs from the last red
+                        }
+                        state_name = "red";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance: // Yellow
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
+                        }
+                        state_name = "yellow";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: // Green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); // last 10 secs, but it starts with second desired green
+                        state_name = "green";
+                        break;
+
+                    default:
+                        break;
+                    }
+                    SPDLOG_DEBUG("{0} \t\t {1} \t\t {2}", state_name, movement_event.timing.start_time, movement_event.timing.min_end_time);
+                }
+            }
+            else if (sg == 3)
+            {
+                SPDLOG_DEBUG("current_hour_in_tenths_secs {0}", current_hour_in_tenths_secs);
+                SPDLOG_DEBUG("signal group =  {0}", sg);
+                SPDLOG_DEBUG("phase_state \t start_time \t min_end_time");
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 10 secs from the last red.
+                        }
+                        state_name = "red";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        state_name = "yellow";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); // last 10 secs, but it starts with third desired green
+                        state_name = "green";
+                        break;
+
+                    default:
+                        break;
+                    }
+                    SPDLOG_DEBUG("{0} \t\t {1} \t\t {2}", state_name, movement_event.timing.start_time, movement_event.timing.min_end_time);
+                }
+            }
+            else if (sg == 4 || sg == 8)
+            {
+                SPDLOG_DEBUG("current_hour_in_tenths_secs {0}", current_hour_in_tenths_secs);
+                SPDLOG_DEBUG("signal group =  {0}", sg);
+                SPDLOG_DEBUG("phase_state \t start_time \t min_end_time");
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 10 secs from the last red
+                        }
+                        state_name = "red";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        state_name = "yellow";
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 10 secs, but it starts with fourth desired green
+                        state_name = "green";
+                        break;
+
+                    default:
+                        break;
+                    }
+                    SPDLOG_DEBUG("{0} \t\t {1} \t\t {2}", state_name, movement_event.timing.start_time, movement_event.timing.min_end_time);
+                }
+            }
+        }
+        /****
+         * END: Test Scenario two
+         * ***/
     }
 }

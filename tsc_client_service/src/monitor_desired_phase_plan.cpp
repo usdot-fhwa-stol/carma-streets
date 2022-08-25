@@ -160,7 +160,7 @@ namespace traffic_signal_controller_service
             else if (cur_movement_state_ref.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance) // YELLOW
             {
                 // Updating the current YELLOW movement event
-                uint16_t spat_current_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].yellow_duration;
+                int spat_current_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].yellow_duration;
                 uint64_t calculated_yellow_end_time_epoch = cur_movement_state_ref.state_time_speed.front().timing.get_epoch_start_time() + spat_current_yellow_duration;
                 cur_movement_state_ref.state_time_speed.front().timing.set_min_end_time(calculated_yellow_end_time_epoch);
 
@@ -236,7 +236,7 @@ namespace traffic_signal_controller_service
         movemnet_event_to_populate.timing.set_min_end_time(end_time_epoch);
     }
 
-    void monitor_desired_phase_plan::append_full_green_yellow_red_phases_by_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, uint16_t desired_yellow_duration, uint16_t desired_red_clearance) const
+    void monitor_desired_phase_plan::append_full_green_yellow_red_phases_by_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, int desired_yellow_duration, int desired_red_clearance) const
     {
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;
         auto desired_green_end_time_epoch = desired_sg_green_timing.end_time;

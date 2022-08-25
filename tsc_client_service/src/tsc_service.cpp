@@ -171,7 +171,7 @@ namespace traffic_signal_controller_service {
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
                         }
                     }else if(use_desired_phase_plan_update_){
-                        std::lock_guard<std::mutex> lck(dpp_mtx);
+                        std::scoped_lock<std::mutex> lck{dpp_mtx};
                         monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
                     }
                     
@@ -196,7 +196,7 @@ namespace traffic_signal_controller_service {
             if (payload.length() != 0)
             {
                 SPDLOG_DEBUG("Consumed: {0}", payload);
-                std::lock_guard<std::mutex> lck(dpp_mtx);
+                std::scoped_lock<std::mutex> lck{dpp_mtx};
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
             }
         }        
