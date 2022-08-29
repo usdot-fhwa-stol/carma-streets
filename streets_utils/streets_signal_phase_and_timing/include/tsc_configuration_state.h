@@ -2,6 +2,8 @@
 
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #include <spdlog/spdlog.h>
 #include "signal_phase_and_timing_exception.h"
 
@@ -54,14 +56,14 @@ namespace signal_phase_and_timing
          * 
          * @return rapidjson::Value serialize tsc_configuration_state object
         */
-        rapidjson::Value toJson(rapidjson::Document::AllocatorType &allocator) const;
+        std::string toJson() const;
         
         /**
          * @brief Deserialize tsc_configuration_state JSON into tsc_configuration_state object.
          * 
-         * @param val tsc_configuration_state JSON.
+         * @param json tsc_configuration_state JSON string.
          */
-        void fromJson(const rapidjson::Value &val);
+        void fromJson(const std::string &json);
 
 
     };

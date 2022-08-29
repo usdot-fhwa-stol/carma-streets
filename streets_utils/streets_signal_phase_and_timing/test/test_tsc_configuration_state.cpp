@@ -24,8 +24,13 @@ TEST(test_signal_group_configuration, fromJson)
     tsc_configurations.PushBack(signal_group_config_json, allocator);
     config_json.AddMember("tsc_config_list", tsc_configurations, allocator);
 
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    config_json.Accept(writer);
+
+
     signal_phase_and_timing::tsc_configuration_state config_list;
-    config_list.fromJson(config_json);
+    config_list.fromJson(buffer.GetString());
     ASSERT_EQ(10, config_list.tsc_config_list.front().yellow_change_duration);
 
 }
@@ -46,10 +51,7 @@ TEST(test_tsc_configuration_state, toJson)
 
     signal_phase_and_timing::tsc_configuration_state config;
     config.tsc_config_list.push_back(state);
-    auto config_json = config.toJson(allocator);
-    int count = 0;
-    for (const auto& itr : config_json["tsc_config_list"].GetArray()){
-        ASSERT_EQ(itr["yellow_change_duration"].GetUint(), config.tsc_config_list[count].yellow_change_duration);
-        count++;
-    }
+    auto config_json = config.toJson();
+    ASSERT_FALSE(config_json.empty());
+    
 }

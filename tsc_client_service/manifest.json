@@ -77,7 +77,13 @@
             "value": true,
             "description": "If true will enable tsc_state to update incoming spat with calculated future movement events, using traffic signal controller configuration information",
             "type": "BOOL"
+        },
+        {
+            "name": "tsc_config_producer_topic",
+            "value": "tsc_config_state",
+            "description": "Kafka topic for streets internal Traffic Signal Controller config message",
+            "type": "STRING"
         }
-
+        
     ]
 }

@@ -33,10 +33,6 @@ namespace traffic_signal_controller_service {
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
-            else{
-                tsc_config_producer->send(tsc_config_state_ptr->toJson());
-            }
-
             // Enable SPaT
             if (!enable_spat()) {
                 return false;
@@ -179,12 +175,32 @@ namespace traffic_signal_controller_service {
         
     }
 
+    void tsc_service::produce_tsc_config_json() {
+        // Publish tsc_config information 10 times
+        try {
+            if(tsc_config_producer_counter_ < 10)
+            {
+                tsc_config_producer->send(tsc_config_state_ptr->toJson());
+                tsc_config_producer_counter_ ++;
+            }
+        }
+        catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
+            SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+        }
+
+    }
+
     
 
     void tsc_service::start() {
         std::thread spat_t(&tsc_service::produce_spat_json, this);
         spat_t.join();
+
+        std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
+        tsc_config_thread.join();
+
     }
+    
 
     tsc_service::~tsc_service()
     {

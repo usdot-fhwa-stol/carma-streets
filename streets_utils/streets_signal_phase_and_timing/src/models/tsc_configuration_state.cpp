@@ -2,6 +2,7 @@
 
 namespace signal_phase_and_timing
 {
+    
     rapidjson::Value signal_group_configuration::toJson(rapidjson::Document::AllocatorType &allocator) const {
         // Create signal group configuration JSON value
         rapidjson::Value state(rapidjson::kObjectType);
@@ -71,7 +72,9 @@ namespace signal_phase_and_timing
 
     }
 
-    rapidjson::Value tsc_configuration_state::toJson(rapidjson::Document::AllocatorType &allocator) const {
+    std::string tsc_configuration_state::toJson() const {
+        rapidjson::Document doc;
+        auto allocator = doc.GetAllocator();
         // Create tsc configuration state JSON value
         rapidjson::Value config(rapidjson::kObjectType);
         // Populate
@@ -86,19 +89,32 @@ namespace signal_phase_and_timing
             throw signal_phase_and_timing_exception("tsc_configuration_state is missing required tsc configuration information!");
         }
 
-        return config;
+        rapidjson::StringBuffer buffer;
+        try {
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            config.Accept(writer);
+        }
+        catch( const std::exception &e ) {
+            throw signal_phase_and_timing_exception(e.what());
+        }
+        return buffer.GetString();
     }
 
-    void tsc_configuration_state::fromJson(const rapidjson::Value &val){
-        if (val.IsObject()){
-            if(val.FindMember("tsc_config_list")->value.IsArray()){
-                tsc_config_list.clear();
-                for(const auto &signal_group: val["tsc_config_list"].GetArray()){
-                    signal_group_configuration config;
-                    config.fromJson(signal_group);
-                    tsc_config_list.push_back(config);
-                }
+    void tsc_configuration_state::fromJson(const std::string &json){
+        rapidjson::Document doc;
+        doc.Parse(json);
+        if (doc.HasParseError()) {
+            throw signal_phase_and_timing_exception("tsc configuration state message JSON is misformatted. JSON parsing failed!");  
+        }
+        
+        if(doc.FindMember("tsc_config_list")->value.IsArray()){
+            tsc_config_list.clear();
+            for(const auto &signal_group: doc["tsc_config_list"].GetArray()){
+                signal_group_configuration config;
+                config.fromJson(signal_group);
+                tsc_config_list.push_back(config);
             }
         }
+        
     }    
 }
