@@ -206,7 +206,7 @@ namespace streets_vehicle_scheduler {
         // Sort in ascending order based on delay.
         std::sort(schedule_options.begin(), schedule_options.end(), delay_comparator);
 
-        SPDLOG_TRACE("All all scheduling options, the option with RDV {0} first has the least delay of {1}.",
+        SPDLOG_TRACE("All scheduling options, the option with RDV {0} first has the least delay of {1}.",
                                 schedule_options.front()->vehicle_schedules[starting_departure_position-1].v_id,
                                 schedule_options.front()->get_delay());
        
