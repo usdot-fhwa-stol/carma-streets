@@ -1,0 +1,2 @@
+/usr/bin/ar qc libstreets_tsc_configuration_lib.a  CMakeFiles/streets_tsc_configuration_lib.dir/src/tsc_configuration_state.cpp.o CMakeFiles/streets_tsc_configuration_lib.dir/src/tsc_configuration_state_exception.cpp.o
+/usr/bin/ranlib libstreets_tsc_configuration_lib.a

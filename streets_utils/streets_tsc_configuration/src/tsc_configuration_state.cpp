@@ -1,6 +1,6 @@
 #include "tsc_configuration_state.h"
 
-namespace signal_phase_and_timing
+namespace streets_tsc_configuration
 {
     
     rapidjson::Value signal_group_configuration::toJson(rapidjson::Document::AllocatorType &allocator) const {
@@ -9,17 +9,17 @@ namespace signal_phase_and_timing
         //Populate
         // REQUIRED 
         if (signal_group_id == 0) {
-            throw signal_phase_and_timing_exception("tsc_configuration_state signal group id invalid");
+            throw tsc_configuration_state_exception("tsc_configuration_state signal group id invalid");
         }
         state.AddMember("signal_group_id", signal_group_id, allocator);
         
         if (yellow_change_duration < 0) {
-            throw signal_phase_and_timing_exception("tsc_configuration_state yellow change duration invalid");
+            throw tsc_configuration_state_exception("tsc_configuration_state yellow change duration invalid");
         }
         state.AddMember("yellow_change_duration", yellow_change_duration, allocator);
         
         if (red_clearance < 0) {
-            throw signal_phase_and_timing_exception("tsc_configuration_state red clearance invalid");
+            throw tsc_configuration_state_exception("tsc_configuration_state red clearance invalid");
         }
         state.AddMember("red_clearance", red_clearance, allocator);
 
@@ -41,7 +41,7 @@ namespace signal_phase_and_timing
                 signal_group_id = static_cast<uint8_t>(val["signal_group_id"].GetUint());
             }
             else{
-                throw signal_phase_and_timing_exception("tsc_configuration_state is missing required sign_group_id property");
+                throw tsc_configuration_state_exception("tsc_configuration_state is missing required sign_group_id property");
             }
 
             if(val.HasMember("yellow_change_duration") && val["yellow_change_duration"].IsUint()){
@@ -49,7 +49,7 @@ namespace signal_phase_and_timing
                 yellow_change_duration = static_cast<uint16_t>(val["yellow_change_duration"].GetUint());
             }
             else{
-                throw signal_phase_and_timing_exception("tsc_configuration_state is missing required yellow_change_duration property");
+                throw tsc_configuration_state_exception("tsc_configuration_state is missing required yellow_change_duration property");
             }
 
             if(val.HasMember("red_clearance") && val["red_clearance"].IsUint()){
@@ -57,7 +57,7 @@ namespace signal_phase_and_timing
                 red_clearance = static_cast<uint16_t>(val["red_clearance"].GetUint());
             }
             else{
-                throw signal_phase_and_timing_exception("tsc_configuration_state is missing required red_clearance property");
+                throw tsc_configuration_state_exception("tsc_configuration_state is missing required red_clearance property");
             }
 
             if(val.FindMember("concurrent_signal_groups")->value.IsArray()){
@@ -86,7 +86,7 @@ namespace signal_phase_and_timing
             config.AddMember("tsc_config_list", config_list, allocator);
         }
         else {
-            throw signal_phase_and_timing_exception("tsc_configuration_state is missing required tsc configuration information!");
+            throw tsc_configuration_state_exception("tsc_configuration_state is missing required tsc configuration information!");
         }
 
         rapidjson::StringBuffer buffer;
@@ -95,7 +95,7 @@ namespace signal_phase_and_timing
             config.Accept(writer);
         }
         catch( const std::exception &e ) {
-            throw signal_phase_and_timing_exception(e.what());
+            throw tsc_configuration_state_exception(e.what());
         }
         return buffer.GetString();
     }
@@ -104,7 +104,7 @@ namespace signal_phase_and_timing
         rapidjson::Document doc;
         doc.Parse(json);
         if (doc.HasParseError()) {
-            throw signal_phase_and_timing_exception("tsc configuration state message JSON is misformatted. JSON parsing failed!");  
+            throw tsc_configuration_state_exception("tsc configuration state message JSON is misformatted. JSON parsing failed!");  
         }
         
         if(doc.FindMember("tsc_config_list")->value.IsArray()){

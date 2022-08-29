@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(streets_signal_phase_and_timing)
+project(streets_tsc_configuration)
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
@@ -13,16 +13,8 @@ find_package(RapidJSON REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_library(${PROJECT_NAME}_lib
-                src/models/connection_maneuver_assist.cpp
-                src/models/movement_state.cpp
-                src/models/movement_event.cpp
-                src/models/advisory_speed.cpp
-                src/models/time_change_details.cpp
-                src/models/intersection_state.cpp
-                src/models/ntcip_1202_ext.cpp
-                src/models/ntcip_1202_ext_phasetime.cpp
-                src/models/spat.cpp
-                src/exceptions/signal_phase_and_timing_exception.cpp
+                src/tsc_configuration_state.cpp
+                src/tsc_configuration_state_exception.cpp
                 )
 
 

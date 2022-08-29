@@ -15,7 +15,7 @@ TEST(test_signal_group_configuration, fromJson)
     rapidjson::Value signal_groups(rapidjson::kArrayType);
     signal_group_config_json.AddMember("concurrent_signal_groups", signal_groups, allocator);
 
-    signal_phase_and_timing::signal_group_configuration state;
+    streets_tsc_configuration::signal_group_configuration state;
     state.fromJson(signal_group_config_json);
     ASSERT_EQ(10, state.yellow_change_duration);
 
@@ -29,7 +29,7 @@ TEST(test_signal_group_configuration, fromJson)
     config_json.Accept(writer);
 
 
-    signal_phase_and_timing::tsc_configuration_state config_list;
+    streets_tsc_configuration::tsc_configuration_state config_list;
     config_list.fromJson(buffer.GetString());
     ASSERT_EQ(10, config_list.tsc_config_list.front().yellow_change_duration);
 
@@ -37,7 +37,7 @@ TEST(test_signal_group_configuration, fromJson)
 
 TEST(test_tsc_configuration_state, toJson)
 {
-    signal_phase_and_timing::signal_group_configuration state;
+    streets_tsc_configuration::signal_group_configuration state;
     rapidjson::Document doc;
     auto allocator = doc.GetAllocator();
     state.signal_group_id = 1;
@@ -49,7 +49,7 @@ TEST(test_tsc_configuration_state, toJson)
     auto json = state.toJson(allocator);
     ASSERT_EQ(10, json["yellow_change_duration"].GetUint());
 
-    signal_phase_and_timing::tsc_configuration_state config;
+    streets_tsc_configuration::tsc_configuration_state config;
     config.tsc_config_list.push_back(state);
     auto config_json = config.toJson();
     ASSERT_FALSE(config_json.empty());

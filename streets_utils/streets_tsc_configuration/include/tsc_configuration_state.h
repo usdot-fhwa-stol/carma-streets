@@ -5,9 +5,9 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include <spdlog/spdlog.h>
-#include "signal_phase_and_timing_exception.h"
+#include "tsc_configuration_state_exception.h"
 
-namespace signal_phase_and_timing
+namespace streets_tsc_configuration
 {
     struct signal_group_configuration
     {
