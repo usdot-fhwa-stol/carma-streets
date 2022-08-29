@@ -1,8 +1,0 @@
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/install/local.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/streets_tsc_configuration_test.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/rebuild_cache.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/install/strip.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/streets_tsc_configuration_lib.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/edit_cache.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/list_install_components.dir
-/home/infrastructure_ws/carma-streets/streets_utils/streets_tsc_configuration/build/CMakeFiles/install.dir

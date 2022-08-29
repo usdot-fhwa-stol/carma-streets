@@ -52,7 +52,7 @@ namespace traffic_signal_controller_service {
              * configuration information obtained from the tsc_state worker
              * and broadcast on the carma-streets kafka broker as a JSON message.
              */
-            std::shared_ptr<signal_phase_and_timing::tsc_configuration_state> tsc_config_state_ptr;
+            std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state_ptr;
             /**
              * @brief Pointer to intersection_client used to query intersection information including
              * name and id from the intersection_model REST API.

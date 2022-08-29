@@ -9,6 +9,7 @@ find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
+find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
 find_library(NETSNMPAGENT "netsnmpagent")
 find_library(NETSNMPMIBS "netsnmpmibs")
 find_library(NETSNMP "netsnmp")
@@ -38,6 +39,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     spdlog::spdlog
     streets_service_base_lib::streets_service_base_lib
     streets_signal_phase_and_timing_lib
+    streets_tsc_configuration_lib
     intersection_client_api_lib
     rdkafka++ 
     kafka_clients_lib
