@@ -129,7 +129,7 @@ namespace streets_vehicles {
 		}
 
 		if (payload.FindMember("depart_pos")->value.IsInt64()){
-			vehicle._departure_position = payload["depart_pos"].GetInt();
+			vehicle._departure_position = payload["depart_pos"].GetInt64();
 		} else{
 			throw status_intent_processing_exception("The \"depart_pos\" " + vehicle._id + " is missing/incorrect in received update!");
 
