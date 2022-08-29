@@ -17,14 +17,14 @@ find_package(Qt5Network REQUIRED)
 
 
 add_library(${PROJECT_NAME}_lib
-        src/exceptions/udp_socket_listener_exception.cpp
-        src/exceptions/snmp_client_exception.cpp
-        src/exceptions/monitor_states_exception
-        src/intersection_client.cpp
-        src/udp_socket_listener.cpp
-        src/tsc_service.cpp
+        # src/exceptions/udp_socket_listener_exception.cpp
+        # src/exceptions/snmp_client_exception.cpp
+        # src/exceptions/monitor_states_exception
+        # src/intersection_client.cpp
+        # src/udp_socket_listener.cpp
+        # src/tsc_service.cpp
         src/snmp_client.cpp
-        src/spat_worker.cpp
+        # src/spat_worker.cpp
         src/monitor_tsc_state.cpp)
 
 add_executable( ${PROJECT_NAME} 
@@ -68,7 +68,8 @@ find_package(GTest REQUIRED)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${PROJECT_NAME}_test 
-    ${TEST_SOURCES}
+    # ${TEST_SOURCES}
+    test/test_monitor_state.cpp
 )
 target_link_libraries(${PROJECT_NAME}_test PUBLIC 
     ${PROJECT_NAME}_lib

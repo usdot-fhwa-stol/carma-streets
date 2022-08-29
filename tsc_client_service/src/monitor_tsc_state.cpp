@@ -34,7 +34,7 @@ namespace traffic_signal_controller_service
                 state.green_duration = state.min_green;
                 state.red_clearance = get_red_clearance(phase_num);
                 state.phase_seq = get_following_phases(phase_num);
-                state.concurrent_phases = get_concurrent_phases(phase_num);
+                state.concurrent_signal_groups = get_concurrent_signal_groups(phase_num);
                 signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
             }
 
@@ -69,8 +69,8 @@ namespace traffic_signal_controller_service
                 }
 
                 SPDLOG_DEBUG("Concurrent Phases:");
-                for(auto phase : state.concurrent_phases){
-                    SPDLOG_DEBUG("{0}", phase);
+                for(auto signal_group : state.concurrent_signal_groups){
+                    SPDLOG_DEBUG("{0}", signal_group);
                 }  
             }
             return true;
@@ -416,10 +416,10 @@ namespace traffic_signal_controller_service
 
     }
 
-    std::vector<int> tsc_state::get_concurrent_phases(int phase_num) const
+    std::vector<int> tsc_state::get_concurrent_signal_groups(int phase_num)
     {
 
-        std::vector<int> concurrent_phases;
+        std::vector<int> concurrent_signal_groups;
         std::string concurrent_phases_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(phase_num);
 
         snmp_response_obj concurrent_phase_data;
@@ -430,16 +430,16 @@ namespace traffic_signal_controller_service
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
         {   
-            concurrent_phases.push_back(int(con_phase));
+            concurrent_signal_groups.push_back(signal_group_phase_map_[int(con_phase)]);
             
         }
 
-        if(concurrent_phases.empty())
+        if(concurrent_signal_groups.empty())
         {
-            SPDLOG_WARN("No phases found in sequence for phase {0}", phase_num);
+            SPDLOG_WARN("No concurrent signal groups found for phase {0}", phase_num);
         }
 
-        return concurrent_phases;
+        return concurrent_signal_groups;
     }
 
     const std::unordered_map<int,int>& tsc_state::get_ped_phase_map()

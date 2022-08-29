@@ -22,6 +22,7 @@ add_library(${PROJECT_NAME}_lib
                 src/models/ntcip_1202_ext.cpp
                 src/models/ntcip_1202_ext_phasetime.cpp
                 src/models/spat.cpp
+                src/models/tsc_configuration_state.cpp
                 src/exceptions/signal_phase_and_timing_exception.cpp
                 )
 

@@ -32,7 +32,7 @@ namespace traffic_signal_controller_service
         /*Phase sequence in ring. Stores the sequence starting from the current phase*/
         std::vector<int> phase_seq;
         /*Phases in the same barrier or concurrent group excluding phases from same ring*/
-        std::vector<int> concurrent_phases;
+        std::vector<int> concurrent_signal_groups;
     };
 
     class tsc_state
@@ -131,7 +131,7 @@ namespace traffic_signal_controller_service
             ** @param ring_num The phase for which the concurrent phases needs to be obtained
             ** @return a vector of phases that may be concurrent with the given phase
             * **/
-            std::vector<int> get_concurrent_phases(int phase_num) const;
+            std::vector<int> get_concurrent_signal_groups(int phase_num);
 
             /** @brief Helper function to convert epoch time to hour-tenths time
             ** @param epoch_time_ms epoch time in milliseconds

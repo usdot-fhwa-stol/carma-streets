@@ -9,7 +9,7 @@ namespace traffic_signal_controller_service {
             // Intialize spat kafka producer
             std::string bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
             std::string spat_topic_name = streets_service::streets_configuration::get_string_config("spat_producer_topic");
-            if (!initialize_kafka_producer(bootstrap_server, spat_topic_name)) {
+            if (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
                 return false;
             }
             
@@ -22,11 +22,21 @@ namespace traffic_signal_controller_service {
             if (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
                 return false;
             }
+            
+            //  Initialize tsc configuration state kafka producer
+            std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
+            if (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+                return false;
+            }
             //Initialize TSC State
             use_tsc_state_spat_update_ = streets_service::streets_configuration::get_boolean_config("use_tsc_state_spat_update");
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
+            else{
+                tsc_config_producer->send(tsc_config_state_ptr->toJson());
+            }
+
             // Enable SPaT
             if (!enable_spat()) {
                 return false;
@@ -61,15 +71,17 @@ namespace traffic_signal_controller_service {
         }
     }
 
-    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &spat_producer_topc) {
+    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &producer_topic,
+         std::shared_ptr<kafka_clients::kafka_producer_worker> producer) {
+        
         auto client = std::make_unique<kafka_clients::kafka_client>();
-        spat_producer = client->create_producer(bootstrap_server, spat_producer_topc);
-        if (!spat_producer->init())
+        producer = client->create_producer(bootstrap_server, producer_topic);
+        if (!producer->init())
         {
-            SPDLOG_CRITICAL("Kafka spat producer initialize error");
+            SPDLOG_CRITICAL("Kafka producer initialize error on topic {0}", producer_topic);
             return false;
         }
-        SPDLOG_DEBUG("Initialized SPAT Kafka producer!");
+        SPDLOG_DEBUG("Initialized Kafka producer on topic {0}!", producer_topic);
         return true;
     }
 

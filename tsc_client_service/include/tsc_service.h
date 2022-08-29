@@ -9,6 +9,7 @@
 #include "spat.h"
 #include "udp_socket_listener.h"
 #include "intersection_client.h"
+#include "tsc_configuration_state.h"
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
 
@@ -20,6 +21,10 @@ namespace traffic_signal_controller_service {
              * @brief Kafka producer for spat JSON
              */
             std::shared_ptr<kafka_clients::kafka_producer_worker> spat_producer;
+            /**
+             * @brief Kafka producer for tsc_configuration_state JSON
+             */
+            std::shared_ptr<kafka_clients::kafka_producer_worker> tsc_config_producer;
             /**
              * @brief spat_worker contains udp_socket_listener and consumes UDP data 
              * packets and updates spat accordingly.
@@ -42,6 +47,12 @@ namespace traffic_signal_controller_service {
              * JSON message.
              */
             std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+            /**
+             * @brief Pointer to tsc_configuration_state object which is traffic signal controller
+             * configuration information obtained from the tsc_state worker
+             * and broadcast on the carma-streets kafka broker as a JSON message.
+             */
+            std::shared_ptr<signal_phase_and_timing::tsc_configuration_state> tsc_config_state_ptr;
             /**
              * @brief Pointer to intersection_client used to query intersection information including
              * name and id from the intersection_model REST API.
@@ -74,11 +85,13 @@ namespace traffic_signal_controller_service {
              * @brief Initialize Kafka SPaT producer.
              * 
              * @param bootstap_server for CARMA-Streets Kafka broker.
-             * @param spat_producer_topic name of topic to produce to.
+             * @param producer_topic name of topic to produce to.
+             * @param producer kafka producer set up on producer topic.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
-            bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &spat_producer_topic );
+            bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
+                    std::shared_ptr<kafka_clients::kafka_producer_worker> producer);
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.
