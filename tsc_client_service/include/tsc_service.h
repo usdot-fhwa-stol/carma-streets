@@ -12,6 +12,7 @@
 #include "tsc_configuration_state.h"
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
+#include "tsc_configuration_state_exception.h"
 #include <gtest/gtest_prod.h>
 
 namespace traffic_signal_controller_service {

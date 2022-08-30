@@ -185,7 +185,7 @@ namespace traffic_signal_controller_service {
                 tsc_config_producer_counter_ ++;
             }
         }
-        catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
+        catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
             SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
         }
 
