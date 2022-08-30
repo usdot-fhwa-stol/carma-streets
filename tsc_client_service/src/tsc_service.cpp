@@ -181,6 +181,8 @@ namespace traffic_signal_controller_service {
         try {
             if(tsc_config_producer_counter_ < 10)
             {
+                tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
+                SPDLOG_WARN("sending tsc config state message");
                 tsc_config_producer->send(tsc_config_state_ptr->toJson());
                 tsc_config_producer_counter_ ++;
             }
