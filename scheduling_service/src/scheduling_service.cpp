@@ -173,12 +173,15 @@ namespace scheduling_service{
         {
             
             const std::string payload = consumer_worker->consume(1000);
-
+            try {
             if(payload.length() != 0 && vehicle_list_ptr)
             {                
 
                 vehicle_list_ptr->process_update(payload);
     
+            }}
+            catch(const streets_vehicles::status_intent_processing_exception &e) {
+                SPDLOG_ERROR("Exception encounter during update parsing! \n{0}", e.what());
             }
         }
         SPDLOG_WARN("Stopping status and intent consumer thread!");
@@ -229,14 +232,24 @@ namespace scheduling_service{
 
             
             veh_map = vehicle_list_ptr -> get_vehicles();
-            auto int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
+            try {
+                auto int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
+                if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
+                    auto logger = spdlog::get("csv_logger");
+                    if ( logger != nullptr ){
+                        logger->info( int_schedule->toCSV());
+                    }
+                }
+                std::string msg_to_send = int_schedule->toJson();
 
-            std::string msg_to_send = int_schedule->toJson();
+                SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
 
-            SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
-
-            /* produce the scheduling plan to kafka */
-            producer_worker->send(msg_to_send);
+                /* produce the scheduling plan to kafka */
+                producer_worker->send(msg_to_send);
+            }
+            catch( const streets_vehicle_scheduler::scheduling_exception &e) {
+                SPDLOG_ERROR("Scheduling Exception: {0}",e.what());
+            }
 
             sch_count += 1;
 

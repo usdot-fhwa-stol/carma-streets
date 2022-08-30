@@ -45,6 +45,9 @@ namespace traffic_signal_controller_service
                 
                 state.red_duration = get_red_duration(state.phase_num);
             }
+
+            // Define tsc config state
+            define_tsc_config_state();
             
             // Print signal_group map
             for (const auto& [signal_group, phase] : signal_group_phase_map_)
@@ -78,6 +81,26 @@ namespace traffic_signal_controller_service
             SPDLOG_ERROR("Exception encounters during initialization: \n {0}",e.what());
             return false;
         }
+    }
+
+    void tsc_state::define_tsc_config_state()
+    {
+        for (const auto& [signal_group, state] : signal_group_state_map_)
+        {
+            streets_tsc_configuration::signal_group_configuration tsc_config;
+            tsc_config.signal_group_id = signal_group;
+            tsc_config.yellow_change_duration = state.yellow_duration;
+            tsc_config.red_clearance = state.red_clearance;
+            for(auto concurrent_signal_group : state.concurrent_signal_groups){
+                tsc_config.concurrent_signal_groups.push_back(static_cast<uint8_t>(concurrent_signal_group));
+            }
+            
+        }
+    }
+
+    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& tsc_state::get_tsc_config_state()
+    {
+        return tsc_config_state_ptr_;
     }
 
     signal_phase_and_timing::movement_event tsc_state::get_following_event(const signal_phase_and_timing::movement_event& current_event,

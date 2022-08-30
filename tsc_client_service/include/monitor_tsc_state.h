@@ -6,6 +6,7 @@
 #include "spat.h"
 #include <gtest/gtest_prod.h>
 #include "monitor_states_exception.h"
+#include "tsc_configuration_state.h"
 
 namespace traffic_signal_controller_service
 {   
@@ -64,6 +65,20 @@ namespace traffic_signal_controller_service
             // Conversion constants
             int HOUR_TO_SECONDS_ = 3600;
             int SECOND_TO_MILLISECONDS_ = 1000;
+
+            /**
+             * @brief Pointer to tsc_configuration_state object which is traffic signal controller
+             * configuration information obtained from the tsc_state worker
+             * and broadcast on the carma-streets kafka broker as a JSON message.
+             */
+            std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state_ptr_;
+
+            /**
+             * @brief Creates tsc_configuration_state object pointer which is used to forward configuration information required
+             * to understand ring and barrier information on the traffic signal controller.
+             * This includes signal_group_id, yellow_change duration, red_clearance and concurrent signal groups
+             */
+            void define_tsc_config_state();
 
             /** @brief Creates vectors of channels associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
             **  @param max_channels The maximum number of channels in the traffic signal controller.
@@ -193,6 +208,14 @@ namespace traffic_signal_controller_service
             ** @return true if update was successful, false if it failed
             * **/
             void add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr);
+
+            /** 
+             * @brief Returns a pointer to the tsc_config_state 
+             * @return pointer to the tsc_configuration_state used to forward configuration information required
+             * to understand ring and barrier information on the traffic signal controller.
+             * This includes signal_group_id, yellow_change duration, red_clearance and concurrent signal groups
+            **/
+            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& get_tsc_config_state();
 
     };
 }

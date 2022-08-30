@@ -12,6 +12,7 @@
 #include "tsc_configuration_state.h"
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
+#include <gtest/gtest_prod.h>
 
 namespace traffic_signal_controller_service {
 
@@ -66,6 +67,9 @@ namespace traffic_signal_controller_service {
 
             // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
             int tsc_config_producer_counter_ = 0;
+
+            //Add Friend Test to share private members
+            FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
             
         public:
             tsc_service() = default;
@@ -94,7 +98,7 @@ namespace traffic_signal_controller_service {
              * @return false if initialization is not successful.
              */
             bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
-                    std::shared_ptr<kafka_clients::kafka_producer_worker> producer);
+                    std::shared_ptr<kafka_clients::kafka_producer_worker>& producer);
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.

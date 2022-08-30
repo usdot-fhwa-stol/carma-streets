@@ -48,12 +48,16 @@ TEST_F(test_tsc_service, test_init_snmp_client) {
 
 }
 
-TEST_F(test_tsc_service, test_produce_spat_json_timeout) {
+namespace traffic_signal_controller_service {
+
+// Test Fixure to unit test methods requiring access to private members. These tests need to be added as Friend Tests to class
+TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) {
     tsc_service service;
     service.initialize_spat("test_intersection",1234,std::unordered_map<int,int>{
                 {1,8},{2,7},{3,6},{4,5},{5,4},{6,3},{7,2},{8,1}} );
-    std::shared_ptr<kafka_clients::kafka_producer_worker> test_producer;
-    ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "modified_spat", test_producer));
+    ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "modified_spat", service.spat_producer));
     ASSERT_TRUE(service.initialize_spat_worker("127.0.0.1",3456,2,false));
     service.produce_spat_json();
+}
+
 }

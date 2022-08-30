@@ -33,6 +33,7 @@ namespace traffic_signal_controller_service {
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
+    
             // Enable SPaT
             if (!enable_spat()) {
                 return false;
@@ -68,10 +69,10 @@ namespace traffic_signal_controller_service {
     }
 
     bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &producer_topic,
-         std::shared_ptr<kafka_clients::kafka_producer_worker> producer) {
+         std::shared_ptr<kafka_clients::kafka_producer_worker>& producer) {
         
         auto client = std::make_unique<kafka_clients::kafka_client>();
-        producer = client->create_producer(bootstrap_server, producer_topic);
+        producer = std::move(client->create_producer(bootstrap_server, producer_topic));
         if (!producer->init())
         {
             SPDLOG_CRITICAL("Kafka producer initialize error on topic {0}", producer_topic);
@@ -208,6 +209,12 @@ namespace traffic_signal_controller_service {
         {
             SPDLOG_WARN("Stopping spat producer!");
             spat_producer->stop();
+        }
+
+        if(tsc_config_producer)
+        {
+            SPDLOG_WARN("Stopping tsc config producer!");
+            tsc_config_producer->stop();
         }
     }
 }
