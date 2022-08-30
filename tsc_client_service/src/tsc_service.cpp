@@ -183,8 +183,10 @@ namespace traffic_signal_controller_service {
             {
                 tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
                 SPDLOG_WARN("sending tsc config state message");
-                tsc_config_producer->send(tsc_config_state_ptr->toJson());
-                tsc_config_producer_counter_ ++;
+                if(tsc_config_state_ptr){
+                    tsc_config_producer->send(tsc_config_state_ptr->toJson());
+                    tsc_config_producer_counter_ ++;
+                }
             }
         }
         catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
