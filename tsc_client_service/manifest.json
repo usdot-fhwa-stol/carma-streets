@@ -85,15 +85,9 @@
             "type": "BOOL"
         },
         {
-            "name": "use_tsc_state_spat_update",
-            "value": true,
-            "description": "If true will enable tsc_state to update incoming spat with calculated future movement events, using traffic signal controller configuration information",
-            "type": "BOOL"
-        },
-        {
             "name": "use_desired_phase_plan_update",
             "value": true,
-            "description": "If true will enable monitor_desired_phase_plan to update incoming spat with calculated future movement events, using desired phase plan information from signal optimization service.",
+            "description": "If true will enable monitor_desired_phase_plan to update incoming spat with calculated future movement events, using desired phase plan information from signal optimization service. If false will use TSC Configuration to predict future phases and append those to the spat based on default phase sequence.",
             "type": "BOOL"
         }
 

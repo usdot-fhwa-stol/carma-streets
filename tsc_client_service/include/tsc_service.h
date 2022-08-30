@@ -56,10 +56,6 @@ namespace traffic_signal_controller_service {
              * 
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
-
-            // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
-            // traffic signal controller configuration information
-            bool use_tsc_state_spat_update_ = true;
             
             // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
             // desired phase plan information consumed from desire_phase_plan Kafka topic

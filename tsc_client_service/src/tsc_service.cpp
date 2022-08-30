@@ -29,7 +29,6 @@ namespace traffic_signal_controller_service {
                 return false;
             }
             //Initialize TSC State
-            use_tsc_state_spat_update_ = streets_service::streets_configuration::get_boolean_config("use_tsc_state_spat_update");
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
@@ -163,14 +162,14 @@ namespace traffic_signal_controller_service {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
                     
-                    if(use_tsc_state_spat_update_){
+                    if(!use_desired_phase_plan_update_){
                         try{
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
                         }
                         catch(const traffic_signal_controller_service::monitor_states_exception &e){
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
                         }
-                    }else if(use_desired_phase_plan_update_){
+                    }else{
                         try {
                             std::scoped_lock<std::mutex> lck{dpp_mtx};
                             monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
