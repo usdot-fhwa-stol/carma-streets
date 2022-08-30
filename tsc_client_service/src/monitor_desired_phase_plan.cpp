@@ -90,9 +90,11 @@ namespace traffic_signal_controller_service
         // If SPAT Current signal group id is in the current desired phase plan signal group ids, process desired green event for the SPAT 
         // current movement event
         int current_signal_group_id = cur_movement_state_ref.signal_group;
-        // Assuming signal groups(e.g [1,5]) within the same movement group(e.g. A) have the same red_clearance and yellow_duration
-        int desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].yellow_duration;
-        int desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].red_clearance;
+        // Get yellow change and red clearance time interval for signal group in movement group with the largest combination
+        // of yellow change and red clearance time interval.
+        int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, tsc_state_ptr);
+        int desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[signal_group_with_largest_clearance].yellow_duration;
+        int desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[signal_group_with_largest_clearance].red_clearance;
         SPDLOG_DEBUG("process signal group = {0} \t AND First desired sg ids = [{1} , {2}]", 
                     current_signal_group_id, desired_green_signal_group_ids.front(), 
                     desired_green_signal_group_ids.back());
@@ -213,9 +215,11 @@ namespace traffic_signal_controller_service
          * - Adding RED event state start time to the above YELLO end time and end time euqals to start time + red clearance.
          **/
         int current_signal_group_id = cur_movement_state_ref.signal_group;
-        // Assuming signal groups(e.g [1,5]) within the same movement group(e.g. A) has the same red_clearance and yellow_duration
-        int desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].yellow_duration;
-        int desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[current_signal_group_id].red_clearance;
+        // Get yellow change and red clearance time interval for signal group in movement group with the largest combination
+        // of yellow change and red clearance time interval.
+        int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, tsc_state_ptr);
+        int desired_yellow_duration = tsc_state_ptr->get_signal_group_state_map()[signal_group_with_largest_clearance].yellow_duration;
+        int desired_red_clearance = tsc_state_ptr->get_signal_group_state_map()[signal_group_with_largest_clearance].red_clearance;
         SPDLOG_DEBUG("process signal group = {0} \t AND second and onwards desired sg ids = [{1} , {2}]", 
                     current_signal_group_id, 
                     desired_green_signal_group_ids.front(), 
@@ -298,6 +302,22 @@ namespace traffic_signal_controller_service
                                 calculated_yellow_end_time_epoch,
                                 calculated_red_end_time_epoch);
         cur_movement_state_ref.state_time_speed.push_back(red_movement_event);
+    }
+
+    int monitor_desired_phase_plan::find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<tsc_state> tsc_state_ptr) const
+    {
+        int return_sg_id = desired_signal_groups.front();
+        int total = 0;
+        for (auto sg : desired_signal_groups)
+        {
+            int local_total = tsc_state_ptr->get_signal_group_state_map()[sg].red_clearance + tsc_state_ptr->get_signal_group_state_map()[sg].yellow_duration;
+            if (local_total > total)
+            {
+                total = local_total;
+                return_sg_id = sg;
+            }
+        }
+        return return_sg_id;
     }
 
 }

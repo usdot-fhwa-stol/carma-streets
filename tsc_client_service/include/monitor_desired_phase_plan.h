@@ -68,6 +68,17 @@ namespace traffic_signal_controller_service
                                                                 const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, 
                                                                 const int desired_yellow_duration,
                                                                 const int desired_red_clearance) const;
+        /**
+         * @brief Find the signal group id for the signal group in a pair (movement group) that will have the largest yellow change plus red clearance time 
+         * interval. This is useful since the largest yellow change plus red clearance will control how long all red events during this time interval will last.
+         * 
+         * @param desired_signal_groups a pair of signal groups that make up a movement group.
+         * @param tsc_state_ptr tsc_state pointer for traffic signal controller configuration informaton including yellow change and red intervals for all
+         * signal groups.
+         * @return int the signal group id which has the largest combination of yellow change and red clearance time interval.
+         */
+        int find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<tsc_state> tsc_state_ptr) const;
+   
     public:
         /**
          * @brief Construct a new monitor desired phase plan object
