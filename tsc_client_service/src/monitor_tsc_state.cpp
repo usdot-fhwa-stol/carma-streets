@@ -84,18 +84,20 @@ namespace traffic_signal_controller_service
     }
 
     void tsc_state::define_tsc_config_state()
-    {
+    {   
+        streets_tsc_configuration::tsc_configuration_state tsc_config;
         for (const auto& [signal_group, state] : signal_group_state_map_)
         {
-            streets_tsc_configuration::signal_group_configuration tsc_config;
-            tsc_config.signal_group_id = signal_group;
-            tsc_config.yellow_change_duration = state.yellow_duration;
-            tsc_config.red_clearance = state.red_clearance;
+            streets_tsc_configuration::signal_group_configuration signal_group_config;
+            signal_group_config.signal_group_id = signal_group;
+            signal_group_config.yellow_change_duration = state.yellow_duration;
+            signal_group_config.red_clearance = state.red_clearance;
             for(auto concurrent_signal_group : state.concurrent_signal_groups){
-                tsc_config.concurrent_signal_groups.push_back(static_cast<uint8_t>(concurrent_signal_group));
+                signal_group_config.concurrent_signal_groups.push_back(static_cast<uint8_t>(concurrent_signal_group));
             }
-            
+            tsc_config.tsc_config_list.push_back(signal_group_config);
         }
+        tsc_config_state_ptr_ = std::make_shared<streets_tsc_configuration::signal_group_configuration>(tsc_config);
     }
 
     const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& tsc_state::get_tsc_config_state()
