@@ -12,6 +12,7 @@
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
 #include "monitor_desired_phase_plan.h"
+#include "monitor_desired_phase_plan_exception.h"
 #include <mutex>    
 
 namespace traffic_signal_controller_service {

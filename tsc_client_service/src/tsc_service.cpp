@@ -171,8 +171,13 @@ namespace traffic_signal_controller_service {
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
                         }
                     }else if(use_desired_phase_plan_update_){
-                        std::scoped_lock<std::mutex> lck{dpp_mtx};
-                        monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
+                        try {
+                            std::scoped_lock<std::mutex> lck{dpp_mtx};
+                            monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
+                        }
+                        catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
+                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                        }
                     }
                     
                     spat_producer->send(spat_ptr->toJson());

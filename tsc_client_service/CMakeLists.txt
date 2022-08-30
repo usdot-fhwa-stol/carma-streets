@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME}_lib
         src/exceptions/udp_socket_listener_exception.cpp
         src/exceptions/snmp_client_exception.cpp
         src/exceptions/monitor_states_exception
+        src/exceptions/monitor_desired_phase_plan_exception.cpp
         src/intersection_client.cpp
         src/udp_socket_listener.cpp
         src/tsc_service.cpp

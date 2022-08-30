@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
+#include "monitor_desired_phase_plan_exception.h"
 #include <spdlog/spdlog.h>
 #include <chrono>
 
@@ -172,13 +173,28 @@ namespace traffic_signal_controller_service
     TEST_F(test_monitor_desired_phase_plan, update_spat_future_movement_events)
     {
         // Add the future movement events without a valid spat
-        monitor_dpp_ptr->update_spat_future_movement_events(nullptr, nullptr);
+        try{
+            monitor_dpp_ptr->update_spat_future_movement_events(nullptr, nullptr);
+        }
+        catch( const monitor_desired_phase_plan_exception &e ) {
+            ASSERT_STREQ(e.what(), "SPAT and TSC state pointers cannot be null. SKIP prcessing!");
+        }
         auto invalid_spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
-        monitor_dpp_ptr->update_spat_future_movement_events(invalid_spat_msg_ptr, tsc_state_ptr);
+        try {
+            monitor_dpp_ptr->update_spat_future_movement_events(invalid_spat_msg_ptr, tsc_state_ptr);
+        }
+        catch( const monitor_desired_phase_plan_exception &e ) {
+            ASSERT_STREQ(e.what(), "Intersections cannot be empty!");
+        }
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.empty());
         signal_phase_and_timing::intersection_state intersection;
         invalid_spat_msg_ptr->intersections.push_back(intersection);
-        monitor_dpp_ptr->update_spat_future_movement_events(invalid_spat_msg_ptr, tsc_state_ptr);
+        try {
+            monitor_dpp_ptr->update_spat_future_movement_events(invalid_spat_msg_ptr, tsc_state_ptr);
+        }
+        catch( const monitor_desired_phase_plan_exception &e) {
+            ASSERT_STREQ(e.what(), "Intersections states cannot be empty!");
+        }
         ASSERT_FALSE(invalid_spat_msg_ptr->intersections.empty());
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
 
@@ -195,7 +211,12 @@ namespace traffic_signal_controller_service
         monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
 
         // Add future movement events with an EMPTY desired phase plan, and it should not modify the SPAT message
-        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+        try {
+            monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+        }
+        catch( const monitor_desired_phase_plan_exception &e) {
+            ASSERT_STREQ(e.what(), "Desired phase plan is empty. No update.");
+        }
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
@@ -205,7 +226,12 @@ namespace traffic_signal_controller_service
         // Add future movement events with an INVALID desired phase plan, and it should not modify the SPAT message
         std::string streets_desired_phase_plan_invalid_str = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "}]}";
         monitor_dpp_ptr->update_desired_phase_plan(streets_desired_phase_plan_invalid_str);
-        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+        try {
+            monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+        }
+        catch (const monitor_desired_phase_plan_exception &e) {
+            ASSERT_STREQ(e.what(), "Desired phase plan signal group ids list is empty. No update.");
+        }
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());

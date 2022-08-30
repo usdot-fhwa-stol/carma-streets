@@ -2,6 +2,7 @@
 #include "streets_desired_phase_plan.h"
 #include "spat.h"
 #include "monitor_tsc_state.h"
+#include "monitor_desired_phase_plan_exception.h"
 #include "spdlog/spdlog.h"
 
 namespace traffic_signal_controller_service

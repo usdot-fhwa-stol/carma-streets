@@ -17,26 +17,22 @@ namespace traffic_signal_controller_service
     {
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr)
         {
-            SPDLOG_ERROR("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
-            return;
+            throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
         }
         if (spat_ptr->intersections.empty())
         {
-            SPDLOG_ERROR("Intersections cannot be empty");
-            return;
+            throw monitor_desired_phase_plan_exception("Intersections cannot be empty!");
         }
         auto states = spat_ptr->intersections.front().states;
 
         if (states.empty())
         {
-            SPDLOG_ERROR("Intersections states cannot be empty");
-            return;
+            throw monitor_desired_phase_plan_exception("Intersections states cannot be empty!");
         }
 
         if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
         {
-            SPDLOG_ERROR("Desired phase plan is empty. No update.");
-            return;
+            throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
         }
 
         // Loop through desired phase plan
@@ -45,8 +41,7 @@ namespace traffic_signal_controller_service
         {
             if (desired_sg_green_timing.signal_groups.empty())
             {
-                SPDLOG_ERROR("Desired phase plan signal group ids list is empty. No update.");
-                return;
+                throw monitor_desired_phase_plan_exception("Desired phase plan signal group ids list is empty. No update.");
             }
 
             // Loop through current spat and assuming that current spat only has the current movement event and does not contain future movement events
@@ -57,8 +52,7 @@ namespace traffic_signal_controller_service
                 // Before we add future movement events to the movement event list, the current movement event list should only contains the current movement event
                 if (movement_state.state_time_speed.size() > 1)
                 {
-                    SPDLOG_ERROR("Movement event list has more than one events, not usable when adding future movement events. Associated with Signal Group: {0}", current_signal_group_id);
-                    return;
+                    throw monitor_desired_phase_plan_exception("Movement event list has more than one events, not usable when adding future movement events. Associated with Signal Group: " + std::to_string(current_signal_group_id) );
                 }
 
                 // Get movement_state by reference. With this reference, it can update the original SPAT movement state list
@@ -149,8 +143,7 @@ namespace traffic_signal_controller_service
             }
             else
             {
-                SPDLOG_ERROR("SPAT current movement event has to be green or red event state!");
-                return;
+                throw monitor_desired_phase_plan_exception("SPAT current movement event has to be green or red event state!");
             }
         }
         else
@@ -192,8 +185,7 @@ namespace traffic_signal_controller_service
             }
             else
             {
-                SPDLOG_ERROR("SPAT current movement event has to be red or yellow if its signal group id is not in desired signal group ids!");
-                return;
+                throw monitor_desired_phase_plan_exception("SPAT current movement event has to be red or yellow if its signal group id is not in desired signal group ids!");
             }
         }
     }
@@ -228,8 +220,7 @@ namespace traffic_signal_controller_service
         {
             if (cur_movement_state_ref.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain)
             {
-                SPDLOG_ERROR("The last movement event has to be red to turn green again");
-                return;
+                throw monitor_desired_phase_plan_exception("The last movement event has to be red to turn green again");
             }
 
             //  Updating the last RED movement end time
@@ -255,8 +246,7 @@ namespace traffic_signal_controller_service
             }
             else
             {
-                SPDLOG_ERROR("For processing future movement events, the movement event has to be red if its signal group is not in the desired signal groups.");
-                return;
+                throw monitor_desired_phase_plan_exception("For processing future movement events, the movement event has to be red if its signal group is not in the desired signal groups.");
             }
         }
     }
