@@ -93,8 +93,8 @@ namespace signal_phase_and_timing {
         auto system_time = std::chrono::system_clock::now();
         auto duration = system_time.time_since_epoch();
         auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
-        auto hour_tenth_secs = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS))/100;
-        return static_cast<uint16_t>(hour_tenth_secs);
+        auto tenth_seconds_from_current_hour = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS))/100;
+        return static_cast<uint16_t>(tenth_seconds_from_current_hour);
     }
 
     uint64_t time_change_details::get_epoch_start_time() const{
