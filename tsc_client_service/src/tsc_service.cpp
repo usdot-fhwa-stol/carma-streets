@@ -158,7 +158,7 @@ namespace traffic_signal_controller_service {
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
                         }
                         catch(const traffic_signal_controller_service::monitor_states_exception &e){
-                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                            SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                         }
                     }
                     
@@ -166,12 +166,12 @@ namespace traffic_signal_controller_service {
                     
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
-                    SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+                    SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
                 }   
             }
         }
         catch( const udp_socket_listener_exception &e) {
-            SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
         }
         
     }
@@ -190,7 +190,7 @@ namespace traffic_signal_controller_service {
             }
         }
         catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
-            SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
         }
 
     }
@@ -198,11 +198,12 @@ namespace traffic_signal_controller_service {
     
 
     void tsc_service::start() {
-        std::thread spat_t(&tsc_service::produce_spat_json, this);
-        spat_t.join();
-
+        // Run threads as joint so that they dont overlap execution 
         std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
         tsc_config_thread.join();
+
+        std::thread spat_t(&tsc_service::produce_spat_json, this);
+        spat_t.join();
 
     }
     
