@@ -33,7 +33,8 @@ namespace traffic_signal_controller_service {
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
-    
+            tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
+
             // Enable SPaT
             if (!enable_spat()) {
                 return false;
@@ -179,9 +180,8 @@ namespace traffic_signal_controller_service {
     void tsc_service::produce_tsc_config_json() {
         // Publish tsc_config information 10 times
         try {
-            if(tsc_config_producer_counter_ < 10)
-            {
-                tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
+            while(tsc_config_producer_counter_ < 10)
+            { 
                 SPDLOG_WARN("sending tsc config state message");
                 if(tsc_config_state_ptr){
                     tsc_config_producer->send(tsc_config_state_ptr->toJson());
