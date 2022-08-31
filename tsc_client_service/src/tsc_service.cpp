@@ -180,13 +180,12 @@ namespace traffic_signal_controller_service {
     void tsc_service::produce_tsc_config_json() {
         // Publish tsc_config information 10 times
         try {
-            while(tsc_config_producer_counter_ < 10)
+            while(tsc_config_state_ptr && tsc_config_producer_counter_ < 10)
             { 
-                SPDLOG_WARN("sending tsc config state message");
-                if(tsc_config_state_ptr){
-                    tsc_config_producer->send(tsc_config_state_ptr->toJson());
-                    tsc_config_producer_counter_ ++;
-                }
+                
+                tsc_config_producer->send(tsc_config_state_ptr->toJson());
+                tsc_config_producer_counter_ ++;
+                
             }
         }
         catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {

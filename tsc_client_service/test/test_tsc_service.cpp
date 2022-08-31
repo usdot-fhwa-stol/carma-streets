@@ -60,4 +60,21 @@ TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) {
     service.produce_spat_json();
 }
 
+TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout) {
+    tsc_service service;
+    ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "tsc_config_state", service.tsc_config_producer));
+    streets_tsc_configuration::tsc_configuration_state state;
+
+    streets_tsc_configuration::signal_group_configuration signal_group_1;
+    signal_group_1.signal_group_id = 1;
+    signal_group_1.yellow_change_duration = 10;
+    signal_group_1.red_clearance = 5;
+    signal_group_1.concurrent_signal_groups = {5,6};
+    state.tsc_config_list.push_back(signal_group_1);
+
+    service.tsc_config_state_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(state);
+    service.produce_tsc_config_json();
+    EXPECT_EQ(service.tsc_config_producer_counter_, 10);
+}
+
 }

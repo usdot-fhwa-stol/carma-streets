@@ -71,6 +71,7 @@ namespace traffic_signal_controller_service {
 
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
+            FRIEND_TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout);
             
         public:
             tsc_service() = default;
