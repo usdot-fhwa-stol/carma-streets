@@ -14,6 +14,9 @@
 #include "monitor_states_exception.h"
 #include "tsc_configuration_state_exception.h"
 #include <gtest/gtest_prod.h>
+#include "monitor_desired_phase_plan.h"
+#include "monitor_desired_phase_plan_exception.h"
+#include <mutex>    
 
 namespace traffic_signal_controller_service {
 
@@ -27,6 +30,11 @@ namespace traffic_signal_controller_service {
              * @brief Kafka producer for tsc_configuration_state JSON
              */
             std::shared_ptr<kafka_clients::kafka_producer_worker> tsc_config_producer;
+            /*
+             * @brief Kafka consumer for consuming desired phase plan JSON
+             */
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> desired_phase_plan_consumer;
+
             /**
              * @brief spat_worker contains udp_socket_listener and consumes UDP data 
              * packets and updates spat accordingly.
@@ -38,6 +46,7 @@ namespace traffic_signal_controller_service {
              * and red clearance, yellow change, min/max green times.
              */
             std::shared_ptr<tsc_state> tsc_state_ptr;
+            std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
             /**
              * @brief snmp_client used for making SNMP GET and SET calls th NTCIP OIDs to set
              * and retrieve information from the traffic signal controller.
@@ -61,13 +70,16 @@ namespace traffic_signal_controller_service {
              * 
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
-
+            
             // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
             // traffic signal controller configuration information
             bool use_tsc_state_spat_update_ = true;
 
             // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
             int tsc_config_producer_counter_ = 0;
+
+            // desired phase plan information consumed from desire_phase_plan Kafka topic
+            bool use_desired_phase_plan_update_ = false;
 
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
@@ -99,8 +111,17 @@ namespace traffic_signal_controller_service {
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
+
             bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
                     std::shared_ptr<kafka_clients::kafka_producer_worker>& producer);
+            /**
+             * @brief Initialize Kafka Desired phase plan consumer. 
+             * @param bootstap_server for CARMA-Streets Kafka broker.
+             * @param desired_phase_plan_consumer_topic name of topic to produce to.
+             * @return true if initialization is successful.
+             * @return false if initialization is not successful.
+             */
+            bool initialize_kafka_consumer(const std::string &bootstrap_server, const std::string &desired_phase_plan_consumer_topic, std::string &consumer_group);
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.
@@ -183,6 +204,8 @@ namespace traffic_signal_controller_service {
              * the carma-streets kafka broker.
              */
             void produce_tsc_config_json();
+
+            void consume_desired_phase_plan() const;
 
     };
 }

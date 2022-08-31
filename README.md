@@ -22,7 +22,7 @@ CARMA Streets architecture is based on a scalable services and layered architect
 ## Deployment
 Docker is the primary deployment mechanism to containerize one or more services. The CARMA Streets application and other major frameworks such as Kafka will run in their own separate containers. This document will be updated with a detailed Docker deployment strategy during later design phases. 
 
-# CARMAPlatform
+# CARMAStreets
 The primary carma-streets repository can be found [here](https://github.com/usdot-fhwa-stol/carma-streets) and is part of the [USDOT FHWA STOL](https://github.com/usdot-fhwa-stol/)
 github organization. Documentation on how the carma-streets  functions, how it will evolve over time, and how you can contribute can be found at the above links as well
 

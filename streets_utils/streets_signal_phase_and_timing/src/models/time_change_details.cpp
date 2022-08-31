@@ -89,6 +89,14 @@ namespace signal_phase_and_timing {
         return epoch_start_time;
     }
 
+    uint16_t time_change_details::convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const{
+        auto system_time = std::chrono::system_clock::now();
+        auto duration = system_time.time_since_epoch();
+        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+        auto tenth_seconds_from_current_hour = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS))/100;
+        return static_cast<uint16_t>(tenth_seconds_from_current_hour);
+    }
+
     uint64_t time_change_details::get_epoch_start_time() const{
         return convert_hour_tenth_secs2epoch_ts(start_time);
     }
@@ -103,5 +111,21 @@ namespace signal_phase_and_timing {
     
     uint64_t time_change_details::get_epoch_next_time() const{
        return convert_hour_tenth_secs2epoch_ts(next_time);
+    }
+
+    void time_change_details::set_start_time(uint64_t epoch_time_ms) {
+        start_time = convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    }
+    
+    void time_change_details::set_min_end_time(uint64_t epoch_time_ms) {
+        min_end_time = convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    }
+    
+    void time_change_details::set_max_end_time(uint64_t epoch_time_ms) {
+        max_end_time =  convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
+    }
+    
+    void time_change_details::set_next_time(uint64_t epoch_time_ms) {
+        next_time =  convert_msepoch_to_hour_tenth_secs(epoch_time_ms);
     }
 }
