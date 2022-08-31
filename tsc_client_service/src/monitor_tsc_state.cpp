@@ -40,7 +40,7 @@ namespace traffic_signal_controller_service
 
         
             // Loop through states once other state parameters are defined to get the red duration
-            for(auto& [signal_group, state] : signal_group_state_map_)
+            for(auto& [signalgroup_id, state] : signal_group_state_map_)
             {
                 
                 state.red_duration = get_red_duration(state.phase_num);
@@ -50,14 +50,14 @@ namespace traffic_signal_controller_service
             define_tsc_config_state();
             
             // Print signal_group map
-            for (const auto& [signal_group, phase] : signal_group_phase_map_)
+            for (const auto& [signalgroup_id, phase] : signal_group_phase_map_)
             {
-                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", signal_group, phase);
+                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", signalgroup_id, phase);
             }
             // Print state map
-            for (const auto& [signal_group, state] : signal_group_state_map_)
+            for (const auto& [signalgroup_id, state] : signal_group_state_map_)
             {
-                SPDLOG_DEBUG("Signal group id: {0}", signal_group);
+                SPDLOG_DEBUG("Signal group id: {0}", signalgroup_id);
                 SPDLOG_DEBUG("Phase num: {0}", state.phase_num);
                 SPDLOG_DEBUG("Max green: {0}", state.max_green);
                 SPDLOG_DEBUG("Min green: {0}", state.min_green);
@@ -89,9 +89,9 @@ namespace traffic_signal_controller_service
         for (const auto& [signal_group, state] : signal_group_state_map_)
         {
             streets_tsc_configuration::signal_group_configuration signal_group_config;
-            signal_group_config.signal_group_id = signal_group;
-            signal_group_config.yellow_change_duration = state.yellow_duration;
-            signal_group_config.red_clearance = state.red_clearance;
+            signal_group_config.signal_group_id = static_cast<uint8_t>(signal_group);
+            signal_group_config.yellow_change_duration = static_cast<uint16_t>(state.yellow_duration);
+            signal_group_config.red_clearance = static_cast<uint16_t>(state.red_clearance);
             for(auto concurrent_signal_group : state.concurrent_signal_groups){
                 signal_group_config.concurrent_signal_groups.push_back(static_cast<uint8_t>(concurrent_signal_group));
             }
@@ -100,7 +100,7 @@ namespace traffic_signal_controller_service
         tsc_config_state_ptr_ = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(tsc_config);
     }
 
-    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& tsc_state::get_tsc_config_state()
+    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& tsc_state::get_tsc_config_state() const
     {
         return tsc_config_state_ptr_;
     }

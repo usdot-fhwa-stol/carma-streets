@@ -215,7 +215,7 @@ namespace traffic_signal_controller_service
              * to understand ring and barrier information on the traffic signal controller.
              * This includes signal_group_id, yellow_change duration, red_clearance and concurrent signal groups
             **/
-            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& get_tsc_config_state();
+            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& get_tsc_config_state() const;
 
     };
 }
