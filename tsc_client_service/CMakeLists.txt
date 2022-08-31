@@ -9,6 +9,7 @@ find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
+find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_library(NETSNMPAGENT "netsnmpagent")
 find_library(NETSNMPMIBS "netsnmpmibs")
 find_library(NETSNMP "netsnmp")
@@ -20,12 +21,14 @@ add_library(${PROJECT_NAME}_lib
         src/exceptions/udp_socket_listener_exception.cpp
         src/exceptions/snmp_client_exception.cpp
         src/exceptions/monitor_states_exception
+        src/exceptions/monitor_desired_phase_plan_exception.cpp
         src/intersection_client.cpp
         src/udp_socket_listener.cpp
         src/tsc_service.cpp
         src/snmp_client.cpp
         src/spat_worker.cpp
-        src/monitor_tsc_state.cpp)
+        src/monitor_tsc_state.cpp        
+        src/monitor_desired_phase_plan.cpp)
 
 add_executable( ${PROJECT_NAME} 
         src/main.cpp
@@ -38,6 +41,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     spdlog::spdlog
     streets_service_base_lib::streets_service_base_lib
     streets_signal_phase_and_timing_lib
+    streets_desired_phase_plan_lib
     intersection_client_api_lib
     rdkafka++ 
     kafka_clients_lib
