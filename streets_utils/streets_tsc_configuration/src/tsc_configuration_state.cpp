@@ -13,14 +13,8 @@ namespace streets_tsc_configuration
         }
         state.AddMember("signal_group_id", signal_group_id, allocator);
         
-        if (yellow_change_duration < 0) {
-            throw tsc_configuration_state_exception("tsc_configuration_state yellow change duration invalid");
-        }
         state.AddMember("yellow_change_duration", yellow_change_duration, allocator);
         
-        if (red_clearance < 0) {
-            throw tsc_configuration_state_exception("tsc_configuration_state red clearance invalid");
-        }
         state.AddMember("red_clearance", red_clearance, allocator);
 
         if( !concurrent_signal_groups.empty()) {
