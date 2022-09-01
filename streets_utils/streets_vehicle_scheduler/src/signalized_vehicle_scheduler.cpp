@@ -148,19 +148,19 @@ namespace streets_vehicle_scheduler {
 
         // check if all links connected to the entry lane have the same signal ids or not!
         uint8_t signal_group_id = 0;
-        bool lanelet_count = false;
+        bool first_link_visited = false;
         for ( const auto &lane : intersection_info->getLinkLanelets() ) {
             auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
             if ( std::count(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) ) {
                 if ( !lane.getSignalGroupId() ) {
                     throw scheduling_exception("The link lanelet does not have group_id!");
                 }
-                if (lanelet_count && lane.getSignalGroupId() != signal_group_id){
+                if (first_link_visited && lane.getSignalGroupId() != signal_group_id){
                     throw scheduling_exception("The link lanelets connected to the entry lane have different signal group ids!");
                 }
-                if (!lanelet_count) {
+                if (!first_link_visited) {
                     signal_group_id = lane.getSignalGroupId();
-                    lanelet_count = true;
+                    first_link_visited = true;
                 }
             }
         }
