@@ -10,6 +10,12 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
             "yellow_change_duration":1000,
             "red_clearance":500,
             "concurrent_signal_groups":[5,6]
+        },
+        {
+            "signal_group_id": 2,
+            "yellow_change_duration":2000,
+            "red_clearance":300,
+            "concurrent_signal_groups":[5,6]
         }
 }
 ```
@@ -18,6 +24,16 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
 Traffic signal controller configuration represents the setup on the physical device. In order to access that information SNMP requests need to be sent to the system. In order to control the current phases/signal_groups on the controller, this information is required to understand ring-barrier setups 
 as well as the duration of yellow and red clearance, which cannot be controlled directly.
 The tsc_config_state message consists of this information for all **active vehicle phases/signal_groups**.
+
+### Parameter Description
+
+Signal Group ID: signal group id identifier for J2735 which is mapped to phase number in NTCIP
+
+Yellow_change_duration: Yellow signal duration for phase in milliseconds
+
+Red_clearance: Red clearace time for phase in milliseconds
+
+Concurrent_signal_groups: Signal Groups in the same barrier or concurrent group excluding signal groups from same ring
 
 
 ## Including Library
