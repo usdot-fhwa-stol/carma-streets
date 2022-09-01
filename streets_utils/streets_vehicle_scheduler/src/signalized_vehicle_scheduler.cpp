@@ -122,10 +122,11 @@ namespace streets_vehicle_scheduler {
                     break;
                 }
             }
-            SPDLOG_DEBUG("The signal group id of the entry lane {0} = {1}", entry_lane_info.getId(), entry_lane_info.getSignalGroupId());
+            SPDLOG_DEBUG("The entry lane id = {0}", entry_lane_info.getId());
 
             // Get the movement_state object that connects to this entry lane
             signal_phase_and_timing::movement_state move_state = find_movement_state_for_lane(entry_lane_info);
+            SPDLOG_DEBUG("The signal group id for the link lanelets connected to entry lane {0} = {1}", entry_lane_info.getId(), move_state.signal_group);
 
             for (const auto &ev : evs_in_lane){
                 signalized_vehicle_schedule sched;
@@ -145,22 +146,37 @@ namespace streets_vehicle_scheduler {
 
     signal_phase_and_timing::movement_state signalized_vehicle_scheduler::find_movement_state_for_lane(const OpenAPI::OAILanelet_info &entry_lane_info) const {
 
+        // check if all links connected to the entry lane have the same signal ids or not!
+        uint8_t signal_group_id = 0;
+        bool lanelet_count = false;
+        for ( const auto &lane : intersection_info->getLinkLanelets() ) {
+            auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
+            if ( std::count(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) ) {
+                if ( !lane.getSignalGroupId() ) {
+                    throw scheduling_exception("The link lanelet does not have group_id!");
+                }
+                if (lanelet_count && lane.getSignalGroupId() != signal_group_id){
+                    throw scheduling_exception("The link lanelets connected to the entry lane have different signal group ids!");
+                }
+                if (!lanelet_count) {
+                    signal_group_id = lane.getSignalGroupId();
+                    lanelet_count = true;
+                }
+            }
+        }
+
+        // find the movement_state object
         signal_phase_and_timing::movement_state move_state; 
-        if ( spat_ptr || entry_lane_info.getSignalGroupId() ) {
+        if ( spat_ptr ) {
             for (const auto& ms : spat_ptr->intersections.front().states){
-                if (ms.signal_group == entry_lane_info.getSignalGroupId()) {
+                if (ms.signal_group == signal_group_id) {
                     move_state = ms;
                     return move_state;
                 }
             }
         }
         else {
-            if ( spat_ptr ) {
-                throw scheduling_exception("SPaT is not found!");
-            }
-            else {
-                throw scheduling_exception("the lanelet does not have group_id!");
-            }
+            throw scheduling_exception("SPaT is not found!");
         }
         return move_state;
     }

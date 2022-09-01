@@ -43,7 +43,7 @@ namespace {
             scheduler = std::unique_ptr<signalized_vehicle_scheduler>(new signalized_vehicle_scheduler());
 
             OpenAPI::OAIIntersection_info info;
-            std::string json_info = "{\"departure_lanelets\":[{ \"id\":162, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":164, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":168, \"length\":34.130869420842046, \"speed_limit\":11.176 } ], \"entry_lanelets\":[ { \"id\":167, \"length\":195.73023157287864, \"speed_limit\":11.176, \"signal_group_id\":1 }, { \"id\":171, \"length\":34.130869411176431136, \"speed_limit\":11.176, \"signal_group_id\":2 }, { \"id\":163, \"length\":41.60952435603712, \"speed_limit\":11.176 ,\"signal_group_id\":3 } ], \"id\":9001, \"link_lanelets\":[ { \"conflict_lanelet_ids\":[ 161 ], \"id\":169, \"length\":15.85409574709938, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 165, 156, 161 ], \"id\":155, \"length\":16.796388658952235, \"speed_limit\":4.4704 }, { \"conflict_lanelet_ids\":[ 155, 161, 160 ], \"id\":165, \"length\":15.853947840111768943, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 155 ], \"id\":156, \"length\":9.744590320260139, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 169, 155, 165 ], \"id\":161, \"length\":16.043077028554038, \"speed_limit\":11.176 }, { \"conflict_lanelet_ids\":[ 165 ], \"id\":160, \"length\":10.295559117055083, \"speed_limit\":11.176 } ], \"name\":\"WestIntersection\"}";
+            std::string json_info = "{\"departure_lanelets\":[{ \"id\":162, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":164, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":168, \"length\":34.130869420842046, \"speed_limit\":11.176 } ], \"entry_lanelets\":[ { \"id\":167, \"length\":195.73023157287864, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [155, 169] }, { \"id\":171, \"length\":34.130869411176431136, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [160, 161] }, { \"id\":163, \"length\":41.60952435603712, \"speed_limit\":11.176 , \"connecting_lanelet_ids\": [156, 165]} ], \"id\":9001, \"link_lanelets\":[{ \"conflict_lanelet_ids\":[ 161 ], \"id\":169, \"length\":15.85409574709938, \"speed_limit\":11.176, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 165, 156, 161 ], \"id\":155, \"length\":16.796388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 155, 161, 160 ], \"id\":165, \"length\":15.853947840111768943, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 155 ], \"id\":156, \"length\":9.744590320260139, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 169, 155, 165 ], \"id\":161, \"length\":16.043077028554038, \"speed_limit\":11.176, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 165 ], \"id\":160, \"length\":10.295559117055083, \"speed_limit\":11.176, \"signal_group_id\":2 } ], \"name\":\"WestIntersection\"}";
 
             info.fromJson(QString::fromStdString(json_info));
             std::shared_ptr<OpenAPI::OAIIntersection_info> intersection = std::make_shared<OpenAPI::OAIIntersection_info>(info);
@@ -62,7 +62,8 @@ namespace {
              */
 
             signal_phase_and_timing::spat spat_message;
-            std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"status\":0,\"id\":1909,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[167,171,163],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":2,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":2,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":2,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":2,\"timing\":{\"start_time\":9950,\"min_end_time\":10300}}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+            std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[155,156,160,161,165,169],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10300}}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+            
             spat_message.fromJson(json_spat);
             spat_ptr = std::make_shared<signal_phase_and_timing::spat>(spat_message);
             scheduler->set_spat(spat_ptr);
@@ -102,7 +103,7 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_dv._entry_lane_id = 167;
     veh_dv._link_id = 155;
     veh_dv._exit_lane_id = 168;
-    veh_dv._direction = "right";
+    veh_dv._direction = "left";
     veh_dv._actual_et = schedule->timestamp - 2000;
 
     vehicle veh_ev1;
@@ -121,7 +122,7 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_ev1._entry_lane_id = 167;
     veh_ev1._link_id = 155;
     veh_ev1._exit_lane_id = 168;
-    veh_ev1._direction = "right";
+    veh_ev1._direction = "left";
 
     vehicle veh_ev2;
     veh_ev2._id = "TEST_EV_02";
@@ -139,7 +140,7 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_ev2._entry_lane_id = 167;
     veh_ev2._link_id = 155;
     veh_ev2._exit_lane_id = 168;
-    veh_ev2._direction = "right";
+    veh_ev2._direction = "left";
 
     vehicle veh_ev3;
     veh_ev3._id = "TEST_EV_03";
@@ -157,7 +158,7 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_ev3._entry_lane_id = 167;
     veh_ev3._link_id = 155;
     veh_ev3._exit_lane_id = 168;
-    veh_ev3._direction = "right";
+    veh_ev3._direction = "left";
 
     vehicle veh_ev4;
     veh_ev4._id = "TEST_EV_04";
@@ -175,7 +176,7 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_ev4._entry_lane_id = 167;
     veh_ev4._link_id = 155;
     veh_ev4._exit_lane_id = 168;
-    veh_ev4._direction = "right";
+    veh_ev4._direction = "left";
 
     vehicle veh_ev5;
     veh_ev5._id = "TEST_EV_05";
@@ -191,9 +192,9 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_ev5._cur_state = vehicle_state::EV;
     veh_ev5._cur_time = schedule->timestamp;
     veh_ev5._entry_lane_id = 171;
-    veh_ev5._link_id = 169;
+    veh_ev5._link_id = 161;
     veh_ev5._exit_lane_id = 162;
-    veh_ev5._direction = "straight";
+    veh_ev5._direction = "left";
 
     vehicle veh_ev6;
     veh_ev6._id = "TEST_EV_06";
@@ -209,9 +210,9 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     veh_ev6._cur_state = vehicle_state::EV;
     veh_ev6._cur_time = schedule->timestamp;
     veh_ev6._entry_lane_id = 171;
-    veh_ev6._link_id = 169;
+    veh_ev6._link_id = 161;
     veh_ev6._exit_lane_id = 162;
-    veh_ev6._direction = "straight";
+    veh_ev6._direction = "left";
 
 
     veh_list.insert({{veh_dv._id, veh_dv}, {veh_ev1._id, veh_ev1}, {veh_ev2._id, veh_ev2}, {veh_ev3._id, veh_ev3}, {veh_ev4._id, veh_ev4}, {veh_ev5._id, veh_ev5}, {veh_ev6._id, veh_ev6}});
@@ -312,8 +313,8 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     SPDLOG_INFO( "Vehicle {0}: ET time for scheduler {1}  vs calculated {2} ", veh_ev5_schedule.v_id, et_time, 17.000 );
     ASSERT_EQ( veh_ev5_schedule.et, sched->timestamp + 17000);
     dt_time =(veh_ev5_schedule.dt-sched->timestamp)/1000.0;
-    SPDLOG_INFO( "Vehicle {0}: DT time for scheduler  : {1}  vs calculated {2} ", veh_ev5_schedule.v_id, dt_time, 17.000 + 1.419);
-    ASSERT_EQ( veh_ev5_schedule.dt, sched->timestamp + 18419);
+    SPDLOG_INFO( "Vehicle {0}: DT time for scheduler  : {1}  vs calculated {2} ", veh_ev5_schedule.v_id, dt_time, 17.000 + 1.436);
+    ASSERT_EQ( veh_ev5_schedule.dt, sched->timestamp + 18436);
 
     ASSERT_EQ(veh_ev6_schedule.v_id, veh_ev6._id);
     eet_time =(veh_ev6_schedule.eet-sched->timestamp)/1000.0;
@@ -323,8 +324,8 @@ TEST_F(signalized_scenario_test, multiple_evs_one_dv){
     SPDLOG_INFO( "Vehicle {0}: ET time for scheduler {1}  vs calculated {2} ", veh_ev6_schedule.v_id, et_time, 17.000 + 1.627 );
     ASSERT_EQ( veh_ev6_schedule.et, sched->timestamp + 18627);
     dt_time =(veh_ev6_schedule.dt-sched->timestamp)/1000.0;
-    SPDLOG_INFO( "Vehicle {0}: DT time for scheduler  : {1}  vs calculated {2} ", veh_ev6_schedule.v_id, dt_time, 18.627 + 1.419);
-    ASSERT_EQ( veh_ev6_schedule.dt, sched->timestamp + 20046);
+    SPDLOG_INFO( "Vehicle {0}: DT time for scheduler  : {1}  vs calculated {2} ", veh_ev6_schedule.v_id, dt_time, 18.627 + 1.436);
+    ASSERT_EQ( veh_ev6_schedule.dt, sched->timestamp + 20063);
 
 }
 
