@@ -213,13 +213,13 @@ namespace traffic_signal_controller_service {
                 
                 tsc_config_producer->send(tsc_config_state_ptr->toJson());
                 tsc_config_producer_counter_ ++;
-                
+
+                std::this_thread::sleep_for(std::chrono::seconds(5)); // Sleep for 5 seconds between publish   
             }
         }
         catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
             SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
         }
-        std::this_thread::sleep_for(std::chrono::seconds(5)); // Sleep for 5 seconds between publish
     }
 
     void tsc_service::consume_desired_phase_plan() const {
