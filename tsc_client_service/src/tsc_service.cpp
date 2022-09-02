@@ -81,7 +81,7 @@ namespace traffic_signal_controller_service {
          std::shared_ptr<kafka_clients::kafka_producer_worker>& producer) {
         
         auto client = std::make_unique<kafka_clients::kafka_client>();
-        producer = std::move(client->create_producer(bootstrap_server, producer_topic));
+        producer = client->create_producer(bootstrap_server, producer_topic);
         if (!producer->init())
         {
             SPDLOG_CRITICAL("Kafka producer initialize error on topic {0}", producer_topic);
