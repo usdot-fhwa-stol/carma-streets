@@ -79,11 +79,6 @@ add_executable(${BINARY} ${TEST_SOURCES}
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC 
-                Boost::system 
-                Boost::thread
-                Boost::filesystem 
-                spdlog::spdlog
                 gtest
-                rapidjson
                 ${PROJECT_NAME}_lib
                 )

@@ -70,10 +70,6 @@ namespace traffic_signal_controller_service {
              * 
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
-            
-            // Configurable boolean to enable tsc_state to update incoming spat with future movement events calculated using 
-            // traffic signal controller configuration information
-            bool use_tsc_state_spat_update_ = true;
 
             // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
             int tsc_config_producer_counter_ = 0;
