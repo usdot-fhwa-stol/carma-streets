@@ -3,127 +3,106 @@ FROM ubuntu:bionic-20210702
 # Avoid interactive prompts during the building of this docker image
 ARG DEBIAN_FRONTEND="noninteractive"
 
-RUN apt-get update && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+ARG DEPS="automake \
+    autotools-dev \
+    cmake \
+    curl \
+    git \
+    libboost1.65-all-dev \
+    libgeographic-dev \
+    libpugixml-dev \
+    libqhttpengine-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    lsb-release \
+    qtbase5-dev \
+    qtbase5-dev-tools \
+    sqlite3"
 
-RUN mkdir -p /home/carma-streets/
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+COPY ./intersection_model /home/carma-streets/intersection_model
+COPY ./kafka_clients /home/carma-streets/kafka_clients
+COPY ./streets_utils /home/carma-streets/streets_utils
 
-# Install google test
-RUN echo " ------> Install googletest..."
-WORKDIR /home/carma-streets/
-RUN mkdir -p /home/carma-streets/ext
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/google/googletest/
-WORKDIR /home/carma-streets/ext/googletest/
-RUN cmake .
-RUN make
-RUN make install
-
-# Install spdlog
-RUN echo " ------> Install spdlog... "
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/gabime/spdlog.git
-WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
-WORKDIR /home/carma-streets/ext/spdlog/build
-RUN cmake .. && make -j
-RUN make install
-
-# Install librdkafka
-RUN echo " ------> Install librdkafka..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
-WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
-RUN make
-RUN make install
-
-# Install rapidjson
-RUN echo " ------> Install rapidjson..."
-WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
-WORKDIR /home/carma-streets/ext/rapidjson/
-RUN mkdir build
-WORKDIR /home/carma-streets/ext/rapidjson/build
-RUN cmake .. && make -j
-RUN make install
-
-COPY ./streets_utils/ /home/carma-streets/streets_utils
-# Install streets_service_base
-RUN echo " ------> Install streets service base library from streets_utils..."
-WORKDIR /home/carma-streets/streets_utils/streets_service_base
-RUN mkdir build
-WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
-
-# Install qhttpengine
-RUN echo " ------> Install qhttpengine..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/etherealjoy/qhttpengine.git
-WORKDIR /home/carma-streets/ext/qhttpengine/
-RUN mkdir build
-WORKDIR /home/carma-streets/ext/qhttpengine/build
-RUN cmake .. && make -j
-RUN make install
-
-# Install intersection_server_api
-RUN echo " ------> Install streets intersection api server from streets_utils..."
-WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api
-RUN mkdir build
-WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
-
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./kafka_clients/ /home/carma-streets/kafka_clients
-WORKDIR  /home/carma-streets/kafka_clients
-RUN mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
-
-# Install PROJ, a package for coordinate transformations
-RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
-        cd /home/carma-streets/PROJ && \
-        ./autogen.sh && \
-        ./configure && \
-        make && \
-        make install
-        
-# Download a cmake module for PROJ
-RUN cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt update && \
-    apt install -y lsb-release && \
+RUN apt-get update && \
+    apt-get install -y ${DEPS} && \
+    # Install google test
+    echo " ------> Install googletest..." && \
+    mkdir -p /home/carma-streets/ext && \
+    git clone --depth 1 https://github.com/google/googletest/ /home/carma-streets/ext/googletest && \
+    cd /home/carma-streets/ext/googletest && \
+    cmake . && \
+    make -j install && \
+    # Install spdlog
+    echo " ------> Install spdlog... " && \
+    git clone --depth 1 https://github.com/gabime/spdlog /home/carma-streets/ext/spdlog && \
+    mkdir -p /home/carma-streets/ext/spdlog/build && \
+    cd /home/carma-streets/ext/spdlog/build && \
+    cmake .. && \
+    make -j install && \
+    # Install librdkafka
+    echo " ------> Install librdkafka..." && \
+    git clone --depth 1 https://github.com/edenhill/librdkafka /home/carma-streets/ext/librdkafka && \
+    cd /home/carma-streets/ext/librdkafka && \
+    ./configure --prefix=/usr && \
+    make -j && \
+    make -j install && \
+    # Install rapidjson
+    echo " ------> Install rapidjson..." && \
+    git clone --depth 1 https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson/ && \
+    mkdir -p /home/carma-streets/ext/rapidjson/build && \
+    cd /home/carma-streets/ext/rapidjson/build && \
+    cmake .. && \
+    make -j install && \
+    # Install streets_service_base
+    echo " ------> Install streets service base library from streets_utils..." && \
+    mkdir -p /home/carma-streets/streets_utils/streets_service_base/build && \
+    cd /home/carma-streets/streets_utils/streets_service_base/build && \
+    cmake -DCMAKE_BUILD_TYPE="Debug" .. && \
+    make -j install && \
+    # Install qhttpengine
+    echo " ------> Install qhttpengine..." && \
+    cd /home/carma-streets/ext && \
+    git clone --depth 1 https://github.com/etherealjoy/qhttpengine.git /home/carma-streets/ext/qhttpengine && \
+    mkdir /home/carma-streets/ext/qhttpengine/build && \
+    cd /home/carma-streets/ext/qhttpengine/build && \
+    cmake .. && \
+    make -j install && \
+    # Install intersection_server_api
+    echo " ------> Install streets intersection api server from streets_utils..." && \
+    mkdir -p /home/carma-streets/streets_utils/streets_api/intersection_server_api/build && \
+    cd /home/carma-streets/streets_utils/streets_api/intersection_server_api/build && \
+    cmake -DCMAKE_BUILD_TYPE="Debug" .. && \
+    make -j install && \
+    # Install kafka-clients
+    echo " ------> Install kafka-clients..." && \
+    mkdir -p /home/carma-streets/kafka_clients/build && \
+    cd /home/carma-streets/kafka_clients/build && \
+    cmake -DCMAKE_BUILD_TYPE="Debug" .. && \
+    make -j install && \
+    # Install PROJ, a package for coordinate transformations
+    git clone --depth 1 https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
+    cd /home/carma-streets/PROJ && \
+    ./autogen.sh && \
+    ./configure && \
+    make -j install && \
+    # Download a cmake module for PROJ
+    cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake && \
     sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
-    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
-
-
-SHELL ["/bin/bash", "-c"]
-
-# Install CARMA Ready Lanelet2
-# Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
-# First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
-# This means the ros source list must be added to to allow this installation
-# Additionally, the python-rospkg package managment tool is required for catkin to work properly 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin 
-
-# Once catkin is installed only the required lanelet2 packages will be pulled in from carma
-# NOTE: The lanelet2_python package requires additional dependencies that have not yet been installed so it is removed for now
-RUN echo " ------> Install Lanelet2..."
-WORKDIR  /home/carma-streets/
-RUN mkdir carma_lanelet2 && \
-    cd carma_lanelet2 && \
-    mkdir src && \
-    cd src && \
+    apt-key adv --fetch-keys https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc && \
+    # Install CARMA Ready Lanelet2
+    # Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
+    # First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
+    # This means the ros source list must be added to to allow this installation
+    # Additionally, the python-rospkg package managment tool is required for catkin to work properly 
+    apt-get update && \
+    apt-get install -y ros-melodic-catkin && \
+    # Once catkin is installed only the required lanelet2 packages will be pulled in from carma
+    # NOTE: The lanelet2_python package requires additional dependencies that have not yet been installed so it is removed for now
+    echo " ------> Install Lanelet2..." && \
+    mkdir -p /home/carma-streets/carma_lanelet2/src && \
+    cd /home/carma-streets/carma_lanelet2/src && \
     git init && \
     echo "temp" && \
     git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git && \
@@ -134,27 +113,24 @@ RUN mkdir carma_lanelet2 && \
     echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout && \
     git pull --depth 1 origin refactor_lanelet2_extension && \
     git checkout refactor_lanelet2_extension && \
-    rm -r lanelet2/lanelet2_python && \
-    rm -r lanelet2/lanelet2_examples
-
-WORKDIR  /home/carma-streets/carma_lanelet2
-
-# In order to trick lanelet2 into building the ROS_VERSION environment variable must be set
-# In order to fully decouple lanelet2_extension from ros the LANELET2_EXTENSION_LOGGER_TYPE environment variable must be set
-RUN source /opt/ros/melodic/setup.bash && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y python-rospkg && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
-    ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
-
-COPY ./intersection_model/ /home/carma-streets/intersection_model
-# Install intersection_model
-RUN echo " ------> compile examples..."
-WORKDIR  /home/carma-streets/intersection_model
-RUN mkdir build
-WORKDIR  /home/carma-streets/intersection_model/build
-RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash && cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN source /opt/ros/melodic/setup.bash && source /home/carma-streets/carma_lanelet2/install/setup.bash &&  make
-
+    rm -r lanelet2/lanelet2_python lanelet2/lanelet2_examples && \
+    cd /home/carma-streets/carma_lanelet2 && \
+    # In order to trick lanelet2 into building the ROS_VERSION environment variable must be set
+    # In order to fully decouple lanelet2_extension from ros the LANELET2_EXTENSION_LOGGER_TYPE environment variable must be set
+    source /opt/ros/melodic/setup.bash && \
+    apt-get install -y python-rospkg libeigen3-dev && \
+    ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install && \
+    # Install intersection_model
+    echo " ------> compile examples..." && \
+    mkdir -p /home/carma-streets/intersection_model/build && \
+    cd /home/carma-streets/intersection_model/build && \
+    source /opt/ros/melodic/setup.bash && \
+    source /home/carma-streets/carma_lanelet2/install/setup.bash && \
+    cmake -DCMAKE_BUILD_TYPE="Debug" .. && \
+    # FIXME: find out if this is actually supposed to make install because before was only make
+    make -j && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR  /home/carma-streets/intersection_model/build/
 # Set metadata labels
