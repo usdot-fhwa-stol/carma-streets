@@ -151,6 +151,7 @@ namespace streets_vehicle_scheduler {
         bool first_link_visited = false;
         for ( const auto &lane : intersection_info->getLinkLanelets() ) {
             auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
+            // check if the link lanelet's id (lane.getId()) is included in the list of connecting lanelet ids of the received entry lanelet.
             if ( std::count(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) ) {
                 if ( !lane.getSignalGroupId() ) {
                     throw scheduling_exception("The connection link lanelet does not have a group_id!");
