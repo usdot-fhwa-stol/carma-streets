@@ -32,6 +32,7 @@ TEST(test_signal_group_configuration, fromJson)
     streets_tsc_configuration::tsc_configuration_state config_list;
     config_list.fromJson(buffer.GetString());
     ASSERT_EQ(10, config_list.tsc_config_list.front().yellow_change_duration);
+    ASSERT_TRUE(config_list.tsc_config_list.front().concurrent_signal_groups.empty());
 
 }
 
