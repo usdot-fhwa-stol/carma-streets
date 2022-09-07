@@ -16,9 +16,15 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
             "yellow_change_duration":2000,
             "red_clearance":300,
             "concurrent_signal_groups":[5,6]
-        }
+        },
+        {
+            "signal_group_id": 7,
+            "yellow_change_duration":2000,
+            "red_clearance":300
+        },
 }
 ```
+The third entry in the list shows a signal group with no concurrent phases. The concurrent_signal groups field is an optional argument. In case of a single ring structure there are not expected to be any concurrent groups and a json message can be constructed without it.
 
 # TSC Configuration State Information
 Traffic signal controller configuration represents the setup on the physical device. In order to access that information SNMP requests need to be sent to the system. In order to control the current phases/signal_groups on the controller, this information is required to understand ring-barrier setups as well as the duration of yellow and red clearance, which cannot be controlled directly.The tsc_config_state message consists of this information for all **active vehicle phases/signal_groups**.
