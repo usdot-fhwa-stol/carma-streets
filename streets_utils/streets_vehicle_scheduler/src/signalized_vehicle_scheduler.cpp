@@ -153,10 +153,10 @@ namespace streets_vehicle_scheduler {
             auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
             if ( std::count(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) ) {
                 if ( !lane.getSignalGroupId() ) {
-                    throw scheduling_exception("The link lanelet does not have group_id!");
+                    throw scheduling_exception("The connection link lanelet does not have a group_id!");
                 }
                 if (first_link_visited && lane.getSignalGroupId() != signal_group_id){
-                    throw scheduling_exception("The link lanelets connected to the entry lane have different signal group ids!");
+                    throw scheduling_exception("The link lanelets connected to the entry lane have different signal_group_ids! The signalized_vehicle_scheduler is only capable of understanding intersection where all connection lanes from a single entry lane share a signal_group_id!");
                 }
                 if (!first_link_visited) {
                     signal_group_id = lane.getSignalGroupId();
