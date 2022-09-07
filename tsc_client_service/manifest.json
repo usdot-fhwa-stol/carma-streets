@@ -89,7 +89,13 @@
             "value": true,
             "description": "If true will enable monitor_desired_phase_plan to update incoming spat with calculated future movement events, using desired phase plan information from signal optimization service. If false will use TSC Configuration to predict future phases and append those to the spat based on default phase sequence.",
             "type": "BOOL"
+        },
+        {
+            "name": "tsc_config_producer_topic",
+            "value": "tsc_config_state",
+            "description": "Kafka topic for streets internal Traffic Signal Controller config message",
+            "type": "STRING"
         }
-
+        
     ]
 }

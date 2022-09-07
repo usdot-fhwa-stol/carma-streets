@@ -134,6 +134,11 @@ namespace traffic_signal_controller_service
         std::unordered_map<int,int> vehicle_phase_map = worker.get_vehicle_phase_map();
         EXPECT_FALSE(vehicle_phase_map.empty());
 
+        //Test tsc_config_state
+        std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state = worker.get_tsc_config_state();
+        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 2);
+        EXPECT_EQ(tsc_config_state->tsc_config_list.front().red_clearance, 1000);
+
     }
 
     TEST(traffic_signal_controller_service, test_get_following_movement_events)

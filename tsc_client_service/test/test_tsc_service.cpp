@@ -48,11 +48,33 @@ TEST_F(test_tsc_service, test_init_snmp_client) {
 
 }
 
-TEST_F(test_tsc_service, test_produce_spat_json_timeout) {
+namespace traffic_signal_controller_service {
+
+// Test Fixure to unit test methods requiring access to private members. These tests need to be added as Friend Tests to class
+TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) {
     tsc_service service;
     service.initialize_spat("test_intersection",1234,std::unordered_map<int,int>{
                 {1,8},{2,7},{3,6},{4,5},{5,4},{6,3},{7,2},{8,1}} );
-    ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "modified_spat"));
+    ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "modified_spat", service.spat_producer));
     ASSERT_TRUE(service.initialize_spat_worker("127.0.0.1",3456,2,false));
     service.produce_spat_json();
+}
+
+TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout) {
+    tsc_service service;
+    ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "tsc_config_state", service.tsc_config_producer));
+    streets_tsc_configuration::tsc_configuration_state state;
+
+    streets_tsc_configuration::signal_group_configuration signal_group_1;
+    signal_group_1.signal_group_id = 1;
+    signal_group_1.yellow_change_duration = 10;
+    signal_group_1.red_clearance = 5;
+    signal_group_1.concurrent_signal_groups = {5,6};
+    state.tsc_config_list.push_back(signal_group_1);
+
+    service.tsc_config_state_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(state);
+    service.produce_tsc_config_json();
+    EXPECT_EQ(service.tsc_config_producer_counter_, 10);
+}
+
 }

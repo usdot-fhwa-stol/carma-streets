@@ -106,7 +106,7 @@ class snmp_client
          *  @param status The integer value corresponding to net-snmp defined errors. macros considered are STAT_SUCCESS(0) and STAT_TIMEOUT(2)
          *  @param request_type The request type for which the error is being logged (GET/SET).
          *  @param response The snmp_pdu struct */
-        virtual void log_error(const int& status, const request_type& request_type, snmp_pdu *response) const;
+        void log_error(const int& status, const request_type& request_type, snmp_pdu *response) const;
 
         /** @brief Destructor for client. Closes the snmp session**/
         virtual ~snmp_client();

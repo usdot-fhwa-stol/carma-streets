@@ -34,27 +34,30 @@ namespace traffic_signal_controller_service
                 state.green_duration = state.min_green;
                 state.red_clearance = get_red_clearance(phase_num);
                 state.phase_seq = get_following_phases(phase_num);
-                state.concurrent_phases = get_concurrent_phases(phase_num);
+                state.concurrent_signal_groups = get_concurrent_signal_groups(phase_num);
                 signal_group_state_map_.insert(std::make_pair(signal_group.first, state));
             }
 
         
             // Loop through states once other state parameters are defined to get the red duration
-            for(auto& [signal_group, state] : signal_group_state_map_)
+            for(auto& [signalgroup_id, state] : signal_group_state_map_)
             {
                 
                 state.red_duration = get_red_duration(state.phase_num);
             }
+
+            // Define tsc config state
+            define_tsc_config_state();
             
             // Print signal_group map
-            for (const auto& [signal_group, phase] : signal_group_phase_map_)
+            for (const auto& [signalgroup_id, phase] : signal_group_phase_map_)
             {
-                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", signal_group, phase);
+                SPDLOG_DEBUG("Signal group id: {0} phase: {1}", signalgroup_id, phase);
             }
             // Print state map
-            for (const auto& [signal_group, state] : signal_group_state_map_)
+            for (const auto& [signalgroup_id, state] : signal_group_state_map_)
             {
-                SPDLOG_DEBUG("Signal group id: {0}", signal_group);
+                SPDLOG_DEBUG("Signal group id: {0}", signalgroup_id);
                 SPDLOG_DEBUG("Phase num: {0}", state.phase_num);
                 SPDLOG_DEBUG("Max green: {0}", state.max_green);
                 SPDLOG_DEBUG("Min green: {0}", state.min_green);
@@ -69,8 +72,8 @@ namespace traffic_signal_controller_service
                 }
 
                 SPDLOG_DEBUG("Concurrent Phases:");
-                for(auto phase : state.concurrent_phases){
-                    SPDLOG_DEBUG("{0}", phase);
+                for(auto signal_group : state.concurrent_signal_groups){
+                    SPDLOG_DEBUG("{0}", signal_group);
                 }  
             }
             return true;
@@ -78,6 +81,28 @@ namespace traffic_signal_controller_service
             SPDLOG_ERROR("Exception encounters during initialization: \n {0}",e.what());
             return false;
         }
+    }
+
+    void tsc_state::define_tsc_config_state()
+    {   
+        streets_tsc_configuration::tsc_configuration_state tsc_config;
+        for (const auto& [signal_group, state] : signal_group_state_map_)
+        {
+            streets_tsc_configuration::signal_group_configuration signal_group_config;
+            signal_group_config.signal_group_id = static_cast<uint8_t>(signal_group);
+            signal_group_config.yellow_change_duration = static_cast<uint16_t>(state.yellow_duration);
+            signal_group_config.red_clearance = static_cast<uint16_t>(state.red_clearance);
+            for(auto concurrent_signal_group : state.concurrent_signal_groups){
+                signal_group_config.concurrent_signal_groups.push_back(static_cast<uint8_t>(concurrent_signal_group));
+            }
+            tsc_config.tsc_config_list.push_back(signal_group_config);
+        }
+        tsc_config_state_ptr_ = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(tsc_config);
+    }
+
+    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& tsc_state::get_tsc_config_state() const
+    {
+        return tsc_config_state_ptr_;
     }
 
     signal_phase_and_timing::movement_event tsc_state::get_following_event(const signal_phase_and_timing::movement_event& current_event,
@@ -416,10 +441,10 @@ namespace traffic_signal_controller_service
 
     }
 
-    std::vector<int> tsc_state::get_concurrent_phases(int phase_num) const
+    std::vector<int> tsc_state::get_concurrent_signal_groups(int phase_num)
     {
 
-        std::vector<int> concurrent_phases;
+        std::vector<int> concurrent_signal_groups;
         std::string concurrent_phases_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(phase_num);
 
         snmp_response_obj concurrent_phase_data;
@@ -430,16 +455,16 @@ namespace traffic_signal_controller_service
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
         {   
-            concurrent_phases.push_back(int(con_phase));
+            concurrent_signal_groups.push_back(signal_group_phase_map_[int(con_phase)]);
             
         }
 
-        if(concurrent_phases.empty())
+        if(concurrent_signal_groups.empty())
         {
-            SPDLOG_WARN("No phases found in sequence for phase {0}", phase_num);
+            SPDLOG_WARN("No concurrent signal groups found for phase {0}", phase_num);
         }
 
-        return concurrent_phases;
+        return concurrent_signal_groups;
     }
 
     const std::unordered_map<int,int>& tsc_state::get_ped_phase_map()

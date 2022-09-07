@@ -1,4 +1,5 @@
 #include "tsc_service.h"
+#include <chrono>
 
 namespace traffic_signal_controller_service {
     
@@ -10,9 +11,10 @@ namespace traffic_signal_controller_service {
             // Intialize spat kafka producer
             std::string bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
             std::string spat_topic_name = streets_service::streets_configuration::get_string_config("spat_producer_topic");
+
             std::string dpp_consumer_topic = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
             std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
-            if (!initialize_kafka_producer(bootstrap_server, spat_topic_name)) {
+            if (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
                 return false;
             }
 
@@ -28,11 +30,19 @@ namespace traffic_signal_controller_service {
             if (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
                 return false;
             }
+            
+            //  Initialize tsc configuration state kafka producer
+            std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
+            if (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+                return false;
+            }
             //Initialize TSC State
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
             if (!initialize_tsc_state(snmp_client_ptr)){
                 return false;
             }
+            tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
+
             // Enable SPaT
             if (!enable_spat()) {
                 return false;
@@ -67,15 +77,17 @@ namespace traffic_signal_controller_service {
         }
     }
 
-    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &spat_producer_topic) {
+    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &producer_topic,
+         std::shared_ptr<kafka_clients::kafka_producer_worker>& producer) {
+        
         auto client = std::make_unique<kafka_clients::kafka_client>();
-        spat_producer = client->create_producer(bootstrap_server, spat_producer_topic);
-        if (!spat_producer->init())
+        producer = client->create_producer(bootstrap_server, producer_topic);
+        if (!producer->init())
         {
-            SPDLOG_CRITICAL("Kafka spat producer initialize error");
+            SPDLOG_CRITICAL("Kafka producer initialize error on topic {0}", producer_topic);
             return false;
         }
-        SPDLOG_DEBUG("Initialized SPAT Kafka producer!");
+        SPDLOG_DEBUG("Initialized Kafka producer on topic {0}!", producer_topic);
         return true;
     }
 
@@ -167,7 +179,7 @@ namespace traffic_signal_controller_service {
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
                         }
                         catch(const traffic_signal_controller_service::monitor_states_exception &e){
-                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                            SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                         }
                     }else{
                         try {
@@ -183,14 +195,31 @@ namespace traffic_signal_controller_service {
                     
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
-                    SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+                    SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
                 }   
             }
         }
         catch( const udp_socket_listener_exception &e) {
-            SPDLOG_ERROR("Encounted exception : \n {0}", e.what());
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
         }
         
+    }
+
+    void tsc_service::produce_tsc_config_json() {
+        // Publish tsc_config information 10 times
+        try {
+            while(tsc_config_state_ptr && tsc_config_producer_counter_ < 10)
+            { 
+                
+                tsc_config_producer->send(tsc_config_state_ptr->toJson());
+                tsc_config_producer_counter_ ++;
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Sleep for 1 second between publish   
+            }
+        }
+        catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
+        }
     }
 
     void tsc_service::consume_desired_phase_plan() const {
@@ -208,11 +237,18 @@ namespace traffic_signal_controller_service {
     
 
     void tsc_service::start() {
+        // Run threads as joint so that they dont overlap execution 
+        std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
+        tsc_config_thread.join();
+
         std::thread spat_t(&tsc_service::produce_spat_json, this);
         std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
         spat_t.join();
+
         desired_phase_plan_t.join();
+
     }
+    
 
     tsc_service::~tsc_service()
     {
@@ -220,6 +256,12 @@ namespace traffic_signal_controller_service {
         {
             SPDLOG_WARN("Stopping spat producer!");
             spat_producer->stop();
+        }
+
+        if(tsc_config_producer)
+        {
+            SPDLOG_WARN("Stopping tsc config producer!");
+            tsc_config_producer->stop();
         }
     }
 }
