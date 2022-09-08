@@ -202,7 +202,7 @@ TEST_F(all_stop_scheduler_test, one_vehicle_lane_transition_with_future_time_est
     veh._cur_distance = .8;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule->timestamp-600;
+    veh._cur_time = schedule->timestamp-400;
     veh._entry_lane_id = 167;
     veh._link_id = 155;
     veh._exit_lane_id = 162;

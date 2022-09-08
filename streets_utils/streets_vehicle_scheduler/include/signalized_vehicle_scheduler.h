@@ -165,10 +165,15 @@ namespace streets_vehicle_scheduler {
              */
             uint64_t estimate_clearance_time( const streets_vehicles::vehicle &veh ) const;
             /**
-             * @brief find the movement state info from the modified spat for a given entry lane.  
+             * @brief find the movement state info from the modified spat for vehicles from a given entry lane.
+             * Note: The signalized_vehicle_scheduler is only capable of understanding intersection where all connection lanes 
+             * from a single entry lane share a signal_group_id. Therefore, vehicles from an entry lane with different directions
+             * at the intersection box shall be able to receive protected green at the same time.
              * 
              * @param entry_lane_info entry lanelet lane. 
              * @return signal_phase_and_timing::movement_state movement stat object.
+             * @throws if two or more connection link lanelets from a single entry lane have different signal_group_id, then the design
+             * does not satisfy the requirement of the signalized_vehicle_scheduler and thus, this method throws exception. 
              */
             signal_phase_and_timing::movement_state find_movement_state_for_lane(const OpenAPI::OAILanelet_info &entry_lane_info) const;
 

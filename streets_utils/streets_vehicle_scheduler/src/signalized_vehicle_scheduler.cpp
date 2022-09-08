@@ -122,10 +122,11 @@ namespace streets_vehicle_scheduler {
                     break;
                 }
             }
-            SPDLOG_DEBUG("The signal group id of the entry lane {0} = {1}", entry_lane_info.getId(), entry_lane_info.getSignalGroupId());
+            SPDLOG_DEBUG("The entry lane id = {0}", entry_lane_info.getId());
 
             // Get the movement_state object that connects to this entry lane
             signal_phase_and_timing::movement_state move_state = find_movement_state_for_lane(entry_lane_info);
+            SPDLOG_DEBUG("The signal group id for the link lanelets connected to entry lane {0} = {1}", entry_lane_info.getId(), move_state.signal_group);
 
             for (const auto &ev : evs_in_lane){
                 signalized_vehicle_schedule sched;
@@ -145,22 +146,39 @@ namespace streets_vehicle_scheduler {
 
     signal_phase_and_timing::movement_state signalized_vehicle_scheduler::find_movement_state_for_lane(const OpenAPI::OAILanelet_info &entry_lane_info) const {
 
+        // check if all links connected to the entry lane have the same signal ids or not!
+        uint8_t signal_group_id = 0;
+        bool first_link_visited = false;
+        auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
+        for ( const auto &lane : intersection_info->getLinkLanelets() ) {
+            // check if the link lanelet's id (lane.getId()) is included in the list of connecting lanelet ids of the received entry lanelet.
+            if ( std::find(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) != connection_lanelet_ids.end() ) {
+                if ( !lane.getSignalGroupId() ) {
+                    throw scheduling_exception("The connection link lanelet does not have a group_id!");
+                }
+                if (first_link_visited && lane.getSignalGroupId() != signal_group_id){
+                    throw scheduling_exception("The link lanelets connected to the entry lane have different signal_group_ids! The signalized_vehicle_scheduler is only capable of understanding intersection where all connection lanes from a single entry lane share a signal_group_id!");
+                }
+                if (!first_link_visited) {
+                    signal_group_id = lane.getSignalGroupId();
+                    first_link_visited = true;
+                }
+            }
+        }
+
+        // find the movement_state object
         signal_phase_and_timing::movement_state move_state; 
-        if ( spat_ptr || entry_lane_info.getSignalGroupId() ) {
+        if ( spat_ptr ) {
             for (const auto& ms : spat_ptr->intersections.front().states){
-                if (ms.signal_group == entry_lane_info.getSignalGroupId()) {
+                if (ms.signal_group == signal_group_id) {
                     move_state = ms;
                     return move_state;
                 }
             }
+            throw scheduling_exception("Could not find the movement_state with the required signal_group_id!");
         }
         else {
-            if ( spat_ptr ) {
-                throw scheduling_exception("SPaT is not found!");
-            }
-            else {
-                throw scheduling_exception("the lanelet does not have group_id!");
-            }
+            throw scheduling_exception("SPaT is not found!");
         }
         return move_state;
     }
