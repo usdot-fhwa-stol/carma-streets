@@ -149,10 +149,10 @@ namespace streets_vehicle_scheduler {
         // check if all links connected to the entry lane have the same signal ids or not!
         uint8_t signal_group_id = 0;
         bool first_link_visited = false;
+        auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
         for ( const auto &lane : intersection_info->getLinkLanelets() ) {
-            auto connection_lanelet_ids = entry_lane_info.getConnectingLaneletIds();
             // check if the link lanelet's id (lane.getId()) is included in the list of connecting lanelet ids of the received entry lanelet.
-            if ( std::count(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) ) {
+            if ( std::find(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) != connection_lanelet_ids.end() ) {
                 if ( !lane.getSignalGroupId() ) {
                     throw scheduling_exception("The connection link lanelet does not have a group_id!");
                 }
@@ -175,6 +175,7 @@ namespace streets_vehicle_scheduler {
                     return move_state;
                 }
             }
+            throw scheduling_exception("Could not find the movement_state with the required signal_group_id!");
         }
         else {
             throw scheduling_exception("SPaT is not found!");
