@@ -172,7 +172,7 @@ namespace streets_vehicle_scheduler {
             for (const auto& ms : spat_ptr->intersections.front().states){
                 if (ms.signal_group == signal_group_id) {
                     move_state = ms;
-                    return move_state;
+                    break;
                 }
             }
             throw scheduling_exception("Could not find the movement_state with the required signal_group_id!");
