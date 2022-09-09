@@ -1,6 +1,9 @@
 version: 2
 jobs:
   build:
+    filters:
+      branches:
+        ignore: gh-pages
     docker:
       - image: ubuntu:latest
     steps:
