@@ -374,7 +374,7 @@ namespace intersection_model
         return this->vehicleGraph_ptr;
     }
 
-    bool intersection_model::update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg)
+    bool intersection_model::update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg, const double lane_to_lanelet_corr_thres)
     {
         bool is_updated = false;
         SPDLOG_INFO("Intersection id {0} has {1} number of geometries.", int_map_msg->intersectionid, int_map_msg->geometries.size());
@@ -399,7 +399,7 @@ namespace intersection_model
             if(!map_msg_lane.connection.empty() )
             {
                 //Mapping MAP message lane id to lanelet id from OSM map
-                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, map_msg_lane, map_msg_geometry.approach.width, this->entering_lanelets, entry_lane2lanelet_m);
+                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, map_msg_lane, map_msg_geometry.approach.width, this->entering_lanelets, entry_lane2lanelet_m, lane_to_lanelet_corr_thres);
                 entry_lane2connections_m.insert({map_msg_lane.lane_id,  map_msg_lane.connection});
                 continue;
             }
@@ -419,7 +419,7 @@ namespace intersection_model
                 //Find each departure lane for the entry lanelet using connections, and mapping the departure lane id to the above departure lanelet id
                 const auto&  depart_lane = link_departure_lanes_m[conn.lane_id];
                 std::unordered_map<long, lanelet::ConstLanelet> depart_lane2lanelet_m;                
-                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, depart_lane, map_msg_geometry.approach.width, this->departure_lanelets ,depart_lane2lanelet_m); 
+                mapping_lane_id_2_lanelet_id(map_msg_geometry.refpoint, depart_lane, map_msg_geometry.approach.width, this->departure_lanelets ,depart_lane2lanelet_m, lane_to_lanelet_corr_thres); 
                 const auto&  depart_lanelet = depart_lane2lanelet_m[depart_lane.lane_id];
                 int32_t signal_group_id = conn.signalGroup;
 
@@ -487,7 +487,13 @@ namespace intersection_model
         return lanelet::InvalId;
     }
 
-    void intersection_model::mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, const map_lane& lane, const long lane_width, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long , lanelet::ConstLanelet>& lane2lanelet_m) const
+    void intersection_model::mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, 
+                                                            const map_lane& lane, 
+                                                            const long lane_width, 
+                                                            const std::vector<lanelet::ConstLanelet>& subj_lanelets, 
+                                                            std::unordered_map<long , 
+                                                            lanelet::ConstLanelet>& lane2lanelet_m,
+                                                             const double lane_to_lanelet_corr_thres) const
     {    
         std::vector<lanelet::BasicPoint3d> basic_points = convert_lane_path_2_basic_points(ref_point, lane);
         std::unordered_map<lanelet::Id, double> lanelet2lane_path_distance_m;
@@ -502,7 +508,7 @@ namespace intersection_model
         
         double max_lane_width = static_cast<double>(lane_width) * CM_TO_M;
         //Check whether the average distance between points and lanelet is larger than the lane with (defined from MAP message) itself. 
-        if(min_distance_pair->second < max_lane_width)
+        if(min_distance_pair->second < max_lane_width + lane_to_lanelet_corr_thres )
         {   
             for(const auto& subj_l: subj_lanelets)
             {

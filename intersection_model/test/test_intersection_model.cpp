@@ -287,7 +287,7 @@ TEST(intersection_model_test, update_intersecion_info_by_map_msg)
     intersection_model::intersection_model model;
     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
     ASSERT_TRUE(model.update_intersection_info());
-    model.update_intersecion_info_by_map_msg(int_map_msg_ptr);
+    model.update_intersecion_info_by_map_msg(int_map_msg_ptr, 0.0);
     for(auto link_lane: model.get_intersection_info().link_lanelets_info)
     {
         switch (link_lane.id)
