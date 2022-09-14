@@ -107,7 +107,7 @@ namespace kafka_clients
             }
             else
             {
-                SPDLOG_DEBUG(" {0} Produced message ( {1}  bytes ) , message content:  {2}", _producer->name(), msg.size(), msg.c_str());
+                SPDLOG_TRACE(" {0} Produced message ( {1}  bytes ) , message content:  {2}", _producer->name(), msg.size(), msg.c_str());
             }
 
             // break the loop regardless of sucessfully sent or failed

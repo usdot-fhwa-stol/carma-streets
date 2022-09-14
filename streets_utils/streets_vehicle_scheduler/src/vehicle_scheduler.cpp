@@ -51,17 +51,19 @@ namespace streets_vehicle_scheduler {
         for ( auto &[v_id, veh]: vehicles) {
             // Time difference in seconds
             double delta_t = (double)(timestamp - veh._cur_time)/1000.0;
-            if ( delta_t > 0.5 ) {
-                SPDLOG_WARN("Vehicle update {0} is older than 5 times the vehicle update interval (500 ms)!", veh._id);
-                throw scheduling_exception("Timestamp "+ std::to_string(timestamp) + " is earlier that latest vehicle update " 
-                    + std::to_string(veh._cur_time) + " Vehicles can only be scheduled for current or future time.");
+            if ( delta_t > 5 ) {
+                SPDLOG_WARN("Vehicle update {0} is older than 5 s and no longer considered for scheduling!", veh._id);
+                vehicles.erase(veh._id);
+                continue;
             }
             else if ( delta_t > 0.2) {
-                SPDLOG_WARN("Vehicle update {0} is older than double the vehicle update interval (200 ms)!", veh._id);
+                SPDLOG_WARN("Vehicle update {0} is older than 200 ms!", veh._id);
             }
             else if ( delta_t < 0) {
-                throw scheduling_exception("Timestamp "+ std::to_string(timestamp) + " is earlier that latest vehicle update " 
-                    + std::to_string(veh._cur_time) + " Vehicles can only be scheduled for current or future time.");
+                SPDLOG_WARN("Timestamp {0} is earlier that latest vehicle {1} update timestamp {2}. Vehicles can only be scheduled for current or future time."
+                            , timestamp, veh._id, veh._cur_time );
+                vehicles.erase( veh._id);
+                continue;     
             }
             // estimate future speed.
             double v_final = veh._cur_speed + veh._cur_accel*delta_t;
