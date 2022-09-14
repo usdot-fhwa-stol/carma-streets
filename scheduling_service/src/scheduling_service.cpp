@@ -227,7 +227,7 @@ namespace scheduling_service{
         while (true)
         {
             
-            SPDLOG_DEBUG("schedule number #{0}", sch_count);      
+            SPDLOG_TRACE("schedule number #{0}", sch_count);      
             auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
             
@@ -241,9 +241,6 @@ namespace scheduling_service{
                     }
                 }
                 std::string msg_to_send = int_schedule->toJson();
-
-                SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
-
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
             }
