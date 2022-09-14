@@ -51,9 +51,9 @@ namespace streets_vehicle_scheduler {
         for ( auto &[v_id, veh]: vehicles) {
             // Time difference in seconds
             double delta_t = (double)(timestamp - veh._cur_time)/1000.0;
-            if ( delta_t > 0.5 ) {
-                SPDLOG_WARN("Vehicle update {0} is older than 500 ms and no longer considered for scheduling!", veh._id);
-                vehicles.erase( veh._id);
+            if ( delta_t > 5 ) {
+                SPDLOG_WARN("Vehicle update {0} is older than 5 s and no longer considered for scheduling!", veh._id);
+                vehicles.erase(veh._id);
                 continue;
             }
             else if ( delta_t > 0.2) {

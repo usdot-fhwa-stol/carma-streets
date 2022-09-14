@@ -236,7 +236,7 @@ namespace scheduling_service{
                 auto int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
                 if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
                     auto logger = spdlog::get("csv_logger");
-                    if ( logger != nullptr ){
+                    if ( logger != nullptr && !veh_map.empty() ){
                         logger->info( int_schedule->toCSV());
                     }
                 }
