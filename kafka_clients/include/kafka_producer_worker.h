@@ -28,7 +28,7 @@ namespace kafka_clients
             };
             void dr_cb (RdKafka::Message &message)
             {
-                SPDLOG_INFO("Message dellivery for:  {0} bytes [ {1} ]",message.len(), message.errstr().c_str());
+                SPDLOG_TRACE("Message dellivery for:  {0} bytes [ {1} ]",message.len(), message.errstr().c_str());
                 if(message.key())                 
                     SPDLOG_INFO(" Key:  {:>8}",(char*)(message.key()));
             }
