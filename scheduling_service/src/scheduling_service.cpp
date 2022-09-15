@@ -247,6 +247,7 @@ namespace scheduling_service{
                     }
                 }
                 std::string msg_to_send = int_schedule->toJson();
+                SPDLOG_INFO("schedule plan: {0}", msg_to_send);
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
             }
