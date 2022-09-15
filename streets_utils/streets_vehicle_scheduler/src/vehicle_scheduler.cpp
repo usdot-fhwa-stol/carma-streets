@@ -48,12 +48,13 @@ namespace streets_vehicle_scheduler {
 
     void vehicle_scheduler::estimate_vehicles_at_common_time( std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                                                 const u_int64_t timestamp) const {
+        std::vector<std::string> vehicles_to_remove;
         for ( auto &[v_id, veh]: vehicles) {
             // Time difference in seconds
             double delta_t = (double)(timestamp - veh._cur_time)/1000.0;
             if ( delta_t > 5 ) {
                 SPDLOG_WARN("Vehicle update {0} is older than 5 s and no longer considered for scheduling!", veh._id);
-                vehicles.erase(veh._id);
+                vehicles_to_remove.push_back(veh._id);
                 continue;
             }
             else if ( delta_t > 0.2) {
@@ -62,7 +63,7 @@ namespace streets_vehicle_scheduler {
             else if ( delta_t < 0) {
                 SPDLOG_WARN("Timestamp {0} is earlier that latest vehicle {1} update timestamp {2}. Vehicles can only be scheduled for current or future time."
                             , timestamp, veh._id, veh._cur_time );
-                vehicles.erase( veh._id);
+                vehicles_to_remove.push_back( veh._id);
                 continue;     
             }
             // estimate future speed.
@@ -95,6 +96,10 @@ namespace streets_vehicle_scheduler {
                 }
             }
 
+        }
+        // Remove Old vehicle from consideration
+        for (auto &vehicle : vehicles_to_remove) {
+            vehicles.erase(vehicle);
         }
     }
 }
