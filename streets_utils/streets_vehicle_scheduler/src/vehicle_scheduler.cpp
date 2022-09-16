@@ -98,7 +98,7 @@ namespace streets_vehicle_scheduler {
 
         }
         // Remove Old vehicle from consideration
-        for (auto &vehicle : vehicles_to_remove) {
+        for (const auto &vehicle : vehicles_to_remove) {
             vehicles.erase(vehicle);
         }
     }
