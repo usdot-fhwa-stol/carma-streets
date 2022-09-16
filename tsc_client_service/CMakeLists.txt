@@ -29,7 +29,8 @@ add_library(${PROJECT_NAME}_lib
         src/snmp_client.cpp
         src/spat_worker.cpp
         src/monitor_tsc_state.cpp        
-        src/monitor_desired_phase_plan.cpp)
+        src/monitor_desired_phase_plan.cpp
+        src/control_tsc_state.cpp)
 
 add_executable( ${PROJECT_NAME} 
         src/main.cpp
@@ -74,7 +75,9 @@ find_package(GTest REQUIRED)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${PROJECT_NAME}_test 
-    ${TEST_SOURCES}
+    # ${TEST_SOURCES}
+    test/test_main.cpp
+    test/test_control_tsc_state.cpp
 )
 target_link_libraries(${PROJECT_NAME}_test PUBLIC 
     ${PROJECT_NAME}_lib

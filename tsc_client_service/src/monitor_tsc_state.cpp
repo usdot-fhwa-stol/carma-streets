@@ -482,6 +482,11 @@ namespace traffic_signal_controller_service
         return signal_group_state_map_;
     }        
 
+    std::unordered_map<int, int>& tsc_state::get_signal_group_to_ped_phase_map()
+    {
+        return signal_group_phase_map_;
+    }        
+
     uint16_t tsc_state::convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const{
         auto system_time = std::chrono::system_clock::now();
         auto duration = system_time.time_since_epoch();

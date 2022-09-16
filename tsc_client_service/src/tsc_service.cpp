@@ -234,6 +234,20 @@ namespace traffic_signal_controller_service {
             }
         }        
     }
+
+    void tsc_service::control_tsc_phases() const
+    {
+        while (desired_phase_plan_consumer->is_running())
+        {
+            // Check if desired phase plan is updated
+            if(monitor_dpp_ptr->get_desired_phase_plan()){
+                // Send desired phase plan to control_tsc_state
+                control_tsc_state control_tsc_state_worker(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map(), 
+                                                                                        monitor_dpp_ptr->get_desired_phase_plan());
+                control_tsc_state_worker.run();
+            }
+        }
+    }
     
 
     void tsc_service::start() {
@@ -246,7 +260,8 @@ namespace traffic_signal_controller_service {
         spat_t.join();
 
         desired_phase_plan_t.join();
-
+        std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
+        control_phases_t.join();
     }
     
 

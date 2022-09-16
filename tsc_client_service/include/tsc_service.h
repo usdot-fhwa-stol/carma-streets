@@ -16,6 +16,7 @@
 #include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
 #include "monitor_desired_phase_plan_exception.h"
+#include "control_tsc_state.h"
 #include <mutex>    
 
 namespace traffic_signal_controller_service {
@@ -202,6 +203,8 @@ namespace traffic_signal_controller_service {
             void produce_tsc_config_json();
 
             void consume_desired_phase_plan() const;
+
+            void control_tsc_phases() const;
 
     };
 }
