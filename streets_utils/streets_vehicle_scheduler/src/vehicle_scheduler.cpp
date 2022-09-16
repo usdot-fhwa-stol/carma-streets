@@ -51,7 +51,8 @@ namespace streets_vehicle_scheduler {
         std::vector<std::string> vehicles_to_remove;
         for ( auto &[v_id, veh]: vehicles) {
             // Time difference in seconds
-            double delta_t = (double)(timestamp - veh._cur_time)/1000.0;
+            double delta_t = (((double)timestamp) - ((double)veh._cur_time))/1000.0;
+            SPDLOG_TRACE("Schedule timestamp {0} vs vehicle timestamp {1}.", timestamp, veh._cur_time);
             if ( delta_t > 5 ) {
                 SPDLOG_WARN("Vehicle update {0} is older than 5 s and no longer considered for scheduling!", veh._id);
                 vehicles_to_remove.push_back(veh._id);

@@ -186,7 +186,7 @@ TEST_F(all_stop_scheduler_test, two_vehicles_one_invalid_future_timestamp){
     veh._cur_distance = 60;
     veh._cur_lane_id = 167;
     veh._cur_state = vehicle_state::EV;
-    veh._cur_time = schedule->timestamp;
+    veh._cur_time = schedule->timestamp - 300;
     veh._entry_lane_id = 167;
     veh._link_id = 169;
     veh._exit_lane_id = 168;
@@ -215,14 +215,8 @@ TEST_F(all_stop_scheduler_test, two_vehicles_one_invalid_future_timestamp){
     // Schedule should only contain a single vehicle an be identical to if there was only one vehicle.
     ASSERT_EQ( sched->vehicle_schedules.size(), 1);
     ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
-    double est_time =(sched->vehicle_schedules.front().est-sched->timestamp)/1000.0;
-    SPDLOG_INFO( "EST time for scheduler  : {0}  vs calculated {1} ", est_time, 10.080 );
-    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->timestamp+10080);
     ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().st);
     ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().et);
-    double dt_time =(sched->vehicle_schedules.front().dt-sched->timestamp)/1000.0;
-    SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 14.062);
-    ASSERT_EQ( sched->vehicle_schedules.front().dt, sched->timestamp+14062);
     
 }
 
