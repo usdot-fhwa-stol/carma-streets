@@ -15,22 +15,27 @@ namespace signal_opt_service
             _spat_group_id = streets_service::streets_configuration::get_string_config("spat_group_id");
             _vsi_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
             _vsi_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
+            _tsc_config_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
+            _tsc_config_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
 
             _spat_consumer = client->create_consumer(_bootstrap_server, _spat_topic_name, _spat_group_id);
             _vsi_consumer = client->create_consumer(_bootstrap_server, _vsi_topic_name, _vsi_group_id);
+            _tsc_config_consumer = client->create_consumer(_bootstrap_server, _tsc_config_topic_name, _tsc_config_group_id);
 
-            if (!_spat_consumer->init() || !_vsi_consumer->init())
+
+            if (!_spat_consumer->init() || !_vsi_consumer->init() || !_tsc_config_consumer->init() )
             {
-                SPDLOG_CRITICAL("kafka consumers ( _spat_consumer_worker  or _vsi_consumer_worker) initialize error");
+                SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer  or _vsi_consumer ) initialize error");
                 exit(EXIT_FAILURE);
             }
             else
             {
                 _spat_consumer->subscribe();
                 _vsi_consumer->subscribe();
-                if (!_spat_consumer->is_running() || !_vsi_consumer->is_running())
+                _tsc_config_consumer->subscribe();
+                if (!_spat_consumer->is_running() || !_vsi_consumer->is_running() || !_tsc_config_consumer->is_running())
                 {
-                    SPDLOG_CRITICAL("kafka consumers ( _spat_consumer_worker or _vsi_consumer_worker) is not running");
+                    SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer or _vsi_consumer) is not running");
                     exit(EXIT_FAILURE);
                 }
             }
@@ -59,6 +64,8 @@ namespace signal_opt_service
     {
         std::thread spat_t(&signal_opt_service::consume_msg, this, std::ref(_spat_consumer), CONSUME_MSG_TYPE::SPAT);
         std::thread vsi_t(&signal_opt_service::consume_msg, this, std::ref(_vsi_consumer), CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT);
+        std::thread vsi_t(&signal_opt_service::consume_msg, this, std::ref(_tsc_config_consumer), CONSUME_MSG_TYPE::TSC_CONFIGURATION);
+
         spat_t.join();
         vsi_t.join();
     }
@@ -86,6 +93,12 @@ namespace signal_opt_service
                     }
                     break;
                 case CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT:
+                    if (!_so_msgs_worker_ptr->add_update_vehicle(payload))
+                    {
+                        SPDLOG_CRITICAL("Error occurred when updating vehicle list.");
+                    }
+                    break;
+                case CONSUME_MSG_TYPE::TSC_CONFIGURATION:
                     if (!_so_msgs_worker_ptr->add_update_vehicle(payload))
                     {
                         SPDLOG_CRITICAL("Error occurred when updating vehicle list.");

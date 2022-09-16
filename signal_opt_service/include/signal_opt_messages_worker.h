@@ -16,6 +16,7 @@
 #include "vehicle_list.h"
 #include "signalized_status_intent_processor.h"
 #include "spat.h"
+#include "tsc_configuration_state.h"
 
 namespace signal_opt_service
 {
@@ -25,6 +26,7 @@ namespace signal_opt_service
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
         std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
+        std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr;
 
     public:
         signal_opt_messages_worker();
@@ -44,6 +46,8 @@ namespace signal_opt_service
          * @return false if the Spat object is not updated.
          */
         bool update_spat(const std::string& spat_json);
+
+        bool update_configuration(const std::string &tsc_configuration);
         /**
          * @brief Send http GET request to intersection model at rate of configured HZ until it gets the valid (!= 0) signal group id from the intersection info.
          * Updating the intersection info with the http response that has the valid signal group id, and stop sending any more GET request.

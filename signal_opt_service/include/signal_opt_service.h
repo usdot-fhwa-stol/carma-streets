@@ -9,6 +9,7 @@ namespace signal_opt_service
     {
         SPAT,
         VEHICLE_STATUS_INTENT,
+        TSC_CONFIGURATION
     };
 
     class signal_opt_service
@@ -20,8 +21,11 @@ namespace signal_opt_service
         std::string _spat_topic_name;
         std::string _vsi_group_id;
         std::string _vsi_topic_name;
+        std::string _tsc_config_group_id;
+        std::string _tsc_config_topic_name;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
+        std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
 
     public:
         /**

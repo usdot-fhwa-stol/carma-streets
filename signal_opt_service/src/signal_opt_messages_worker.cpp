@@ -9,14 +9,21 @@ namespace signal_opt_service
         this->vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
         this->vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
         this->spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+        this->tsc_configuration_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
     }
 
     bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json) const
     {
         if (this->vehicle_list_ptr)
         {
-            this->vehicle_list_ptr->process_update(vehicle_json);
-            return true;
+            try {
+                this->vehicle_list_ptr->process_update(vehicle_json);
+                return true;
+            }
+            catch( const streets_vehicles::status_intent_processing_exception &e) {
+                SPDLOG_ERROR("Exception encountered during Status and Intent processing! \n {0}", e.what());
+                return false;
+            }
         }
         return false;
     }
@@ -25,10 +32,29 @@ namespace signal_opt_service
     {
         if (this->spat_ptr)
         {
-            this->spat_ptr->fromJson(spat_json);
-            return true;
+            try {
+                this->spat_ptr->fromJson(spat_json);
+                return true;
+            }
+            catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
+                SPDLOG_ERROR("Exception encountered during SPaT processing! \n {0}", e.what());
+                return false;
+            }
         }
 
+        return false;
+    }
+    bool signal_opt_messages_worker::update_configuration(const std::string &tsc_configuration) {
+        if (this->tsc_configuration_ptr) {
+            try {
+                this->tsc_configuration_ptr->fromJson(tsc_configuration);
+                return true;
+            }
+            catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
+                SPDLOG_ERROR("Exception encountered during TSC Configuration processing! \n {0}", e.what());
+                return false;
+            }
+        }
         return false;
     }
 
