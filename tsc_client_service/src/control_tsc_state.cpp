@@ -3,37 +3,28 @@
 
 namespace traffic_signal_controller_service
 {
-    control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, std::unordered_map<int, int>& signal_group_to_phase_map, 
-    std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan)  
+    control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, std::unordered_map<int, int>& signal_group_to_phase_map)  
                             : snmp_client_worker_(snmp_client), signal_group_2ped_phase_map_(signal_group_to_phase_map)
     {
-        // Restart control if desired_phase_plan has changed
-        if(!desired_phase_plan_ || desired_phase_plan->desired_phase_plan.front() != desired_phase_plan_->desired_phase_plan.front())
-        {
-            desired_phase_plan_ = desired_phase_plan;
-            first_event_start_time_ = desired_phase_plan_->desired_phase_plan.front().start_time;
-            run();
-        }
+                
     }
 
-    void control_tsc_state::run()
+    void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
     {
-        if(desired_phase_plan_->desired_phase_plan.empty()){
+        if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");
             return;
         }
         // Omit and Hold for first movement group in plan
-        auto first_event = desired_phase_plan_->desired_phase_plan[0];
-        if(!omit_and_hold_signal_groups(first_event.signal_groups)){
-            throw control_tsc_state_exception("Could not set state for movement group 0 in desired phase plan");
-        }
+        auto first_event = desired_phase_plan->desired_phase_plan[0];
+        omit_and_hold_signal_groups(first_event.signal_groups, tsc_command_queue);
 
         int event_itr = 0;
         // At the end time of the current event, prepare for next event. So control ends at second to last event
-        while(event_itr < desired_phase_plan_->desired_phase_plan.size() - 1)
+        while(event_itr < desired_phase_plan->desired_phase_plan.size() - 1)
         {
-            auto event  = desired_phase_plan_->desired_phase_plan[event_itr];
-            auto next_event = desired_phase_plan_->desired_phase_plan[event_itr + 1];
+            auto event  = desired_phase_plan->desired_phase_plan[event_itr];
+            auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
 
             // Check no repeated signal groups in adjacent events
             for(int i = 0 ; i < event.signal_groups.size(); ++i)
@@ -60,17 +51,14 @@ namespace traffic_signal_controller_service
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - std::chrono::system_clock::now().time_since_epoch());
             std::this_thread::sleep_for(duration);
             
-            if(!omit_and_hold_signal_groups(next_event.signal_groups))
-            {
-                throw control_tsc_state_exception("Could not set state for movement group" + std::to_string(event_itr) + " in desired phase plan");
-            }
+            omit_and_hold_signal_groups(next_event.signal_groups, tsc_command_queue);
 
             event_itr++;
             
         }
     }
 
-    bool control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups)
+    void control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
     {
         
         request_type request_type = request_type::SET;
@@ -90,26 +78,11 @@ namespace traffic_signal_controller_service
             hold_val |= (1 << ( phase - 1));
             
         }
-        
-        snmp_response_obj omit_control_type;
-        omit_control_type.type = snmp_response_obj::response_type::INTEGER;
-        omit_control_type.val_int = static_cast<int64_t>(omit_val);
 
-        snmp_response_obj hold_control_type;
-        hold_control_type.type = snmp_response_obj::response_type::INTEGER;
-        hold_control_type.val_int = static_cast<int64_t>(hold_val);
+        tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val));
 
-        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, request_type, omit_control_type))
-        {
-            return false;
-        }
-
-        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, request_type, hold_control_type))
-        {
-            return false;
-        }
-        
-        return true;
+        // Add object to queue
+        tsc_command_queue->push(command);
         
     }
 }

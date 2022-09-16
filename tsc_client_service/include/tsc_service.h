@@ -17,6 +17,7 @@
 #include "monitor_desired_phase_plan.h"
 #include "monitor_desired_phase_plan_exception.h"
 #include "control_tsc_state.h"
+#include "control_tsc_state_exception.h"
 #include <mutex>    
 
 namespace traffic_signal_controller_service {
@@ -77,6 +78,8 @@ namespace traffic_signal_controller_service {
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
             bool use_desired_phase_plan_update_ = false;
+
+            std::shared_ptr<std::queue<tsc_control_struct>> tsc_set_command_queue_;
 
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
