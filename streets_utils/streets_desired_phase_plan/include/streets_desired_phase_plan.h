@@ -20,9 +20,9 @@ namespace streets_desired_phase_plan
         uint64_t end_time = 0;
         std::vector<int> signal_groups;
 
-        inline bool operator==(const signal_group2green_phase_timing& obj2) const
+        inline bool operator!=(const signal_group2green_phase_timing& obj2) const
         {
-            return start_time == obj2.start_time && end_time == obj2.end_time && signal_groups == obj2.signal_groups;
+            return start_time != obj2.start_time || end_time != obj2.end_time || signal_groups == obj2.signal_groups;
         }
     };
 

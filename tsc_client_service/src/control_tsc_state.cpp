@@ -5,10 +5,10 @@
 namespace traffic_signal_controller_service
 {
     control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, std::unordered_map<int, int>& signal_group_to_phase_map, 
-    std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan>& desired_phase_plan)  
+    std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan)  
                             : snmp_client_worker_(snmp_client), signal_group_2ped_phase_map_(signal_group_to_phase_map)
     {
-        // Restart control if first event timestamp has changed, since the desired phase plan has changed
+        // Restart control if desired_phase_plan has changed
         if(!desired_phase_plan_ || desired_phase_plan->desired_phase_plan.front() != desired_phase_plan_->desired_phase_plan.front())
         {
             desired_phase_plan_ = desired_phase_plan;

@@ -32,7 +32,7 @@ namespace traffic_signal_controller_service
              * @param desired_phase_plan Pointer to the desired phase plan.
              **/
             explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client, std::unordered_map<int, int>& signal_group_to_phase_map, 
-                                        std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan>& desired_phase_plan);
+                                        std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan);
             
             void run();
 

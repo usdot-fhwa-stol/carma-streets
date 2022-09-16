@@ -240,10 +240,10 @@ namespace traffic_signal_controller_service {
         while (desired_phase_plan_consumer->is_running())
         {
             // Check if desired phase plan is updated
-            if(monitor_dpp_ptr->get_desired_phase_plan()){
+            if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                 // Send desired phase plan to control_tsc_state
                 control_tsc_state control_tsc_state_worker(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map(), 
-                                                                                        monitor_dpp_ptr->get_desired_phase_plan());
+                                                                                        monitor_dpp_ptr->get_desired_phase_plan_ptr());
                 control_tsc_state_worker.run();
             }
         }
