@@ -31,27 +31,41 @@ namespace traffic_signal_controller_service
 
         auto unique_client = std::make_unique<mock_snmp_client>(mock_client_worker);
 
-        // std::shared_ptr<mock_snmp_client> shared_client = std::move(unique_client);
-        // std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan>  test_desired_phase_plan;
-        // std::unordered_map<int, int> signal_group_2ped_phase_map;
-        // traffic_signal_controller_service::control_tsc_state worker(shared_client, signal_group_2ped_phase_map, test_desired_phase_plan);
+        // Define Control Type
+        snmp_response_obj hold_control;
+        hold_control.val_int = 255;
+        hold_control.type = snmp_response_obj::response_type::INTEGER;
+        
+        EXPECT_CALL(*unique_client, process_snmp_request(_, _ , _) )
+            .WillRepeatedly(testing::DoAll(testing::Return(true)));
 
-        // Test Hold and Omit for phases 2 and 6
+        
+        std::shared_ptr<mock_snmp_client> shared_client = std::move(unique_client);
+        streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan;
 
-        // Hold- only 2 and 6 should be 1 -> 00100010 (decimal 34)
+        using namespace std::chrono;
+        system_clock clock;
+        streets_desired_phase_plan::signal_group2green_phase_timing event1;
+        event1.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(10)).count();
+        event1.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(50)).count();
+        event1.signal_groups = {1,5};
 
-        // uint8_t hold_val = 0;
-        // hold_val |= (1 << 1);
-        // hold_val |= (1 << 5);
-        // std::cout<<"Hold val: "<< int64_t(hold_val)<<std::endl;
+        desired_phase_plan.desired_phase_plan.push_back(event1);
 
-        // // Omit - only 2 and 6 should be 0 -> 11011101 (decimal 221)
+        streets_desired_phase_plan::signal_group2green_phase_timing event2;
+        event2.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(60)).count();;
+        event2.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(100)).count();
+        event2.signal_groups = {2,6};
 
-        // uint8_t omit_val = 255;
-        // omit_val &= ~(1 << 1);
-        // omit_val &= ~(1 << 5);
-        // std::cout<<"Omit val: "<<int64_t(omit_val)<<std::endl;
-       
+        desired_phase_plan.desired_phase_plan.push_back(event2);
+        
+        std::unordered_map<int, int> signal_group_2ped_phase_map = {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}, {8,8}};
+        EXPECT_NO_THROW(traffic_signal_controller_service::control_tsc_state worker(shared_client, signal_group_2ped_phase_map, std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>(desired_phase_plan)));
+
+        desired_phase_plan.desired_phase_plan.front().end_time = 0;
+        EXPECT_THROW(traffic_signal_controller_service::control_tsc_state worker(shared_client, signal_group_2ped_phase_map, 
+                std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>(desired_phase_plan)), control_tsc_state_exception);
+
     }
 
 }

@@ -1,5 +1,4 @@
 #include "control_tsc_state.h"
-#include "control_tsc_state_exception.h"
 #include <chrono>
 
 namespace traffic_signal_controller_service
@@ -31,7 +30,7 @@ namespace traffic_signal_controller_service
 
         int event_itr = 0;
         // At the end time of the current event, prepare for next event. So control ends at second to last event
-        while(event_itr < desired_phase_plan_->desired_phase_plan.size() - 2)
+        while(event_itr < desired_phase_plan_->desired_phase_plan.size() - 1)
         {
             auto event  = desired_phase_plan_->desired_phase_plan[event_itr];
             auto next_event = desired_phase_plan_->desired_phase_plan[event_itr + 1];
@@ -47,13 +46,11 @@ namespace traffic_signal_controller_service
                 }
             }
 
-            std::chrono::duration<long> start_time(event.start_time);
-            std::chrono::time_point<std::chrono::system_clock> event_start_time(start_time);
+            auto current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+            auto start_time  = std::chrono::milliseconds(event.start_time);
+            auto end_time = std::chrono::milliseconds(event.end_time);
 
-            std::chrono::duration<long> end_time(event.end_time);
-            std::chrono::time_point<std::chrono::system_clock> event_end_time(end_time);
-
-            if(start_time < std::chrono::system_clock::now().time_since_epoch() || end_time < std::chrono::system_clock::now().time_since_epoch())
+            if(start_time < current_time_in_ms || end_time < current_time_in_ms)
             {
                 SPDLOG_ERROR("TSC Service assumes desired phase plan does not have overlapping events. Given Desired plan fails assumption");
                 throw control_tsc_state_exception("Overlapping timings. Desired phase plan cannot be set");
@@ -63,7 +60,10 @@ namespace traffic_signal_controller_service
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - std::chrono::system_clock::now().time_since_epoch());
             std::this_thread::sleep_for(duration);
             
-            omit_and_hold_signal_groups(next_event.signal_groups);
+            if(!omit_and_hold_signal_groups(next_event.signal_groups))
+            {
+                throw control_tsc_state_exception("Could not set state for movement group" + std::to_string(event_itr) + " in desired phase plan");
+            }
 
             event_itr++;
             

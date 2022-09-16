@@ -4,6 +4,7 @@
 #include "snmp_client.h"
 #include "ntcip_oids.h"
 #include "monitor_tsc_state.h"
+#include "control_tsc_state_exception.h"
 
 namespace traffic_signal_controller_service
 {
