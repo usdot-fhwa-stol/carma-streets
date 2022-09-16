@@ -358,7 +358,7 @@ TEST(intersection_model_test, mapping_lane_id_2_lanelet_id)
     std::vector<lanelet::ConstLanelet>  enter_ll_v;
     enter_ll_v.push_back(enter_ll);
     std::unordered_map<long, lanelet::ConstLanelet> lane2lanelet_m;
-    model.mapping_lane_id_2_lanelet_id(ref_point,lane2,cur_geometry.approach.width, enter_ll_v,lane2lanelet_m);
+    model.mapping_lane_id_2_lanelet_id(ref_point,lane2,cur_geometry.approach.width, enter_ll_v,lane2lanelet_m, 0.0);
     ASSERT_EQ(167,lane2lanelet_m[lane2.lane_id].id());
 }
 
