@@ -501,19 +501,19 @@ namespace intersection_model
         const auto&  min_distance_pair = std::min_element(lanelet2lane_path_distance_m.begin(), lanelet2lane_path_distance_m.end(), [](const auto& l, const auto& r){return l.second < r.second; });
         
         double max_lane_width = static_cast<double>(lane_width) * CM_TO_M;
-        //Check whether the average distance between points and lanelet is larger than the lane with (defined from MAP message) itself. 
-        if(min_distance_pair->second < max_lane_width)
-        {   
-            for(const auto& subj_l: subj_lanelets)
+        
+        for(const auto& subj_l: subj_lanelets)
+        {
+            if(subj_l.id() == min_distance_pair->first)
             {
-                if(subj_l.id() == min_distance_pair->first)
-                {
-                    lane2lanelet_m.insert({lane.lane_id, subj_l});     
-                    SPDLOG_DEBUG("min_distance_pair lanelet id = {0}, distance = {1}", min_distance_pair->first, min_distance_pair->second);   
-                }
+                lane2lanelet_m.insert({lane.lane_id, subj_l});     
+                SPDLOG_DEBUG("min_distance_pair lanelet id = {0}, distance = {1}", min_distance_pair->first, min_distance_pair->second);   
             }
-        }else{
-            SPDLOG_CRITICAL("Mapping failure: min_distance_pair distance = {0} is greater than lane width = {1} defined in the MAP message.", min_distance_pair->second, max_lane_width);   
+        }
+        //Check whether the average distance between points and lanelet is larger than the lane with (defined from MAP message) itself.
+        if(!min_distance_pair->second < max_lane_width)
+        {
+            SPDLOG_DEBUG("Mapping failure: min_distance_pair distance = {0} is greater than lane width = {1} defined in the MAP message.", min_distance_pair->second, max_lane_width);   
         }        
     }
 
