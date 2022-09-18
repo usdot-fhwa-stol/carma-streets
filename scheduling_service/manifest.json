@@ -34,7 +34,7 @@
         },
         {
             "name": "intersection_type",
-            "value": "stop_controlled_intersection",
+            "value": "signalized_intersection",
             "description": "The type of the intersection, e.g., stop_controlled_intersection, signalized_intersection",
             "type": "STRING"
         },

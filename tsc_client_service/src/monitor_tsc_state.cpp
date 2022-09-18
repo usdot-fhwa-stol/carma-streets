@@ -233,7 +233,7 @@ namespace traffic_signal_controller_service
             }
         }
         // No following phase information found
-        throw snmp_client_exception("No following phases found");
+        //throw snmp_client_exception("No following phases found");
     }
 
     int tsc_state::get_max_channels() const {

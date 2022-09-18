@@ -5,13 +5,13 @@
         {
             
             "name": "target_ip",
-            "value": "192.168.120.50",
+            "value": "192.168.55.52",
             "description": "Target device IP address",
             "type": "STRING"
         }, 
         {
            "name": "target_port",
-           "value": 6053,
+           "value": 501,
            "description": "Target device NTCIP port",
            "type": "INTEGER" 
         },
@@ -36,7 +36,7 @@
         {
             
             "name": "udp_socket_ip",
-            "value": "127.0.0.1",
+            "value": "192.168.55.166",
             "description": "IP for UDP socket listener to listen on. Should be localhost IP of container or VM running TSC Service.",
             "type": "STRING"
         },
@@ -86,7 +86,7 @@
         },
         {
             "name": "use_desired_phase_plan_update",
-            "value": true,
+            "value": false,
             "description": "If true will enable monitor_desired_phase_plan to update incoming spat with calculated future movement events, using desired phase plan information from signal optimization service. If false will use TSC Configuration to predict future phases and append those to the spat based on default phase sequence.",
             "type": "BOOL"
         },
