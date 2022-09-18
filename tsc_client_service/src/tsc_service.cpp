@@ -67,9 +67,6 @@ namespace traffic_signal_controller_service {
                                 all_phases);
             
             // Initialize spat ptr
-
-            // // Initialize tsc set control queue
-            // tsc_set_command_queue_ 
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -234,8 +231,8 @@ namespace traffic_signal_controller_service {
                 SPDLOG_DEBUG("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
+                
                 // update command queue
-            
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
                     control_tsc_state control_tsc_state_worker(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
@@ -250,6 +247,7 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::control_tsc_phases() const
     {
+        // While desired phase plan consumer is running the desired plan is getting updated. So empty control commands queue
         while (desired_phase_plan_consumer->is_running())
         {
             while(!tsc_set_command_queue_->empty()){

@@ -48,6 +48,8 @@ namespace traffic_signal_controller_service {
              * and red clearance, yellow change, min/max green times.
              */
             std::shared_ptr<tsc_state> tsc_state_ptr;
+
+
             std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
             /**
              * @brief snmp_client used for making SNMP GET and SET calls th NTCIP OIDs to set
@@ -79,6 +81,7 @@ namespace traffic_signal_controller_service {
             // desired phase plan information consumed from desire_phase_plan Kafka topic
             bool use_desired_phase_plan_update_ = false;
 
+            // Queue to store tsc_control_structs which are objects used to run snmp HOLD and OMIT commands
             std::shared_ptr<std::queue<tsc_control_struct>> tsc_set_command_queue_;
 
             //Add Friend Test to share private members
@@ -200,13 +203,17 @@ namespace traffic_signal_controller_service {
             void produce_spat_json() const;
 
             /**
-             * @brief Method to receive traffic signal controller conguration information from the tsc_state and broadcast spat JSON data to 
+             * @brief Method to receive traffic signal controller configuration information from the tsc_state and broadcast spat JSON data to 
              * the carma-streets kafka broker.
              */
             void produce_tsc_config_json();
 
             void consume_desired_phase_plan() const;
-
+            
+            /**
+             * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
+             * follow the desired phase plan.
+             **/
             void control_tsc_phases() const;
 
     };

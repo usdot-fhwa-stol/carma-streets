@@ -9,7 +9,8 @@ namespace traffic_signal_controller_service
                 
     }
 
-    void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
+    void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
+                                             std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
     {
         if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");
@@ -17,7 +18,7 @@ namespace traffic_signal_controller_service
         }
         // Omit and Hold for first movement group in plan
         auto first_event = desired_phase_plan->desired_phase_plan[0];
-        omit_and_hold_signal_groups(first_event.signal_groups, tsc_command_queue);
+        tsc_command_queue->push(omit_and_hold_signal_groups(first_event.signal_groups));
 
         int event_itr = 0;
         // At the end time of the current event, prepare for next event. So control ends at second to last event
@@ -51,14 +52,15 @@ namespace traffic_signal_controller_service
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - std::chrono::system_clock::now().time_since_epoch());
             std::this_thread::sleep_for(duration);
             
-            omit_and_hold_signal_groups(next_event.signal_groups, tsc_command_queue);
+            // Add object to queue
+            tsc_command_queue->push(omit_and_hold_signal_groups(next_event.signal_groups));
 
             event_itr++;
             
         }
     }
 
-    void control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
+    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups)
     {
         
         request_type request_type = request_type::SET;
@@ -81,8 +83,7 @@ namespace traffic_signal_controller_service
 
         tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val));
 
-        // Add object to queue
-        tsc_command_queue->push(command);
+        return command;
         
     }
 }

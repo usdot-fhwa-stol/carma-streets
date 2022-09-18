@@ -6,7 +6,7 @@
 
 namespace traffic_signal_controller_service {
     /**
-     * @brief Runtime error related to consuming desired phase plan 
+     * @brief Runtime error related to controlling traffic signal controller state
      * 
      */ 
     class control_tsc_state_exception : public std::runtime_error{
