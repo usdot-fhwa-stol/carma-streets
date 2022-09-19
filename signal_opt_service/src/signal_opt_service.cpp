@@ -62,55 +62,41 @@ namespace signal_opt_service
 
     void signal_opt_service::start() const
     {
-        std::thread spat_t(&signal_opt_service::consume_msg, this, std::ref(_spat_consumer), CONSUME_MSG_TYPE::SPAT);
-        std::thread vsi_t(&signal_opt_service::consume_msg, this, std::ref(_vsi_consumer), CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT);
-        std::thread vsi_t(&signal_opt_service::consume_msg, this, std::ref(_tsc_config_consumer), CONSUME_MSG_TYPE::TSC_CONFIGURATION);
-
-        spat_t.join();
-        vsi_t.join();
+        std::thread spat_t(&signal_opt_service::consume_spat, this);
+        std::thread vsi_t(&signal_opt_service::consume_vsi, this);
+        std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this);
+        tsc_config_t.detach();
+        spat_t.detach();
+        vsi_t.detach();
     }
 
-    void signal_opt_service::consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type) const
-    {
-        while (consumer->is_running())
-        {
-            const std::string payload = consumer->consume(1000);
-            if (payload.length() != 0)
-            {
-                SPDLOG_DEBUG("Consumed: {0}", payload);
-                if (!_so_msgs_worker_ptr)
-                {
-                    SPDLOG_CRITICAL("Message worker is not initialized");
-                    break;
-                }
-
-                switch (consume_msg_type)
-                {
-                case CONSUME_MSG_TYPE::SPAT:
-                    if (!_so_msgs_worker_ptr->update_spat(payload))
-                    {
-                        SPDLOG_CRITICAL("Error occurred when updating SPAT.");                       
-                    }
-                    break;
-                case CONSUME_MSG_TYPE::VEHICLE_STATUS_INTENT:
-                    if (!_so_msgs_worker_ptr->add_update_vehicle(payload))
-                    {
-                        SPDLOG_CRITICAL("Error occurred when updating vehicle list.");
-                    }
-                    break;
-                case CONSUME_MSG_TYPE::TSC_CONFIGURATION:
-                    if (!_so_msgs_worker_ptr->add_update_vehicle(payload))
-                    {
-                        SPDLOG_CRITICAL("Error occurred when updating vehicle list.");
-                    }
-                    break;
-                default:
-                    SPDLOG_ERROR("Unknown consumer type!");
-                    break;
-                }
+    void signal_opt_service::consume_spat() const{
+        while( _spat_consumer->is_running()) {
+            const std::string payload = _spat_consumer->consume(1000); 
+            if (!_so_msgs_worker_ptr->update_spat(payload)) {
+                SPDLOG_CRITICAL("Failed to update SPaT with update {0}!", payload);
             }
         }
     }
+
+    void signal_opt_service::consume_vsi() const{
+        while( _vsi_consumer->is_running()) {
+            const std::string payload = _vsi_consumer->consume(1000); 
+            if (!_so_msgs_worker_ptr->update_vehicle_list(payload)) {
+                SPDLOG_CRITICAL("Failed to update Vehicle List with update {0}!", payload);
+            }
+        }
+    }
+
+    void signal_opt_service::consume_tsc_config() const {
+        while( _tsc_config_consumer->is_running()) {
+            const std::string payload = _tsc_config_consumer->consume(1000); 
+            if (!_so_msgs_worker_ptr->update_tsc_config(payload)) {
+                SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
+            }
+        }
+    }
+
 
     bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const
     {
@@ -142,6 +128,10 @@ namespace signal_opt_service
         if (_vsi_consumer)
         {
             _vsi_consumer->stop();
+        }
+        if (_tsc_config_consumer) 
+        {
+            _tsc_config_consumer->stop();
         }
     }
 }

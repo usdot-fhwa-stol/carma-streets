@@ -12,7 +12,7 @@ namespace signal_opt_service
         this->tsc_configuration_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
     }
 
-    bool signal_opt_messages_worker::add_update_vehicle(const std::string &vehicle_json) const
+    bool signal_opt_messages_worker::update_vehicle_list(const std::string &vehicle_json) const
     {
         if (this->vehicle_list_ptr)
         {
@@ -44,7 +44,7 @@ namespace signal_opt_service
 
         return false;
     }
-    bool signal_opt_messages_worker::update_configuration(const std::string &tsc_configuration) {
+    bool signal_opt_messages_worker::update_tsc_config(const std::string &tsc_configuration) {
         if (this->tsc_configuration_ptr) {
             try {
                 this->tsc_configuration_ptr->fromJson(tsc_configuration);
@@ -95,18 +95,23 @@ namespace signal_opt_service
         return signal_group_ids_valid;
     }
 
-    const std::shared_ptr<OpenAPI::OAIIntersection_info> &signal_opt_messages_worker::get_intersection_info() const
+    std::shared_ptr<OpenAPI::OAIIntersection_info> signal_opt_messages_worker::get_intersection_info_ptr() const
     {
         return this->intersection_info_ptr;
     }
 
-    const std::shared_ptr<streets_vehicles::vehicle_list> &signal_opt_messages_worker::get_vehicle_list() const
+    std::shared_ptr<streets_vehicles::vehicle_list> signal_opt_messages_worker::get_vehicle_list_ptr() const
     {
         return this->vehicle_list_ptr;
     }
 
-    const std::shared_ptr<signal_phase_and_timing::spat> &signal_opt_messages_worker::get_latest_spat() const
+    std::shared_ptr<signal_phase_and_timing::spat> signal_opt_messages_worker::get_spat_ptr() const
     {
         return this->spat_ptr;
+    }
+
+    std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> signal_opt_messages_worker::get_tsc_config_ptr() const 
+    {
+        return this->tsc_configuration_ptr;
     }
 }

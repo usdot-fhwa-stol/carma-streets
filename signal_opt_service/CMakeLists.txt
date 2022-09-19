@@ -17,7 +17,7 @@ find_package(Qt5Network REQUIRED)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
-find_package(streets_tsc_configuration_lib)
+find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED )
 
 add_library(${PROJECT_NAME}_lib
     src/signal_opt_service.cpp

@@ -5,13 +5,6 @@
 
 namespace signal_opt_service
 {
-    enum class CONSUME_MSG_TYPE
-    {
-        SPAT,
-        VEHICLE_STATUS_INTENT,
-        TSC_CONFIGURATION
-    };
-
     class signal_opt_service
     {
     private:
@@ -45,12 +38,12 @@ namespace signal_opt_service
          */
         void start() const;
 
-        /**
-         * @brief Consume the different types of kafka stream via kafka consumers
-         * @param msg_json The consumed kafka stream in JSON format
-         * @param consume_msg_type The type of message consumed by the kafka consumer
-         */
-        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type) const;
+        void consume_spat() const;
+
+        void consume_vsi() const;
+
+        void consume_tsc_config() const;
+
         /**
          * @brief Updating the intersection info.
          * @param sleep_millisecs The current thread sleep for milliseconds after each update attempt
