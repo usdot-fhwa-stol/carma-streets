@@ -73,8 +73,10 @@ namespace signal_opt_service
     void signal_opt_service::consume_spat() const{
         while( _spat_consumer->is_running()) {
             const std::string payload = _spat_consumer->consume(1000); 
-            if (!_so_msgs_worker_ptr->update_spat(payload)) {
-                SPDLOG_CRITICAL("Failed to update SPaT with update {0}!", payload);
+            if (!payload.empty()) {
+                if (!_so_msgs_worker_ptr->update_spat(payload)) {
+                    SPDLOG_CRITICAL("Failed to update SPaT with update {0}!", payload);
+                }
             }
         }
     }
@@ -82,8 +84,10 @@ namespace signal_opt_service
     void signal_opt_service::consume_vsi() const{
         while( _vsi_consumer->is_running()) {
             const std::string payload = _vsi_consumer->consume(1000); 
-            if (!_so_msgs_worker_ptr->update_vehicle_list(payload)) {
-                SPDLOG_CRITICAL("Failed to update Vehicle List with update {0}!", payload);
+            if (!payload.empty()) {
+                if (!_so_msgs_worker_ptr->update_vehicle_list(payload)) {
+                    SPDLOG_CRITICAL("Failed to update Vehicle List with update {0}!", payload);
+                }
             }
         }
     }
@@ -91,8 +95,10 @@ namespace signal_opt_service
     void signal_opt_service::consume_tsc_config() const {
         while( _tsc_config_consumer->is_running()) {
             const std::string payload = _tsc_config_consumer->consume(1000); 
-            if (!_so_msgs_worker_ptr->update_tsc_config(payload)) {
-                SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
+            if (!payload.empty()) {
+                if (!_so_msgs_worker_ptr->update_tsc_config(payload)) {
+                    SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
+                }
             }
         }
     }
