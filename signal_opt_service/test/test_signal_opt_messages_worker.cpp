@@ -80,7 +80,7 @@ TEST(signal_opt_messages_worker, update_tsc_config) {
         "    \"signal_group_id\": 7,"
         "    \"yellow_change_duration\":2000,"
         "    \"red_clearance\":300"
-        "},"
+        "}]"
         "}";
 
     ASSERT_TRUE( so_msgs_worker_ptr->update_tsc_config(tsc_config_payload));
