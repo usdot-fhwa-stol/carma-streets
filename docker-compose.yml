@@ -71,7 +71,6 @@ services:
     restart: always
     depends_on:
       - db
-      - kafka
     environment:
       - MYSQL_PASSWORD=/run/secrets/mysql_password
     secrets:
