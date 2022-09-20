@@ -103,6 +103,124 @@ TEST_F(all_stop_scheduler_test, one_ev_without_cruising){
 
 
 }
+
+/**
+ * @brief Test case with two vehicles, one which has stopped updating and the other which is still updating. 
+ * This test case is meant to confirm that when a single vehicle stops updating, other vehicles that are still 
+ * updating will receive valid schedules that no longer consider the non-updating vehicle.
+ * 
+ */
+TEST_F(all_stop_scheduler_test, two_vehicles_one_stops_updating){
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // Update to date vehicle
+    vehicle veh;
+    veh._id = "TEST01";
+    veh._accel_max = 2.0;
+    veh._decel_max = -1.5;
+    veh._cur_speed = 4.4704;
+    veh._cur_accel = 1.0;
+    veh._cur_distance = 60;
+    veh._cur_lane_id = 167;
+    veh._cur_state = vehicle_state::EV;
+    veh._cur_time = schedule->timestamp;
+    veh._entry_lane_id = 167;
+    veh._link_id = 169;
+    veh._exit_lane_id = 168;
+    veh._direction = "straight";
+    veh_list.insert({veh._id,veh});
+
+    vehicle veh2;
+    veh2._id = "TEST02";
+    veh2._accel_max = 2.0;
+    veh2._decel_max = -1.5;
+    veh2._cur_speed = 4.4704;
+    veh2._cur_accel = 1.0;
+    veh2._cur_distance = 30;
+    veh2._cur_lane_id = 167;
+    veh2._cur_state = vehicle_state::EV;
+    veh2._cur_time = schedule->timestamp - 10000; // This vehicle update is 10 seconds old and should no longer be considered.
+    veh2._entry_lane_id = 167;
+    veh2._link_id = 169;
+    veh2._exit_lane_id = 168;
+    veh2._direction = "straight";
+    veh_list.insert({veh2._id,veh2});
+
+    scheduler->schedule_vehicles(veh_list,schedule);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+
+    // Schedule should only contain a single vehicle an be identical to if there was only one vehicle.
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
+    double est_time =(sched->vehicle_schedules.front().est-sched->timestamp)/1000.0;
+    SPDLOG_INFO( "EST time for scheduler  : {0}  vs calculated {1} ", est_time, 10.080 );
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->timestamp+10080);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().st);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().et);
+    double dt_time =(sched->vehicle_schedules.front().dt-sched->timestamp)/1000.0;
+    SPDLOG_INFO( "DT time for scheduler  : {0}  vs calculated {1} ", dt_time, 14.062);
+    ASSERT_EQ( sched->vehicle_schedules.front().dt, sched->timestamp+14062);
+    
+}
+
+/**
+ * @brief Test case with two vehicles, one which vehicle has an invalid timestamp of a future time and the other with
+ * a valid time stamp. This test case is meant to confirm that when a single vehicle has an invalid timestamp, other vehicles 
+ * that are still updating will receive valid schedules that no longer consider the invalid vehicle.
+ * 
+ */
+TEST_F(all_stop_scheduler_test, two_vehicles_one_invalid_future_timestamp){
+    // intersection_schedule schedule;
+    schedule = std::make_shared<all_stop_intersection_schedule>();
+
+    schedule->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    // Update to date vehicle
+    vehicle veh;
+    veh._id = "TEST01";
+    veh._accel_max = 2.0;
+    veh._decel_max = -1.5;
+    veh._cur_speed = 4.4704;
+    veh._cur_accel = 1.0;
+    veh._cur_distance = 60;
+    veh._cur_lane_id = 167;
+    veh._cur_state = vehicle_state::EV;
+    veh._cur_time = schedule->timestamp - 300;
+    veh._entry_lane_id = 167;
+    veh._link_id = 169;
+    veh._exit_lane_id = 168;
+    veh._direction = "straight";
+    veh_list.insert({veh._id,veh});
+
+    vehicle veh2;
+    veh2._id = "TEST02";
+    veh2._accel_max = 2.0;
+    veh2._decel_max = -1.5;
+    veh2._cur_speed = 4.4704;
+    veh2._cur_accel = 1.0;
+    veh2._cur_distance = 30;
+    veh2._cur_lane_id = 167;
+    veh2._cur_state = vehicle_state::EV;
+    veh2._cur_time = schedule->timestamp + 10000; // This vehicle update is 10 seconds old and should no longer be considered.
+    veh2._entry_lane_id = 167;
+    veh2._link_id = 169;
+    veh2._exit_lane_id = 168;
+    veh2._direction = "straight";
+    veh_list.insert({veh2._id,veh2});
+
+    scheduler->schedule_vehicles(veh_list,schedule);
+    auto sched = std::dynamic_pointer_cast<all_stop_intersection_schedule> (schedule);
+
+    // Schedule should only contain a single vehicle an be identical to if there was only one vehicle.
+    ASSERT_EQ( sched->vehicle_schedules.size(), 1);
+    ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().st);
+    ASSERT_EQ( sched->vehicle_schedules.front().est, sched->vehicle_schedules.front().et);
+    
+}
+
+
 /**
  * @brief Test case with single EV. Speed limit and intersection geometry should allow EV to reach speed limit and cruise 
  * shortly in both the entry lane and the link lane.

@@ -227,7 +227,7 @@ namespace scheduling_service{
         while (true)
         {
             
-            SPDLOG_DEBUG("schedule number #{0}", sch_count);      
+            SPDLOG_TRACE("schedule number #{0}", sch_count);      
             auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
             
@@ -236,14 +236,11 @@ namespace scheduling_service{
                 auto int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
                 if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
                     auto logger = spdlog::get("csv_logger");
-                    if ( logger != nullptr ){
+                    if ( logger != nullptr && !veh_map.empty() ){
                         logger->info( int_schedule->toCSV());
                     }
                 }
                 std::string msg_to_send = int_schedule->toJson();
-
-                SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
-
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
             }
