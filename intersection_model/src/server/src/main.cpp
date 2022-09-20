@@ -51,7 +51,9 @@ void catchUnixSignals(QList<int> quitSignals) {
 }
 #endif
 
-void intersection_model_event_update(std::shared_ptr<intersection_model::intersection_model> model, std::shared_ptr<intersection_model::map_msg_worker> map_msp_worker)
+void intersection_model_event_update(std::shared_ptr<intersection_model::intersection_model> model, 
+                                    std::shared_ptr<intersection_model::map_msg_worker> map_msp_worker, 
+                                    const double lane_2_lanelet_corr_thres)
 {
     auto _map_msg_consumer = map_msp_worker->get_map_msg_consumer_ptr();
     if (map_msp_worker && _map_msg_consumer)
@@ -67,7 +69,7 @@ void intersection_model_event_update(std::shared_ptr<intersection_model::interse
                 if(is_updated)
                 {
                     auto map_msg_ptr = map_msp_worker->get_map_msg_ptr(); 
-                    model->update_intersecion_info_by_map_msg(map_msg_ptr);
+                    model->update_intersecion_info_by_map_msg(map_msg_ptr, lane_2_lanelet_corr_thres);
                 }
             }
         }
@@ -116,7 +118,11 @@ int main(int argc, char *argv[])
                                                                                 streets_service::streets_configuration::get_string_config("bootstrap_server"),
                                                                                 streets_service::streets_configuration::get_string_config("map_msg_group_id"),
                                                                                 streets_service::streets_configuration::get_string_config("map_msg_topic"));
-    std::thread intersection_model_events_thread(intersection_model_event_update, std::ref(model), std::ref(map_msp_worker));
+    // Get Lane to lanelet correlation threshold.The lane (MAP) to lanelet (lanelet2 map) correlation threshold in meters. 
+    // If the average distance between nodes in a lane of the MAP and the centerline of the any existing intersection lanelet 
+    // described in the lanelet2 map exceeds lanewidth plus this threshold they will not correlate.
+    double lane_2_lanelet_corr_thres = streets_service::streets_configuration::get_double_config("lane_to_lanelet_corr_thres");
+    std::thread intersection_model_events_thread(intersection_model_event_update, std::ref(model), std::ref(map_msp_worker), lane_2_lanelet_corr_thres);
     intersection_model_events_thread.detach();
 
     return a.exec();
