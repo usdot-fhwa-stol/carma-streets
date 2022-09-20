@@ -61,7 +61,7 @@ TEST(signal_opt_messages_worker, update_spat)
 TEST(signal_opt_messages_worker, update_tsc_config) {
     auto so_msgs_worker_ptr = std::make_shared<signal_opt_service::signal_opt_messages_worker>();
     std::string tsc_config_payload = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
-    ASSERT_FALSE(so_msgs_worker_ptr->update_spat(spat_payload));
+    ASSERT_FALSE(so_msgs_worker_ptr->update_tsc_config(tsc_config_payload));
     tsc_config_payload = "{"
         "\"tsc_config_list\":["                       
         "{"                                       
@@ -83,6 +83,27 @@ TEST(signal_opt_messages_worker, update_tsc_config) {
         "},"
         "}";
 
+    ASSERT_TRUE( so_msgs_worker_ptr->update_tsc_config(tsc_config_payload));
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list.size(),3);
+    // First Entry
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[0].signal_group_id,1);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[0].yellow_change_duration,1000);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[0].red_clearance,500);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[0].concurrent_signal_groups.size(),2);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[0].concurrent_signal_groups[0],5);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[0].concurrent_signal_groups[1],6);
+    // Second Entry
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[1].signal_group_id,2);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[1].yellow_change_duration,2000);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[1].red_clearance,300);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[1].concurrent_signal_groups.size(),2);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[1].concurrent_signal_groups[0],5);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[1].concurrent_signal_groups[1],6);
+    // Third Entry
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[2].signal_group_id,7);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[2].yellow_change_duration,2000);
+    ASSERT_EQ( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[2].red_clearance,300);
+    ASSERT_TRUE( so_msgs_worker_ptr->get_tsc_config_ptr()->tsc_config_list[2].concurrent_signal_groups.empty()); 
 }
 
 TEST(signal_opt_messages_worker, get_intersection_info_ptr)
