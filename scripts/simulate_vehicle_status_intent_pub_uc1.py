@@ -26,7 +26,7 @@ if __name__ == "__main__":
          for item in items:             
             item['metadata']['timestamp'] = int(time.time() * 1000)
             for i in range(0, len(item['payload']['est_paths'])):
-                item['payload']['est_paths'][i]['ts'] = int(item['metadata']['timestamp'] + ((i + 1) * 200))
+                item['payload']['est_paths'][i]['ts'] = int(item['metadata']['timestamp'] + (i * 200))
 
             producer.send('vehicle_status_intent_output', value=item)
             producer.flush()
