@@ -234,6 +234,8 @@ namespace traffic_signal_controller_service
         }
         // No following phase information found
         SPDLOG_DEBUG("No following phases found: {0}", phase_num);
+        SPDLOG_WARN("Returning empty sequence for phase {0}", phase_num);
+        return sequence;
     }
 
     int tsc_state::get_max_channels() const {
