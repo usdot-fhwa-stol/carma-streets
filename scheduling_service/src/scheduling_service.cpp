@@ -148,10 +148,16 @@ namespace scheduling_service{
             return true;
         }
         else if ( intersection_type.compare("signalized_intersection") == 0 ) {
+            
+            // first, initialize the spat_ptr.
+            spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+
+            // then, initialize the scheduler and configure it.
             scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
             scheduler_ptr->set_intersection_info(intersection_info_ptr);
             
             auto processor = std::dynamic_pointer_cast<streets_vehicle_scheduler::signalized_vehicle_scheduler>(scheduler_ptr);
+            processor->set_spat(spat_ptr);
             processor->set_initial_green_buffer(streets_service::streets_configuration::get_int_config("initial_green_buffer"));
             processor->set_final_green_buffer(streets_service::streets_configuration::get_int_config("final_green_buffer"));
             
