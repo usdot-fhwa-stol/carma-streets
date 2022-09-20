@@ -139,7 +139,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
-      - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
+      - ./MAP/:/home/carma-streets/intersection_model/MAP/
       - ./intersection_model/logs/:/home/carma-streets/intersection_model/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -156,7 +156,8 @@ services:
       - kafka
       - intersection_model
       - message_services
-      - scheduling_service    
+      - scheduling_service 
+      - tsc_service   
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
