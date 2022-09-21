@@ -19,6 +19,7 @@ namespace signal_opt_service
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
+        std::shared_ptr<std::list<std::pair<int, int>>> _movement_groups;
 
     public:
         /**
@@ -43,6 +44,9 @@ namespace signal_opt_service
         void consume_vsi() const;
 
         void consume_tsc_config() const;
+
+        void populate_movement_groups();
+        
 
         /**
          * @brief Updating the intersection info.

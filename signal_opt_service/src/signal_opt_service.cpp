@@ -7,6 +7,7 @@ namespace signal_opt_service
         try
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
+            _movement_groups = std::make_shared<std::list<std::pair<int,int>>>();
 
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
@@ -65,7 +66,9 @@ namespace signal_opt_service
         std::thread spat_t(&signal_opt_service::consume_spat, this);
         std::thread vsi_t(&signal_opt_service::consume_vsi, this);
         std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this);
-        tsc_config_t.detach();
+        // Get TSC Information then populate movement groups.
+        tsc_config_t.join();
+        populate_movement_groups();
         spat_t.detach();
         vsi_t.detach();
     }
@@ -98,8 +101,36 @@ namespace signal_opt_service
             if (!payload.empty()) {
                 if (!_so_msgs_worker_ptr->update_tsc_config(payload)) {
                     SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
+                }else {
+                    break;
                 }
             }
+        }
+    }
+    
+    void signal_opt_service::populate_movement_groups() {
+        auto tsc_config = _so_msgs_worker_ptr->get_tsc_config_ptr();
+        std::list<std::pair<int,int>> movement_groups;
+        if (tsc_config) {
+            for (const auto &phase_config : tsc_config->tsc_config_list) {
+                for (const auto &concur : phase_config.concurrent_signal_groups) {
+                    std::pair<int, int> movement_group = {phase_config.signal_group_id, concur};
+                    bool already_added = false;
+                    for ( const auto &add_group: movement_groups ) {
+                        if ( add_group.second == movement_group.first && add_group.first == movement_group.second) {
+                            already_added = true;
+                        }
+                    }
+                    if (!already_added) {
+                        movement_groups.push_back(movement_group);
+                    }
+                }
+            }
+            SPDLOG_DEBUG("Movement Groups: ");
+            for ( const auto &mg : movement_groups) {
+                SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.first, mg.second );
+            }
+            
         }
     }
 
@@ -119,7 +150,7 @@ namespace signal_opt_service
             sleep(sleep_secs);
             attempt_count++;
         }
-        // If failed to update the intersection information after certain numbers of attempts
+        // If failed to update the intersecstd::stringtion information after certain numbers of attempts
         SPDLOG_ERROR("Updating Intersection information failed. ");
         return false;
     }
