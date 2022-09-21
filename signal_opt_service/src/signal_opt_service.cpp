@@ -15,8 +15,8 @@ namespace signal_opt_service
             _spat_group_id = streets_service::streets_configuration::get_string_config("spat_group_id");
             _vsi_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
             _vsi_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
-            _tsc_config_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
-            _tsc_config_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
+            _tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_consumer_topic");
+            _tsc_config_group_id = streets_service::streets_configuration::get_string_config("tsc_config_group_id");
 
             _spat_consumer = client->create_consumer(_bootstrap_server, _spat_topic_name, _spat_group_id);
             _vsi_consumer = client->create_consumer(_bootstrap_server, _vsi_topic_name, _vsi_group_id);
