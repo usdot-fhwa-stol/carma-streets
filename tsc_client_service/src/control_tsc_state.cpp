@@ -64,20 +64,16 @@ namespace traffic_signal_controller_service
 
     tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time)
     {
-        
-        request_type request_type = request_type::SET;
-        // Omit all phases except the ones in the given movement group
-        int phase_one = signal_group_2ped_phase_map_[signal_groups[0]];
-        int phase_two = signal_group_2ped_phase_map_[signal_groups[1]];
-
         uint8_t omit_val = 255; //Initialize to 11111111
         uint8_t hold_val = 0;   //Initialize to 00000000
 
         for(auto signal_group : signal_groups)
         {
             int phase = signal_group_2ped_phase_map_[signal_group];
+            // Omit all phases except the ones in the given movement group
             // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
             omit_val &= ~(1 << (phase - 1));
+            // Hold phases in the given movement group
             //For Hold only given phase bits are 1. Subtract 1 since phases range from 1-8.
             hold_val |= (1 << ( phase - 1));
             

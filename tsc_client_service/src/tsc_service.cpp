@@ -253,7 +253,7 @@ namespace traffic_signal_controller_service {
         {
             while(!tsc_set_command_queue_->empty()){
                 
-                if(!(tsc_set_command_queue_->front()).run());
+                if(!(tsc_set_command_queue_->front()).run())
                 {
                     throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
                 }
