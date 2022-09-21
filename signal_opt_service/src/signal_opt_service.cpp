@@ -61,7 +61,7 @@ namespace signal_opt_service
         }
     }
 
-    void signal_opt_service::start() const
+    void signal_opt_service::start()
     {
         std::thread spat_t(&signal_opt_service::consume_spat, this);
         std::thread vsi_t(&signal_opt_service::consume_vsi, this);

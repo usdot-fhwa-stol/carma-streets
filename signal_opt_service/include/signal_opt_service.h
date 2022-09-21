@@ -37,7 +37,7 @@ namespace signal_opt_service
         /**
          * @brief Create threads and consume messages
          */
-        void start() const;
+        void start();
 
         void consume_spat() const;
 
