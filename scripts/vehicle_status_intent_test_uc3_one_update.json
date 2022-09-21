@@ -1,0 +1,349 @@
+{
+    "sample_data": 
+    [
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-501",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 500.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 5894,
+                "cur_ds": 70.0,
+                "direction": "straight",
+                "entry_lane_id": 5894,
+                "link_lane_id": 23016,
+                "dest_lane_id": 11899,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 5894,
+                        "ds": 70.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 5894,
+                        "ds": 68.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-502",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 500.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 5894,
+                "cur_ds": 90.0,
+                "direction": "straight",
+                "entry_lane_id": 5894,
+                "link_lane_id": 23016,
+                "dest_lane_id": 11899,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 5894,
+                        "ds": 90.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 5894,
+                        "ds": 88.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-503",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 500.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 5894,
+                "cur_ds": 110.0,
+                "direction": "straight",
+                "entry_lane_id": 5894,
+                "link_lane_id": 23016,
+                "dest_lane_id": 11899,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 5894,
+                        "ds": 110.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 5894,
+                        "ds": 108.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-504",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 500.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 5894,
+                "cur_ds": 130.0,
+                "direction": "straight",
+                "entry_lane_id": 5894,
+                "link_lane_id": 23016,
+                "dest_lane_id": 11899,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 5894,
+                        "ds": 130.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 5894,
+                        "ds": 128.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-505",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 500.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 5894,
+                "cur_ds": 150.0,
+                "direction": "straight",
+                "entry_lane_id": 5894,
+                "link_lane_id": 23016,
+                "dest_lane_id": 11899,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 5894,
+                        "ds": 150.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 5894,
+                        "ds": 148.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-506",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 500.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 5894,
+                "cur_ds": 170.0,
+                "direction": "straight",
+                "entry_lane_id": 5894,
+                "link_lane_id": 23016,
+                "dest_lane_id": 11899,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 5894,
+                        "ds": 170.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 5894,
+                        "ds": 168.0
+                    }
+                ]
+            }
+        },
+
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 250.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 19252,
+                "cur_ds": 50.0,
+                "direction": "straight",
+                "entry_lane_id": 19252,
+                "link_lane_id": 22528,
+                "dest_lane_id": 12459,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 19252,
+                        "ds": 50.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 19252,
+                        "ds": 49.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 250.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 19252,
+                "cur_ds": 70.0,
+                "direction": "straight",
+                "entry_lane_id": 19252,
+                "link_lane_id": 22528,
+                "dest_lane_id": 12459,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 19252,
+                        "ds": 70.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 19252,
+                        "ds": 69.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1623677096000
+            },
+            "payload": {
+                "v_id": "DOT-509",
+                "v_length": 500,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 2.0,
+                "max_decel": -2.0,
+
+                "cur_speed": 250.0,
+                "cur_accel": -1.0,
+                "cur_lane_id": 19252,
+                "cur_ds": 90.0,
+                "direction": "straight",
+                "entry_lane_id": 19252,
+                "link_lane_id": 22528,
+                "dest_lane_id": 12459,
+
+                "depart_pos": 0,
+                "is_allowed": false,
+
+                "est_paths": [
+                    {
+                        "ts": 1623677096000,
+                        "id": 19252,
+                        "ds": 90.0
+                    },
+                    {
+                        "ts": 1623677096200,
+                        "id": 19252,
+                        "ds": 89.0
+                    }
+                ]
+            }
+        }
+
+    ]
+}
