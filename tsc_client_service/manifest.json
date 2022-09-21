@@ -95,6 +95,12 @@
             "value": "tsc_config_state",
             "description": "Kafka topic for streets internal Traffic Signal Controller config message",
             "type": "STRING"
+        },
+        {
+            "name": "control_tsc_state_sleep_duration",
+            "value": 100,
+            "description": "Sleep Duration for the control tsc state thread , in milliseconds, which makes Hold and Omit calls to the TSC. This sleep duration is the time between checking new events in queue, once it has been emptied",
+            "type": "INTEGER"
         }
         
     ]

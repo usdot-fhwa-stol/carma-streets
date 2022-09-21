@@ -16,12 +16,12 @@ namespace traffic_signal_controller_service
     {
         /* Pointer to a snmp client object which can execute snmp commands*/
         std::shared_ptr<snmp_client> snmp_client_worker_;
-        /*Type of request to be sent to the TSC, within this context it is always SET*/
-        request_type type = request_type::SET;
         /*Object to store value of the omit command*/
         snmp_response_obj omit_;
         /*Object to store the value of the hold command*/
         snmp_response_obj hold_; 
+        /*Time at which the snmp set command should be executed*/
+        uint64_t execution_start_time_;
 
         /**
          * @brief Constructor for the tsc_control_struct.
@@ -30,7 +30,7 @@ namespace traffic_signal_controller_service
          * @param hold_val Integer value for the Hold Command
          * 
         **/
-        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t omit_val, int64_t hold_val) : snmp_client_worker_(snmp_client_worker)
+        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t omit_val, int64_t hold_val, int64_t start_time) : snmp_client_worker_(snmp_client_worker), execution_start_time_(start_time)
         {
             
             omit_.type = snmp_response_obj::response_type::INTEGER;
@@ -48,6 +48,9 @@ namespace traffic_signal_controller_service
          * */
         bool run()
         {
+            /*Type of request to be sent to the TSC, within this context it is always SET*/
+            request_type type = request_type::SET;
+        
             // Send Omit
             if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, omit_)){return false;}
             // Send Hold
@@ -78,7 +81,7 @@ namespace traffic_signal_controller_service
              * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
              * @param desired_phase_plan Pointer to the desired phase plan.
              **/
-            explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client, std::unordered_map<int, int>& signal_group_to_phase_map);
+            explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client,const std::unordered_map<int, int>& signal_group_to_phase_map);
             
             /** 
              * @brief Method to update the queue of tsc_control
@@ -88,7 +91,7 @@ namespace traffic_signal_controller_service
              **/
             void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue);
 
-            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups);
+            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time);
 
     };
 }

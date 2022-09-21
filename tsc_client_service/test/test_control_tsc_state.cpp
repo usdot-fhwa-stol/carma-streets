@@ -46,15 +46,15 @@ namespace traffic_signal_controller_service
         using namespace std::chrono;
         system_clock clock;
         streets_desired_phase_plan::signal_group2green_phase_timing event1;
-        event1.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(10)).count();
-        event1.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(50)).count();
+        event1.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(1)).count();
+        event1.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(5)).count();
         event1.signal_groups = {1,5};
 
         desired_phase_plan.desired_phase_plan.push_back(event1);
 
         streets_desired_phase_plan::signal_group2green_phase_timing event2;
-        event2.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(60)).count();;
-        event2.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(100)).count();
+        event2.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(6)).count();;
+        event2.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(10)).count();
         event2.signal_groups = {2,6};
 
         desired_phase_plan.desired_phase_plan.push_back(event2);
@@ -78,10 +78,13 @@ namespace traffic_signal_controller_service
         EXPECT_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr,queue_ptr), control_tsc_state_exception);
 
         // Test tsc_control_struct
-        tsc_control_struct test_control_obj(shared_client, 10, 15);
+        tsc_control_struct test_control_obj(shared_client, 10, 15, event1.start_time);
         EXPECT_TRUE(test_control_obj.run());
 
-
+        // Test empty desired phase plan
+        streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan_2;
+        auto dpp_ptr_2 = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>(desired_phase_plan_2);
+        EXPECT_NO_THROW(worker.update_tsc_control_queue(dpp_ptr_2,queue_ptr));
 
     }
 

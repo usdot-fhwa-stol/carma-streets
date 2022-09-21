@@ -3,7 +3,7 @@
 
 namespace traffic_signal_controller_service
 {
-    control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, std::unordered_map<int, int>& signal_group_to_phase_map)  
+    control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, const std::unordered_map<int, int>& signal_group_to_phase_map)  
                             : snmp_client_worker_(snmp_client), signal_group_2ped_phase_map_(signal_group_to_phase_map)
     {
                 
@@ -18,7 +18,8 @@ namespace traffic_signal_controller_service
         }
         // Omit and Hold for first movement group in plan
         auto first_event = desired_phase_plan->desired_phase_plan[0];
-        tsc_command_queue->push(omit_and_hold_signal_groups(first_event.signal_groups));
+        auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        tsc_command_queue->push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
 
         int event_itr = 0;
         // At the end time of the current event, prepare for next event. So control ends at second to last event
@@ -28,9 +29,10 @@ namespace traffic_signal_controller_service
             auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
 
             // Check no repeated signal groups in adjacent events
-            for(int i = 0 ; i < event.signal_groups.size(); ++i)
+            
+            for(auto signal_group : event.signal_groups)
             {
-                auto it = std::find(next_event.signal_groups.begin(), next_event.signal_groups.end(), event.signal_groups[i]);
+                auto it = std::find(next_event.signal_groups.begin(), next_event.signal_groups.end(), signal_group);
                 if(it != next_event.signal_groups.end())
                 {
                     SPDLOG_ERROR("TSC Service assumes adjacent events dont have the same signal_group. Given Desired phase plan fails this assumption");
@@ -39,28 +41,28 @@ namespace traffic_signal_controller_service
             }
 
             auto current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-            auto start_time  = std::chrono::milliseconds(event.start_time);
-            auto end_time = std::chrono::milliseconds(event.end_time);
+            auto current_event_start_time  = std::chrono::milliseconds(event.start_time);
+            auto current_event_end_time = std::chrono::milliseconds(event.end_time);
 
-            if(start_time < current_time_in_ms || end_time < current_time_in_ms)
+            if(current_event_start_time < current_time_in_ms || current_event_end_time < current_time_in_ms)
             {
                 SPDLOG_ERROR("TSC Service assumes desired phase plan does not have overlapping events. Given Desired plan fails assumption");
                 throw control_tsc_state_exception("Overlapping timings. Desired phase plan cannot be set");
             }
 
             // sleep thread till end time
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - std::chrono::system_clock::now().time_since_epoch());
-            std::this_thread::sleep_for(duration);
+            // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_event_end_time - std::chrono::system_clock::now().time_since_epoch());
+            // std::this_thread::sleep_for(duration);
             
             // Add object to queue
-            tsc_command_queue->push(omit_and_hold_signal_groups(next_event.signal_groups));
+            tsc_command_queue->push(omit_and_hold_signal_groups(next_event.signal_groups, current_event_end_time.count()));
 
             event_itr++;
             
         }
     }
 
-    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups)
+    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time)
     {
         
         request_type request_type = request_type::SET;
@@ -81,7 +83,7 @@ namespace traffic_signal_controller_service
             
         }
 
-        tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val));
+        tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val), start_time);
 
         return command;
         

@@ -84,6 +84,9 @@ namespace traffic_signal_controller_service {
             // Queue to store tsc_control_structs which are objects used to run snmp HOLD and OMIT commands
             std::shared_ptr<std::queue<tsc_control_struct>> tsc_set_command_queue_;
 
+            // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
+            int control_tsc_state_sleep_dur_ = 0;
+
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
             FRIEND_TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout);

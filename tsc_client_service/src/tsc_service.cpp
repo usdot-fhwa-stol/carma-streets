@@ -63,10 +63,11 @@ namespace traffic_signal_controller_service {
             auto ped_phases = tsc_state_ptr->get_ped_phase_map();
             // Insert pedestrian phases into map of vehicle phases.
             all_phases.insert(ped_phases.begin(), ped_phases.end());
+            // Initialize spat ptr
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
                                 all_phases);
             
-            // Initialize spat ptr
+            control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -256,13 +257,16 @@ namespace traffic_signal_controller_service {
                 {
                     throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
                 }
+                // sleep till first event
+                auto event_execution_time = std::chrono::milliseconds(tsc_set_command_queue_->front().execution_start_time_);
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_time - std::chrono::system_clock::now().time_since_epoch());
+                std::this_thread::sleep_for(duration);
                 // Remove first element
                tsc_set_command_queue_->pop();
 
             }
 
-            // std::thread sleep_for(configurable sleep)
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Sleep for 100 millisecond between check for desired phase plan
+            std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
         }
     }
     
