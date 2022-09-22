@@ -14,63 +14,63 @@ namespace traffic_signal_controller_service {
 
             std::string dpp_consumer_topic = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
             std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
-            // if (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
-            //     return false;
-            // }
+            if (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
+                return false;
+            }
 
             if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group)) {
                 return false;
             }            
-            // // Initialize SNMP Client
-            // std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
-            // int target_port = streets_service::streets_configuration::get_int_config("target_port");
-            // std::string community = streets_service::streets_configuration::get_string_config("community");
-            // int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
-            // int timeout = streets_service::streets_configuration::get_int_config("timeout");
-            // if (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
-            //     return false;
-            // }
+            // Initialize SNMP Client
+            std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
+            int target_port = streets_service::streets_configuration::get_int_config("target_port");
+            std::string community = streets_service::streets_configuration::get_string_config("community");
+            int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
+            int timeout = streets_service::streets_configuration::get_int_config("timeout");
+            if (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
+                return false;
+            }
             
-            // //  Initialize tsc configuration state kafka producer
-            // std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
-            // if (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
-            //     return false;
-            // }
-            // //Initialize TSC State
-            // use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
-            // if (!initialize_tsc_state(snmp_client_ptr)){
-            //     return false;
-            // }
-            // tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
+            //  Initialize tsc configuration state kafka producer
+            std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
+            if (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+                return false;
+            }
+            //Initialize TSC State
+            use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
+            if (!initialize_tsc_state(snmp_client_ptr)){
+                return false;
+            }
+            tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
 
-            // // Enable SPaT
-            // if (!enable_spat()) {
-            //     return false;
-            // }
-            // // Initialize spat_worker
-            // std::string socket_ip = streets_service::streets_configuration::get_string_config("udp_socket_ip");
-            // int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
-            // int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
-            // bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
-            // if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
-            //     return false;
-            // }
-            // if (!initialize_intersection_client()) {
-            //     return false;
-            // }
-            // // Add all phases to a single map
-            // auto all_phases = tsc_state_ptr->get_vehicle_phase_map();
-            // auto ped_phases = tsc_state_ptr->get_ped_phase_map();
-            // // Insert pedestrian phases into map of vehicle phases.
-            // all_phases.insert(ped_phases.begin(), ped_phases.end());
-            // // Initialize spat ptr
-            // initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
-            //                     all_phases);
+            // Enable SPaT
+            if (!enable_spat()) {
+                return false;
+            }
+            // Initialize spat_worker
+            std::string socket_ip = streets_service::streets_configuration::get_string_config("udp_socket_ip");
+            int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
+            int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
+            bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
+            if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
+                return false;
+            }
+            if (!initialize_intersection_client()) {
+                return false;
+            }
+            // Add all phases to a single map
+            auto all_phases = tsc_state_ptr->get_vehicle_phase_map();
+            auto ped_phases = tsc_state_ptr->get_ped_phase_map();
+            // Insert pedestrian phases into map of vehicle phases.
+            all_phases.insert(ped_phases.begin(), ped_phases.end());
+            // Initialize spat ptr
+            initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
+                                all_phases);
             
-            // //intialize monitor_dpp_ptr
-            // monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+            //intialize monitor_dpp_ptr
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
 
-            // control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
+            control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -232,6 +232,7 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::consume_desired_phase_plan() const {
        SPDLOG_WARN("Starting consume desired phase plan");
+       desired_phase_plan_consumer->subscribe();
        while (desired_phase_plan_consumer->is_running())
         {
             SPDLOG_WARN("Entering while loop");
