@@ -455,7 +455,7 @@ namespace traffic_signal_controller_service
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
         {   
-            concurrent_signal_groups.push_back(signal_group_phase_map_[int(con_phase)]);
+            concurrent_signal_groups.push_back(vehicle_phase_num_map_[int(con_phase)]);
             
         }
 
