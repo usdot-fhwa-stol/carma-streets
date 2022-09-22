@@ -63,7 +63,7 @@ namespace kafka_clients
             return false;
         }
 
-        SPDLOG_INFO("created consumer: {0} ", _consumer->name());
+        SPDLOG_WARN("created consumer: {0} ", _consumer->name());
         delete conf;
 
         // create kafka topic
@@ -89,6 +89,7 @@ namespace kafka_clients
     void kafka_consumer_worker::stop()
     {
         _run = false;
+        SPDLOG_WARN("Kafka consumer was destroyed");
         /*Destroy kafka instance*/ // Wait for RdKafka to decommission.
         RdKafka::wait_destroyed(5000);
     }
@@ -104,7 +105,7 @@ namespace kafka_clients
             _run = false;
             exit(1);
         } else {
-            SPDLOG_INFO("{0} Successfully to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
+            SPDLOG_WARN("{0} Successfully to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
             _run = true;
         }
     }
