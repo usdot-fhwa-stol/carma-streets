@@ -2,6 +2,7 @@
 #include "kafka_client.h"
 #include "signal_opt_messages_worker.h"
 #include "streets_configuration.h"
+#include "movement_group.h"
 
 namespace signal_opt_service
 {
@@ -19,7 +20,7 @@ namespace signal_opt_service
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
-        std::shared_ptr<std::list<std::pair<int, int>>> _movement_groups;
+        std::shared_ptr<movement_groups> _movement_groups;
 
     public:
         /**
@@ -38,16 +39,33 @@ namespace signal_opt_service
          * @brief Create threads and consume messages
          */
         void start();
-
+        /**
+         * @brief Method to consume SPaT JSON from kafka consumer and update 
+         * spat pointer in signal_opt_message_worker. 
+         * 
+         */
         void consume_spat() const;
-
+        /**
+         * @brief Method to consume vehicle status and intent JSON from kafka 
+         * consumer and update vehicle list pointer in signal_opt_message_worker.
+         * 
+         */
         void consume_vsi() const;
-
+        /**
+         * @brief Method to consume a single TSC Configuration JSON message 
+         * from kafka and update the tsc_config_state pointer in the 
+         * signal_opt_message_worker.
+         * 
+         */
         void consume_tsc_config() const;
-
-        void populate_movement_groups();
-        
-
+        /**
+         * @brief Method to use the tsc_config_state pointer from the 
+         * signal_opt_message_worker to populate movement_groups pointer
+         * 
+         * @param movement_groups shared pointer to list of movement groups
+         */
+        void populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
+                                    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) ;
         /**
          * @brief Updating the intersection info.
          * @param sleep_millisecs The current thread sleep for milliseconds after each update attempt

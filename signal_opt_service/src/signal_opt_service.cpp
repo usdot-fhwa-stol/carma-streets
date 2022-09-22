@@ -7,7 +7,7 @@ namespace signal_opt_service
         try
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
-            _movement_groups = std::make_shared<std::list<std::pair<int,int>>>();
+            _movement_groups = std::make_shared<movement_groups>();
 
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
@@ -68,7 +68,8 @@ namespace signal_opt_service
         std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this);
         // Get TSC Information then populate movement groups.
         tsc_config_t.join();
-        populate_movement_groups();
+        populate_movement_groups(_movement_groups, _so_msgs_worker_ptr->get_tsc_config_ptr());
+        
         spat_t.detach();
         vsi_t.detach();
     }
@@ -77,9 +78,9 @@ namespace signal_opt_service
         while( _spat_consumer->is_running()) {
             const std::string payload = _spat_consumer->consume(1000); 
             if (!payload.empty()) {
-                if (!_so_msgs_worker_ptr->update_spat(payload)) {
+                bool update = _so_msgs_worker_ptr->update_spat(payload);
+                if ( !update )
                     SPDLOG_CRITICAL("Failed to update SPaT with update {0}!", payload);
-                }
             }
         }
     }
@@ -88,9 +89,9 @@ namespace signal_opt_service
         while( _vsi_consumer->is_running()) {
             const std::string payload = _vsi_consumer->consume(1000); 
             if (!payload.empty()) {
-                if (!_so_msgs_worker_ptr->update_vehicle_list(payload)) {
+                bool update = _so_msgs_worker_ptr->update_vehicle_list(payload);
+                if (!update)
                     SPDLOG_CRITICAL("Failed to update Vehicle List with update {0}!", payload);
-                }
             }
         }
     }
@@ -99,7 +100,8 @@ namespace signal_opt_service
         while( _tsc_config_consumer->is_running()) {
             const std::string payload = _tsc_config_consumer->consume(1000); 
             if (!payload.empty()) {
-                if (!_so_msgs_worker_ptr->update_tsc_config(payload)) {
+                bool update = _so_msgs_worker_ptr->update_tsc_config(payload);
+                if (!update) {
                     SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
                 }else {
                     break;
@@ -108,27 +110,28 @@ namespace signal_opt_service
         }
     }
     
-    void signal_opt_service::populate_movement_groups() {
-        auto tsc_config = _so_msgs_worker_ptr->get_tsc_config_ptr();
-        std::list<std::pair<int,int>> movement_groups;
+    void signal_opt_service::populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
+                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) {
         if (tsc_config) {
             for (const auto &phase_config : tsc_config->tsc_config_list) {
                 for (const auto &concur : phase_config.concurrent_signal_groups) {
-                    std::pair<int, int> movement_group = {phase_config.signal_group_id, concur};
+                    movement_group new_group;
+                    new_group.signal_groups = {phase_config.signal_group_id, concur};
                     bool already_added = false;
-                    for ( const auto &add_group: movement_groups ) {
-                        if ( add_group.second == movement_group.first && add_group.first == movement_group.second) {
+                    for ( const auto &add_group: _groups->groups ) {
+                        if ( add_group.signal_groups.second == new_group.signal_groups.first && 
+                                add_group.signal_groups.first == new_group.signal_groups.second) {
                             already_added = true;
                         }
                     }
                     if (!already_added) {
-                        movement_groups.push_back(movement_group);
+                        _groups->groups.push_back(new_group);
                     }
                 }
             }
             SPDLOG_DEBUG("Movement Groups: ");
-            for ( const auto &mg : movement_groups) {
-                SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.first, mg.second );
+            for ( const auto &mg : _groups->groups) {
+                SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.signal_groups.first, mg.signal_groups.second );
             }
             
         }

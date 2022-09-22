@@ -9,6 +9,7 @@ TEST(signal_opt_messages_worker, update_vehicle_list)
     // Add vehicles
     ASSERT_EQ(0, so_msgs_worker_ptr->get_vehicle_list_ptr()->get_vehicles().size());
     auto cur_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 1000;
+    // Valid payload
     std::string vsi_payload = "{ \"metadata\": { \"timestamp\": " + std::to_string(cur_time) + " }, \"payload\": { \"v_id\": \"DOT-507\", \"v_length\": 5, \"min_gap\": 10.0, \"react_t\": 1.5, \"max_accel\": 5.0, \"max_decel\": 5.0, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 7, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 7, \"link_lane_id\": 8, \"dest_lane_id\": 9, \"is_allowed\": false, \"depart_pos\": 1, \"est_paths\": [{ \"ts\": 1623677096200, \"id\": 7, \"ds\": 6.0 }, { \"ts\": 1623677096400, \"id\": 7, \"ds\": 5.0 }, { \"ts\": 1623677096600, \"id\": 7, \"ds\": 4.0 }, { \"ts\": 1623677096800, \"id\": 7, \"ds\": 3.0 }, { \"ts\": 1623677097000, \"id\": 7, \"ds\": 2.0 } ] } }";
     so_msgs_worker_ptr->update_vehicle_list(vsi_payload);
     ASSERT_EQ(1, so_msgs_worker_ptr->get_vehicle_list_ptr()->get_vehicles().size());
@@ -52,7 +53,29 @@ TEST(signal_opt_messages_worker, request_intersection_info)
 TEST(signal_opt_messages_worker, update_spat)
 {
     auto so_msgs_worker_ptr = std::make_shared<signal_opt_service::signal_opt_messages_worker>();
-    std::string spat_payload = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    // Invalid payload
+    std::string spat_payload ="{"
+        "\"tsc_config_list\":["                       
+        "{"                                       
+        "    \"signal_group_id\": 1,"              
+        "    \"yellow_change_duration\":1000,"    
+        "    \"red_clearance\":500,"              
+        "    \"concurrent_signal_groups\":[5,6]"  
+        "},"                                      
+        "{"                                          
+        "    \"signal_group_id\": 2,"
+        "    \"yellow_change_duration\":2000,"
+        "    \"red_clearance\":300,"
+        "    \"concurrent_signal_groups\":[5,6]"
+        "},"
+        "{"
+        "    \"signal_group_id\": 7,"
+        "    \"yellow_change_duration\":2000,"
+        "    \"red_clearance\":300"
+        "}]"
+        "}";
+    ASSERT_FALSE(so_msgs_worker_ptr->update_spat(spat_payload));
+    spat_payload = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     ASSERT_TRUE(so_msgs_worker_ptr->update_spat(spat_payload));
     ASSERT_EQ(1909, so_msgs_worker_ptr->get_spat_ptr()->intersections.front().id);
     ASSERT_EQ("West Intersection", so_msgs_worker_ptr->get_spat_ptr()->intersections.front().name);
@@ -60,8 +83,10 @@ TEST(signal_opt_messages_worker, update_spat)
 
 TEST(signal_opt_messages_worker, update_tsc_config) {
     auto so_msgs_worker_ptr = std::make_shared<signal_opt_service::signal_opt_messages_worker>();
+    // Invalid payload
     std::string tsc_config_payload = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     ASSERT_FALSE(so_msgs_worker_ptr->update_tsc_config(tsc_config_payload));
+    // Valid payload
     tsc_config_payload = "{"
         "\"tsc_config_list\":["                       
         "{"                                       

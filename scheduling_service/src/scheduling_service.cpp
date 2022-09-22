@@ -173,15 +173,11 @@ namespace scheduling_service{
         {
             
             const std::string payload = consumer_worker->consume(1000);
-            try {
             if(payload.length() != 0 && vehicle_list_ptr)
             {                
 
                 vehicle_list_ptr->process_update(payload);
     
-            }}
-            catch(const streets_vehicles::status_intent_processing_exception &e) {
-                SPDLOG_ERROR("Exception encounter during update parsing! \n{0}", e.what());
             }
         }
         SPDLOG_WARN("Stopping status and intent consumer thread!");
