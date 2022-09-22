@@ -4,6 +4,7 @@ namespace traffic_signal_controller_service
 {
     void monitor_desired_phase_plan::update_desired_phase_plan(const std::string &payload)
     {
+        SPDLOG_WARN("Entering Update desired phase plan");
         desired_phase_plan_ptr_updated_ = true;
         desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan_ptr->fromJson(payload);
