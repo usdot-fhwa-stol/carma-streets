@@ -24,13 +24,14 @@ namespace traffic_signal_controller_service
         {
             throw monitor_desired_phase_plan_exception("Intersections cannot be empty!");
         }
+        SPDLOG_WARN("Reaching before front().states");
         auto states = spat_ptr->intersections.front().states;
-
+        SPDLOG_WARN("Reaching after front().states");
         if (states.empty())
         {
             throw monitor_desired_phase_plan_exception("Intersections states cannot be empty!");
         }
-
+        SPDLOG_WARN("Reaching last check");
         if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
         {
             throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
