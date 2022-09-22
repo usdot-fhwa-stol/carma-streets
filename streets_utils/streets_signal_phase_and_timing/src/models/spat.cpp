@@ -113,7 +113,9 @@ namespace signal_phase_and_timing{
     void spat::update_intersection_state( ntcip::ntcip_1202_ext &ntcip_data ) {
         if ( !intersections.empty() ) {
             intersection_state &intersection = intersections.front();
+            SPDLOG_DEBUG("Calling update movements in spat.cpp");
             intersection.update_movements(ntcip_data, phase_to_signal_group);
+            SPDLOG_DEBUG("Completed updating movements");
             // Update Intersection Status
             intersection.status = ntcip_data.spat_intersection_status;
             // From V2X-Hub TODO: Investigate

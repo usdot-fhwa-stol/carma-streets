@@ -287,6 +287,7 @@ namespace signal_phase_and_timing {
         for ( const auto &phase_2_signal_group : phase_number_to_signal_group ) {
             update_movement_state(spat_data, phase_2_signal_group.second, phase_2_signal_group.first);
         }
+        SPDLOG_DEBUG("Updated Movement state in intersection_state");
     }
 
     uint16_t intersection_state::convert_offset( const uint16_t offset_tenths_of_seconds)  const{
