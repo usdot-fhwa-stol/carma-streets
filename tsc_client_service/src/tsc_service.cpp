@@ -69,7 +69,7 @@ namespace traffic_signal_controller_service {
             
             //intialize monitor_dpp_ptr
             monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
-            
+
             control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
@@ -186,14 +186,16 @@ namespace traffic_signal_controller_service {
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                         }
                     }else{
-                        try {
-                            SPDLOG_WARN("Trying to update spat with desired phase plan");
-                            std::scoped_lock<std::mutex> lck{dpp_mtx};
-                            monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
-                            SPDLOG_WARN("Managed to update spat with desired phase plan");
-                        }
-                        catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
-                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                        if(desired_phase_plan_consumer->is_running()){
+                            try {
+                                SPDLOG_WARN("Trying to update spat with desired phase plan");
+                                std::scoped_lock<std::mutex> lck{dpp_mtx};
+                                monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
+                                SPDLOG_WARN("Managed to update spat with desired phase plan");
+                            }
+                            catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
+                                SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                            }
                         }
                     }
                     
