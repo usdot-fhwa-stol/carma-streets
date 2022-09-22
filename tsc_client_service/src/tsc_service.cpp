@@ -229,10 +229,11 @@ namespace traffic_signal_controller_service {
        SPDLOG_WARN("Starting consume desired phase plan");
        while (desired_phase_plan_consumer->is_running())
         {
+            SPDLOG_WARN("Entering while loop");
             const std::string payload = desired_phase_plan_consumer->consume(1000);
+            SPDLOG_WARN("Reaching before if condition check");
             if (payload.length() != 0)
-            {
-                SPDLOG_WARN("Entering while loop");
+            {   
                 SPDLOG_DEBUG("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
                 SPDLOG_WARN("Before update desired phase plan");
