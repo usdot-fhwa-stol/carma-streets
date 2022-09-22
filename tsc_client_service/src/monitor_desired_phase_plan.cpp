@@ -15,6 +15,7 @@ namespace traffic_signal_controller_service
 
     void monitor_desired_phase_plan::update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
+        SPDLOG_WARN("Entering Update Spat future movement events");
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr)
         {
             throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
@@ -34,11 +35,12 @@ namespace traffic_signal_controller_service
         {
             throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
         }
-
+        SPDLOG_WARN("Passed all initial checks in dpp");
         // Loop through desired phase plan
         bool is_procssing_first_desired_green = true;
         for (const auto &desired_sg_green_timing : desired_phase_plan_ptr->desired_phase_plan)
         {
+            SPDLOG_WARN("Entering for loop for signal groups {0} and {1}", desired_sg_green_timing.signal_groups.front(), desired_sg_green_timing.signal_groups.back());
             if (desired_sg_green_timing.signal_groups.empty())
             {
                 throw monitor_desired_phase_plan_exception("Desired phase plan signal group ids list is empty. No update.");
