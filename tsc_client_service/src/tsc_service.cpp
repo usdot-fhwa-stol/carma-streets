@@ -224,6 +224,7 @@ namespace traffic_signal_controller_service {
     }
 
     void tsc_service::consume_desired_phase_plan() const {
+       SPDLOG_WARN("Starting consume desired phase plan");
        while (desired_phase_plan_consumer->is_running())
         {
             const std::string payload = desired_phase_plan_consumer->consume(1000);
@@ -231,10 +232,13 @@ namespace traffic_signal_controller_service {
             {
                 SPDLOG_DEBUG("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
+                SPDLOG_DEBUG("Before update desired phase plan");
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
+                SPDLOG_WARN("Updated Desired phase plan");
                 
                 // update command queue
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
+                    SPDLOG_DEBUG("Trying to create control tsc state");
                     // Send desired phase plan to control_tsc_state
                     control_tsc_state control_tsc_state_worker(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
                     control_tsc_state_worker.update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
