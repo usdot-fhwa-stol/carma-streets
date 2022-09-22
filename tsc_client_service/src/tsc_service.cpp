@@ -182,12 +182,14 @@ namespace traffic_signal_controller_service {
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                         }
                     }else{
-                        try {
-                            std::scoped_lock<std::mutex> lck{dpp_mtx};
-                            monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
-                        }
-                        catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
-                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                        if(desired_phase_plan_consumer->is_running()){
+                            try {
+                                std::scoped_lock<std::mutex> lck{dpp_mtx};
+                                monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
+                            }
+                            catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
+                                SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                            }
                         }
                     }
                     
@@ -223,14 +225,18 @@ namespace traffic_signal_controller_service {
     }
 
     void tsc_service::consume_desired_phase_plan() const {
-       while (desired_phase_plan_consumer->is_running())
+        SPDLOG_WARN("Trying to consume desired phase plan");
+        desired_phase_plan_consumer->subscribe();
+        while (desired_phase_plan_consumer->is_running())
         {
+            SPDLOG_WARN("Entering while loop");
             const std::string payload = desired_phase_plan_consumer->consume(1000);
             if (payload.length() != 0)
             {
-                SPDLOG_DEBUG("Consumed: {0}", payload);
+                SPDLOG_WARN("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
+                SPDLOG_WARN("Updated desired phase plan");
             }
         }        
     }
