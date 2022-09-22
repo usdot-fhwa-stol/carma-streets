@@ -67,6 +67,9 @@ namespace traffic_signal_controller_service {
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
                                 all_phases);
             
+            //intialize monitor_dpp_ptr
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+            
             control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
