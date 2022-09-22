@@ -32,13 +32,15 @@ namespace traffic_signal_controller_service
             throw monitor_desired_phase_plan_exception("Intersections states cannot be empty!");
         }
         SPDLOG_WARN("Reaching last check");
-        desired_phase_plan_ptr = nullptr;
+        
         if (!desired_phase_plan_ptr){
             SPDLOG_WARN("Passes this check");
         }
+        SPDLOG_WARN("Reaching end of check 1");
         if(desired_phase_plan_ptr->desired_phase_plan.empty()){
             SPDLOG_WARN("Passes this check too");
         }
+        SPDLOG_WARN("Reaching end of check 2");
         if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
         {
             throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
