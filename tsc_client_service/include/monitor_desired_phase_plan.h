@@ -79,6 +79,8 @@ namespace traffic_signal_controller_service
          * @return int the signal group id which has the largest combination of yellow change and red clearance time interval.
          */
         int find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<tsc_state> tsc_state_ptr) const;
+
+        bool desired_phase_plan_ptr_updated_ = false;
    
     public:
         /**
