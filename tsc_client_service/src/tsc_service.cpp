@@ -184,8 +184,10 @@ namespace traffic_signal_controller_service {
                         }
                     }else{
                         try {
+                            SPDLOG_WARN("Trying to update spat with desired phase plan");
                             std::scoped_lock<std::mutex> lck{dpp_mtx};
                             monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
+                            SPDLOG_WARN("Managed to update spat with desired phase plan");
                         }
                         catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
