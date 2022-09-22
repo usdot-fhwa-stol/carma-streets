@@ -16,6 +16,11 @@ namespace traffic_signal_controller_service
     void monitor_desired_phase_plan::update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
         SPDLOG_WARN("Entering Update Spat future movement events");
+        if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
+        {
+            throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
+        }
+        SPDLOG_WARN("Ran dpp check");
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr)
         {
             throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
