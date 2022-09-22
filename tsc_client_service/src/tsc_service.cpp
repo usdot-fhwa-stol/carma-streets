@@ -232,9 +232,10 @@ namespace traffic_signal_controller_service {
             const std::string payload = desired_phase_plan_consumer->consume(1000);
             if (payload.length() != 0)
             {
+                SPDLOG_WARN("Entering while loop");
                 SPDLOG_DEBUG("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
-                SPDLOG_DEBUG("Before update desired phase plan");
+                SPDLOG_WARN("Before update desired phase plan");
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
                 SPDLOG_WARN("Updated Desired phase plan");
                 
