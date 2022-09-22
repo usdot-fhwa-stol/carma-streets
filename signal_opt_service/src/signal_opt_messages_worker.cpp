@@ -16,14 +16,8 @@ namespace signal_opt_service
     {
         if (this->vehicle_list_ptr)
         {
-            try {
-                this->vehicle_list_ptr->process_update(vehicle_json);
-                return true;
-            }
-            catch( const streets_vehicles::status_intent_processing_exception &e) {
-                SPDLOG_ERROR("Exception encountered during Status and Intent processing! \n {0}", e.what());
-                return false;
-            }
+            this->vehicle_list_ptr->process_update(vehicle_json);
+            return true;  
         }
         return false;
     }

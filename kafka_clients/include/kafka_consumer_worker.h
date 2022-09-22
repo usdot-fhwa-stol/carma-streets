@@ -137,12 +137,13 @@ namespace kafka_clients
 
         public:
             kafka_consumer_worker(const std::string &broker_str, const std::string &topic_str, const std::string & group_id, int64_t cur_offset = 0, int32_t partition = 0);
-            bool init();
-            const char* consume(int timeout_ms);
-            void subscribe();
-            void stop();
-            void printCurrConf();
-            bool is_running() const;
+            virtual bool init();
+            virtual const char* consume(int timeout_ms);
+            virtual void subscribe();
+            virtual void stop();
+            virtual void printCurrConf();
+            virtual bool is_running() const;
+            virtual ~kafka_consumer_worker() = default;
     };
 }
 
