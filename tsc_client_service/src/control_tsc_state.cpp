@@ -10,7 +10,7 @@ namespace traffic_signal_controller_service
     }
 
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
-                                             std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
+                                             std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue_ptr)
     {
         SPDLOG_WARN("Entering update tsc control queue");
         if(desired_phase_plan->desired_phase_plan.empty()){
@@ -21,7 +21,7 @@ namespace traffic_signal_controller_service
         auto first_event = desired_phase_plan->desired_phase_plan[0];
         SPDLOG_WARN("Got first event");
         auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        tsc_command_queue->push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
+        tsc_command_queue_ptr->push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
         SPDLOG_WARN("Added first command to queue");
 
         int event_itr = 0;
@@ -59,7 +59,7 @@ namespace traffic_signal_controller_service
             // std::this_thread::sleep_for(duration);
             
             // Add object to queue
-            tsc_command_queue->push(omit_and_hold_signal_groups(next_event.signal_groups, current_event_end_time.count()));
+            tsc_command_queue_ptr->push(omit_and_hold_signal_groups(next_event.signal_groups, current_event_end_time.count()));
 
             event_itr++;
             
