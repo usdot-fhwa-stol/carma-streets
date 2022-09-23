@@ -19,6 +19,7 @@ namespace traffic_signal_controller_service
         }
         // Omit and Hold for first movement group in plan
         auto first_event = desired_phase_plan->desired_phase_plan[0];
+        SPDLOG_WARN("Got first event");
         auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         tsc_command_queue->push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
         SPDLOG_WARN("Added first command to queue");
@@ -68,6 +69,7 @@ namespace traffic_signal_controller_service
 
     tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time)
     {
+        SPDLOG_WARN("Entering omit and hold signal groups");
         uint8_t omit_val = 255; //Initialize to 11111111
         uint8_t hold_val = 0;   //Initialize to 00000000
 
