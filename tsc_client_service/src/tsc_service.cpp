@@ -68,6 +68,10 @@ namespace traffic_signal_controller_service {
                                 all_phases);
             
             control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
+            
+            // Initialize monitor desired phase plan
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -224,7 +228,8 @@ namespace traffic_signal_controller_service {
     }
 
     void tsc_service::consume_desired_phase_plan() const {
-       while (desired_phase_plan_consumer->is_running())
+        desired_phase_plan_consumer->subscribe();
+        while (desired_phase_plan_consumer->is_running())
         {
             const std::string payload = desired_phase_plan_consumer->consume(1000);
             if (payload.length() != 0)
@@ -237,7 +242,8 @@ namespace traffic_signal_controller_service {
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
                     control_tsc_state control_tsc_state_worker(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
-                    control_tsc_state_worker.update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
+                    control_tsc_state_worker.update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), 
+                                                    std::make_shared<std::queue<tsc_control_struct>>(tsc_set_command_queue_));
                     
                 }
             }
@@ -246,23 +252,23 @@ namespace traffic_signal_controller_service {
         }        
     }
 
-    void tsc_service::control_tsc_phases() const
+    void tsc_service::control_tsc_phases()
     {
         // While desired phase plan consumer is running the desired plan is getting updated. So empty control commands queue
         while (desired_phase_plan_consumer->is_running())
         {
-            while(!tsc_set_command_queue_->empty()){
+            while(!tsc_set_command_queue_.empty()){
                 
-                if(!(tsc_set_command_queue_->front()).run())
+                if(!(tsc_set_command_queue_.front()).run())
                 {
                     throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
                 }
                 // sleep till first event
-                auto event_execution_time = std::chrono::milliseconds(tsc_set_command_queue_->front().execution_start_time_);
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_time - std::chrono::system_clock::now().time_since_epoch());
+                auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().execution_start_time_);
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
                 std::this_thread::sleep_for(duration);
                 // Remove first element
-               tsc_set_command_queue_->pop();
+               tsc_set_command_queue_.pop();
 
             }
 
