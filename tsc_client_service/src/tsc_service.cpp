@@ -63,10 +63,13 @@ namespace traffic_signal_controller_service {
             auto ped_phases = tsc_state_ptr->get_ped_phase_map();
             // Insert pedestrian phases into map of vehicle phases.
             all_phases.insert(ped_phases.begin(), ped_phases.end());
+            // Initialize spat ptr
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
                                 all_phases);
             
-            // Initialize spat ptr
+            // Initialize monitor desired phase plan
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -238,6 +241,7 @@ namespace traffic_signal_controller_service {
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
                 SPDLOG_WARN("Updated desired phase plan");
             }
+            SPDLOG_WARN("Beyond if loop");
         }        
     }
     
