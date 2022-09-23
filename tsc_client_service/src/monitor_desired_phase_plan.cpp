@@ -17,8 +17,7 @@ namespace traffic_signal_controller_service
 
     void monitor_desired_phase_plan::update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
-        SPDLOG_WARN("Entering Update Spat future movement events");
-        SPDLOG_WARN("Desired phase plan updated bool {0}", int(desired_phase_plan_ptr_updated_));
+
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr)
         {
             throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
@@ -27,23 +26,13 @@ namespace traffic_signal_controller_service
         {
             throw monitor_desired_phase_plan_exception("Intersections cannot be empty!");
         }
-        SPDLOG_WARN("Reaching before front().states");
+
         auto states = spat_ptr->intersections.front().states;
-        SPDLOG_WARN("Reaching after front().states");
+
         if (states.empty())
         {
             throw monitor_desired_phase_plan_exception("Intersections states cannot be empty!");
         }
-        SPDLOG_WARN("Reaching last check");
-        SPDLOG_WARN("Random additional log before calling desired phase plan ptr");
-        if (!desired_phase_plan_ptr){
-            SPDLOG_WARN("Passes this check");
-        }
-        SPDLOG_WARN("Reaching end of check 1");
-        if(desired_phase_plan_ptr->desired_phase_plan.empty()){
-            SPDLOG_WARN("Passes this check too");
-        }
-        SPDLOG_WARN("Reaching end of check 2");
         if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
         {
             throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
