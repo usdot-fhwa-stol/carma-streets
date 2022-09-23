@@ -228,20 +228,16 @@ namespace traffic_signal_controller_service {
     }
 
     void tsc_service::consume_desired_phase_plan() const {
-        SPDLOG_WARN("Trying to consume desired phase plan");
         desired_phase_plan_consumer->subscribe();
         while (desired_phase_plan_consumer->is_running())
         {
-            SPDLOG_WARN("Entering while loop");
             const std::string payload = desired_phase_plan_consumer->consume(1000);
             if (payload.length() != 0)
             {
-                SPDLOG_WARN("Consumed: {0}", payload);
+                SPDLOG_DEBUG("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
-                SPDLOG_WARN("Updated desired phase plan");
             }
-            SPDLOG_WARN("Beyond if loop");
         }        
     }
     
