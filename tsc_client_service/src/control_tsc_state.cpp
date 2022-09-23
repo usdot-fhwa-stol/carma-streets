@@ -12,6 +12,7 @@ namespace traffic_signal_controller_service
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
                                              std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue)
     {
+        SPDLOG_WARN("Entering update tsc control queue");
         if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");
             return;
@@ -20,11 +21,13 @@ namespace traffic_signal_controller_service
         auto first_event = desired_phase_plan->desired_phase_plan[0];
         auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         tsc_command_queue->push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
+        SPDLOG_WARN("Added first command to queue");
 
         int event_itr = 0;
         // At the end time of the current event, prepare for next event. So control ends at second to last event
         while(event_itr < desired_phase_plan->desired_phase_plan.size() - 1)
         {
+            SPDLOG_WARN("Entering While loop");
             auto event  = desired_phase_plan->desired_phase_plan[event_itr];
             auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
 
@@ -60,6 +63,7 @@ namespace traffic_signal_controller_service
             event_itr++;
             
         }
+        SPDLOG_WARN("Exiting update queue method");
     }
 
     tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time)
