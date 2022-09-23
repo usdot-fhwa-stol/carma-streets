@@ -75,7 +75,9 @@ namespace traffic_signal_controller_service
 
         for(auto signal_group : signal_groups)
         {
+            SPDLOG_WARN("Entering for loop");
             int phase = signal_group_2ped_phase_map_[signal_group];
+            SPDLOG_WARN("Got phase {0}", phase);
             // Omit all phases except the ones in the given movement group
             // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
             omit_val &= ~(1 << (phase - 1));
@@ -84,7 +86,7 @@ namespace traffic_signal_controller_service
             hold_val |= (1 << ( phase - 1));
             
         }
-
+        SPDLOG_WARN("Exiting for loop");
         tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val), start_time);
 
         return command;
