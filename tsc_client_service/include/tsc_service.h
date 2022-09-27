@@ -217,7 +217,7 @@ namespace traffic_signal_controller_service {
              */
             void produce_tsc_config_json();
 
-            void consume_desired_phase_plan() const;
+            void consume_desired_phase_plan();
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 

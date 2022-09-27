@@ -230,7 +230,7 @@ namespace traffic_signal_controller_service {
         }
     }
 
-    void tsc_service::consume_desired_phase_plan() const {
+    void tsc_service::consume_desired_phase_plan() {
         desired_phase_plan_consumer->subscribe();
         while (desired_phase_plan_consumer->is_running())
         {
@@ -244,8 +244,7 @@ namespace traffic_signal_controller_service {
                 // update command queue
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
-                    control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), 
-                                                    std::make_shared<std::queue<tsc_control_struct>>(tsc_set_command_queue_));
+                    control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
                     
                 }
             }
@@ -257,6 +256,7 @@ namespace traffic_signal_controller_service {
     void tsc_service::control_tsc_phases()
     {
         // While desired phase plan consumer is running the desired plan is getting updated. So empty control commands queue
+        desired_phase_plan_consumer->subscribe();
         while (desired_phase_plan_consumer->is_running())
         {
             while(!tsc_set_command_queue_.empty()){
@@ -287,14 +287,16 @@ namespace traffic_signal_controller_service {
     void tsc_service::start() {
         // Run threads as joint so that they dont overlap execution 
         std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
-        tsc_config_thread.join();
 
         std::thread spat_t(&tsc_service::produce_spat_json, this);
-        std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
-        spat_t.join();
 
-        desired_phase_plan_t.join();
+        std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
+
         std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
+        
+        tsc_config_thread.join();
+        spat_t.join();
+        desired_phase_plan_t.join();
         control_phases_t.join();
     }
     

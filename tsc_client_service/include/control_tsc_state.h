@@ -53,6 +53,7 @@ namespace traffic_signal_controller_service
         
             // Send Omit
             if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, omit_)){return false;}
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             // Send Hold
             if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, hold_)){return false;}
 
@@ -89,7 +90,7 @@ namespace traffic_signal_controller_service
              * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
              * @param desired_phase_plan Pointer to the desired phase plan.
              **/
-            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::shared_ptr<std::queue<tsc_control_struct>> tsc_command_queue_ptr);
+            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue_ptr);
 
             tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time);
 
