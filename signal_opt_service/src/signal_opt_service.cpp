@@ -8,6 +8,11 @@ namespace signal_opt_service
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
             _movement_groups = std::make_shared<movement_groups>();
+            intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
+            vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+            vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+            spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+            tsc_configuration_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
 
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
@@ -63,44 +68,47 @@ namespace signal_opt_service
 
     void signal_opt_service::start()
     {
-        std::thread spat_t(&signal_opt_service::consume_spat, this);
-        std::thread vsi_t(&signal_opt_service::consume_vsi, this);
-        std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this);
+        std::thread spat_t(&signal_opt_service::consume_spat,this, this->_spat_consumer, this->spat_ptr);
+        std::thread vsi_t(&signal_opt_service::consume_vsi,  this, this->_vsi_consumer, this->vehicle_list_ptr);
+        std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this, this->_tsc_config_consumer, this->tsc_configuration_ptr);
         // Get TSC Information then populate movement groups.
         tsc_config_t.join();
-        populate_movement_groups(_movement_groups, _so_msgs_worker_ptr->get_tsc_config_ptr());
+        populate_movement_groups(_movement_groups, tsc_configuration_ptr);
         
         spat_t.detach();
         vsi_t.detach();
     }
 
-    void signal_opt_service::consume_spat() const{
-        while( _spat_consumer->is_running()) {
-            const std::string payload = _spat_consumer->consume(1000); 
+    void signal_opt_service::consume_spat(const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer, 
+                                            const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr ) const{
+        while( spat_consumer->is_running()) {
+            const std::string payload = spat_consumer->consume(1000); 
             if (!payload.empty()) {
-                bool update = _so_msgs_worker_ptr->update_spat(payload);
+                bool update = _so_msgs_worker_ptr->update_spat(payload,_spat_ptr);
                 if ( !update )
                     SPDLOG_CRITICAL("Failed to update SPaT with update {0}!", payload);
             }
         }
     }
 
-    void signal_opt_service::consume_vsi() const{
-        while( _vsi_consumer->is_running()) {
-            const std::string payload = _vsi_consumer->consume(1000); 
+    void signal_opt_service::consume_vsi(const std::shared_ptr<kafka_clients::kafka_consumer_worker> vsi_consumer,
+                                         const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const{
+        while( vsi_consumer->is_running()) {
+            const std::string payload = vsi_consumer->consume(1000); 
             if (!payload.empty()) {
-                bool update = _so_msgs_worker_ptr->update_vehicle_list(payload);
+                bool update = _so_msgs_worker_ptr->update_vehicle_list(payload,_vehicle_list_ptr);
                 if (!update)
                     SPDLOG_CRITICAL("Failed to update Vehicle List with update {0}!", payload);
             }
         }
     }
 
-    void signal_opt_service::consume_tsc_config() const {
-        while( _tsc_config_consumer->is_running()) {
-            const std::string payload = _tsc_config_consumer->consume(1000); 
+    void signal_opt_service::consume_tsc_config( const std::shared_ptr<kafka_clients::kafka_consumer_worker> tsc_config_consumer,
+                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr) const {
+        while( tsc_config_consumer->is_running()) {
+            const std::string payload = tsc_config_consumer->consume(1000); 
             if (!payload.empty()) {
-                bool update = _so_msgs_worker_ptr->update_tsc_config(payload);
+                bool update = _so_msgs_worker_ptr->update_tsc_config(payload,_tsc_config_ptr);
                 if (!update) {
                     SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
                 }else {
@@ -146,7 +154,7 @@ namespace signal_opt_service
         while (attempt_count < int_client_request_attempts)
         {
             // Send HTTP request, and update intersection information. If updated successfully, it returns true and exit the while loop.
-            if (_so_msgs_worker_ptr && _so_msgs_worker_ptr->request_intersection_info())
+            if (_so_msgs_worker_ptr && _so_msgs_worker_ptr->request_intersection_info(intersection_info_ptr))
             {
                 return true;
             }

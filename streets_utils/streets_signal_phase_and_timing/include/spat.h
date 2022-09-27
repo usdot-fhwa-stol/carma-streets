@@ -12,6 +12,8 @@
 #include <list>
 #include <math.h>
 #include <chrono>
+#include <shared_mutex>
+#include <mutex>
 
 
 namespace signal_phase_and_timing{
@@ -35,11 +37,18 @@ namespace signal_phase_and_timing{
         std::unordered_map<int,int> phase_to_signal_group;
 
         /**
+         * @brief 
+         */
+        std::shared_mutex spat_lock;
+
+        /**
          * @brief Serialize SPaT object to rapidjson::Value for writing as JSON string
          * 
          * @return rapidjson::Value serialize SPaT object
          */
-        std::string toJson() const;
+        std::string toJson();
+
+        intersection_state get_intersection();
         /**
          * @brief Deserialize SPaT JSON into SPaT object.
          * 

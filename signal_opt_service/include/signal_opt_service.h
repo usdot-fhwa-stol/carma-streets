@@ -21,6 +21,10 @@ namespace signal_opt_service
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
         std::shared_ptr<movement_groups> _movement_groups;
+        std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
+        std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+        std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
+        std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr;
 
     public:
         /**
@@ -44,20 +48,23 @@ namespace signal_opt_service
          * spat pointer in signal_opt_message_worker. 
          * 
          */
-        void consume_spat() const;
+        void consume_spat( const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer,
+                            const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr ) const;
         /**
          * @brief Method to consume vehicle status and intent JSON from kafka 
          * consumer and update vehicle list pointer in signal_opt_message_worker.
          * 
          */
-        void consume_vsi() const;
+        void consume_vsi(const std::shared_ptr<kafka_clients::kafka_consumer_worker> vsi_consumer,
+                            const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const;
         /**
          * @brief Method to consume a single TSC Configuration JSON message 
          * from kafka and update the tsc_config_state pointer in the 
          * signal_opt_message_worker.
          * 
          */
-        void consume_tsc_config() const;
+        void consume_tsc_config(const std::shared_ptr<kafka_clients::kafka_consumer_worker> tsc_config_consumer, 
+                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr) const;
         /**
          * @brief Method to use the tsc_config_state pointer from the 
          * signal_opt_message_worker to populate movement_groups pointer

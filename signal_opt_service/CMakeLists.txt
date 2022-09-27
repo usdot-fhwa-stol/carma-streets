@@ -76,6 +76,7 @@ target_link_libraries(${BINARY} PUBLIC
     spdlog::spdlog
     rapidjson
     gtest
+    gmock
     Qt5::Core
     Qt5::Network
     intersection_client_api_lib
