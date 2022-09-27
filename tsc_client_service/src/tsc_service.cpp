@@ -72,6 +72,9 @@ namespace traffic_signal_controller_service {
             // Initialize monitor desired phase plan
             monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
 
+            // Initialize control_tsc_state ptr
+            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
+
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -241,8 +244,7 @@ namespace traffic_signal_controller_service {
                 // update command queue
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
-                    control_tsc_state control_tsc_state_worker(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
-                    control_tsc_state_worker.update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), 
+                    control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), 
                                                     std::make_shared<std::queue<tsc_control_struct>>(tsc_set_command_queue_));
                     
                 }
@@ -263,6 +265,7 @@ namespace traffic_signal_controller_service {
                 {
                     throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
                 }
+                SPDLOG_TRACE("Sent TSC control Omit and Hold ");
                 // sleep till first event
                 auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().execution_start_time_);
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
@@ -273,6 +276,10 @@ namespace traffic_signal_controller_service {
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
+        }
+        // Reset Hold and Omit if no desired phase plan
+        if(!control_tsc_state_ptr_->reset_hold_and_omit()){
+            throw control_tsc_state_exception("Could not reset HOLD and OMIT");
         }
     }
     

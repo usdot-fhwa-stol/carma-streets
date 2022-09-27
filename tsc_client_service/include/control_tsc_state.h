@@ -93,5 +93,6 @@ namespace traffic_signal_controller_service
 
             tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time);
 
+            bool reset_hold_and_omit ();
     };
 }

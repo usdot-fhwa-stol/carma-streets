@@ -84,4 +84,25 @@ namespace traffic_signal_controller_service
         return command;
         
     }
+
+    bool control_tsc_state::reset_hold_and_omit ()
+    {
+        request_type type = request_type::SET;
+
+        snmp_response_obj omit;
+        omit.type = snmp_response_obj::response_type::INTEGER;
+        omit.val_int = 0;
+
+        snmp_response_obj hold;
+        hold.type = snmp_response_obj::response_type::INTEGER;
+        hold.val_int = 0;
+
+        // Send Omit
+        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, omit)){return false;}
+            // Send Hold
+        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, hold)){return false;}
+
+        return true;
+    }
+
 }

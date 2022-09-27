@@ -75,6 +75,12 @@ namespace traffic_signal_controller_service {
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
 
+            /**
+             * @brief Pointer to the control_tsc_state worker responsible for make snmp HOLD and OMIT calls to follow the desired phase plan.
+             * 
+             */
+            std::shared_ptr<control_tsc_state> control_tsc_state_ptr_;
+
             // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
             int tsc_config_producer_counter_ = 0;
 
