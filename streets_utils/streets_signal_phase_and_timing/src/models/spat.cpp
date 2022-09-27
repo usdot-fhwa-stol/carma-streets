@@ -139,6 +139,23 @@ namespace signal_phase_and_timing{
 
     }
 
+    std::string spat::get_name() {
+        std::shared_lock lock(spat_lock);
+        return name;
+    }
+
+    uint32_t spat::get_timestamp() {
+        std::shared_lock lock(spat_lock);
+        return timestamp;
+    }
+
+    void spat::set_intersection(const intersection_state &intersection) {
+        // Write lock
+        std::unique_lock lock(spat_lock);
+        intersections.clear();
+        intersections.push_front(intersection);
+    }
+
     bool spat::operator==(const spat &other) const{
         return timestamp == other.timestamp && name == other.name && intersections == other.intersections;
     }

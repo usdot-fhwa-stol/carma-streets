@@ -76,6 +76,7 @@ TEST_F(test_intersection_state, toJson)
     iss.moy= 123;
     iss.status = 32;
     movement_state mms;
+    mms.signal_group=2;
     iss.states.push_back(mms);
     auto json = iss.toJson(allocator);
 

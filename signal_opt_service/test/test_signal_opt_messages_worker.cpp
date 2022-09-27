@@ -84,8 +84,8 @@ TEST(signal_opt_messages_worker, update_spat)
     ASSERT_FALSE(so_msgs_worker_ptr->update_spat(spat_payload, spat_ptr));
     spat_payload = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     ASSERT_TRUE(so_msgs_worker_ptr->update_spat(spat_payload, spat_ptr));
-    ASSERT_EQ(1909, spat_ptr->intersections.front().id);
-    ASSERT_EQ("West Intersection",spat_ptr->intersections.front().name);
+    ASSERT_EQ(1909, spat_ptr->get_intersection().id);
+    ASSERT_EQ("West Intersection",spat_ptr->get_intersection().name);
 }
 
 TEST(signal_opt_messages_worker, update_tsc_config) {

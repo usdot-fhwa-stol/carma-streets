@@ -222,6 +222,8 @@ namespace traffic_signal_controller_service
             
             else if(it.event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain)
                 EXPECT_EQ(it.timing.min_end_time - it.timing.start_time, phase_1_state.red_duration/100);
+            else 
+                GTEST_FAIL();
         }       
 
         // Test exception 

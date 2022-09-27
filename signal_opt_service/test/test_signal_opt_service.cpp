@@ -73,7 +73,7 @@ TEST(signal_opt_service, consume_tsc_config) {
     signal_opt_service::signal_opt_service so_service;
     std::shared_ptr<kafka_clients::mock_kafka_consumer_worker> mock_tsc_config_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
     std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
-    EXPECT_CALL(*mock_tsc_config_consumer,is_running()).Times(4).WillOnce(Return(false))
+    EXPECT_CALL(*mock_tsc_config_consumer,is_running()).Times(3).WillOnce(Return(false))
                                                             .WillRepeatedly(Return(true));
     EXPECT_CALL(*mock_tsc_config_consumer, consume(1000)).Times(2).WillOnce(Return("")).WillRepeatedly(Return(
         "{"
@@ -102,8 +102,6 @@ TEST(signal_opt_service, consume_tsc_config) {
     SPDLOG_INFO("Consuming Empty message");
     // mock_spat_consumer returns "" from consume(1000)
     so_service.consume_tsc_config(mock_tsc_config_consumer, tsc_config);
-    SPDLOG_INFO("Consuming message.");
-    // mock_spat_consumer returns spat json string from consume(1000)
-    so_service.consume_tsc_config(mock_tsc_config_consumer,tsc_config);
+   
 
 }

@@ -163,7 +163,9 @@ TEST_F(signalized_scheduler_test, one_ev_one_decelration){
     ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
 
     SPDLOG_INFO("schedule timestamp = {0}, eet = {1}, et = {2} ", sched->timestamp, sched->vehicle_schedules.front().eet, sched->vehicle_schedules.front().et);
-    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_start_time(), spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
+    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", 
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_start_time(),
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
 
     double eet_time =(sched->vehicle_schedules.front().eet-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EET time for scheduler  : {0}  vs calculated {1} ", eet_time, 1.009 );
@@ -213,7 +215,9 @@ TEST_F(signalized_scheduler_test, one_ev_without_cruising){
     ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
 
     SPDLOG_INFO("schedule timestamp = {0}, eet = {1}, et = {2} ", sched->timestamp, sched->vehicle_schedules.front().eet, sched->vehicle_schedules.front().et);
-    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_start_time(), spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
+    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", 
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_start_time(), 
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
 
     double eet_time =(sched->vehicle_schedules.front().eet-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EET time for scheduler  : {0}  vs calculated {1} ", eet_time, 5.291 );
@@ -264,7 +268,9 @@ TEST_F(signalized_scheduler_test, one_ev_with_cruising_1){
     ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
 
     SPDLOG_INFO("schedule timestamp = {0}, eet = {1}, et = {2} ", sched->timestamp, sched->vehicle_schedules.front().eet, sched->vehicle_schedules.front().et);
-    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_start_time(), spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
+    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", 
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_start_time(),
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
 
     double eet_time =(sched->vehicle_schedules.front().eet-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EET time for scheduler  : {0}  vs calculated {1} ", eet_time, 10.736 );
@@ -317,7 +323,9 @@ TEST_F(signalized_scheduler_test, one_ev_with_cruising_2){
     ASSERT_EQ( sched->vehicle_schedules.front().v_id, veh._id);
 
     SPDLOG_INFO("schedule timestamp = {0}, eet = {1}, et = {2} ", sched->timestamp, sched->vehicle_schedules.front().eet, sched->vehicle_schedules.front().et);
-    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_start_time(), spat_ptr->intersections.front().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
+    SPDLOG_INFO(" spat first phase start time = {0}, spat first phase end time = {1} ", 
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_start_time(), 
+        spat_ptr->get_intersection().states.front().state_time_speed.front().timing.get_epoch_min_end_time());
 
     double eet_time =(sched->vehicle_schedules.front().eet-sched->timestamp)/1000.0;
     SPDLOG_INFO( "EET time for scheduler  : {0}  vs calculated {1} ", eet_time, 8.678 );

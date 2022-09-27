@@ -23,7 +23,8 @@ namespace traffic_signal_controller_service
         {
             throw monitor_desired_phase_plan_exception("Intersections cannot be empty!");
         }
-        auto states = spat_ptr->intersections.front().states;
+        auto intersection = spat_ptr->get_intersection();
+        auto states = intersection.states;
 
         if (states.empty())
         {
@@ -56,7 +57,7 @@ namespace traffic_signal_controller_service
                 }
 
                 // Get movement_state by reference. With this reference, it can update the original SPAT movement state list
-                auto &cur_movement_state_ref = spat_ptr->intersections.front().get_movement(current_signal_group_id);
+                auto &cur_movement_state_ref = intersection.get_movement(current_signal_group_id);
 
                 // Processing the next current or first desired future movement event from the desired phase plan
                 if (is_procssing_first_desired_green)
@@ -71,6 +72,8 @@ namespace traffic_signal_controller_service
             }
             is_procssing_first_desired_green = false;
         }
+        // Update spat pointer with new intersection state.
+        spat_ptr->set_intersection(intersection);
     }
 
     void monitor_desired_phase_plan::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, const std::shared_ptr<tsc_state> tsc_state_ptr) const
