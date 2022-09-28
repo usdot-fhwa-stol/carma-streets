@@ -8,7 +8,8 @@ namespace signal_opt_service
         
     }
 
-    bool signal_opt_messages_worker::update_vehicle_list(const std::string &vehicle_json, std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr) const
+    bool signal_opt_messages_worker::update_vehicle_list(const std::string &vehicle_json, 
+                                                        std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr) const
     {
         if (vehicle_list_ptr)
         {
@@ -18,7 +19,7 @@ namespace signal_opt_service
         return false;
     }
 
-    bool signal_opt_messages_worker::update_spat(const std::string &spat_json, std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
+    bool signal_opt_messages_worker::update_spat(const std::string &spat_json, std::shared_ptr<signal_phase_and_timing::spat> spat_ptr) const
     {
         if (spat_ptr)
         {
@@ -35,9 +36,8 @@ namespace signal_opt_service
         return false;
     }
     bool signal_opt_messages_worker::update_tsc_config(const std::string &tsc_configuration, 
-                                                       std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr) {
+                                                       std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr) const {
         if (tsc_configuration_ptr) {
-            SPDLOG_INFO("Is this happening");
             try {
                 tsc_configuration_ptr->fromJson(tsc_configuration);
                 return true;
@@ -50,13 +50,16 @@ namespace signal_opt_service
         return false;
     }
 
-    bool signal_opt_messages_worker::request_intersection_info( std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr)
+    bool signal_opt_messages_worker::request_intersection_info( std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr) const
     {
         int invalid_signal_group_count = 0;
         bool signal_group_ids_valid = false;
         OpenAPI::OAIDefaultApi apiInstance;
         QEventLoop loop;
-        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [this, intersection_info_ptr, &signal_group_ids_valid, &invalid_signal_group_count, &loop](OpenAPI::OAIIntersection_info int_info)
+        connect(&apiInstance, &OpenAPI::OAIDefaultApi::getIntersectionInfoSignal, [ intersection_info_ptr, 
+                                                                                    &signal_group_ids_valid, 
+                                                                                    &invalid_signal_group_count, 
+                                                                                    &loop](const OpenAPI::OAIIntersection_info &int_info)
                 {                   
                     SPDLOG_INFO("request_intersection_info receives intersection information. Checking signal group ids update...");
                     QList<OpenAPI::OAILanelet_info> ll_info_list = int_info.getLinkLanelets();

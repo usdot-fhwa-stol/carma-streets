@@ -40,10 +40,10 @@ namespace signal_opt_service
          * @return true if the Spat object is updated.
          * @return false if the Spat object is not updated.
          */
-        bool update_spat(const std::string& spat_json , std::shared_ptr<signal_phase_and_timing::spat> spat_ptr);
+        bool update_spat(const std::string& spat_json , std::shared_ptr<signal_phase_and_timing::spat> spat_ptr) const ;
 
         bool update_tsc_config(const std::string &tsc_configuration, 
-                                std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr);
+                                std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr) const ;
         /**
          * @brief Send http GET request to intersection model at rate of configured HZ until it gets the valid (!= 0) signal group id from the intersection info.
          * Updating the intersection info with the http response that has the valid signal group id, and stop sending any more GET request.
@@ -51,6 +51,6 @@ namespace signal_opt_service
          * @return true if intersection information is updated upon receiving valid signal group id.
          * @return false if intersection information is not updated.
          */
-        bool request_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> _intersection_info);
+        bool request_intersection_info(std::shared_ptr<OpenAPI::OAIIntersection_info> _intersection_info) const;
     };
 }

@@ -72,7 +72,7 @@ namespace signal_opt_service
          * @param movement_groups shared pointer to list of movement groups
          */
         void populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
-                                    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) ;
+                                    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const ;
         /**
          * @brief Updating the intersection info.
          * @param sleep_millisecs The current thread sleep for milliseconds after each update attempt

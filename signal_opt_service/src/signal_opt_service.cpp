@@ -119,7 +119,7 @@ namespace signal_opt_service
     }
     
     void signal_opt_service::populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
-                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) {
+                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const {
         if (tsc_config) {
             for (const auto &phase_config : tsc_config->tsc_config_list) {
                 for (const auto &concur : phase_config.concurrent_signal_groups) {
