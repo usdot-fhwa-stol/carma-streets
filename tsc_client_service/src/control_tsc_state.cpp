@@ -16,20 +16,34 @@ namespace traffic_signal_controller_service
             SPDLOG_DEBUG("No events in desired phase plan");
             return;
         }
+        
+        // Add first event
+        
         // Omit and Hold for first movement group in plan
         auto first_event = desired_phase_plan->desired_phase_plan[0];
         auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         tsc_command_queue_ptr.push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
+        
 
-        int event_itr = 0;
+        int event_itr = 1;
         // At the end time of the current event, prepare for next event. So control ends at second to last event
         while(event_itr < desired_phase_plan->desired_phase_plan.size() - 1)
         {
             auto event  = desired_phase_plan->desired_phase_plan[event_itr];
             auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
 
+            auto current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+            auto current_event_start_time  = std::chrono::milliseconds(event.start_time);
+            auto current_event_end_time = std::chrono::milliseconds(event.end_time);
+
+            if(current_event_start_time < current_time_in_ms || current_event_end_time < current_time_in_ms)
+            {
+                SPDLOG_WARN("Event {0} in desired phase plan in expired, not adding to queue", event_itr);
+                event_itr++;
+                continue;
+            }
+
             // Check no repeated signal groups in adjacent events
-            
             for(auto signal_group : event.signal_groups)
             {
                 auto it = std::find(next_event.signal_groups.begin(), next_event.signal_groups.end(), signal_group);
@@ -38,16 +52,6 @@ namespace traffic_signal_controller_service
                     SPDLOG_ERROR("TSC Service assumes adjacent events dont have the same signal_group. Given Desired phase plan fails this assumption");
                     throw control_tsc_state_exception("Repeating signal group found in adjacent events. Desired phase plan cannot be set");
                 }
-            }
-
-            auto current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-            auto current_event_start_time  = std::chrono::milliseconds(event.start_time);
-            auto current_event_end_time = std::chrono::milliseconds(event.end_time);
-
-            if(current_event_start_time < current_time_in_ms || current_event_end_time < current_time_in_ms)
-            {
-                SPDLOG_ERROR("TSC Service assumes desired phase plan does not have overlapping events. Given Desired plan fails assumption");
-                throw control_tsc_state_exception("Overlapping timings. Desired phase plan cannot be set");
             }
             
             // Add object to queue
