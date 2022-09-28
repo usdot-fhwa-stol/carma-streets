@@ -248,6 +248,15 @@ namespace traffic_signal_controller_service {
                     
                 }
             }
+            else{
+                SPDLOG_DEBUG("No desired phase plan available, clearing queue");
+                // Clear queue
+                tsc_set_command_queue_ = std::queue<tsc_control_struct>();
+                // Reset Hold and Omit if no desired phase plan
+                if(!control_tsc_state_ptr_->reset_hold_and_omit()){
+                    throw control_tsc_state_exception("Could not reset HOLD and OMIT");
+                }
+            }
 
            
         }        
@@ -281,11 +290,6 @@ namespace traffic_signal_controller_service {
                 // Remove element
                tsc_set_command_queue_.pop();
 
-            }
-            
-            // Reset Hold and Omit if no desired phase plan
-            if(!control_tsc_state_ptr_->reset_hold_and_omit()){
-                throw control_tsc_state_exception("Could not reset HOLD and OMIT");
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
