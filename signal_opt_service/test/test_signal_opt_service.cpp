@@ -8,28 +8,33 @@
 using testing::_;
 using testing::Return;
 
-
+/**
+ * @brief Test signal opt service initialize method.
+ */
 TEST(signal_opt_service, initialize)
 {
     signal_opt_service::signal_opt_service so_service;
     ASSERT_FALSE(so_service.initialize());
     
 }
-
+/**
+ * @brief Test signal opt service update intersection info method.
+ */
 TEST(signal_opt_service, update_intersection_info)
-{
+{   
     signal_opt_service::signal_opt_service so_service;
     ASSERT_FALSE(so_service.initialize());
     ASSERT_FALSE(so_service.update_intersection_info(1000, 1));
 }
-
+/**
+ * @brief Test consume spat with mock kafka consumer.
+ */
 TEST(signal_opt_service, consume_spat) {
     signal_opt_service::signal_opt_service so_service;
     std::shared_ptr<kafka_clients::mock_kafka_consumer_worker> mock_spat_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
     std::shared_ptr<signal_phase_and_timing::spat> spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
-    EXPECT_CALL(*mock_spat_consumer,is_running()).Times(6).WillOnce(Return(false))
+    EXPECT_CALL(*mock_spat_consumer,is_running()).Times(5).WillOnce(Return(false))
                                                             .WillOnce(Return(true))
-                                                            .WillOnce(Return(false))
                                                             .WillOnce(Return(true))
                                                             .WillOnce(Return(true))
                                                             .WillRepeatedly(Return(false));
@@ -59,18 +64,19 @@ TEST(signal_opt_service, consume_spat) {
                             "\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]"
                     "}],"
                 "\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}"));
-    // mock_spat_consumer returns false to is_running
-    SPDLOG_INFO("Consuming not running!");
+    // consume spat while kafka consumer is not running.
     so_service.consume_spat(mock_spat_consumer,spat_ptr);
-    SPDLOG_INFO("Consuming Empty message");
-    // mock_spat_consumer returns "" from consume(1000)
+    // consume spat while kafka consumer is running.
+    // 1st message is empty
+    // 2nd message is invalid json
+    // 3rd message is valid
+    // After 3rd message kafka consumer stops running.
     so_service.consume_spat(mock_spat_consumer, spat_ptr);
-    SPDLOG_INFO("Consuming message.");
-    // mock_spat_consumer returns spat json string from consume(1000)
-    so_service.consume_spat(mock_spat_consumer,spat_ptr);
 
 }
-
+/**
+ * @brief Test consume tsc config with mock kafka consumer.
+ */
 TEST(signal_opt_service, consume_tsc_config) {
     signal_opt_service::signal_opt_service so_service;
     std::shared_ptr<kafka_clients::mock_kafka_consumer_worker> mock_tsc_config_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
@@ -98,15 +104,18 @@ TEST(signal_opt_service, consume_tsc_config) {
         "    \"red_clearance\":300"
         "}]"
         "}"));
-    // mock_spat_consumer returns false to is_running
-    SPDLOG_INFO("Consuming not running!");
+    // consume tsc configuration while kafka consumer is not running.
     so_service.consume_tsc_config(mock_tsc_config_consumer,tsc_config);
-    SPDLOG_INFO("Consuming Empty message");
-    // mock_spat_consumer returns "" from consume(1000)
+    // consume tsc configuration while kafka consumer is running.
+    // 1st message is empty
+    // 2nd message is invalid json 
+    // 3rd message is valid
     so_service.consume_tsc_config(mock_tsc_config_consumer, tsc_config);
    
 }
-
+/**
+ * @brief Test consume vsi method with mock kafka consumer.
+ */
 TEST(signal_opt_service, consume_vsi) {
     signal_opt_service::signal_opt_service so_service;
     std::shared_ptr<kafka_clients::mock_kafka_consumer_worker> mock_vsi_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
@@ -173,10 +182,18 @@ TEST(signal_opt_service, consume_vsi) {
                             "]" 
                     "}"
                 "}"));
+    // consume vehicle status and intent while kafka consumer is not runninng.
     so_service.consume_vsi(mock_vsi_consumer, vehicle_list);
+    // consume vehicle status and intent while kafka consumer is running.
+    // 1st message is empty
+    // 2nd message is invalid json
+    // 3rd message is valid 
+    // After 3rd message kafka consumer stops running.
     so_service.consume_vsi(mock_vsi_consumer, vehicle_list);
 }
-
+/**
+ * @brief Test populate movement group method with example tsc configurations state.
+ */
 TEST(signal_opt_service, populate_movement_group) {
     signal_opt_service::signal_opt_service so_service;
     auto tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
@@ -210,8 +227,11 @@ TEST(signal_opt_service, populate_movement_group) {
     sig4.concurrent_signal_groups.push_back(2);
     tsc_config->tsc_config_list.push_back(sig4);
 
+    // TSC Configuration
+    // barrier = ||
+    //ring 1 : 2 || 5
+    //ring 2 : 4 || 6
     so_service.populate_movement_groups(m_groups,tsc_config);
-
     
     ASSERT_EQ(2, m_groups->groups.size());
     ASSERT_EQ(5, m_groups->groups.front().signal_groups.first);
