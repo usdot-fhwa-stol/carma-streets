@@ -23,6 +23,8 @@ namespace traffic_signal_controller_service
         /*Time at which the snmp set command should be executed*/
         uint64_t execution_start_time_;
 
+        bool execute_now_ = false;
+
         /**
          * @brief Constructor for the tsc_control_struct.
          * @param snmp_client_worker Pointer to the snmp client object
@@ -92,7 +94,7 @@ namespace traffic_signal_controller_service
              **/
             void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue_ptr);
 
-            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time);
+            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, bool execute_now = false);
 
             bool reset_hold_and_omit ();
     };

@@ -22,7 +22,7 @@ namespace traffic_signal_controller_service
         // Omit and Hold for first movement group in plan
         auto first_event = desired_phase_plan->desired_phase_plan[0];
         auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        tsc_command_queue_ptr.push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time));
+        tsc_command_queue_ptr.push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time, true));
         
 
         int event_itr = 1;
@@ -62,7 +62,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time)
+    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, bool execute_now)
     {
         uint8_t omit_val = 255; //Initialize to 11111111
         uint8_t hold_val = 0;   //Initialize to 00000000
@@ -80,6 +80,7 @@ namespace traffic_signal_controller_service
         }
 
         tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val), start_time);
+        command.execute_now_ = execute_now;
 
         return command;
         

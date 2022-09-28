@@ -271,15 +271,17 @@ namespace traffic_signal_controller_service {
             while(!tsc_set_command_queue_.empty()){
                 // Check if event is expired
                 auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().execution_start_time_);
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
-                if(duration.count() < 0){
-                    SPDLOG_WARN("Desired phase plan has expired event, skipping control");
-                    tsc_set_command_queue_.pop();
-                    continue;
-                }
+                if (!(tsc_set_command_queue_.front()).execute_now_){
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
+                    if(duration.count() < 0){
+                        SPDLOG_WARN("Desired phase plan has expired event, skipping control");
+                        tsc_set_command_queue_.pop();
+                        continue;
+                    }
 
-                // If event is not expired, run Omit and Hold and specified time
-                std::this_thread::sleep_for(duration);
+                    // If event is not expired, run Omit and Hold and specified time
+                    std::this_thread::sleep_for(duration);
+                }
 
                 if(!(tsc_set_command_queue_.front()).run())
                 {
