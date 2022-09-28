@@ -35,7 +35,7 @@ namespace streets_desired_phase_plan_arbitrator
 
         void update_spat_with_proposed_dpp(std::shared_ptr<signal_phase_and_timing::spat> spat, streets_desired_phase_plan::streets_desired_phase_plan dpp);
         streets_vehicle_scheduler::signalized_intersection_schedule calculate_vehicle_schedules(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const streets_vehicles::vehicle_list &veh_list, const OpenAPI::OAIIntersection_info &intersection_info);
-        ddp_delay_measures_mapping calculate_delay_measure(const streets_vehicle_scheduler::signalized_intersection_schedule &shcedule, streets_desired_phase_plan::streets_desired_phase_plan dpp);
-        streets_desired_phase_plan::streets_desired_phase_plan identify_ddp_by_delay_measure(const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list, const ddp_delay_measures_mapping &ddp_delay_measures);
+        ddp_delay_measures_mapping calculate_delay_measures(const streets_vehicle_scheduler::signalized_intersection_schedule &shcedule, streets_desired_phase_plan::streets_desired_phase_plan dpp);
+        streets_desired_phase_plan::streets_desired_phase_plan identify_ddp_by_delay_measures(const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list, const ddp_delay_measures_mapping &ddp_delay_measures);
     };
 }

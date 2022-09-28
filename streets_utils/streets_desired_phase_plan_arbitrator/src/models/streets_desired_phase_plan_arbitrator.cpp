@@ -19,11 +19,11 @@ namespace streets_desired_phase_plan_arbitrator
     {
     }
 
-    ddp_delay_measures_mapping streets_desired_phase_plan_arbitrator::calculate_delay_measure(const streets_vehicle_scheduler::signalized_intersection_schedule &shcedule, streets_desired_phase_plan::streets_desired_phase_plan dpp)
+    ddp_delay_measures_mapping streets_desired_phase_plan_arbitrator::calculate_delay_measures(const streets_vehicle_scheduler::signalized_intersection_schedule &shcedule, streets_desired_phase_plan::streets_desired_phase_plan dpp)
     {
     }
 
-    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_arbitrator::identify_ddp_by_delay_measure(const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list, const ddp_delay_measures_mapping &ddp_delay_measures)
+    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_arbitrator::identify_ddp_by_delay_measures(const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list, const ddp_delay_measures_mapping &ddp_delay_measures)
     {
     }
 }
