@@ -11,6 +11,7 @@ streets_utils/streets_signal_phase_and_timing/build/
 streets_utils/streets_api/intersection_client_api/build/
 streets_utils/streets_desired_phase_plan/build/
 streets_utils/streets_tsc_configuration/build/
+streets_utils/streets_desired_phase_plan_arbitrator/build/
 intersection_model/build
 signal_opt_service/build/
 tsc_client_service/build

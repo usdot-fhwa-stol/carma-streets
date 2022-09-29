@@ -184,6 +184,8 @@ namespace signal_phase_and_timing
          * @param signal_group_id 
          * @return movement_state& 
          */
+
+        void clear_future_movement_events();
         movement_state& get_movement(const int signal_group_id);
         /**
          * @brief Initialize list<movement_state> to include a movement for each phase_numer/signal_group entry in the phase number
