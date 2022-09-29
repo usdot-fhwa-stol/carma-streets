@@ -92,7 +92,7 @@ namespace traffic_signal_controller_service
              * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
              * @param desired_phase_plan Pointer to the desired phase plan.
              **/
-            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue_ptr);
+            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue);
 
             tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, bool execute_now = false);
 

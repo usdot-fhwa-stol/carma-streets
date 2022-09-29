@@ -89,6 +89,7 @@ namespace traffic_signal_controller_service {
 
             // Queue to store tsc_control_structs which are objects used to run snmp HOLD and OMIT commands
             std::queue<tsc_control_struct> tsc_set_command_queue_;
+            bool is_snmp_hold_and_omit_reset_ = false;
 
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;
