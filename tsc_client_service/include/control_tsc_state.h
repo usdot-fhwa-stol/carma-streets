@@ -23,6 +23,8 @@ namespace traffic_signal_controller_service
         /*Time at which the snmp set command should be executed*/
         uint64_t execution_start_time_;
 
+        uint64_t execution_end_time_;
+
         bool execute_now_ = false;
 
         /**
@@ -32,7 +34,7 @@ namespace traffic_signal_controller_service
          * @param hold_val Integer value for the Hold Command
          * 
         **/
-        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t omit_val, int64_t hold_val, int64_t start_time) : snmp_client_worker_(snmp_client_worker), execution_start_time_(start_time)
+        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t omit_val, int64_t hold_val, int64_t start_time, int64_t end_time) : snmp_client_worker_(snmp_client_worker), execution_start_time_(start_time), execution_end_time_(end_time)
         {
             
             omit_.type = snmp_response_obj::response_type::INTEGER;
@@ -94,7 +96,7 @@ namespace traffic_signal_controller_service
              **/
             void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue);
 
-            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, bool execute_now = false);
+            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, int64_t end_time, bool execute_now = false);
 
             bool reset_hold_and_omit ();
     };

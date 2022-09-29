@@ -77,7 +77,7 @@ namespace traffic_signal_controller_service
         EXPECT_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr,control_commands_queue), control_tsc_state_exception);
 
         // Test tsc_control_struct
-        tsc_control_struct test_control_obj(shared_client, 10, 15, event1.start_time);
+        tsc_control_struct test_control_obj(shared_client, 10, 15, event1.start_time, 0);
         EXPECT_TRUE(test_control_obj.run());
 
         // Test empty desired phase plan

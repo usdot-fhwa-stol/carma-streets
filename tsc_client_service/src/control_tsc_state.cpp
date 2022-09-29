@@ -24,8 +24,9 @@ namespace traffic_signal_controller_service
         // Omit and Hold for first movement group in plan - skip if current phase is yellow 
         //if green - start time should be dpp_start_time - red_clearance - yellow duration
         auto first_event = desired_phase_plan->desired_phase_plan[0];
+        auto first_event_end_time = std::chrono::milliseconds(first_event.start_time);
         auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        tsc_command_queue.push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time, true));
+        tsc_command_queue.push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time, first_event_end_time.count(), true));
         
 
         int event_itr = 1;
@@ -57,15 +58,16 @@ namespace traffic_signal_controller_service
                 }
             }
             
+            auto next_event_end_time = std::chrono::milliseconds(next_event.end_time);
             // Add object to queue
-            tsc_command_queue.push(omit_and_hold_signal_groups(next_event.signal_groups, current_event_end_time.count()));
+            tsc_command_queue.push(omit_and_hold_signal_groups(next_event.signal_groups, current_event_end_time.count(), next_event_end_time.count()));
 
             event_itr++;
             
         }
     }
 
-    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, bool execute_now)
+    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, int64_t end_time, bool execute_now)
     {
         uint8_t omit_val = 255; //Initialize to 11111111
         uint8_t hold_val = 0;   //Initialize to 00000000
@@ -82,7 +84,7 @@ namespace traffic_signal_controller_service
             
         }
 
-        tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val), start_time);
+        tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val), start_time, end_time);
         command.execute_now_ = execute_now;
 
         return command;

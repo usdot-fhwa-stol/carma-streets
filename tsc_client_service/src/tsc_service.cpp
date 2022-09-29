@@ -256,6 +256,7 @@ namespace traffic_signal_controller_service {
     {
         // While desired phase plan consumer is running the desired plan is getting updated. So empty control commands queue
         while(true){
+            int sleep_before_reset_in_ms = 100;
             while(!tsc_set_command_queue_.empty()){
                 // Check if event is expired
                 auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().execution_start_time_);
@@ -278,11 +279,14 @@ namespace traffic_signal_controller_service {
                 }
                 SPDLOG_TRACE("Sent TSC control Omit and Hold ");
 
+                sleep_before_reset_in_ms = tsc_set_command_queue_.front().execution_end_time_;
                 // Remove element
                 tsc_set_command_queue_.pop();
                 is_snmp_hold_and_omit_reset_ = false;
 
             }
+            // sleep till end of last event
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep_before_reset_in_ms));
             
             // If queue is empty and hold and omit haven't already been set to 0
             if(tsc_set_command_queue_.empty() && !is_snmp_hold_and_omit_reset_){
@@ -293,7 +297,7 @@ namespace traffic_signal_controller_service {
                 is_snmp_hold_and_omit_reset_ = true;
             }
 
-            // std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
+            std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
         }
         
     }
