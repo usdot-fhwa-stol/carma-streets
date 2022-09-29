@@ -68,15 +68,15 @@ namespace signal_opt_service
 
     void signal_opt_service::start()
     {
-        std::thread spat_t(&signal_opt_service::consume_spat,this, this->_spat_consumer, this->spat_ptr);
-        std::thread vsi_t(&signal_opt_service::consume_vsi,  this, this->_vsi_consumer, this->vehicle_list_ptr);
         std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this, this->_tsc_config_consumer, this->tsc_configuration_ptr);
         // Get TSC Information then populate movement groups.
         tsc_config_t.join();
         populate_movement_groups(_movement_groups, tsc_configuration_ptr);
-        
-        spat_t.detach();
-        vsi_t.detach();
+        std::thread vsi_t(&signal_opt_service::consume_vsi,  this, this->_vsi_consumer, this->vehicle_list_ptr);
+        std::thread spat_t(&signal_opt_service::consume_spat,this, this->_spat_consumer, this->spat_ptr);
+        // Running in parallel
+        spat_t.join();
+        vsi_t.join();
     }
 
     void signal_opt_service::consume_spat(const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer, 
@@ -112,7 +112,8 @@ namespace signal_opt_service
                 if (!update) {
                     SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
                 }else {
-                    break;
+                    // Stop consumer after receiving tsc_configuration information
+                    tsc_config_consumer->stop();
                 }
             }
         }

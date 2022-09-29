@@ -44,24 +44,28 @@ namespace signal_opt_service
          */
         void start();
         /**
-         * @brief Method to consume SPaT JSON from kafka consumer and update 
-         * spat pointer in signal_opt_message_worker. 
+         * @brief Method to consume SPaT JSON from kafka consumer and update spat pointer.
          * 
+         * @param spat_consumer shared pointer to kafka consumer.
+         * @param _spat_ptr shared pointer to spat object.
          */
         void consume_spat( const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer,
                             const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr ) const;
         /**
          * @brief Method to consume vehicle status and intent JSON from kafka 
-         * consumer and update vehicle list pointer in signal_opt_message_worker.
+         * consumer and vehicle list pointer.
          * 
+         * @param vsi_consumer shared pointer to kafka consumer.
+         * @param _vehicle_list_ptr shared pointer to vehicle list object.
          */
         void consume_vsi(const std::shared_ptr<kafka_clients::kafka_consumer_worker> vsi_consumer,
                             const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const;
         /**
          * @brief Method to consume a single TSC Configuration JSON message 
-         * from kafka and update the tsc_config_state pointer in the 
-         * signal_opt_message_worker.
+         * from kafka and update the tsc configuration state pointer.
          * 
+         * @param tsc_config_consumer shared pointer to kafka consumer.
+         * @param _tsc_config_ptr shared pointer to tsc configuration state pointer.
          */
         void consume_tsc_config(const std::shared_ptr<kafka_clients::kafka_consumer_worker> tsc_config_consumer, 
                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr) const;
@@ -70,6 +74,7 @@ namespace signal_opt_service
          * signal_opt_message_worker to populate movement_groups pointer
          * 
          * @param movement_groups shared pointer to list of movement groups
+         * @param tsc_config shared pointer to tsc configuration state object.
          */
         void populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
                                     const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const ;
