@@ -255,45 +255,46 @@ namespace traffic_signal_controller_service {
     void tsc_service::control_tsc_phases()
     {
         // While desired phase plan consumer is running the desired plan is getting updated. So empty control commands queue
-        while(!tsc_set_command_queue_.empty()){
-            // Check if event is expired
-            auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().execution_start_time_);
-            // If execute_now_ flag is enabled the command needs to be executed at current time
-            if (!(tsc_set_command_queue_.front()).execute_now_){
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
-                if(duration.count() < 0){
-                    SPDLOG_WARN("Desired phase plan has expired event, skipping control");
-                    tsc_set_command_queue_.pop();
-                    continue;
+        while(true){
+            while(!tsc_set_command_queue_.empty()){
+                // Check if event is expired
+                auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().execution_start_time_);
+                // If execute_now_ flag is enabled the command needs to be executed at current time
+                if (!(tsc_set_command_queue_.front()).execute_now_){
+                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
+                    if(duration.count() < 0){
+                        SPDLOG_WARN("Desired phase plan has expired event, skipping control");
+                        tsc_set_command_queue_.pop();
+                        continue;
+                    }
+
+                    // If event is not expired, run Omit and Hold and specified time
+                    std::this_thread::sleep_for(duration);
                 }
 
-                // If event is not expired, run Omit and Hold and specified time
-                std::this_thread::sleep_for(duration);
+                if(!(tsc_set_command_queue_.front()).run())
+                {
+                    throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
+                }
+                SPDLOG_TRACE("Sent TSC control Omit and Hold ");
+
+                // Remove element
+                tsc_set_command_queue_.pop();
+                is_snmp_hold_and_omit_reset_ = false;
+
+            }
+            
+            // If queue is empty and hold and omit haven't already been set to 0
+            if(tsc_set_command_queue_.empty() && !is_snmp_hold_and_omit_reset_){
+                // Reset Hold and Omit if no desired phase plan
+                if(!control_tsc_state_ptr_->reset_hold_and_omit()){
+                    throw control_tsc_state_exception("Could not reset HOLD and OMIT");
+                }
+                is_snmp_hold_and_omit_reset_ = true;
             }
 
-            if(!(tsc_set_command_queue_.front()).run())
-            {
-                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
-            }
-            SPDLOG_TRACE("Sent TSC control Omit and Hold ");
-
-            // Remove element
-            tsc_set_command_queue_.pop();
-            is_snmp_hold_and_omit_reset_ = false;
-
+            // std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
         }
-        
-        // If queue is empty and hold and omit haven't already been set to 0
-        if(tsc_set_command_queue_.empty() && !is_snmp_hold_and_omit_reset_){
-            // Reset Hold and Omit if no desired phase plan
-            if(!control_tsc_state_ptr_->reset_hold_and_omit()){
-                throw control_tsc_state_exception("Could not reset HOLD and OMIT");
-            }
-            is_snmp_hold_and_omit_reset_ = true;
-        }
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
-        
         
     }
     
