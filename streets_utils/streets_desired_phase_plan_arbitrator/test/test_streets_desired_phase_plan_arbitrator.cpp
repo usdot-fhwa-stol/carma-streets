@@ -6,6 +6,11 @@
 #include "streets_desired_phase_plan_arbitrator.h"
 #include <spdlog/spdlog.h>
 #include <chrono>
+#include "vehicle.h"
+#include "vehicle_list.h"
+#include "status_intent_processing_exception.h"
+#include "status_intent_processor.h"
+#include "signalized_status_intent_processor.h"
 
 namespace streets_desired_phase_plan_arbitrator
 {
@@ -18,6 +23,7 @@ namespace streets_desired_phase_plan_arbitrator
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_three_ptr;
         std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr;
         uint16_t current_hour_in_tenths_secs;
+        std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info;
 
     protected:
         void SetUp() override
@@ -26,6 +32,13 @@ namespace streets_desired_phase_plan_arbitrator
             std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
             std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
             uint64_t epoch_timestamp = epochMs.count();
+
+            // Create mock intersection info
+            OpenAPI::OAIIntersection_info info;
+            std::string json_info = "{\"departure_lanelets\":[{ \"id\":162, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":164, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":168, \"length\":34.130869420842046, \"speed_limit\":11.176 } ], \"entry_lanelets\":[ { \"id\":167, \"length\":195.73023157287864, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [155, 169] }, { \"id\":171, \"length\":34.130869411176431136, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [160, 161] }, { \"id\":163, \"length\":41.60952435603712, \"speed_limit\":11.176 , \"connecting_lanelet_ids\": [156, 165]} ], \"id\":9001, \"link_lanelets\":[{ \"conflict_lanelet_ids\":[ 161 ], \"id\":169, \"length\":15.85409574709938, \"speed_limit\":11.176, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 165, 156, 161 ], \"id\":155, \"length\":16.796388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 155, 161, 160 ], \"id\":165, \"length\":15.853947840111768943, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 155 ], \"id\":156, \"length\":9.744590320260139, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 169, 155, 165 ], \"id\":161, \"length\":16.043077028554038, \"speed_limit\":11.176, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 165 ], \"id\":160, \"length\":10.295559117055083, \"speed_limit\":11.176, \"signal_group_id\":2 } ], \"name\":\"WestIntersection\"}";
+            info.fromJson(QString::fromStdString(json_info));
+            intersection_info = std::make_shared<OpenAPI::OAIIntersection_info>(info);
+
             auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
             current_hour_in_tenths_secs = (epoch_timestamp - hours_since_epoch * 3600 * 1000) / 100;
 
@@ -186,7 +199,100 @@ namespace streets_desired_phase_plan_arbitrator
             spat_msg_two_ptr->intersections.push_back(intersection_state_two);
             spat_msg_three_ptr->intersections.push_back(intersection_state_three);
         }
+
+        /**
+         * @brief Helper method to load vehicle status and intent updates into a vector
+         * of strings using a filepath as a parameter.
+         *
+         * @param filepath to json file of vehicle status and intent updates for testing.
+         * @return std::vector<std::string>
+         */
+        std::vector<std::string> load_vehicle_update(const std::string &filepath)
+        {
+            std::ifstream file(filepath);
+            if (!file.is_open())
+            {
+                throw streets_vehicles::status_intent_processing_exception("Unable to open status and intent message update file " + filepath + " !");
+            }
+            // Add file contents to stream and parse stream into Document
+            rapidjson::IStreamWrapper isw(file);
+            rapidjson::Document doc;
+            doc.ParseStream(isw);
+            if (doc.HasParseError())
+            {
+                SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
+                throw streets_vehicles::status_intent_processing_exception("Document parse error!");
+            }
+            file.close();
+            std::vector<std::string> updates;
+            rapidjson::StringBuffer buffer;
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            if (doc.FindMember("vehicle_updates")->value.IsArray())
+            {
+                for (auto &update : doc.FindMember("vehicle_updates")->value.GetArray())
+                {
+                    if (update.IsObject())
+                    {
+                        buffer.Clear();
+                        writer.Reset(buffer);
+                        update.Accept(writer);
+                        std::string up = buffer.GetString();
+                        updates.push_back(up);
+                    }
+                }
+                return updates;
+            }
+        }
     };
+
+    TEST_F(test_streets_desired_phase_plan_arbitrator, filter_dpp_list_by_optimization_algorithm)
+    {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+        uint64_t epoch_timestamp = epochMs.count();
+
+        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
+        // Create mock desired phase plan list
+        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
+        auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan1_ptr->fromJson(streets_desired_phase_plan_str_1);
+
+        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
+        auto desired_phase_plan2_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
+        dpp_list.push_back(*desired_phase_plan1_ptr);
+        dpp_list.push_back(*desired_phase_plan2_ptr);
+        // Initialize empty vehicle list
+        streets_vehicles::vehicle_list veh_list;
+
+        // Initialize buffer params
+        uint64_t initial_green_buffer = 1000;
+        uint64_t final_green_buffer = 1000;
+
+        // Current spat should only contain the ONLY one current movement event for each movement state.
+        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        {
+            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(1, movement_state.state_time_speed.size());
+        }
+
+        try
+        {
+            arbitrator->filter_dpp_list_by_optimization_algorithm(dpp_list, intersection_info, spat_msg_ptr, sg_yellow_duration_red_clearnace_map_ptr, veh_list, initial_green_buffer, final_green_buffer);
+        }
+        catch (const streets_desired_phase_plan_arbitrator_exception &e)
+        {
+            ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty.");
+        }
+
+        // It should make a local copy and do not update the pass in spat message spat_msg_ptr
+        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        {
+            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(1, movement_state.state_time_speed.size());
+        }
+    }
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, update_spat_with_proposed_dpp)
     {
@@ -198,7 +304,7 @@ namespace streets_desired_phase_plan_arbitrator
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.empty());
         signal_phase_and_timing::intersection_state intersection;
         invalid_spat_msg_ptr->intersections.push_back(intersection);
-        SPDLOG_INFO(invalid_spat_msg_ptr->intersections.front().states.empty());
+        ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
         arbitrator->update_spat_with_proposed_dpp(*invalid_spat_msg_ptr, *desired_phase_plan_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         ASSERT_FALSE(invalid_spat_msg_ptr->intersections.empty());
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
@@ -224,6 +330,13 @@ namespace streets_desired_phase_plan_arbitrator
          * ***/
         // Add future movement events
         arbitrator->update_spat_with_proposed_dpp(*spat_msg_ptr, *desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+
+        // SPAT movement events should be updated with proposed desired phase plan
+        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        {
+            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_TRUE(movement_state.state_time_speed.size() > 1);
+        }
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -761,4 +874,147 @@ namespace streets_desired_phase_plan_arbitrator
          * END: Test Scenario three
          * ***/
     }
+
+    TEST_F(test_streets_desired_phase_plan_arbitrator, calculate_vehicle_schedules)
+    {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
+        auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
+        // Initialize vehicle list
+        streets_vehicles::vehicle_list veh_list;
+        // Initialize buffer params
+        uint64_t initial_green_buffer = 2000;
+        uint64_t final_green_buffer = 2000;
+        try
+        {
+            arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list, intersection_info, initial_green_buffer, final_green_buffer);
+        }
+        catch (const streets_desired_phase_plan_arbitrator_exception &e)
+        {
+            ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty.");
+        }
+        // Schedule should be empty is thre is no vehicle.
+        ASSERT_EQ(schedule_ptr->vehicle_schedules.size(), 0);
+
+        // Load Vehicle Update
+        std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
+
+        // Update vehicle list
+        streets_vehicles::vehicle veh;
+
+        // Set signalized_status_intent_processor processor for vehicle ist
+        veh_list.set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+        auto processor = std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(veh_list.get_processor());
+        processor->set_stopping_distance(1.0);
+        processor->set_stopping_speed(0.1);
+        veh_list.get_processor()->set_timeout(3.154e11);
+
+        // Print timeout in days.
+        SPDLOG_DEBUG("Set timeout to {0} days !", veh_list.get_processor()->get_timeout() / (1000 * 60 * 60 * 24));
+        for (auto &update : updates)
+        {
+            SPDLOG_DEBUG("Processing Update {0} ", update);
+            veh_list.process_update(update);
+        }
+        SPDLOG_INFO("Processed all updates!");
+        ASSERT_EQ(veh_list.get_vehicles().size(), 2);
+        arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list, intersection_info, initial_green_buffer, final_green_buffer);
+        // Schedule should updated as there is vehicle.
+        // ASSERT_EQ(2, schedule_ptr->vehicle_schedules.size());
+    }
+
+    TEST_F(test_streets_desired_phase_plan_arbitrator, calculate_delay_measure)
+    {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
+        auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+        uint64_t epoch_timestamp = epochMs.count();
+
+        // Create mock desired phase plan list
+        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
+        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
+        auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan1_ptr->fromJson(streets_desired_phase_plan_str_1);
+
+        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
+        auto desired_phase_plan2_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
+        dpp_list.push_back(*desired_phase_plan1_ptr);
+        dpp_list.push_back(*desired_phase_plan2_ptr);
+
+        streets_vehicle_scheduler::signalized_vehicle_schedule vehicle_schedule_1;
+        vehicle_schedule_1.v_id = "DOT-111";
+        vehicle_schedule_1.et = epoch_timestamp + 20000;
+        vehicle_schedule_1.eet = epoch_timestamp + 10000;
+        schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_1);
+
+        streets_vehicle_scheduler::signalized_vehicle_schedule vehicle_schedule_2;
+        vehicle_schedule_2.v_id = "DOT-112";
+        vehicle_schedule_2.et = epoch_timestamp + 30000;
+        vehicle_schedule_2.eet = epoch_timestamp + 20000;
+        schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_2);
+        int desired_phase_plan_index = 0;
+        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        desired_phase_plan_index++;
+        ASSERT_EQ(1, delay_measure_1);
+        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        ASSERT_EQ(20000, delay_measure_2);
+    }
+
+    TEST_F(test_streets_desired_phase_plan_arbitrator, identify_ddp_by_delay_measures)
+    {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
+        auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+        uint64_t epoch_timestamp = epochMs.count();
+
+        // Create mock desired phase plan list
+        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
+        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":1111111111,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
+        auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan1_ptr->fromJson(streets_desired_phase_plan_str_1);
+
+        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":2222222222,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
+        auto desired_phase_plan2_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
+        dpp_list.push_back(*desired_phase_plan1_ptr);
+        dpp_list.push_back(*desired_phase_plan2_ptr);
+
+        streets_vehicle_scheduler::signalized_vehicle_schedule vehicle_schedule_1;
+        vehicle_schedule_1.v_id = "DOT-111";
+        vehicle_schedule_1.et = epoch_timestamp + 20000;
+        vehicle_schedule_1.eet = epoch_timestamp + 10000;
+        schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_1);
+
+        streets_vehicle_scheduler::signalized_vehicle_schedule vehicle_schedule_2;
+        vehicle_schedule_2.v_id = "DOT-112";
+        vehicle_schedule_2.et = epoch_timestamp + 30000;
+        vehicle_schedule_2.eet = epoch_timestamp + 20000;
+        schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_2);
+
+        //Calculate delay measures
+        int desired_phase_plan_index = 0;
+        std::unordered_map<int, float> ddp_index_delay_measure_mappings;
+        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        ASSERT_EQ(1, delay_measure_1);
+        ddp_index_delay_measure_mappings.insert({desired_phase_plan_index, delay_measure_1});
+        desired_phase_plan_index++;
+
+        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        ASSERT_EQ(20000, delay_measure_2);
+        ddp_index_delay_measure_mappings.insert({desired_phase_plan_index, delay_measure_2});
+
+        //Identify highest delay measures and find final desired phase plan
+        auto final_dpp = arbitrator->identify_ddp_by_delay_measures(dpp_list, ddp_index_delay_measure_mappings);
+        if (delay_measure_1 >= delay_measure_2)
+        {
+            ASSERT_EQ(streets_desired_phase_plan_str_1, final_dpp.toJson());
+        }
+        else
+        {
+            ASSERT_EQ(streets_desired_phase_plan_str_2, final_dpp.toJson());
+        }
+    }
+
 }

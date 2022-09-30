@@ -62,4 +62,8 @@ namespace streets_vehicle_scheduler {
         vehicle_sched.AddMember("dt", dt, allocator);
         return vehicle_sched;
     }
+
+    u_int64_t signalized_vehicle_schedule::get_delay() const{
+        return et-eet;
+    }
 }
