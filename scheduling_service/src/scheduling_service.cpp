@@ -148,10 +148,16 @@ namespace scheduling_service{
             return true;
         }
         else if ( intersection_type.compare("signalized_intersection") == 0 ) {
+            
+            // first, initialize the spat_ptr.
+            spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+
+            // then, initialize the scheduler and configure it.
             scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
             scheduler_ptr->set_intersection_info(intersection_info_ptr);
             
             auto processor = std::dynamic_pointer_cast<streets_vehicle_scheduler::signalized_vehicle_scheduler>(scheduler_ptr);
+            processor->set_spat(spat_ptr);
             processor->set_initial_green_buffer(streets_service::streets_configuration::get_int_config("initial_green_buffer"));
             processor->set_final_green_buffer(streets_service::streets_configuration::get_int_config("final_green_buffer"));
             
@@ -227,7 +233,7 @@ namespace scheduling_service{
         while (true)
         {
             
-            SPDLOG_DEBUG("schedule number #{0}", sch_count);      
+            SPDLOG_TRACE("schedule number #{0}", sch_count);      
             auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
             
@@ -236,14 +242,11 @@ namespace scheduling_service{
                 auto int_schedule = _scheduling_worker->schedule_vehicles(veh_map, scheduler_ptr);
                 if ( streets_service::streets_configuration::get_boolean_config("enable_schedule_logging") ) {
                     auto logger = spdlog::get("csv_logger");
-                    if ( logger != nullptr ){
+                    if ( logger != nullptr && !veh_map.empty() ){
                         logger->info( int_schedule->toCSV());
                     }
                 }
                 std::string msg_to_send = int_schedule->toJson();
-
-                SPDLOG_DEBUG("schedule plan: {0}", msg_to_send);
-
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
             }

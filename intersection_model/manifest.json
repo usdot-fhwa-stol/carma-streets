@@ -21,6 +21,12 @@
             "type": "INTEGER"
         },
         {
+            "name": "lane_to_lanelet_corr_thres",
+            "value": 7.5,
+            "description": "The lane (MAP) to lanelet (lanelet2 map) correlation threshold in meters. If the average distance between nodes in a lane of the MAP and the centerline of the any existing intersection lanelet described in the lanelet2 map exceeds lanewidth plus this threshold they will not correlate.",
+            "type":"DOUBLE"
+        },
+        {
             "name": "host_address",
             "value": "127.0.0.1",
             "description": "Address to host intersection model REST server.",

@@ -287,7 +287,7 @@ TEST(intersection_model_test, update_intersecion_info_by_map_msg)
     intersection_model::intersection_model model;
     model.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm");
     ASSERT_TRUE(model.update_intersection_info());
-    model.update_intersecion_info_by_map_msg(int_map_msg_ptr);
+    model.update_intersecion_info_by_map_msg(int_map_msg_ptr, 0.0);
     for(auto link_lane: model.get_intersection_info().link_lanelets_info)
     {
         switch (link_lane.id)
@@ -358,7 +358,7 @@ TEST(intersection_model_test, mapping_lane_id_2_lanelet_id)
     std::vector<lanelet::ConstLanelet>  enter_ll_v;
     enter_ll_v.push_back(enter_ll);
     std::unordered_map<long, lanelet::ConstLanelet> lane2lanelet_m;
-    model.mapping_lane_id_2_lanelet_id(ref_point,lane2,cur_geometry.approach.width, enter_ll_v,lane2lanelet_m);
+    model.mapping_lane_id_2_lanelet_id(ref_point,lane2,cur_geometry.approach.width, enter_ll_v,lane2lanelet_m, 0.0);
     ASSERT_EQ(167,lane2lanelet_m[lane2.lane_id].id());
 }
 

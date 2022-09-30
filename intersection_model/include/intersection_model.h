@@ -215,9 +215,12 @@ namespace intersection_model
             /***
              * @brief Update intersection info structure with incoming map msg consumed by kafka map consumer
              * @param intersection_map populated with MAP message published by v2xhub. This map message describes intersection geometry and signal group ids
+             * @param lane_to_lanelet_corr_thres The lane (MAP) to lanelet (lanelet2 map) correlation threshold in meters. 
+             * If the average distance between nodes in a lane of the MAP and the centerline of the any existing intersection 
+             * lanelet described in the lanelet2 map exceeds lanewidth plus this threshold they will not correlate.
              * @return True if the intersection info is updated, otherwise false
              **/
-            bool update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg);
+            bool update_intersecion_info_by_map_msg(const std::shared_ptr<intersection_map> int_map_msg, const double lane_to_lanelet_corr_thres);
             /**
              * @brief Comparing the geometry between lane in the MAP message and geometry of the list of lanelets to determine which lanelet this lane path fall into.
              * @param ref_point Reference location (latitude, longitude, elevation) of the subsequent data points
@@ -225,8 +228,16 @@ namespace intersection_model
              * @param lane_width MAP message lane definition includes the lane width.
              * @param subj_lanelets List of lanelets
              * @param lane2lanelet_m A mapping reference to update with lane id and its relevant lanelet id
+             * @param lane_to_lanelet_corr_thres The lane (MAP) to lanelet (lanelet2 map) correlation threshold in meters. 
+             * If the average distance between nodes in a lane of the MAP and the centerline of the any existing intersection 
+             * lanelet described in the lanelet2 map exceeds lanewidth plus this threshold they will not correlate.
              */
-            void mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, const map_lane& lane, const long lane_width, const std::vector<lanelet::ConstLanelet>& subj_lanelets, std::unordered_map<long,lanelet::ConstLanelet>& lane2lanelet_m) const;
+            void mapping_lane_id_2_lanelet_id(const map_referencepoint& ref_point, 
+                                                const map_lane& lane, 
+                                                const long lane_width, 
+                                                const std::vector<lanelet::ConstLanelet>& subj_lanelets, 
+                                                std::unordered_map<long,lanelet::ConstLanelet>& lane2lanelet_m,
+                                                const double lane_to_lanelet_corr_thres) const;
 
             /**
              * @brief Convert the centerline geometry of lane defined in J2735 MAP to a list of lanelet2 points in the OSM map.
@@ -298,9 +309,6 @@ namespace intersection_model
             double participantHeight            = 2.;
             double minLaneChangeLength          = 0.;
             int projector_type                  = 0;
-            const char* osm_file_path_key       = "osm_file_path";      //The osm_file_path should match configuration name in the manifest.json
-            const char* intersection_name_key   = "intersection_name";  //The intersection_name should match configuration name in the manifest.json
-            const char* intersection_id_key     = "intersection_id";    //The intersection_id should match configuration name in the manifest.json
             const double MPH_TO_MS              = 0.44704;              //Miles per hour to meters per seconds conversion
             const double CM_TO_M                = 0.01;                 //Centimiter to meter conversion
             const double DM_TO_M                = 0.1;                  //Decimeter to meter conversion
