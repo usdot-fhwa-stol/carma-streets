@@ -41,7 +41,7 @@ namespace streets_desired_phase_plan_arbitrator
             streets_vehicles::vehicle_list &veh_list,
             uint64_t initial_green_buffer,
             uint64_t final_green_buffer);
-            
+
         /**
          * @brief Update the local copy of spat object with the desired phase plan.
          *
@@ -62,19 +62,19 @@ namespace streets_desired_phase_plan_arbitrator
          * @param final_green_buffer A configuration parameter for green phase.
          */
         void calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr, signal_phase_and_timing::spat &local_spat, streets_vehicles::vehicle_list &veh_list, const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, uint64_t initial_green_buffer, uint64_t final_green_buffer);
-        
+
         /**
          * @brief Calculate delay measure for each proposed desired phase plan choice.
-         * 
+         *
          * @param schedule_ptr A schedule pointer that points to schedule object with list of vehicle schedules.
          * @param proposed_dpp  The current proposed desired phase plan.
          * @return float The calculated delay measure.
          */
         float calculate_delay_measure(std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr, streets_desired_phase_plan::streets_desired_phase_plan proposed_dpp);
-        
+
         /**
          * @brief Find the desired phase plan based on the highest delay measure.
-         * 
+         *
          * @param dpp_list A list of desired phase plan.
          * @param ddp_index_delay_measure_mappings A Map of desired phase plan index and delay measure values.
          * @return streets_desired_phase_plan::streets_desired_phase_plan.
