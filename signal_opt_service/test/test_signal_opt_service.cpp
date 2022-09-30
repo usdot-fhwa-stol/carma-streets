@@ -242,3 +242,191 @@ TEST(signal_opt_service, populate_movement_group) {
 
 
 }
+
+/**
+ * @brief Test populate movement group method with example tsc configurations state.
+ */
+TEST(signal_opt_service, populate_movement_group_no_concurrent_sg) {
+    signal_opt_service::signal_opt_service so_service;
+    auto tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
+    auto m_groups = std::make_shared<signal_opt_service::movement_groups>();
+    streets_tsc_configuration::signal_group_configuration sig5;
+    sig5.signal_group_id = 5;
+    sig5.yellow_change_duration = 3000;
+    sig5.red_clearance = 2000;
+    tsc_config->tsc_config_list.push_back(sig5);
+
+    streets_tsc_configuration::signal_group_configuration sig2;
+    sig2.signal_group_id = 2;
+    sig2.yellow_change_duration = 3000;
+    sig2.red_clearance = 2000;
+    sig2.concurrent_signal_groups.push_back(4);
+    tsc_config->tsc_config_list.push_back(sig2);
+
+    streets_tsc_configuration::signal_group_configuration sig6;
+    sig6.signal_group_id = 6;
+    sig6.yellow_change_duration = 3000;
+    sig6.red_clearance = 2000;
+    tsc_config->tsc_config_list.push_back(sig6);
+
+
+    streets_tsc_configuration::signal_group_configuration sig4;
+    sig4.signal_group_id = 4;
+    sig4.yellow_change_duration = 3000;
+    sig4.red_clearance = 2000;
+    sig4.concurrent_signal_groups.push_back(2);
+    tsc_config->tsc_config_list.push_back(sig4);
+
+    // TSC Configuration
+    // barrier = ||
+    //ring 1 : 2 || 5 6
+    //ring 2 : 4 || 
+    so_service.populate_movement_groups(m_groups,tsc_config);
+    
+    ASSERT_EQ(3, m_groups->groups.size());
+    auto mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(5, mg.signal_groups.first);
+    ASSERT_EQ(0, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(2, mg.signal_groups.first);
+    ASSERT_EQ(4, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(6, mg.signal_groups.first);
+    ASSERT_EQ(0, mg.signal_groups.second);
+}
+
+/**
+ * @brief Test populate movement group method with example tsc configurations state.
+ */
+TEST(signal_opt_service, populate_movement_group_nema) {
+    signal_opt_service::signal_opt_service so_service;
+    auto tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
+    auto m_groups = std::make_shared<signal_opt_service::movement_groups>();
+    streets_tsc_configuration::signal_group_configuration sig1;
+    sig1.signal_group_id = 1;
+    sig1.yellow_change_duration = 3000;
+    sig1.red_clearance = 2000;
+    sig1.concurrent_signal_groups.push_back(5);
+    sig1.concurrent_signal_groups.push_back(6);
+
+    tsc_config->tsc_config_list.push_back(sig1);
+
+    streets_tsc_configuration::signal_group_configuration sig2;
+    sig2.signal_group_id = 2;
+    sig2.yellow_change_duration = 3000;
+    sig2.red_clearance = 2000;
+    sig2.concurrent_signal_groups.push_back(5);
+    sig2.concurrent_signal_groups.push_back(6);
+    tsc_config->tsc_config_list.push_back(sig2);
+
+    streets_tsc_configuration::signal_group_configuration sig3;
+    sig3.signal_group_id = 3;
+    sig3.yellow_change_duration = 3000;
+    sig3.red_clearance = 2000;
+    sig3.concurrent_signal_groups.push_back(7);
+    sig3.concurrent_signal_groups.push_back(8);
+    tsc_config->tsc_config_list.push_back(sig3);
+
+    streets_tsc_configuration::signal_group_configuration sig4;
+    sig4.signal_group_id = 4;
+    sig4.yellow_change_duration = 3000;
+    sig4.red_clearance = 2000;
+    sig4.concurrent_signal_groups.push_back(7);
+    sig4.concurrent_signal_groups.push_back(8);
+    tsc_config->tsc_config_list.push_back(sig4);
+
+    streets_tsc_configuration::signal_group_configuration sig5;
+    sig5.signal_group_id = 5;
+    sig5.yellow_change_duration = 3000;
+    sig5.red_clearance = 2000;
+    sig5.concurrent_signal_groups.push_back(1);
+    sig5.concurrent_signal_groups.push_back(2);
+    tsc_config->tsc_config_list.push_back(sig5);
+
+    streets_tsc_configuration::signal_group_configuration sig6;
+    sig6.signal_group_id = 6;
+    sig6.yellow_change_duration = 3000;
+    sig6.red_clearance = 2000;
+    sig6.concurrent_signal_groups.push_back(1);
+    sig6.concurrent_signal_groups.push_back(2);
+    tsc_config->tsc_config_list.push_back(sig6);
+
+    streets_tsc_configuration::signal_group_configuration sig7;
+    sig7.signal_group_id = 7;
+    sig7.yellow_change_duration = 3000;
+    sig7.red_clearance = 2000;
+    sig7.concurrent_signal_groups.push_back(3);
+    sig7.concurrent_signal_groups.push_back(4);
+    tsc_config->tsc_config_list.push_back(sig7);
+
+    streets_tsc_configuration::signal_group_configuration sig8;
+    sig8.signal_group_id = 8;
+    sig8.yellow_change_duration = 3000;
+    sig8.red_clearance = 2000;
+    sig8.concurrent_signal_groups.push_back(3);
+    sig8.concurrent_signal_groups.push_back(4);
+    tsc_config->tsc_config_list.push_back(sig8);
+
+    // TSC Configuration
+    // barrier = ||
+    //ring 1 : 1 2 || 3 4
+    //ring 2 : 5 6 || 7 8 
+    so_service.populate_movement_groups(m_groups,tsc_config);
+    
+    ASSERT_EQ(8, m_groups->groups.size());
+    auto mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(1, mg.signal_groups.first);
+    ASSERT_EQ(5, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(1, mg.signal_groups.first);
+    ASSERT_EQ(6, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(2, mg.signal_groups.first);
+    ASSERT_EQ(5, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(2, mg.signal_groups.first);
+    ASSERT_EQ(6, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(3, mg.signal_groups.first);
+    ASSERT_EQ(7, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(3, mg.signal_groups.first);
+    ASSERT_EQ(8, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(4, mg.signal_groups.first);
+    ASSERT_EQ(7, mg.signal_groups.second);
+
+    mg = m_groups->groups.front();
+    m_groups->groups.pop_front();
+
+    ASSERT_EQ(4, mg.signal_groups.first);
+    ASSERT_EQ(8, mg.signal_groups.second);
+}

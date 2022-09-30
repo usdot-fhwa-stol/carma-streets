@@ -123,19 +123,34 @@ namespace signal_opt_service
                                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const {
         if (tsc_config) {
             for (const auto &phase_config : tsc_config->tsc_config_list) {
-                for (const auto &concur : phase_config.concurrent_signal_groups) {
-                    movement_group new_group;
-                    new_group.signal_groups = {phase_config.signal_group_id, concur};
-                    bool already_added = false;
-                    for ( const auto &add_group: _groups->groups ) {
-                        if ( add_group.signal_groups.second == new_group.signal_groups.first && 
-                                add_group.signal_groups.first == new_group.signal_groups.second) {
-                            already_added = true;
+                // If signal group has one or more concurrent phase
+                if ( !phase_config.concurrent_signal_groups.empty() ) {
+                    // Loop through concurrent phases and create a movement group for each pair
+                    for (const auto &concur : phase_config.concurrent_signal_groups) {
+                        movement_group new_group;
+                        new_group.signal_groups = {phase_config.signal_group_id, concur};
+                        // Initialize a flag for if this pair already exists in the movement groups in reverse.
+                        bool already_added = false;
+                        // loop through movement groups and set flag to true if pair already exists in reverse order.
+                        for ( const auto &add_group: _groups->groups ) {
+                            if ( add_group.signal_groups.second == new_group.signal_groups.first && 
+                                    add_group.signal_groups.first == new_group.signal_groups.second) {
+                                already_added = true;
+                            }
+                        }
+                        // Only add a new pair if it does not already exist in movement groups in reverse.
+                        if (!already_added) {
+                            _groups->groups.push_back(new_group);
                         }
                     }
-                    if (!already_added) {
-                        _groups->groups.push_back(new_group);
-                    }
+                }
+                // If signal group does not have any concurrent phases add it as a movement group pair of between itself and 0 since
+                // 0 is an invalid signal group
+                else {
+                    movement_group new_group;
+                    // Add invalid signal group 0 as current signal group to indicate there is none.
+                    new_group.signal_groups = { phase_config.signal_group_id, 0};
+                    _groups->groups.push_back(new_group);
                 }
             }
             SPDLOG_DEBUG("Movement Groups: ");
