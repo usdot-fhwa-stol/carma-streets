@@ -72,6 +72,24 @@ RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAG
 RUN make
 RUN make install
 
+# Install streets_tsc_configuration
+RUN echo " ------> Install streets_tsc_configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_desired_phase_plan
+RUN echo " ------> Install streets desired phase plan from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 RUN echo " ------> Install streets_signal_phase_and_timing library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing
 RUN mkdir build
@@ -86,6 +104,15 @@ COPY ./kafka_clients/ /home/carma-streets/kafka_clients
 WORKDIR  /home/carma-streets/kafka_clients
 RUN mkdir build
 WORKDIR  /home/carma-streets/kafka_clients/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_desired_phase_plan_arbitrator
+RUN echo " ------> Install streets desired phase plan from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan_arbitrator
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan_arbitrator/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install

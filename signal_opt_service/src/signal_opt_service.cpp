@@ -7,6 +7,7 @@ namespace signal_opt_service
         try
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
+            _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
 
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
@@ -47,6 +48,10 @@ namespace signal_opt_service
             }
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
+
+            //Parameter config
+            _initial_green_buffer =streets_service::streets_configuration::get_int_config("initial_green_buffer");
+            _final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
         }
         catch (const streets_service::streets_configuration_exception &ex)
         {
