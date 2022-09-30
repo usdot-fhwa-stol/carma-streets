@@ -8,58 +8,52 @@
 
 namespace traffic_signal_controller_service
 {
-    /**
-     * Struct to store snmp SET commands to HOLD and OMIT phases. This struct contains a pointer to a snmp client object.
-     * It defines a run method to execute Omit and then Hold at the defined value.
-     * */
+
     struct tsc_control_struct
     {
+        /** @brief The type of control being set on the TSC */
+        enum class control_type{
+            Hold,
+            Omit
+        };
         /* Pointer to a snmp client object which can execute snmp commands*/
         std::shared_ptr<snmp_client> snmp_client_worker_;
-        /*Object to store value of the omit command*/
-        snmp_response_obj omit_;
-        /*Object to store the value of the hold command*/
-        snmp_response_obj hold_; 
+        /*Value to be set for Hold/Omit*/
+        snmp_response_obj set_val_;
         /*Time at which the snmp set command should be executed*/
-        uint64_t execution_start_time_;
+        uint64_t start_time_;
+        /*Type of the snmp set command this object creates- Hold or Omit*/
+        control_type control_type_;
 
-        uint64_t execution_end_time_;
-
-        bool execute_now_ = false;
-
-        /**
-         * @brief Constructor for the tsc_control_struct.
-         * @param snmp_client_worker Pointer to the snmp client object
-         * @param omit_val Integer value for the Omit command
-         * @param hold_val Integer value for the Hold Command
-         * 
-        **/
-        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t omit_val, int64_t hold_val, int64_t start_time, int64_t end_time) : snmp_client_worker_(snmp_client_worker), execution_start_time_(start_time), execution_end_time_(end_time)
+        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t start_time, control_type type, int64_t val) 
+                                : snmp_client_worker_(snmp_client_worker), start_time_(start_time), control_type_(type)
         {
-            
-            omit_.type = snmp_response_obj::response_type::INTEGER;
-            omit_.val_int = omit_val;
-            
-            hold_.type = snmp_response_obj::response_type::INTEGER;
-            hold_.val_int = hold_val;       
-
+            set_val_.type = snmp_response_obj::response_type::INTEGER;
+            set_val_.val_int = val;
         }
 
         /**
-         * @brief Method to call the snmp commands. Omit is called first with the omit value defined in the constructor. 
-         * Hold is called after that with the hold value defined in the constructor.
-         * @return True if SET commands are successful. False if either OMIT or HOLD fails.
+         * @brief Method to call the snmp command. Object type determines what SET command is sent. 
+         * Types are Omit and Hold.
+         * @return True if SET commands are successful. False if command fails.
          * */
         bool run()
         {
             /*Type of request to be sent to the TSC, within this context it is always SET*/
             request_type type = request_type::SET;
-        
-            // Send Omit
-            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, omit_)){return false;}
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            // Send Hold
-            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, hold_)){return false;}
+
+            if(control_type_ == control_type::Omit)
+            {
+                if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, set_val_)){
+                    return false;
+                }
+            }
+            else if(control_type_ == control_type::Hold)
+            {
+                if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, set_val_)){
+                    return false;
+                }
+            }
 
             return true;
             
@@ -96,8 +90,22 @@ namespace traffic_signal_controller_service
              **/
             void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue);
 
-            tsc_control_struct omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, int64_t end_time, bool execute_now = false);
+            /** 
+             * @brief Method to create command for omit
+             * @param signal_groups A list of signal groups NOT to be omitted. Omit command will aim to omit everything besides signal groups specified here.
+             * @param start_time Time at which the snmp command needs to be sent
+             * @param is_reset if true, omit command is reset on the traffic signal controller to 0. 
+             * If false will calculate the omit value required to reach given signal groups
+             **/
+            tsc_control_struct create_omit_command(std::vector<int> signal_groups, int64_t start_time, bool is_reset = false);
 
-            bool reset_hold_and_omit ();
+            /** 
+             * @brief Method to create command for Hold
+             * @param signal_groups A list of signal groups NOT to be omitted. Hold command will aim to hold the signal groups specified here.
+             * @param start_time Time at which the snmp command needs to be sent
+             * @param is_reset if true, hold command is reset on the traffic signal controller to 0. 
+             * If false will calculate the value required to hold given signal groups
+             **/
+            tsc_control_struct create_hold_command(std::vector<int> signal_groups, int64_t start_time, bool is_reset = false);
     };
 }

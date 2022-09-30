@@ -16,38 +16,18 @@ namespace traffic_signal_controller_service
             SPDLOG_DEBUG("No events in desired phase plan");
             return;
         }
-        
-        //Reset queue
-        tsc_command_queue = std::queue<tsc_control_struct>();
-        // Add first event
-        
-        // Omit and Hold for first movement group in plan - skip if current phase is yellow 
-        //if green - start time should be dpp_start_time - red_clearance - yellow duration
-        auto first_event = desired_phase_plan->desired_phase_plan[0];
-        auto first_event_end_time = std::chrono::milliseconds(first_event.start_time);
-        auto first_event_execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        tsc_command_queue.push(omit_and_hold_signal_groups(first_event.signal_groups, first_event_execution_time, first_event_end_time.count(), true));
-        
+        if(desired_phase_plan->desired_phase_plan.size() == 1){
+            SPDLOG_DEBUG("TSC service assumes first event is already set, no update to queue required");
+            return;
+        }
 
-        int event_itr = 1;
-        // At the end time of the current event, prepare for next event. So control ends at second to last event
-        while(event_itr < desired_phase_plan->desired_phase_plan.size() - 1)
-        {
-            auto event  = desired_phase_plan->desired_phase_plan[event_itr];
-            auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
+        // Check if desired phase plan is valid
+        // Check no repeated signal groups in adjacent events
+        for(int i = 0; i < desired_phase_plan->desired_phase_plan.size() - 1; ++i){
+            
+            auto event = desired_phase_plan->desired_phase_plan[0];
+            auto next_event = desired_phase_plan->desired_phase_plan[1];
 
-            auto current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-            auto current_event_start_time  = std::chrono::milliseconds(event.start_time);
-            auto current_event_end_time = std::chrono::milliseconds(event.end_time);
-
-            if(current_event_start_time < current_time_in_ms || current_event_end_time < current_time_in_ms)
-            {
-                SPDLOG_WARN("Event {0} in desired phase plan in expired, not adding to queue", event_itr);
-                event_itr++;
-                continue;
-            }
-
-            // Check no repeated signal groups in adjacent events
             for(auto signal_group : event.signal_groups)
             {
                 auto it = std::find(next_event.signal_groups.begin(), next_event.signal_groups.end(), signal_group);
@@ -57,59 +37,103 @@ namespace traffic_signal_controller_service
                     throw control_tsc_state_exception("Repeating signal group found in adjacent events. Desired phase plan cannot be set");
                 }
             }
-            
-            auto next_event_end_time = std::chrono::milliseconds(next_event.end_time);
-            // Add object to queue
-            tsc_command_queue.push(omit_and_hold_signal_groups(next_event.signal_groups, current_event_end_time.count(), next_event_end_time.count()));
+        }
+        
+
+        //Reset queue
+        tsc_command_queue = std::queue<tsc_control_struct>();
+
+        // add Omit and Hold commands
+        auto first_event = desired_phase_plan->desired_phase_plan[0];
+        auto second_event = desired_phase_plan->desired_phase_plan[1];
+
+        auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        // Assuming the first event doesn't need to be planned for, we execute omit and hold for the next event
+        int64_t omit_execution_time = current_time + (first_event.end_time - current_time)/2;
+        tsc_command_queue.push(create_omit_command(second_event.signal_groups, omit_execution_time));
+
+        int64_t hold_execution_time = first_event.end_time;
+        tsc_command_queue.push(create_hold_command(second_event.signal_groups, hold_execution_time));
+
+
+        int event_itr = 1;
+
+        while(event_itr < desired_phase_plan->desired_phase_plan.size() - 1)
+        {
+            auto current_event  = desired_phase_plan->desired_phase_plan[event_itr];
+            auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
+
+            omit_execution_time = current_event.start_time + (current_event.end_time - current_event.start_time)/2;
+            tsc_command_queue.push(create_omit_command(next_event.signal_groups, omit_execution_time));
+
+            hold_execution_time = current_event.end_time;
+            tsc_command_queue.push(create_hold_command(next_event.signal_groups, hold_execution_time));
 
             event_itr++;
-            
         }
+
+        // Reset Hold and Omit for last event
+        auto last_event = desired_phase_plan->desired_phase_plan.back();
+        omit_execution_time = last_event.start_time + (last_event.end_time - last_event.start_time)/2;
+        tsc_command_queue.push(create_omit_command({}, omit_execution_time, true));
+
+        hold_execution_time = last_event.end_time;
+        tsc_command_queue.push(create_hold_command({}, hold_execution_time, true));
+
+        SPDLOG_DEBUG("Updated queue");
+
     }
 
-    tsc_control_struct control_tsc_state::omit_and_hold_signal_groups(std::vector<int> signal_groups, int64_t start_time, int64_t end_time, bool execute_now)
+    tsc_control_struct control_tsc_state::create_omit_command(std::vector<int> signal_groups, int64_t start_time, bool is_reset)
     {
-        uint8_t omit_val = 255; //Initialize to 11111111
-        uint8_t hold_val = 0;   //Initialize to 00000000
-
-        for(auto signal_group : signal_groups)
+        if(!is_reset)
         {
-            int phase = signal_group_2ped_phase_map_[signal_group];
-            // Omit all phases except the ones in the given movement group
-            // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
-            omit_val &= ~(1 << (phase - 1));
-            // Hold phases in the given movement group
-            //For Hold only given phase bits are 1. Subtract 1 since phases range from 1-8.
-            hold_val |= (1 << ( phase - 1));
-            
+            uint8_t omit_val = 255; //Initialize to 11111111
+
+            for(auto signal_group : signal_groups)
+            {
+                int phase = signal_group_2ped_phase_map_[signal_group];
+                // Omit all phases except the ones in the given movement group
+                // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
+                omit_val &= ~(1 << (phase - 1));
+                
+            }
+
+            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Omit, static_cast<int64_t>(omit_val));
+            return command;
+        }
+        else
+        {
+            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Omit, static_cast<int64_t>(0));
+            return command;
         }
 
-        tsc_control_struct command(snmp_client_worker_, static_cast<int64_t>(omit_val), static_cast<int64_t>(hold_val), start_time, end_time);
-        command.execute_now_ = execute_now;
-
-        return command;
-        
     }
 
-    bool control_tsc_state::reset_hold_and_omit ()
+    tsc_control_struct control_tsc_state::create_hold_command(std::vector<int> signal_groups, int64_t start_time, bool is_reset)
     {
-        request_type type = request_type::SET;
+        if(!is_reset)
+        {
+            uint8_t hold_val = 0;   //Initialize to 00000000
 
-        snmp_response_obj omit;
-        omit.type = snmp_response_obj::response_type::INTEGER;
-        omit.val_int = 0;
+            for(auto signal_group : signal_groups)
+            {
+                int phase = signal_group_2ped_phase_map_[signal_group];
+                // Hold phases in the given movement group
+                //For Hold only given phase bits are 1. Subtract 1 since phases range from 1-8.
+                hold_val |= (1 << ( phase - 1));
+                
+            }
 
-        snmp_response_obj hold;
-        hold.type = snmp_response_obj::response_type::INTEGER;
-        hold.val_int = 0;
-
-        // Send Omit
-        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, omit)){return false;}
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // Send Hold
-        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, hold)){return false;}
-
-        return true;
+            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Hold, static_cast<int64_t>(hold_val));
+            return command;
+        }
+        else
+        {
+            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Hold, static_cast<int64_t>(0));
+            return command;
+        }
     }
+
 
 }
