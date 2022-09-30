@@ -93,7 +93,13 @@ namespace signal_phase_and_timing{
          * @param ntcip_data 
          */
         void update_intersection_state( ntcip::ntcip_1202_ext &ntcip_data );
-
+         /**
+         * @brief Update spat movement_event list with desired phase plan information.
+         * 
+         * @param proposed_dpp  desired phase plan .
+         * @param sg_yellow_duration_red_clearnace_map_ptr tsc state and signal group mapping information.
+         */
+        void update_spat_with_proposed_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& proposed_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr);
          // Conversion constants
         /**
          * @brief Process first desired green signal group and duration in desired phase plan. Populate 
@@ -104,7 +110,7 @@ namespace signal_phase_and_timing{
          * movement_event list.
          * @param desired_sg_green_timing first entry in desired phase plan which contains information 
          * about a green duration and the signal groups to which it applies.
-         * @param sg_yellow_duration_red_clearnace_map_ptr tsc_state information about traffic signal controller configuration including
+         * @param sg_yellow_duration_red_clearnace_map_ptr tsc state and signal group mapping information.
          * red clearance and yellow change duraction.
          */
         void process_first_desired_green(movement_state &cur_movement_state_ref, 
@@ -120,7 +126,7 @@ namespace signal_phase_and_timing{
          * movement_event list.
          * @param desired_sg_green_timing entry in desired phase plan which contains information 
          * about a green duration and the signal groups to which it applies.
-         * @param sg_yellow_duration_red_clearnace_map_ptr tsc_state information about traffic signal controller configuration including
+         * @param sg_yellow_duration_red_clearnace_map_ptr tsc state and signal group mapping information.
          * red clearance and yellow change duraction.
          */
         void process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 

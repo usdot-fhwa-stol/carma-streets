@@ -3,12 +3,14 @@
 #include <gtest/gtest_prod.h>
 #include "spat.h"
 #include "signal_phase_and_timing_exception.h"
+#include "streets_desired_phase_plan_arbitrator.h"
 #include <spdlog/spdlog.h>
 #include <chrono>
 
-namespace signal_phase_and_timing
+namespace streets_desired_phase_plan_arbitrator
 {
-    class test_spat_with_desired_phase_plan : public ::testing::Test
+
+    class test_streets_desired_phase_plan_arbitrator : public ::testing::Test
     {
     public:
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_ptr;
@@ -186,8 +188,9 @@ namespace signal_phase_and_timing
         }
     };
 
-    TEST_F(test_spat_with_desired_phase_plan, update_spat_future_movement_events)
+    TEST_F(test_streets_desired_phase_plan_arbitrator, update_spat_with_proposed_dpp)
     {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
         std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":1660747993,\"end_time\":1660757998},{\"signal_groups\":[2,6],\"start_time\":1660749993,\"end_time\":1660749098},{\"signal_groups\":[3,7],\"start_time\":1660750993,\"end_time\":1660750998},{\"signal_groups\":[4,8],\"start_time\":1660757993,\"end_time\":1660757998}]}";
         auto desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan_ptr->fromJson(streets_desired_phase_plan_str_1);
@@ -195,7 +198,8 @@ namespace signal_phase_and_timing
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.empty());
         signal_phase_and_timing::intersection_state intersection;
         invalid_spat_msg_ptr->intersections.push_back(intersection);
-        invalid_spat_msg_ptr->update_spat_with_proposed_dpp(*desired_phase_plan_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        SPDLOG_INFO(invalid_spat_msg_ptr->intersections.front().states.empty());
+        arbitrator->update_spat_with_proposed_dpp(*invalid_spat_msg_ptr, *desired_phase_plan_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         ASSERT_FALSE(invalid_spat_msg_ptr->intersections.empty());
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
 
@@ -219,7 +223,7 @@ namespace signal_phase_and_timing
          * START: Test Scenario one:  There are two green phases [1,5] in the current SPAT movement event.
          * ***/
         // Add future movement events
-        spat_msg_ptr->update_spat_with_proposed_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        arbitrator->update_spat_with_proposed_dpp(*spat_msg_ptr, *desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -395,7 +399,7 @@ namespace signal_phase_and_timing
          * START: Test Scenario two: There are two Yellow phases [1,5] in the current SPAT movement event
          * ***/
         // Add future movement events
-        spat_msg_two_ptr->update_spat_with_proposed_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        arbitrator->update_spat_with_proposed_dpp(*spat_msg_two_ptr, *desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         for (auto movement_state : spat_msg_two_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -579,7 +583,7 @@ namespace signal_phase_and_timing
          * ***/
         // Add future movement events
 
-        spat_msg_three_ptr->update_spat_with_proposed_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        arbitrator->update_spat_with_proposed_dpp(*spat_msg_three_ptr, *desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         for (auto movement_state : spat_msg_three_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;

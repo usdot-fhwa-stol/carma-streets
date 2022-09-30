@@ -124,8 +124,49 @@ namespace signal_phase_and_timing{
         }
     }
 
+    void spat::update_spat_with_proposed_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& proposed_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr)
+    {
+        //Removing all the future movement events from each intersection state because the future movements event should be recalculated using desired phase plan
+        intersections.front().clear_future_movement_events();
+        auto states = intersections.front().states;
+        // Loop through desired phase plan
+        bool is_procssing_first_desired_green = true;
+        for (const auto &desired_sg_green_timing : proposed_dpp.desired_phase_plan)
+        {
+            if (desired_sg_green_timing.signal_groups.empty())
+            {
+                throw signal_phase_and_timing_exception("Desired phase plan signal group ids list is empty. No update.");
+            }
 
-     void spat::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
+            // Loop through current spat and assuming that current spat only has the current movement event and does not contain future movement events
+            for (const auto &movement_state : states)
+            {
+                int current_signal_group_id = movement_state.signal_group;
+
+                // Before we add future movement events to the movement event list, the current movement event list should only contains the current movement event
+                if (movement_state.state_time_speed.size() > 1)
+                {
+                    throw signal_phase_and_timing_exception("Movement event list has more than one events, not usable when adding future movement events. Associated with Signal Group: " + std::to_string(current_signal_group_id));
+                }
+
+                // Get movement_state by reference. With this reference, it can update the original SPAT movement state list
+                auto &cur_movement_state_ref = intersections.front().get_movement(current_signal_group_id);
+                // Processing the next current or first desired future movement event from the desired phase plan
+                if (is_procssing_first_desired_green)
+                {
+                   process_first_desired_green(cur_movement_state_ref, desired_sg_green_timing, sg_yellow_duration_red_clearnace_map_ptr);
+                }
+                else
+                {
+                    // Processing the next future desired future movement event from the desired phase plan
+                    process_second_onward_desired_green(cur_movement_state_ref, desired_sg_green_timing, sg_yellow_duration_red_clearnace_map_ptr);
+                }
+            }
+            is_procssing_first_desired_green = false;
+        }
+    }
+
+    void spat::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
                                         const std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr) 
     {
@@ -139,11 +180,12 @@ namespace signal_phase_and_timing{
         // Get yellow change and red clearance time interval for signal group in movement group with the largest combination
         // of yellow change and red clearance time interval.
         int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, sg_yellow_duration_red_clearnace_map_ptr);
-        int desired_yellow_duration = (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].yellow_change_duration;
-        int desired_red_clearance = (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].red_clearance;
+        int desired_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].yellow_change_duration;
+        int desired_red_clearance = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].red_clearance;
         SPDLOG_DEBUG("process signal group = {0} \t AND First desired sg ids = [{1} , {2}]", 
                     current_signal_group_id, desired_green_signal_group_ids.front(), 
-                    desired_green_signal_group_ids.back());
+                    desired_green_signal_group_ids.back());        
+        SPDLOG_DEBUG("desired sg id={0} \tdesired_yellow_duration = {1} \t AND desired_red_clearance = {2}",signal_group_with_largest_clearance, desired_yellow_duration, desired_red_clearance);
         if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             /**
@@ -221,7 +263,9 @@ namespace signal_phase_and_timing{
             else if (cur_movement_state_ref.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance) // YELLOW
             {
                 // Updating the current YELLOW movement event
-                int spat_current_yellow_duration =  (*sg_yellow_duration_red_clearnace_map_ptr)[current_signal_group_id].yellow_change_duration;
+                int spat_current_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[current_signal_group_id].yellow_change_duration;
+                SPDLOG_DEBUG("signal_group_with_largest_clearance={0} \tdesired_yellow_duration = {1} \t AND desired_red_clearance = {2}",signal_group_with_largest_clearance, desired_yellow_duration, desired_red_clearance);
+       
                 uint64_t calculated_yellow_end_time_epoch = cur_movement_state_ref.state_time_speed.front().timing.get_epoch_start_time() 
                                                             + spat_current_yellow_duration;
                 cur_movement_state_ref.state_time_speed.front().timing.set_min_end_time(calculated_yellow_end_time_epoch);
@@ -263,12 +307,14 @@ namespace signal_phase_and_timing{
         // Get yellow change and red clearance time interval for signal group in movement group with the largest combination
         // of yellow change and red clearance time interval.
         int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, sg_yellow_duration_red_clearnace_map_ptr);
-        int desired_yellow_duration = (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].yellow_change_duration;
-        int desired_red_clearance = (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].red_clearance;
+        int desired_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty() ? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].yellow_change_duration;
+        int desired_red_clearance = sg_yellow_duration_red_clearnace_map_ptr->empty() ? 0 :(*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].red_clearance;
         SPDLOG_DEBUG("process signal group = {0} \t AND second and onwards desired sg ids = [{1} , {2}]", 
                     current_signal_group_id, 
                     desired_green_signal_group_ids.front(), 
                     desired_green_signal_group_ids.back());
+        SPDLOG_DEBUG("desired sg id={0} \tdesired_yellow_duration = {1} \t AND desired_red_clearance = {2}",signal_group_with_largest_clearance, desired_yellow_duration, desired_red_clearance);
+       
         if (std::count(desired_green_signal_group_ids.begin(), desired_green_signal_group_ids.end(), current_signal_group_id))
         {
             if (cur_movement_state_ref.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain)
@@ -353,8 +399,8 @@ namespace signal_phase_and_timing{
         int total = 0;
         for (auto sg : desired_signal_groups)
         {
-            int desired_yellow_duration = (*sg_yellow_duration_red_clearnace_map_ptr)[sg].yellow_change_duration;
-            int desired_red_clearance = (*sg_yellow_duration_red_clearnace_map_ptr)[sg].red_clearance;
+            int desired_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 :(*sg_yellow_duration_red_clearnace_map_ptr)[sg].yellow_change_duration;
+            int desired_red_clearance = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 :(*sg_yellow_duration_red_clearnace_map_ptr)[sg].red_clearance;
             int local_total =  desired_yellow_duration+ desired_red_clearance;
 
             if (local_total > total)

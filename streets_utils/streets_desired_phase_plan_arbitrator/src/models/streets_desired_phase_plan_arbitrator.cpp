@@ -57,44 +57,7 @@ namespace streets_desired_phase_plan_arbitrator
 
     void streets_desired_phase_plan_arbitrator::update_spat_with_proposed_dpp(signal_phase_and_timing::spat &local_spat, const streets_desired_phase_plan::streets_desired_phase_plan& proposed_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr)
     {
-        //Removing all the future movement events from each intersection state because the future movements event should be recalculated using desired phase plan
-        local_spat.intersections.front().clear_future_movement_events();
-        auto states = local_spat.intersections.front().states;
-        // Loop through desired phase plan
-        bool is_procssing_first_desired_green = true;
-        for (const auto &desired_sg_green_timing : proposed_dpp.desired_phase_plan)
-        {
-            if (desired_sg_green_timing.signal_groups.empty())
-            {
-                throw streets_desired_phase_plan_arbitrator_exception("Desired phase plan signal group ids list is empty. No update.");
-            }
-
-            // Loop through current spat and assuming that current spat only has the current movement event and does not contain future movement events
-            for (const auto &movement_state : states)
-            {
-                int current_signal_group_id = movement_state.signal_group;
-
-                // Before we add future movement events to the movement event list, the current movement event list should only contains the current movement event
-                if (movement_state.state_time_speed.size() > 1)
-                {
-                    throw streets_desired_phase_plan_arbitrator_exception("Movement event list has more than one events, not usable when adding future movement events. Associated with Signal Group: " + std::to_string(current_signal_group_id));
-                }
-
-                // Get movement_state by reference. With this reference, it can update the original SPAT movement state list
-                auto &cur_movement_state_ref = local_spat.intersections.front().get_movement(current_signal_group_id);
-                // Processing the next current or first desired future movement event from the desired phase plan
-                if (is_procssing_first_desired_green)
-                {
-                   local_spat.process_first_desired_green(cur_movement_state_ref, desired_sg_green_timing, sg_yellow_duration_red_clearnace_map_ptr);
-                }
-                else
-                {
-                    // Processing the next future desired future movement event from the desired phase plan
-                    local_spat.process_second_onward_desired_green(cur_movement_state_ref, desired_sg_green_timing, sg_yellow_duration_red_clearnace_map_ptr);
-                }
-            }
-            is_procssing_first_desired_green = false;
-        }
+        local_spat.update_spat_with_proposed_dpp(proposed_dpp, sg_yellow_duration_red_clearnace_map_ptr);
     }
 
     void streets_desired_phase_plan_arbitrator::calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr, signal_phase_and_timing::spat &local_spat, streets_vehicles::vehicle_list &veh_list, const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, uint64_t initial_green_buffer, uint64_t final_green_buffer)

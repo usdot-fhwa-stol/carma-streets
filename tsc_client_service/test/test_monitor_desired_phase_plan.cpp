@@ -209,12 +209,12 @@ namespace traffic_signal_controller_service
         std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
         uint64_t epoch_timestamp = epochMs.count();
         monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
-
+       
         // Add future movement events with an EMPTY desired phase plan, and it should not modify the SPAT message
         try {
             monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
         }
-        catch( const monitor_desired_phase_plan_exception &e) {
+        catch (const monitor_desired_phase_plan_exception &e) {
             ASSERT_STREQ(e.what(), "Desired phase plan is empty. No update.");
         }
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
@@ -229,7 +229,7 @@ namespace traffic_signal_controller_service
         try {
             monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
         }
-        catch (const monitor_desired_phase_plan_exception &e) {
+        catch (const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
             ASSERT_STREQ(e.what(), "Desired phase plan signal group ids list is empty. No update.");
         }
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
