@@ -89,7 +89,6 @@ namespace traffic_signal_controller_service {
 
             // Queue to store tsc_control_structs which are objects used to run snmp HOLD and OMIT commands
             std::queue<tsc_control_struct> tsc_set_command_queue_;
-            bool is_snmp_hold_and_omit_reset_ = false;
 
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;
@@ -97,6 +96,7 @@ namespace traffic_signal_controller_service {
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
             FRIEND_TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout);
+            FRIEND_TEST(traffic_signal_controller_service, test_tsc_control);
             
         public:
             tsc_service() = default;
@@ -222,9 +222,14 @@ namespace traffic_signal_controller_service {
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
-             * follow the desired phase plan.
+             * follow the desired phase plan. Calls set_tsc_hold_and_omit
              **/
             void control_tsc_phases();
+
+            /**
+             * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
+             **/
+            void set_tsc_hold_and_omit();
 
     };
 }

@@ -60,6 +60,10 @@ namespace traffic_signal_controller_service
         desired_phase_plan.desired_phase_plan.push_back(event2);
         auto desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>(desired_phase_plan);
         
+        streets_desired_phase_plan::signal_group2green_phase_timing event3;
+        event3.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(11)).count();;
+        event3.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(20)).count();
+        event3.signal_groups = {7,8};
         
         // Define Worker
         std::unordered_map<int, int> signal_group_2ped_phase_map = {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}, {8,8}};

@@ -75,16 +75,17 @@ namespace traffic_signal_controller_service
         // Reset Hold and Omit for last event
         auto last_event = desired_phase_plan->desired_phase_plan.back();
         omit_execution_time = last_event.start_time + (last_event.end_time - last_event.start_time)/2;
-        tsc_command_queue.push(create_omit_command({}, omit_execution_time, true));
+        std::vector<int> empty_group = {};
+        tsc_command_queue.push(create_omit_command(empty_group, omit_execution_time, true));
 
         hold_execution_time = last_event.end_time;
-        tsc_command_queue.push(create_hold_command({}, hold_execution_time, true));
+        tsc_command_queue.push(create_hold_command(empty_group, hold_execution_time, true));
 
         SPDLOG_DEBUG("Updated queue");
 
     }
 
-    tsc_control_struct control_tsc_state::create_omit_command(std::vector<int> signal_groups, int64_t start_time, bool is_reset)
+    tsc_control_struct control_tsc_state::create_omit_command(std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
     {
         if(!is_reset)
         {
@@ -110,7 +111,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    tsc_control_struct control_tsc_state::create_hold_command(std::vector<int> signal_groups, int64_t start_time, bool is_reset)
+    tsc_control_struct control_tsc_state::create_hold_command(std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
     {
         if(!is_reset)
         {

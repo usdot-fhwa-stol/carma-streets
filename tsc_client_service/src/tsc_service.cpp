@@ -254,31 +254,41 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::control_tsc_phases()
     {
-        while(true)
-        {
-            while(!tsc_set_command_queue_.empty())
+        try{
+            while(true)
             {
-                //Check if event is expired
-                auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().start_time_);
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
-                if(duration.count() < 0){
-                    throw control_tsc_state_exception("SNMP set command is expired");
-                }
-                std::this_thread::sleep_for(duration);
-
-                if(!(tsc_set_command_queue_.front()).run())
-                {
-                    throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
-                }
-                SPDLOG_TRACE("Sent TSC SET command");
-
-                tsc_set_command_queue_.pop();
-
+                set_tsc_hold_and_omit();
+                std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
             }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
+        }
+        catch(const control_tsc_state_exception &e){
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
         }
 
+    }
+    
+    void tsc_service::set_tsc_hold_and_omit()
+    {
+        while(!tsc_set_command_queue_.empty())
+        {
+            //Check if event is expired
+            auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().start_time_);
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
+            std::cout<<"Start time: "<<event_execution_start_time.count()<<std::endl;
+            std::cout<<"Duration: "<<duration.count()<<std::endl;
+            if(duration.count() < 0){
+                throw control_tsc_state_exception("SNMP set command is expired");
+            }
+            std::this_thread::sleep_for(duration);
+
+            if(!(tsc_set_command_queue_.front()).run())
+            {
+                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
+            }
+            SPDLOG_TRACE("Sent TSC SET command");
+
+            tsc_set_command_queue_.pop();
+        }
     }
     
 
