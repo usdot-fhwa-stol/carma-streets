@@ -19,7 +19,7 @@ namespace ntcip_oids {
     /**
      * @brief OID for MAX_RINGS: The maximum number of rings this TSC supports. 
     */
-    static const std::string MAX_RINGS = "1.3.6.1.4.1.1206.4.2.1.7.1";
+    static const std::string MAX_RINGS = "1.3.6.1.4.1.1206.4.2.1.7.1.0";
 
     /**
      * @brief OID for Channel control type: Used with (.channel number)

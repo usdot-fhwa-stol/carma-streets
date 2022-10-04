@@ -373,15 +373,15 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_max_rings() const {
         request_type request_type = request_type::GET;
-        snmp_response_obj max_channels_in_tsc;
-        max_channels_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        snmp_response_obj max_rings_in_tsc;
+        max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
 
-        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::MAX_RINGS, request_type, max_channels_in_tsc))
+        if(!snmp_client_worker_->process_snmp_request(ntcip_oids::MAX_RINGS, request_type, max_rings_in_tsc))
         {
-            throw snmp_client_exception("Failed to get max channels!");
+            throw snmp_client_exception("Failed to get max rings!");
         }
 
-        return (int) max_channels_in_tsc.val_int;
+        return (int) max_rings_in_tsc.val_int;
     }
 
     int tsc_state::get_max_channels() const {
