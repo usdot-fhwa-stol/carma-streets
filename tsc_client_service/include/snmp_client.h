@@ -34,7 +34,7 @@ struct snmp_response_obj
 
     //snmp response values can be any asn.1 supported types. 
     //Integer and string values can be processed here
-    int64_t val_int = 0;
+    int64_t val_int;
     std::vector<char> val_string;
     response_type type;
 
