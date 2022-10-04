@@ -85,7 +85,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    tsc_control_struct control_tsc_state::create_omit_command(std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    tsc_control_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
     {
         if(!is_reset)
         {
@@ -111,7 +111,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    tsc_control_struct control_tsc_state::create_hold_command(std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    tsc_control_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
     {
         if(!is_reset)
         {

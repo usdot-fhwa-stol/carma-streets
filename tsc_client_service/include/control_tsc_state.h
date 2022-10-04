@@ -48,7 +48,7 @@ namespace traffic_signal_controller_service
                     return false;
                 }
             }
-            else if(control_type_ == control_type::Hold)
+            else
             {
                 if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, set_val_)){
                     return false;
@@ -97,7 +97,7 @@ namespace traffic_signal_controller_service
              * @param is_reset if true, omit command is reset on the traffic signal controller to 0. 
              * If false will calculate the omit value required to reach given signal groups
              **/
-            tsc_control_struct create_omit_command(std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            tsc_control_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
 
             /** 
              * @brief Method to create command for Hold
@@ -106,6 +106,6 @@ namespace traffic_signal_controller_service
              * @param is_reset if true, hold command is reset on the traffic signal controller to 0. 
              * If false will calculate the value required to hold given signal groups
              **/
-            tsc_control_struct create_hold_command(std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            tsc_control_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
     };
 }
