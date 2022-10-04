@@ -76,7 +76,7 @@ TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) {
     service.produce_spat_json();
 }
 
-TEST(traffic_signal_controller_service, test_tsc_control){
+TEST(tsc_service_test, test_tsc_control){
     
     std::string dummy_ip = "192.168.10.10";
     int dummy_port = 601;
@@ -101,6 +101,9 @@ TEST(traffic_signal_controller_service, test_tsc_control){
     tsc_set_command_queue.push(hold_command);
     service.tsc_set_command_queue_ = tsc_set_command_queue;
     EXPECT_THROW(service.set_tsc_hold_and_omit(), control_tsc_state_exception);
+
+    // Test control_tsc_phases
+    EXPECT_THROW(service.control_tsc_phases(), control_tsc_state_exception);
     
     start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 100;
     tsc_control_struct hold_command_2(shared_client, start_time, control_type, 0);
