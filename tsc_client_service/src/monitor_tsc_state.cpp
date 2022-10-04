@@ -503,9 +503,10 @@ namespace traffic_signal_controller_service
 
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
-        {   
-            concurrent_signal_groups.push_back(vehicle_phase_2signalgroup_map_[int(con_phase)]);
-            
+        {   int concurrent_phase = int(con_phase);
+            if(concurrent_phase != 0){
+                concurrent_signal_groups.push_back(vehicle_phase_2signalgroup_map_[int(con_phase)]);
+            }
         }
 
         if(concurrent_signal_groups.empty())
