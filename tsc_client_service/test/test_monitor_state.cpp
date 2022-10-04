@@ -24,7 +24,7 @@ namespace traffic_signal_controller_service
     };   
 
 
-    TEST(traffic_signal_controller_service, test_get_tsc_state)
+    TEST(monitor_state_test, test_get_tsc_state)
     {
         streets_service::streets_configuration::initialize_logger();
         std::string dummy_ip = "192.168.10.10";
@@ -53,6 +53,13 @@ namespace traffic_signal_controller_service
             std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
             ON_CALL(*unique_client, process_snmp_request(channel_control_oid, _ , _) )
                 .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(channel_control_resp), testing::Return(true)));
+
+            // Define Max Rings
+            snmp_response_obj max_rings_in_tsc;
+            max_rings_in_tsc.val_int = 4;
+            max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+            ON_CALL(*unique_client, process_snmp_request(ntcip_oids::MAX_RINGS, _ , _) )
+                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(max_channels_in_tsc), testing::Return(true)));
 
             // Define Control Source
             snmp_response_obj control_source_resp;
@@ -136,12 +143,12 @@ namespace traffic_signal_controller_service
 
         //Test tsc_config_state
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state = worker.get_tsc_config_state();
-        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 2);
+        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 3);
         EXPECT_EQ(tsc_config_state->tsc_config_list.front().red_clearance, 1000);
 
     }
 
-    TEST(traffic_signal_controller_service, test_get_following_movement_events)
+    TEST(monitor_state_test, test_get_following_movement_events)
     {
         // Create mock spat
         auto spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
@@ -193,14 +200,14 @@ namespace traffic_signal_controller_service
         phase_1_state.red_clearance = 1000;
         phase_1_state.red_duration = 10000;
         
-        worker.signal_group_state_map_.insert({1, phase_1_state});
+        worker.signal_group_2tsc_state_map_.insert({1, phase_1_state});
 
         traffic_signal_controller_service::signal_group_state phase_2_state;
         phase_2_state = phase_1_state;
         phase_2_state.signal_group_id = 2;
         phase_2_state.phase_num = 2;
 
-        worker.signal_group_state_map_.insert({2, phase_2_state});
+        worker.signal_group_2tsc_state_map_.insert({2, phase_2_state});
 
         traffic_signal_controller_service::signal_group_state phase_3_state;
         phase_3_state = phase_1_state;
