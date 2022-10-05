@@ -10,7 +10,9 @@ namespace signal_opt_service
             _movement_groups = std::make_shared<movement_groups>();
             intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
             vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
-            vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+            auto processor = std::make_shared<streets_vehicles::signalized_status_intent_processor>();
+            processor->set_timeout(streets_service::streets_configuration("exp_delta"))
+            vehicle_list_ptr->set_processor(processor);
             spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
             tsc_configuration_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
 

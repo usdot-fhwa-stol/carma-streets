@@ -33,6 +33,12 @@
             "type": "STRING"
         },
         {
+            "name": "exp_delta",
+            "value": 60000,
+            "description": "Time(in milliseconds) without receiving status & intent updates after which a vehicle is removed from the vehicle list!",
+            "type": "INTEGER"
+        },
+        {
             "name": "sleep_millisecs",
             "value": 5000,
             "description": "Current thread sleep for milliseconds",
