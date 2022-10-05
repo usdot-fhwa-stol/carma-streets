@@ -29,9 +29,9 @@ namespace traffic_signal_controller_service
             map_phase_and_signalgroup(active_ring_sequences, vehicle_phase_2signalgroup_map_, signal_group_2vehiclephase_map_);
 
             // Define state for each signal group
-            for (const auto& signal_group : signal_group_2vehiclephase_map_)
+            for (const auto& [signal_group, vehicle_phase] : signal_group_2vehiclephase_map_)
             {
-                int phase_num = signal_group.second;
+                int phase_num = vehicle_phase;
                 signal_group_state state;
                 state.phase_num = phase_num;
                 state.max_green = get_max_green(phase_num);
@@ -42,7 +42,8 @@ namespace traffic_signal_controller_service
                 state.red_clearance = get_red_clearance(phase_num);
                 state.phase_seq = get_following_phases(phase_num, active_ring_sequences);
                 state.concurrent_signal_groups = get_concurrent_signal_groups(phase_num);
-                signal_group_2tsc_state_map_.insert(std::make_pair(signal_group.first, state));
+                auto pair = std::make_pair(signal_group, state);
+                signal_group_2tsc_state_map_.insert(pair);
             }
 
             // Loop through states once other state parameters are defined to get the red duration
@@ -213,7 +214,7 @@ namespace traffic_signal_controller_service
         
     }
 
-    std::vector<int> tsc_state::get_following_phases(int phase_num, const std::vector<std::vector<int>>& active_ring_sequences)
+    std::vector<int> tsc_state::get_following_phases(int phase_num, const std::vector<std::vector<int>>& active_ring_sequences) const
     {
         std::vector<int> sequence;
 
@@ -237,7 +238,7 @@ namespace traffic_signal_controller_service
     }
 
     void tsc_state::map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, 
-                    std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, std::unordered_map<int, int> signal_group_2vehiclephase_map)
+                    std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, std::unordered_map<int, int>& signal_group_2vehiclephase_map)
     {
         // Loop through all ring sequences and remove vehicle phase entries in map
         for(auto it = vehicle_phase_2signalgroup_map.begin(); it != vehicle_phase_2signalgroup_map.end();){
@@ -258,14 +259,14 @@ namespace traffic_signal_controller_service
             }
             else{
                 // Add entry to signal to phase map
-                signal_group_2vehiclephase_map_.insert(std::make_pair(it->second, it->first));
+                signal_group_2vehiclephase_map.insert(std::make_pair(it->second, it->first));
                 it++;
             }
         }
         
     }
 
-    std::unordered_map<int,int> tsc_state::get_phases_associated_with_channel(std::vector<int>& channels) {
+    std::unordered_map<int,int> tsc_state::get_phases_associated_with_channel(const std::vector<int>& channels) const {
         
         std::unordered_map<int,int> phases_to_signal_group;
         request_type request_type = request_type::GET;
@@ -334,7 +335,7 @@ namespace traffic_signal_controller_service
 
     
 
-    std::vector<std::vector<int>> tsc_state::get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence){
+    std::vector<std::vector<int>> tsc_state::get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence) const{
         
         std::vector<std::vector<int>> active_ring_sequences;
         // Read sequence data for rings
@@ -503,7 +504,7 @@ namespace traffic_signal_controller_service
 
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
-        {   int concurrent_phase = int(con_phase);
+        {   auto concurrent_phase = int(con_phase);
             if(concurrent_phase != 0){
                 concurrent_signal_groups.push_back(vehicle_phase_2signalgroup_map_[int(con_phase)]);
             }

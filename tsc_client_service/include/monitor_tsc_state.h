@@ -91,7 +91,7 @@ namespace traffic_signal_controller_service
             **  @param channels a map of known channels for vehicle or pedestrian to the corresponding phases
             **  @return a vector of phases associated with the channels
             **/
-            std::unordered_map<int,int> get_phases_associated_with_channel(std::vector<int>& channels);
+            std::unordered_map<int,int> get_phases_associated_with_channel(const std::vector<int>& channels) const;
 
             /** 
              * @brief Method for getting active rings in sequence (default sequence = 1)
@@ -100,10 +100,10 @@ namespace traffic_signal_controller_service
              * @param sequence The sequence number to check for active rings, defaults to 1
              * @return List of active rings in the traffic signal controller
             **/
-            std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1);
+            std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1) const;
 
             void map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, 
-                                                                                            std::unordered_map<int, int> signal_group_2vehiclephase_map);
+                                                                                            std::unordered_map<int, int>& signal_group_2vehiclephase_map);
 
             /** 
              * @brief Method for getting maximum channels for the traffic signal controller
@@ -152,7 +152,7 @@ namespace traffic_signal_controller_service
             ** @param active_ring_sequences The sequence of phases in active rings in the traffic signal controller
             ** @return a vector as a sequence of phases starting from the given phase
             * **/
-            std::vector<int> get_following_phases(int phase_num, const std::vector<std::vector<int>>& active_ring_sequences);
+            std::vector<int> get_following_phases(int phase_num, const std::vector<std::vector<int>>& active_ring_sequences) const;
 
             /** @brief The concurrent phases that the given phase can be green along with
             ** @param ring_num The phase for which the concurrent phases needs to be obtained
