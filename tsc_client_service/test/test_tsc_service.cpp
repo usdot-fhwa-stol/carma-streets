@@ -27,7 +27,7 @@ TEST_F(test_tsc_service, test_initialization) {
     tsc_service service;
     ASSERT_FALSE(service.initialize());
     // Allow kafka client and udp listener socket destructor to run before next test case.
-    sleep(1);
+    sleep(2);
 }
 
 TEST_F(test_tsc_service, test_init_intersection_client) {
