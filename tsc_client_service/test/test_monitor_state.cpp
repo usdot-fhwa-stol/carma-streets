@@ -516,6 +516,8 @@ namespace traffic_signal_controller_service
         ASSERT_EQ(7, state.get_phase_number(15));
         ASSERT_EQ(8, state.get_phase_number(1));
         ASSERT_THROW(state.get_phase_number(2), monitor_states_exception);
+        ASSERT_THROW(state.get_phase_number(0), monitor_states_exception);
+
 
         ASSERT_EQ(3, state.get_signal_group_id(1));
         ASSERT_EQ(7, state.get_signal_group_id(2));
@@ -526,6 +528,7 @@ namespace traffic_signal_controller_service
         ASSERT_EQ(15, state.get_signal_group_id(7));
         ASSERT_EQ(1, state.get_signal_group_id(8));
         ASSERT_THROW(state.get_signal_group_id(9), monitor_states_exception);
+        ASSERT_THROW(state.get_signal_group_id(0), monitor_states_exception);
 
 
         

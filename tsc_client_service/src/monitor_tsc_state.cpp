@@ -404,14 +404,7 @@ namespace traffic_signal_controller_service
 
         // Find signal state associated with phase num
         int current_signal_group;
-        try
-        {
-            current_signal_group = get_signal_group_id(phase_num);
-        }
-        catch (const monitor_states_exception &e) {
-            SPDLOG_ERROR("Exception occured! {0}", e.what());
-            SPDLOG_ERROR("No signal state associated with phase {0}.", phase_num);
-        }
+        current_signal_group = get_signal_group_id(phase_num); 
         auto current_signal_group_state = signal_group_state_map_[current_signal_group];
         // Only add clearance time for current phase
         int red_duration = current_signal_group_state.red_clearance;
@@ -420,14 +413,7 @@ namespace traffic_signal_controller_service
         {
             // Find state params for each phase in seq
             int seq_signal_group;
-            try
-            {
-                seq_signal_group = get_signal_group_id(phase);
-            }
-            catch (const monitor_states_exception &e) {
-                SPDLOG_ERROR("Exception occured! {0}", e.what());
-                SPDLOG_ERROR("No signal state associated with phase {0}.", phase);
-            }
+            seq_signal_group = get_signal_group_id(phase);
             auto seq_signal_group_state = signal_group_state_map_[seq_signal_group];
             if(phase == phase_num)
             {
