@@ -71,9 +71,12 @@ namespace signal_opt_service
     void signal_opt_service::start()
     {
         std::thread tsc_config_t(&signal_opt_service::consume_tsc_config, this, this->_tsc_config_consumer, this->tsc_configuration_ptr);
-        // Get TSC Information then populate movement groups.
+        // Block until TSC configuration information is received 
         tsc_config_t.join();
+        // After TSC configuration information is received, use it to determine movemement groups
         populate_movement_groups(_movement_groups, tsc_configuration_ptr);
+        // After movement groups are created, process vehicle status and intent and spat messages to
+        // maintain information about current vehicle states and TSC state
         std::thread vsi_t(&signal_opt_service::consume_vsi,  this, this->_vsi_consumer, this->vehicle_list_ptr);
         std::thread spat_t(&signal_opt_service::consume_spat,this, this->_spat_consumer, this->spat_ptr);
         // Running in parallel
@@ -179,7 +182,7 @@ namespace signal_opt_service
             sleep(sleep_secs);
             attempt_count++;
         }
-        // If failed to update the intersecstd::stringtion information after certain numbers of attempts
+        // If failed to update the intersection information after certain numbers of attempts
         SPDLOG_ERROR("Updating Intersection information failed. ");
         return false;
     }

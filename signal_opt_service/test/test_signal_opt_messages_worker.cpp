@@ -9,15 +9,12 @@ TEST(signal_opt_messages_worker, update_vehicle_list)
     auto vehicle_list_ptr =  std::make_shared<streets_vehicles::vehicle_list>();
     vehicle_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
     // Add vehicles
-    SPDLOG_INFO("Initialize! {0}");
 
     ASSERT_TRUE( vehicle_list_ptr->get_vehicles().empty());
-    SPDLOG_INFO("Assert empty list!");
     auto cur_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 1000;
     // Valid payload
     std::string vsi_payload = "{ \"metadata\": { \"timestamp\": " + std::to_string(cur_time) + " }, \"payload\": { \"v_id\": \"DOT-507\", \"v_length\": 5, \"min_gap\": 10.0, \"react_t\": 1.5, \"max_accel\": 5.0, \"max_decel\": 5.0, \"cur_speed\": 5.0, \"cur_accel\": 0.0, \"cur_lane_id\": 7, \"cur_ds\": 7.0, \"direction\": \"straight\", \"entry_lane_id\": 7, \"link_lane_id\": 8, \"dest_lane_id\": 9, \"is_allowed\": false, \"depart_pos\": 1, \"est_paths\": [{ \"ts\": 1623677096200, \"id\": 7, \"ds\": 6.0 }, { \"ts\": 1623677096400, \"id\": 7, \"ds\": 5.0 }, { \"ts\": 1623677096600, \"id\": 7, \"ds\": 4.0 }, { \"ts\": 1623677096800, \"id\": 7, \"ds\": 3.0 }, { \"ts\": 1623677097000, \"id\": 7, \"ds\": 2.0 } ] } }";
     so_msgs_worker_ptr->update_vehicle_list(vsi_payload, vehicle_list_ptr);
-    SPDLOG_INFO("Populated vehicle list");
     ASSERT_EQ(1, vehicle_list_ptr->get_vehicles().size());
 
     cur_time += 1000;
