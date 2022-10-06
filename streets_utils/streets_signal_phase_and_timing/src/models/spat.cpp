@@ -124,7 +124,7 @@ namespace signal_phase_and_timing{
         }
     }
 
-    void spat::update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr)
+    void spat::update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state)
     {
         //Removing all the future movement events from each intersection state because the future movements event should be recalculated using desired phase plan
         intersections.front().clear_future_movement_events();
@@ -154,12 +154,12 @@ namespace signal_phase_and_timing{
                 // Processing the next current or first desired future movement event from the desired phase plan
                 if (is_procssing_first_desired_green)
                 {
-                   process_first_desired_green(cur_movement_state_ref, desired_sg_green_timing, sg_yellow_duration_red_clearnace_map_ptr);
+                   process_first_desired_green(cur_movement_state_ref, desired_sg_green_timing, tsc_state);
                 }
                 else
                 {
                     // Processing the next future desired future movement event from the desired phase plan
-                    process_second_onward_desired_green(cur_movement_state_ref, desired_sg_green_timing, sg_yellow_duration_red_clearnace_map_ptr);
+                    process_second_onward_desired_green(cur_movement_state_ref, desired_sg_green_timing, tsc_state);
                 }
             }
             is_procssing_first_desired_green = false;
@@ -168,7 +168,7 @@ namespace signal_phase_and_timing{
 
     void spat::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
-                                        const std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr) 
+                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) 
     {
         auto desired_green_signal_group_ids = desired_sg_green_timing.signal_groups;
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;
@@ -179,9 +179,9 @@ namespace signal_phase_and_timing{
         int current_signal_group_id = cur_movement_state_ref.signal_group;
         // Get yellow change and red clearance time interval for signal group in movement group with the largest combination
         // of yellow change and red clearance time interval.
-        int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, sg_yellow_duration_red_clearnace_map_ptr);
-        int desired_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].yellow_change_duration;
-        int desired_red_clearance = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].red_clearance;
+        int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, tsc_state);
+        int desired_yellow_duration = tsc_state->tsc_config_list.empty() ? 0 : tsc_state->get_signal_group_configuration_by_sg(signal_group_with_largest_clearance).yellow_change_duration;
+        int desired_red_clearance = tsc_state->tsc_config_list.empty() ? 0 : tsc_state->get_signal_group_configuration_by_sg(signal_group_with_largest_clearance).red_clearance;
         SPDLOG_DEBUG("process signal group = {0} \t AND First desired sg ids = [{1} , {2}]", 
                     current_signal_group_id, desired_green_signal_group_ids.front(), 
                     desired_green_signal_group_ids.back());        
@@ -263,7 +263,7 @@ namespace signal_phase_and_timing{
             else if (cur_movement_state_ref.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance) // YELLOW
             {
                 // Updating the current YELLOW movement event
-                int spat_current_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[current_signal_group_id].yellow_change_duration;
+                int spat_current_yellow_duration = tsc_state->tsc_config_list.empty()? 0 : tsc_state->get_signal_group_configuration_by_sg(current_signal_group_id).yellow_change_duration;
                 SPDLOG_DEBUG("signal_group_with_largest_clearance={0} \tdesired_yellow_duration = {1} \t AND desired_red_clearance = {2}",signal_group_with_largest_clearance, desired_yellow_duration, desired_red_clearance);
        
                 uint64_t calculated_yellow_end_time_epoch = cur_movement_state_ref.state_time_speed.front().timing.get_epoch_start_time() 
@@ -288,7 +288,7 @@ namespace signal_phase_and_timing{
 
     void spat::process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
-                                                                        const std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr
+                                                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state
                                                                         ) 
     {
         auto desired_green_signal_group_ids = desired_sg_green_timing.signal_groups;
@@ -306,9 +306,9 @@ namespace signal_phase_and_timing{
         int current_signal_group_id = cur_movement_state_ref.signal_group;
         // Get yellow change and red clearance time interval for signal group in movement group with the largest combination
         // of yellow change and red clearance time interval.
-        int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, sg_yellow_duration_red_clearnace_map_ptr);
-        int desired_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty() ? 0 : (*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].yellow_change_duration;
-        int desired_red_clearance = sg_yellow_duration_red_clearnace_map_ptr->empty() ? 0 :(*sg_yellow_duration_red_clearnace_map_ptr)[signal_group_with_largest_clearance].red_clearance;
+        int signal_group_with_largest_clearance = find_max_desired_yellow_duration_red_clearance_pair(desired_sg_green_timing.signal_groups, tsc_state);
+        int desired_yellow_duration = tsc_state->tsc_config_list.empty() ? 0 : tsc_state->get_signal_group_configuration_by_sg(signal_group_with_largest_clearance).yellow_change_duration;
+        int desired_red_clearance = tsc_state->tsc_config_list.empty() ? 0 : tsc_state->get_signal_group_configuration_by_sg(signal_group_with_largest_clearance).red_clearance;
         SPDLOG_DEBUG("process signal group = {0} \t AND second and onwards desired sg ids = [{1} , {2}]", 
                     current_signal_group_id, 
                     desired_green_signal_group_ids.front(), 
@@ -393,14 +393,14 @@ namespace signal_phase_and_timing{
         cur_movement_state_ref.state_time_speed.push_back(red_movement_event);
     }
     
-    int spat::find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<std::unordered_map<int,streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr) const
+    int spat::find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const
     {
         int return_sg_id = desired_signal_groups.front();
         int total = 0;
         for (auto sg : desired_signal_groups)
         {
-            int desired_yellow_duration = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 :(*sg_yellow_duration_red_clearnace_map_ptr)[sg].yellow_change_duration;
-            int desired_red_clearance = sg_yellow_duration_red_clearnace_map_ptr->empty()? 0 :(*sg_yellow_duration_red_clearnace_map_ptr)[sg].red_clearance;
+            int desired_yellow_duration = tsc_state->tsc_config_list.empty()? 0 :tsc_state->get_signal_group_configuration_by_sg(sg).yellow_change_duration;
+            int desired_red_clearance = tsc_state->tsc_config_list.empty()? 0 :tsc_state->get_signal_group_configuration_by_sg(sg).red_clearance;
             int local_total =  desired_yellow_duration+ desired_red_clearance;
 
             if (local_total > total)

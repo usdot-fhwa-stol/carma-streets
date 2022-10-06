@@ -23,25 +23,25 @@ namespace signal_opt_service
         ~signal_opt_processing_worker() = default;
 
         /**
-         * @brief Call streets_desired_phase_plan_arbitrator library to choose the optimized desired phase plan.
+         * @brief Call streets_signal_optimization library to choose the optimized desired phase plan.
          *
          * @param dpp_list List of candidate  desired phase plan.
          * @param intersection_info_ptr The current intersection model intersection information
          * @param spat_ptr The spat pointer that points to the latest spat information received from the Kafka stream.
          * @param sg_yellow_duration_red_clearnace_map_ptr The Map of signal group and yellow change and red clearance duration values
-         * @param veh_list The list of vehicles within the intersection communication radius.
+         * @param veh_list_ptr The list of vehicles within the intersection communication radius.
          * @param initial_green_buffer A configuration parameter for green phase
          * @param final_green_buffer A configuration parameter for green phase
          * @return ** streets_desired_phase_plan::streets_desired_phase_plan The final desired phase plan
          */
         void select_optimal_dpp(
-            const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
-            const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr,
-            std::shared_ptr<signal_phase_and_timing::spat> spat_ptr,
-            std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr,
-            streets_vehicles::vehicle_list &veh_list,
-            uint64_t initial_green_buffer,
-            uint64_t final_green_buffer);
+        const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
+        const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
+        const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr,
+        const std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr,
+        const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
+        uint64_t initial_green_buffer,
+        uint64_t final_green_buffer);
     };
 
 }

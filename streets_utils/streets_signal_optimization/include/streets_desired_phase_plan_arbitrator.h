@@ -9,7 +9,7 @@
 #include <math.h>
 #include <chrono>
 
-namespace streets_desired_phase_plan_arbitrator
+namespace streets_signal_optimization
 {
     class streets_desired_phase_plan_arbitrator
     {
@@ -30,10 +30,10 @@ namespace streets_desired_phase_plan_arbitrator
          */
         streets_desired_phase_plan::streets_desired_phase_plan select_optimal_dpp(
             const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
-            const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr,
-            std::shared_ptr<signal_phase_and_timing::spat> spat_ptr,
-            std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr,
-            streets_vehicles::vehicle_list &veh_list,
+            const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
+            const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr,
+            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state, 
+            const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
             uint64_t initial_green_buffer,
             uint64_t final_green_buffer) const;
 
@@ -46,7 +46,7 @@ namespace streets_desired_phase_plan_arbitrator
          */
         void update_spat_with_candidate_dpp(signal_phase_and_timing::spat &local_spat,
                                             const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
-                                            std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr) const;
+                                            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const;
 
         /**
          * @brief Calculate vehicles' schedules with the signalized scheduler and the local spat object.
@@ -59,9 +59,9 @@ namespace streets_desired_phase_plan_arbitrator
          * @param final_green_buffer A configuration parameter for green phase.
          */
         void calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
-                                         signal_phase_and_timing::spat &local_spat,
-                                         streets_vehicles::vehicle_list &veh_list,
-                                         const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr,
+                                         const signal_phase_and_timing::spat &local_spat,
+                                         const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
+                                         const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
                                          uint64_t initial_green_buffer,
                                          uint64_t final_green_buffer) const;
 
@@ -73,8 +73,8 @@ namespace streets_desired_phase_plan_arbitrator
          * @return float The calculated delay measure.
          */
         float calculate_delay_measure(
-            std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr,
-            streets_desired_phase_plan::streets_desired_phase_plan candidate_dpp) const;
+            const std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr,
+            const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp) const;
 
         /**
          * @brief Find the desired phase plan based on the highest delay measure.

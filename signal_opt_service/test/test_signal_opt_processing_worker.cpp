@@ -254,7 +254,7 @@ namespace signal_opt_service
         dpp_list.push_back(*desired_phase_plan1_ptr);
         dpp_list.push_back(*desired_phase_plan2_ptr);
         // Initialize empty vehicle list
-        streets_vehicles::vehicle_list veh_list;
+        auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
 
         // Initialize buffer params
         uint64_t initial_green_buffer = 1000;
@@ -269,11 +269,11 @@ namespace signal_opt_service
 
         try
         {
-            so_processing_worker->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, sg_yellow_duration_red_clearnace_map_ptr, veh_list, initial_green_buffer, final_green_buffer);
+            so_processing_worker->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, sg_yellow_duration_red_clearnace_map_ptr, veh_list_ptr, initial_green_buffer, final_green_buffer);
         }
-        catch (const streets_desired_phase_plan_arbitrator::streets_desired_phase_plan_arbitrator_exception &e)
+        catch (const streets_signal_optimization::streets_desired_phase_plan_arbitrator_exception &e)
         {
-            ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty.");
+            ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty. Vehicles maybe outside of the radius.");
         }
 
         // It should make a local copy and do not update the pass in spat message spat_msg_ptr

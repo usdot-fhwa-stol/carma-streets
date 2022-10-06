@@ -4,7 +4,7 @@
 
 
 
-namespace streets_desired_phase_plan_arbitrator {
+namespace streets_signal_optimization {
     /**
      * @brief Runtime error related to processing desired phase plan arbitrator.
      */ 

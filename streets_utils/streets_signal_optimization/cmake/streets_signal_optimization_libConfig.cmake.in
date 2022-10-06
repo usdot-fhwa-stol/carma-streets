@@ -6,4 +6,4 @@ find_dependency(GTest REQUIRED)
 
 
 
-include("${CMAKE_CURRENT_LIST_DIR}/streets_desired_phase_plan_arbitrator_libTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/streets_signal_optimization_libTargets.cmake")

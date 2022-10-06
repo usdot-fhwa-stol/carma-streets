@@ -51,6 +51,8 @@ namespace streets_tsc_configuration
     {
         std::vector<signal_group_configuration> tsc_config_list;
 
+        signal_group_configuration get_signal_group_configuration_by_sg(uint8_t signal_group_id);
+
         /**
          * @brief Serialize tsc_configuration_state object to rapidjson::Value for writing as JSON string
          * 

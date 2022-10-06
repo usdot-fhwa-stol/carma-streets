@@ -99,7 +99,7 @@ namespace signal_phase_and_timing{
          * @param candidate_dpp  desired phase plan .
          * @param sg_yellow_duration_red_clearnace_map_ptr tsc state and signal group mapping information.
          */
-        void update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr);
+        void update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state);
          // Conversion constants
         /**
          * @brief Process first desired green signal group and duration in desired phase plan. Populate 
@@ -115,7 +115,7 @@ namespace signal_phase_and_timing{
          */
         void process_first_desired_green(movement_state &cur_movement_state_ref, 
                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
-                                        const std::shared_ptr<std::unordered_map<int,streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr
+                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state
                                         );
         /**
          * @brief Process all desired green signal group and duration in desired phase plan that are not the first entry.
@@ -131,7 +131,7 @@ namespace signal_phase_and_timing{
          */
         void process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                                 const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
-                                                const std::shared_ptr<std::unordered_map<int,streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr
+                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state
                                                 ) ;
         /**
          * @brief Populate movement_event with movement_phase_state, start_time and end_time(min_end_time).
@@ -164,11 +164,11 @@ namespace signal_phase_and_timing{
          * interval. This is useful since the largest yellow change plus red clearance will control how long all red events during this time interval will last.
          * 
          * @param desired_signal_groups a pair of signal groups that make up a movement group.
-         * @param sg_yellow_duration_red_clearnace_map_ptr A pointer for traffic signal controller configuration informaton including yellow change and red intervals for all
+         * @param tsc_state A pointer for traffic signal controller configuration informaton including yellow change and red intervals for all
          * signal groups.
          * @return int the signal group id which has the largest combination of yellow change and red clearance time interval.
          */
-        int find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr) const;    
+        int find_max_desired_yellow_duration_red_clearance_pair(std::vector<int> desired_signal_groups, const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const;    
 
         /**
          * @brief Equals operator to asses whether two objects contain equivalent data.

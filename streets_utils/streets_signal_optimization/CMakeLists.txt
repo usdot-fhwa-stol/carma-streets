@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(streets_desired_phase_plan_arbitrator)
+project(streets_signal_optimization)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
@@ -18,7 +18,7 @@ find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 
 add_library(${PROJECT_NAME}_lib
-    src/models/streets_desired_phase_plan_arbitrator.cpp
+    src/streets_desired_phase_plan_arbitrator.cpp
     src/exceptions/streets_desired_phase_plan_arbitrator_exception.cpp
 )
 
@@ -38,7 +38,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
 )
 
 # #######################################################
-# Install streets_desired_phase_plan_arbitrator package.
+# Install streets_signal_optimization package.
 # #######################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
