@@ -19,6 +19,7 @@ find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIR
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
 find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
+find_package(streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_desired_phase_plan_arbitrator_lib COMPONENTS streets_desired_phase_plan_arbitrator_lib REQUIRED)
 
 add_library(${PROJECT_NAME}_lib
@@ -42,12 +43,13 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
     spdlog::spdlog
     rapidjson
     intersection_client_api_lib
+    streets_desired_phase_plan_arbitrator_lib 
+    streets_vehicle_scheduler_lib  
     streets_service_base_lib::streets_service_base_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
     streets_tsc_configuration_lib
-    streets_desired_phase_plan_lib
-    streets_desired_phase_plan_arbitrator_lib    
+    streets_desired_phase_plan_lib 
     Qt5::Core
     Qt5::Network
 )
@@ -84,10 +86,11 @@ target_link_libraries(${BINARY} PUBLIC
     Qt5::Core
     Qt5::Network
     intersection_client_api_lib
+    streets_desired_phase_plan_arbitrator_lib
+    streets_vehicle_scheduler_lib
     streets_service_base_lib::streets_service_base_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
     streets_tsc_configuration_lib
     streets_desired_phase_plan_lib
-    streets_desired_phase_plan_arbitrator_lib
 )

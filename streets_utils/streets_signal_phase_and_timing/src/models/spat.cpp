@@ -124,14 +124,14 @@ namespace signal_phase_and_timing{
         }
     }
 
-    void spat::update_spat_with_proposed_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& proposed_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr)
+    void spat::update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr)
     {
         //Removing all the future movement events from each intersection state because the future movements event should be recalculated using desired phase plan
         intersections.front().clear_future_movement_events();
         auto states = intersections.front().states;
         // Loop through desired phase plan
         bool is_procssing_first_desired_green = true;
-        for (const auto &desired_sg_green_timing : proposed_dpp.desired_phase_plan)
+        for (const auto &desired_sg_green_timing : candidate_dpp.desired_phase_plan)
         {
             if (desired_sg_green_timing.signal_groups.empty())
             {
@@ -353,7 +353,7 @@ namespace signal_phase_and_timing{
     void spat::populate_movement_event(signal_phase_and_timing::movement_event &movemnet_event_to_populate, 
                                                             const signal_phase_and_timing::movement_phase_state &phase_state, 
                                                             const uint64_t start_time_epoch, 
-                                                            const uint64_t end_time_epoch) 
+                                                            const uint64_t end_time_epoch)  const
     {
         movemnet_event_to_populate.event_state = phase_state;
         movemnet_event_to_populate.timing.set_start_time(start_time_epoch);

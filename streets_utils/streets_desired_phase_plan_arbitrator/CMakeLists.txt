@@ -11,15 +11,12 @@ add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
-find_package(RapidJSON REQUIRED)
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 
-# Add definition for rapidjson to include std::string
-add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_library(${PROJECT_NAME}_lib
     src/models/streets_desired_phase_plan_arbitrator.cpp
     src/exceptions/streets_desired_phase_plan_arbitrator_exception.cpp
@@ -33,11 +30,10 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
 
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC
     spdlog::spdlog
-    rapidjson
     streets_desired_phase_plan_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
-    intersection_client_api_lib  
+    intersection_client_api_lib
     streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib
 )
 
@@ -71,9 +67,9 @@ install(
 )
 install(FILES ${files} DESTINATION include)
 
-# #######################
+# ######################
 # googletest for unit testing
-# #######################
+# ######################
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
@@ -87,11 +83,10 @@ target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC
     spdlog::spdlog
     gtest
-    rapidjson
     ${PROJECT_NAME}_lib
     streets_desired_phase_plan_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
-    intersection_client_api_lib  
+    intersection_client_api_lib
     streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib
 )

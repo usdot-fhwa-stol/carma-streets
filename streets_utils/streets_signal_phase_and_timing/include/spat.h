@@ -96,10 +96,10 @@ namespace signal_phase_and_timing{
          /**
          * @brief Update spat movement_event list with desired phase plan information.
          * 
-         * @param proposed_dpp  desired phase plan .
+         * @param candidate_dpp  desired phase plan .
          * @param sg_yellow_duration_red_clearnace_map_ptr tsc state and signal group mapping information.
          */
-        void update_spat_with_proposed_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& proposed_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr);
+        void update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr);
          // Conversion constants
         /**
          * @brief Process first desired green signal group and duration in desired phase plan. Populate 
@@ -145,7 +145,7 @@ namespace signal_phase_and_timing{
                                     signal_phase_and_timing::movement_event &movement_event_to_populate, 
                                     const signal_phase_and_timing::movement_phase_state &phase_state, 
                                     const uint64_t start_time_epoch, 
-                                    const uint64_t end_time_epoch);
+                                    const uint64_t end_time_epoch) const;
         /**
          * @brief Populate movement_event list for given movement_state with green event, yellow change event, and red clearance 
          * event.

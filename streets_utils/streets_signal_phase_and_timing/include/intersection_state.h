@@ -179,13 +179,16 @@ namespace signal_phase_and_timing
          */
         void update_movements( ntcip::ntcip_1202_ext &spat_data,const std::unordered_map<int,int> &phase_number_to_signal_group );
         /**
+         * @brief Clears the future movement events for each movement state, and only leave the current movement events.
+        */
+        void clear_future_movement_events();
+
+        /**
          * @brief Return reference to movement_state for signal group
          * 
          * @param signal_group_id 
          * @return movement_state& 
          */
-
-        void clear_future_movement_events();
         movement_state& get_movement(const int signal_group_id);
         /**
          * @brief Initialize list<movement_state> to include a movement for each phase_numer/signal_group entry in the phase number

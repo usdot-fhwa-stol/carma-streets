@@ -195,7 +195,7 @@ namespace signal_phase_and_timing
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.empty());
         signal_phase_and_timing::intersection_state intersection;
         invalid_spat_msg_ptr->intersections.push_back(intersection);
-        invalid_spat_msg_ptr->update_spat_with_proposed_dpp(*desired_phase_plan_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        invalid_spat_msg_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         ASSERT_FALSE(invalid_spat_msg_ptr->intersections.empty());
         ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
 
@@ -219,7 +219,7 @@ namespace signal_phase_and_timing
          * START: Test Scenario one:  There are two green phases [1,5] in the current SPAT movement event.
          * ***/
         // Add future movement events
-        spat_msg_ptr->update_spat_with_proposed_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        spat_msg_ptr->update_spat_with_candidate_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         for (auto movement_state : spat_msg_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -395,7 +395,7 @@ namespace signal_phase_and_timing
          * START: Test Scenario two: There are two Yellow phases [1,5] in the current SPAT movement event
          * ***/
         // Add future movement events
-        spat_msg_two_ptr->update_spat_with_proposed_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        spat_msg_two_ptr->update_spat_with_candidate_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         for (auto movement_state : spat_msg_two_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -579,7 +579,7 @@ namespace signal_phase_and_timing
          * ***/
         // Add future movement events
 
-        spat_msg_three_ptr->update_spat_with_proposed_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        spat_msg_three_ptr->update_spat_with_candidate_dpp(*desired_phase_plan2_ptr, sg_yellow_duration_red_clearnace_map_ptr);
         for (auto movement_state : spat_msg_three_ptr->intersections.front().states)
         {
             int sg = (int)movement_state.signal_group;

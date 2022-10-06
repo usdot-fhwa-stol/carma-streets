@@ -3,17 +3,17 @@
 namespace streets_desired_phase_plan_arbitrator
 {
 
-    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_arbitrator::filter_dpp_list_by_optimization_algorithm(
+    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_arbitrator::select_optimal_dpp(
         const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
         const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr,
         std::shared_ptr<signal_phase_and_timing::spat> spat_ptr,
         std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr,
         streets_vehicles::vehicle_list &veh_list,
         uint64_t initial_green_buffer,
-        uint64_t final_green_buffer)
+        uint64_t final_green_buffer) const
     {
         streets_desired_phase_plan::streets_desired_phase_plan result;
-        if (dpp_list.size() != 0)
+        if (!dpp_list.empty())
         {
             if (spat_ptr == nullptr)
             {
@@ -22,20 +22,20 @@ namespace streets_desired_phase_plan_arbitrator
 
             int dpp_index = 0;
             std::unordered_map<int, float> ddp_delay_measures;
-            for (const auto &proposed_dpp : dpp_list)
+            for (const auto &candidate_dpp : dpp_list)
             {
-                // A copy of spat object into local variable, and update local spat with proposed desired phase plan
+                // A copy of spat object into local variable, and update local spat with candidatedesired phase plan
                 auto local_spat = *spat_ptr;
-                update_spat_with_proposed_dpp(local_spat, proposed_dpp, sg_yellow_duration_red_clearnace_map_ptr);
+                update_spat_with_candidate_dpp(local_spat, candidate_dpp, sg_yellow_duration_red_clearnace_map_ptr);
 
                 // Given spat and vehicle list, estimate current vehicles' ET and EET from signalized intersection schedule
                 auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
                 calculate_vehicle_schedules(schedule_ptr, local_spat, veh_list, intersection_info_ptr, initial_green_buffer, final_green_buffer);
 
-                // Given vehicles' ET and EET from signalized intersection schedule, Calculate vehicles' delay measure for the current proposed desired phase plan
-                float delay_measure = calculate_delay_measure(schedule_ptr, proposed_dpp);
+                // Given vehicles' ET and EET from signalized intersection schedule, Calculate vehicles' delay measure for the current candidatedesired phase plan
+                float delay_measure = calculate_delay_measure(schedule_ptr, candidate_dpp);
 
-                // Add delay measure and proposed desired phase plan index mapping to a list
+                // Add delay measure and candidatedesired phase plan index mapping to a list
                 ddp_delay_measures.insert({dpp_index, delay_measure});
                 dpp_index++;
             }
@@ -55,12 +55,19 @@ namespace streets_desired_phase_plan_arbitrator
         return result;
     }
 
-    void streets_desired_phase_plan_arbitrator::update_spat_with_proposed_dpp(signal_phase_and_timing::spat &local_spat, const streets_desired_phase_plan::streets_desired_phase_plan &proposed_dpp, std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr)
+    void streets_desired_phase_plan_arbitrator::update_spat_with_candidate_dpp(signal_phase_and_timing::spat &local_spat,
+                                                                               const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
+                                                                               std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr) const
     {
-        local_spat.update_spat_with_proposed_dpp(proposed_dpp, sg_yellow_duration_red_clearnace_map_ptr);
+        local_spat.update_spat_with_candidate_dpp(candidate_dpp, sg_yellow_duration_red_clearnace_map_ptr);
     }
 
-    void streets_desired_phase_plan_arbitrator::calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr, signal_phase_and_timing::spat &local_spat, streets_vehicles::vehicle_list &veh_list, const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, uint64_t initial_green_buffer, uint64_t final_green_buffer)
+    void streets_desired_phase_plan_arbitrator::calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
+                                                                            signal_phase_and_timing::spat &local_spat,
+                                                                            streets_vehicles::vehicle_list &veh_list,
+                                                                            const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr,
+                                                                            uint64_t initial_green_buffer,
+                                                                            uint64_t final_green_buffer) const
     {
         auto scheduler_ptr = std::unique_ptr<streets_vehicle_scheduler::signalized_vehicle_scheduler>(new streets_vehicle_scheduler::signalized_vehicle_scheduler());
         scheduler_ptr->set_intersection_info(intersection_info_ptr);
@@ -76,14 +83,16 @@ namespace streets_desired_phase_plan_arbitrator
         }
     }
 
-    float streets_desired_phase_plan_arbitrator::calculate_delay_measure(std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr, streets_desired_phase_plan::streets_desired_phase_plan proposed_dpp)
+    float streets_desired_phase_plan_arbitrator::calculate_delay_measure(
+        std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr,
+        streets_desired_phase_plan::streets_desired_phase_plan candidate_dpp) const
     {
         if (schedule_ptr->vehicle_schedules.empty())
         {
             throw(streets_desired_phase_plan_arbitrator_exception("Vehicle schedule cannot be empty."));
         }
-        float TBD_delay = 0.0;
-        float proposed_vehicles_delay = 0.0;
+        u_int64_t TBD_delay = 0.0;
+        u_int64_t candidate_vehicles_delay = 0.0;
         for (const auto &veh_schedule : schedule_ptr->vehicle_schedules)
         {
             if (veh_schedule.get_delay() < 0)
@@ -91,48 +100,50 @@ namespace streets_desired_phase_plan_arbitrator
                 throw(streets_desired_phase_plan_arbitrator_exception("Vehicle schedule EET cannot be greater than ET."));
             }
 
-            // If find the vehicles’ schedule ET >= proposed desired phase plan end time, these vehicles are considered TBD.
-            if (veh_schedule.et >= proposed_dpp.desired_phase_plan.back().end_time)
+            // If find the vehicles’ schedule ET >= candidatedesired phase plan end time, these vehicles are considered TBD.
+            if (veh_schedule.et >= candidate_dpp.desired_phase_plan.back().end_time)
             {
                 TBD_delay += veh_schedule.get_delay();
                 SPDLOG_DEBUG("TBD veh_schedule v_ID= {0}, get_delay = {1}", veh_schedule.v_id, veh_schedule.get_delay());
             }
             else
             {
-                proposed_vehicles_delay += veh_schedule.get_delay();
-                SPDLOG_DEBUG("Proposed veh_schedule v_ID= {0}, get_delay = {1}", veh_schedule.v_id, veh_schedule.get_delay());
+                candidate_vehicles_delay += veh_schedule.get_delay();
+                SPDLOG_DEBUG("candidateveh_schedule v_ID= {0}, get_delay = {1}", veh_schedule.v_id, veh_schedule.get_delay());
             }
         }
 
         float delay_measure = 0.0;
         if (TBD_delay > 0.0)
         {
-            delay_measure = proposed_vehicles_delay / TBD_delay;
+            delay_measure = candidate_vehicles_delay / TBD_delay;
         }
         else
         {
-            delay_measure = proposed_vehicles_delay;
+            delay_measure = candidate_vehicles_delay;
         }
-        SPDLOG_DEBUG("delay_measure = {0}", delay_measure);
+        SPDLOG_INFO("delay_measure = {0}", delay_measure);
         return delay_measure;
     }
 
-    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_arbitrator::identify_ddp_by_delay_measures(const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list, const std::unordered_map<int, float> &ddp_index_delay_measure_mappings)
+    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_arbitrator::identify_ddp_by_delay_measures(
+        const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
+        const std::unordered_map<int, float> &ddp_index_delay_measure_mappings) const
     {
         streets_desired_phase_plan::streets_desired_phase_plan dpp_result;
         if (!ddp_index_delay_measure_mappings.empty())
         {
-            int dpp_index = 0;
-            float max_delay_measure = ddp_index_delay_measure_mappings.begin()->first;
+            int dpp_index = ddp_index_delay_measure_mappings.begin()->first;
+            float max_delay_measure = ddp_index_delay_measure_mappings.begin()->second;
 
             // Find the largest delay_measure value, and return its desired phase plan index
-            for (const auto &dpp_dm_mapping : ddp_index_delay_measure_mappings)
+            for (const auto & [cur_dpp_index, delay_measure] : ddp_index_delay_measure_mappings)
             {
-                SPDLOG_DEBUG("Desired phase plan index = {0}, delay measure = {1}", dpp_dm_mapping.first, dpp_dm_mapping.second);
-                if (max_delay_measure < dpp_dm_mapping.second)
+                SPDLOG_INFO("Curent Desired phase plan index = {0}, delay measure = {1}", cur_dpp_index, delay_measure);
+                if (max_delay_measure < delay_measure)
                 {
-                    max_delay_measure = dpp_dm_mapping.second;
-                    dpp_index = dpp_dm_mapping.first;
+                    max_delay_measure = delay_measure;
+                    dpp_index = cur_dpp_index;
                 }
             }
             dpp_result = dpp_list.at(dpp_index);
