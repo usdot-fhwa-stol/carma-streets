@@ -64,7 +64,8 @@ namespace traffic_signal_controller_service
         event3.start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(11)).count();;
         event3.end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() + std::chrono::milliseconds(20)).count();
         event3.signal_groups = {7,8};
-        
+        desired_phase_plan.desired_phase_plan.push_back(event3);
+        auto desired_phase_plan_ptr_2 = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>(desired_phase_plan);
         // Define Worker
         std::unordered_map<int, int> signal_group_2ped_phase_map = {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}, {8,8}};
         traffic_signal_controller_service::control_tsc_state worker(shared_client, signal_group_2ped_phase_map);
@@ -73,6 +74,7 @@ namespace traffic_signal_controller_service
         // Test update queue
         std::queue<tsc_control_struct> control_commands_queue;
         EXPECT_NO_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr,control_commands_queue));
+        EXPECT_NO_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr_2,control_commands_queue));
 
         desired_phase_plan_ptr->desired_phase_plan.back().signal_groups = {1,6};
         EXPECT_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr,control_commands_queue), control_tsc_state_exception);
@@ -80,6 +82,9 @@ namespace traffic_signal_controller_service
         // Test tsc_control_struct
         tsc_control_struct test_control_obj(shared_client, event1.start_time,tsc_control_struct::control_type::Hold, 0);
         EXPECT_TRUE(test_control_obj.run());
+
+        tsc_control_struct test_control_obj_2(shared_client, event1.start_time,tsc_control_struct::control_type::Omit, 0);
+        EXPECT_TRUE(test_control_obj_2.run());
 
         // Test empty desired phase plan
         streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan_2;
