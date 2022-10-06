@@ -2,11 +2,13 @@
 
 namespace signal_phase_and_timing{
 
-    std::string spat::toJson() const {
+    std::string spat::toJson() {
         rapidjson::Document doc;
         auto allocator = doc.GetAllocator();
         // Create SPaT JSON value
         rapidjson::Value spat(rapidjson::kObjectType);
+        // Read lock
+        std::shared_lock lock(spat_lock);
         // Populate SPat JSON
         spat.AddMember("time_stamp", timestamp, allocator);
         spat.AddMember( "name", name, allocator);
@@ -36,7 +38,8 @@ namespace signal_phase_and_timing{
         if (doc.HasParseError()) {
             throw signal_phase_and_timing_exception("SPaT message JSON is misformatted. JSON parsing failed!");  
         }
-
+        // Write lock
+        std::unique_lock  lock(spat_lock);
         if ( doc.HasMember("time_stamp") && doc.FindMember("time_stamp")->value.IsUint64()) {
             timestamp =  (uint32_t) doc["time_stamp"].GetUint64(); // OPTIONAL in J2735 SPaT definition
         } 
@@ -64,6 +67,8 @@ namespace signal_phase_and_timing{
         if ( phase_to_signal_group.empty() || intersections.front().name.empty() || intersections.front().id == 0) {
             throw signal_phase_and_timing_exception("Before updating SPAT with NTCIP information spat::initialize() must be called! See README documentation!");
         }
+        // Write lock
+        std::unique_lock lock(spat_lock);
         if ( use_ntcip_timestamp ) {
             set_timestamp_ntcip( ntcip_data.get_timestamp_seconds_of_day(), ntcip_data.spat_timestamp_msec);
         } 
@@ -77,6 +82,8 @@ namespace signal_phase_and_timing{
     }
 
     void spat::initialize_intersection(const std::string &intersection_name, const int intersection_id, const std::unordered_map<int,int> &_phase_number_to_signal_group ) {
+        // Write lock
+        std::unique_lock lock(spat_lock);
         if (!intersections.empty()) {
             intersections.clear();
         }
@@ -122,6 +129,31 @@ namespace signal_phase_and_timing{
         else {
             throw signal_phase_and_timing_exception("Intersection State List is empty! Cannot populate status information!");
         }
+    }
+
+    intersection_state spat::get_intersection() {
+        std::shared_lock lock(spat_lock);
+        if (intersections.empty())
+            throw signal_phase_and_timing_exception("No intersection included currently in SPaT!"); 
+        return intersections.front();
+
+    }
+
+    std::string spat::get_name() {
+        std::shared_lock lock(spat_lock);
+        return name;
+    }
+
+    uint32_t spat::get_timestamp() {
+        std::shared_lock lock(spat_lock);
+        return timestamp;
+    }
+
+    void spat::set_intersection(const intersection_state &intersection) {
+        // Write lock
+        std::unique_lock lock(spat_lock);
+        intersections.clear();
+        intersections.push_front(intersection);
     }
 
     bool spat::operator==(const spat &other) const{

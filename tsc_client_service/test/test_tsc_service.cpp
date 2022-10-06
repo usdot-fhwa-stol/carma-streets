@@ -74,7 +74,6 @@ TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout) {
 
     service.tsc_config_state_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(state);
     service.produce_tsc_config_json();
-    EXPECT_EQ(service.tsc_config_producer_counter_, 10);
 }
 
 }
