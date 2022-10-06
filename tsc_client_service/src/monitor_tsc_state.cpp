@@ -238,7 +238,7 @@ namespace traffic_signal_controller_service
     }
 
     void tsc_state::map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, 
-                    std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, std::unordered_map<int, int>& signal_group_2vehiclephase_map)
+                    std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, std::unordered_map<int, int>& signal_group_2vehiclephase_map) const
     {
         // Loop through all ring sequences and remove vehicle phase entries in map
         for(auto it = vehicle_phase_2signalgroup_map.begin(); it != vehicle_phase_2signalgroup_map.end();){

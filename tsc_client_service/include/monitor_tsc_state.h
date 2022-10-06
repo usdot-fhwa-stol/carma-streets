@@ -103,7 +103,7 @@ namespace traffic_signal_controller_service
             std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1) const;
 
             void map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, 
-                                                                                            std::unordered_map<int, int>& signal_group_2vehiclephase_map);
+                                                                                            std::unordered_map<int, int>& signal_group_2vehiclephase_map) const;
 
             /** 
              * @brief Method for getting maximum channels for the traffic signal controller
