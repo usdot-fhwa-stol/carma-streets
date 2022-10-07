@@ -112,7 +112,7 @@ namespace streets_tsc_configuration
         rapidjson::Document doc;
         doc.Parse(json);
         if (doc.HasParseError()) {
-            throw tsc_configuration_state_exception("tsc configuration state message JSON is misformatted. JSON parsing failed!");  
+            throw tsc_configuration_state_exception("TSC Configuration State JSON is misformatted. JSON parsing failed!");  
         }
         
         if(doc.FindMember("tsc_config_list")->value.IsArray()){
@@ -122,6 +122,9 @@ namespace streets_tsc_configuration
                 config.fromJson(signal_group);
                 tsc_config_list.push_back(config);
             }
+        }
+        else {
+            throw tsc_configuration_state_exception("TSC Configuration State JSON is missing required tsc configuration information!");
         }
         
     }    

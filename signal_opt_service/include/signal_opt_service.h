@@ -3,15 +3,10 @@
 #include "signal_opt_messages_worker.h"
 #include "signal_opt_processing_worker.h"
 #include "streets_configuration.h"
+#include "movement_group.h"
 
 namespace signal_opt_service
 {
-    enum class CONSUME_MSG_TYPE
-    {
-        SPAT,
-        VEHICLE_STATUS_INTENT,
-    };
-
     class signal_opt_service
     {
     private:
@@ -22,10 +17,18 @@ namespace signal_opt_service
         std::string _spat_topic_name;
         std::string _vsi_group_id;
         std::string _vsi_topic_name;
+        std::string _tsc_config_group_id;
+        std::string _tsc_config_topic_name;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
         uint64_t _initial_green_buffer = 0;
         uint64_t _final_green_buffer = 0;
+        std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
+        std::shared_ptr<movement_groups> _movement_groups;
+        std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
+        std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+        std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
+        std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr;
 
     public:
         /**
@@ -43,14 +46,42 @@ namespace signal_opt_service
         /**
          * @brief Create threads and consume messages
          */
-        void start() const;
-
+        void start();
         /**
-         * @brief Consume the different types of kafka stream via kafka consumers
-         * @param msg_json The consumed kafka stream in JSON format
-         * @param consume_msg_type The type of message consumed by the kafka consumer
+         * @brief Method to consume SPaT JSON from kafka consumer and update spat pointer.
+         * 
+         * @param spat_consumer shared pointer to kafka consumer.
+         * @param _spat_ptr shared pointer to spat object.
          */
-        void consume_msg(std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer, CONSUME_MSG_TYPE consume_msg_type) const;
+        void consume_spat( const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer,
+                            const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr ) const;
+        /**
+         * @brief Method to consume vehicle status and intent JSON from kafka 
+         * consumer and vehicle list pointer.
+         * 
+         * @param vsi_consumer shared pointer to kafka consumer.
+         * @param _vehicle_list_ptr shared pointer to vehicle list object.
+         */
+        void consume_vsi(const std::shared_ptr<kafka_clients::kafka_consumer_worker> vsi_consumer,
+                            const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const;
+        /**
+         * @brief Method to consume a single TSC Configuration JSON message 
+         * from kafka and update the tsc configuration state pointer.
+         * 
+         * @param tsc_config_consumer shared pointer to kafka consumer.
+         * @param _tsc_config_ptr shared pointer to tsc configuration state pointer.
+         */
+        void consume_tsc_config(const std::shared_ptr<kafka_clients::kafka_consumer_worker> tsc_config_consumer, 
+                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr) const;
+        /**
+         * @brief Method to use the tsc_config_state pointer from the 
+         * signal_opt_message_worker to populate movement_groups pointer
+         * 
+         * @param movement_groups shared pointer to list of movement groups
+         * @param tsc_config shared pointer to tsc configuration state object.
+         */
+        void populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
+                                    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const ;
         /**
          * @brief Updating the intersection info.
          * @param sleep_millisecs The current thread sleep for milliseconds after each update attempt

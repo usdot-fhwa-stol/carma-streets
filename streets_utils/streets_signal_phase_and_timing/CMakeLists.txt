@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.10.2)
 project(streets_signal_phase_and_timing)
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
-
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)

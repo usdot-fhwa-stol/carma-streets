@@ -133,9 +133,9 @@ namespace traffic_signal_controller_service
             intersection_state_two.states.push_back(state_8);
             intersection_state_three.states.push_back(state_8);
 
-            spat_msg_ptr->intersections.push_back(intersection_state);
-            spat_msg_two_ptr->intersections.push_back(intersection_state_two);
-            spat_msg_three_ptr->intersections.push_back(intersection_state_three);
+            spat_msg_ptr->set_intersection(intersection_state);
+            spat_msg_two_ptr->set_intersection(intersection_state_two);
+            spat_msg_three_ptr->set_intersection(intersection_state_three);
 
             // mock tsc_state
             std::string dummy_ip = "192.168.10.10";
@@ -183,25 +183,24 @@ namespace traffic_signal_controller_service
         try {
             monitor_dpp_ptr->update_spat_future_movement_events(invalid_spat_msg_ptr, tsc_state_ptr);
         }
-        catch( const monitor_desired_phase_plan_exception &e ) {
-            ASSERT_STREQ(e.what(), "Intersections cannot be empty!");
+        catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
+            ASSERT_STREQ(e.what(), "No intersection included currently in SPaT!");
         }
-        ASSERT_TRUE(invalid_spat_msg_ptr->intersections.empty());
+        ASSERT_THROW(invalid_spat_msg_ptr->get_intersection(), signal_phase_and_timing::signal_phase_and_timing_exception);
         signal_phase_and_timing::intersection_state intersection;
-        invalid_spat_msg_ptr->intersections.push_back(intersection);
+        invalid_spat_msg_ptr->set_intersection(intersection);
         try {
             monitor_dpp_ptr->update_spat_future_movement_events(invalid_spat_msg_ptr, tsc_state_ptr);
         }
         catch( const monitor_desired_phase_plan_exception &e) {
             ASSERT_STREQ(e.what(), "Intersections states cannot be empty!");
         }
-        ASSERT_FALSE(invalid_spat_msg_ptr->intersections.empty());
-        ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
+        ASSERT_TRUE(invalid_spat_msg_ptr->get_intersection().states.empty());
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
 
@@ -217,9 +216,9 @@ namespace traffic_signal_controller_service
         catch (const monitor_desired_phase_plan_exception &e) {
             ASSERT_STREQ(e.what(), "Desired phase plan is empty. No update.");
         }
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
 
@@ -232,9 +231,9 @@ namespace traffic_signal_controller_service
         catch (const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
             ASSERT_STREQ(e.what(), "Desired phase plan signal group ids list is empty. No update.");
         }
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
 
@@ -247,7 +246,7 @@ namespace traffic_signal_controller_service
          * ***/
         // Add future movement events
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
             SPDLOG_DEBUG("\n");
@@ -423,7 +422,7 @@ namespace traffic_signal_controller_service
          * ***/
         // Add future movement events
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_two_ptr, tsc_state_ptr);
-        for (auto movement_state : spat_msg_two_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_two_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
             SPDLOG_DEBUG("\n");
@@ -606,7 +605,7 @@ namespace traffic_signal_controller_service
          * ***/
         // Add future movement events
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_three_ptr, tsc_state_ptr);
-        for (auto movement_state : spat_msg_three_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_three_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
             SPDLOG_DEBUG("\n");

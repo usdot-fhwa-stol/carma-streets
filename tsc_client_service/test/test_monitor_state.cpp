@@ -174,6 +174,8 @@ namespace traffic_signal_controller_service
         state_3.state_time_speed.push_back(event_3);
 
         intersection_state.states.push_back(state_3);
+        spat_msg_ptr->set_intersection(intersection_state);
+        SPDLOG_INFO("Setting Intersection state!");
 
         streets_service::streets_configuration::initialize_logger();
         std::string dummy_ip = "192.168.10.10";
@@ -207,12 +209,13 @@ namespace traffic_signal_controller_service
         phase_3_state.signal_group_id = 3;
         phase_3_state.phase_num = 3;
 
-        spat_msg_ptr->intersections.push_back(intersection_state);
         worker.add_future_movement_events(spat_msg_ptr);
+        SPDLOG_INFO( "Updating future movement events in SPAT");
+        auto new_intersection_state = spat_msg_ptr->get_intersection();
         
         // Check if movement events have been added
-        EXPECT_TRUE(spat_msg_ptr->intersections.front().states.front().state_time_speed.size() > 1);
-        for(auto it : spat_msg_ptr->intersections.front().states.front().state_time_speed){
+        EXPECT_TRUE(new_intersection_state.states.front().state_time_speed.size() > 1);
+        for(auto it : new_intersection_state.states.front().state_time_speed){
             
             if(it.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed)
                 EXPECT_EQ(it.timing.min_end_time - it.timing.start_time , phase_1_state.green_duration/100);
@@ -222,6 +225,8 @@ namespace traffic_signal_controller_service
             
             else if(it.event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain)
                 EXPECT_EQ(it.timing.min_end_time - it.timing.start_time, phase_1_state.red_duration/100);
+            else 
+                GTEST_FAIL();
         }       
 
         // Test exception 
@@ -233,7 +238,7 @@ namespace traffic_signal_controller_service
         intersection_state_2.states.push_back(state_4);
         
         auto spat_msg_ptr_2 = std::make_shared<signal_phase_and_timing::spat>();
-        spat_msg_ptr->intersections.push_back(intersection_state_2);
+        spat_msg_ptr->set_intersection(intersection_state_2);
         EXPECT_THROW(worker.add_future_movement_events(spat_msg_ptr),monitor_states_exception);
 
     }

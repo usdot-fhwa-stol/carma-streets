@@ -136,13 +136,54 @@ namespace kafka_clients
             const char* msg_consume(RdKafka::Message *message, void *opaque);
 
         public:
+            /**
+             * @brief Construct a new kafka consumer worker object
+             * 
+             * @param broker_str network adress of kafka broker.
+             * @param topic_str topic consumer should consume from.
+             * @param group_id consumer group id.
+             * @param cur_offset offset to start event consuming at. Defaults to 0.
+             * @param partition partition consumer should be assigned to.
+             */
             kafka_consumer_worker(const std::string &broker_str, const std::string &topic_str, const std::string & group_id, int64_t cur_offset = 0, int32_t partition = 0);
-            bool init();
-            const char* consume(int timeout_ms);
-            void subscribe();
-            void stop();
-            void printCurrConf();
-            bool is_running() const;
+            /**
+             * @brief Initialize kafka_consumer_worker
+             * 
+             * @return true if successful.
+             * @return false if unsuccessful.
+             */
+            virtual bool init();
+            /**
+             * @brief Consume from topic.
+             * 
+             * @param timeout_ms timeout in milliseconds to wait before failing.;
+             * @return const char* of payload consumed.
+             */
+            virtual const char* consume(int timeout_ms);
+            /**
+             * @brief Subscribe consumer to topic
+             */
+            virtual void subscribe();
+            /**
+             * @brief Stop running kafka consumer.
+             */
+            virtual void stop();
+            /**
+             * @brief Print current configurations.
+             */
+            virtual void printCurrConf();
+            /**
+             * @brief Is kafka_consumer_worker still running?
+             * 
+             * @return true if kafka consumer is still running.
+             * @return false if kafka consumer is stopped.
+             */
+            virtual bool is_running() const;
+            /**
+             * @brief Destroy the kafka consumer worker object
+             * 
+             */
+            virtual ~kafka_consumer_worker() = default;
     };
 }
 

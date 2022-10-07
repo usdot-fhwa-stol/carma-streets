@@ -143,7 +143,8 @@ namespace traffic_signal_controller_service
     {
         // Modify spat according to phase configuration
         // Note: Only first intersection is populated
-        for (auto movement : spat_ptr->intersections.front().states)
+        auto intersection_state = spat_ptr->get_intersection();
+        for (auto movement : intersection_state.states)
         {
             int signal_group_id = movement.signal_group;
 
@@ -156,7 +157,7 @@ namespace traffic_signal_controller_service
             }
 
             // Get movement_state by reference
-            auto& current_movement = spat_ptr->intersections.front().get_movement(signal_group_id);
+            auto& current_movement = intersection_state.get_movement(signal_group_id);
 
             // Get start time as epoch time
             uint64_t start_time = movement.state_time_speed.front().timing.get_epoch_start_time();
@@ -203,6 +204,7 @@ namespace traffic_signal_controller_service
             }
             
         }
+        spat_ptr->set_intersection(intersection_state);
         
     }
 

@@ -33,6 +33,12 @@
             "type": "STRING"
         },
         {
+            "name": "exp_delta",
+            "value": 60000,
+            "description": "Time(in milliseconds) without receiving status & intent updates after which a vehicle is removed from the vehicle list!",
+            "type": "INTEGER"
+        },
+        {
             "name": "sleep_millisecs",
             "value": 5000,
             "description": "Current thread sleep for milliseconds",
@@ -55,6 +61,16 @@
             "value": 2000,
             "description": "Additional buffer in milliseconds for the end of a green phase that allows additional safety on top of the yellow clearance and red clearance.",
             "type": "INTEGER"
+            "name": "tsc_config_consumer_topic",
+            "value": "tsc_config_state",
+            "description": "Kafka topic for CARMA Streets internal traffic signal controller phase configuration message.",
+            "type": "STRING"
+        },
+        {
+            "name": "tsc_config_group_id",
+            "value": "tsc_config_group",
+            "description": "Kafka consumer group for SO tsc_config_consumer.",
+            "type": "STRING"
         }
     ]
 }
