@@ -179,7 +179,7 @@ namespace signal_phase_and_timing{
         void append_full_green_yellow_red_phases_by_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                                                 const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, 
                                                                 const int desired_yellow_duration,
-                                                                const int desired_red_clearance);
+                                                                const int desired_red_clearance) const;
         /**
          * @brief Find the signal group id for the signal group in a pair (movement group) that will have the largest yellow change plus red clearance time 
          * interval. This is useful since the largest yellow change plus red clearance will control how long all red events during this time interval will last.

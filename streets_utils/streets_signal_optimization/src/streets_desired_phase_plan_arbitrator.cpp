@@ -71,7 +71,7 @@ namespace streets_signal_optimization
                                                                             uint64_t initial_green_buffer,
                                                                             uint64_t final_green_buffer) const
     {
-        auto scheduler_ptr = std::unique_ptr<streets_vehicle_scheduler::signalized_vehicle_scheduler>(new streets_vehicle_scheduler::signalized_vehicle_scheduler());
+        auto scheduler_ptr = std::make_unique<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
         scheduler_ptr->set_intersection_info(intersection_info_ptr);
         auto local_spat_ptr = std::make_shared<signal_phase_and_timing::spat>();     
         local_spat_ptr->set_intersection(local_spat.get_intersection());  
@@ -94,7 +94,8 @@ namespace streets_signal_optimization
         u_int64_t candidate_vehicles_delay = 0;
         for (const auto &veh_schedule : schedule_ptr->vehicle_schedules)
         {
-            if (veh_schedule.get_delay() < 0)
+            u_int64_t delay = veh_schedule.get_delay();
+            if (delay < 0)
             {
                 throw(streets_desired_phase_plan_arbitrator_exception("Vehicle schedule EET cannot be greater than ET."));
             }
@@ -116,11 +117,11 @@ namespace streets_signal_optimization
         float delay_measure = 0.0;
         if (TBD_delay > 0)
         {
-            delay_measure = candidate_vehicles_delay / TBD_delay;
+            delay_measure = (float)(candidate_vehicles_delay / TBD_delay);
         }
         else
         {
-            delay_measure = candidate_vehicles_delay;
+            delay_measure = (float)candidate_vehicles_delay;
         }
         SPDLOG_DEBUG("calculated delay_measure (= candidate/TBD) = {0}", delay_measure);
         return delay_measure;

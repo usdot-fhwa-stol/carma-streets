@@ -370,7 +370,7 @@ namespace signal_phase_and_timing{
     void spat::append_full_green_yellow_red_phases_by_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                                                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing, 
                                                                                         int desired_yellow_duration, 
-                                                                                        int desired_red_clearance) 
+                                                                                        int desired_red_clearance) const
     {
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;
         auto desired_green_end_time_epoch = desired_sg_green_timing.end_time;

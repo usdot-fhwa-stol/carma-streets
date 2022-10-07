@@ -248,6 +248,12 @@ namespace streets_signal_optimization
         uint64_t epoch_timestamp = epochMs.count();
 
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
+        // Initialize empty vehicle list
+        auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+        // Initialize buffer params
+        uint64_t initial_green_buffer = 1000;
+        uint64_t final_green_buffer = 1000;
+
         // Create mock desired phase plan list
         std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
         auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
@@ -258,12 +264,6 @@ namespace streets_signal_optimization
         desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
         dpp_list.push_back(*desired_phase_plan1_ptr);
         dpp_list.push_back(*desired_phase_plan2_ptr);
-        // Initialize empty vehicle list
-        auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
-
-        // Initialize buffer params
-        uint64_t initial_green_buffer = 1000;
-        uint64_t final_green_buffer = 1000;
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
@@ -274,11 +274,20 @@ namespace streets_signal_optimization
 
         try
         {
+            arbitrator->select_optimal_dpp(dpp_list, intersection_info, nullptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+        }
+        catch (const streets_desired_phase_plan_arbitrator_exception &e)
+        {
+            ASSERT_STREQ(e.what(), "The spat pointer is nullptr.");
+        }
+
+        try
+        {
             arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
         }
         catch (const streets_desired_phase_plan_arbitrator_exception &e)
         {
-            // ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty. Vehicles maybe outside of the radius.");
+            ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty. Vehicles maybe outside of the radius.");
         }
 
         // It should make a local copy and do not update the pass in spat message spat_msg_ptr
