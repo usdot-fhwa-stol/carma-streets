@@ -82,7 +82,7 @@ namespace streets_signal_optimization {
              * @param spat_object A most recent modified spat object before generating the desired phase plan list.
              * @throws If a movement state does not have any movement event in its state_time_speed list.
              */
-            void convert_spat_to_desired_phase_plan(const signal_phase_and_timing::spat &spat_object);
+            void convert_spat_to_desired_phase_plan(signal_phase_and_timing::spat &spat_object);
             
             /**
              * @brief Updates the base desired phase plan based on the received movement event and signal group. Note that the received
@@ -101,7 +101,7 @@ namespace streets_signal_optimization {
              * @param spat_object A most recent modified spat object before generating the desired phase plan list.
              * @throws If the last movement event of a signal group\movement event has a state different than stop_and_remain.
              */
-            void update_tbd_start_time(const signal_phase_and_timing::spat &spat_object);
+            void update_tbd_start_time(signal_phase_and_timing::spat &spat_object);
 
             /**
              * @brief Given an empty signalize_intersection_schedule shared pointer, a map of vehicles and vehicle ids, and a modified spat
@@ -116,7 +116,7 @@ namespace streets_signal_optimization {
              */
             void get_schedule_plan(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
                                     std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> &sched_ptr, 
-                                    const signal_phase_and_timing::spat &spat_object);
+                                    signal_phase_and_timing::spat &spat_object);
 
             /**
              * @brief Given a populated signalized_intersection_schedule, this method will return a list of signalized_vehicle_schedule
@@ -224,7 +224,7 @@ namespace streets_signal_optimization {
              * future movement groups in the modified spat is between 1 and the desired number of fixed future movement groups.
              * @return False, otherwise.
              */
-            bool verify_spat(const signal_phase_and_timing::spat &spat_object);
+            bool verify_spat(signal_phase_and_timing::spat &spat_object);
             
             /**
              * @brief Generate a list of desired phase plan. Each desired phase plan in the list includes the existing fixed future 
@@ -239,7 +239,7 @@ namespace streets_signal_optimization {
              */
             std::vector<streets_desired_phase_plan::streets_desired_phase_plan> generate_desire_phase_plan_list(
                                                     std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, 
-                                                    const signal_phase_and_timing::spat &spat_object, 
+                                                    signal_phase_and_timing::spat &spat_object, 
                                                     const streets_signal_optimization::movement_groups &move_groups);
             
             /** 

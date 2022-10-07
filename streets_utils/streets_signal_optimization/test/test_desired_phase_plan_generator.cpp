@@ -86,12 +86,12 @@ TEST(desired_phase_plan_generator, verify_spat) {
     ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.size(), 2);
     SPDLOG_INFO("The number of fixed future movement groups in the modified spat: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.size());
     
-    uint64_t _tbd_start = spat_object.intersections.front().states.front().state_time_speed.back().timing.get_epoch_min_end_time();
+    uint64_t _tbd_start = spat_object.get_intersection().states.front().state_time_speed.back().timing.get_epoch_min_end_time();
     ASSERT_EQ( generator.get_tbd_start(), _tbd_start);
     SPDLOG_INFO("TBD start time: {0}", generator.get_tbd_start());
     
-    uint64_t first_mg_start_time = spat_object.intersections.front().states.front().state_time_speed.front().timing.get_epoch_start_time();
-    uint64_t first_mg_end_time = spat_object.intersections.front().states.front().state_time_speed.front().timing.get_epoch_min_end_time();
+    uint64_t first_mg_start_time = spat_object.get_intersection().states.front().state_time_speed.front().timing.get_epoch_start_time();
+    uint64_t first_mg_end_time = spat_object.get_intersection().states.front().state_time_speed.front().timing.get_epoch_min_end_time();
     SPDLOG_INFO("First movement group in the base desired phase plan - start time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.front().start_time);
     ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.front().start_time, first_mg_start_time);
     SPDLOG_INFO("First movement group in the base desired phase plan - end time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.front().end_time);
@@ -216,7 +216,7 @@ TEST(desired_phase_plan_generator, generate_desired_phase_plan_list) {
     spat_timing.push_back(spat_timing_array);
     int d1_iterator = 0;
     int d2_iterator = 0;
-    for (auto &state : spat_object.intersections.front().states) {
+    for (auto &state : spat_object.get_intersection().states) {
         d2_iterator = 0;
         for (auto &state_timing : state.state_time_speed) {
             state_timing.timing.set_start_time(spat_timing[d1_iterator][d2_iterator].first);
