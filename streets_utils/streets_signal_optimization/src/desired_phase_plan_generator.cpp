@@ -2,7 +2,7 @@
 
 namespace streets_signal_optimization {
 
-    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_generator::generate_desire_phase_plan_list(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, const signal_phase_and_timing::spat &spat_object, const streets_signal_optimization::movement_groups &move_groups) {
+    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_generator::generate_desire_phase_plan_list(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, signal_phase_and_timing::spat &spat_object, const streets_signal_optimization::movement_groups &move_groups) {
 
         try { 
 
@@ -89,7 +89,7 @@ namespace streets_signal_optimization {
     }
 
 
-    bool desired_phase_plan_generator::verify_spat(const signal_phase_and_timing::spat &spat_object) {
+    bool desired_phase_plan_generator::verify_spat(signal_phase_and_timing::spat &spat_object) {
 
         convert_spat_to_desired_phase_plan(spat_object);
         
@@ -109,11 +109,11 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::convert_spat_to_desired_phase_plan(const signal_phase_and_timing::spat &spat_object) {
+    void desired_phase_plan_generator::convert_spat_to_desired_phase_plan(signal_phase_and_timing::spat &spat_object) {
         
         base_desired_phase_plan.desired_phase_plan.clear();
-        base_desired_phase_plan.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();      
-        for (const auto& ms : spat_object.intersections.front().states){
+        base_desired_phase_plan.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();    
+        for (const auto& ms : spat_object.get_intersection().states){
 
             if (ms.state_time_speed.empty()){
                 SPDLOG_WARN("signal group {0} has empty movement_state list in the received spat!", ms.signal_group);
@@ -169,9 +169,9 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::update_tbd_start_time(const signal_phase_and_timing::spat &spat_object) {
+    void desired_phase_plan_generator::update_tbd_start_time(signal_phase_and_timing::spat &spat_object) {
         tbd_start = 0;
-        for (const auto& move_state : spat_object.intersections.front().states) {
+        for (const auto& move_state : spat_object.get_intersection().states) {
             if (move_state.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain) {
                 SPDLOG_WARN("The last movement_event's state of signal group {0} is not stop_and_remain!", move_state.signal_group);
                 throw desired_phase_plan_generator_exception("The last movement_event's state of a signal group is not stop_and_remain!");
@@ -193,10 +193,13 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::get_schedule_plan(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> &sched_ptr, const signal_phase_and_timing::spat &spat_object) {
+    void desired_phase_plan_generator::get_schedule_plan(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles, std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> &sched_ptr, signal_phase_and_timing::spat &spat_object) {
         
         if (intersection_info_ptr) {
-            spat_ptr = std::make_shared<signal_phase_and_timing::spat>(spat_object);
+            
+            std::string spat_message = spat_object.toJson();
+            spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+            spat_ptr->fromJson(spat_message);
             
             /** configure the signalized_vehicle_scheduler pointer */
             scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
