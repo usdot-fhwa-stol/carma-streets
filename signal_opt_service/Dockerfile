@@ -84,6 +84,10 @@ RUN echo " ------> Install streets_tsc_configuration library from streets_utils.
 WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration
 RUN mkdir build
 WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration/build
+RUN echo " ------> Install streets_signal_optimization library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_signal_optimization
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_signal_optimization/build
 RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
