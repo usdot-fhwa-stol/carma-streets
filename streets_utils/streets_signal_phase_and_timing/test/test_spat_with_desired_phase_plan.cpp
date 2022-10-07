@@ -122,7 +122,7 @@ namespace signal_phase_and_timing
             intersection_state_three.states.push_back(state_5);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_5;
-            tsc_config_5.signal_group_id= 5;
+            tsc_config_5.signal_group_id = 5;
             tsc_config_5.red_clearance = 0;
             tsc_config_5.yellow_change_duration = 0;
             tsc_state->tsc_config_list.push_back(tsc_config_5);
@@ -180,9 +180,9 @@ namespace signal_phase_and_timing
             tsc_config_8.yellow_change_duration = 0;
             tsc_state->tsc_config_list.push_back(tsc_config_8);
 
-            spat_msg_ptr->intersections.push_back(intersection_state);
-            spat_msg_two_ptr->intersections.push_back(intersection_state_two);
-            spat_msg_three_ptr->intersections.push_back(intersection_state_three);
+            spat_msg_ptr->set_intersection(intersection_state);
+            spat_msg_two_ptr->set_intersection(intersection_state_two);
+            spat_msg_three_ptr->set_intersection(intersection_state_three);
         }
     };
 
@@ -192,17 +192,25 @@ namespace signal_phase_and_timing
         auto desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan_ptr->fromJson(streets_desired_phase_plan_str_1);
         auto invalid_spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
-        ASSERT_TRUE(invalid_spat_msg_ptr->intersections.empty());
+        try
+        {
+            invalid_spat_msg_ptr->get_intersection();
+        }
+        catch (signal_phase_and_timing_exception& e)
+        {
+            ASSERT_STREQ(e.what(), "No intersection included currently in SPaT!");
+        }
+
         signal_phase_and_timing::intersection_state intersection;
-        invalid_spat_msg_ptr->intersections.push_back(intersection);
+        invalid_spat_msg_ptr->set_intersection(intersection);
         invalid_spat_msg_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state);
-        ASSERT_FALSE(invalid_spat_msg_ptr->intersections.empty());
-        ASSERT_TRUE(invalid_spat_msg_ptr->intersections.front().states.empty());
+        ASSERT_NO_THROW(invalid_spat_msg_ptr->get_intersection());
+        ASSERT_TRUE(invalid_spat_msg_ptr->get_intersection().states.empty());
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
 
@@ -220,7 +228,7 @@ namespace signal_phase_and_timing
          * ***/
         // Add future movement events
         spat_msg_ptr->update_spat_with_candidate_dpp(*desired_phase_plan2_ptr, tsc_state);
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
             SPDLOG_DEBUG("\n");
@@ -396,7 +404,7 @@ namespace signal_phase_and_timing
          * ***/
         // Add future movement events
         spat_msg_two_ptr->update_spat_with_candidate_dpp(*desired_phase_plan2_ptr, tsc_state);
-        for (auto movement_state : spat_msg_two_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_two_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
             SPDLOG_DEBUG("\n");
@@ -580,7 +588,7 @@ namespace signal_phase_and_timing
         // Add future movement events
 
         spat_msg_three_ptr->update_spat_with_candidate_dpp(*desired_phase_plan2_ptr, tsc_state);
-        for (auto movement_state : spat_msg_three_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_three_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
             SPDLOG_DEBUG("\n");

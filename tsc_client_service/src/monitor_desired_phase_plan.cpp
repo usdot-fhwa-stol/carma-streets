@@ -32,15 +32,6 @@ namespace traffic_signal_controller_service
             throw monitor_desired_phase_plan_exception("Desired phase plan is empty. No update.");
         }
 
-        auto sg_yellow_duration_red_clearnace_map_ptr = std::make_shared<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>>();
-        for (const auto& [cur_sg_id, cur_sg_state] : tsc_state_ptr->get_signal_group_state_map())
-        {
-            streets_tsc_configuration::signal_group_configuration sg_state_item;
-            sg_state_item.yellow_change_duration = cur_sg_state.yellow_duration;
-            sg_state_item.red_clearance = cur_sg_state.red_clearance;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({cur_sg_id, sg_state_item});
-        }
-
-        spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, sg_yellow_duration_red_clearnace_map_ptr);
+        spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr);
     }
 }

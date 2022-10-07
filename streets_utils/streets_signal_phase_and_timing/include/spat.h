@@ -114,13 +114,6 @@ namespace signal_phase_and_timing{
              */
             void set_timestamp_ntcip(const uint32_t second_of_day , const uint16_t millisecond_of_second );
 
-        /**
-         * @brief Method to update the front entry in the intersections list of
-         * intersection_state(s) with the provided NTCIP SPaT data.
-         * 
-         * @param ntcip_data 
-         */
-        void update_intersection_state( ntcip::ntcip_1202_ext &ntcip_data );
          /**
          * @brief Update spat movement_event list with desired phase plan information.
          * 

@@ -25,9 +25,8 @@ namespace streets_signal_optimization
             for (const auto &candidate_dpp : dpp_list)
             {
                 // A copy of spat object into local variable, and update local spat with candidatedesired phase plan
-                auto local_spat = *spat_ptr;
-                // signal_phase_and_timing::spat local_spat;
-                // spat_ptr.set_intersections_info(spat-ptr->get_intersections_info())
+                signal_phase_and_timing::spat local_spat;
+                // local_spat.set_intersection(spat_ptr->get_intersection());
                 update_spat_with_candidate_dpp(local_spat, candidate_dpp, tsc_state);
 
                 // Given spat and vehicle list, estimate current vehicles' ET and EET from signalized intersection schedule
