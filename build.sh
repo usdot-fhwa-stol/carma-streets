@@ -83,9 +83,9 @@ make
 make install
 
 
-cd /home/carma-streets/streets_utils/streets_desired_phase_plan_arbitrator
+cd /home/carma-streets/streets_utils/streets_signal_optimization
 mkdir build
-cd /home/carma-streets/streets_utils/streets_desired_phase_plan_arbitrator/build
+cd /home/carma-streets/streets_utils/streets_signal_optimization/build
 cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 make
 make install
