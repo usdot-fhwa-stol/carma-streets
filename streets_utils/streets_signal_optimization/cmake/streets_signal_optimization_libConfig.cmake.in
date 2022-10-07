@@ -2,6 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 find_dependency(streets_desired_phase_plan_lib REQUIRED)
 find_dependency(streets_vehicle_list_lib REQUIRED)
@@ -11,6 +12,8 @@ find_dependency(streets_tsc_configuration_lib REQUIRED)
 find_dependency(spdlog REQUIRED)
 
 =======
+=======
+>>>>>>> Issue-226: so queue calculation implementation init
 find_dependency(spdlog REQUIRED)
 find_dependency(RapidJSON REQUIRED)
 find_dependency(GTest REQUIRED)
@@ -19,6 +22,9 @@ find_dependency(streets_vehicle_scheduler_lib REQUIRED)
 find_dependency(streets_signal_phase_and_timing_lib REQUIRED)
 find_dependency(streets_desired_phase_plan_lib REQUIRED)
 find_dependency(streets_tsc_configuration_lib REQUIRED)
+<<<<<<< HEAD
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
 >>>>>>> Issue-226: so queue calculation implementation init
 
 

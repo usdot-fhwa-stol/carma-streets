@@ -19,11 +19,14 @@ find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIR
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
 <<<<<<< HEAD
+<<<<<<< HEAD
 find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib COMPONENTS streets_vehicle_scheduler_lib REQUIRED)
 =======
 find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED )
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
 >>>>>>> Issue-226: so queue calculation implementation init
 find_package(streets_signal_optimization_lib COMPONENTS streets_signal_optimization_lib REQUIRED)
 
@@ -61,7 +64,11 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
 =======
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
+<<<<<<< HEAD
     streets_tsc_configuration_lib::streets_tsc_configuration_lib
+    streets_signal_optimization_lib::streets_signal_optimization_lib
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
     streets_signal_optimization_lib::streets_signal_optimization_lib
 >>>>>>> Issue-226: so queue calculation implementation init
     Qt5::Core
@@ -77,8 +84,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network)
 <<<<<<< HEAD
+<<<<<<< HEAD
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog rapidjson intersection_client_api_lib streets_service_base_lib streets_signal_phase_and_timing_lib
     streets_vehicle_list_lib)
+=======
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog rapidjson intersection_client_api_lib streets_service_base_lib::streets_service_base_lib 
+                                                    streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib streets_vehicle_list_lib::streets_vehicle_list_lib
+                                                    streets_signal_optimization_lib::streets_signal_optimization_lib)
+>>>>>>> Issue-226: so queue calculation implementation init
 =======
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog rapidjson intersection_client_api_lib streets_service_base_lib::streets_service_base_lib 
                                                     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib streets_vehicle_list_lib::streets_vehicle_list_lib
@@ -120,5 +133,8 @@ target_link_libraries(${BINARY} PUBLIC
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
     streets_signal_optimization_lib::streets_signal_optimization_lib
+<<<<<<< HEAD
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
 >>>>>>> Issue-226: so queue calculation implementation init
 )

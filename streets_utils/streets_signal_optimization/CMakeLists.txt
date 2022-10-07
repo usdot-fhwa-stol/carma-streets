@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_signal_optimization)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
+=======
+                    
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++17")
+>>>>>>> Issue-226: so queue calculation implementation init
 =======
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++17")
@@ -12,6 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++17")
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(spdlog REQUIRED)
+<<<<<<< HEAD
 <<<<<<< HEAD
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
@@ -50,6 +56,8 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 =======
+=======
+>>>>>>> Issue-226: so queue calculation implementation init
 find_package(RapidJSON REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
@@ -79,6 +87,9 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
 # Install streets_vehicle_scheduler package.
 ########################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+<<<<<<< HEAD
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
 >>>>>>> Issue-226: so queue calculation implementation init
 
 install(
@@ -90,7 +101,11 @@ install(
 )
 install(
 <<<<<<< HEAD
+<<<<<<< HEAD
     EXPORT ${PROJECT_NAME}_libTargets
+=======
+    EXPORT ${PROJECT_NAME}_libTargets 
+>>>>>>> Issue-226: so queue calculation implementation init
 =======
     EXPORT ${PROJECT_NAME}_libTargets 
 >>>>>>> Issue-226: so queue calculation implementation init
@@ -100,6 +115,7 @@ install(
 )
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
+<<<<<<< HEAD
 <<<<<<< HEAD
     cmake/${PROJECT_NAME}_libConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
@@ -136,6 +152,8 @@ target_link_libraries(${BINARY} PUBLIC
     streets_tsc_configuration_lib
 )
 =======
+=======
+>>>>>>> Issue-226: so queue calculation implementation init
     cmake/${PROJECT_NAME}_libConfig.cmake.in 
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
     INSTALL_DESTINATION  lib/${PROJECT_NAME}_lib/${PROJECT_NAME}_lib/ )
@@ -167,4 +185,7 @@ target_link_libraries(${BINARY} PUBLIC
                 gtest 
                 ${PROJECT_NAME}_lib
                 )
+<<<<<<< HEAD
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
 >>>>>>> Issue-226: so queue calculation implementation init

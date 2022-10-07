@@ -98,6 +98,7 @@ RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAG
 RUN make
 RUN make install
 
+<<<<<<< HEAD
 RUN echo " ------> Install streets_tsc_configuration library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration
 RUN mkdir build
@@ -106,6 +107,8 @@ RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAG
 RUN make
 RUN make install
 
+=======
+>>>>>>> Issue-226: so queue calculation implementation init
 RUN echo " ------> Install streets_signal_optimization library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_signal_optimization
 RUN mkdir build

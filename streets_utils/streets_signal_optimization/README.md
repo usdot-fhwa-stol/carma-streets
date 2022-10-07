@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Streets Desired phase plan arbitrator
 
 ## Introduction
@@ -9,6 +10,8 @@ The sample data for incoming list of candidate desire phase plan in JSON format 
 
 ```
 =======
+=======
+>>>>>>> Issue-226: so queue calculation implementation init
 # Streets Signal Optimization Library
 
 ## Introduction
@@ -22,6 +25,9 @@ In order to succussfully run the **desired_phase_plan_generator::generate_desire
 ```
 An example of the desired phase plan list:
 
+<<<<<<< HEAD
+>>>>>>> Issue-226: so queue calculation implementation init
+=======
 >>>>>>> Issue-226: so queue calculation implementation init
 {
   "desired_phase_plan_list": [
@@ -188,6 +194,7 @@ An example of the desired phase plan list:
   ]
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 ```
 - Signal group: A single movement or group of movements in an intersection that are controlled by a single phase. 
 ![image](https://user-images.githubusercontent.com/62157949/194932912-faca0739-7212-452c-a723-8f446f90ac00.png)
@@ -238,6 +245,9 @@ Returns:
 
 
 ```
+=======
+```
+>>>>>>> Issue-226: so queue calculation implementation init
 =======
 ```
 >>>>>>> Issue-226: so queue calculation implementation init
