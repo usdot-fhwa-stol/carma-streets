@@ -11,14 +11,14 @@ namespace signal_opt_service
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_ptr;
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_two_ptr;
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_three_ptr;
-        std::shared_ptr<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>> sg_yellow_duration_red_clearnace_map_ptr;
+        std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state;
         uint16_t current_hour_in_tenths_secs;
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info;
 
     protected:
         void SetUp() override
         {
-            sg_yellow_duration_red_clearnace_map_ptr = std::make_shared<std::unordered_map<int, streets_tsc_configuration::signal_group_configuration>>();
+            tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
             std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
             std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
             uint64_t epoch_timestamp = epochMs.count();
@@ -55,10 +55,10 @@ namespace signal_opt_service
             intersection_state_three.states.push_back(state_1);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_1;
-            int signal_group_1 = 1;
+            tsc_config_1.signal_group_id = 1;
             tsc_config_1.red_clearance = 0;
             tsc_config_1.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_1, tsc_config_1});
+            tsc_state->tsc_config_list.push_back(tsc_config_1);
 
             signal_phase_and_timing::movement_state state_2;
             state_2.signal_group = 2;
@@ -74,10 +74,10 @@ namespace signal_opt_service
             intersection_state_two.states.push_back(state_2);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_2;
-            int signal_group_2 = 2;
+            tsc_config_2.signal_group_id = 2;
             tsc_config_2.red_clearance = 0;
             tsc_config_2.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_2, tsc_config_2});
+            tsc_state->tsc_config_list.push_back(tsc_config_2);
 
             signal_phase_and_timing::movement_state state_3;
             state_3.signal_group = 3;
@@ -91,10 +91,10 @@ namespace signal_opt_service
             intersection_state_three.states.push_back(state_3);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_3;
-            int signal_group_3 = 3;
+            tsc_config_3.signal_group_id = 3;
             tsc_config_3.red_clearance = 0;
             tsc_config_3.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_3, tsc_config_3});
+            tsc_state->tsc_config_list.push_back(tsc_config_3);
 
             signal_phase_and_timing::movement_state state_4;
             state_4.signal_group = 4;
@@ -108,10 +108,10 @@ namespace signal_opt_service
             intersection_state_three.states.push_back(state_4);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_4;
-            int signal_group_4 = 4;
+            tsc_config_4.signal_group_id = 4;
             tsc_config_4.red_clearance = 0;
             tsc_config_4.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_4, tsc_config_4});
+            tsc_state->tsc_config_list.push_back(tsc_config_4);
 
             signal_phase_and_timing::movement_state state_5;
             state_5.signal_group = 5;
@@ -127,10 +127,10 @@ namespace signal_opt_service
             intersection_state_three.states.push_back(state_5);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_5;
-            int signal_group_5 = 5;
+            tsc_config_5.signal_group_id = 5;
             tsc_config_5.red_clearance = 0;
             tsc_config_5.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_5, tsc_config_5});
+            tsc_state->tsc_config_list.push_back(tsc_config_5);
 
             signal_phase_and_timing::movement_state state_6;
             state_6.signal_group = 6;
@@ -146,10 +146,10 @@ namespace signal_opt_service
             intersection_state_two.states.push_back(state_6);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_6;
-            int signal_group_6 = 6;
+            tsc_config_6.signal_group_id = 6;
             tsc_config_6.red_clearance = 0;
             tsc_config_6.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_6, tsc_config_6});
+            tsc_state->tsc_config_list.push_back(tsc_config_6);
 
             signal_phase_and_timing::movement_state state_7;
             state_7.signal_group = 7;
@@ -163,10 +163,10 @@ namespace signal_opt_service
             intersection_state_three.states.push_back(state_7);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_7;
-            int signal_group_7 = 7;
+            tsc_config_7.signal_group_id = 7;
             tsc_config_7.red_clearance = 0;
             tsc_config_7.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_7, tsc_config_7});
+            tsc_state->tsc_config_list.push_back(tsc_config_7);
 
             signal_phase_and_timing::movement_state state_8;
             state_8.signal_group = 8;
@@ -180,14 +180,14 @@ namespace signal_opt_service
             intersection_state_three.states.push_back(state_8);
 
             streets_tsc_configuration::signal_group_configuration tsc_config_8;
-            int signal_group_8 = 8;
+            tsc_config_8.signal_group_id = 8;
             tsc_config_8.red_clearance = 0;
             tsc_config_8.yellow_change_duration = 0;
-            sg_yellow_duration_red_clearnace_map_ptr->insert({signal_group_8, tsc_config_8});
+            tsc_state->tsc_config_list.push_back(tsc_config_8);
 
-            spat_msg_ptr->intersections.push_back(intersection_state);
-            spat_msg_two_ptr->intersections.push_back(intersection_state_two);
-            spat_msg_three_ptr->intersections.push_back(intersection_state_three);
+            spat_msg_ptr->set_intersection(intersection_state);
+            spat_msg_two_ptr->set_intersection(intersection_state_two);
+            spat_msg_three_ptr->set_intersection(intersection_state_three);
         }
 
         /**
@@ -261,15 +261,15 @@ namespace signal_opt_service
         uint64_t final_green_buffer = 1000;
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
 
         try
         {
-            so_processing_worker->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, sg_yellow_duration_red_clearnace_map_ptr, veh_list_ptr, initial_green_buffer, final_green_buffer);
+            so_processing_worker->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
         }
         catch (const streets_signal_optimization::streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -277,9 +277,9 @@ namespace signal_opt_service
         }
 
         // It should make a local copy and do not update the pass in spat message spat_msg_ptr
-        for (auto movement_state : spat_msg_ptr->intersections.front().states)
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->intersections.front().states.size());
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
     }

@@ -65,7 +65,7 @@ namespace streets_signal_optimization
     }
 
     void streets_desired_phase_plan_arbitrator::calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
-                                                                            const signal_phase_and_timing::spat &local_spat,
+                                                                            signal_phase_and_timing::spat &local_spat,
                                                                             const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
                                                                             const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
                                                                             uint64_t initial_green_buffer,
@@ -73,8 +73,9 @@ namespace streets_signal_optimization
     {
         auto scheduler_ptr = std::unique_ptr<streets_vehicle_scheduler::signalized_vehicle_scheduler>(new streets_vehicle_scheduler::signalized_vehicle_scheduler());
         scheduler_ptr->set_intersection_info(intersection_info_ptr);
-        // auto local_spat_ptr = std::make_shared<signal_phase_and_timing::spat>(local_spat);
-        // scheduler_ptr->set_spat(local_spat_ptr);
+        auto local_spat_ptr = std::make_shared<signal_phase_and_timing::spat>();     
+        local_spat_ptr->set_intersection(local_spat.get_intersection());  
+        scheduler_ptr->set_spat(local_spat_ptr);
         scheduler_ptr->set_initial_green_buffer(initial_green_buffer);
         scheduler_ptr->set_final_green_buffer(final_green_buffer);
         auto vehicles = veh_list_ptr->get_vehicles();

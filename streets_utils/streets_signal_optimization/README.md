@@ -1,9 +1,11 @@
 # Streets Desired phase plan arbitrator
 
 ## Introduction
+
 The desired phase plan arbitrator include a series of steps to choose the optimzied desired phase plan from a list of orignal candidate desired phase plan.
 
 The sample data for incoming list of candidate desire phase plan in JSON format is below:
+
 ```
 {
   "desired_phase_plan_list": [
@@ -176,3 +178,18 @@ The sample data for incoming list of candidate desire phase plan in JSON format 
   - Step 3: Given the SPAT and list of vehicles near the intersection, calculating estimated entering time (ET) and get vehicles' schedule
   - Step 4: Given vehicle schedule, calculating delay measure. Keep track of each candidate desired phase plan and delay measure mapping
 - Step 5: Find the highest delay measure, its mapping candidate desired phase plan is the chosen desired phase plan.
+
+## Use of desired phase plan arbitrator lib
+
+```
+std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list;
+std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
+std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state;
+const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr;
+uint64_t initial_green_buffer;
+uint64_t final_green_buffer;
+
+streets_signal_optimization::streets_desired_phase_plan_arbitrator arbitrator;
+arbitrator.select_optimal_dpp(dpp_list, intersection_info_ptr, spat_ptr, tsc_config_state, veh_list_ptr, initial_green_buffer, inal_green_buffer)
+```

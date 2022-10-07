@@ -884,52 +884,52 @@ namespace streets_signal_optimization
          * ***/
     }
 
-//     TEST_F(test_streets_desired_phase_plan_arbitrator, calculate_vehicle_schedules)
-//     {
-//         auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
-//         auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
-//         // Initialize vehicle list
-//         auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
-//         // Initialize buffer params
-//         uint64_t initial_green_buffer = 2000;
-//         uint64_t final_green_buffer = 2000;
-//         try
-//         {
-//             arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
-//         }
-//         catch (const streets_desired_phase_plan_arbitrator_exception &e)
-//         {
-//             ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty.");
-//         }
-//         // Schedule should be empty is thre is no vehicle.
-//         ASSERT_EQ(schedule_ptr->vehicle_schedules.size(), 0);
+    TEST_F(test_streets_desired_phase_plan_arbitrator, calculate_vehicle_schedules)
+    {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
+        auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
+        // Initialize vehicle list
+        auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+        // Initialize buffer params
+        uint64_t initial_green_buffer = 2000;
+        uint64_t final_green_buffer = 2000;
+        try
+        {
+            arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
+        }
+        catch (const streets_desired_phase_plan_arbitrator_exception &e)
+        {
+            ASSERT_STREQ(e.what(), "Vehicle schedule cannot be empty.");
+        }
+        // Schedule should be empty is thre is no vehicle.
+        ASSERT_EQ(schedule_ptr->vehicle_schedules.size(), 0);
 
-//         // Load Vehicle Update
-//         std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
+        // Load Vehicle Update
+        std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
 
-//         // Update vehicle list
-//         streets_vehicles::vehicle veh;
+        // Update vehicle list
+        streets_vehicles::vehicle veh;
 
-//         // Set signalized_status_intent_processor processor for vehicle ist
-//         veh_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
-//         auto processor = std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(veh_list_ptr->get_processor());
-//         processor->set_stopping_distance(1.0);
-//         processor->set_stopping_speed(0.1);
-//         veh_list_ptr->get_processor()->set_timeout(3.154e11);
+        // Set signalized_status_intent_processor processor for vehicle ist
+        veh_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+        auto processor = std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(veh_list_ptr->get_processor());
+        processor->set_stopping_distance(1.0);
+        processor->set_stopping_speed(0.1);
+        veh_list_ptr->get_processor()->set_timeout(3.154e11);
 
-//         // Print timeout in days.
-//         SPDLOG_DEBUG("Set timeout to {0} days !", veh_list_ptr->get_processor()->get_timeout() / (1000 * 60 * 60 * 24));
-//         for (auto &update : updates)
-//         {
-//             SPDLOG_DEBUG("Processing Update {0} ", update);
-//             veh_list_ptr->process_update(update);
-//         }
-//         SPDLOG_DEBUG("Processed all updates!");
-//         ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
-//         arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
-//         // Schedule should updated as there is vehicle.
-//         // ASSERT_EQ(2, schedule_ptr->vehicle_schedules.size());
-//     }
+        // Print timeout in days.
+        SPDLOG_DEBUG("Set timeout to {0} days !", veh_list_ptr->get_processor()->get_timeout() / (1000 * 60 * 60 * 24));
+        for (auto &update : updates)
+        {
+            SPDLOG_DEBUG("Processing Update {0} ", update);
+            veh_list_ptr->process_update(update);
+        }
+        SPDLOG_DEBUG("Processed all updates!");
+        ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
+        arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
+        // Schedule should updated as there is vehicle.
+        // ASSERT_EQ(2, schedule_ptr->vehicle_schedules.size());
+    }
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, calculate_delay_measure)
     {

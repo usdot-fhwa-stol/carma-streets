@@ -58,7 +58,7 @@ namespace streets_signal_optimization
          * @param final_green_buffer A configuration parameter for green phase.
          */
         void calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
-                                         const signal_phase_and_timing::spat &local_spat,
+                                         signal_phase_and_timing::spat &local_spat,
                                          const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
                                          const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
                                          uint64_t initial_green_buffer,
