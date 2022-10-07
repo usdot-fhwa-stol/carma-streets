@@ -50,7 +50,7 @@ namespace streets_vehicle_scheduler {
         rapidjson::Value toJson(rapidjson::Document::AllocatorType& allocator) const override;
 
         /**
-         * @brief Calculate signalized_vehicle_schedule  delay. This is the result of ST-ET for each vehicle schedule.
+         * @brief Calculate signalized_vehicle_schedule  delay. This is the result of EET-ET for each vehicle schedule.
          * @return u_int64_t 
          */
         u_int64_t get_delay() const;

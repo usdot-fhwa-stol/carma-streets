@@ -24,6 +24,7 @@ namespace signal_opt_service
 
         /**
          * @brief Call streets_signal_optimization library to choose the optimized desired phase plan.
+         * Update the _selected_final_dpp variable with the chosen desired phase plan
          *
          * @param dpp_list List of candidate  desired phase plan.
          * @param intersection_info_ptr The current intersection model intersection information
@@ -32,7 +33,6 @@ namespace signal_opt_service
          * @param veh_list_ptr The list of vehicles within the intersection communication radius.
          * @param initial_green_buffer A configuration parameter for green phase
          * @param final_green_buffer A configuration parameter for green phase
-         * @return ** streets_desired_phase_plan::streets_desired_phase_plan The final desired phase plan
          */
         void select_optimal_dpp(
         const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
