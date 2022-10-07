@@ -85,6 +85,7 @@ target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC
     spdlog::spdlog
     gtest
+    rapidjson
     ${PROJECT_NAME}_lib
     streets_desired_phase_plan_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib

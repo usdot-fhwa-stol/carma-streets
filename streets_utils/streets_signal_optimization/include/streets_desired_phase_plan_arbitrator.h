@@ -22,11 +22,10 @@ namespace streets_signal_optimization
          * @param dpp_list List of candidate  desired phase plan.
          * @param intersection_info_ptr The current intersection model intersection information
          * @param spat_ptr The spat pointer that points to the latest spat information received from the Kafka stream.
-         * @param sg_yellow_duration_red_clearnace_map_ptr The Map of signal group and yellow change and red clearance duration values
+         * @param tsc_state The Map of signal group and yellow change and red clearance duration values
          * @param veh_list The list of vehicles within the intersection communication radius.
          * @param initial_green_buffer A configuration parameter for green phase
          * @param final_green_buffer A configuration parameter for green phase
-         * @return ** streets_desired_phase_plan::streets_desired_phase_plan The final desired phase plan
          */
         streets_desired_phase_plan::streets_desired_phase_plan select_optimal_dpp(
             const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
@@ -42,7 +41,7 @@ namespace streets_signal_optimization
          *
          * @param local_spat A local copy of spat object.
          * @param candidate_dpp The current candidate  desired phase plan.
-         * @param sg_yellow_duration_red_clearnace_map_ptr  The Map of signal group and yellow change and red clearance duration values.
+         * @param tsc_state  The Map of signal group and yellow change and red clearance duration values.
          */
         void update_spat_with_candidate_dpp(signal_phase_and_timing::spat &local_spat,
                                             const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
