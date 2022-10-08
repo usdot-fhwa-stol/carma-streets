@@ -137,7 +137,7 @@ namespace signal_phase_and_timing{
         void process_first_desired_green(movement_state &cur_movement_state_ref, 
                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
                                         const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state
-                                        );
+                                        ) const;
         /**
          * @brief Process all desired green signal group and duration in desired phase plan that are not the first entry.
          * Populate movement_event list of current movement_state with movement_events for all entries after first entry
@@ -153,7 +153,7 @@ namespace signal_phase_and_timing{
         void process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                                 const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
                                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state
-                                                ) ;
+                                                ) const;
         /**
          * @brief Populate movement_event with movement_phase_state, start_time and end_time(min_end_time).
          * 

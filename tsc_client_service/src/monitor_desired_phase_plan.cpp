@@ -37,9 +37,9 @@ namespace traffic_signal_controller_service
         for (const auto &[sg_id, signal_group_state] : tsc_state_ptr->get_signal_group_state_map())
         {
             streets_tsc_configuration::signal_group_configuration sg_config;
-            sg_config.signal_group_id = sg_id;
-            sg_config.red_clearance = signal_group_state.red_clearance;
-            sg_config.yellow_change_duration = signal_group_state.yellow_duration;
+            sg_config.signal_group_id = (uint8_t)sg_id;
+            sg_config.red_clearance = (uint16_t)signal_group_state.red_clearance;
+            sg_config.yellow_change_duration = (uint16_t)signal_group_state.yellow_duration;
             tsc_state_config_ptr->tsc_config_list.push_back(sg_config);
         }
         spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_config_ptr);

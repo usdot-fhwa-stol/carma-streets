@@ -99,7 +99,7 @@ namespace streets_signal_optimization
         u_int64_t candidate_vehicles_delay = 0;
         for (const auto &veh_schedule : schedule_ptr->vehicle_schedules)
         {
-            u_int64_t delay = veh_schedule.get_delay();
+            int delay = veh_schedule.get_delay();
             if (delay < 0)
             {
                 throw(streets_desired_phase_plan_arbitrator_exception("Vehicle schedule EET cannot be greater than ET."));

@@ -51,9 +51,9 @@ namespace streets_vehicle_scheduler {
 
         /**
          * @brief Calculate signalized_vehicle_schedule  delay. This is the result of EET-ET for each vehicle schedule.
-         * @return u_int64_t 
+         * @return int 
          */
-        u_int64_t get_delay() const;
+        int get_delay() const;
     };
 
     

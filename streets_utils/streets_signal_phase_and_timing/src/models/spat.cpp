@@ -175,7 +175,7 @@ namespace signal_phase_and_timing{
 
     void spat::process_first_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
-                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) 
+                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const
     {
         auto desired_green_signal_group_ids = desired_sg_green_timing.signal_groups;
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;
@@ -296,7 +296,7 @@ namespace signal_phase_and_timing{
     void spat::process_second_onward_desired_green(signal_phase_and_timing::movement_state &cur_movement_state_ref, 
                                                                         const streets_desired_phase_plan::signal_group2green_phase_timing &desired_sg_green_timing,
                                                                         const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state
-                                                                        ) 
+                                                                        ) const
     {
         auto desired_green_signal_group_ids = desired_sg_green_timing.signal_groups;
         auto desired_green_start_time_epoch = desired_sg_green_timing.start_time;

@@ -67,7 +67,7 @@ namespace streets_tsc_configuration
     }
 
     
-    signal_group_configuration tsc_configuration_state::get_signal_group_configuration_by_sg(int signal_group_id)
+    signal_group_configuration tsc_configuration_state::get_signal_group_configuration_by_sg(int signal_group_id) const
     {
         signal_group_configuration result_sg_config;
         for(const auto &sg_config: tsc_config_list)

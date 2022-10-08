@@ -63,7 +63,7 @@ namespace streets_vehicle_scheduler {
         return vehicle_sched;
     }
 
-    u_int64_t signalized_vehicle_schedule::get_delay() const{
-        return et-eet;
+    int signalized_vehicle_schedule::get_delay() const{
+        return et - eet;
     }
 }
