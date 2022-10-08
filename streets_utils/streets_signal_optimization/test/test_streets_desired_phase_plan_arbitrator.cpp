@@ -37,6 +37,14 @@ namespace streets_signal_optimization
             auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
             current_hour_in_tenths_secs = (epoch_timestamp - hours_since_epoch * 3600 * 1000) / 100;
 
+            std::string json_info = "{\"departure_lanelets\":[{ \"id\":162, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":164, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":168, \"length\":34.130869420842046, \"speed_limit\":11.176 } ], \"entry_lanelets\":[ { \"id\":167, \"length\":195.73023157287864, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [155, 169] }, { \"id\":171, \"length\":34.130869411176431136, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [160, 161] }, { \"id\":163, \"length\":41.60952435603712, \"speed_limit\":11.176 , \"connecting_lanelet_ids\": [156, 165]} ], \"id\":9001, \"link_lanelets\":[{ \"conflict_lanelet_ids\":[ 161 ], \"id\":169, \"length\":15.85409574709938, \"speed_limit\":11.176, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 165, 156, 161 ], \"id\":155, \"length\":16.796388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 155, 161, 160 ], \"id\":165, \"length\":15.853947840111768943, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 155 ], \"id\":156, \"length\":9.744590320260139, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 169, 155, 165 ], \"id\":161, \"length\":16.043077028554038, \"speed_limit\":11.176, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 165 ], \"id\":160, \"length\":10.295559117055083, \"speed_limit\":11.176, \"signal_group_id\":2 } ], \"name\":\"WestIntersection\"}";
+            intersection_info = std::make_shared<OpenAPI::OAIIntersection_info>();
+            intersection_info->fromJson(QString::fromStdString(json_info));
+            SPDLOG_DEBUG("Intersection information consists of {0} entry lanes {1} linking lanes and {2} departure lanes.",
+                         intersection_info->getEntryLanelets().size(),
+                         intersection_info->getLinkLanelets().size(),
+                         intersection_info->getDepartureLanelets().size());
+
             // Create mock spat
             spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
             spat_msg_two_ptr = std::make_shared<signal_phase_and_timing::spat>();
@@ -228,6 +236,10 @@ namespace streets_signal_optimization
                 {
                     if (update.IsObject())
                     {
+                        auto unix_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        auto itr = update.FindMember("metadata")->value.FindMember("timestamp");
+                        unix_timestamp -= 10;
+                        itr->value.SetInt64(unix_timestamp);
                         buffer.Clear();
                         writer.Reset(buffer);
                         update.Accept(writer);
@@ -250,6 +262,15 @@ namespace streets_signal_optimization
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
         // Initialize empty vehicle list
         auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+
+        // Set signalized_status_intent_processor processor for vehicle ist
+        veh_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+        auto processor = std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(veh_list_ptr->get_processor());
+        processor->set_stopping_distance(1.0);
+        processor->set_stopping_speed(0.1);
+        veh_list_ptr->get_processor()->set_timeout(3.154e11);
+        ASSERT_EQ(0, veh_list_ptr->get_vehicles().size());
+
         // Initialize buffer params
         uint64_t initial_green_buffer = 1000;
         uint64_t final_green_buffer = 1000;
@@ -296,6 +317,19 @@ namespace streets_signal_optimization
             ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
+
+        // Load Vehicle Update
+        std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
+
+        // Print timeout in days.
+        SPDLOG_DEBUG("Set timeout to {0} days !", veh_list_ptr->get_processor()->get_timeout() / (1000 * 60 * 60 * 24));
+        for (auto &update : updates)
+        {
+            veh_list_ptr->process_update(update);
+        }
+        ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
+        auto dpp = arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+        ASSERT_TRUE(dpp.desired_phase_plan.size() == 3);
     }
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, update_spat_with_candidate_dpp)
@@ -316,7 +350,7 @@ namespace streets_signal_optimization
         signal_phase_and_timing::intersection_state intersection;
         invalid_spat_msg_ptr->set_intersection(intersection);
         ASSERT_TRUE(invalid_spat_msg_ptr->get_intersection().states.empty());
-        arbitrator->update_spat_with_candidate_dpp(*invalid_spat_msg_ptr, *desired_phase_plan_ptr, tsc_state);
+        arbitrator->update_spat_with_candidate_dpp(invalid_spat_msg_ptr, *desired_phase_plan_ptr, tsc_state);
         try
         {
             invalid_spat_msg_ptr->get_intersection();
@@ -347,7 +381,7 @@ namespace streets_signal_optimization
          * START: Test Scenario one:  There are two green phases [1,5] in the current SPAT movement event.
          * ***/
         // Add future movement events
-        arbitrator->update_spat_with_candidate_dpp(*spat_msg_ptr, *desired_phase_plan2_ptr, tsc_state);
+        arbitrator->update_spat_with_candidate_dpp(spat_msg_ptr, *desired_phase_plan2_ptr, tsc_state);
 
         // SPAT movement events should be updated with candidate desired phase plan
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
@@ -530,7 +564,7 @@ namespace streets_signal_optimization
          * START: Test Scenario two: There are two Yellow phases [1,5] in the current SPAT movement event
          * ***/
         // Add future movement events
-        arbitrator->update_spat_with_candidate_dpp(*spat_msg_two_ptr, *desired_phase_plan2_ptr, tsc_state);
+        arbitrator->update_spat_with_candidate_dpp(spat_msg_two_ptr, *desired_phase_plan2_ptr, tsc_state);
         for (auto movement_state : spat_msg_two_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -714,7 +748,7 @@ namespace streets_signal_optimization
          * ***/
         // Add future movement events
 
-        arbitrator->update_spat_with_candidate_dpp(*spat_msg_three_ptr, *desired_phase_plan2_ptr, tsc_state);
+        arbitrator->update_spat_with_candidate_dpp(spat_msg_three_ptr, *desired_phase_plan2_ptr, tsc_state);
         for (auto movement_state : spat_msg_three_ptr->get_intersection().states)
         {
             int sg = (int)movement_state.signal_group;
@@ -899,12 +933,20 @@ namespace streets_signal_optimization
         auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
         // Initialize vehicle list
         auto veh_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
+
+        // Set signalized_status_intent_processor processor for vehicle ist
+        veh_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
+        auto processor = std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(veh_list_ptr->get_processor());
+        processor->set_stopping_distance(1.0);
+        processor->set_stopping_speed(0.1);
+        veh_list_ptr->get_processor()->set_timeout(3.154e11);
+
         // Initialize buffer params
         uint64_t initial_green_buffer = 2000;
         uint64_t final_green_buffer = 2000;
         try
         {
-            arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
+            arbitrator->calculate_vehicle_schedules(schedule_ptr, spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
         }
         catch (const streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -916,28 +958,16 @@ namespace streets_signal_optimization
         // Load Vehicle Update
         std::vector<std::string> updates = load_vehicle_update("../test/test_data/updates_signalized.json");
 
-        // Update vehicle list
-        streets_vehicles::vehicle veh;
-
-        // Set signalized_status_intent_processor processor for vehicle ist
-        veh_list_ptr->set_processor(std::make_shared<streets_vehicles::signalized_status_intent_processor>());
-        auto processor = std::dynamic_pointer_cast<streets_vehicles::signalized_status_intent_processor>(veh_list_ptr->get_processor());
-        processor->set_stopping_distance(1.0);
-        processor->set_stopping_speed(0.1);
-        veh_list_ptr->get_processor()->set_timeout(3.154e11);
-
         // Print timeout in days.
         SPDLOG_DEBUG("Set timeout to {0} days !", veh_list_ptr->get_processor()->get_timeout() / (1000 * 60 * 60 * 24));
         for (auto &update : updates)
         {
-            SPDLOG_DEBUG("Processing Update {0} ", update);
             veh_list_ptr->process_update(update);
         }
-        SPDLOG_DEBUG("Processed all updates!");
         ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
-        arbitrator->calculate_vehicle_schedules(schedule_ptr, *spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
+        arbitrator->calculate_vehicle_schedules(schedule_ptr, spat_msg_ptr, veh_list_ptr, intersection_info, initial_green_buffer, final_green_buffer);
         // Schedule should updated as there is vehicle.
-        // ASSERT_EQ(2, schedule_ptr->vehicle_schedules.size());
+        ASSERT_EQ(2, schedule_ptr->vehicle_schedules.size());
     }
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, calculate_delay_measure)

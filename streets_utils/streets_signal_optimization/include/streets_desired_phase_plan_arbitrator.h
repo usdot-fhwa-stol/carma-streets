@@ -43,7 +43,7 @@ namespace streets_signal_optimization
          * @param candidate_dpp The current candidate  desired phase plan.
          * @param tsc_state  The Map of signal group and yellow change and red clearance duration values.
          */
-        void update_spat_with_candidate_dpp(signal_phase_and_timing::spat &local_spat,
+        void update_spat_with_candidate_dpp(std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
                                             const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
                                             const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const;
 
@@ -58,7 +58,7 @@ namespace streets_signal_optimization
          * @param final_green_buffer A configuration parameter for green phase.
          */
         void calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
-                                         signal_phase_and_timing::spat &local_spat,
+                                         std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
                                          const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
                                          const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
                                          uint64_t initial_green_buffer,

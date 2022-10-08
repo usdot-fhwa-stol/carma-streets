@@ -14,7 +14,6 @@ find_package(Qt5Network REQUIRED)
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
-find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
 

@@ -20,19 +20,25 @@ namespace streets_signal_optimization
                 throw(streets_desired_phase_plan_arbitrator_exception("The spat pointer is nullptr."));
             }
 
+            if(veh_list_ptr == nullptr)
+            {
+                throw(streets_desired_phase_plan_arbitrator_exception("The vehicle list pointer is nullptr."));
+            }
+
             int dpp_index = 0;
             std::unordered_map<int, float> ddp_delay_measures;
             for (const auto &candidate_dpp : dpp_list)
             {
                 // A copy of spat object into local variable, and update local spat with candidatedesired phase plan
-                signal_phase_and_timing::spat local_spat;
-                local_spat.set_intersection(spat_ptr->get_intersection());
-                update_spat_with_candidate_dpp(local_spat, candidate_dpp, tsc_state);
+                auto local_spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+                auto intersection_state = spat_ptr->get_intersection();
+                local_spat_ptr->set_intersection(intersection_state);
+                update_spat_with_candidate_dpp(local_spat_ptr, candidate_dpp, tsc_state);
 
                 // Given spat and vehicle list, estimate current vehicles' ET and EET from signalized intersection schedule
                 auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
                 // set_timestamp for the schedule_ptr current Unix timestamp
-                calculate_vehicle_schedules(schedule_ptr, local_spat, veh_list_ptr, intersection_info_ptr, initial_green_buffer, final_green_buffer);
+                calculate_vehicle_schedules(schedule_ptr, local_spat_ptr, veh_list_ptr, intersection_info_ptr, initial_green_buffer, final_green_buffer);
 
                 // Given vehicles' ET and EET from signalized intersection schedule, Calculate vehicles' delay measure for the current candidatedesired phase plan
                 float delay_measure = calculate_delay_measure(schedule_ptr, candidate_dpp);
@@ -57,15 +63,15 @@ namespace streets_signal_optimization
         return result;
     }
 
-    void streets_desired_phase_plan_arbitrator::update_spat_with_candidate_dpp(signal_phase_and_timing::spat &local_spat,
+    void streets_desired_phase_plan_arbitrator::update_spat_with_candidate_dpp(std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
                                                                                const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
                                                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const
     {
-        local_spat.update_spat_with_candidate_dpp(candidate_dpp, tsc_state);
+        local_spat_ptr->update_spat_with_candidate_dpp(candidate_dpp, tsc_state);
     }
 
     void streets_desired_phase_plan_arbitrator::calculate_vehicle_schedules(std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
-                                                                            signal_phase_and_timing::spat &local_spat,
+                                                                            std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
                                                                             const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
                                                                             const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
                                                                             uint64_t initial_green_buffer,
@@ -73,12 +79,11 @@ namespace streets_signal_optimization
     {
         auto scheduler_ptr = std::make_unique<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
         scheduler_ptr->set_intersection_info(intersection_info_ptr);
-        auto local_spat_ptr = std::make_shared<signal_phase_and_timing::spat>();     
-        local_spat_ptr->set_intersection(local_spat.get_intersection());  
         scheduler_ptr->set_spat(local_spat_ptr);
         scheduler_ptr->set_initial_green_buffer(initial_green_buffer);
         scheduler_ptr->set_final_green_buffer(final_green_buffer);
         auto vehicles = veh_list_ptr->get_vehicles();
+        schedule_ptr->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         scheduler_ptr->schedule_vehicles(vehicles, schedule_ptr); // Todo: Consider signal optimization radius meaning only vehicles within the radius are scheduled.
     }
 
