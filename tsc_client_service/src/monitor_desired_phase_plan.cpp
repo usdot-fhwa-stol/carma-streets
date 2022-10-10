@@ -19,10 +19,8 @@ namespace traffic_signal_controller_service
         {
             throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
         }
-        auto intersection = spat_ptr->get_intersection();
-        auto states = intersection.states;
 
-        if (states.empty())
+        if (spat_ptr->get_intersection().states.empty())
         {
             throw monitor_desired_phase_plan_exception("Intersections states cannot be empty!");
         }
