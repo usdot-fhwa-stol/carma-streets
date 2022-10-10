@@ -154,3 +154,13 @@ spat_ptr->update(ntcip_1202_data, _use_msg_timestamp);  // use struct to update 
                                                         // host machine unix time(if false) or NTCIP UDP message timestamp 
                                                         // (if true) 
 ```
+
+## Modifying SPaT Object
+The `spat` object has been made thread safe using a internal `shared_mutex` for **read/write** locking behavior. Currently the lock allows concurrent access for **read** (copy constructor) operatons and exclusive access for **write** (changing `spat` object data) operations. 
+
+All fields of `spat` have been made private so to **read** the data inside the `spat` object use the `get_intersection_state()` method which will return and copy of the internal `intersection_state` object that represents the state of the spat at the time this method is called. Since this is a copy of the current state, it will not remain current with the spat data so this method should be called when the data is being used and should be called repeatedly for any calculations that happen on an interval.
+
+In order to **update** the spat object there are currently **3** methods:
+- `update(ntcip::ntcip_1202_ext &ntcip_data, bool use_ntcip_timestamp)` is used to update spat using ntcip data from the **Traffic Signal Controller (TSC)**.
+- `fromJson(const std::string json)` is used to update spat using a JSON update obtained from kafka.
+- `set_intersection(const intersection_state &intersection)` is used to update the spat using an `intersection_state` object. This method can be used for any updates that need to be made to the spat object that come from other sources.
