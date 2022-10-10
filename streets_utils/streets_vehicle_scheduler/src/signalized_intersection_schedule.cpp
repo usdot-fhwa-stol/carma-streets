@@ -64,7 +64,7 @@ namespace streets_vehicle_scheduler {
     }
 
     int signalized_vehicle_schedule::get_delay() const{
-        if(et-eet < 0)
+        if(et-eet <= 0)
         {
             throw streets_vehicle_scheduler::scheduling_exception("EET cannot be greater than ET.");
         }
