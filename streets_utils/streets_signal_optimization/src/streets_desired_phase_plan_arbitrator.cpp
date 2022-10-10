@@ -99,11 +99,6 @@ namespace streets_signal_optimization
         u_int64_t candidate_vehicles_delay = 0;
         for (const auto &veh_schedule : schedule_ptr->vehicle_schedules)
         {
-            if (int delay = veh_schedule.get_delay(); delay < 0)
-            {
-                throw(streets_desired_phase_plan_arbitrator_exception("Vehicle schedule EET cannot be greater than ET."));
-            }
-
             // If find the vehicles’ schedule ET >= candidate desired phase plan end time, these vehicles are considered TBD.
             if (veh_schedule.et >= candidate_dpp.desired_phase_plan.back().end_time)
             {
