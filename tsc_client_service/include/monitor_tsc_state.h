@@ -136,10 +136,17 @@ namespace traffic_signal_controller_service
             * **/
             std::vector<int> get_following_phases(int phase_num);
 
-            /** @brief Get a sequence of phases in the given ring
-            ** @param ring_num The phase for which the sequence needs to be obtained
-            ** @return a vector as a sequence of phases in the ring
-            * **/
+            /**
+             * @brief Get a sequence of phases in the given ring. Current assumption is
+             * that the phase sequence data from sequence number 1 of the Sequence Table
+             * will hold the phase sequence data of the active traffic signal controller 
+             * sequence plan (see NTCIP 1202V3 documententation section 5.8.3). Method will 
+             * obtain phase sequence for provided ring number from sequence number 1 in 
+             * the Sequence Table. 
+             * 
+             * @param ring_num The phase for which the sequence needs to be obtained
+             * @return a vector as a sequence of phases in the ring
+             */
             std::vector<int> phase_seq(int ring_num);
 
             /** @brief The concurrent phases that the given phase can be green along with
