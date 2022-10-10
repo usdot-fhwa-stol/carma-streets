@@ -40,7 +40,7 @@ namespace signal_opt_service
             const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state,
             const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
             uint64_t initial_green_buffer,
-            uint64_t final_green_buffer);
+            uint64_t final_green_buffer) const;
     };
 
 }

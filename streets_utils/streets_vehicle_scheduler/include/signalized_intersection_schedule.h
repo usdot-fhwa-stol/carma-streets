@@ -5,6 +5,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include "intersection_schedule.h"
+#include "scheduling_exception.h"
 
 namespace streets_vehicle_scheduler {
     /**
