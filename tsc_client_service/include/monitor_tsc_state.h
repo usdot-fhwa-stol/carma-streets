@@ -136,10 +136,17 @@ namespace traffic_signal_controller_service
             * **/
             std::vector<int> get_following_phases(int phase_num);
 
-            /** @brief Get a sequence of phases in the given ring
-            ** @param ring_num The phase for which the sequence needs to be obtained
-            ** @return a vector as a sequence of phases in the ring
-            * **/
+            /**
+             * @brief Get a sequence of phases in the given ring. Current assumption is
+             * that the phase sequence data from sequence number 1 of the Sequence Table
+             * will hold the phase sequence data of the active traffic signal controller 
+             * sequence plan (see NTCIP 1202V3 documententation section 5.8.3). Method will 
+             * obtain phase sequence for provided ring number from sequence number 1 in 
+             * the Sequence Table. 
+             * 
+             * @param ring_num The phase for which the sequence needs to be obtained
+             * @return a vector as a sequence of phases in the ring
+             */
             std::vector<int> phase_seq(int ring_num);
 
             /** @brief The concurrent phases that the given phase can be green along with
@@ -170,7 +177,8 @@ namespace traffic_signal_controller_service
                                                                  uint64_t current_event_end_time, const signal_group_state& phase_state) const;
 
             //Add Friend Test to share private members
-            FRIEND_TEST(traffic_signal_controller_service, test_get_following_movement_events);                                                              
+            FRIEND_TEST(test_monitor_state, test_get_following_movement_events);
+                                                              
 
         public:
             /** 
@@ -195,6 +203,23 @@ namespace traffic_signal_controller_service
              * @return a map of pedestrian phases to signal group ids
             **/
             const std::unordered_map<int,int>& get_vehicle_phase_map();
+
+            /**
+             * @brief Get the phase number using signal group id.
+             * 
+             * @param signal_group_id 
+             * @return int
+             * @throws monitor_states_exception if signal group id is less than 1.
+             */
+            int get_phase_number(const int signal_group_id);
+            /**
+             * @brief Get the signal group id using phase number
+             * 
+             * @param phase_number 
+             * @return int
+             * @throws monitor_states_exception if phase number is less than 1. 
+             */
+            int get_signal_group_id(const int phase_number);
 
             /**
              * @brief Initialize tsc_state by making SNMP calls to TSC for phase sequence and timing information.

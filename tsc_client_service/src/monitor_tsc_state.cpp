@@ -320,6 +320,34 @@ namespace traffic_signal_controller_service
         
     }
 
+    int tsc_state::get_phase_number(const int signal_group_id ) {
+        if (signal_group_id >= 1) {
+            if ( signal_group_phase_map_.find(signal_group_id) != signal_group_phase_map_.end() ) {
+                return signal_group_phase_map_[signal_group_id];
+            } 
+            else {
+                throw monitor_states_exception("No phase number found for signal id " + std::to_string(signal_group_id) + "!");
+            }
+        }
+        else {
+            throw monitor_states_exception("Signal group ids less than 1 are invalid!");
+        }
+    }
+
+    int tsc_state::get_signal_group_id(const int phase_number ) {
+        if (phase_number >= 1) {
+            if ( vehicle_phase_num_map_.find(phase_number) != vehicle_phase_num_map_.end() ) {
+                return vehicle_phase_num_map_[phase_number];
+            } 
+            else {
+                throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
+            }
+        }
+        else {
+            throw monitor_states_exception("Phase numbers less than 1 are invalid!");
+        }
+    }
+
     int tsc_state::get_min_green(int phase_num) const
     {
         request_type request_type = request_type::GET;
@@ -378,13 +406,7 @@ namespace traffic_signal_controller_service
 
         // Find signal state associated with phase num
         int current_signal_group;
-        if(vehicle_phase_num_map_.find(phase_num) != vehicle_phase_num_map_.end())
-        {
-            current_signal_group = vehicle_phase_num_map_[phase_num];
-        }
-        else{
-            throw snmp_client_exception("No signal state associated with phase " + std::to_string(phase_num) + ".");
-        }
+        current_signal_group = get_signal_group_id(phase_num); 
         auto current_signal_group_state = signal_group_state_map_[current_signal_group];
         // Only add clearance time for current phase
         int red_duration = current_signal_group_state.red_clearance;
@@ -393,13 +415,7 @@ namespace traffic_signal_controller_service
         {
             // Find state params for each phase in seq
             int seq_signal_group;
-            if(vehicle_phase_num_map_.find(phase_num) != vehicle_phase_num_map_.end())
-            {
-                seq_signal_group = vehicle_phase_num_map_[phase];
-            }
-            else{
-                throw snmp_client_exception("No signal state associated with phase " + std::to_string(phase) + ".");
-            }
+            seq_signal_group = get_signal_group_id(phase);
             auto seq_signal_group_state = signal_group_state_map_[seq_signal_group];
             if(phase == phase_num)
             {
@@ -416,10 +432,9 @@ namespace traffic_signal_controller_service
     std::vector<int> tsc_state::phase_seq(int ring_num)
     {
         std::vector<int> phase_seq;
-        // Read sequence 1 data for first 2 rings
+        // Read sequence 1 data for given ring
         request_type request_type = request_type::GET;
-        std::string phase_seq_oid= ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(ring_num); //Sequence 1 for ring
-
+        std::string phase_seq_oid= ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(ring_num); 
         snmp_response_obj seq_data;
         seq_data.type = snmp_response_obj::response_type::STRING;
         snmp_client_worker_->process_snmp_request(phase_seq_oid, request_type, seq_data);
@@ -457,7 +472,7 @@ namespace traffic_signal_controller_service
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
         {   
-            concurrent_signal_groups.push_back(signal_group_phase_map_[int(con_phase)]);
+            concurrent_signal_groups.push_back(get_signal_group_id(int(con_phase)));
             
         }
 
