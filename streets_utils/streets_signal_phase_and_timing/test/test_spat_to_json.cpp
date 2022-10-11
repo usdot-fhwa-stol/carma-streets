@@ -14,7 +14,6 @@ using namespace signal_phase_and_timing;
 TEST(spat_to_json, to_from_json_test) {
     spat spat_message;
     // Minute of the year
-    spat_message.timestamp = 525600;
     intersection_state state;
     // Enabled lane list
     state.enabled_lanes.push_back(1);
@@ -65,7 +64,9 @@ TEST(spat_to_json, to_from_json_test) {
     // Add MovementState to states list in IntersectionState
     state.states.push_back(move_state);
     // Add IntersectionState to SPat
-    spat_message.intersections.push_front(state);
+    spat_message.set_intersection(state);
+    spat_message.set_timestamp_local();
+
 
     std::string msg_to_send = spat_message.toJson();
     ASSERT_FALSE(msg_to_send.empty());
@@ -84,9 +85,9 @@ TEST (spat_to_json, sample_string_read ) {
     spat spat_message;
     std::string json = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"revision\":123,\"status\":7,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_message.fromJson(json);
-    ASSERT_EQ(spat_message.name, "West Intersection");
-    ASSERT_EQ(spat_message.intersections.size(), 1);
-    intersection_state intersection = spat_message.intersections.front();
+    ASSERT_EQ(spat_message.get_name(), "West Intersection");
+    ASSERT_EQ(spat_message.get_timestamp(), 0);
+    intersection_state intersection = spat_message.get_intersection();
     ASSERT_EQ(intersection.id, 1909);
     ASSERT_EQ(intersection.status, 7);
     ASSERT_EQ(intersection.revision,123);
@@ -104,9 +105,8 @@ TEST (spat_to_json, sample_string_read_without_name ) {
     spat spat_message;
     std::string json = "{\"timestamp\":0,\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"revision\":123,\"status\":10,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[1,3,5],\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":0,\"max_end_time\":0,\"likely_time\":0,\"confidence\":0},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_message.fromJson(json);
-    ASSERT_TRUE(spat_message.name.empty());
-    ASSERT_EQ(spat_message.intersections.size(), 1);
-    intersection_state intersection = spat_message.intersections.front();
+    ASSERT_TRUE(spat_message.get_name().empty());
+    intersection_state intersection = spat_message.get_intersection();
     ASSERT_EQ(intersection.id, 1909);
     ASSERT_EQ(intersection.status, 10);
     ASSERT_EQ(intersection.revision,123);
@@ -134,9 +134,8 @@ TEST (spat_to_json, sample_string_read_optional_timemarks ) {
     spat spat_message;
     std::string json = "{\"timestamp\":0,\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"revision\":123,\"status\":10,\"moy\":34232,\"time_stamp\":130,\"states\":[{\"movement_name\":\"Right Turn\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":0,\"min_end_time\":1000},\"speeds\":[{\"type\":0,\"speed_limit\":4,\"speed_confidence\":1,\"distance\":5,\"class\":5}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_message.fromJson(json);
-    ASSERT_TRUE(spat_message.name.empty());
-    ASSERT_EQ(spat_message.intersections.size(), 1);
-    intersection_state intersection = spat_message.intersections.front();
+    ASSERT_TRUE(spat_message.get_name().empty());    
+    intersection_state intersection = spat_message.get_intersection();
     ASSERT_EQ(intersection.id, 1909);
     ASSERT_EQ(intersection.status, 10);
     ASSERT_EQ(intersection.revision,123);
@@ -158,10 +157,7 @@ TEST (spat_to_json, sample_string_read_optional_timemarks ) {
  */
 TEST(spat_to_json, missing_state_list)  {
     spat spat_message;
-    spat_message.timestamp = 525600;
-    // Write JSON Value to string
-    rapidjson::Document doc;
-    ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);
+    ASSERT_THROW(spat_message.set_timestamp_local(), signal_phase_and_timing_exception);
     
 }
 
@@ -171,9 +167,10 @@ TEST(spat_to_json, missing_state_list)  {
  */
 TEST(spat_to_json, missing_intersection_id)  {
     spat spat_message;
-    spat_message.timestamp = 525600;
     intersection_state state;
-    spat_message.intersections.push_back(state);
+    spat_message.set_intersection(state);
+    spat_message.set_timestamp_local();
+    
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -186,10 +183,10 @@ TEST(spat_to_json, missing_intersection_id)  {
  */
 TEST(spat_to_json, missing_message_count)  {
     spat spat_message;
-    spat_message.timestamp = 525600;
     intersection_state state;
     state.id=1902;
-    spat_message.intersections.push_back(state);
+    spat_message.set_intersection(state);
+    spat_message.set_timestamp_local();
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -202,11 +199,11 @@ TEST(spat_to_json, missing_message_count)  {
  */
 TEST(spat_to_json, missing_intersection_status)  {
     spat spat_message;
-    spat_message.timestamp = 525600 ;
     intersection_state state;
     state.id=1902;
     state.revision = 202;
-    spat_message.intersections.push_back(state);
+    spat_message.set_intersection(state);
+    spat_message.set_timestamp_local();
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -219,7 +216,6 @@ TEST(spat_to_json, missing_intersection_status)  {
  */
 TEST(spat_to_json, missing_movement_event_list)  {
     spat spat_message;
-    spat_message.timestamp = 525600;
     intersection_state state;
     // Add intersection id 
     state.id=1902;
@@ -228,7 +224,8 @@ TEST(spat_to_json, missing_movement_event_list)  {
     // Add status
     state.status = 67;
     // Add state
-    spat_message.intersections.push_back(state);
+    spat_message.set_intersection(state);
+    spat_message.set_timestamp_local();
 
     // Write JSON Value to string
     rapidjson::Document doc;
@@ -240,7 +237,6 @@ TEST(spat_to_json, missing_movement_event_list)  {
  */
 TEST(spat_to_json, missing_movement_state_signal_group_id)  {
     spat spat_message;
-    spat_message.timestamp = 525600;
     intersection_state state;
     // Add intersection id 
     state.id=1902;
@@ -252,7 +248,9 @@ TEST(spat_to_json, missing_movement_state_signal_group_id)  {
     movement_state movement_state;
     state.states.push_back(movement_state);
     // Add state
-    spat_message.intersections.push_back(state);
+    spat_message.set_intersection(state);
+    spat_message.set_timestamp_local();
+
     // Write JSON Value to string
     rapidjson::Document doc;
     ASSERT_THROW(spat_message.toJson(), signal_phase_and_timing_exception);

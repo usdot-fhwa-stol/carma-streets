@@ -77,8 +77,7 @@ class test_ntcip_to_spat : public ::testing::Test {
 
 TEST_F( test_ntcip_to_spat, test_update) {
     // Assert Initiliazition added a single intersection with correct name and id
-    ASSERT_TRUE(!spat_ptr->intersections.empty());
-    intersection_state &intersection =  spat_ptr->intersections.front();
+    intersection_state intersection =  spat_ptr->get_intersection();
     ASSERT_EQ( intersection.name , "Test Intersection" );
     ASSERT_EQ( intersection.id , 12902 );
     ASSERT_EQ( intersection.states.size(), phase_to_signal_group.size());
@@ -87,6 +86,7 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Line 1 : Green 6 and 2 , Red 8 and 4
     read_next_line();
     spat_ptr->update( spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
     // Calculate current minute of the UTC year
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     time_t tt = std::chrono::system_clock::to_time_t(now);
@@ -94,14 +94,14 @@ TEST_F( test_ntcip_to_spat, test_update) {
     uint32_t moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
     ASSERT_EQ( intersection.moy, moy );
     // Get movement state and current event references
-    movement_state &state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
-    movement_state &state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
-    movement_state &state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
-    movement_state &state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
-    movement_event &event_cur_2 = state_2.state_time_speed.front();
-    movement_event &event_cur_4 = state_4.state_time_speed.front();
-    movement_event &event_cur_6 = state_6.state_time_speed.front();
-    movement_event &event_cur_8 = state_8.state_time_speed.front();
+    movement_state state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    movement_state state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    movement_state state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    movement_state state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    movement_event event_cur_2 = state_2.state_time_speed.front();
+    movement_event event_cur_4 = state_4.state_time_speed.front();
+    movement_event event_cur_6 = state_6.state_time_speed.front();
+    movement_event event_cur_8 = state_8.state_time_speed.front();
     // Confirm signal group mapping is correctly set in spat movement states
     ASSERT_EQ( state_2.signal_group, phase_to_signal_group.find(2)->second );
     ASSERT_EQ( state_4.signal_group, phase_to_signal_group.find(4)->second );
@@ -132,6 +132,15 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Line 2 : Green 8 and 4 , Red 6 and 2
     read_next_line();
     spat_ptr->update( spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    event_cur_2 = state_2.state_time_speed.front();
+    event_cur_4 = state_4.state_time_speed.front();
+    event_cur_6 = state_6.state_time_speed.front();
+    event_cur_8 = state_8.state_time_speed.front();
 
     now = std::chrono::system_clock::now();
     tt = std::chrono::system_clock::to_time_t(now);
@@ -164,6 +173,15 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Line 3 : Green 8 and 4 , Red 6 and 2
     read_next_line();
     spat_ptr->update( spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    event_cur_2 = state_2.state_time_speed.front();
+    event_cur_4 = state_4.state_time_speed.front();
+    event_cur_6 = state_6.state_time_speed.front();
+    event_cur_8 = state_8.state_time_speed.front();
     now = std::chrono::system_clock::now();
     tt = std::chrono::system_clock::to_time_t(now);
     utc_tm = *gmtime(&tt);
@@ -194,6 +212,15 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Line 4 : Green 8 and 4 , Red 6 and 2
     read_next_line();
     spat_ptr->update( spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    event_cur_2 = state_2.state_time_speed.front();
+    event_cur_4 = state_4.state_time_speed.front();
+    event_cur_6 = state_6.state_time_speed.front();
+    event_cur_8 = state_8.state_time_speed.front();
     now = std::chrono::system_clock::now();
     tt = std::chrono::system_clock::to_time_t(now);
     utc_tm = *gmtime(&tt);
@@ -224,6 +251,15 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Line 5 : Yellow 8 and 4 , Red 6 and 2
     read_next_line();
     spat_ptr->update(spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    event_cur_2 = state_2.state_time_speed.front();
+    event_cur_4 = state_4.state_time_speed.front();
+    event_cur_6 = state_6.state_time_speed.front();
+    event_cur_8 = state_8.state_time_speed.front();
     ASSERT_EQ( event_cur_2.event_state, movement_phase_state::stop_and_remain);
 
     ASSERT_EQ( event_cur_4.timing.start_time, intersection.convert_offset(0));
@@ -238,6 +274,15 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Line 6 : Flashing Yellow 8 and 4 , Red 6 and 2
     read_next_line();
     spat_ptr->update(spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    event_cur_2 = state_2.state_time_speed.front();
+    event_cur_4 = state_4.state_time_speed.front();
+    event_cur_6 = state_6.state_time_speed.front();
+    event_cur_8 = state_8.state_time_speed.front();
     // Protected clearance for 4 and 8
     ASSERT_EQ( event_cur_2.event_state, movement_phase_state::stop_and_remain);
 
@@ -252,6 +297,15 @@ TEST_F( test_ntcip_to_spat, test_update) {
     // Read line 6 flashing yellow for 4 and 8
     read_next_line();
     spat_ptr->update(spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    state_4 =  intersection.get_movement(phase_to_signal_group.find(4)->second);
+    state_6 =  intersection.get_movement(phase_to_signal_group.find(6)->second);
+    state_8 =  intersection.get_movement(phase_to_signal_group.find(8)->second);
+    event_cur_2 = state_2.state_time_speed.front();
+    event_cur_4 = state_4.state_time_speed.front();
+    event_cur_6 = state_6.state_time_speed.front();
+    event_cur_8 = state_8.state_time_speed.front();
     // Protected clearance for 4 and 8
 
     ASSERT_EQ( event_cur_2.timing.start_time, intersection.convert_offset(0));
@@ -271,8 +325,7 @@ TEST_F( test_ntcip_to_spat, test_update) {
 
 TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
     // Assert Initiliazition added a single intersection with correct name and id
-    ASSERT_TRUE(!spat_ptr->intersections.empty());
-    intersection_state &intersection =  spat_ptr->intersections.front();
+    intersection_state intersection =  spat_ptr->get_intersection();
     ASSERT_EQ( intersection.name , "Test Intersection" );
     ASSERT_EQ( intersection.id , 12902 );
     ASSERT_EQ( intersection.states.size(), phase_to_signal_group.size());
@@ -287,12 +340,13 @@ TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
 }
 
 TEST_F( test_ntcip_to_spat, test_update_clear_future_events) {
-    intersection_state &intersection =  spat_ptr->intersections.front();
     // Line 1 : Green 6 and 2 , Red 8 and 4        
     read_next_line();
     spat_ptr->update( spat_ntcip_data, false);
+    intersection_state intersection =  spat_ptr->get_intersection();
+
     // Get movement state and current event references
-    movement_state &state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
+    movement_state state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
     ASSERT_EQ(state_2.state_time_speed.size(), 1);
     // Add future event
     movement_event future_event;
@@ -306,6 +360,8 @@ TEST_F( test_ntcip_to_spat, test_update_clear_future_events) {
     // Line 2 : Green 8 and 4 , Red 6 and 2
     read_next_line();
     spat_ptr->update( spat_ntcip_data, false);
+    intersection =  spat_ptr->get_intersection();
+    state_2 =  intersection.get_movement(phase_to_signal_group.find(2)->second);
     ASSERT_EQ(state_2.state_time_speed.size(), 1);
     ASSERT_EQ(state_2.state_time_speed.front().event_state, movement_phase_state::stop_and_remain);
 }

@@ -95,6 +95,12 @@
             "value": "tsc_config_state",
             "description": "Kafka topic for streets internal Traffic Signal Controller config message",
             "type": "STRING"
+        },
+        {
+            "name": "tsc_config_send_attempts",
+            "value": 5,
+            "description": "Number of times TSC Service will send TSC Configuration Information on startup.",
+            "type":"INTEGER"
         }
         
     ]

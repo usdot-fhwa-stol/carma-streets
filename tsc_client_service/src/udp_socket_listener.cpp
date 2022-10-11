@@ -24,6 +24,7 @@ namespace traffic_signal_controller_service
 
         //getting address info for streets, 0 indicates success
         int tsc_addr_info = getaddrinfo(ip_.c_str(), std::to_string(port_).c_str(), &hints, &result);
+
         if (tsc_addr_info != 0) {
             SPDLOG_ERROR("Failed to get addr info for the tsc_service instance");
             return false;
@@ -35,6 +36,7 @@ namespace traffic_signal_controller_service
             SPDLOG_ERROR("Failed to create socket");
             return false;
         }
+
 
         //set socket options with timeout from manifest json
         tv.tv_sec = socket_timeout_;
