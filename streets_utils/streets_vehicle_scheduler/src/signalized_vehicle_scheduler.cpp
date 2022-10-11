@@ -157,7 +157,10 @@ namespace streets_vehicle_scheduler {
                     throw scheduling_exception("The connection link lanelet does not have a group_id!");
                 }
                 if (first_link_visited && lane.getSignalGroupId() != signal_group_id){
-                    throw scheduling_exception("The link lanelets connected to the entry lane have different signal_group_ids! The signalized_vehicle_scheduler is only capable of understanding intersection where all connection lanes from a single entry lane share a signal_group_id!");
+                    throw scheduling_exception("The link lanelets connected to the entry lane have "
+                                                "different signal_group_ids! The signalized_vehicle_scheduler"
+                                                " is only capable of understanding intersection where all connection"
+                                                " lanes from a single entry lane share a signal_group_id!");
                 }
                 if (!first_link_visited) {
                     signal_group_id = lane.getSignalGroupId();
@@ -169,7 +172,7 @@ namespace streets_vehicle_scheduler {
         // find the movement_state object
         signal_phase_and_timing::movement_state move_state; 
         if ( spat_ptr ) {
-            for (const auto& ms : spat_ptr->intersections.front().states){
+            for (const auto& ms : spat_ptr->get_intersection().states){
                 if (ms.signal_group == signal_group_id) {
                     move_state = ms;
                     return move_state;

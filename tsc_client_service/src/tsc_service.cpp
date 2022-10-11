@@ -214,13 +214,21 @@ namespace traffic_signal_controller_service {
     }
 
     void tsc_service::produce_tsc_config_json() {
-        // Publish tsc_config information 10 times
+        // Get configuration parameter value
         try {
-            while(tsc_config_state_ptr && tsc_config_producer_counter_ < 10)
+            tsc_config_send_attempts = streets_service::streets_configuration::get_int_config("tsc_config_send_attempts");
+        }
+        catch (const streets_service::streets_configuration_exception &e) {
+            SPDLOG_ERROR("Excecption encountered attempting to publish TSC Configuration : \n {0}", e.what());
+        }
+
+        try {
+            int producer_counter_ = 0;
+            while(tsc_config_state_ptr && producer_counter_ < tsc_config_send_attempts)
             { 
                 
                 tsc_config_producer->send(tsc_config_state_ptr->toJson());
-                tsc_config_producer_counter_ ++;
+                producer_counter_ ++;
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Sleep for 1 second between publish   
             }

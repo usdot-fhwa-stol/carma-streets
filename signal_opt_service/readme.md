@@ -1,4 +1,4 @@
-## Singal Optimization Service
+## Signal Optimization Service
 ### Introduction
 The SO (Signal Optimization) service is the CARMA-Streets service responsible for optimizing traffic signal controller phase order and duration. The SO service is responsible for fixing a configurable amount of future phases on the traffic signal controller. On each phase transition (Yellow and Red clearance interval), the SO service will determine a new phase and duration to append to the list of fixed phases. The SO service does this by monitoring traffic signal state and planned state, vehicles within the intersection communication area, and the latest intersection geometry. 
 

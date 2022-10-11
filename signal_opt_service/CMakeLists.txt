@@ -17,6 +17,7 @@ find_package(Qt5Network REQUIRED)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
+find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED )
 
 add_library(${PROJECT_NAME}_lib
     src/signal_opt_service.cpp
@@ -41,6 +42,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
     streets_service_base_lib::streets_service_base_lib
     streets_vehicle_list_lib::streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
+    streets_tsc_configuration_lib::streets_tsc_configuration_lib
     Qt5::Core
     Qt5::Network
 )
@@ -74,6 +76,7 @@ target_link_libraries(${BINARY} PUBLIC
     spdlog::spdlog
     rapidjson
     gtest
+    gmock
     Qt5::Core
     Qt5::Network
     intersection_client_api_lib

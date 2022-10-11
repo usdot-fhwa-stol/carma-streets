@@ -11,6 +11,7 @@
 /kafka_clients/build
 /scheduling_service/build
 /message_services/build
+/signal_opt_service/build
 /streets_utils/streets_service_base/build
 /streets_utils/streets_vehicle_list/build
 /streets_utils/streets_vehicle_scheduler/build

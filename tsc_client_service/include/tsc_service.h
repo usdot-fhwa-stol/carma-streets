@@ -48,8 +48,9 @@ namespace traffic_signal_controller_service {
              * and red clearance, yellow change, min/max green times.
              */
             std::shared_ptr<tsc_state> tsc_state_ptr;
-
-
+            /**
+             * @brief Object used to process and store desired phase plan consumed from kafka,
+             */
             std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
             /**
              * @brief snmp_client used for making SNMP GET and SET calls th NTCIP OIDs to set
@@ -83,6 +84,8 @@ namespace traffic_signal_controller_service {
 
             // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
             int tsc_config_producer_counter_ = 0;
+            // Default value for number of attempts to send TSC configuration information.
+            int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
             bool use_desired_phase_plan_update_ = false;

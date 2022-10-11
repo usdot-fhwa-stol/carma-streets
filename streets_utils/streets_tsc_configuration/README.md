@@ -21,7 +21,8 @@ This CARMA-Streets library is meant to handle JSON serialization and deserializa
             "signal_group_id": 7,
             "yellow_change_duration":2000,
             "red_clearance":300
-        },
+        }
+    ]
 }
 ```
 The third entry in the list shows a signal group with no concurrent phases. The concurrent_signal groups field is an optional argument. In case of a single ring structure there are not expected to be any concurrent groups and a json message can be constructed without it.
