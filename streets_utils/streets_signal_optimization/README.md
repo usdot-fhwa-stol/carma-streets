@@ -172,6 +172,10 @@ The sample data for incoming list of candidate desire phase plan in JSON format 
   ]
 }
 ```
+- Signal group: A single movement or group of movements in an intersection that are controlled by a single phase. 
+![image](https://user-images.githubusercontent.com/62157949/194932912-faca0739-7212-452c-a723-8f446f90ac00.png)
+
+
 
 - Step 1: Iterate over all movement groups in each candidate desired phase plan.
   - Step 2: Make a local copy of SPAT and Update SPAT with each candidate desired phase plan iteration
