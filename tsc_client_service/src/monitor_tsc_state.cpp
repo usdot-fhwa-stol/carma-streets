@@ -84,8 +84,7 @@ namespace traffic_signal_controller_service
                 }  
             }
             return true;
-
-            }catch ( const snmp_client_exception &e ) {
+        }catch ( const snmp_client_exception &e ) {
             SPDLOG_ERROR("Exception encounters during initialization: \n {0}",e.what());
             return false;
         }
