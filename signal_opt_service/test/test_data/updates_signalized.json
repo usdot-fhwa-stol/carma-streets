@@ -19,7 +19,7 @@
                 "direction": "straight",
                 "entry_lane_id": 163,
                 "link_lane_id": 155,
-                "dest_lane_id": 9,
+                "dest_lane_id": 162,
                 "is_allowed": false,
                 "depart_pos": 1,
                 "est_paths": [{
@@ -68,7 +68,7 @@
                 "direction": "straight",
                 "entry_lane_id": 167,
                 "link_lane_id": 169,
-                "dest_lane_id": 9,
+                "dest_lane_id": 164,
                 "is_allowed": false,
                 "depart_pos": 2,
                 "est_paths": [{
