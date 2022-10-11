@@ -18,6 +18,7 @@
 /streets_utils/streets_api/intersection_client_api/build
 /streets_utils/streets_signal_phase_and_timing/build
 /streets_utils/streets_desired_phase_plan/build
+/streets_utils/streets_signal_optimization/build
 /carma_lanelet2
 /intersection_model/build
 /intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc

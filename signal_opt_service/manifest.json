@@ -51,6 +51,16 @@
             "type": "INTEGER"
         },
         {
+            "name": "initial_green_buffer",
+            "value": 2000,
+            "description": "The time buffer in milliseconds to apply to the time when the phase will become green to avoid vehicles that are ahead of schedule entering before the phase is green.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "final_green_buffer",
+            "value": 2000,
+            "description": "Additional buffer in milliseconds for the end of a green phase that allows additional safety on top of the yellow clearance and red clearance.",
+            "type": "INTEGER"
             "name": "tsc_config_consumer_topic",
             "value": "tsc_config_state",
             "description": "Kafka topic for CARMA Streets internal traffic signal controller phase configuration message.",

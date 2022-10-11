@@ -13,6 +13,7 @@ find_package(GTest REQUIRED)
 find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib REQUIRED)
+find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Boost COMPONENTS thread)
@@ -29,7 +30,8 @@ add_library(${PROJECT_NAME}_lib
 
                 )
 
-target_link_libraries(${PROJECT_NAME}_lib PUBLIC spdlog::spdlog rapidjson Qt5::Core Qt5::Network intersection_client_api_lib streets_service_base_lib::streets_service_base_lib streets_vehicle_list_lib streets_signal_phase_and_timing_lib)
+target_link_libraries(${PROJECT_NAME}_lib PUBLIC spdlog::spdlog rapidjson Qt5::Core Qt5::Network intersection_client_api_lib streets_service_base_lib::streets_service_base_lib streets_vehicle_list_lib streets_signal_phase_and_timing_lib 
+streets_tsc_configuration_lib::streets_tsc_configuration_lib)
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
                             $<INSTALL_INTERFACE:include>
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

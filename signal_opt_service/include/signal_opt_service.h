@@ -1,6 +1,7 @@
 #pragma once
 #include "kafka_client.h"
 #include "signal_opt_messages_worker.h"
+#include "signal_opt_processing_worker.h"
 #include "streets_configuration.h"
 #include "movement_group.h"
 
@@ -10,6 +11,7 @@ namespace signal_opt_service
     {
     private:
         std::shared_ptr<signal_opt_messages_worker> _so_msgs_worker_ptr;
+        std::shared_ptr<signal_opt_processing_worker> _so_processing_worker_ptr;
         std::string _bootstrap_server;
         std::string _spat_group_id;
         std::string _spat_topic_name;
@@ -19,6 +21,8 @@ namespace signal_opt_service
         std::string _tsc_config_topic_name;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
+        uint64_t _initial_green_buffer = 0;
+        uint64_t _final_green_buffer = 0;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
         std::shared_ptr<movement_groups> _movement_groups;
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;

@@ -5,6 +5,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include "intersection_schedule.h"
+#include "scheduling_exception.h"
 
 namespace streets_vehicle_scheduler {
     /**
@@ -48,6 +49,12 @@ namespace streets_vehicle_scheduler {
          * @return rapidjson::Value 
          */
         rapidjson::Value toJson(rapidjson::Document::AllocatorType& allocator) const override;
+
+        /**
+         * @brief Calculate signalized_vehicle_schedule  delay. This is the result of EET-ET for each vehicle schedule.
+         * @return int 
+         */
+        int get_delay() const;
     };
 
     

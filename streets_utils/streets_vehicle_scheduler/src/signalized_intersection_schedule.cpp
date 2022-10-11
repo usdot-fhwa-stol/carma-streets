@@ -62,4 +62,13 @@ namespace streets_vehicle_scheduler {
         vehicle_sched.AddMember("dt", dt, allocator);
         return vehicle_sched;
     }
+
+    int signalized_vehicle_schedule::get_delay() const{
+        auto delta_et = int(et-eet);
+        if(delta_et <= 0)
+        {
+            throw streets_vehicle_scheduler::scheduling_exception("EET cannot be greater than ET.");
+        }
+        return delta_et;
+    }
 }

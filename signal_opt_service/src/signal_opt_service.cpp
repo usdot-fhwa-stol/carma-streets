@@ -7,6 +7,7 @@ namespace signal_opt_service
         try
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
+            _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
             _movement_groups = std::make_shared<movement_groups>();
             intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
             vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
@@ -15,7 +16,6 @@ namespace signal_opt_service
             vehicle_list_ptr->set_processor(processor);
             spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
             tsc_configuration_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
-
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
             _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
@@ -60,6 +60,10 @@ namespace signal_opt_service
             }
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
+
+            //Parameter config
+            _initial_green_buffer =streets_service::streets_configuration::get_int_config("initial_green_buffer");
+            _final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
         }
         catch (const streets_service::streets_configuration_exception &ex)
         {
