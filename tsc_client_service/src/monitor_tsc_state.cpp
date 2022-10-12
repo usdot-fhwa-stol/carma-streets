@@ -401,8 +401,8 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_phase_number(const int signal_group_id ) {
         if (signal_group_id >= 1) {
-            if ( signal_group_phase_map_.find(signal_group_id) != signal_group_phase_map_.end() ) {
-                return signal_group_phase_map_[signal_group_id];
+            if ( signal_group_2vehiclephase_map_.find(signal_group_id) != signal_group_2vehiclephase_map_.end() ) {
+                return signal_group_2vehiclephase_map_[signal_group_id];
             } 
             else {
                 throw monitor_states_exception("No phase number found for signal id " + std::to_string(signal_group_id) + "!");
@@ -415,8 +415,8 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_signal_group_id(const int phase_number ) {
         if (phase_number >= 1) {
-            if ( vehicle_phase_num_map_.find(phase_number) != vehicle_phase_num_map_.end() ) {
-                return vehicle_phase_num_map_[phase_number];
+            if ( vehicle_phase_2signalgroup_map_.find(phase_number) != vehicle_phase_2signalgroup_map_.end() ) {
+                return vehicle_phase_2signalgroup_map_[phase_number];
             } 
             else {
                 throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
@@ -486,7 +486,7 @@ namespace traffic_signal_controller_service
         // Find signal state associated with phase num
         int current_signal_group;
         current_signal_group = get_signal_group_id(phase_num); 
-        auto current_signal_group_state = signal_group_state_map_[current_signal_group];
+        auto current_signal_group_state = signal_group_2tsc_state_map_[current_signal_group];
         // Only add clearance time for current phase
         int red_duration = current_signal_group_state.red_clearance;
         
@@ -495,7 +495,7 @@ namespace traffic_signal_controller_service
             // Find state params for each phase in seq
             int seq_signal_group;
             seq_signal_group = get_signal_group_id(phase);
-            auto seq_signal_group_state = signal_group_state_map_[seq_signal_group];
+            auto seq_signal_group_state = signal_group_2tsc_state_map_[seq_signal_group];
             if(phase == phase_num)
             {
                 continue;
@@ -521,7 +521,7 @@ namespace traffic_signal_controller_service
 
         //extract phase numbers from strings
         for(auto con_phase :  concurrent_phase_data.val_string)
-        {   if(concurrent_phase != 0){
+        {   if(con_phase != 0){
                 concurrent_signal_groups.push_back(get_signal_group_id(int(con_phase)));
             }
         }
