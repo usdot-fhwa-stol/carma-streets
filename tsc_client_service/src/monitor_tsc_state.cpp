@@ -113,29 +113,31 @@ namespace traffic_signal_controller_service
             case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: //Green
                 // Create next movement - yellow
                 next_event.event_state = signal_phase_and_timing::movement_phase_state::protected_clearance;
-                next_event.timing.start_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time);
-                next_event.timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time + phase_state.yellow_duration);
+                next_event.timing.set_start_time(current_event_end_time);
+                next_event.timing.set_min_end_time(current_event_end_time + phase_state.yellow_duration);
+                next_event.timing.set_max_end_time(current_event_end_time + phase_state.yellow_duration);
                 break;
 
             case signal_phase_and_timing::movement_phase_state::protected_clearance: //Yellow
                 // Create next movement - red
                 next_event.event_state = signal_phase_and_timing::movement_phase_state::stop_and_remain;
-                next_event.timing.start_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time); 
-                next_event.timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time + phase_state.red_duration);
+                next_event.timing.set_start_time(current_event_end_time); 
+                next_event.timing.set_min_end_time(current_event_end_time + phase_state.red_duration);
+                next_event.timing.set_max_end_time(current_event_end_time + phase_state.red_duration);
                 break;
 
             case signal_phase_and_timing::movement_phase_state::stop_and_remain:  //Red
                 // Create next movement - green
                 next_event.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed;
-                next_event.timing.start_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time);
-                next_event.timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time + phase_state.green_duration);
+                next_event.timing.set_start_time(current_event_end_time);
+                next_event.timing.set_min_end_time(current_event_end_time + phase_state.green_duration);
+                next_event.timing.set_max_end_time(current_event_end_time + phase_state.green_duration);
                 break;
 
             default:
                 SPDLOG_ERROR("This movement phase is not supported. Movement phase type: {0}", int(current_event.event_state));
                 throw snmp_client_exception("Failed request for unsupported movement phase type: " + std::to_string(int(current_event.event_state)));
         }
-        next_event.timing.max_end_time = next_event.timing.min_end_time;
         return next_event;
     }
 
@@ -191,14 +193,15 @@ namespace traffic_signal_controller_service
                     throw monitor_states_exception("This movement phase is not supported. Movement phase type: " + std::to_string(int(current_movement.state_time_speed.front().event_state)));
             }
             // Update end_time for current_event
-            current_movement.state_time_speed.front().timing.min_end_time = convert_msepoch_to_hour_tenth_secs(current_event_end_time_epoch);
-            current_movement.state_time_speed.front().timing.max_end_time = current_movement.state_time_speed.front().timing.min_end_time;
+            current_movement.state_time_speed.front().timing.set_min_end_time(current_event_end_time_epoch);
+            current_movement.state_time_speed.front().timing.set_max_end_time(current_event_end_time_epoch);
 
             for(int i = 0; i < required_following_movements_; ++i)
             {
                 signal_phase_and_timing::movement_event next_event = get_following_event(current_event, current_event_end_time_epoch, phase_state);
+                // Set next event to current event
                 current_event = next_event;
-                current_event_end_time_epoch = convert_hour_tenth_secs2epoch_ts(current_event.timing.min_end_time);
+                current_event_end_time_epoch = current_event.timing.get_epoch_min_end_time();
                 //Add events to list
                 current_movement.state_time_speed.push_back(next_event);
             }
