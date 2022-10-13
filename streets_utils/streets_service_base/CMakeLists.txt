@@ -5,8 +5,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 include(dependencies.cmake)
 
-find_package(Boost 1.71.0 EXACT COMPONENTS system filesystem thread REQUIRED)
-find_package(GTest REQUIRED MODULE)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 add_library(streets_service_base_lib
@@ -37,7 +35,7 @@ target_link_libraries(streets_service_base_lib
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 
-install(TARGETS streets_service_base_lib spdlog
+install(TARGETS streets_service_base_lib
   EXPORT streets_service_base_libTargets
   LIBRARY DESTINATION lib
   INCLUDES DESTINATION include

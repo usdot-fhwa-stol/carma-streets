@@ -5,13 +5,6 @@ FetchContent_Declare(rapidjson
     GIT_TAG 06d58b9e848c650114556a23294d0b6440078c61  # Top-level project requires post 1.1.0 (latest release) features
 )
 
-FetchContent_Declare(spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.10.0
-)
-
-FetchContent_MakeAvailable(spdlog)
-
 FetchContent_GetProperties(rapidjson)
 if(NOT rapidjson_POPULATED)
     FetchContent_Populate(rapidjson)
@@ -26,3 +19,7 @@ if(NOT rapidjson_POPULATED)
 
     add_subdirectory(${rapidjson_SOURCE_DIR} ${rapidjson_BINARY_DIR})
 endif()
+
+find_package(Boost 1.71.0 EXACT COMPONENTS system filesystem thread REQUIRED)
+find_package(spdlog 1.10.0 EXACT REQUIRED)
+find_package(GTest REQUIRED MODULE)
