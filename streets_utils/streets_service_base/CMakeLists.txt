@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.16)
 project(streets_service_base)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
+include(dependencies.cmake)
+
 find_package(Boost 1.71.0 EXACT COMPONENTS system filesystem thread REQUIRED)
-find_package(spdlog 1.10.0 EXACT REQUIRED)
-find_package(RapidJSON 1.1.0 REQUIRED)
+find_package(GTest REQUIRED MODULE)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 
@@ -85,6 +86,6 @@ target_link_libraries(${BINARY} PUBLIC
                 Boost::thread
                 Boost::filesystem
                 spdlog::spdlog
-                gtest
+                GTest::GTest
                 ${PROJECT_NAME}_lib
                 )
