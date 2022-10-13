@@ -152,7 +152,6 @@ namespace traffic_signal_controller_service
             phase_1_state.yellow_duration = 1000;
             phase_1_state.red_clearance = 1000;
             phase_1_state.red_duration = 10000;
-            // tsc_state_ptr->signal_group_2tsc_state_map_.insert({1, phase_1_state});
         }
     };
 

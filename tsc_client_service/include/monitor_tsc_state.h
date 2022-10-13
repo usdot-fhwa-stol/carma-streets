@@ -233,13 +233,13 @@ namespace traffic_signal_controller_service
              */
             int get_phase_number(const int signal_group_id);
             /**
-             * @brief Get the signal group id using phase number
+             * @brief Get the signal group id using phase number.Only for vehicle phases
              * 
              * @param phase_number 
              * @return int
              * @throws monitor_states_exception if phase number is less than 1. 
              */
-            int get_signal_group_id(const int phase_number);
+            int get_vehicle_signal_group_id(const int phase_number);
 
             /**
              * @brief Initialize tsc_state by making SNMP calls to TSC for phase sequence and timing information.
