@@ -39,7 +39,7 @@ file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 
 install(
-    TARGETS streets_service_base_lib
+    TARGETS streets_service_base_lib spdlog
     EXPORT streets_service_base_libTargets
     LIBRARY DESTINATION lib
     INCLUDES DESTINATION include
