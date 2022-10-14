@@ -108,7 +108,9 @@ namespace traffic_signal_controller_service
             std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1) const;
 
             /** 
-             * @brief Method for mapping vehicle phases and signal groups
+             * @brief Method for mapping vehicle phases and signal groups. Modifies non-const arguments by reference.
+             * Signal group map is expected to be passed empty. 
+             * Vehicle phase map is expected to contain known vehicle phases. These are modified to only contain phases in the active ring sequence.
              * @param active_ring_sequences A list of phases from the traffic signal controller in rows corresponding to the ring number
              * @param vehicle_phase_2signalgroup_map a map for all vehicle phases and signal groups associated with them
              * @param signal_group_2vehiclephase_map Mapping from signal groups id to vehicle phases
