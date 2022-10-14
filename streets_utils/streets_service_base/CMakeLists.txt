@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(streets_service_base)
 
+include(GNUInstallDirs)
+
 include(dependencies.cmake)
 
 add_library(streets_service_base_lib
@@ -43,14 +45,17 @@ file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 
 install(TARGETS streets_service_base_lib
   EXPORT streets_service_base_libTargets
-  LIBRARY DESTINATION lib
-  INCLUDES DESTINATION include
-  ARCHIVE DESTINATION lib
+  INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  LIBRARY
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 install(EXPORT streets_service_base_libTargets
   FILE streets_service_base_libTargets.cmake
-  DESTINATION lib/cmake/streets_service_base_lib/
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/streets_service_base_lib
   NAMESPACE streets_service_base_lib::
 )
 
@@ -66,8 +71,12 @@ install(
   DESTINATION lib/cmake/streets_service_base_lib/
 )
 
-install(FILES ${files} DESTINATION include)
-install(FILES ${templates} DESTINATION include/internal)
+install(DIRECTORY include
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING
+    PATTERN *.h
+    PATTERN *.tpp
+)
 
 ########################
 # googletest for unit testing
