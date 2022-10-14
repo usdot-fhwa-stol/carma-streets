@@ -14,8 +14,10 @@ void vehicle_status_intent_service_call(std::shared_ptr<message_services::messag
 
 int main(int argc, const char **argv)
 {
-    const std::string OSM_FILE_PATH = "../vector_map.osm";
     streets_service::streets_configuration::initialize_logger();
+    const std::string OSM_FILE_PATH = streets_service::streets_configuration::get_string_config("osm_file_path");
+;
+
     //initialize lanelet2 message translation object
     auto msg_translate_ptr = std::make_shared<message_services::message_translations::message_lanelet2_translation>(OSM_FILE_PATH);
 
