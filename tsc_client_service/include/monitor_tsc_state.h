@@ -77,19 +77,22 @@ namespace traffic_signal_controller_service
              * @brief Creates tsc_configuration_state object pointer which is used to forward configuration information required
              * to understand ring and barrier information on the traffic signal controller.
              * This includes signal_group_id, yellow_change duration, red_clearance and concurrent signal groups
+             * @return shared ptr to tsc_config state
              */
-            void define_tsc_config_state();
+            std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> define_tsc_config_state();
 
             /** @brief Creates vectors of channels (or signal group id) associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
+             *  Expects empty input arguments which are filled in by reference.
              *  @param max_channels The maximum number of channels in the traffic signal controller.
              *  @param vehicle_channels a vector of active vehicle phases associated with a channel
              *  @param ped_channels a vector of active pedestrian phases associated with a channel
             **/
             void get_channels(int max_channels, std::vector<int>& vehicle_channels, std::vector<int>& ped_channels) const;
 
-            /** @brief Creates a map of phases associated with a vehicle phase and a pedestrian.
+            /** @brief Creates a map of phases associated with a vehicle phase and a pedestrian phase.
              *  @param signal_group_ids a map of known signal_group_ids/channels for vehicle or pedestrian to the corresponding phases
-             *  @return a mapping from phases to signal_group ids
+             *  @return a mapping from phases to signal_group ids. Will return empty map if 
+             *  no phases associated with a vehicle or pedestrian are found.
             **/
             std::unordered_map<int,int> get_phases_associated_with_channel(const std::vector<int>& signal_group_ids) const;
 

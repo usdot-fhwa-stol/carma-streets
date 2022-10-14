@@ -55,7 +55,7 @@ namespace traffic_signal_controller_service
             }
 
             // Define tsc config state - Needed to construct message sent to SO service 
-            define_tsc_config_state();
+            tsc_config_state_ptr_ = define_tsc_config_state();
 
             // Print signal_group map
             for (const auto& [signalgroup_id, phase] : signal_group_2vehiclephase_map_)
@@ -91,7 +91,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    void tsc_state::define_tsc_config_state()
+    std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state::define_tsc_config_state()
     {   
         streets_tsc_configuration::tsc_configuration_state tsc_config;
         for (const auto& [signal_group, state] : signal_group_2tsc_state_map_)
@@ -105,7 +105,7 @@ namespace traffic_signal_controller_service
             }
             tsc_config.tsc_config_list.push_back(signal_group_config);
         }
-        tsc_config_state_ptr_ = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(tsc_config);
+        return std::make_shared<streets_tsc_configuration::tsc_configuration_state>(tsc_config);
     }
 
     const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state>& tsc_state::get_tsc_config_state() const
