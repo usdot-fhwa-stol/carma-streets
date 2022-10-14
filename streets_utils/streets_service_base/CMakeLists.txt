@@ -1,16 +1,22 @@
 cmake_minimum_required(VERSION 3.16)
 project(streets_service_base)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
 include(dependencies.cmake)
-
-add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 add_library(streets_service_base_lib
   src/streets_configuration_exception.cpp
   src/configuration.cpp
   src/streets_configuration.cpp
+)
+
+target_compile_definitions(streets_service_base_lib
+  PRIVATE
+    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
+)
+
+target_compile_options(streets_service_base_lib
+  PRIVATE
+    -fPIC
 )
 
 target_include_directories(streets_service_base_lib
@@ -66,7 +72,6 @@ install(FILES ${templates} DESTINATION include/internal)
 ########################
 # googletest for unit testing
 ########################
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY streets_service_base_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
@@ -75,6 +80,16 @@ add_executable(${BINARY} ${TEST_SOURCES}
   src/streets_configuration_exception.cpp
   src/configuration.cpp
   src/streets_configuration.cpp
+)
+
+target_compile_definitions(${BINARY}
+  PRIVATE
+    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR
+)
+
+target_compile_options(${BINARY}
+  PRIVATE
+    -pthread
 )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
