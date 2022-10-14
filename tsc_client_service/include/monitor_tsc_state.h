@@ -87,11 +87,11 @@ namespace traffic_signal_controller_service
             **/
             void get_channels(int max_channels, std::vector<int>& vehicle_channels, std::vector<int>& ped_channels) const;
 
-            /** @brief Creates vectors of phases associated with a vehicle phase and a pedestrian.
-             *  @param channels a map of known channels for vehicle or pedestrian to the corresponding phases
+            /** @brief Creates a map of phases associated with a vehicle phase and a pedestrian.
+             *  @param signal_group_ids a map of known signal_group_ids/channels for vehicle or pedestrian to the corresponding phases
              *  @return a mapping from phases to signal_group ids
             **/
-            std::unordered_map<int,int> get_phases_associated_with_channel(const std::vector<int>& channels) const;
+            std::unordered_map<int,int> get_phases_associated_with_channel(const std::vector<int>& signal_group_ids) const;
 
             /** 
              * @brief Method for getting populated rings in sequence (default sequence = 1).

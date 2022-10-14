@@ -16,6 +16,7 @@ namespace traffic_signal_controller_service
             // Loop through all channels and check which are associated with a vehicle phase and pedestrian phase
             std::vector<int> vehicle_channels; 
             std::vector<int> ped_channels;
+            // Get channel source for each channel in TSC and allocate to vehicle/ped depending on source type
             get_channels(max_channels_in_tsc, vehicle_channels, ped_channels);
             
             // Get Phases associated with vehicle channels and pedestrian channels
@@ -25,7 +26,7 @@ namespace traffic_signal_controller_service
             int max_rings_in_tsc = get_max_rings();
             // Get vehicle sequence for active phases. By default in sequence 1
             std::vector<std::vector<int>> active_ring_sequences = get_active_ring_sequences(max_rings_in_tsc, vehicle_phase_2signalgroup_map_);
-            // Remove vehicle phases not in map
+            // Update vehicle phase map to only include phases in active ring sequence. Also construct signal group to vehicle phase map
             map_phase_and_signalgroup(active_ring_sequences, vehicle_phase_2signalgroup_map_, signal_group_2vehiclephase_map_);
 
             // Define state for each signal group
@@ -53,7 +54,7 @@ namespace traffic_signal_controller_service
                 state.red_duration = get_red_duration(state.phase_num);
             }
 
-            // Define tsc config state
+            // Define tsc config state - Needed to construct message sent to SO service 
             define_tsc_config_state();
 
             // Print signal_group map
@@ -267,27 +268,28 @@ namespace traffic_signal_controller_service
         
     }
 
-    std::unordered_map<int,int> tsc_state::get_phases_associated_with_channel(const std::vector<int>& channels) const {
+    std::unordered_map<int,int> tsc_state::get_phases_associated_with_channel(const std::vector<int>& signal_group_ids) const {
         
         std::unordered_map<int,int> phases_to_signal_group;
         request_type request_type = request_type::GET;
 
-        for(int channel : channels)
+        for(int signal_group : signal_group_ids)
         {
             snmp_response_obj phase_num;
             phase_num.type = snmp_response_obj::response_type::INTEGER;
-            std::string control_source_parameter_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(channel);
+            // Control source returns the phase associated with the signal group. Channel and signal group id is synonymous according to the NTCIP documentation
+            std::string control_source_parameter_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(signal_group);
             snmp_client_worker_->process_snmp_request(control_source_parameter_oid, request_type, phase_num);
 
-            // According to NTCIP 1202 v03 returned value of 0 here would mean a phase is not associated with the channel
+            // According to NTCIP 1202 v03 returned value of 0 here would mean a phase is not associated with the signal_group
             if(phase_num.val_int != 0)
             {
-                phases_to_signal_group.insert(std::make_pair(phase_num.val_int, channel));
+                phases_to_signal_group.insert(std::make_pair(phase_num.val_int, signal_group));
             }
             else{
-                throw monitor_states_exception("No phase found associated with signal_group {0}" + std::to_string(channel));
+                throw monitor_states_exception("No phase found associated with signal_group {0}" + std::to_string(signal_group));
             }
-            SPDLOG_TRACE("Found mapping between signal group: {0} and phase num: {1}", channel , phase_num.val_int );
+            SPDLOG_TRACE("Found mapping between signal group: {0} and phase num: {1}", signal_group , phase_num.val_int );
 
         }
 
