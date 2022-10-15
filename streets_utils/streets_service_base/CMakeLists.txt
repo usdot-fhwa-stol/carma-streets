@@ -40,9 +40,6 @@ target_link_libraries(streets_service_base_lib
 ########################################################
 # Install streets_service_base_lib package.
 ########################################################
-file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
-file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
-
 install(TARGETS streets_service_base_lib
   EXPORT streets_service_base_libTargets
   INCLUDES
@@ -81,30 +78,24 @@ install(DIRECTORY include
 ########################
 # googletest for unit testing
 ########################
-set(BINARY streets_service_base_test)
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
-set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
-
-add_executable(${BINARY} ${TEST_SOURCES}
-  src/streets_configuration_exception.cpp
-  src/configuration.cpp
-  src/streets_configuration.cpp
+add_executable(streets_service_base_test
+  test/test_main.cpp
+  test/test_streets_configuration.cpp
+  test/test_streets_singleton.cpp
 )
 
-target_compile_definitions(${BINARY}
+target_compile_definitions(streets_service_base_test
   PRIVATE
     SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR
 )
 
-target_compile_options(${BINARY}
+target_include_directories(streets_service_base_test
   PRIVATE
-    -pthread
+    ${PROJECT_SOURCE_DIR}/include
 )
 
-add_test(NAME ${BINARY} COMMAND ${BINARY})
-target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY}
-  PUBLIC
+target_link_libraries(streets_service_base_test
+  PRIVATE
     Boost::system
     Boost::thread
     Boost::filesystem
@@ -112,3 +103,5 @@ target_link_libraries(${BINARY}
     GTest::GTest
     streets_service_base_lib
 )
+
+gtest_discover_tests(streets_service_base_test)
