@@ -1,6 +1,6 @@
 FROM ubuntu:bionic-20210702
 
-RUN apt-get update  && apt-get install -y sudo cmake gcc-7 g++-7 libboost1.65-dev libboost-thread1.65-dev libboost-regex1.65-dev libboost-log1.65-dev libboost-program-options1.65-dev libboost1.65-all-dev libxerces-c-dev libcurl4-openssl-dev  autotools-dev automake  sqlite3 libsqlite3-dev libpugixml-dev libmysqlclient-dev libgeographic-dev libjsoncpp-dev uuid-dev libusb-dev libusb-1.0-0-dev libftdi-dev swig liboctave-dev gpsd libgps-dev portaudio19-dev libsndfile1-dev libglib2.0-dev libglibmm-2.4-dev libpcre3-dev libsigc++-2.0-dev libxml++2.6-dev libxml2-dev liblzma-dev dpkg-dev libmysqlcppconn-dev libev-dev libuv-dev git build-essential libssl-dev qtbase5-dev qtbase5-dev-tools curl libqhttpengine-dev libgtest-dev libcpprest-dev 
+RUN apt-get update  && apt-get install -y sudo cmake gcc-7 g++-7 libboost1.65-dev libboost-thread1.65-dev libboost-regex1.65-dev libboost-log1.65-dev libboost-program-options1.65-dev libboost1.65-all-dev libxerces-c-dev libcurl4-openssl-dev  autotools-dev automake  sqlite3 libsqlite3-dev libpugixml-dev libmysqlclient-dev libgeographic-dev libjsoncpp-dev uuid-dev libusb-dev libusb-1.0-0-dev libftdi-dev swig liboctave-dev gpsd libgps-dev portaudio19-dev libsndfile1-dev libglib2.0-dev libglibmm-2.4-dev libpcre3-dev libsigc++-2.0-dev libxml++2.6-dev libxml2-dev liblzma-dev dpkg-dev libmysqlcppconn-dev libev-dev libuv-dev git build-essential libssl-dev qtbase5-dev qtbase5-dev-tools curl libqhttpengine-dev libgtest-dev libcpprest-dev
 
 RUN mkdir -p /home/
 
@@ -31,7 +31,7 @@ RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/gabime/spdlog.git
 WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
+RUN mkdir build
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN sudo make install
@@ -40,7 +40,7 @@ RUN sudo make install
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
+RUN git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 WORKDIR /home/carma-streets/ext/rapidjson/
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
@@ -74,7 +74,7 @@ RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branc
         ./configure && \
         make && \
         make install
-        
+
 # Download a cmake module for PROJ
 RUN cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
 
@@ -92,9 +92,9 @@ SHELL ["/bin/bash", "-c"]
 # Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
 # First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
 # This means the ros source list must be added to to allow this installation
-# Additionally, the python-rospkg package managment tool is required for catkin to work properly 
+# Additionally, the python-rospkg package managment tool is required for catkin to work properly
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin 
+    DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin
 
 # Once catkin is installed only the required lanelet2 packages will be pulled in from carma
 # NOTE: The lanelet2_python package requires additional dependencies that have not yet been installed so it is removed for now

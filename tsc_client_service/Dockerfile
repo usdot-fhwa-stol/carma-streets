@@ -20,7 +20,7 @@ RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/gabime/spdlog.git
 WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
+RUN mkdir build
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install
@@ -28,7 +28,7 @@ RUN make install
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
+RUN git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 WORKDIR /home/carma-streets/ext/rapidjson/
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
@@ -54,7 +54,7 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-# Install intersection_client_api 
+# Install intersection_client_api
 RUN echo " ------> Install intersection client library from streets_utils..."
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
 RUN mkdir build
@@ -104,7 +104,7 @@ RUN make install
 # Install net-snmp
 WORKDIR /home/carma-streets/ext/
 RUN apt-get update  && apt-get install -y wget libperl-dev
-RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz
 RUN tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
 WORKDIR /home/carma-streets/ext/net-snmp-5.9.1/
 RUN ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"

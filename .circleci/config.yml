@@ -1,38 +1,38 @@
 version: 2.1
 
 #  Copyright (C) 2019-2022 LEIDOS.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations under
 #  the License.
-# 
+#
 
-# Configuration file for Circle CI 
+# Configuration file for Circle CI
 # CI will report failure if any executed command returns and error status
 # Operations performed are as follows
 # Build source code
-# Run unit tests for C++ 
+# Run unit tests for C++
 # Run static code analyzer for SourceCloud
 # Upload test results
 # Every run command should start with source ${INIT_ENV} to ensure all default dependencies are available
 jobs:
   build:
-    # Pull docker image 
+    # Pull docker image
     # XTERM used for better make output
     docker:
       - image: ubuntu:bionic-20190807
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
-    resource_class: xlarge 
+    resource_class: xlarge
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
@@ -43,7 +43,7 @@ jobs:
           docker_layer_caching: false
       # Checkout PR branch
       - checkout
-      - run: 
+      - run:
           name: Install Sonar & Dependencies
           command: |
             set -x
@@ -58,24 +58,24 @@ jobs:
             cmake .
             make
             make install
-            
+
             cd /home/carma-streets/ext
             git clone https://github.com/edenhill/librdkafka
             cd /home/carma-streets/ext/librdkafka/
             ./configure --prefix=/usr
             make
             make install
-            
+
             cd /home/carma-streets/ext
             git clone https://github.com/gabime/spdlog.git
             cd /home/carma-streets/ext/spdlog/
-            mkdir build 
+            mkdir build
             cd /home/carma-streets/ext/spdlog/build
             cmake .. && make -j
             make install
-            
+
             cd /home/carma-streets/ext
-            git clone  https://github.com/Tencent/rapidjson
+            git clone https://github.com/Tencent/rapidjson --depth 1 -- branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
             cd /home/carma-streets/ext/rapidjson/
             mkdir build
             cd /home/carma-streets/ext/rapidjson/build
@@ -85,7 +85,7 @@ jobs:
             #Install net-snmp
             cd /home/carma-streets/ext/
             apt-get update  && apt-get install -y wget libperl-dev
-            wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+            wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz
             tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
             cd net-snmp-5.9.1/
             ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
@@ -108,12 +108,12 @@ jobs:
             ./configure  && \
             make && \
             make install
-            
+
             export DEBIAN_FRONTEND=noninteractive
 
             # Download a cmake module for PROJ
             cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
-            apt update 
+            apt update
             apt install -y lsb-release
             sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
             curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
@@ -123,7 +123,7 @@ jobs:
 
             cd /opt/ros/melodic/
             ls -a
-            
+
 
             cd /home/carma-streets/
             mkdir carma_lanelet2 && \
@@ -151,7 +151,7 @@ jobs:
 
             cd /home/carma-streets/carma_lanelet2/install/
             ls -a
-            
+
             cd /home/carma-streets
             mkdir .base-image
             SONAR_DIR=/opt/sonarqube
@@ -200,8 +200,8 @@ jobs:
               export PR_NUM=`echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f7`
               echo "PR number ${PR_NUM}"
               export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
-              export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
+              export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"')
               echo "Target Branch = ${TARGET_BRANCH}"
               cd /home/carma-streets/
-              sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
-            fi 
+              sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}
+            fi

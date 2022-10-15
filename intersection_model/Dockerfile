@@ -24,7 +24,7 @@ RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/gabime/spdlog.git
 WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
+RUN mkdir build
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install
@@ -41,7 +41,7 @@ RUN make install
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
+RUN git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 WORKDIR /home/carma-streets/ext/rapidjson/
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
@@ -94,7 +94,7 @@ RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branc
         ./configure && \
         make && \
         make install
-        
+
 # Download a cmake module for PROJ
 RUN cd /usr/share/cmake-3.10/Modules && curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
 
@@ -112,9 +112,9 @@ SHELL ["/bin/bash", "-c"]
 # Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
 # First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
 # This means the ros source list must be added to to allow this installation
-# Additionally, the python-rospkg package managment tool is required for catkin to work properly 
+# Additionally, the python-rospkg package managment tool is required for catkin to work properly
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin 
+    DEBIAN_FRONTEND=noninteractive apt-get install -y ros-melodic-catkin
 
 # Once catkin is installed only the required lanelet2 packages will be pulled in from carma
 # NOTE: The lanelet2_python package requires additional dependencies that have not yet been installed so it is removed for now

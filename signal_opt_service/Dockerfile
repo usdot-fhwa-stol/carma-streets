@@ -29,7 +29,7 @@ RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/gabime/spdlog.git
 WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
+RUN mkdir build
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install
@@ -38,7 +38,7 @@ RUN make install
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
+RUN git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 WORKDIR /home/carma-streets/ext/rapidjson/
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build

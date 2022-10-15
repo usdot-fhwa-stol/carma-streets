@@ -1,5 +1,5 @@
 ## intersection_model
-# A Library to read lanelet2 osm map 
+# A Library to read lanelet2 osm map
 This library will read and lanelet2 osm map and take in a configurable bounding box to mark the intersection being managed. The library will store the appropriate lanelet2 objects inside this bound box including entry lanes into the intersection, linking lanes through the intersection and any regulatory elements (stop bars, stop signs, traffic lights, speed limits) inside the intersection. The intersection_model had methods to translate GPS location data into lane specific information like lanelet id and distance to the end of the lane for services like the message_service to provide lane. The intersection_model will also return the intersection lanelet2 objects to services that need them to make sense of the lane specific updates the message_service provides.
 
 
@@ -28,13 +28,13 @@ sudo make install
 cd ext/
 git clone https://github.com/gabime/spdlog.git
 cd spdlog/
-mkdir build 
+mkdir build
 cd  build
 cmake .. && make -j
 sudo make install
 
 cd ext
-git clone  https://github.com/Tencent/rapidjson
+git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 cd  rapidjson/
 mkdir build
 cd build
@@ -56,7 +56,7 @@ sudo git clone https://github.com/OSGeo/PROJ.git   carma-streets/ext/PROJ --bran
         sudo ./configure && \
         sudo make && \
         sudo make install
-        
+
 # Download a cmake module for PROJ
 cd /usr/share/cmake-3.10/Modules && sudo curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
 
@@ -72,7 +72,7 @@ sudo apt update && \
 # Lanelet2 is written on the assumption ROS exists. Therefore some special steps are needed for compilation
 # First catkin_make must be installed. The version needed is only available with the ros-melodic-catkin build
 # This means the ros source list must be added to sudo to allow this installation
-# Additionally, the python-rospkg package managment tool is required for catkin to work properly 
+# Additionally, the python-rospkg package managment tool is required for catkin to work properly
 RUN sudo DEBIAN_FRONTEND=noninteractive apt update && \
     sudo DEBIAN_FRONTEND=noninteractive apt install -y ros-melodic-catkin && \
     echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc && \
@@ -124,7 +124,7 @@ Navigate to /carma-streets/ directory
 docker build -t intersection_model -f intersection_model/Dockerfile .
 ```
 ## API definition
-1. intersection model is a service used the expose intersection geometry information from MAP and lanelet2 osm map to carma-streets services that require this information via REST server. 
+1. intersection model is a service used the expose intersection geometry information from MAP and lanelet2 osm map to carma-streets services that require this information via REST server.
 2. Intersection Geometry consists of list of entry, link, and departure lanelets which have the following fields:
 ```
 intersection_info:
@@ -140,7 +140,7 @@ intersection_info:
           $ref: "#/components/schemas/lanelet_array"
         departure_lanelets:
           $ref: "#/components/schemas/lanelet_array"
-        
+
 lanelet_array:
     description: The array of lanelets
     type: array
@@ -148,7 +148,7 @@ lanelet_array:
         $ref: "#/components/schemas/lanelet_info"
 
 lanelet_info:
-    description: The information of lanelet 
+    description: The information of lanelet
     type: object
     properties:
       id:
@@ -167,7 +167,7 @@ lanelet_info:
       turn_direction:
         type: string
         description: Turn direction of intersection lane
-      signal_group_id: 
+      signal_group_id:
         type: integer
         description: The matching signal group send by the SPAT message for this lanelet
       connecting_lanelet_ids:
@@ -176,6 +176,6 @@ lanelet_info:
         items:
           type: integer
 ```
-3. Intesection model handler and router classes inherit from the default handler and router classes from the generated library in streets_utils/streets_api folder. 
+3. Intesection model handler and router classes inherit from the default handler and router classes from the generated library in streets_utils/streets_api folder.
 ## Notes
 When running unit test for the intersection model, making sure the correct osm file is upload under the intersection_model directory.
