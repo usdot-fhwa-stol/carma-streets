@@ -1,5 +1,16 @@
 include(GNUInstallDirs)
 
+set(STREETSSERVICEBASE_SPDLOG_LEVEL SPDLOG_LEVEL_WARN CACHE STRING "Logging level for spdlog")
+set_property(CACHE STREETSSERVICEBASE_SPDLOG_LEVEL PROPERTY STRINGS
+  SPDLOG_LEVEL_TRACE
+  SPDLOG_LEVEL_DEBUG
+  SPDLOG_LEVEL_INFO
+  SPDLOG_LEVEL_WARN
+  SPDLOG_LEVEL_ERROR
+  SPDLOG_LEVEL_CRITICAL
+  SPDLOG_LEVEL_OFF
+)
+
 add_library(streets_service_base_lib
   streets_configuration_exception.cpp
   configuration.cpp
@@ -10,7 +21,7 @@ add_library(streets_service_base_lib::streets_service_base_lib ALIAS streets_ser
 
 target_compile_definitions(streets_service_base_lib
   PRIVATE
-    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
+    SPDLOG_ACTIVE_LEVEL=${STREETSSERVICEBASE_SPDLOG_LEVEL}
 )
 
 target_compile_options(streets_service_base_lib

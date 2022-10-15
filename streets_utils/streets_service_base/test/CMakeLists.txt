@@ -4,11 +4,6 @@ add_executable(streets_service_base_test
   test_streets_singleton.cpp
 )
 
-target_compile_definitions(streets_service_base_test
-  PRIVATE
-    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR
-)
-
 target_include_directories(streets_service_base_test
   PRIVATE
     ${PROJECT_SOURCE_DIR}/include
