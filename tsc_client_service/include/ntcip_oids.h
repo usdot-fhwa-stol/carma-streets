@@ -17,6 +17,11 @@ namespace ntcip_oids {
     static const std::string MAX_CHANNELS = "1.3.6.1.4.1.1206.4.2.1.8.1.0";
 
     /**
+     * @brief OID for MAX_RINGS: The maximum number of rings this TSC supports. 
+    */
+    static const std::string MAX_RINGS = "1.3.6.1.4.1.1206.4.2.1.7.1.0";
+
+    /**
      * @brief OID for Channel control type: Used with (.channel number)
         This object defines the channel control type (Vehicle Phase,Pedestrian Phase or Overlap)
         SYNTAX INTEGER { other (1), phaseVehicle (2), phasePedestrian (3), overlap (4), pedOverlap (5), queueJump (6) } 
