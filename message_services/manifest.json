@@ -11,7 +11,7 @@
         }, 
         {
             "name": "osm_file_path",
-            "value": "../vector_map.osm",
+            "value": "../MAP/East_Intersection.osm",
             "description": "Path to lanelet2 osm map for a given intersection.",
             "type": "STRING"
         },

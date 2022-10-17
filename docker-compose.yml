@@ -120,7 +120,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
-      - ./MAP/vector_map.osm:/home/carma-streets/message_services/vector_map.osm
+      - ./MAP/:/home/carma-streets/message_services/MAP/
       - ./message_services/logs/:/home/carma-streets/message_services/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
