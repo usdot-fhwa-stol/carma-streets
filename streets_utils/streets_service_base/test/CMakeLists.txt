@@ -4,11 +4,6 @@ add_executable(streets_service_base_test
   test_streets_singleton.cpp
 )
 
-target_include_directories(streets_service_base_test
-  PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
-)
-
 target_link_libraries(streets_service_base_test
   PRIVATE
     Boost::system
