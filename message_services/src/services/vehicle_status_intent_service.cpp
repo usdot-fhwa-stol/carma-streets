@@ -12,12 +12,12 @@ namespace message_services
 
 
 
-        bool vehicle_status_intent_service::initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_lanelet2_translate_ptr)
+        bool vehicle_status_intent_service::initialize()
         {
             try
             {               
                 auto client = std::make_shared<kafka_clients::kafka_client>();
-
+                
                 // kafka config
                 this->bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
 
@@ -69,7 +69,9 @@ namespace message_services
                 this->disable_est_path = streets_service::streets_configuration::get_boolean_config("disable_est_path");
                 this->is_est_path_p2p_distance_only = streets_service::streets_configuration::get_boolean_config("is_est_path_p2p_distance_only");
 
-                this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
+                // Initialize message_lanelet2_translation
+                std::string osm_file_path = streets_service::streets_configuration::get_string_config("osm_file_path");
+                _msg_lanelet2_translate_ptr = std::make_shared<message_translations::message_lanelet2_translation>(osm_file_path);
 
                 return true;
             }

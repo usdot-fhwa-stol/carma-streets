@@ -16,7 +16,6 @@ namespace message_services
                     SPDLOG_INFO("Updating vehicle routing graph ... ");
                     if (this->update_vehicle_routing_graph())
                     {
-                        std::cout << "Updated vehicle routing graph. " << std::endl;
                         SPDLOG_INFO("Updated vehicle routing graph. ");
                     }
                     else
