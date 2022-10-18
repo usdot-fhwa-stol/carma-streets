@@ -24,7 +24,7 @@ Docker is the primary deployment mechanism to containerize one or more services.
 
 # CARMAStreets
 The primary carma-streets repository can be found [here](https://github.com/usdot-fhwa-stol/carma-streets) and is part of the [USDOT FHWA STOL](https://github.com/usdot-fhwa-stol/)
-github organization. Documentation on how the carma-streets  functions, how it will evolve over time, and how you can contribute can be found at the above links as well
+github organization. Documentation on how the carma-streets  functions, how it will evolve over time, and how you can contribute can be found at the above links, as well as on the [Doxygen Source Code Documentation](https://usdot-fhwa-stol.github.io/documentation/carma-streets/).
 
 ## Contribution
 Welcome to the CARMA contributing guide. Please read this guide to learn about our development process, how to propose pull requests and improvements, and how to build and test your changes to this project. [CARMA Contributing Guide](https://github.com/usdot-fhwa-stol/carma-platform/blob/develop/Contributing.md) 
