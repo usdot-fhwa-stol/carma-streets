@@ -56,11 +56,6 @@ namespace streets_signal_optimization {
          */            
         uint8_t desired_future_move_group_count;
 
-        /**
-         * @brief The bool parameter defining whether the configurable parameter are set to their desired values or not.
-         */            
-        bool is_configured = false;
-    
 
     };
 
