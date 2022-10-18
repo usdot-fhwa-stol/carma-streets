@@ -8,7 +8,7 @@ using namespace streets_signal_optimization;
 /**
  * @brief Test case for setting the cofiguration.
  */
-TEST(desired_phase_plan_generator, set_configuration) {
+TEST(test_desired_phase_plan_generator, test_set_configuration) {
 
 
     desired_phase_plan_generator generator;
@@ -68,42 +68,53 @@ TEST(desired_phase_plan_generator, set_configuration) {
  * red-clearance for 2 seconds. Then, the traffic signal will be green for signal group 2 for 10 seconds, yellow for 3 seconds and 
  * red-clearance for 2 seconds.
  */
-TEST(desired_phase_plan_generator, verify_spat) {
+TEST(test_desired_phase_plan_generator, test_convert_spat_to_dpp) {
 
     signal_phase_and_timing::spat spat_object;
     std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10300}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_object.fromJson(json_spat);
+    auto intersection_state = spat_object.get_intersection();
+
+    /** Create a list of movement groups */
+    movement_groups move_groups;
+    movement_group mg1;
+    mg1.name = "movement_group 1";
+    mg1.signal_groups = {1, 3};
+    move_groups.groups.push_back(mg1);
+    movement_group mg2;
+    mg2.name = "movement_group 2";
+    mg2.signal_groups = {2, 0};
+    move_groups.groups.push_back(mg2);
+    movement_group mg3;
+    mg3.name = "movement_group 3";
+    mg3.signal_groups = {4, 0};
+    move_groups.groups.push_back(mg3);
 
     desired_phase_plan_generator generator;
-    generator.set_configuration_to_default();
-    bool is_spat_verified = generator.verify_spat(spat_object);
-    ASSERT_EQ( is_spat_verified, false);
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.size(), 2);
+    generator.set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
+    streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = generator.convert_spat_to_dpp(intersection_state, move_groups);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.size(), 2);
+    SPDLOG_INFO("The number of fixed future movement groups in the modified spat: {0}", base_desired_phase_plan.desired_phase_plan.size());
     
-    generator.set_desired_future_move_group_count(3);
-    is_spat_verified = generator.verify_spat(spat_object);
-    ASSERT_EQ( is_spat_verified, true);
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.size(), 2);
-    SPDLOG_INFO("The number of fixed future movement groups in the modified spat: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.size());
+    uint64_t _tbd_start = intersection_state.states.front().state_time_speed.back().timing.get_epoch_min_end_time();
+    uint64_t tbd_start = generator.find_tbd_start_time(intersection_state);
+    ASSERT_EQ( tbd_start, _tbd_start);
+    SPDLOG_INFO("TBD start time: {0}", tbd_start);
     
-    uint64_t _tbd_start = spat_object.get_intersection().states.front().state_time_speed.back().timing.get_epoch_min_end_time();
-    ASSERT_EQ( generator.get_tbd_start(), _tbd_start);
-    SPDLOG_INFO("TBD start time: {0}", generator.get_tbd_start());
-    
-    uint64_t first_mg_start_time = spat_object.get_intersection().states.front().state_time_speed.front().timing.get_epoch_start_time();
-    uint64_t first_mg_end_time = spat_object.get_intersection().states.front().state_time_speed.front().timing.get_epoch_min_end_time();
-    SPDLOG_INFO("First movement group in the base desired phase plan - start time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.front().start_time);
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.front().start_time, first_mg_start_time);
-    SPDLOG_INFO("First movement group in the base desired phase plan - end time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.front().end_time);
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.front().end_time, first_mg_end_time);
-    SPDLOG_INFO("First movement group in the base desired phase plan - start time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.front().signal_groups.size());
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.front().signal_groups.size(), 2);
-    SPDLOG_INFO("Second movement group in the base desired phase plan - start time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.back().start_time);
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.back().start_time, first_mg_end_time + 5000);
-    SPDLOG_INFO("Second movement group in the base desired phase plan - start time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.back().end_time);
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.back().end_time, first_mg_end_time + 5000 + 10000);
-    SPDLOG_INFO("Second movement group in the base desired phase plan - end time: {0}", generator.get_base_desired_phase_plan().desired_phase_plan.back().signal_groups.size());
-    ASSERT_EQ( generator.get_base_desired_phase_plan().desired_phase_plan.back().signal_groups.size(), 1);
+    uint64_t first_mg_start_time = intersection_state.states.front().state_time_speed.front().timing.get_epoch_start_time();
+    uint64_t first_mg_end_time = intersection_state.states.front().state_time_speed.front().timing.get_epoch_min_end_time();
+    SPDLOG_INFO("First movement group in the base desired phase plan - start time: {0}", base_desired_phase_plan.desired_phase_plan.front().start_time);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().start_time, first_mg_start_time);
+    SPDLOG_INFO("First movement group in the base desired phase plan - end time: {0}", base_desired_phase_plan.desired_phase_plan.front().end_time);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().end_time, first_mg_end_time);
+    SPDLOG_INFO("First movement group in the base desired phase plan - number of signal groups: {0}", base_desired_phase_plan.desired_phase_plan.front().signal_groups.size());
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().signal_groups.size(), 2);
+    SPDLOG_INFO("Second movement group in the base desired phase plan - start time: {0}", base_desired_phase_plan.desired_phase_plan.back().start_time);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().start_time, first_mg_end_time + 5000);
+    SPDLOG_INFO("Second movement group in the base desired phase plan - end time: {0}", base_desired_phase_plan.desired_phase_plan.back().end_time);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().end_time, first_mg_end_time + 5000 + 10000);
+    SPDLOG_INFO("Second movement group in the base desired phase plan - number of signal groups: {0}", base_desired_phase_plan.desired_phase_plan.back().signal_groups.size());
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().signal_groups.size(), 1);
     
 }
 
@@ -116,36 +127,32 @@ TEST(desired_phase_plan_generator, verify_spat) {
  * All connection links connected to entry lane 3 are all connected to signal group 3.
  * All connection links connected to entry lane 4 are all connected to signal group 4.
  */
-TEST(desired_phase_plan_generator, entry_lane_signal_group_mapping) {
+TEST(test_desired_phase_plan_generator, test_signal_group_entry_lane_mapping) {
 
     desired_phase_plan_generator generator;
-    generator.set_configuration_to_default();
-    generator.set_desired_future_move_group_count(3);
-    generator.set_so_radius(250);
+    generator.set_configuration(2000, 2000, 2000, 3000, 250, 50000, 120000, 3);
 
     OpenAPI::OAIIntersection_info info;
     std::string json_info = "{\"departure_lanelets\":[{ \"id\":5, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":6, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":7, \"length\":34.130869420842046, \"speed_limit\":11.176 }, { \"id\":8, \"length\":50.123213235343123, \"speed_limit\":11.176 }, { \"id\":18, \"length\":50.123213235343123, \"speed_limit\":11.176 }], \"entry_lanelets\":[{ \"id\":1, \"length\":195.73023157287864, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [9, 10] }, { \"id\":2, \"length\":34.130869411176431136, \"speed_limit\":11.176, \"connecting_lanelet_ids\": [11, 12] }, { \"id\":3, \"length\":41.60952435603712, \"speed_limit\":11.176 , \"connecting_lanelet_ids\": [13, 14]}, { \"id\":4, \"length\":53.19846216254821, \"speed_limit\":11.176 , \"connecting_lanelet_ids\": [15, 16]}, { \"id\":17, \"length\":53.19846216254821, \"speed_limit\":11.176 , \"connecting_lanelet_ids\": [19, 20]}], \"id\":9001, \"link_lanelets\":[{ \"conflict_lanelet_ids\":[ 11, 15, 16 ], \"id\":9, \"length\":15.85409574709938, \"speed_limit\":11.176, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 11 ], \"id\":10, \"length\":16.796388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 9, 10, 13 ], \"id\":11, \"length\":16.043077028554038, \"speed_limit\":11.176, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 13 ], \"id\":12, \"length\":10.295559117055083, \"speed_limit\":4.4704, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 11, 12, 15 ], \"id\":13, \"length\":15.853947840111768943, \"speed_limit\":11.176, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 15 ], \"id\":14, \"length\":9.744590320260139, \"speed_limit\":4.4704, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 9, 13, 14 ], \"id\":15, \"length\":13.6473819283719203846, \"speed_limit\":11.176, \"signal_group_id\":4 }, { \"conflict_lanelet_ids\":[ 9 ], \"id\":16, \"length\":8.182736100981263, \"speed_limit\":4.4704, \"signal_group_id\":4 }, { \"conflict_lanelet_ids\":[ 11, 15, 16 ], \"id\":19, \"length\":14.12329574709938, \"speed_limit\":11.176, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 11 ], \"id\":20, \"length\":14.123388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }], \"name\":\"WestIntersection\"}";  
     info.fromJson(QString::fromStdString(json_info));
     std::shared_ptr<OpenAPI::OAIIntersection_info> intersection = std::make_shared<OpenAPI::OAIIntersection_info>(info);
-    generator.set_intersection_info(intersection);
 
-    generator.create_entry_lane_signal_group_mapping();
-
-    std::unordered_map<uint8_t, std::vector<int>> entry_lane_signal_group_mapping = generator.get_entry_lane_signal_group_mapping();
-    ASSERT_EQ(entry_lane_signal_group_mapping.size(), 4);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: [{1}, {2}]", 1, entry_lane_signal_group_mapping.at(1)[0], entry_lane_signal_group_mapping.at(1)[1]);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(1).size(), 2);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(1)[0], 1);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(1)[1], 17);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 2, entry_lane_signal_group_mapping.at(2)[0]);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(2).size(), 1);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(2)[0], 2);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 3, entry_lane_signal_group_mapping.at(4)[0]);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(3).size(), 1);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(3)[0], 3);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 4, entry_lane_signal_group_mapping.at(4)[0]);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(4).size(), 1);
-    ASSERT_EQ(entry_lane_signal_group_mapping.at(4)[0], 4);
+    generator.create_signal_group_entry_lane_mapping(intersection);
+    std::unordered_map<uint8_t, std::vector<int>> signal_group_entry_lane_mapping = generator.get_signal_group_entry_lane_mapping();
+    ASSERT_EQ(signal_group_entry_lane_mapping.size(), 4);
+    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: [{1}, {2}]", 1, signal_group_entry_lane_mapping.at(1)[0], signal_group_entry_lane_mapping.at(1)[1]);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(1).size(), 2);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(1)[0], 1);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(1)[1], 17);
+    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 2, signal_group_entry_lane_mapping.at(2)[0]);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(2).size(), 1);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(2)[0], 2);
+    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 3, signal_group_entry_lane_mapping.at(4)[0]);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(3).size(), 1);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(3)[0], 3);
+    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 4, signal_group_entry_lane_mapping.at(4)[0]);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(4).size(), 1);
+    ASSERT_EQ(signal_group_entry_lane_mapping.at(4)[0], 4);
     
 }
 
@@ -175,23 +182,22 @@ TEST(desired_phase_plan_generator, entry_lane_signal_group_mapping) {
  * - Movement group 3 : {signal group 4}
  * 
  */
-TEST(desired_phase_plan_generator, generate_desired_phase_plan_list) {
+namespace streets_signal_optimization {
+
+TEST(test_desired_phase_plan_generator, test_generate_desired_phase_plan_list) {
 
     desired_phase_plan_generator generator;
-    generator.set_configuration_to_default();
-    generator.set_desired_future_move_group_count(3);
-    generator.set_so_radius(250);
+    generator.set_configuration(2000, 2000, 2000, 3000, 250, 50000, 120000, 3);
 
     OpenAPI::OAIIntersection_info info;
     std::string json_info = "{\"departure_lanelets\":[{ \"id\":5, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":6, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":7, \"length\":34.130869420842046, \"speed_limit\":11.176 }, { \"id\":8, \"length\":50.123213235343123, \"speed_limit\":11.176 }], \"entry_lanelets\":[{ \"id\":1, \"length\":195.73023157287864, \"speed_limit\":8.0, \"connecting_lanelet_ids\": [9, 10] }, { \"id\":2, \"length\":34.130869411176431136, \"speed_limit\":8.0, \"connecting_lanelet_ids\": [11, 12] }, { \"id\":3, \"length\":41.60952435603712, \"speed_limit\":8.0 , \"connecting_lanelet_ids\": [13, 14]}, { \"id\":4, \"length\":53.19846216254821, \"speed_limit\":8.0 , \"connecting_lanelet_ids\": [15, 16]}], \"id\":9001, \"link_lanelets\":[{ \"conflict_lanelet_ids\":[ 11, 15, 16 ], \"id\":9, \"length\":15.85409574709938, \"speed_limit\":8.0, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 11 ], \"id\":10, \"length\":16.796388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 9, 10, 13 ], \"id\":11, \"length\":16.043077028554038, \"speed_limit\":8.0, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 13 ], \"id\":12, \"length\":10.295559117055083, \"speed_limit\":4.4704, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 11, 12, 15 ], \"id\":13, \"length\":15.853947840111768943, \"speed_limit\":8.0, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 15 ], \"id\":14, \"length\":9.744590320260139, \"speed_limit\":4.4704, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 9, 13, 14 ], \"id\":15, \"length\":13.6473819283719203846, \"speed_limit\":8.0, \"signal_group_id\":4 }, { \"conflict_lanelet_ids\":[ 9 ], \"id\":16, \"length\":8.182736100981263, \"speed_limit\":4.4704, \"signal_group_id\":4 }], \"name\":\"WestIntersection\"}";  
     info.fromJson(QString::fromStdString(json_info));
     std::shared_ptr<OpenAPI::OAIIntersection_info> intersection = std::make_shared<OpenAPI::OAIIntersection_info>(info);
-    generator.set_intersection_info(intersection);
-
 
     signal_phase_and_timing::spat spat_object;
     std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10000}},{\"event_state\":6,\"timing\":{\"start_time\":10000,\"min_end_time\":10050}}, {\"event_state\":8,\"timing\":{\"start_time\":10050,\"min_end_time\":10080}}, {\"event_state\":3,\"timing\":{\"start_time\":10080,\"min_end_time\":10100}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_object.fromJson(json_spat);
+    auto intersection_state = spat_object.get_intersection();
 
 
     uint64_t current_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -216,7 +222,7 @@ TEST(desired_phase_plan_generator, generate_desired_phase_plan_list) {
     spat_timing.push_back(spat_timing_array);
     int d1_iterator = 0;
     int d2_iterator = 0;
-    for (auto &state : spat_object.get_intersection().states) {
+    for (auto &state : intersection_state.states) {
         d2_iterator = 0;
         for (auto &state_timing : state.state_time_speed) {
             state_timing.timing.set_start_time(spat_timing[d1_iterator][d2_iterator].first);
@@ -482,29 +488,30 @@ TEST(desired_phase_plan_generator, generate_desired_phase_plan_list) {
     
 
     /** Generate the list of desired phase plans. */
-    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list = generator.generate_desire_phase_plan_list(veh_list, spat_object, move_groups);
-    uint64_t tbd_start_time = generator.get_tbd_start();
+    generator.configure_scheduler(intersection);
+    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list = generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups);
+    uint64_t tbd_start_time = generator.find_tbd_start_time(intersection_state);
     ASSERT_LE( tbd_start_time, current_time + 10000 + 200);
     SPDLOG_INFO("Current timestamp: {0}, TBD start time: {1}", current_time, tbd_start_time);
 
 
     /** Seperate the vehicle schedules base on their entry lanes */
-    std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> sched_ptr = generator.get_schedule_ptr();
+    std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> sched_ptr = generator.get_schedule_plan(veh_list);
     auto schedule_ptr = std::dynamic_pointer_cast<streets_vehicle_scheduler::signalized_intersection_schedule> (sched_ptr);
     ASSERT_EQ( schedule_ptr->vehicle_schedules.size(), 13);
-    std::unordered_map<int, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>> entr_lane_to_vehicle_sched_mapping;
-    entr_lane_to_vehicle_sched_mapping.try_emplace(1, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>());
-    entr_lane_to_vehicle_sched_mapping.try_emplace(3, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>());
-    entr_lane_to_vehicle_sched_mapping.try_emplace(4, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>());
+    std::unordered_map<int, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>> entry_lane_to_vehicle_sched_mapping;
+    entry_lane_to_vehicle_sched_mapping.try_emplace(1, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>());
+    entry_lane_to_vehicle_sched_mapping.try_emplace(3, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>());
+    entry_lane_to_vehicle_sched_mapping.try_emplace(4, std::vector<streets_vehicle_scheduler::signalized_vehicle_schedule>());
     for (auto veh_sched : schedule_ptr->vehicle_schedules){
         if (veh_sched.entry_lane == 1) {
-            entr_lane_to_vehicle_sched_mapping.at(1).push_back(veh_sched);
+            entry_lane_to_vehicle_sched_mapping.at(1).push_back(veh_sched);
         }
         else if (veh_sched.entry_lane == 3){
-            entr_lane_to_vehicle_sched_mapping.at(3).push_back(veh_sched);
+            entry_lane_to_vehicle_sched_mapping.at(3).push_back(veh_sched);
         }
         else if (veh_sched.entry_lane == 4){
-            entr_lane_to_vehicle_sched_mapping.at(4).push_back(veh_sched);
+            entry_lane_to_vehicle_sched_mapping.at(4).push_back(veh_sched);
         }
     }
 
@@ -517,7 +524,7 @@ TEST(desired_phase_plan_generator, generate_desired_phase_plan_list) {
     int vehicle_in_tbd_count;
     int vehicle_in_queue_count;
     bool is_last_vehicle_in_queue_found;
-    for (const auto &[entry_lane_id, veh_sched_list] : entr_lane_to_vehicle_sched_mapping) {
+    for (const auto &[entry_lane_id, veh_sched_list] : entry_lane_to_vehicle_sched_mapping) {
         is_last_vehicle_in_queue_found = false;
         vehicle_in_tbd_count = 0;
         SPDLOG_INFO("Estimated ET for vehicles from entry lane {0} :", entry_lane_id);
@@ -610,5 +617,5 @@ TEST(desired_phase_plan_generator, generate_desired_phase_plan_list) {
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[1].signal_groups[0], 4);
     SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - signal group ids: [{0}]", desired_phase_plan_list[2].desired_phase_plan[1].signal_groups[0]);
 
-
+}
 }
