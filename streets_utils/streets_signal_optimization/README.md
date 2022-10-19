@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Streets Desired phase plan arbitrator
 
 ## Introduction
@@ -9,26 +7,6 @@ The desired phase plan arbitrator include a series of steps to choose the optimz
 The sample data for incoming list of candidate desire phase plan in JSON format is below:
 
 ```
-=======
-=======
->>>>>>> Issue-226: so queue calculation implementation init
-# Streets Signal Optimization Library
-
-## Introduction
-This library is intended to contain the logic for selecting/generating an optimal desired phase plan in **CARMA Streets**. This library consists of two main classes: the **desired_phase_plan_generator** class and the **desired_phase_plan_arbitratore**.
-
-## desired_phase_plan_generator
-The **desired_phase_plan_generator** is a library that generates a list of candidate desired phase plans. Each desired phase plan has a list of movement groups with their start times, end times, and the included signal groups (Please refer to the desired phase plan library's documentation for more information about this library). The main method that returns the desired phase plan list is **desired_phase_plan_generator::generate_desire_phase_plan_list.()** which takes a vehicle id to vehicle object (**streets_vehicle_list::vehicle**) mapping, a modified spat object (**signal_phase_and_timing::spat**), and a list of candidate movement groups (**streets_signal_optimization::movement_groups &move_groups**).
-In order to succussfully run the **desired_phase_plan_generator::generate_desire_phase_plan_list.()** method, the **intersection_info_ptr** has to be set first. Also, the **desired_phase_plan_generator** has a **desired_phase_plan_generator_configuration** object. If the configurations are not set, they will be set to their default values.
-
-
-```
-An example of the desired phase plan list:
-
-<<<<<<< HEAD
->>>>>>> Issue-226: so queue calculation implementation init
-=======
->>>>>>> Issue-226: so queue calculation implementation init
 {
   "desired_phase_plan_list": [
     {
@@ -193,8 +171,6 @@ An example of the desired phase plan list:
         }
   ]
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
 ```
 - Signal group: A single movement or group of movements in an intersection that are controlled by a single phase. 
 ![image](https://user-images.githubusercontent.com/62157949/194932912-faca0739-7212-452c-a723-8f446f90ac00.png)
@@ -245,9 +221,3 @@ Returns:
 
 
 ```
-=======
-```
->>>>>>> Issue-226: so queue calculation implementation init
-=======
-```
->>>>>>> Issue-226: so queue calculation implementation init
