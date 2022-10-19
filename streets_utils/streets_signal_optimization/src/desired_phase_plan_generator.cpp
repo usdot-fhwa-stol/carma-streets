@@ -45,7 +45,7 @@ namespace streets_signal_optimization {
              * Create a local spat pointer. Check if the scheduler pointer is configured. Set the spat in the scheduler pointer.
              * Then, schedule all vehicles and get the intersection_scheduler pointer 
              * */
-            std::shared_ptr<signal_phase_and_timing::spat> spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+            auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
             spat_ptr->set_intersection(intersection_state);
             if (scheduler_ptr) {
                 scheduler_ptr->set_spat(spat_ptr);
@@ -70,7 +70,7 @@ namespace streets_signal_optimization {
             
             /** Then, seperate EV schedules that have estimated entering times (ETs) within TBD area based on their entry lane. 
              *  The list of EV schedules for each entry lane is sorted based on the estimated ET. 
-             *  If the schedules in tbd per entry lane map is empty (i.e., there is no EV with an estimated ET within TBD area), 
+             *  If the schedules in TBD per entry lane map is empty (i.e., there is no EV with an estimated ET within TBD area), 
              *      return an empty desired phase plan list.
              */
             std::unordered_map<int, std::list<streets_vehicle_scheduler::signalized_vehicle_schedule>> schedules_in_tbd = get_schedules_in_tbd_per_lane(ev_schedules_within_so, intersection_info_ptr, tbd_start);            
@@ -87,7 +87,7 @@ namespace streets_signal_optimization {
              */
             std::unordered_map<int, uint64_t> green_end_per_entry_lane = get_green_end_per_entry_lane(schedules_in_tbd, tbd_start);
             if (green_end_per_entry_lane.empty()) {               
-                SPDLOG_WARN("Vehicles schedules in tbd is not empty, green_end_per_entry_lane map is empty!");
+                SPDLOG_WARN("Vehicles schedules in TBD is not empty, green_end_per_entry_lane map is empty!");
                 return desired_phase_plan_list;
             }
 

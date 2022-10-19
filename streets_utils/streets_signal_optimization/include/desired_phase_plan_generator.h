@@ -174,7 +174,7 @@ namespace streets_signal_optimization {
              * @brief Generate a list of desired phase plans. Each desired phase plan in the list includes the existing fixed future 
              * movement groups from the provided intersection_state and a new movement group with a given duration at the end. 
              * An empty desired phase plan list means that either the spat verification failed or there are no estimated entering time (ET) 
-             * within the to-be-determined (tbd) area.
+             * within the to-be-determined (TBD) area.
              * 
              * @param intersection_info_ptr An intersection_info pointer.
              * @param vehicles A map of the vehicles to schedule, with vehicle id as keys.
