@@ -392,7 +392,7 @@ namespace message_services
             }
             catch (const lanelet::LaneletError &e)
             {
-                SPDLOG_CRITICAL("Compose vehicle status intent Exception occur : " + e.what());
+                SPDLOG_ERROR("Compose vehicle status intent Exception occur : {0}!", e.what());
                 return vsi;
             }
         }
