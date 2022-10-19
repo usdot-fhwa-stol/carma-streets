@@ -123,19 +123,18 @@ namespace message_services
                 {
                     while (true)
                     {
-                        // Change spdlog from debug to info for printing output in terminal
-                        SPDLOG_DEBUG("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
-                        SPDLOG_DEBUG("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
-                        SPDLOG_DEBUG("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
+                        SPDLOG_TRACE("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
+                        SPDLOG_TRACE("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
+                        SPDLOG_TRACE("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
                         if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_map().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_map().size() > 0)
                         {
-                            SPDLOG_DEBUG("Processing the BSM, mobilityOperation and MP from list...");
+                            SPDLOG_TRACE("Processing the BSM, mobilityOperation and MP from list...");
                             std::unique_lock<std::mutex> lck(worker_mtx);
                             while (mo_w_ptr && !mo_w_ptr->get_curr_list().empty())
                             {
-                                SPDLOG_INFO("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                                SPDLOG_INFO("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
-                                SPDLOG_INFO("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+                                SPDLOG_TRACE("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                                SPDLOG_TRACE("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                                SPDLOG_TRACE("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
                                 message_services::models::mobilityoperation subj_mo = mo_w_ptr->get_curr_list().front();
                                 mo_w_ptr->get_curr_list().pop_front();
 
@@ -150,7 +149,7 @@ namespace message_services
 
                                     if (std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_) > (this->BSM_MSG_EXPIRE_IN_SEC * 1000))
                                     {
-                                        SPDLOG_INFO("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
+                                        SPDLOG_WARN("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
                                         bsm_w_ptr->get_curr_map().erase(bsm_msg_id);
                                         continue;
                                     }
@@ -175,7 +174,7 @@ namespace message_services
                                 *vsi_ptr = compose_vehicle_status_intent(subj_bsm, subj_mo, subj_mp);
                                 if (vsi_ptr)
                                 {
-                                    SPDLOG_DEBUG("Done composing vehicle_status_intent");
+                                    SPDLOG_DEBUG("Correlated vehicle status intent for {0}", vsi_ptr->getVehicle_id());
                                     std::string msg_to_pub = vsi_ptr->asJson();
                                     this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
                                 }
@@ -386,11 +385,14 @@ namespace message_services
                         vsi.setEnter_lanelet_id(itr->first);
                     }
                 }
+                if (lanelet_id_type_m.empty() ) {
+                    SPDLOG_WARN("Did not find entry,link, or departure lanet for vehicle {0} in lane {1}." , vsi.getVehicle_id(), cur_lanelet.id());
+                }
                 return vsi;               
             }
-            catch (...)
+            catch (const lanelet::LaneletError &e)
             {
-                SPDLOG_CRITICAL("Compose vehicle status intent Exception occur");
+                SPDLOG_CRITICAL("Compose vehicle status intent Exception occur : " + e.what());
                 return vsi;
             }
         }

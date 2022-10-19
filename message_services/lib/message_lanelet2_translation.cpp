@@ -116,11 +116,6 @@ namespace message_services
         {                  
             std::vector<lanelet::Lanelet> current_total_lanelets = get_cur_lanelets_by_point(subj_point3d);   
             std::vector<lanelet::Lanelet> result_lanelets;
-            if (current_total_lanelets.empty())
-            {
-                SPDLOG_ERROR("No current lanelets to the vehicle in map point: x = {0}, y = {1}, z = {2}, and turn direction = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
-                return lanelet::Lanelet();
-            }
 
             /****
              * Check the lanelet turn direction to help identify the current lanelet if current geo-loc return more than 1 current lanelets.
@@ -164,8 +159,8 @@ namespace message_services
                         dest_x += offset_itr->offset_x;
                         dest_y += offset_itr->offset_y;
                         dest_z += offset_itr->offset_z;
-                        SPDLOG_DEBUG("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
-                        SPDLOG_DEBUG("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
+                        SPDLOG_TRACE("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
+                        SPDLOG_TRACE("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
                     }
 
                     lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x, dest_y, dest_z);
@@ -175,10 +170,10 @@ namespace message_services
                     {
                         const lanelet::Lanelet cur_lanelet = *itr;
                         double start_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_start), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
-                        SPDLOG_INFO("cur_lanelet = {0} to trajectory start point distance = {1}", cur_lanelet.id(), start_distance2_ctl);
+                        SPDLOG_DEBUG("cur_lanelet = {0} to trajectory start point distance = {1}", cur_lanelet.id(), start_distance2_ctl);
 
                         double dest_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_dest), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
-                        SPDLOG_INFO("cur_lanelet = {0} to trajectory dest point distance = {1}", cur_lanelet.id(), dest_distance2_ctl);
+                        SPDLOG_DEBUG("cur_lanelet = {0} to trajectory dest point distance = {1}", cur_lanelet.id(), dest_distance2_ctl);
 
                         double cur_distance_sum = start_distance2_ctl + dest_distance2_ctl;
 
@@ -196,8 +191,10 @@ namespace message_services
             {           
                 return current_total_lanelets.front();
             }
-
-          return lanelet::Lanelet();
+            else {
+                SPDLOG_ERROR("No current lanelets to the vehicle in map point: x = {0}, y = {1}, z = {2}, and turn direction = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
+                return lanelet::Lanelet();
+            }
         }
 
         double message_lanelet2_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, lanelet::Lanelet subj_lanelet, std::string turn_direction, models::trajectory &trajectory) const

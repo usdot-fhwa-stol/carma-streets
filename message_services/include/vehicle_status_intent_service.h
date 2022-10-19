@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <stdlib.h> /* abs */
+#include <lanelet2_core/Exceptions.h>
+
 
 #include "bsm_worker.h"
 #include "mobilitypath_worker.h"

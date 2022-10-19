@@ -502,19 +502,4 @@ namespace traffic_signal_controller_service
         return signal_group_state_map_;
     }        
 
-    uint16_t tsc_state::convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const{
-        auto system_time = std::chrono::system_clock::now();
-        auto duration = system_time.time_since_epoch();
-        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
-        auto hour_tenth_secs = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS_ * SECOND_TO_MILLISECONDS_))/100;
-        return static_cast<uint16_t>(hour_tenth_secs);
-    }
-
-    uint64_t tsc_state::convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const{
-        auto tp = std::chrono::system_clock::now();
-        auto duration = tp.time_since_epoch();
-        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
-        auto epoch_start_time = hours_since_epoch * HOUR_TO_SECONDS_ * SECOND_TO_MILLISECONDS_ + hour_tenth_secs * 100;
-        return epoch_start_time;
-    }
 }
