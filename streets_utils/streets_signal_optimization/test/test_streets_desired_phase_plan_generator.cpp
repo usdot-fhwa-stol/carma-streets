@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <spdlog/spdlog.h>
-#include "desired_phase_plan_generator.h"
+#include "streets_desired_phase_plan_generator.h"
 
 using namespace streets_vehicles;
 using namespace streets_signal_optimization;
@@ -8,10 +8,10 @@ using namespace streets_signal_optimization;
 /**
  * @brief Test case for setting the cofiguration.
  */
-TEST(test_desired_phase_plan_generator, test_set_configuration) {
+TEST(test_streets_desired_phase_plan_generator, test_set_configuration) {
 
 
-    desired_phase_plan_generator generator;
+    streets_desired_phase_plan_generator generator;
 
     const uint64_t _initial_green_buffer = 1500; 
     const uint64_t _final_green_buffer = 1000;
@@ -68,7 +68,7 @@ TEST(test_desired_phase_plan_generator, test_set_configuration) {
  * red-clearance for 2 seconds. Then, the traffic signal will be green for signal group 2 for 10 seconds, yellow for 3 seconds and 
  * red-clearance for 2 seconds.
  */
-TEST(test_desired_phase_plan_generator, test_convert_spat_to_dpp) {
+TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
 
     signal_phase_and_timing::spat spat_object;
     std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10300}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
@@ -90,7 +90,7 @@ TEST(test_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     mg3.signal_groups = {4, 0};
     move_groups.groups.push_back(mg3);
 
-    desired_phase_plan_generator generator;
+    streets_desired_phase_plan_generator generator;
     generator.set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
     streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = generator.convert_spat_to_dpp(intersection_state, move_groups);
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.size(), 2);
@@ -127,9 +127,9 @@ TEST(test_desired_phase_plan_generator, test_convert_spat_to_dpp) {
  * All connection links connected to entry lane 3 are all connected to signal group 3.
  * All connection links connected to entry lane 4 are all connected to signal group 4.
  */
-TEST(test_desired_phase_plan_generator, test_signal_group_entry_lane_mapping) {
+TEST(test_streets_desired_phase_plan_generator, test_signal_group_entry_lane_mapping) {
 
-    desired_phase_plan_generator generator;
+    streets_desired_phase_plan_generator generator;
     generator.set_configuration(2000, 2000, 2000, 3000, 250, 50000, 120000, 3);
 
     OpenAPI::OAIIntersection_info info;
@@ -184,9 +184,9 @@ TEST(test_desired_phase_plan_generator, test_signal_group_entry_lane_mapping) {
  */
 namespace streets_signal_optimization {
 
-TEST(test_desired_phase_plan_generator, test_generate_desired_phase_plan_list) {
+TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan_list) {
 
-    desired_phase_plan_generator generator;
+    streets_desired_phase_plan_generator generator;
     generator.set_configuration(2000, 2000, 2000, 3000, 250, 50000, 120000, 3);
 
     OpenAPI::OAIIntersection_info info;

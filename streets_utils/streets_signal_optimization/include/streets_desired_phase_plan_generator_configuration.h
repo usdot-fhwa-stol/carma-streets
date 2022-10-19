@@ -6,7 +6,7 @@
 
 namespace streets_signal_optimization {
 
-    struct desired_phase_plan_generator_configuration {
+    struct streets_desired_phase_plan_generator_configuration {
 
         /**
          * @brief The configurable time interval at the beginning of a green phase in milliseconds that is considered for estimating 

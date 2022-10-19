@@ -1,8 +1,8 @@
-#include "desired_phase_plan_generator.h"
+#include "streets_desired_phase_plan_generator.h"
 
 namespace streets_signal_optimization {
 
-    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_generator::generate_desire_phase_plan_list
+    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> streets_desired_phase_plan_generator::generate_desire_phase_plan_list
                                         (const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                                         std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles,
                                         signal_phase_and_timing::intersection_state &intersection_state,
@@ -26,7 +26,7 @@ namespace streets_signal_optimization {
             */
             streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = convert_spat_to_dpp(intersection_state, move_groups);
             if (base_desired_phase_plan.desired_phase_plan.empty()) {
-                throw desired_phase_plan_generator_exception("No green movement group is found in the spat. base_desired_phase_plan is empty!");
+                throw streets_desired_phase_plan_generator_exception("No green movement group is found in the spat. base_desired_phase_plan is empty!");
             }
             if (base_desired_phase_plan.desired_phase_plan.size() > config.desired_future_move_group_count) {
                 SPDLOG_DEBUG("The number of fixed future movement groups in the modified spat ({0}) is greater than the desired number of fixed future movement groups ({1})!", base_desired_phase_plan.desired_phase_plan.size(), config.desired_future_move_group_count);
@@ -110,13 +110,13 @@ namespace streets_signal_optimization {
             
         }
         catch ( const std::exception &ex ) {
-            throw desired_phase_plan_generator_exception(ex.what());
+            throw streets_desired_phase_plan_generator_exception(ex.what());
         }
 
     }
 
 
-    streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan_generator::convert_spat_to_dpp
+    streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_generator::convert_spat_to_dpp
                                                                     (signal_phase_and_timing::intersection_state &intersection_state, 
                                                                     const streets_signal_optimization::movement_groups &move_groups) const {
         
@@ -130,12 +130,12 @@ namespace streets_signal_optimization {
             signal_phase_and_timing::movement_state move_state_2;
             move_state_1 = intersection_state.get_movement(mg.signal_groups.first); 
             if (move_state_1.state_time_speed.empty()) {
-                throw desired_phase_plan_generator_exception("signal group " + std::to_string(move_state_1.signal_group) + " has empty movement_state list in the provided intersection_state object!");
+                throw streets_desired_phase_plan_generator_exception("signal group " + std::to_string(move_state_1.signal_group) + " has empty movement_state list in the provided intersection_state object!");
             } 
             if (mg.signal_groups.second != 0) {
                 move_state_2 = intersection_state.get_movement(mg.signal_groups.second);
                 if (move_state_2.state_time_speed.empty()) {
-                    throw desired_phase_plan_generator_exception("signal group " + std::to_string(move_state_2.signal_group) + " has empty movement_state list in the provided intersection_state object!");
+                    throw streets_desired_phase_plan_generator_exception("signal group " + std::to_string(move_state_2.signal_group) + " has empty movement_state list in the provided intersection_state object!");
                 } 
             }
                 
@@ -179,7 +179,7 @@ namespace streets_signal_optimization {
                                 mg_green.end_time > base_desired_phase_plan.desired_phase_plan[index].start_time) || 
                             (mg_green.start_time < base_desired_phase_plan.desired_phase_plan[index].end_time && 
                                 mg_green.end_time > base_desired_phase_plan.desired_phase_plan[index].end_time) ) {
-                        throw desired_phase_plan_generator_exception("spat has future movement groups with partially overlapping green durations!");
+                        throw streets_desired_phase_plan_generator_exception("spat has future movement groups with partially overlapping green durations!");
                     }
                     if (mg_green.end_time < base_desired_phase_plan.desired_phase_plan[index].start_time) {
                         base_desired_phase_plan.desired_phase_plan.insert(base_desired_phase_plan.desired_phase_plan.begin() + index, mg_green);
@@ -198,14 +198,14 @@ namespace streets_signal_optimization {
     }
 
 
-    uint64_t desired_phase_plan_generator::find_tbd_start_time(const signal_phase_and_timing::intersection_state &intersection_state) const {
+    uint64_t streets_desired_phase_plan_generator::find_tbd_start_time(const signal_phase_and_timing::intersection_state &intersection_state) const {
         uint64_t tbd_start = 0;
         for (const auto& move_state : intersection_state.states) {
             if (move_state.state_time_speed.empty()) {
-                throw desired_phase_plan_generator_exception("signal group " + std::to_string(move_state.signal_group) + " has empty movement_state list in the provided intersection_state object!");
+                throw streets_desired_phase_plan_generator_exception("signal group " + std::to_string(move_state.signal_group) + " has empty movement_state list in the provided intersection_state object!");
             } 
             if (move_state.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain) {
-                throw desired_phase_plan_generator_exception("The last movement_event's state of signal group " + std::to_string(move_state.signal_group) + " is not stop_and_remain!");
+                throw streets_desired_phase_plan_generator_exception("The last movement_event's state of signal group " + std::to_string(move_state.signal_group) + " is not stop_and_remain!");
             }
             else {
                 if (tbd_start == 0) {
@@ -225,7 +225,7 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::configure_scheduler(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr) {
+    void streets_desired_phase_plan_generator::configure_scheduler(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr) {
         /** configure the signalized_vehicle_scheduler pointer */
         scheduler_ptr = std::make_shared<streets_vehicle_scheduler::signalized_vehicle_scheduler>();
         scheduler_ptr->set_intersection_info(intersection_info_ptr);
@@ -234,7 +234,7 @@ namespace streets_signal_optimization {
     }
 
 
-    std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> desired_phase_plan_generator::get_schedule_plan(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles) const {
+    std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> streets_desired_phase_plan_generator::get_schedule_plan(std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles) const {
 
         /** configure the signalized_intersection_schedule pointer */
         std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> sched_ptr;
@@ -247,7 +247,7 @@ namespace streets_signal_optimization {
     }
 
 
-    streets_vehicle_scheduler::signalized_intersection_schedule desired_phase_plan_generator::get_ev_schedules_within_so(
+    streets_vehicle_scheduler::signalized_intersection_schedule streets_desired_phase_plan_generator::get_ev_schedules_within_so(
                                                     const std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> &sched_ptr, 
                                                     const std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles) const {
         
@@ -263,7 +263,7 @@ namespace streets_signal_optimization {
 
 
     std::unordered_map<int, std::list<streets_vehicle_scheduler::signalized_vehicle_schedule>> 
-                                            desired_phase_plan_generator::get_schedules_in_tbd_per_lane(
+                                            streets_desired_phase_plan_generator::get_schedules_in_tbd_per_lane(
                                                         const streets_vehicle_scheduler::signalized_intersection_schedule &ev_schedules_within_so, 
                                                         const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                                                         const uint64_t &tbd_start) const {
@@ -289,7 +289,7 @@ namespace streets_signal_optimization {
     }
 
 
-    std::unordered_map<int, uint64_t> desired_phase_plan_generator::get_green_end_per_entry_lane(
+    std::unordered_map<int, uint64_t> streets_desired_phase_plan_generator::get_green_end_per_entry_lane(
                                 const std::unordered_map<int, std::list<streets_vehicle_scheduler::signalized_vehicle_schedule>> &schedules_in_tbd, 
                                 const uint64_t &tbd_start) const {
         
@@ -317,7 +317,7 @@ namespace streets_signal_optimization {
     }
 
 
-    streets_vehicle_scheduler::signalized_vehicle_schedule desired_phase_plan_generator::get_last_vehicle_in_queue(
+    streets_vehicle_scheduler::signalized_vehicle_schedule streets_desired_phase_plan_generator::get_last_vehicle_in_queue(
                                 const std::list<streets_vehicle_scheduler::signalized_vehicle_schedule> &evs_in_lane) const {
 
         bool is_last_vehicle_in_queue_found = false;
@@ -338,7 +338,7 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::update_desired_phase_plan_list(const streets_signal_optimization::movement_groups &move_groups, 
+    void streets_desired_phase_plan_generator::update_desired_phase_plan_list(const streets_signal_optimization::movement_groups &move_groups, 
                                                         const std::unordered_map<int, uint64_t> &green_end_per_entry_lane, 
                                                         const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
                                                         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &desired_phase_plan_list, 
@@ -346,7 +346,7 @@ namespace streets_signal_optimization {
                                                         const uint64_t &tbd_start) {
         
         if (base_desired_phase_plan.desired_phase_plan.empty()) {
-            throw desired_phase_plan_generator_exception("The base desired phase plan is empty!");
+            throw streets_desired_phase_plan_generator_exception("The base desired phase plan is empty!");
         }
         if (signal_group_entry_lane_mapping.empty()) {
             SPDLOG_DEBUG("The signal_group_entry_lane_mapping is empty!");
@@ -396,7 +396,7 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::create_signal_group_entry_lane_mapping(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr) {
+    void streets_desired_phase_plan_generator::create_signal_group_entry_lane_mapping(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr) {
         
         signal_group_entry_lane_mapping.clear();
         for ( const auto &lane : intersection_info_ptr->getEntryLanelets() ) {
@@ -414,7 +414,7 @@ namespace streets_signal_optimization {
     }
 
 
-    uint8_t desired_phase_plan_generator::find_signal_group_for_entry_lane(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
+    uint8_t streets_desired_phase_plan_generator::find_signal_group_for_entry_lane(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                                                                             const OpenAPI::OAILanelet_info &entry_lane_info) const {
         
         // check if all links connected to the entry lane have the same signal ids or not!
@@ -425,10 +425,10 @@ namespace streets_signal_optimization {
             // check if the link lanelet's id (lane.getId()) is included in the list of connecting lanelet ids of the received entry lanelet.
             if ( std::find(connection_lanelet_ids.begin(), connection_lanelet_ids.end(), lane.getId()) != connection_lanelet_ids.end() ) {
                 if ( !lane.getSignalGroupId() ) {
-                    throw desired_phase_plan_generator_exception("The connection link lanelet does not have a group_id!");
+                    throw streets_desired_phase_plan_generator_exception("The connection link lanelet does not have a group_id!");
                 }
                 if (first_link_visited && lane.getSignalGroupId() != signal_group_id){
-                    throw desired_phase_plan_generator_exception("The link lanelets connected to the entry lane have different signal_group_ids! The desired_phase_plan_generator is only capable of understanding intersection where all connection lanes from a single entry lane share a signal_group_id!");
+                    throw streets_desired_phase_plan_generator_exception("The link lanelets connected to the entry lane have different signal_group_ids! The streets_desired_phase_plan_generator is only capable of understanding intersection where all connection lanes from a single entry lane share a signal_group_id!");
                 }
                 if (!first_link_visited) {
                     signal_group_id = lane.getSignalGroupId();
@@ -440,7 +440,7 @@ namespace streets_signal_optimization {
     }
 
 
-    void desired_phase_plan_generator::set_configuration(const uint64_t _initial_green_buffer, 
+    void streets_desired_phase_plan_generator::set_configuration(const uint64_t _initial_green_buffer, 
                                                         const uint64_t _final_green_buffer, 
                                                         const uint64_t _et_inaccuracy_buffer, 
                                                         const uint64_t _queue_max_time_headway,
@@ -467,71 +467,71 @@ namespace streets_signal_optimization {
         SPDLOG_DEBUG("Configuration parameter - desired_future_move_group_count: {0}", config.desired_future_move_group_count);
     }
 
-    void desired_phase_plan_generator::set_initial_green_buffer(const uint64_t buffer){
+    void streets_desired_phase_plan_generator::set_initial_green_buffer(const uint64_t buffer){
         config.initial_green_buffer = buffer;
     }
 
-    uint64_t desired_phase_plan_generator::get_initial_green_buffer() const {
+    uint64_t streets_desired_phase_plan_generator::get_initial_green_buffer() const {
         return config.initial_green_buffer;
     }
 
-    void desired_phase_plan_generator::set_final_green_buffer(const uint64_t buffer){
+    void streets_desired_phase_plan_generator::set_final_green_buffer(const uint64_t buffer){
         config.final_green_buffer = buffer;
     }
 
-    uint64_t desired_phase_plan_generator::get_final_green_buffer() const {
+    uint64_t streets_desired_phase_plan_generator::get_final_green_buffer() const {
         return config.final_green_buffer;
     }
 
-    void desired_phase_plan_generator::set_et_inaccuracy_buffer(const uint64_t buffer){
+    void streets_desired_phase_plan_generator::set_et_inaccuracy_buffer(const uint64_t buffer){
         config.et_inaccuracy_buffer = buffer;
     }
 
-    uint64_t desired_phase_plan_generator::get_et_inaccuracy_buffer() const {
+    uint64_t streets_desired_phase_plan_generator::get_et_inaccuracy_buffer() const {
         return config.et_inaccuracy_buffer;
     }
 
-    void desired_phase_plan_generator::set_queue_max_time_headway(const uint64_t buffer){
+    void streets_desired_phase_plan_generator::set_queue_max_time_headway(const uint64_t buffer){
         config.queue_max_time_headway = buffer;
     }
 
-    uint64_t desired_phase_plan_generator::get_queue_max_time_headway() const {
+    uint64_t streets_desired_phase_plan_generator::get_queue_max_time_headway() const {
         return config.queue_max_time_headway;
     }
 
-    void desired_phase_plan_generator::set_so_radius(const double radius){
+    void streets_desired_phase_plan_generator::set_so_radius(const double radius){
         config.so_radius = radius;
     }
 
-    double desired_phase_plan_generator::get_so_radius() const {
+    double streets_desired_phase_plan_generator::get_so_radius() const {
         return config.so_radius;
     }
 
-    void desired_phase_plan_generator::set_min_green(const uint64_t _min_green){
+    void streets_desired_phase_plan_generator::set_min_green(const uint64_t _min_green){
         config.min_green = _min_green;
     }
 
-    uint64_t desired_phase_plan_generator::get_min_green() const {
+    uint64_t streets_desired_phase_plan_generator::get_min_green() const {
         return config.min_green;
     }
 
-    void desired_phase_plan_generator::set_max_green(const uint64_t _max_green){
+    void streets_desired_phase_plan_generator::set_max_green(const uint64_t _max_green){
         config.max_green = _max_green;
     }
 
-    uint64_t desired_phase_plan_generator::get_max_green() const {
+    uint64_t streets_desired_phase_plan_generator::get_max_green() const {
         return config.max_green;
     }
 
-    void desired_phase_plan_generator::set_desired_future_move_group_count(const uint8_t count){
+    void streets_desired_phase_plan_generator::set_desired_future_move_group_count(const uint8_t count){
         config.desired_future_move_group_count = count;
     }
 
-    uint8_t desired_phase_plan_generator::get_desired_future_move_group_count() const {
+    uint8_t streets_desired_phase_plan_generator::get_desired_future_move_group_count() const {
         return config.desired_future_move_group_count;
     }
 
-    std::unordered_map<uint8_t, std::vector<int>> desired_phase_plan_generator::get_signal_group_entry_lane_mapping() const {
+    std::unordered_map<uint8_t, std::vector<int>> streets_desired_phase_plan_generator::get_signal_group_entry_lane_mapping() const {
         return signal_group_entry_lane_mapping;
     }
 

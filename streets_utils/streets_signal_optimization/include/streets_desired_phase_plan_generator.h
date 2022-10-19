@@ -15,14 +15,13 @@
 #include "spat.h"
 #include "movement_group.h"
 #include "streets_desired_phase_plan.h"
-#include "desired_phase_plan_generator_exception.h"
-#include "desired_phase_plan_generator_configuration.h"
-#include "tsc_configuration_state.h"
+#include "streets_desired_phase_plan_generator_exception.h"
+#include "streets_desired_phase_plan_generator_configuration.h"
 
 
 namespace streets_signal_optimization {
     
-    class desired_phase_plan_generator {
+    class streets_desired_phase_plan_generator {
         private:
 
             /**
@@ -33,7 +32,7 @@ namespace streets_signal_optimization {
             /**
              * @brief A struct containing the configurable parameters for desired_phsae_plan_generator functions.
              */
-            desired_phase_plan_generator_configuration config;
+            streets_desired_phase_plan_generator_configuration config;
 
             /**
              * @brief The bool parameter defining whether the configurable parameter are set to their desired values or not.
@@ -154,7 +153,7 @@ namespace streets_signal_optimization {
                                                     const OpenAPI::OAILanelet_info &entry_lane_info) const;
 
 
-            FRIEND_TEST(test_desired_phase_plan_generator, test_generate_desired_phase_plan_list);
+            FRIEND_TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan_list);
 
         public:
 
@@ -163,12 +162,12 @@ namespace streets_signal_optimization {
              * @brief Construct a new desired phase plan generator object
              * 
              */
-            desired_phase_plan_generator() = default ;
+            streets_desired_phase_plan_generator() = default ;
             /**
              * @brief Destroy the desired phase plan generator object
              * 
              */
-            ~desired_phase_plan_generator() = default;
+            ~streets_desired_phase_plan_generator() = default;
             
             /**
              * @brief Generate a list of desired phase plans. Each desired phase plan in the list includes the existing fixed future 

@@ -19,6 +19,8 @@ find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_
 add_library(${PROJECT_NAME}_lib
     src/streets_desired_phase_plan_arbitrator.cpp
     src/exceptions/streets_desired_phase_plan_arbitrator_exception.cpp
+    src/streets_desired_phase_plan_generator.cpp
+    src/exceptions/streets_desired_phase_plan_generator_exception.cpp
 )
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
@@ -78,8 +80,10 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 
 
 add_executable(${BINARY} ${TEST_SOURCES} 
-                src/desired_phase_plan_generator.cpp
-                src/desired_phase_plan_generator_exception.cpp
+                src/streets_desired_phase_plan_generator.cpp
+                src/exceptions/streets_desired_phase_plan_generator_exception.cpp
+                src/streets_desired_phase_plan_arbitrator.cpp
+                src/exceptions/streets_desired_phase_plan_arbitrator_exception.cpp
                 )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
