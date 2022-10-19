@@ -288,57 +288,58 @@ namespace message_services
                 lanelet::Lanelet* ll_itr = &subj_lanelet;
             try
             {
-                    /** Checking whether the current lanelet is link lanelet.
-                     * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
-                     * **/
-                    lanelet::ConstLanelet local_ll = vehicleGraph_ptr->previous(*ll_itr).front();
-                    if (local_ll.regulatoryElements().size() > 0)
+                /** Checking whether the current lanelet is link lanelet.
+                 * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
+                 * **/
+                lanelet::ConstLanelet local_ll = vehicleGraph_ptr->previous(*ll_itr).front();
+                if (local_ll.regulatoryElements().size() > 0)
+                {
+                    lanelet::RegulatoryElementConstPtrs reg_ptrs = local_ll.regulatoryElements();
+                    for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
                     {
-                        lanelet::RegulatoryElementConstPtrs reg_ptrs = local_ll.regulatoryElements();
-                        for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
+                        const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
+                        if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                         {
-                            const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
-                            if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
-                            {
-                                SPDLOG_DEBUG("Found link lanelet id :{0}  ", ll_itr->id());
-                                entry_lanelet = local_ll;
-                                link_lanelet = *ll_itr;
-                                departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
-                                break;
-                            }
+                            SPDLOG_DEBUG("Found link lanelet id :{0}  ", ll_itr->id());
+                            entry_lanelet = local_ll;
+                            link_lanelet = *ll_itr;
+                            departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
+                            break;
                         }
                     }
+                }
 
-                    /***
-                     * Checking whether the current lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
-                     * **/
-                    if (!ll_itr->regulatoryElements().empty())
+                /***
+                 * Checking whether the current lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
+                 * **/
+                if (!ll_itr->regulatoryElements().empty())
+                {
+                    lanelet::RegulatoryElementPtrs reg_ptrs = ll_itr->regulatoryElements();
+                    for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
                     {
-                        lanelet::RegulatoryElementPtrs reg_ptrs = ll_itr->regulatoryElements();
-                        for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
+                        const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
+                        if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
                         {
-                            const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
-                            if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
+                            SPDLOG_DEBUG("Found entry lanelet id :{0}  ", ll_itr->id());
+                            entry_lanelet = *ll_itr;
+                            lanelet::ConstLanelets possible_link_lanelets = vehicleGraph_ptr->following(*ll_itr);
+                            // Check turn_direction to determine the link lanelet for subject vehicle
+                            // If turn direction is "NA" or empty, it cannot determine which link lanelet inside the intersection
+                            for (auto itr = possible_link_lanelets.begin(); itr != possible_link_lanelets.end(); itr++)
                             {
-                                SPDLOG_DEBUG("Found entry lanelet id :{0}  ", ll_itr->id());
-                                entry_lanelet = *ll_itr;
-                                lanelet::ConstLanelets possible_link_lanelets = vehicleGraph_ptr->following(*ll_itr);
-                                // Check turn_direction to determine the link lanelet for subject vehicle
-                                // If turn direction is "NA" or empty, it cannot determine which link lanelet inside the intersection
-                                for (auto itr = possible_link_lanelets.begin(); itr != possible_link_lanelets.end(); itr++)
+                                if (itr->hasAttribute("turn_direction") && itr->attribute("turn_direction").value() == turn_direction)
                                 {
-                                    if (itr->hasAttribute("turn_direction") && itr->attribute("turn_direction").value() == turn_direction)
-                                    {
-                                        link_lanelet = *itr;
-                                        SPDLOG_DEBUG("Found link lanelet id :{0}  ", itr->id());
-                                        departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
-                                        break;
-                                    }
+                                    link_lanelet = *itr;
+                                    SPDLOG_DEBUG("Found link lanelet id :{0}  ", itr->id());
+                                    departure_lanelet = vehicleGraph_ptr->following(link_lanelet).front();
+                                    break;
                                 }
                             }
                         }
                     }
+                }
 
+                SPDLOG_DEBUG("Entry lanelet: {0} , Link Lanelet: {1} , Departure lanelet: {2}", entry_lanelet.id(), link_lanelet.id(), departure_lanelet.id());
                 // insert the type for each lanelet id in the list of lanelet ids
                 if (entry_lanelet.id() != lanelet::InvalId)
                 {
@@ -354,7 +355,8 @@ namespace message_services
                 {
                     lanelet_id_type_m.insert(std::make_pair(departure_lanelet.id(), models::intersection_lanelet_type::departure));
                 }
-            return lanelet_id_type_m;
+                SPDLOG_DEBUG("Returning lanelet map");
+                return lanelet_id_type_m;
             }
             catch(...)
             {

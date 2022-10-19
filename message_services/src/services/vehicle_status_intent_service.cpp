@@ -369,6 +369,7 @@ namespace message_services
             }
             
                 std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, turn_direction);
+                SPDLOG_DEBUG("Got map of size: {0}", lanelet_id_type_m.size());
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
                 {
                     if (itr->second == models::intersection_lanelet_type::link)
