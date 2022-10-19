@@ -51,7 +51,7 @@ namespace signal_phase_and_timing {
                throw signal_phase_and_timing_exception("TimeChangeDetails contains missing/invalid required start_time property!");
             }
 
-            if (val.HasMember("min_end_time") && val["min_end_time"].IsUint() && val["start_time"].GetUint() <= 36000) {
+            if (val.HasMember("min_end_time") && val["min_end_time"].IsUint() && val["min_end_time"].GetUint() <= 36000) {
                 // REQUIRED see J2735 TimeChangeDetails definition 
                 min_end_time = static_cast<uint16_t>(val["min_end_time"].GetUint());
             }
