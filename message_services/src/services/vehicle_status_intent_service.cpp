@@ -169,7 +169,7 @@ namespace message_services
                                 {
                                     continue;
                                 }
-
+                                SPDLOG_DEBUG("Entering compose vehicle status intent");
                                 *vsi_ptr = compose_vehicle_status_intent(subj_bsm, subj_mo, subj_mp);
                                 if (vsi_ptr)
                                 {
@@ -185,6 +185,7 @@ namespace message_services
                         std::time_t cur_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         if (std::abs(cur_timestamp - this->prev_msg_expired_timestamp_) > (this->CLEAN_QUEUE_IN_SECS * 1000))
                         {
+                            SPDLOG_DEBUG("Test log");
                             SPDLOG_DEBUG("Clean the BSM and MP...");
                             SPDLOG_DEBUG("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
                             SPDLOG_DEBUG("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
@@ -367,7 +368,7 @@ namespace message_services
 
                 vsi.setEst_path_v(est_path_v);
             }
-            
+                SPDLOG_DEBUG("Trying to get Lanelet types");
                 std::map<int64_t, models::intersection_lanelet_type> lanelet_id_type_m = _msg_lanelet2_translate_ptr->get_lanelet_types_ids(cur_lanelet, turn_direction);
                 SPDLOG_DEBUG("Got map of size: {0}", lanelet_id_type_m.size());
                 for (auto itr = lanelet_id_type_m.begin(); itr != lanelet_id_type_m.end(); itr++)
