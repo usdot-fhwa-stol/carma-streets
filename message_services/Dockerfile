@@ -49,6 +49,7 @@ RUN sudo make install
 
 
 # Install PROJ, a package for coordinate transformations
+WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
         cd /home/carma-streets/PROJ && \
         ./autogen.sh && \
