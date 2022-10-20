@@ -34,8 +34,9 @@ cmake .. && make -j
 sudo make install
 
 cd ext
-git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
+git clone https://github.com/Tencent/rapidjson
 cd  rapidjson/
+git checkout 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 mkdir build
 cd build
 cmake .. && make -j

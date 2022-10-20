@@ -38,8 +38,9 @@ RUN make install
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
+RUN git clone https://github.com/Tencent/rapidjson
 WORKDIR /home/carma-streets/ext/rapidjson/
+RUN git checkout 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j

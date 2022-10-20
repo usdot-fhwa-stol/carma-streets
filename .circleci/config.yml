@@ -75,8 +75,9 @@ jobs:
             make install
 
             cd /home/carma-streets/ext
-            git clone https://github.com/Tencent/rapidjson --depth 1 -- branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
+            git clone https://github.com/Tencent/rapidjson
             cd /home/carma-streets/ext/rapidjson/
+            git checkout 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
             mkdir build
             cd /home/carma-streets/ext/rapidjson/build
             cmake .. && make -j

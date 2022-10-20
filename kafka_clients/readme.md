@@ -15,9 +15,10 @@ cd spdlog && mkdir build && cd build
 cmake .. && make -j
 sudo make install
 
-https://github.com/Tencent/rapidjson
-git clone https://github.com/Tencent/rapidjson --depth 1 --branch 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
-cd rapidjson && mkdir build && cd build
+git clone https://github.com/Tencent/rapidjson
+cd rapidjson
+git checkout 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
+mkdir build && cd build
 cmake ..
 make
 sudo make install
