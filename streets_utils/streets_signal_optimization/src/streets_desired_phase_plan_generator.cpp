@@ -8,110 +8,101 @@ namespace streets_signal_optimization {
                                         signal_phase_and_timing::intersection_state &intersection_state,
                                         const streets_signal_optimization::movement_groups &move_groups) {
 
-        try { 
+        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list;
 
-            std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list;
+        /** If the configurable parameters are not set, set them to their default values. */
+        if (is_configured) {
+            SPDLOG_WARN("set_configuration was not called. Setting configuration to default!");
+            set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
+        }
 
-            /** If the configurable parameters are not set, set them to their default values. */
-            if (is_configured) {
-                set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
-            }
-
-            /** 
-             * Convert the provided intersection_state to a desired_phase_plan and name it base_desired_phase_plan.
-             * If base_desired_phase_plan is empty, then throw exception.
-             * If the number of fixed movement group in base_desired_phase_plan is greater than the desired number of fixed movement groups,
-             *     then there is no need for adding a new movement group to base_desired_phase_plan. Thus, return an empty desired_phase_plan_list.
-             * Otherwise, find the start time of the TBD area and continue.
-            */
-            streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = convert_spat_to_dpp(intersection_state, move_groups);
-            if (base_desired_phase_plan.desired_phase_plan.empty()) {
-                throw streets_desired_phase_plan_generator_exception("No green movement group is found in the spat. base_desired_phase_plan is empty!");
-            }
-            if (base_desired_phase_plan.desired_phase_plan.size() > config.desired_future_move_group_count) {
-                SPDLOG_DEBUG("The number of fixed future movement groups in the modified spat ({0}) is greater than the desired number of fixed future movement groups ({1})!", base_desired_phase_plan.desired_phase_plan.size(), config.desired_future_move_group_count);
-                return desired_phase_plan_list;
-            }
-            uint64_t tbd_start = find_tbd_start_time(intersection_state);
-
-
-            /** If the vehicle map is empty, return an empty desired phase plan list. */
-            if ( vehicles.empty() ) {
-                SPDLOG_DEBUG("No vehicles to schedule.");
-                return desired_phase_plan_list;
-            }
-            
-            /** 
-             * Create a local spat pointer. Check if the scheduler pointer is configured. Set the spat in the scheduler pointer.
-             * Then, schedule all vehicles and get the intersection_scheduler pointer 
-             * */
-            auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
-            spat_ptr->set_intersection(intersection_state);
-            if (scheduler_ptr) {
-                scheduler_ptr->set_spat(spat_ptr);
-            }
-            else {
-                SPDLOG_DEBUG("scheduler_ptr is not configrued!");
-                configure_scheduler(intersection_info_ptr);
-                scheduler_ptr->set_spat(spat_ptr);
-            }
-            std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> sched_ptr = get_schedule_plan(vehicles);
-
-
-            /** Then, add the schedule plans for those EVs that are within the SO area to a separate signalized_intersection_schedule object.
-             *  If the new list is empty (i.e., there is no EV in the SO area), return an empty desired phase plan list.
-             */
-            streets_vehicle_scheduler::signalized_intersection_schedule ev_schedules_within_so = get_ev_schedules_within_so(sched_ptr, vehicles);
-            if (ev_schedules_within_so.vehicle_schedules.empty()){
-                SPDLOG_DEBUG("No EV within the SO area.");
-                return desired_phase_plan_list;
-            }
-
-            
-            /** Then, seperate EV schedules that have estimated entering times (ETs) within TBD area based on their entry lane. 
-             *  The list of EV schedules for each entry lane is sorted based on the estimated ET. 
-             *  If the schedules in TBD per entry lane map is empty (i.e., there is no EV with an estimated ET within TBD area), 
-             *      return an empty desired phase plan list.
-             */
-            std::unordered_map<int, std::list<streets_vehicle_scheduler::signalized_vehicle_schedule>> schedules_in_tbd = get_schedules_in_tbd_per_lane(ev_schedules_within_so, intersection_info_ptr, tbd_start);            
-            if (schedules_in_tbd.empty()){
-                SPDLOG_DEBUG("No EV within the TBD area.");
-                return desired_phase_plan_list;
-            }
-            
-
-            /** For each entry lane, find the last vehicle in the queue, calculate the queue dissipation time, and finally, 
-             *      estimate the end time of the required green for dissipation the queue from the subject entry lane.
-             *  If the green end time per entry lane map is empty, throw exception (there are EVs with estimated ET within TVD area,
-             *      but there is no green considered for any vehicle!) and return an empty desired phase plan list.
-             */
-            std::unordered_map<int, uint64_t> green_end_per_entry_lane = get_green_end_per_entry_lane(schedules_in_tbd, tbd_start);
-            if (green_end_per_entry_lane.empty()) {               
-                SPDLOG_WARN("Vehicles schedules in TBD is not empty, green_end_per_entry_lane map is empty!");
-                return desired_phase_plan_list;
-            }
-
-
-            /** For each possible movement group, first, check if the movement group can be added to the base desired phase plan,
-             *      (check if the subject movement group has a common signal group with the last movement group in the base
-             *      desired phase plan list or not!). If the movement group can be added to the base desired phase plan, for each
-             *      entry lane included in the subject movement group, add a new desired phase plan to the desired phase plan list
-             *      where the subject movement group is added to the base desired phsae plan with the green end time calculated for
-             *      the entry lane.
-             *  If the desired phase plan list is empty, it means that no movement group that clears a given queue can be added
-             *      to the base desired phase plan.
-             */
-            update_desired_phase_plan_list(move_groups, green_end_per_entry_lane, base_desired_phase_plan, desired_phase_plan_list, intersection_info_ptr, tbd_start);
-            if (desired_phase_plan_list.empty()) {
-                SPDLOG_DEBUG("No movement group could be added and thus, the desired_phase_plan_list is empty!");
-            }
-
+        /** 
+         * Convert the provided intersection_state to a desired_phase_plan and name it base_desired_phase_plan.
+         * If base_desired_phase_plan is empty, then throw exception.
+         * If the number of fixed movement group in base_desired_phase_plan is greater than the desired number of fixed movement groups,
+         *     then there is no need for adding a new movement group to base_desired_phase_plan. Thus, return an empty desired_phase_plan_list.
+         * Otherwise, find the start time of the TBD area and continue.
+        */
+        streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = convert_spat_to_dpp(intersection_state, move_groups);
+        if (base_desired_phase_plan.desired_phase_plan.empty()) {
+            throw streets_desired_phase_plan_generator_exception("No green movement group is found in the spat. base_desired_phase_plan is empty!");
+        }
+        if (base_desired_phase_plan.desired_phase_plan.size() > config.desired_future_move_group_count) {
+            SPDLOG_DEBUG("The number of fixed future movement groups in the modified spat ({0}) is greater than the desired number of fixed future movement groups ({1})!", base_desired_phase_plan.desired_phase_plan.size(), config.desired_future_move_group_count);
             return desired_phase_plan_list;
-            
         }
-        catch ( const std::exception &ex ) {
-            throw streets_desired_phase_plan_generator_exception(ex.what());
+        uint64_t tbd_start = find_tbd_start_time(intersection_state);
+
+
+        /** If the vehicle map is empty, return an empty desired phase plan list. */
+        if ( vehicles.empty() ) {
+            SPDLOG_DEBUG("No vehicles to schedule.");
+            return desired_phase_plan_list;
         }
+        
+        /** 
+         * Create a local spat pointer. Check if the scheduler pointer is configured. Set the spat in the scheduler pointer.
+         * Then, schedule all vehicles and get the intersection_scheduler pointer 
+         * */
+        auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
+        spat_ptr->set_intersection(intersection_state);
+        if (!scheduler_ptr) {
+            SPDLOG_DEBUG("scheduler_ptr is not configured!");
+            configure_scheduler(intersection_info_ptr);
+        }
+        scheduler_ptr->set_spat(spat_ptr);
+        std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> sched_ptr = get_schedule_plan(vehicles);
+
+
+        /** Then, add the schedule plans for those EVs that are within the SO area to a separate signalized_intersection_schedule object.
+         *  If the new list is empty (i.e., there is no EV in the SO area), return an empty desired phase plan list.
+         */
+        streets_vehicle_scheduler::signalized_intersection_schedule ev_schedules_within_so = get_ev_schedules_within_so(sched_ptr, vehicles);
+        if (ev_schedules_within_so.vehicle_schedules.empty()){
+            SPDLOG_DEBUG("No EV within the SO area.");
+            return desired_phase_plan_list;
+        }
+
+        
+        /** Then, seperate EV schedules that have estimated entering times (ETs) within TBD area based on their entry lane. 
+         *  The list of EV schedules for each entry lane is sorted based on the estimated ET. 
+         *  If the schedules in TBD per entry lane map is empty (i.e., there is no EV with an estimated ET within TBD area), 
+         *      return an empty desired phase plan list.
+         */
+        std::unordered_map<int, std::list<streets_vehicle_scheduler::signalized_vehicle_schedule>> schedules_in_tbd = get_schedules_in_tbd_per_lane(ev_schedules_within_so, intersection_info_ptr, tbd_start);            
+        if (schedules_in_tbd.empty()){
+            SPDLOG_DEBUG("No EV within the TBD area.");
+            return desired_phase_plan_list;
+        }
+        
+
+        /** For each entry lane, find the last vehicle in the queue, calculate the queue dissipation time, and finally, 
+         *      estimate the end time of the required green for dissipation the queue from the subject entry lane.
+         *  If the green end time per entry lane map is empty, throw exception (there are EVs with estimated ET within TVD area,
+         *      but there is no green considered for any vehicle!) and return an empty desired phase plan list.
+         */
+        std::unordered_map<int, uint64_t> green_end_per_entry_lane = get_green_end_per_entry_lane(schedules_in_tbd, tbd_start);
+        if (green_end_per_entry_lane.empty()) {               
+            SPDLOG_WARN("Vehicles schedules in TBD is not empty, green_end_per_entry_lane map is empty!");
+            return desired_phase_plan_list;
+        }
+
+
+        /** For each possible movement group, first, check if the movement group can be added to the base desired phase plan,
+         *      (check if the subject movement group has a common signal group with the last movement group in the base
+         *      desired phase plan list or not!). If the movement group can be added to the base desired phase plan, for each
+         *      entry lane included in the subject movement group, add a new desired phase plan to the desired phase plan list
+         *      where the subject movement group is added to the base desired phsae plan with the green end time calculated for
+         *      the entry lane.
+         *  If the desired phase plan list is empty, it means that no movement group that clears a given queue can be added
+         *      to the base desired phase plan.
+         */
+        update_desired_phase_plan_list(move_groups, green_end_per_entry_lane, base_desired_phase_plan, desired_phase_plan_list, intersection_info_ptr, tbd_start);
+        if (desired_phase_plan_list.empty()) {
+            SPDLOG_DEBUG("No movement group could be added and thus, the desired_phase_plan_list is empty!");
+        }
+
+        return desired_phase_plan_list;
 
     }
 
@@ -152,6 +143,13 @@ namespace streets_signal_optimization {
                     else {
                         for (const auto& me2 : move_state_2.state_time_speed) {
                             if (me2.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed && 
+                                        (me2.timing.get_epoch_start_time() < me1.timing.get_epoch_start_time() && 
+                                        me2.timing.get_epoch_min_end_time() > me1.timing.get_epoch_start_time()) ||
+                                        (me2.timing.get_epoch_start_time() < me1.timing.get_epoch_min_end_time() && 
+                                        me2.timing.get_epoch_min_end_time() > me1.timing.get_epoch_min_end_time())) {
+                                throw streets_desired_phase_plan_generator_exception("spat has fixed future signal groups with partially overlapping green durations!");
+                            }
+                            if (me2.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed && 
                                         me2.timing.get_epoch_start_time() == me1.timing.get_epoch_start_time() && 
                                         me2.timing.get_epoch_min_end_time() == me1.timing.get_epoch_min_end_time()) {
                                 
@@ -175,7 +173,7 @@ namespace streets_signal_optimization {
             }
             else {
                 for (int index = 0; index < base_desired_phase_plan.desired_phase_plan.size(); ++index) {
-                    if (    (mg_green.start_time < base_desired_phase_plan.desired_phase_plan[index].start_time && 
+                    if ( (mg_green.start_time < base_desired_phase_plan.desired_phase_plan[index].start_time && 
                                 mg_green.end_time > base_desired_phase_plan.desired_phase_plan[index].start_time) || 
                             (mg_green.start_time < base_desired_phase_plan.desired_phase_plan[index].end_time && 
                                 mg_green.end_time > base_desired_phase_plan.desired_phase_plan[index].end_time) ) {
@@ -304,7 +302,9 @@ namespace streets_signal_optimization {
                 
                 streets_vehicle_scheduler::signalized_vehicle_schedule last_ev_in_queue = get_last_vehicle_in_queue(evs_in_lane);
                 
-                uint64_t green_end = std::min(std::max(uint64_t(std::ceil(double(last_ev_in_queue.et)/1000.0) * 1000) + config.et_inaccuracy_buffer + config.final_green_buffer, tbd_start + config.min_green), tbd_start + config.max_green);
+                uint64_t et_rounded = uint64_t(std::ceil(double(last_ev_in_queue.et)/100.0) * 100);
+                uint64_t green_end_compared_with_min_green = std::max(et_rounded + config.et_inaccuracy_buffer + config.final_green_buffer, tbd_start + config.min_green);
+                uint64_t green_end = std::min(green_end_compared_with_min_green, tbd_start + config.max_green);
 
                 green_end_per_entry_lane.try_emplace(entry_lane_id, green_end);   
             }

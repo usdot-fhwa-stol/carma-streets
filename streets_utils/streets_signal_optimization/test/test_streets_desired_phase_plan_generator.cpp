@@ -103,20 +103,42 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     
     uint64_t first_mg_start_time = intersection_state.states.front().state_time_speed.front().timing.get_epoch_start_time();
     uint64_t first_mg_end_time = intersection_state.states.front().state_time_speed.front().timing.get_epoch_min_end_time();
-    SPDLOG_INFO("First movement group in the base desired phase plan - start time: {0}", base_desired_phase_plan.desired_phase_plan.front().start_time);
+    // SPDLOG_INFO("First movement group in the base desired phase plan - start time: {0}", base_desired_phase_plan.desired_phase_plan.front().start_time);
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().start_time, first_mg_start_time);
-    SPDLOG_INFO("First movement group in the base desired phase plan - end time: {0}", base_desired_phase_plan.desired_phase_plan.front().end_time);
+    // SPDLOG_INFO("First movement group in the base desired phase plan - end time: {0}", base_desired_phase_plan.desired_phase_plan.front().end_time);
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().end_time, first_mg_end_time);
-    SPDLOG_INFO("First movement group in the base desired phase plan - number of signal groups: {0}", base_desired_phase_plan.desired_phase_plan.front().signal_groups.size());
+    // SPDLOG_INFO("First movement group in the base desired phase plan - number of signal groups: {0}", base_desired_phase_plan.desired_phase_plan.front().signal_groups.size());
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().signal_groups.size(), 2);
-    SPDLOG_INFO("Second movement group in the base desired phase plan - start time: {0}", base_desired_phase_plan.desired_phase_plan.back().start_time);
+    // SPDLOG_INFO("Second movement group in the base desired phase plan - start time: {0}", base_desired_phase_plan.desired_phase_plan.back().start_time);
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().start_time, first_mg_end_time + 5000);
-    SPDLOG_INFO("Second movement group in the base desired phase plan - end time: {0}", base_desired_phase_plan.desired_phase_plan.back().end_time);
+    // SPDLOG_INFO("Second movement group in the base desired phase plan - end time: {0}", base_desired_phase_plan.desired_phase_plan.back().end_time);
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().end_time, first_mg_end_time + 5000 + 10000);
-    SPDLOG_INFO("Second movement group in the base desired phase plan - number of signal groups: {0}", base_desired_phase_plan.desired_phase_plan.back().signal_groups.size());
+    // SPDLOG_INFO("Second movement group in the base desired phase plan - number of signal groups: {0}", base_desired_phase_plan.desired_phase_plan.back().signal_groups.size());
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().signal_groups.size(), 1);
-    
+
+
+    /** 
+     * Failure case: partially overlapping greens. 
+     * case 1: two signal groups from different movement groups have partial overlapping greens.
+     */
+    std::string json_spat_fail = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10080}},{\"event_state\":6,\"timing\":{\"start_time\":10080,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10300}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    spat_object.fromJson(json_spat_fail);
+    intersection_state = spat_object.get_intersection();
+    ASSERT_THROW(generator.convert_spat_to_dpp(intersection_state, move_groups), streets_desired_phase_plan_generator_exception);
+
+    /** 
+     * Failure case: partially overlapping greens. 
+     * case 1: two signal groups from the same movement groups have partial overlapping greens.
+     */
+    json_spat_fail = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10120}},{\"event_state\":8,\"timing\":{\"start_time\":10120,\"min_end_time\":10140}}, {\"event_state\":3,\"timing\":{\"start_time\":10140,\"min_end_time\":10300}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10300}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    spat_object.fromJson(json_spat_fail);
+    intersection_state = spat_object.get_intersection();
+
+    ASSERT_THROW(generator.convert_spat_to_dpp(intersection_state, move_groups), streets_desired_phase_plan_generator_exception);
+
 }
+
+// to-do : add a test for convert_spat_to_dpp failure case.
 
 
 /**
@@ -527,9 +549,9 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     for (const auto &[entry_lane_id, veh_sched_list] : entry_lane_to_vehicle_sched_mapping) {
         is_last_vehicle_in_queue_found = false;
         vehicle_in_tbd_count = 0;
-        SPDLOG_INFO("Estimated ET for vehicles from entry lane {0} :", entry_lane_id);
+        // SPDLOG_INFO("Estimated ET for vehicles from entry lane {0} :", entry_lane_id);
         for (const auto &veh_sched : veh_sched_list) {
-            SPDLOG_INFO("Schedule for vehicle {0} from entry lane {1} -> ET = {2}, EET = {3} :", veh_sched.v_id, entry_lane_id, veh_sched.et, veh_sched.eet);
+            // SPDLOG_INFO("Schedule for vehicle {0} from entry lane {1} -> ET = {2}, EET = {3} :", veh_sched.v_id, entry_lane_id, veh_sched.et, veh_sched.eet);
             if (veh_sched.et > tbd_start_time) {
                 vehicle_in_tbd_count += 1;
             }
@@ -552,11 +574,11 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
             green_end = std::min(std::max(uint64_t(std::ceil(double(veh_sched_list.back().et)/1000.0) * 1000) + generator.get_et_inaccuracy_buffer() + generator.get_final_green_buffer(), tbd_start_time + generator.get_min_green()), tbd_start_time + generator.get_max_green());
             is_last_vehicle_in_queue_found = true;
         }
-        SPDLOG_INFO("Number of vehicles from entry lane {0} with an ET after tbd start time = {1}", entry_lane_id, vehicle_in_tbd_count);
-        SPDLOG_INFO("Number of vehicles from entry lane {0} that are in the queue = {1}", entry_lane_id, vehicle_in_queue_count);
+        // SPDLOG_INFO("Number of vehicles from entry lane {0} with an ET after tbd start time = {1}", entry_lane_id, vehicle_in_tbd_count);
+        // SPDLOG_INFO("Number of vehicles from entry lane {0} that are in the queue = {1}", entry_lane_id, vehicle_in_queue_count);
         if (is_last_vehicle_in_queue_found) {
             entry_lane_to_green_end_mapping.try_emplace(entry_lane_id, green_end);
-            SPDLOG_INFO("The end of the required green for entry lane {0}: {1}", entry_lane_id, green_end);
+            // SPDLOG_INFO("The end of the required green for entry lane {0}: {1}", entry_lane_id, green_end);
         }
     }
 
@@ -564,58 +586,58 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan.size(), 2);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[0].start_time, tbd_start_time - 10000);
-    SPDLOG_INFO("First candidate desired_phase_plan - First movement group - start_time: {0}", desired_phase_plan_list[0].desired_phase_plan[0].start_time);
+    //SPDLOG_INFO("First candidate desired_phase_plan - First movement group - start_time: {0}", desired_phase_plan_list[0].desired_phase_plan[0].start_time);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[0].end_time, tbd_start_time - 5000);
-    SPDLOG_INFO("First candidate desired_phase_plan - First movement group - end_time: {0}", desired_phase_plan_list[0].desired_phase_plan[0].end_time);
+    //SPDLOG_INFO("First candidate desired_phase_plan - First movement group - end_time: {0}", desired_phase_plan_list[0].desired_phase_plan[0].end_time);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[0].signal_groups.size(), 1);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[0].signal_groups[0], 2);
-    SPDLOG_INFO("First candidate desired_phase_plan - First movement group - signal group ids: [{0}]", desired_phase_plan_list[0].desired_phase_plan[0].signal_groups[0]);
+    //SPDLOG_INFO("First candidate desired_phase_plan - First movement group - signal group ids: [{0}]", desired_phase_plan_list[0].desired_phase_plan[0].signal_groups[0]);
 
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[1].start_time, tbd_start_time);
-    SPDLOG_INFO("First candidate desired_phase_plan - Second movement group - start_time: {0}", desired_phase_plan_list[0].desired_phase_plan[1].start_time);
+    //SPDLOG_INFO("First candidate desired_phase_plan - Second movement group - start_time: {0}", desired_phase_plan_list[0].desired_phase_plan[1].start_time);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[1].end_time, entry_lane_to_green_end_mapping.at(1));
-    SPDLOG_INFO("First candidate desired_phase_plan - Second movement group - end_time: {0}", desired_phase_plan_list[0].desired_phase_plan[1].end_time);
+    //SPDLOG_INFO("First candidate desired_phase_plan - Second movement group - end_time: {0}", desired_phase_plan_list[0].desired_phase_plan[1].end_time);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[1].signal_groups.size(), 2);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[1].signal_groups[0], 1);
     ASSERT_EQ( desired_phase_plan_list[0].desired_phase_plan[1].signal_groups[1], 3);
-    SPDLOG_INFO("First candidate desired_phase_plan - Second movement group - signal group ids: [{0}, {1}]", desired_phase_plan_list[0].desired_phase_plan[1].signal_groups[0], desired_phase_plan_list[0].desired_phase_plan[1].signal_groups[1]);
+    //SPDLOG_INFO("First candidate desired_phase_plan - Second movement group - signal group ids: [{0}, {1}]", desired_phase_plan_list[0].desired_phase_plan[1].signal_groups[0], desired_phase_plan_list[0].desired_phase_plan[1].signal_groups[1]);
 
     
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan.size(), 2);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[0].start_time, tbd_start_time - 10000);
-    SPDLOG_INFO("Second candidate desired_phase_plan - First movement group - start_time: {0}", desired_phase_plan_list[1].desired_phase_plan[0].start_time);
+    //SPDLOG_INFO("Second candidate desired_phase_plan - First movement group - start_time: {0}", desired_phase_plan_list[1].desired_phase_plan[0].start_time);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[0].end_time, tbd_start_time - 5000);
-    SPDLOG_INFO("Second candidate desired_phase_plan - First movement group - end_time: {0}", desired_phase_plan_list[1].desired_phase_plan[0].end_time);
+    //SPDLOG_INFO("Second candidate desired_phase_plan - First movement group - end_time: {0}", desired_phase_plan_list[1].desired_phase_plan[0].end_time);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[0].signal_groups.size(), 1);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[0].signal_groups[0], 2);
-    SPDLOG_INFO("Second candidate desired_phase_plan - First movement group - signal group ids: [{0}]", desired_phase_plan_list[1].desired_phase_plan[0].signal_groups[0]);
+    //SPDLOG_INFO("Second candidate desired_phase_plan - First movement group - signal group ids: [{0}]", desired_phase_plan_list[1].desired_phase_plan[0].signal_groups[0]);
 
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[1].start_time, tbd_start_time);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[1].end_time, entry_lane_to_green_end_mapping.at(3));
-    SPDLOG_INFO("Second candidate desired_phase_plan - Second movement group - start_time: {0}", desired_phase_plan_list[1].desired_phase_plan[1].start_time);
+    //SPDLOG_INFO("Second candidate desired_phase_plan - Second movement group - start_time: {0}", desired_phase_plan_list[1].desired_phase_plan[1].start_time);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[1].signal_groups.size(), 2);
-    SPDLOG_INFO("Second candidate desired_phase_plan - Second movement group - end_time: {0}", desired_phase_plan_list[1].desired_phase_plan[1].end_time);
+    //SPDLOG_INFO("Second candidate desired_phase_plan - Second movement group - end_time: {0}", desired_phase_plan_list[1].desired_phase_plan[1].end_time);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[1].signal_groups[0], 1);
     ASSERT_EQ( desired_phase_plan_list[1].desired_phase_plan[1].signal_groups[1], 3);
-    SPDLOG_INFO("Second candidate desired_phase_plan - Second movement group - signal group ids: [{0}, {1}]", desired_phase_plan_list[1].desired_phase_plan[1].signal_groups[0], desired_phase_plan_list[1].desired_phase_plan[1].signal_groups[1]);
+    //SPDLOG_INFO("Second candidate desired_phase_plan - Second movement group - signal group ids: [{0}, {1}]", desired_phase_plan_list[1].desired_phase_plan[1].signal_groups[0], desired_phase_plan_list[1].desired_phase_plan[1].signal_groups[1]);
 
 
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan.size(), 2);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[0].start_time, tbd_start_time - 10000);
-    SPDLOG_INFO("Third candidate desired_phase_plan - First movement group - start_time: {0}", desired_phase_plan_list[2].desired_phase_plan[0].start_time);
+    //SPDLOG_INFO("Third candidate desired_phase_plan - First movement group - start_time: {0}", desired_phase_plan_list[2].desired_phase_plan[0].start_time);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[0].end_time, tbd_start_time - 5000);
-    SPDLOG_INFO("Third candidate desired_phase_plan - First movement group - end_time: {0}", desired_phase_plan_list[2].desired_phase_plan[0].end_time);
+    //SPDLOG_INFO("Third candidate desired_phase_plan - First movement group - end_time: {0}", desired_phase_plan_list[2].desired_phase_plan[0].end_time);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[0].signal_groups.size(), 1);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[0].signal_groups[0], 2);
-    SPDLOG_INFO("Third candidate desired_phase_plan - First movement group - signal group ids: [{0}]", desired_phase_plan_list[2].desired_phase_plan[0].signal_groups[0]);
+    //SPDLOG_INFO("Third candidate desired_phase_plan - First movement group - signal group ids: [{0}]", desired_phase_plan_list[2].desired_phase_plan[0].signal_groups[0]);
 
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[1].start_time, tbd_start_time);
-    SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - start_time: {0}", desired_phase_plan_list[2].desired_phase_plan[1].start_time);
+    //SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - start_time: {0}", desired_phase_plan_list[2].desired_phase_plan[1].start_time);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[1].end_time, entry_lane_to_green_end_mapping.at(4));
-    SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - end_time: {0}", desired_phase_plan_list[2].desired_phase_plan[1].end_time);
+    //SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - end_time: {0}", desired_phase_plan_list[2].desired_phase_plan[1].end_time);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[1].signal_groups.size(), 1);
     ASSERT_EQ( desired_phase_plan_list[2].desired_phase_plan[1].signal_groups[0], 4);
-    SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - signal group ids: [{0}]", desired_phase_plan_list[2].desired_phase_plan[1].signal_groups[0]);
+    //SPDLOG_INFO("Third candidate desired_phase_plan - Second movement group - signal group ids: [{0}]", desired_phase_plan_list[2].desired_phase_plan[1].signal_groups[0]);
 
 }
 }
