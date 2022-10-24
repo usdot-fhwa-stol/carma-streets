@@ -185,7 +185,10 @@ namespace message_services
                     }
                     return result_lanelet;
                 }
-                SPDLOG_ERROR("Cannot determine the current lanelet with this turn direction = {0} for point = (x = {1} , y = {2}, z= {3})", turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
+                else {
+                    SPDLOG_ERROR("Cannot determine the current lanelet with this turn direction : {0} for point = (x : {1} , y : {2}, z=:{3})", turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
+                    return lanelet::Lanelet();
+                }
             }
             else if (current_total_lanelets.size() == 1)
             {           
@@ -359,5 +362,12 @@ namespace message_services
                 return lanelet_id_type_m;
             }
         }
+
+
+        lanelet::Lanelet message_lanelet2_translation::get_lanelet_by_id( const int lanelet_id)  const {
+        return map_ptr->laneletLayer.get(lanelet_id);
     }
+    }
+
+   
 }

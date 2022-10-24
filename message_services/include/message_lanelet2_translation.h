@@ -153,6 +153,12 @@ namespace message_services
             * @return 3d point in map frame
             */
             lanelet::BasicPoint3d gps_2_map_point(double lat, double lon, double elev) const;
+
+            /**
+             * @brief 
+             * 
+             */
+            lanelet::Lanelet get_lanelet_by_id(const int lanelet_id) const;
             
         };
     }
