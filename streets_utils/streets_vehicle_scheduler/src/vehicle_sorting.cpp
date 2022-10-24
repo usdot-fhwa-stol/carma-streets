@@ -34,5 +34,9 @@ namespace streets_vehicle_scheduler {
         return prev_sched->get_delay() < next_sched->get_delay();
     }
 
+    bool et_comparator( const signalized_vehicle_schedule &prev_sched,  const signalized_vehicle_schedule &next_sched ) {
+        return prev_sched.et < next_sched.et;
+    }
+
  
 }

@@ -3,6 +3,7 @@
 #include "scheduling_exception.h"
 #include "intersection_schedule.h"
 #include "all_stop_intersection_schedule.h"
+#include "signalized_intersection_schedule.h"
 
 #include <vector>
 
@@ -50,5 +51,14 @@ namespace streets_vehicle_scheduler{
      * @return false if first should not come before next.
      */
     bool delay_comparator( const std::shared_ptr<all_stop_intersection_schedule> &prev_sched, const std::shared_ptr<all_stop_intersection_schedule> &next_sched) ;
-
+    /**
+     * @brief Comparator for vehicle collections. Used for sorting vehicle objects in a collection in 
+     * ascending order with respect to their et value. 
+     * 
+     * @param prev_sched first vehicle schedule.
+     * @param next_sched next vehicle schedule.
+     * @return true if first should come before next. 
+     * @return false if first should not come before next.
+     */
+    bool et_comparator( const signalized_vehicle_schedule &prev_sched,  const signalized_vehicle_schedule &next_sched );
 }

@@ -1,7 +1,23 @@
-# Streets Desired phase plan arbitrator
+# Streets Signal Optimization Library
 
 ## Introduction
+This library is intended to contain logic for selecting/generating an optimal desired phase plan. This library consists of two main classes: **streets_desired_phase_plan_generator** and **streets_desired_phase_plan_arbitrator**. In summary, **streets_desired_phase_plan_generator** generates a list of candidate desired phase plans where each desired phase plan has one extra fixed future movement group compared with the modified spat. **streets_desired_phase_plan_arbitrator** selects the one that maximizes/minimizes the objective measure which is a function of vehicle delays.
 
+
+## streets_desired_phase_plan_generator
+The **streets_desired_phase_plan_generator** generates a list of candidate desired phase plans. Each desired phase plan has a list of movement groups with their start times, end times, and the included signal groups [streets_desired_phase_plan library documentation](./streets_desired_phase_plan/README.md).
+
+The main method is **streets_desired_phase_plan_generator::generate_desire_phase_plan_list.()** which returns the desired phase plan list and takes the following parameters:
+- intersection_info pointer (OpenAPI::OAIIntersection_info), this pointer has the intersection geometry information.
+- vehicle id to vehicle object (**streets_vehicle_list::vehicle**) mapping.
+- intersection_state object from spat (**signal_phase_and_timing::intersection_state**).
+- and a list of candidate movement groups (**streets_signal_optimization::movement_groups**).
+If the returned desired phase plan list is empty, either there are no vehicles that can enter the intersection box during any new fixed future movement group, or the number of fixed future movement groups are greater than or equal to the desired number of fixed futre movement groups.
+
+**streets_desired_phase_plan_generator** allows you to configure the **streets_desired_phase_plan_generator_configuration** parameters and **intersection_info_ptrstreets_vehicle_scheduler::signalized_vehicle_scheduler** publicly. Note that if the configuration parameters are not set before **streets_desired_phase_plan_generator::generate_desire_phase_plan_list.()** method, this method will set the configuration parameters to a set of default values.
+
+
+# streets_desired phase plan arbitrator
 The desired phase plan arbitrator include a series of steps to choose the optimzied desired phase plan from a list of orignal candidate desired phase plan.
 
 The sample data for incoming list of candidate desire phase plan in JSON format is below:
@@ -185,8 +201,8 @@ The sample data for incoming list of candidate desire phase plan in JSON format 
 
 ## Use of desired phase plan arbitrator lib
 - streets_desired_phase_plan_arbitrator class provides algorithm or call other library to determine the optimized desired phase plan.
-```
 
+```
 streets_desired_phase_plan select_optimal_dpp( 
                   dpp_list, 
                   intersection_info_ptr, 
@@ -216,8 +232,4 @@ Parameters:
 
 Returns:
   An instance of desired phase plan.
-```
-
-
-
 ```
