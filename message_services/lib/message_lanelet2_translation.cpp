@@ -337,6 +337,39 @@ namespace message_services
                             }
                         }
                     }
+                    /**
+                     * Checking whether current lanelet is departure lanelet, previous lanelet will be link lanlet and the link lanelets
+                     * previous lanelet will be an entry lanelet that has the all_way_stop regulatory element
+                     * 
+                     */
+                    // Get possible link lanelets
+                    lanelet::ConstLanelets possible_links = vehicleGraph_ptr->previous(*ll_itr);
+                    lanelet::ConstLanelet possible_link;
+                    for ( const auto &lane : possible_links ) {
+                        if ( lane.hasAttribute("turn_direction") && lane.attribute("turn_direction").value() == turn_direction ) {
+                            possible_link = lane;
+                            break;
+                        }
+                    }
+                    if ( possible_link.id() != 0 ) {
+                        lanelet::ConstLanelet possible_entry = vehicleGraph_ptr->previous(possible_link).front();
+                        if (possible_entry.regulatoryElements().size() > 0)
+                        {
+                            lanelet::RegulatoryElementConstPtrs reg_ptrs = possible_entry.regulatoryElements();
+                            for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
+                            {
+                                const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
+                                if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
+                                {
+                                    entry_lanelet = possible_entry;
+                                    link_lanelet = possible_link;
+                                    departure_lanelet = *ll_itr;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
 
                 // insert the type for each lanelet id in the list of lanelet ids
                 if (entry_lanelet.id() != lanelet::InvalId)
@@ -355,9 +388,9 @@ namespace message_services
                 }
             return lanelet_id_type_m;
             }
-            catch(...)
+            catch(const lanelet::LaneletError &e)
             {
-                SPDLOG_ERROR("Cannot determine lanelet type and ids with vehicle current lanelet. ");
+                SPDLOG_ERROR("Cannot determine lanelet type and ids with vehicle current lanelet. \n {0}", e.what());
                 lanelet_id_type_m.clear();
                 return lanelet_id_type_m;
             }

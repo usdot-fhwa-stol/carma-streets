@@ -102,49 +102,47 @@ TEST(test_message_lanelet2_translation, distance2_cur_lanelet_end)
     ASSERT_NEAR(174.876, clt.distance2_cur_lanelet_end(48.9976419,8.0025901, 0, clt.get_lanelet_by_id(164), "", trajectory), 0.01);
 }
 
-// TEST(test_message_lanelet2_translation, get_lanelet_types_ids)
-// {
-//     message_services::message_translations::message_lanelet2_translation clt("../vector_map.osm");
-//     message_services::models::trajectory trajectory;
-    
-//     lanelet::Point3d point3d = {lanelet::utils::getId(), {-89.162, 316.702, 72}};
-//     lanelet::BasicPoint3d basic_point3d = point3d.basicPoint();
-//     lanelet::Lanelet lanelet_19252 = clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "", trajectory);
-//     ASSERT_EQ(19252, clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "", trajectory).id());
+TEST(test_message_lanelet2_translation, get_lanelet_types_ids)
+{
+    message_services::message_translations::message_lanelet2_translation clt("../../sample_map/town01_vector_map_test.osm");
+    message_services::models::trajectory trajectory;
+    // Entry
+    auto point3d = clt.gps_2_map_point(48.9976419, 8.0026431, 0);
+    lanelet::Lanelet lanelet_167 = clt.get_cur_lanelet_by_point_and_direction(point3d, "straight", trajectory);
+    //Link 
+    point3d = clt.gps_2_map_point(48.9977867, 8.0026431, 0);
+    lanelet::Lanelet lanelet_169 = clt.get_cur_lanelet_by_point_and_direction(point3d, "straight", trajectory);
+    // Departure
+    point3d = clt.gps_2_map_point(48.9979538, 8.0026431, 0);
+    lanelet::Lanelet lanelet_168 = clt.get_cur_lanelet_by_point_and_direction(point3d, "straight", trajectory);
 
-//     //Position within the link lanelet with proper turn direction return 1 lanelet
-//     point3d = {lanelet::utils::getId(), {-87.9078, 320.47, 72}};
-//     basic_point3d = point3d.basicPoint();
-//     lanelet::Lanelet lanelet_22414 = clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "right", trajectory);
-//     ASSERT_EQ(22414, clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "right", trajectory).id());
-//     ASSERT_EQ(0, clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "", trajectory).id());
+    // From entry lanelet without turn direction
+    ASSERT_EQ(1, clt.get_lanelet_types_ids(lanelet_167, "").size());
+    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(lanelet_167,  "").at(167));
 
-//     //Position within the departure lanelet return 1 lanelet
-//     point3d = {lanelet::utils::getId(), {-66.3387, 327.636, 72}};
-//     basic_point3d = point3d.basicPoint();
-//     lanelet::Lanelet lanelet_12459 = clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "", trajectory);
-//     ASSERT_EQ(12459, clt.get_cur_lanelet_by_point_and_direction(basic_point3d, "", trajectory).id());
+    //From entry lanelet
+    ASSERT_EQ(3, clt.get_lanelet_types_ids(lanelet_167, "straight").size());
+    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(lanelet_167,  "straight").at(167));
+    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(lanelet_167,  "straight").at(169));
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(lanelet_167,  "straight").at(168));
 
-//     //From lanelet id = 19252  (entry lanelet) to lanelet id = 19252 (entry lanelet) without a turn direction.
-//     //If turn direction is not provided, it cannot determine which link lanelet inside intersection.
-//     ASSERT_EQ(1, clt.get_lanelet_types_ids(lanelet_19252, "NA").size());
-//     ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids( lanelet_19252, "NA").at(lanelet_19252.id()));
 
-//     //From lanelet id = 19252 (entry lanelet) to 22414 (link lanelet) to lanelet id = 12459 (departure lanelet)
-//     ASSERT_EQ(3, clt.get_lanelet_types_ids(lanelet_19252, "right").size());
-//     ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(lanelet_19252,  "right").at(lanelet_19252.id()));
-//     ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(lanelet_19252,  "right").at(lanelet_22414.id()));
-//     ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(lanelet_19252,  "right").at(lanelet_12459.id()));
+    //From link lanelet
+    ASSERT_EQ(3, clt.get_lanelet_types_ids(lanelet_169, "straight").size());
+    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(lanelet_169,  "straight").at(167));
+    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(lanelet_169,  "straight").at(169));
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(lanelet_169,  "straight").at(168));
 
-//     //From lanelet id = 22414 (link lanelet) to lanelet id = 12459 (departure lanelet)
-//     ASSERT_EQ(3, clt.get_lanelet_types_ids(lanelet_22414, "NA").size());
-//     ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(lanelet_22414, "NA").at(lanelet_19252.id()));
-//     ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(lanelet_22414, "NA").at(lanelet_22414.id()));
-//     ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(lanelet_22414, "NA").at(lanelet_12459.id()));
+    //From depature lanelet
+    ASSERT_EQ(3, clt.get_lanelet_types_ids(lanelet_168, "straight").size());
+    ASSERT_EQ(message_services::models::entry, clt.get_lanelet_types_ids(lanelet_168, "straight").at(167));
+    ASSERT_EQ(message_services::models::link, clt.get_lanelet_types_ids(lanelet_168, "straight").at(169));
+    ASSERT_EQ(message_services::models::departure, clt.get_lanelet_types_ids(lanelet_168, "straight").at(168));
 
-//     //From lanelet id = 12459 (departure lanelet) to lanelet id = 12459 (departure lanelet)
-//     ASSERT_EQ(0, clt.get_lanelet_types_ids(lanelet_12459, "NA").size());
-// }
+    //From departure without turn direction
+    ASSERT_EQ(0, clt.get_lanelet_types_ids(lanelet_168, "").size());
+
+}
 
 // TEST(test_message_lanelet2_translation, get_route_lanelet_ids)
 // {
