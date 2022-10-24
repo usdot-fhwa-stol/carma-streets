@@ -90,8 +90,8 @@ namespace traffic_signal_controller_service {
             // desired phase plan information consumed from desire_phase_plan Kafka topic
             bool use_desired_phase_plan_update_ = false;
 
-            // Queue to store tsc_control_structs which are objects used to run snmp HOLD and OMIT commands
-            std::queue<tsc_control_struct> tsc_set_command_queue_;
+            // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
+            std::queue<snmp_cmd_struct> tsc_set_command_queue_;
 
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;

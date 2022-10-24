@@ -72,18 +72,18 @@ namespace traffic_signal_controller_service
         
         
         // Test update queue
-        std::queue<tsc_control_struct> control_commands_queue;
+        std::queue<snmp_cmd_struct> control_commands_queue;
         EXPECT_NO_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr,control_commands_queue));
         EXPECT_NO_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr_2,control_commands_queue));
 
         desired_phase_plan_ptr->desired_phase_plan.back().signal_groups = {1,6};
         EXPECT_THROW(worker.update_tsc_control_queue(desired_phase_plan_ptr,control_commands_queue), control_tsc_state_exception);
 
-        // Test tsc_control_struct
-        tsc_control_struct test_control_obj(shared_client, event1.start_time,tsc_control_struct::control_type::Hold, 0);
+        // Test snmp_cmd_struct
+        snmp_cmd_struct test_control_obj(shared_client, event1.start_time,snmp_cmd_struct::control_type::Hold, 0);
         EXPECT_TRUE(test_control_obj.run());
 
-        tsc_control_struct test_control_obj_2(shared_client, event1.start_time,tsc_control_struct::control_type::Omit, 0);
+        snmp_cmd_struct test_control_obj_2(shared_client, event1.start_time,snmp_cmd_struct::control_type::Omit, 0);
         EXPECT_TRUE(test_control_obj_2.run());
 
         // Test empty desired phase plan

@@ -9,7 +9,9 @@
 namespace traffic_signal_controller_service
 {
 
-    struct tsc_control_struct
+    /** Object to store snmp control commands. Contructed with an initialized snmp_client_worker_ this object stores SNMP HOLD and OMIT commands 
+     to be executed at specified time */
+    struct snmp_cmd_struct
     {
         /** @brief The type of control being set on the TSC */
         enum class control_type{
@@ -25,7 +27,7 @@ namespace traffic_signal_controller_service
         /*Type of the snmp set command this object creates- Hold or Omit*/
         control_type control_type_;
 
-        tsc_control_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t start_time, control_type type, int64_t val) 
+        snmp_cmd_struct(std::shared_ptr<snmp_client> snmp_client_worker, int64_t start_time, control_type type, int64_t val) 
                                 : snmp_client_worker_(snmp_client_worker), start_time_(start_time), control_type_(type)
         {
             set_val_.type = snmp_response_obj::response_type::INTEGER;
@@ -88,24 +90,26 @@ namespace traffic_signal_controller_service
              * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
              * @param desired_phase_plan Pointer to the desired phase plan.
              **/
-            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<tsc_control_struct>& tsc_command_queue);
+            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<snmp_cmd_struct>& tsc_command_queue);
 
             /** 
-             * @brief Method to create command for omit
+             * @brief Method to create OMIT snmp command for provided signal groups, which will result in the traffic signal controller skipping the specified phases. 
+             * This method should be sent before any yellow phase for omission to take effect.
              * @param signal_groups A list of signal groups NOT to be omitted. Omit command will aim to omit everything besides signal groups specified here.
              * @param start_time Time at which the snmp command needs to be sent
              * @param is_reset if true, omit command is reset on the traffic signal controller to 0. 
              * If false will calculate the omit value required to reach given signal groups
              **/
-            tsc_control_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            snmp_cmd_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
 
             /** 
-             * @brief Method to create command for Hold
+             * @brief Method to create command for Hold for provided signal groups, 
+             * which will result in the traffic signal controller "holding" the specified phases till a change in the Hold command.
              * @param signal_groups A list of signal groups NOT to be omitted. Hold command will aim to hold the signal groups specified here.
              * @param start_time Time at which the snmp command needs to be sent
              * @param is_reset if true, hold command is reset on the traffic signal controller to 0. 
              * If false will calculate the value required to hold given signal groups
              **/
-            tsc_control_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            snmp_cmd_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
     };
 }

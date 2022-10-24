@@ -10,7 +10,7 @@ namespace traffic_signal_controller_service
     }
 
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
-                                             std::queue<tsc_control_struct>& tsc_command_queue)
+                                             std::queue<snmp_cmd_struct>& tsc_command_queue)
     {
         if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");
@@ -41,14 +41,14 @@ namespace traffic_signal_controller_service
         
 
         //Reset queue
-        tsc_command_queue = std::queue<tsc_control_struct>();
+        tsc_command_queue = std::queue<snmp_cmd_struct>();
 
         // add Omit and Hold commands
         auto first_event = desired_phase_plan->desired_phase_plan[0];
         auto second_event = desired_phase_plan->desired_phase_plan[1];
 
         auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        // Assuming the first event doesn't need to be planned for, we execute omit and hold for the next event
+        // Assuming the first event start doesn't need to be planned for, we execute omit and hold for the next event. Resetting Hold ends the first event
         int64_t omit_execution_time = current_time + (first_event.end_time - current_time)/2;
         tsc_command_queue.push(create_omit_command(second_event.signal_groups, omit_execution_time));
 
@@ -85,7 +85,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    tsc_control_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
     {
         if(!is_reset)
         {
@@ -100,18 +100,18 @@ namespace traffic_signal_controller_service
                 
             }
 
-            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Omit, static_cast<int64_t>(omit_val));
+            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Omit, static_cast<int64_t>(omit_val));
             return command;
         }
         else
         {
-            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Omit, static_cast<int64_t>(0));
+            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Omit, static_cast<int64_t>(0));
             return command;
         }
 
     }
 
-    tsc_control_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
     {
         if(!is_reset)
         {
@@ -126,12 +126,12 @@ namespace traffic_signal_controller_service
                 
             }
 
-            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Hold, static_cast<int64_t>(hold_val));
+            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Hold, static_cast<int64_t>(hold_val));
             return command;
         }
         else
         {
-            tsc_control_struct command(snmp_client_worker_, start_time, tsc_control_struct::control_type::Hold, static_cast<int64_t>(0));
+            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Hold, static_cast<int64_t>(0));
             return command;
         }
     }

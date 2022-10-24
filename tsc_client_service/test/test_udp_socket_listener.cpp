@@ -59,7 +59,7 @@ namespace traffic_signal_controller_service
         int tsc_timeout = 1;
 
         udp_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
-        // bool initialized = listener.initialize();
-        // ASSERT_FALSE( initialized );
+        bool initialized = listener.initialize();
+        ASSERT_FALSE( initialized );
     }  
 }
