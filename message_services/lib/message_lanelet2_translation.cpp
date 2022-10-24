@@ -251,6 +251,11 @@ namespace message_services
             return basic_point3d;
         }
 
+        lanelet::BasicPoint3d message_lanelet2_translation::gps_2_ecef(double lat, double lon, double elev) const {
+            lanelet::BasicPoint3d basic_point3d = this->local_projector->projectECEF({lat, lon, elev}, 1);
+            return basic_point3d;
+        }
+
         lanelet::BasicPoint3d message_lanelet2_translation::gps_2_map_point(double lat, double lon, double elev) const
         {
             lanelet::BasicPoint3d basic_point3d;
