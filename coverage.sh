@@ -85,7 +85,7 @@ gcovr --sonarqube streets_utils/streets_signal_optimization/coverage/coverage.xm
 
 cd /home/carma-streets/message_services/build/
 # Currently only running a subset of message_services tests. TODO: Fix the remaining test cases.
-./message_services_test --gtest_filter=test_vehicle_status_intent_worker.* --gtest_output=xml:../../test_results/
+./message_services_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/message_services/
 mkdir coverage
 cd /home/carma-streets/
