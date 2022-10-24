@@ -94,12 +94,12 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     generator.set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
     streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = generator.convert_spat_to_dpp(intersection_state, move_groups);
     ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.size(), 2);
-    SPDLOG_INFO("The number of fixed future movement groups in the modified spat: {0}", base_desired_phase_plan.desired_phase_plan.size());
+    // SPDLOG_INFO("The number of fixed future movement groups in the modified spat: {0}", base_desired_phase_plan.desired_phase_plan.size());
     
     uint64_t _tbd_start = intersection_state.states.front().state_time_speed.back().timing.get_epoch_min_end_time();
     uint64_t tbd_start = generator.find_tbd_start_time(intersection_state);
     ASSERT_EQ( tbd_start, _tbd_start);
-    SPDLOG_INFO("TBD start time: {0}", tbd_start);
+    // SPDLOG_INFO("TBD start time: {0}", tbd_start);
     
     uint64_t first_mg_start_time = intersection_state.states.front().state_time_speed.front().timing.get_epoch_start_time();
     uint64_t first_mg_end_time = intersection_state.states.front().state_time_speed.front().timing.get_epoch_min_end_time();
@@ -162,17 +162,17 @@ TEST(test_streets_desired_phase_plan_generator, test_signal_group_entry_lane_map
     generator.create_signal_group_entry_lane_mapping(intersection);
     std::unordered_map<uint8_t, std::vector<int>> signal_group_entry_lane_mapping = generator.get_signal_group_entry_lane_mapping();
     ASSERT_EQ(signal_group_entry_lane_mapping.size(), 4);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: [{1}, {2}]", 1, signal_group_entry_lane_mapping.at(1)[0], signal_group_entry_lane_mapping.at(1)[1]);
+    // SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: [{1}, {2}]", 1, signal_group_entry_lane_mapping.at(1)[0], signal_group_entry_lane_mapping.at(1)[1]);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(1).size(), 2);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(1)[0], 1);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(1)[1], 17);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 2, signal_group_entry_lane_mapping.at(2)[0]);
+    // SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 2, signal_group_entry_lane_mapping.at(2)[0]);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(2).size(), 1);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(2)[0], 2);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 3, signal_group_entry_lane_mapping.at(4)[0]);
+    // SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 3, signal_group_entry_lane_mapping.at(4)[0]);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(3).size(), 1);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(3)[0], 3);
-    SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 4, signal_group_entry_lane_mapping.at(4)[0]);
+    // SPDLOG_INFO("Signal group to entry lane mapping - signal group {0}: {1}", 4, signal_group_entry_lane_mapping.at(4)[0]);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(4).size(), 1);
     ASSERT_EQ(signal_group_entry_lane_mapping.at(4)[0], 4);
     
@@ -203,6 +203,10 @@ TEST(test_streets_desired_phase_plan_generator, test_signal_group_entry_lane_map
  * - Movement group 2 : {signal group 2}
  * - Movement group 3 : {signal group 4}
  * 
+ * Finally, the desired phase plan list shall include shall include 3 desired phase plans:
+ * - desired_phase_plan 1: [{movement group 2}, {movement_group 1}] with green duration calculated for entry lane 1
+ * - desired_phase_plan 2: [{movement group 2}, {movement_group 1}] with green duration calculated for entry lane 3
+ * - desired_phase_plan 3: [{movement group 2}, {movement_group 3}] with green duration calculated for entry lane 4
  */
 namespace streets_signal_optimization {
 

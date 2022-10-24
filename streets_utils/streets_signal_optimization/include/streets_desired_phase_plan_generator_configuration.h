@@ -42,12 +42,14 @@ namespace streets_signal_optimization {
         double so_radius;
 
         /**
-         * @brief The configurable minimum green duration in milliseconds.
+         * @brief The configurable minimum green duration in milliseconds. This minimum green duration is used for all signal groups.
+         * Basically, no signal group can have a green duration less than the configurable minimum green duration.
          */
         uint64_t min_green;
 
         /**
-         * @brief The configurable maximum green duration in milliseconds.
+         * @brief The configurable maximum green duration in milliseconds. This maximum green duration is used for all signal groups.
+         * Basically, no signal group can have a green duration greater than the configurable maximum green duration.
          */
         uint64_t max_green;
         

@@ -10,7 +10,17 @@ namespace streets_signal_optimization {
 
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list;
 
-        /** If the configurable parameters are not set, set them to their default values. */
+        /** If the configurable parameters are not set, set them to their default values.
+         * Default values:
+         * - initial_green_buffer = 2,000 ms
+         * - final_green_buffer = 2,000 ms
+         * - et_inaccuracy_buffer = 2,000 ms
+         * - queue_max_time_headway = 3,000 ms
+         * - so_radius = 200 meter
+         * - min_green = 50,000 ms
+         * - max_green = 120,000 ms
+         * - desired_future_move_group_count = 1
+         */
         if (is_configured) {
             SPDLOG_WARN("set_configuration was not called. Setting configuration to default!");
             set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
@@ -31,6 +41,12 @@ namespace streets_signal_optimization {
             SPDLOG_DEBUG("The number of fixed future movement groups in the modified spat ({0}) is greater than the desired number of fixed future movement groups ({1})!", base_desired_phase_plan.desired_phase_plan.size(), config.desired_future_move_group_count);
             return desired_phase_plan_list;
         }
+        /**
+         * The provided spat have only a configurable number of fixed future movement groups. Any time area after the fixed future movement
+         *     groups is defined as the to-be-determined (TBD) area. Basically, the TBD area starts from the end time of the last movement_state
+         *     of a signal group. If a vehicle's estimated entering time (ET) is within the TBD area (after the end time of the last 
+         *     movement_state), the vehicle will be considered in the queue calculation.
+        */
         uint64_t tbd_start = find_tbd_start_time(intersection_state);
 
 
@@ -99,7 +115,7 @@ namespace streets_signal_optimization {
          */
         update_desired_phase_plan_list(move_groups, green_end_per_entry_lane, base_desired_phase_plan, desired_phase_plan_list, intersection_info_ptr, tbd_start);
         if (desired_phase_plan_list.empty()) {
-            SPDLOG_DEBUG("No movement group could be added and thus, the desired_phase_plan_list is empty!");
+            SPDLOG_WARN("No movement group could be added and thus, the desired_phase_plan_list is empty!");
         }
 
         return desired_phase_plan_list;
@@ -139,33 +155,33 @@ namespace streets_signal_optimization {
 
                     if (mg.signal_groups.second == 0) {
                         mg_green_list.push_back(movement_group);
+                        continue;
                     }
-                    else {
-                        for (const auto& me2 : move_state_2.state_time_speed) {
-                            if (me2.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed && 
-                                        (me2.timing.get_epoch_start_time() < me1.timing.get_epoch_start_time() && 
-                                        me2.timing.get_epoch_min_end_time() > me1.timing.get_epoch_start_time()) ||
-                                        (me2.timing.get_epoch_start_time() < me1.timing.get_epoch_min_end_time() && 
-                                        me2.timing.get_epoch_min_end_time() > me1.timing.get_epoch_min_end_time())) {
-                                throw streets_desired_phase_plan_generator_exception("spat has fixed future signal groups with partially overlapping green durations!");
-                            }
-                            if (me2.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed && 
-                                        me2.timing.get_epoch_start_time() == me1.timing.get_epoch_start_time() && 
-                                        me2.timing.get_epoch_min_end_time() == me1.timing.get_epoch_min_end_time()) {
-                                
-                                movement_group.signal_groups.push_back(move_state_2.signal_group);
-                                mg_green_list.push_back(movement_group);
-                                break;
-                            }
-                            else if (me2.timing.get_epoch_start_time() > me1.timing.get_epoch_start_time()) {
-                                break;
-                            }
+
+                    for (const auto& me2 : move_state_2.state_time_speed) {
+                        if (me2.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed && 
+                                    (me2.timing.get_epoch_start_time() < me1.timing.get_epoch_start_time() && 
+                                    me2.timing.get_epoch_min_end_time() > me1.timing.get_epoch_start_time()) ||
+                                    (me2.timing.get_epoch_start_time() < me1.timing.get_epoch_min_end_time() && 
+                                    me2.timing.get_epoch_min_end_time() > me1.timing.get_epoch_min_end_time())) {
+                            throw streets_desired_phase_plan_generator_exception("spat has fixed future signal groups with partially overlapping green durations!");
+                        }
+                        if (me2.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed && 
+                                    me2.timing.get_epoch_start_time() == me1.timing.get_epoch_start_time() && 
+                                    me2.timing.get_epoch_min_end_time() == me1.timing.get_epoch_min_end_time()) {
+                            
+                            movement_group.signal_groups.push_back(move_state_2.signal_group);
+                            mg_green_list.push_back(movement_group);
+                            break;
+                        }
+                        else if (me2.timing.get_epoch_start_time() > me1.timing.get_epoch_start_time()) {
+                            break;
                         }
                     }
                 }
             }
         }
-
+        
 
         for (const auto& mg_green : mg_green_list) {
             if (base_desired_phase_plan.desired_phase_plan.empty()) {
@@ -345,13 +361,23 @@ namespace streets_signal_optimization {
                                                         const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                                                         const uint64_t &tbd_start) {
         
+        /** If the base_desired_phase_plan, it means that either the base_desired_phase_plan is not created based on the spat,
+         * or the spat does not have any fixed movement group (even the current active phase timing) in it.
+        */
         if (base_desired_phase_plan.desired_phase_plan.empty()) {
             throw streets_desired_phase_plan_generator_exception("The base desired phase plan is empty!");
         }
+        /** If the signal_group_entry_lane_mapping is empty, call create_signal_group_entry_lane_mapping() function to find the mapping.
+         *  This mapping maps signal group ids and entry lane ids.
+        */
         if (signal_group_entry_lane_mapping.empty()) {
             SPDLOG_DEBUG("The signal_group_entry_lane_mapping is empty!");
             create_signal_group_entry_lane_mapping(intersection_info_ptr);
         }
+        /** 
+         * Loop through all candidate movement groups, check if it can be added to the base_desired_phase_plan, and if yes, 
+         * add it to the base_desired_phase_plan with all different possible green duration options.
+        */
         for (const auto &move_group : move_groups.groups) {
             
             /** Check if the movement group can be added to the end of the base desired phase plan */
@@ -364,6 +390,10 @@ namespace streets_signal_optimization {
             }
             if (can_mg_be_added) {
                 
+                /**
+                 * Loop through the entry lanes connected to the first signal group. For each entry lane, add the movement group 
+                 * to the end of the base desired phase plan with the required green duration calculated for this entry lane. 
+                */
                 for (const auto &entry_lane : signal_group_entry_lane_mapping.at(move_group.signal_groups.first)) {
                     desired_phase_plan_list.push_back(base_desired_phase_plan);
                     streets_desired_phase_plan::signal_group2green_phase_timing mg_timing;
@@ -376,6 +406,11 @@ namespace streets_signal_optimization {
                     desired_phase_plan_list.back().desired_phase_plan.push_back(mg_timing);
                 }
 
+                /**
+                 * If the movement group contains 2 signal groups, loop through the entry lanes connected to the second signal group. 
+                 * For each entry lane, add the movement group to the end of the base desired phase plan with the required green 
+                 * duration calculated for this entry lane. 
+                */
                 if (move_group.signal_groups.second != 0) {
                     for (const auto &entry_lane : signal_group_entry_lane_mapping.at(move_group.signal_groups.second)) {
                         desired_phase_plan_list.push_back(base_desired_phase_plan);

@@ -40,7 +40,8 @@ namespace streets_signal_optimization {
             bool is_configured = false;
 
             /**
-             * @brief Signal group to list of entry lane ids mapping. Each signal group might be assigned to more than one entry lanes.
+             * @brief Map of signal group to vector of entry lanes that are served by this signal group.. Each signal group 
+             * might be assigned to more than one entry lanes.
              */
             std::unordered_map<uint8_t, std::vector<int>> signal_group_entry_lane_mapping;
 
@@ -69,8 +70,8 @@ namespace streets_signal_optimization {
 
             /**
              * @brief Given a populated signalized_intersection_schedule object, intersection_info shared pointer, and the start time of 
-             * TBD area, this method will return entry lane id to list of schedules that have estimated entering times (ETs) after the 
-             * start time of the TBD area for the entry lane mapping.
+             * TBD area, This method returns a MAP of entry lanes as keys and a list of vehicle schedules for each entry lane as value.
+             * Only those vehicles that have an entering time (ET) after the start of the TBD area will be included in this mapping.
              * 
              * @param ev_schedules_within_so A populated signalized_intersection_schedule object.
              * @param intersection_info_ptr An intersection_info pointer.
@@ -89,8 +90,8 @@ namespace streets_signal_optimization {
              * the last vehicle in the queue, calculates the queue dissipation time, and finally returns the end time for the required 
              * green duration to dissipate the queue.
              * The last vehicle in the queue is the vehicle that has entering time (ET) equal to its earliest entering time (EET) and the
-             * time headway between its ET and its following vehicle's ET is grater than the configurable queue_max_time_headway parameter, 
-             * or the last vehicle in the entry lane.
+             * time headway between its ET and its following vehicle's ET is greater than the configurable queue_max_time_headway parameter. 
+             * If such a vehicle could not be found, the last vehicle in the entry lane will be considered as the last vehicle in the queue.
              * 
              * @param schedules_in_tbd A list of signalized_vehicle_schedules to entry lane mapping.
              * @param tbd_start Start time of the TBD area.
@@ -103,8 +104,8 @@ namespace streets_signal_optimization {
             /**
              * @brief Given a list of signalized_vehicle_schedules for an entry lane, this method will find the last vehicle in the queue.
              * The last vehicle in the queue is the vehicle that has entering time (ET) equal to its earliest entering time (EET) and the
-             * time headway between its ET and its following vehicle's ET is grater than the configurable queue_max_time_headway parameter, 
-             * or the last vehicle in the entry lane.
+             * time headway between its ET and its following vehicle's ET is greater than the configurable queue_max_time_headway parameter.
+             * If such a vehicle could not be found, the last vehicle in the entry lane will be considered as the last vehicle in the queue.
              * 
              * @param evs_in_lane A list of signalized_vehicle_schedules for an entry lane.
              * @return streets_vehicle_scheduler::signalized_vehicle_schedule The schedule of the last vehicle in the queue.
@@ -113,8 +114,8 @@ namespace streets_signal_optimization {
                     const std::list<streets_vehicle_scheduler::signalized_vehicle_schedule> &evs_in_lane) const;
 
             /**
-             * @brief Given a list of movement groups, the end time of required green duration for clearing the queue to entry lane id 
-             * mapping, and an updated base_desired_phase_plan, this method with create a list of desired phase plans, where each desired 
+             * @brief Given a list of movement groups, a mapping of the end time of required green duration for clearing the queue to 
+             * entry lane id, and an updated base_desired_phase_plan, this method with create a list of desired phase plans, where each desired 
              * phase plan in the list includes the existing fixed future movement groups from the received spat and a new movement group 
              * with a given duration at the end. For each movement group, this method first checks if the movement group can be added
              * to the base_desired_phase_plan (i.e., if the movement group has a common signal group with the last movement group in the
@@ -172,8 +173,14 @@ namespace streets_signal_optimization {
             /**
              * @brief Generate a list of desired phase plans. Each desired phase plan in the list includes the existing fixed future 
              * movement groups from the provided intersection_state and a new movement group with a given duration at the end. 
-             * An empty desired phase plan list means that either the spat verification failed or there are no estimated entering time (ET) 
-             * within the to-be-determined (TBD) area.
+             * An empty desired phase plan list means that the desired phase plan converted from the spat cannot be updated.
+             * This can happen in one of the following scenarios:
+             *  - There are no vehicles in the SO area.
+             *  - All vehicles can enter the intersection box within the already fixed future movement groups (i.e., there are no 
+             *    vehicle with ET greater than the start time of the TBD area.).
+             *  - No movement group that serves vehicles can be added to the end of the movement event list from the spat due to
+             *    repeating signal group constraint (i.e., a movement group that has a common signal group with the last fixed 
+             *    future movement group in spat). 
              * 
              * @param intersection_info_ptr An intersection_info pointer.
              * @param vehicles A map of the vehicles to schedule, with vehicle id as keys.
@@ -191,7 +198,7 @@ namespace streets_signal_optimization {
 
             /**
              * @brief Convert the provided intersection_state to a desired phase plan. The number of fixed future movement groups
-             * shall be at least 1 and at most the desired number of fixed future movement groups.
+             * shall be at least 1.
              * 
              * @param intersection_info_ptr An intersection_info pointer.
              * @param move_groups A list of possible movement groups.
