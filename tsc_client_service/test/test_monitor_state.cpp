@@ -17,8 +17,6 @@ namespace traffic_signal_controller_service
    
     TEST(test_monitor_state, test_get_tsc_state)
     {
-        
-
         auto mock_client = std::make_shared<mock_snmp_client>();
 
         int phase_num = 0;
@@ -33,6 +31,13 @@ namespace traffic_signal_controller_service
         EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(max_channels_in_tsc), 
             Return(true)));
+
+        snmp_response_obj max_rings_in_tsc;
+        max_rings_in_tsc.val_int = 4;
+        max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::MAX_RINGS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(max_rings_in_tsc), 
+            Return(true)));
         // Define Sequence Data
         snmp_response_obj seq_data;
         seq_data.val_string = {char(1),char(2)};
@@ -45,6 +50,17 @@ namespace traffic_signal_controller_service
         seq_data.val_string = {char(3),char(4)};
         std::string seq_data_ring2_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(2);
         EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring2_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        seq_data.val_string = {};
+        std::string seq_data_ring3_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(3);
+        EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring3_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        std::string seq_data_ring4_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(4);
+        EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring4_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(seq_data), 
             Return(true)));
         
@@ -141,7 +157,7 @@ namespace traffic_signal_controller_service
 
         //Test tsc_config_state
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state = worker.get_tsc_config_state();
-        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 2);
+        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 3);
         EXPECT_EQ(tsc_config_state->tsc_config_list.front().red_clearance, 1000);
 
     }
@@ -195,14 +211,14 @@ namespace traffic_signal_controller_service
         phase_1_state.red_clearance = 1000;
         phase_1_state.red_duration = 10000;
         
-        worker.signal_group_state_map_.insert({1, phase_1_state});
+        worker.signal_group_2tsc_state_map_.insert({1, phase_1_state});
 
         traffic_signal_controller_service::signal_group_state phase_2_state;
         phase_2_state = phase_1_state;
         phase_2_state.signal_group_id = 2;
         phase_2_state.phase_num = 2;
 
-        worker.signal_group_state_map_.insert({2, phase_2_state});
+        worker.signal_group_2tsc_state_map_.insert({2, phase_2_state});
 
         traffic_signal_controller_service::signal_group_state phase_3_state;
         phase_3_state = phase_1_state;
@@ -260,6 +276,13 @@ namespace traffic_signal_controller_service
         EXPECT_CALL( *mock_snmp, process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(max_channels_in_tsc), 
             Return(true)));
+
+        snmp_response_obj max_rings_in_tsc;
+        max_rings_in_tsc.val_int = 4;
+        max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        EXPECT_CALL( *mock_snmp, process_snmp_request(ntcip_oids::MAX_RINGS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(max_rings_in_tsc), 
+            Return(true)));
         // Define Sequence Data
         snmp_response_obj seq_data;
         seq_data.val_string = {char(1),char(2), char(3), char(4)};
@@ -272,6 +295,17 @@ namespace traffic_signal_controller_service
         seq_data.val_string = {char(5),char(6), char(7), char(8)};
         std::string seq_data_ring2_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(2);
         EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring2_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        seq_data.val_string = {};
+        std::string seq_data_ring3_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(3);
+        EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring3_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        std::string seq_data_ring4_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(4);
+        EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring4_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(seq_data), 
             Return(true)));
         //get_vehicle_phase channel
@@ -522,16 +556,16 @@ namespace traffic_signal_controller_service
         ASSERT_THROW(state.get_phase_number(0), monitor_states_exception);
 
 
-        ASSERT_EQ(3, state.get_signal_group_id(1));
-        ASSERT_EQ(7, state.get_signal_group_id(2));
-        ASSERT_EQ(9, state.get_signal_group_id(3));
-        ASSERT_EQ(14, state.get_signal_group_id(4));
-        ASSERT_EQ(11, state.get_signal_group_id(5));
-        ASSERT_EQ(6, state.get_signal_group_id(6));
-        ASSERT_EQ(15, state.get_signal_group_id(7));
-        ASSERT_EQ(1, state.get_signal_group_id(8));
-        ASSERT_THROW(state.get_signal_group_id(9), monitor_states_exception);
-        ASSERT_THROW(state.get_signal_group_id(0), monitor_states_exception);
+        ASSERT_EQ(3, state.get_vehicle_signal_group_id(1));
+        ASSERT_EQ(7, state.get_vehicle_signal_group_id(2));
+        ASSERT_EQ(9, state.get_vehicle_signal_group_id(3));
+        ASSERT_EQ(14, state.get_vehicle_signal_group_id(4));
+        ASSERT_EQ(11, state.get_vehicle_signal_group_id(5));
+        ASSERT_EQ(6, state.get_vehicle_signal_group_id(6));
+        ASSERT_EQ(15, state.get_vehicle_signal_group_id(7));
+        ASSERT_EQ(1, state.get_vehicle_signal_group_id(8));
+        ASSERT_THROW(state.get_vehicle_signal_group_id(9), monitor_states_exception);
+        ASSERT_THROW(state.get_vehicle_signal_group_id(0), monitor_states_exception);
 
 
         

@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
+find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 find_package(RapidJSON REQUIRED)
@@ -36,6 +38,8 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
                 Boost::filesystem
                 spdlog::spdlog
                 rapidjson
+                streets_desired_phase_plan_lib
+                streets_tsc_configuration_lib
                 )
 
                 
@@ -93,4 +97,6 @@ target_link_libraries(${BINARY} PUBLIC
                 gtest
                 rapidjson
                 ${PROJECT_NAME}_lib
+                streets_desired_phase_plan_lib
+                streets_tsc_configuration_lib
                 )
