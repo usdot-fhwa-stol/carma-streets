@@ -17,6 +17,11 @@ namespace ntcip_oids {
     static const std::string MAX_CHANNELS = "1.3.6.1.4.1.1206.4.2.1.8.1.0";
 
     /**
+     * @brief OID for MAX_RINGS: The maximum number of rings this TSC supports. 
+    */
+    static const std::string MAX_RINGS = "1.3.6.1.4.1.1206.4.2.1.7.1.0";
+
+    /**
      * @brief OID for Channel control type: Used with (.channel number)
         This object defines the channel control type (Vehicle Phase,Pedestrian Phase or Overlap)
         SYNTAX INTEGER { other (1), phaseVehicle (2), phasePedestrian (3), overlap (4), pedOverlap (5), queueJump (6) } 
@@ -70,4 +75,23 @@ namespace ntcip_oids {
      * Used with (.phase number)
      */
     static const std::string PHASE_CONCURRENCY =  "1.3.6.1.4.1.1206.4.2.1.1.2.1.23";
+
+    /**
+     * @brief Phase Omit Control object is used to allow omission of pedestrian phases from being serviced in the device.
+     * It takes in a 8 bit argument, one for each phase. When a bit=1 the Traffic Signal Controller will omit 
+     * that phase and keep omitting till the bit is set to 0.
+     * Values range from 0-255.
+     * .1 is needed at the end to set the phase control. NTCIP documentation is unclear about why its required or what it represents
+     */
+    static const std::string PHASE_OMIT_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.2.1";
+
+    /**
+     * @brief Phase Hold Control object is used to Hold pedestrian phases.
+     * It takes in a 8 bit argument, one for each phase. When a bit=1 the Traffic Signal Controller will hold 
+     * that phase when it turns green and keep holding till the bit is set to 0.
+     * Values range from 0-255.
+     * .1 is needed at the end to set the phase control. NTCIP documentation is unclear about why its required or what it represents
+     */
+    static const std::string PHASE_HOLD_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.4.1";
+
 }
