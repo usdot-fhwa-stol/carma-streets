@@ -132,9 +132,6 @@ namespace message_services
                 {
                     while (true)
                     {
-                        SPDLOG_TRACE("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
-                        SPDLOG_TRACE("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
-                        SPDLOG_TRACE("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
                         if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_map().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_map().size() > 0)
                         {
                             SPDLOG_TRACE("Processing the BSM, mobilityOperation and MP from list...");
