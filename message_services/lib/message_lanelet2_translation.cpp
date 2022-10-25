@@ -20,15 +20,13 @@ namespace message_services
                     }
                     else
                     {
-                        SPDLOG_ERROR("Failed to update vehicle routing graph. ");
-                        exit(-1);
+                        throw exceptions::message_lanelet2_translation_exception("Failed to update vehicle routing graph.");
                     }
                 }
             }
             else
             {
-                SPDLOG_ERROR("Failed to initialzie map. ");
-                exit(-1);
+                throw exceptions::message_lanelet2_translation_exception("Failed to initialzie map.");
             }
             SPDLOG_INFO("Finished initializing message_lanelet2_translation. ");
         }

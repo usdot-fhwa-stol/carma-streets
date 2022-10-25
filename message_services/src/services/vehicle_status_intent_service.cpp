@@ -15,7 +15,18 @@ namespace message_services
         bool vehicle_status_intent_service::initialize()
         {
             try
-            {               
+            {   
+                this->vsi_est_path_point_count = streets_service::streets_configuration::get_int_config("vsi_est_path_count");
+                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_int_config("mobility_path_trajectory_offset_duration");
+                this->VSI_TH_SLEEP_MILLI_SEC = streets_service::streets_configuration::get_int_config("vsi_th_sleep_milli_sec");
+                this->BSM_MSG_EXPIRE_IN_SEC = streets_service::streets_configuration::get_int_config("bsm_msg_expire_in_sec");
+                this->CLEAN_QUEUE_IN_SECS = streets_service::streets_configuration::get_int_config("clean_queue_in_secs");
+                this->disable_est_path = streets_service::streets_configuration::get_boolean_config("disable_est_path");
+                this->is_est_path_p2p_distance_only = streets_service::streets_configuration::get_boolean_config("is_est_path_p2p_distance_only");
+
+                // Initialize message_lanelet2_translation
+                std::string osm_file_path = streets_service::streets_configuration::get_string_config("osm_file_path");
+                            
                 auto client = std::make_shared<kafka_clients::kafka_client>();
                 
                 // kafka config
@@ -41,6 +52,7 @@ namespace message_services
                 if (!_bsm_consumer_worker->init() || !_mp_consumer_worker->init() || !_mo_consumer_worker->init())
                 {
                     SPDLOG_CRITICAL("kafka consumers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) initialize error");
+                    return false;
                 }
                 else
                 {
@@ -50,7 +62,7 @@ namespace message_services
                     if (!_bsm_consumer_worker->is_running() || !_mp_consumer_worker->is_running() || !_mo_consumer_worker->is_running())
                     {
                         SPDLOG_CRITICAL("consumer_workers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) is not running");
-                        exit(-1);
+                        return false;
                     }
                 }
 
@@ -58,20 +70,17 @@ namespace message_services
                 if (!_vsi_producer_worker->init())
                 {
                     SPDLOG_CRITICAL("kafka producer (_vsi_producer_worker) initialize error");
-                    exit(-1);
+                    return false;
                 }
 
-                this->vsi_est_path_point_count = streets_service::streets_configuration::get_int_config("vsi_est_path_count");
-                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_int_config("mobility_path_trajectory_offset_duration");
-                this->VSI_TH_SLEEP_MILLI_SEC = streets_service::streets_configuration::get_int_config("vsi_th_sleep_milli_sec");
-                this->BSM_MSG_EXPIRE_IN_SEC = streets_service::streets_configuration::get_int_config("bsm_msg_expire_in_sec");
-                this->CLEAN_QUEUE_IN_SECS = streets_service::streets_configuration::get_int_config("clean_queue_in_secs");
-                this->disable_est_path = streets_service::streets_configuration::get_boolean_config("disable_est_path");
-                this->is_est_path_p2p_distance_only = streets_service::streets_configuration::get_boolean_config("is_est_path_p2p_distance_only");
+                try {
+                    _msg_lanelet2_translate_ptr = std::make_shared<message_translations::message_lanelet2_translation>(osm_file_path);
+                }
+                catch( const exceptions::message_lanelet2_translation_exception &e ) {
+                    SPDLOG_ERROR("Exception encounted during initialization! \n {0}", e.what());
+                    return false;
+                }
 
-                // Initialize message_lanelet2_translation
-                std::string osm_file_path = streets_service::streets_configuration::get_string_config("osm_file_path");
-                _msg_lanelet2_translate_ptr = std::make_shared<message_translations::message_lanelet2_translation>(osm_file_path);
 
                 return true;
             }

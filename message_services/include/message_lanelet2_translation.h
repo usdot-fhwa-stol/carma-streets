@@ -1,6 +1,8 @@
 #ifndef VEHICLE_STATUS_INTENT_LANELET_TRANSLATION_H
 #define VEHICLE_STATUS_INTENT_LANELET_TRANSLATION_H
 
+#include "message_lanelet2_translation_exception.h"
+
 // Lanelet2 libraries
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_projection/UTM.h>

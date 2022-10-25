@@ -8,12 +8,15 @@ TEST(test_message_lanelet2_translation, read_lanelet2_map)
     message_services::message_translations::message_lanelet2_translation clt;
     ASSERT_TRUE(clt.read_lanelet2_map("../../sample_map/town01_vector_map_test.osm"));
     ASSERT_FALSE(clt.read_lanelet2_map("../fake_map_path.osm"));
+    ASSERT_THROW( message_services::message_translations::message_lanelet2_translation clt2("../fake_map_path.osm"), 
+        message_services::exceptions::message_lanelet2_translation_exception);
 }
 
 TEST(test_message_lanelet2_translation, update_vehicle_routing_graph)
 {
     message_services::message_translations::message_lanelet2_translation clt("../../sample_map/town01_vector_map_test.osm");
     ASSERT_TRUE(clt.update_vehicle_routing_graph());
+
 }
 
 TEST(test_message_lanelet2_translation, get_cur_lanelet_id_by_loc_and_direction)
