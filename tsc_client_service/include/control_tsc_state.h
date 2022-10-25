@@ -9,7 +9,7 @@
 namespace traffic_signal_controller_service
 {
 
-    /** Object to store snmp control commands. Contructed with an initialized snmp_client_worker_ this object stores SNMP HOLD and OMIT commands 
+    /** @brief Object to store snmp control commands. Contructed with an initialized snmp_client_worker_ this object stores SNMP HOLD and OMIT commands 
      to be executed at specified time */
     struct snmp_cmd_struct
     {
@@ -86,9 +86,8 @@ namespace traffic_signal_controller_service
             
             /** 
              * @brief Method to update the queue of tsc_control
-             * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
-             * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
              * @param desired_phase_plan Pointer to the desired phase plan.
+             * @param tsc_command_queue Queue of snmp commands to set HOLD and OMIT on the traffic signal controller
              **/
             void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<snmp_cmd_struct>& tsc_command_queue);
 

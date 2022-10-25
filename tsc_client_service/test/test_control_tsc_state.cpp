@@ -5,41 +5,30 @@
 #include "ntcip_oids.h"
 #include "control_tsc_state.h"
 #include "streets_configuration.h"
+#include <mock_snmp_client.h>
 
 using testing::_;
 
 namespace traffic_signal_controller_service
-{
-    class mock_snmp_client : public snmp_client
-    {
-        
-        public:
-        mock_snmp_client(const std::string& ip, const int& port) : snmp_client(ip, port){}
-    
-        mock_snmp_client(mock_snmp_client& t, const std::string ip = "", const int port = 0): snmp_client(ip, port){}
-        virtual ~mock_snmp_client(void){};
-        MOCK_METHOD3(process_snmp_request, bool(const std::string& input_oid, const request_type& request_type,snmp_response_obj& val));
-        
-    };  
+{ 
 
     TEST(traffic_signal_controller_service, test_control_tsc_state)
     {
         std::string dummy_ip = "192.168.10.10";
         int dummy_port = 601;
-        mock_snmp_client mock_client_worker(dummy_ip, dummy_port);
 
-        auto unique_client = std::make_unique<mock_snmp_client>(mock_client_worker);
+        auto mock_client = std::make_shared<mock_snmp_client>();
 
         // Define Control Type
         snmp_response_obj hold_control;
         hold_control.val_int = 255;
         hold_control.type = snmp_response_obj::response_type::INTEGER;
         
-        EXPECT_CALL(*unique_client, process_snmp_request(_, _ , _) )
+        EXPECT_CALL(*mock_client, process_snmp_request(_, _ , _) )
             .WillRepeatedly(testing::DoAll(testing::Return(true)));
 
         
-        std::shared_ptr<mock_snmp_client> shared_client = std::move(unique_client);
+        std::shared_ptr<mock_snmp_client> shared_client = std::move(mock_client);
         streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan;
 
         // Define Desired Phase plan
