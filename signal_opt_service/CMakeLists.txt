@@ -65,8 +65,17 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib rdkafka++ Boost::system Boost::filesystem Boost::thread spdlog::spdlog rapidjson intersection_client_api_lib streets_service_base_lib streets_signal_phase_and_timing_lib
-    streets_vehicle_list_lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib 
+                                                            rdkafka++ Boost::system 
+                                                            Boost::filesystem 
+                                                            Boost::thread 
+                                                            spdlog::spdlog 
+                                                            rapidjson 
+                                                            intersection_client_api_lib 
+                                                            streets_service_base_lib 
+                                                            streets_vehicle_scheduler_lib
+                                                            streets_signal_phase_and_timing_lib
+                                                            streets_vehicle_list_lib)
 
 # #######################
 # googletest for unit testing

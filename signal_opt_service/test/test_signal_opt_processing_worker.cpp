@@ -36,7 +36,7 @@ namespace signal_opt_service
             auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
             current_hour_in_tenths_secs = (epoch_timestamp - hours_since_epoch * 3600 * 1000) / 100;
 
-            // Create mock spat
+            // Create sample spat
             spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
             spat_msg_two_ptr = std::make_shared<signal_phase_and_timing::spat>();
             spat_msg_three_ptr = std::make_shared<signal_phase_and_timing::spat>();

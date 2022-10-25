@@ -16,7 +16,7 @@ find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIR
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib REQUIRED)
-find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
+
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
@@ -56,5 +56,4 @@ add_executable(${BINARY} ${TEST_SOURCES}
                         src/scheduling_worker.cpp )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY} PUBLIC  Boost::system Boost::filesystem kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network streets_service_base_lib::streets_service_base_lib streets_vehicle_list_lib::streets_vehicle_list_lib streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib 
-streets_tsc_configuration_lib::streets_tsc_configuration_lib)    
+target_link_libraries(${BINARY} PUBLIC  Boost::system Boost::filesystem kafka_clients_lib rdkafka++ Boost::thread spdlog::spdlog gtest intersection_client_api_lib Qt5::Core Qt5::Network streets_service_base_lib::streets_service_base_lib streets_vehicle_list_lib::streets_vehicle_list_lib streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib)    
