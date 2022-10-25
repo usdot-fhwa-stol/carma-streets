@@ -1,6 +1,11 @@
 #include <gtest/gtest.h>
 #include <tsc_service.h>
 
+#include <control_tsc_state.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest_prod.h>
+#include <mock_snmp_client.h>
+
 using namespace traffic_signal_controller_service; 
 
     class test_tsc_service : public ::testing::Test{
@@ -50,6 +55,7 @@ TEST_F(test_tsc_service, test_init_snmp_client) {
 
 namespace traffic_signal_controller_service {
 
+
 // Test Fixure to unit test methods requiring access to private members. These tests need to be added as Friend Tests to class
 TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) {
     tsc_service service;
@@ -58,6 +64,42 @@ TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) {
     ASSERT_TRUE(service.initialize_kafka_producer("127.0.0.1:9092", "modified_spat", service.spat_producer));
     ASSERT_TRUE(service.initialize_spat_worker("127.0.0.1",3456,2,false));
     service.produce_spat_json();
+}
+
+TEST(tsc_service_test, test_tsc_control){
+    
+    std::string dummy_ip = "192.168.10.10";
+    int dummy_port = 601;
+    
+    auto mock_client = std::make_shared<mock_snmp_client>();
+
+    using testing::_;
+    EXPECT_CALL(*mock_client, process_snmp_request(_,_,_) )
+        .WillRepeatedly(testing::DoAll(testing::Return(true)));
+    
+    // Define command 
+    snmp_response_obj set_val;
+    set_val.type = snmp_response_obj::response_type::INTEGER;
+    uint64_t start_time = 0;
+
+    snmp_cmd_struct::control_type control_type = snmp_cmd_struct::control_type::Hold;
+    snmp_cmd_struct hold_command(mock_client, start_time, control_type, 0);
+    tsc_service service;
+    std::queue<snmp_cmd_struct> tsc_set_command_queue;
+    tsc_set_command_queue.push(hold_command);
+    service.tsc_set_command_queue_ = tsc_set_command_queue;
+    EXPECT_THROW(service.set_tsc_hold_and_omit(), control_tsc_state_exception);
+
+    // Test control_tsc_phases
+    EXPECT_THROW(service.control_tsc_phases(), control_tsc_state_exception);
+    
+    start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 100;
+    snmp_cmd_struct hold_command_2(mock_client, start_time, control_type, 0);
+    std::queue<snmp_cmd_struct> tsc_set_command_queue_2;
+    tsc_set_command_queue_2.push(hold_command_2);
+    service.tsc_set_command_queue_ = tsc_set_command_queue_2;
+    EXPECT_NO_THROW(service.set_tsc_hold_and_omit());
+
 }
 
 TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout) {

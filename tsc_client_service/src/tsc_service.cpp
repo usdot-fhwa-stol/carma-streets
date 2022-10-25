@@ -63,10 +63,18 @@ namespace traffic_signal_controller_service {
             auto ped_phases = tsc_state_ptr->get_ped_phase_map();
             // Insert pedestrian phases into map of vehicle phases.
             all_phases.insert(ped_phases.begin(), ped_phases.end());
+            // Initialize spat ptr
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
                                 all_phases);
             
-            // Initialize spat ptr
+            control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
+            
+            // Initialize monitor desired phase plan
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+
+            // Initialize control_tsc_state ptr
+            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
+
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -230,8 +238,9 @@ namespace traffic_signal_controller_service {
         }
     }
 
-    void tsc_service::consume_desired_phase_plan() const {
-       while (desired_phase_plan_consumer->is_running())
+    void tsc_service::consume_desired_phase_plan() {
+        desired_phase_plan_consumer->subscribe();
+        while (desired_phase_plan_consumer->is_running())
         {
             const std::string payload = desired_phase_plan_consumer->consume(1000);
             if (payload.length() != 0)
@@ -239,22 +248,72 @@ namespace traffic_signal_controller_service {
                 SPDLOG_DEBUG("Consumed: {0}", payload);
                 std::scoped_lock<std::mutex> lck{dpp_mtx};
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
+                
+                // update command queue
+                if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
+                    // Send desired phase plan to control_tsc_state
+                    control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
+                    
+                }
             }
+
         }        
+    }
+
+    void tsc_service::control_tsc_phases()
+    {
+        try{
+            while(true)
+            {
+                set_tsc_hold_and_omit();
+                std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
+            }
+        }
+        catch(const control_tsc_state_exception &e){
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
+            throw control_tsc_state_exception("Could not set state on traffic signal controller");
+        }
+
+    }
+    
+    void tsc_service::set_tsc_hold_and_omit()
+    {
+        while(!tsc_set_command_queue_.empty())
+        {
+            //Check if event is expired
+            auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().start_time_);
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
+            if(duration.count() < 0){
+                throw control_tsc_state_exception("SNMP set command is expired");
+            }
+            std::this_thread::sleep_for(duration);
+
+            if(!(tsc_set_command_queue_.front()).run())
+            {
+                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
+            }
+            SPDLOG_TRACE("Sent TSC SET command");
+
+            tsc_set_command_queue_.pop();
+        }
     }
     
 
     void tsc_service::start() {
-        // Run threads as joint so that they dont overlap execution 
+        
         std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
-        tsc_config_thread.join();
 
         std::thread spat_t(&tsc_service::produce_spat_json, this);
+
         std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
+
+        std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
+        
+        // Run threads as joint so that they dont overlap execution 
+        tsc_config_thread.join();
         spat_t.join();
-
         desired_phase_plan_t.join();
-
+        control_phases_t.join();
     }
     
 

@@ -16,6 +16,8 @@
 #include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
 #include "monitor_desired_phase_plan_exception.h"
+#include "control_tsc_state.h"
+#include "control_tsc_state_exception.h"
 #include <mutex>    
 
 namespace traffic_signal_controller_service {
@@ -74,15 +76,30 @@ namespace traffic_signal_controller_service {
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
 
+            /**
+             * @brief Pointer to the control_tsc_state worker responsible for make snmp HOLD and OMIT calls to follow the desired phase plan.
+             * 
+             */
+            std::shared_ptr<control_tsc_state> control_tsc_state_ptr_;
+
+            // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
+            int tsc_config_producer_counter_ = 0;
             // Default value for number of attempts to send TSC configuration information.
             int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
             bool use_desired_phase_plan_update_ = false;
 
+            // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
+            std::queue<snmp_cmd_struct> tsc_set_command_queue_;
+
+            // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
+            int control_tsc_state_sleep_dur_ = 0;
+
             //Add Friend Test to share private members
             FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
             FRIEND_TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout);
+            FRIEND_TEST(tsc_service_test, test_tsc_control);
             
         public:
             tsc_service() = default;
@@ -199,12 +216,23 @@ namespace traffic_signal_controller_service {
             void produce_spat_json() const;
 
             /**
-             * @brief Method to receive traffic signal controller conguration information from the tsc_state and broadcast spat JSON data to 
+             * @brief Method to receive traffic signal controller configuration information from the tsc_state and broadcast spat JSON data to 
              * the carma-streets kafka broker.
              */
             void produce_tsc_config_json();
 
-            void consume_desired_phase_plan() const;
+            void consume_desired_phase_plan();
+            
+            /**
+             * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
+             * follow the desired phase plan. Calls set_tsc_hold_and_omit
+             **/
+            void control_tsc_phases();
+
+            /**
+             * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
+             **/
+            void set_tsc_hold_and_omit();
 
     };
 }
