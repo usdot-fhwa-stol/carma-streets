@@ -18,10 +18,13 @@ namespace streets_vehicle_scheduler {
                 schedule_info += "EV";
             }else if ( sched.state == streets_vehicles::vehicle_state::DV) {
                 schedule_info += "DV";
+            }else if (sched.state == streets_vehicles::vehicle_state::LV) {
+                schedule_info += "LV";
+            }else if ( sched.state == streets_vehicles::vehicle_state::RDV) {
+                schedule_info += "RDV";
             }else {
                 schedule_info += "ND";
-            }
-            schedule_info += "\n";	
+            }	
         }
 
         return schedule_info;

@@ -30,10 +30,12 @@ namespace streets_vehicle_scheduler {
                 schedule_info += "EV";
             }else if ( sched.state == streets_vehicles::vehicle_state::RDV) {
                 schedule_info += "RDV";
-            }else {
-                schedule_info += "ND";
+            }else if ( sched.state == streets_vehicles::vehicle_state::LV) {
+                schedule_info += "LV";
             }
-            schedule_info += "\n";	
+            else {
+                schedule_info += "ND";
+            }	
         }
 
         return schedule_info;
