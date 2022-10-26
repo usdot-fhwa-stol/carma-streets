@@ -5,6 +5,7 @@ namespace streets_vehicle_scheduler {
 
     std::string signalized_intersection_schedule::toCSV() const {
     
+        int count = 0;
         std::string schedule_info = "";
         for (const auto &sched : vehicle_schedules ){
             schedule_info += std::to_string(timestamp) + ",";
@@ -20,11 +21,14 @@ namespace streets_vehicle_scheduler {
                 schedule_info += "DV";
             }else if (sched.state == streets_vehicles::vehicle_state::LV) {
                 schedule_info += "LV";
-            }else if ( sched.state == streets_vehicles::vehicle_state::RDV) {
-                schedule_info += "RDV";
             }else {
                 schedule_info += "ND";
             }	
+            count++;
+            // If not last schedule, give line break
+            if(count != vehicle_schedules.size()){
+                schedule_info += "\n";	
+            }
         }
 
         return schedule_info;

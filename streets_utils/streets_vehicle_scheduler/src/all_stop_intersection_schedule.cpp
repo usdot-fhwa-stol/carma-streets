@@ -13,6 +13,7 @@ namespace streets_vehicle_scheduler {
     std::string all_stop_intersection_schedule::toCSV() const {
     
         std::string schedule_info = "";
+        int count = 0;
         for (const auto &sched : vehicle_schedules ){
             schedule_info += std::to_string(timestamp) + ",";
             schedule_info += sched.v_id + ",";
@@ -35,7 +36,13 @@ namespace streets_vehicle_scheduler {
             }
             else {
                 schedule_info += "ND";
-            }	
+            }
+            count++;
+            // If not last schedule, give line break
+            if(count != vehicle_schedules.size()){
+                schedule_info += "\n";	
+            }
+            
         }
 
         return schedule_info;
