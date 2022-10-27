@@ -26,7 +26,7 @@ namespace streets_vehicle_scheduler {
             }	
             count++;
             // If not last schedule, give line break
-            if(count == vehicle_schedules.size()){
+            if(count != vehicle_schedules.size()){
                 schedule_info += "\n";	
             }
         }
