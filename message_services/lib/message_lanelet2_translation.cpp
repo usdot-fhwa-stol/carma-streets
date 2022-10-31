@@ -294,7 +294,7 @@ namespace message_services
                      * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
                      * **/
                     lanelet::ConstLanelet local_ll = vehicleGraph_ptr->previous(*ll_itr).front();
-                    if (local_ll.regulatoryElements().size() > 0)
+                    if (!local_ll.regulatoryElements().empty())
                     {
                         lanelet::RegulatoryElementConstPtrs reg_ptrs = local_ll.regulatoryElements();
                         for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
@@ -356,7 +356,7 @@ namespace message_services
                     }
                     if ( possible_link.id() != 0 ) {
                         lanelet::ConstLanelet possible_entry = vehicleGraph_ptr->previous(possible_link).front();
-                        if (possible_entry.regulatoryElements().size() > 0)
+                        if (!possible_entry.regulatoryElements().empty())
                         {
                             lanelet::RegulatoryElementConstPtrs reg_ptrs = possible_entry.regulatoryElements();
                             for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
