@@ -57,6 +57,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
                         streets_service_base_lib::streets_service_base_lib
                         kafka_clients_lib 
                         rdkafka++
+                        gmock
                         ${catkin_LIBRARIES}) 
 
 foreach(_target  message_services )

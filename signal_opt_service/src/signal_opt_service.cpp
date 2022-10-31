@@ -123,6 +123,7 @@ namespace signal_opt_service
                 }else {
                     // Stop consumer after receiving tsc_configuration information
                     tsc_config_consumer->stop();
+                    break;
                 }
             }
         }
