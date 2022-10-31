@@ -151,23 +151,26 @@ namespace message_services
 
             /**
             * @brief Function to convert long lat location to a 2d ecef location
-            * @param lat
-            * @param lon
-            * @param elev
+            * @param lat latiture in degrees
+            * @param lon longitude in degrees
+            * @param elev elevation in meters
             * @return 2d point in map frame
             */
             lanelet::BasicPoint3d gps_2_ecef(double lat, double lon, double elev) const;
 
             /**
             * @brief Function to convert GPS location to a 3d point in map frame
-            * @param GPS location point
+            * @param lat latitude in degrees
+            * @param lon longitude in degrees
+            * @param elev elevation in meters
             * @return 3d point in map frame
             */
             lanelet::BasicPoint3d gps_2_map_point(double lat, double lon, double elev) const;
 
             /**
-             * @brief 
+             * @brief Get lanelet by ID.
              * 
+             * @return Returns lanelet with given id.
              */
             lanelet::Lanelet get_lanelet_by_id(const int lanelet_id) const;
             
