@@ -114,7 +114,8 @@ namespace signal_phase_and_timing{
          */
         uint64_t get_epoch_next_time() const;
         /**
-         * @brief Convert epoch timestamp in milliseconds into tenths of seconds of the current hours
+         * @brief Convert epoch timestamp in milliseconds into tenths of seconds of the current UTC hour. Any value that
+         * results in tenths of seconds greater than 36000 will be set to 36000 (See TimeMark J2735 definition).
          *
          * @param hour_tenth_secs  The tenth of seconds of the current hour
          * @return uint64_t epoch timestamp in milliseconds
@@ -122,7 +123,8 @@ namespace signal_phase_and_timing{
         uint16_t convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const;
         /**
          * @brief Set start_time for movement_event. Method expects epoch time in milliseconds and converts
-         * to tenths of seconds from current hour.
+         * to tenths of seconds from current hour. Any value that results in tenths of seconds greater than 36000
+         *  will be set to 36000 (See TimeMark J2735 definition).
          * 
          * @param epoch_time_ms start_time for movement_event in millisecond epoch time.
          */
@@ -130,7 +132,8 @@ namespace signal_phase_and_timing{
         
         /**
          * @brief Set min_end_time for movement event. Method expects epoch time in milliseconds and converts
-         * to tenths of seconds from current hour.
+         * to tenths of seconds from current hour. Any value that results in tenths of seconds greater than 36000
+         * will be set to 36000 (See TimeMark J2735 definition).
          * 
          * @param epoch_time_ms min_end time for movement_event in millisecond epoch time.
          */
@@ -138,14 +141,16 @@ namespace signal_phase_and_timing{
         
         /**
          * @brief Set min_end_time for movement event. Method expects epoch time in milliseconds and converts
-         * to tenths of seconds from current hour.
+         * to tenths of seconds from current hour. Any value that results in tenths of seconds greater than 36000
+         * will be set to 36000 (See TimeMark J2735 definition).
          * 
          * @param epoch_time_ms max_end time for movement_event in millisecond epoch time.
          */
         void  set_max_end_time(uint64_t epoch_time_ms);
         /**
          * @brief Set next_time for movement event. Method expects epoch time in milliseconds and converts
-         * to tenths of seconds from current hour.
+         * to tenths of seconds from current hour. Any value that results in tenths of seconds greater than 36000
+         *  will be set to 36000 (See TimeMark J2735 definition).
          * 
          * @param epoch_time_ms next_time for movement_event in millisecond epoch time.
          */

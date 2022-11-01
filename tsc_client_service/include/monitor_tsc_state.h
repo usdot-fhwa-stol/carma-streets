@@ -174,18 +174,6 @@ namespace traffic_signal_controller_service
             **/
             std::vector<int> get_concurrent_signal_groups(int phase_num);
 
-            /** @brief Helper function to convert epoch time to hour-tenths time
-             * @param epoch_time_ms epoch time in milliseconds
-             * @return tenths of a second in current or next hour
-            **/
-            uint16_t convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const;
-
-            /** @brief Helper function to convert hour-tenths time to epoch time
-             * @param hour_tenth_secs tenths of a second in current or next hour
-             * @return epoch time in milliseconds
-            **/
-            uint64_t convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const;
-
             /** @brief Get predicted next movement event given a current event
              * @param current_event movement_event from the next movement needs to be predicted
              * @param current_event_end_time End time of the current event in epoch time (milliseconds)

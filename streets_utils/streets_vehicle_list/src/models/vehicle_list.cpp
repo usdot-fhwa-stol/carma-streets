@@ -54,9 +54,8 @@ namespace streets_vehicles {
         uint64_t timeout_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - timeout;
         for ( auto it = vehicles.begin(); it != vehicles.end();  ) {
             vehicle veh =it->second;
-            SPDLOG_DEBUG("Checking Vehicle {0} timestamp {1} < timeout time {2} !", veh._id, veh._cur_time, timeout );
             if ( veh._cur_time < timeout_time  ) {
-                SPDLOG_WARN("Vehicle {0} timed out!", veh._id);
+                SPDLOG_WARN("Vehicle {0} timed out!Vehicle timestamp {1} < timeout time {2} ", veh._id, veh._cur_time, timeout_time);
                 vehicles.erase(it ++);
             }
             else {

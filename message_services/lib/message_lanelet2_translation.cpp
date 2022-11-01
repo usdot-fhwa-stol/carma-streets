@@ -16,20 +16,17 @@ namespace message_services
                     SPDLOG_INFO("Updating vehicle routing graph ... ");
                     if (this->update_vehicle_routing_graph())
                     {
-                        std::cout << "Updated vehicle routing graph. " << std::endl;
                         SPDLOG_INFO("Updated vehicle routing graph. ");
                     }
                     else
                     {
-                        SPDLOG_ERROR("Failed to update vehicle routing graph. ");
-                        exit(-1);
+                        throw exceptions::message_lanelet2_translation_exception("Failed to update vehicle routing graph.");
                     }
                 }
             }
             else
             {
-                SPDLOG_ERROR("Failed to initialzie map. ");
-                exit(-1);
+                throw exceptions::message_lanelet2_translation_exception("Failed to initialzie map.");
             }
             SPDLOG_INFO("Finished initializing message_lanelet2_translation. ");
         }
@@ -117,11 +114,6 @@ namespace message_services
         {                  
             std::vector<lanelet::Lanelet> current_total_lanelets = get_cur_lanelets_by_point(subj_point3d);   
             std::vector<lanelet::Lanelet> result_lanelets;
-            if (current_total_lanelets.empty())
-            {
-                SPDLOG_ERROR("No current lanelets to the vehicle in map point: x = {0}, y = {1}, z = {2}, and turn direction = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
-                return lanelet::Lanelet();
-            }
 
             /****
              * Check the lanelet turn direction to help identify the current lanelet if current geo-loc return more than 1 current lanelets.
@@ -165,8 +157,8 @@ namespace message_services
                         dest_x += offset_itr->offset_x;
                         dest_y += offset_itr->offset_y;
                         dest_z += offset_itr->offset_z;
-                        SPDLOG_DEBUG("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
-                        SPDLOG_DEBUG("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
+                        SPDLOG_TRACE("offset_x = {0},offset_y = {1},offset_z = {2}", offset_itr->offset_x, offset_itr->offset_y, offset_itr->offset_z);
+                        SPDLOG_TRACE("dest_x = {0},dest_y = {1},dest_z = {2}", dest_x, dest_y, dest_z);
                     }
 
                     lanelet::BasicPoint3d basic_point3d_dest = ecef_2_map_point(dest_x, dest_y, dest_z);
@@ -176,10 +168,10 @@ namespace message_services
                     {
                         const lanelet::Lanelet cur_lanelet = *itr;
                         double start_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_start), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
-                        SPDLOG_INFO("cur_lanelet = {0} to trajectory start point distance = {1}", cur_lanelet.id(), start_distance2_ctl);
+                        SPDLOG_DEBUG("cur_lanelet = {0} to trajectory start point distance = {1}", cur_lanelet.id(), start_distance2_ctl);
 
                         double dest_distance2_ctl = lanelet::geometry::distance2d(lanelet::utils::to2D(basic_point3d_dest), lanelet::utils::toHybrid(cur_lanelet.centerline2d()));
-                        SPDLOG_INFO("cur_lanelet = {0} to trajectory dest point distance = {1}", cur_lanelet.id(), dest_distance2_ctl);
+                        SPDLOG_DEBUG("cur_lanelet = {0} to trajectory dest point distance = {1}", cur_lanelet.id(), dest_distance2_ctl);
 
                         double cur_distance_sum = start_distance2_ctl + dest_distance2_ctl;
 
@@ -191,14 +183,19 @@ namespace message_services
                     }
                     return result_lanelet;
                 }
-                SPDLOG_ERROR("Cannot determine the current lanelet with this turn direction = {0} for point = (x = {1} , y = {2}, z= {3})", turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
+                else {
+                    SPDLOG_ERROR("Cannot determine the current lanelet with this turn direction : {0} for point = (x : {1} , y : {2}, z=:{3})", turn_direction, subj_point3d.x(), subj_point3d.y(), subj_point3d.z());
+                    return lanelet::Lanelet();
+                }
             }
             else if (current_total_lanelets.size() == 1)
             {           
                 return current_total_lanelets.front();
             }
-
-          return lanelet::Lanelet();
+            else {
+                SPDLOG_ERROR("No current lanelets to the vehicle in map point: x = {0}, y = {1}, z = {2}, and turn direction = {3}", subj_point3d.x(), subj_point3d.y(), subj_point3d.z(), turn_direction);
+                return lanelet::Lanelet();
+            }
         }
 
         double message_lanelet2_translation::distance2_cur_lanelet_end(double lat, double lon, double elev, lanelet::Lanelet subj_lanelet, std::string turn_direction, models::trajectory &trajectory) const
@@ -252,6 +249,11 @@ namespace message_services
             return basic_point3d;
         }
 
+        lanelet::BasicPoint3d message_lanelet2_translation::gps_2_ecef(double lat, double lon, double elev) const {
+            lanelet::BasicPoint3d basic_point3d = this->local_projector->projectECEF({lat, lon, elev}, 1);
+            return basic_point3d;
+        }
+
         lanelet::BasicPoint3d message_lanelet2_translation::gps_2_map_point(double lat, double lon, double elev) const
         {
             lanelet::BasicPoint3d basic_point3d;
@@ -292,7 +294,7 @@ namespace message_services
                      * The link lanelet's previous lanelet is entry lanelet, and entry lanelet has the all_way_stop regulatory element
                      * **/
                     lanelet::ConstLanelet local_ll = vehicleGraph_ptr->previous(*ll_itr).front();
-                    if (local_ll.regulatoryElements().size() > 0)
+                    if (!local_ll.regulatoryElements().empty())
                     {
                         lanelet::RegulatoryElementConstPtrs reg_ptrs = local_ll.regulatoryElements();
                         for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
@@ -338,6 +340,39 @@ namespace message_services
                             }
                         }
                     }
+                    /**
+                     * Checking whether current lanelet is departure lanelet, previous lanelet will be link lanlet and the link lanelets
+                     * previous lanelet will be an entry lanelet that has the all_way_stop regulatory element
+                     * 
+                     */
+                    // Get possible link lanelets
+                    lanelet::ConstLanelets possible_links = vehicleGraph_ptr->previous(*ll_itr);
+                    lanelet::ConstLanelet possible_link;
+                    for ( const auto &lane : possible_links ) {
+                        if ( lane.hasAttribute("turn_direction") && lane.attribute("turn_direction").value() == turn_direction ) {
+                            possible_link = lane;
+                            break;
+                        }
+                    }
+                    if ( possible_link.id() != lanelet::InvalId ) {
+                        lanelet::ConstLanelet possible_entry = vehicleGraph_ptr->previous(possible_link).front();
+                        if (!possible_entry.regulatoryElements().empty())
+                        {
+                            lanelet::RegulatoryElementConstPtrs reg_ptrs = possible_entry.regulatoryElements();
+                            for (auto reg_ptrs_itr = reg_ptrs.begin(); reg_ptrs_itr != reg_ptrs.end(); reg_ptrs_itr++)
+                            {
+                                const lanelet::RegulatoryElement *reg = reg_ptrs_itr->get();
+                                if (reg->attribute(lanelet::AttributeName::Subtype).value() == lanelet::AttributeValueString::AllWayStop)
+                                {
+                                    entry_lanelet = possible_entry;
+                                    link_lanelet = possible_link;
+                                    departure_lanelet = *ll_itr;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
 
                 // insert the type for each lanelet id in the list of lanelet ids
                 if (entry_lanelet.id() != lanelet::InvalId)
@@ -356,12 +391,19 @@ namespace message_services
                 }
             return lanelet_id_type_m;
             }
-            catch(...)
+            catch(const lanelet::LaneletError &e)
             {
-                SPDLOG_ERROR("Cannot determine lanelet type and ids with vehicle current lanelet. ");
+                SPDLOG_ERROR("Cannot determine lanelet type and ids with vehicle current lanelet. \n {0}", e.what());
                 lanelet_id_type_m.clear();
                 return lanelet_id_type_m;
             }
         }
+
+
+        lanelet::Lanelet message_lanelet2_translation::get_lanelet_by_id( const int lanelet_id)  const {
+        return map_ptr->laneletLayer.get(lanelet_id);
     }
+    }
+
+   
 }

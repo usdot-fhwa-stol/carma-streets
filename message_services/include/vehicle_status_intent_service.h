@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <stdlib.h> /* abs */
+#include <lanelet2_core/Exceptions.h>
+
 
 #include "bsm_worker.h"
 #include "mobilitypath_worker.h"
@@ -87,7 +89,7 @@ namespace message_services
             /**
              * @brief read configuration file and determine the producer and consumer topics, bootstrap server
              * **/
-            bool initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_translate_ptr);
+            bool initialize();
 
             /**
              * @brief initialize variables and call run() methods to spin up threads.

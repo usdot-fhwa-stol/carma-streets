@@ -12,12 +12,23 @@ namespace message_services
 
 
 
-        bool vehicle_status_intent_service::initialize(std::shared_ptr<message_translations::message_lanelet2_translation> msg_lanelet2_translate_ptr)
+        bool vehicle_status_intent_service::initialize()
         {
             try
-            {               
-                auto client = std::make_shared<kafka_clients::kafka_client>();
+            {   
+                this->vsi_est_path_point_count = streets_service::streets_configuration::get_int_config("vsi_est_path_count");
+                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_int_config("mobility_path_trajectory_offset_duration");
+                this->VSI_TH_SLEEP_MILLI_SEC = streets_service::streets_configuration::get_int_config("vsi_th_sleep_milli_sec");
+                this->BSM_MSG_EXPIRE_IN_SEC = streets_service::streets_configuration::get_int_config("bsm_msg_expire_in_sec");
+                this->CLEAN_QUEUE_IN_SECS = streets_service::streets_configuration::get_int_config("clean_queue_in_secs");
+                this->disable_est_path = streets_service::streets_configuration::get_boolean_config("disable_est_path");
+                this->is_est_path_p2p_distance_only = streets_service::streets_configuration::get_boolean_config("is_est_path_p2p_distance_only");
 
+                // Initialize message_lanelet2_translation
+                std::string osm_file_path = streets_service::streets_configuration::get_string_config("osm_file_path");
+                            
+                auto client = std::make_shared<kafka_clients::kafka_client>();
+                
                 // kafka config
                 this->bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
 
@@ -41,6 +52,7 @@ namespace message_services
                 if (!_bsm_consumer_worker->init() || !_mp_consumer_worker->init() || !_mo_consumer_worker->init())
                 {
                     SPDLOG_CRITICAL("kafka consumers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) initialize error");
+                    return false;
                 }
                 else
                 {
@@ -50,7 +62,7 @@ namespace message_services
                     if (!_bsm_consumer_worker->is_running() || !_mp_consumer_worker->is_running() || !_mo_consumer_worker->is_running())
                     {
                         SPDLOG_CRITICAL("consumer_workers (_bsm_consumer_worker, _mp_consumer_worker or _mo_consumer_worker) is not running");
-                        exit(-1);
+                        return false;
                     }
                 }
 
@@ -58,18 +70,17 @@ namespace message_services
                 if (!_vsi_producer_worker->init())
                 {
                     SPDLOG_CRITICAL("kafka producer (_vsi_producer_worker) initialize error");
-                    exit(-1);
+                    return false;
                 }
 
-                this->vsi_est_path_point_count = streets_service::streets_configuration::get_int_config("vsi_est_path_count");
-                this->MOBILITY_PATH_TRAJECTORY_OFFSET_DURATION = streets_service::streets_configuration::get_int_config("mobility_path_trajectory_offset_duration");
-                this->VSI_TH_SLEEP_MILLI_SEC = streets_service::streets_configuration::get_int_config("vsi_th_sleep_milli_sec");
-                this->BSM_MSG_EXPIRE_IN_SEC = streets_service::streets_configuration::get_int_config("bsm_msg_expire_in_sec");
-                this->CLEAN_QUEUE_IN_SECS = streets_service::streets_configuration::get_int_config("clean_queue_in_secs");
-                this->disable_est_path = streets_service::streets_configuration::get_boolean_config("disable_est_path");
-                this->is_est_path_p2p_distance_only = streets_service::streets_configuration::get_boolean_config("is_est_path_p2p_distance_only");
+                try {
+                    _msg_lanelet2_translate_ptr = std::make_shared<message_translations::message_lanelet2_translation>(osm_file_path);
+                }
+                catch( const exceptions::message_lanelet2_translation_exception &e ) {
+                    SPDLOG_ERROR("Exception encounted during initialization! \n {0}", e.what());
+                    return false;
+                }
 
-                this->_msg_lanelet2_translate_ptr = msg_lanelet2_translate_ptr;
 
                 return true;
             }
@@ -121,19 +132,15 @@ namespace message_services
                 {
                     while (true)
                     {
-                        // Change spdlog from debug to info for printing output in terminal
-                        SPDLOG_DEBUG("Processing the BSM list size: {0}", bsm_w_ptr->get_curr_map().size());
-                        SPDLOG_DEBUG("Processing the MobilityOperation list size: {0}", mo_w_ptr->get_curr_list().size());
-                        SPDLOG_DEBUG("Processing the MobilityPath list size: {0}", mp_w_ptr->get_curr_map().size());
                         if (mo_w_ptr && mo_w_ptr->get_curr_list().size() > 0 && bsm_w_ptr && bsm_w_ptr->get_curr_map().size() > 0 && mp_w_ptr && mp_w_ptr->get_curr_map().size() > 0)
                         {
-                            SPDLOG_DEBUG("Processing the BSM, mobilityOperation and MP from list...");
+                            SPDLOG_TRACE("Processing the BSM, mobilityOperation and MP from list...");
                             std::unique_lock<std::mutex> lck(worker_mtx);
                             while (mo_w_ptr && !mo_w_ptr->get_curr_list().empty())
                             {
-                                SPDLOG_INFO("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
-                                SPDLOG_INFO("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
-                                SPDLOG_INFO("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
+                                SPDLOG_TRACE("MO list SIZE = {0}", mo_w_ptr->get_curr_list().size());
+                                SPDLOG_TRACE("MP map SIZE = {0}", mp_w_ptr->get_curr_map().size());
+                                SPDLOG_TRACE("BSM map SIZE = {0}", bsm_w_ptr->get_curr_map().size());
                                 message_services::models::mobilityoperation subj_mo = mo_w_ptr->get_curr_list().front();
                                 mo_w_ptr->get_curr_list().pop_front();
 
@@ -148,7 +155,7 @@ namespace message_services
 
                                     if (std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_) > (this->BSM_MSG_EXPIRE_IN_SEC * 1000))
                                     {
-                                        SPDLOG_INFO("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
+                                        SPDLOG_WARN("BSM EXPIRED {0}", std::abs(cur_local_timestamp - subj_bsm.msg_received_timestamp_));
                                         bsm_w_ptr->get_curr_map().erase(bsm_msg_id);
                                         continue;
                                     }
@@ -173,7 +180,7 @@ namespace message_services
                                 *vsi_ptr = compose_vehicle_status_intent(subj_bsm, subj_mo, subj_mp);
                                 if (vsi_ptr)
                                 {
-                                    SPDLOG_DEBUG("Done composing vehicle_status_intent");
+                                    SPDLOG_DEBUG("Correlated vehicle status intent for {0}", vsi_ptr->getVehicle_id());
                                     std::string msg_to_pub = vsi_ptr->asJson();
                                     this->publish_msg<const char *>(msg_to_pub.c_str(), this->_vsi_producer_worker);
                                 }
@@ -384,11 +391,14 @@ namespace message_services
                         vsi.setEnter_lanelet_id(itr->first);
                     }
                 }
+                if (lanelet_id_type_m.empty() ) {
+                    SPDLOG_WARN("Did not find entry,link, or departure lanet for vehicle {0} in lane {1}." , vsi.getVehicle_id(), cur_lanelet.id());
+                }
                 return vsi;               
             }
-            catch (...)
+            catch (const lanelet::LaneletError &e)
             {
-                SPDLOG_CRITICAL("Compose vehicle status intent Exception occur");
+                SPDLOG_ERROR("Compose vehicle status intent Exception occur : {0}!", e.what());
                 return vsi;
             }
         }

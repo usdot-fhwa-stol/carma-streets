@@ -38,7 +38,8 @@ add_library(${PROJECT_NAME}_lib STATIC
             src/models/mobilityoperation.cpp
             src/models/vehicle_status_intent.cpp
             src/models/baseMessage.cpp
-            lib/message_lanelet2_translation.cpp)
+            lib/message_lanelet2_translation.cpp
+            src/exceptions/message_lanelet2_translation_exception.cpp)
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC 
             ${PROJECT_SOURCE_DIR}/include 
@@ -56,6 +57,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
                         streets_service_base_lib::streets_service_base_lib
                         kafka_clients_lib 
                         rdkafka++
+                        gmock
                         ${catkin_LIBRARIES}) 
 
 foreach(_target  message_services )

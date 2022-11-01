@@ -79,6 +79,7 @@ TEST_F(test_time_change_detail, fromJson)
     json.AddMember("min_end_time", 2000, allocator);
     json.AddMember("max_end_time", 3000, allocator);
     json.AddMember("next_time", 4000, allocator);
+    json.AddMember("likely_time", 5000, allocator);
 
     time_change_details tcd;
     tcd.fromJson(json);
@@ -86,7 +87,106 @@ TEST_F(test_time_change_detail, fromJson)
     ASSERT_EQ(2000, tcd.min_end_time);
     ASSERT_EQ(3000, tcd.max_end_time);
     ASSERT_EQ(4000, tcd.next_time);
+    ASSERT_EQ(5000, tcd.likely_time);
 }
+
+TEST_F(test_time_change_detail, fromJson_exceed_max_val_start_time)
+{
+    rapidjson::Value json(rapidjson::kObjectType);
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    // Exceeds max on required parameter
+    json.AddMember("start_time", 36001, allocator);
+    json.AddMember("min_end_time", 2000, allocator);
+    json.AddMember("max_end_time", 3000, allocator);
+    json.AddMember("next_time", 4000, allocator);
+    json.AddMember("likely_time", 5000, allocator);
+
+    time_change_details tcd;
+    ASSERT_THROW(tcd.fromJson(json), signal_phase_and_timing_exception);
+}
+
+TEST_F(test_time_change_detail, fromJson_exceed_max_val_min_end_time)
+{
+    rapidjson::Value json(rapidjson::kObjectType);
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    json.AddMember("start_time", 36000, allocator);
+    // Exceeds max on required parameter
+    json.AddMember("min_end_time", 40000, allocator);
+    json.AddMember("max_end_time", 3000, allocator);
+    json.AddMember("next_time", 4000, allocator);
+    json.AddMember("likely_time", 5000, allocator);
+
+    time_change_details tcd;
+    ASSERT_THROW(tcd.fromJson(json), signal_phase_and_timing_exception);
+}
+
+TEST_F(test_time_change_detail, fromJson_exceed_max_val_max_end_time)
+{
+    rapidjson::Value json(rapidjson::kObjectType);
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    json.AddMember("start_time", 36000, allocator);
+    json.AddMember("min_end_time", 36000, allocator);
+    // Exceeds max on optional parameter
+    json.AddMember("max_end_time", 50000, allocator);
+    json.AddMember("next_time", 4000, allocator);
+    json.AddMember("likely_time", 5000, allocator);
+
+    time_change_details tcd;
+    tcd.fromJson(json);
+    ASSERT_EQ(36000, tcd.start_time);
+    ASSERT_EQ(36000, tcd.min_end_time);
+    // Set to invalid value 36001
+    ASSERT_EQ(36001, tcd.max_end_time);
+    ASSERT_EQ(4000, tcd.next_time);
+    ASSERT_EQ(5000, tcd.likely_time);
+}
+
+TEST_F(test_time_change_detail, fromJson_exceed_max_val_next_time)
+{
+    rapidjson::Value json(rapidjson::kObjectType);
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    json.AddMember("start_time", 36000, allocator);
+    json.AddMember("min_end_time", 36000, allocator);
+    json.AddMember("max_end_time", 36000, allocator);
+    // Exceeds max on optional parameter
+    json.AddMember("next_time", 36002, allocator);
+    json.AddMember("likely_time", 5000, allocator);
+
+    time_change_details tcd;
+    tcd.fromJson(json);
+    ASSERT_EQ(36000, tcd.start_time);
+    ASSERT_EQ(36000, tcd.min_end_time);
+    ASSERT_EQ(36000, tcd.max_end_time);
+    // Set to invalid value 36001
+    ASSERT_EQ(36001, tcd.next_time);
+    ASSERT_EQ(5000, tcd.likely_time);
+}
+
+TEST_F(test_time_change_detail, fromJson_exceed_max_val_likely_time)
+{
+    rapidjson::Value json(rapidjson::kObjectType);
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    json.AddMember("start_time", 36000, allocator);
+    json.AddMember("min_end_time", 36000, allocator);
+    json.AddMember("max_end_time", 36000, allocator);
+    json.AddMember("next_time", 36000, allocator);
+    json.AddMember("likely_time", 60000, allocator);
+
+    time_change_details tcd;
+    tcd.fromJson(json);
+    ASSERT_EQ(36000, tcd.start_time);
+    ASSERT_EQ(36000, tcd.min_end_time);
+    ASSERT_EQ(36000, tcd.max_end_time);
+    ASSERT_EQ(36000, tcd.next_time);
+    // Set to invalid value 36001
+    ASSERT_EQ(36001, tcd.likely_time);
+}
+
 
 TEST_F(test_time_change_detail, toJson)
 {
@@ -97,12 +197,109 @@ TEST_F(test_time_change_detail, toJson)
     tcd.min_end_time = 2000;
     tcd.max_end_time = 3000;
     tcd.next_time = 4000;
+    tcd.likely_time = 36000;
+
     auto json = tcd.toJson(allocator);
 
     ASSERT_EQ(1000, json["start_time"].GetInt());
     ASSERT_EQ(2000, json["min_end_time"].GetInt());
     ASSERT_EQ(3000, json["max_end_time"].GetInt());
     ASSERT_EQ(4000, json["next_time"].GetInt());
+    ASSERT_EQ(36000, json["likely_time"].GetInt());
+}
+
+TEST_F(test_time_change_detail, toJson_exceed_max_value_start) {
+    time_change_details tcd;
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    // Exceeds max on required parameter
+    tcd.start_time = 36003;
+    tcd.min_end_time = 2000;
+    tcd.max_end_time = 3000;
+    tcd.next_time = 4000;
+    tcd.likely_time = 36000;
+
+    ASSERT_THROW(tcd.toJson(allocator), signal_phase_and_timing_exception);
+}
+
+TEST_F(test_time_change_detail, toJson_exceed_max_value_min_end_time) {
+    time_change_details tcd;
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    tcd.start_time = 36000;
+    // Exceeds max on required parameter
+    tcd.min_end_time = 36005;
+    tcd.max_end_time = 3000;
+    tcd.next_time = 4000;
+    tcd.likely_time = 36000;
+
+    ASSERT_THROW(tcd.toJson(allocator), signal_phase_and_timing_exception);
+}
+
+TEST_F(test_time_change_detail, toJson_exceed_max_value_max_end_time) {
+    time_change_details tcd;
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    tcd.start_time = 36000;
+    tcd.min_end_time = 36000;
+    // Exceeds max on optional parameter
+    tcd.max_end_time = 40000;
+    tcd.next_time = 4000;
+    tcd.likely_time = 36000;
+
+    auto json = tcd.toJson(allocator);
+    // Skip invalid optional fields 
+    ASSERT_FALSE(json.HasMember("max_end_time"));
+}
+
+TEST_F(test_time_change_detail, toJson_exceed_max_value_next_time) {
+    time_change_details tcd;
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    tcd.start_time = 36000;
+    tcd.min_end_time = 36000;
+    tcd.max_end_time = 36000;
+    // Exceeds max on optional parameter
+    tcd.next_time = 36007;
+    tcd.likely_time = 36000;
+
+    auto json = tcd.toJson(allocator);
+    // Skip invalid optional fields 
+    ASSERT_FALSE(json.HasMember("next_time"));
+}
+
+TEST_F(test_time_change_detail, toJson_exceed_max_value_likely_time) {
+    time_change_details tcd;
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    tcd.start_time = 36000;
+    tcd.min_end_time = 36000;
+    tcd.max_end_time = 36000;
+    tcd.next_time = 36000;
+    // Exceeds max on optional parameter
+    tcd.likely_time = 36001;
+    auto json = tcd.toJson(allocator);
+    // Skip invalid optional fields 
+    ASSERT_FALSE(json.HasMember("likely_time"));
+}
+
+TEST_F(test_time_change_detail, test_not_equal_operator) {
+    time_change_details tcd1;
+    time_change_details tcd2;
+
+    rapidjson::Document doc;
+    auto allocator = doc.GetAllocator();
+    tcd1.start_time = 36000;
+    tcd1.min_end_time = 36000;
+    // invalid entries for optional parameters
+    tcd1.max_end_time = 36004;
+    tcd1.next_time = 36004;
+    tcd1.likely_time = 36004;
+    auto json = tcd.toJson(allocator);
+
+    tcd2.fromJson( json );
+    ASSERT_TRUE( tcd1 != tcd2);
+    // Skip invalid optional fields 
 }
 
 TEST_F(test_time_change_detail, convert_hour_mills2epoch_ts)
@@ -138,6 +335,8 @@ TEST_F(test_time_change_detail, convert_msepoch_to_hour_tenth_secs)
     auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
     
     ASSERT_EQ((epoch_timestamp - hours_since_epoch*3600*1000)/100, tcd.convert_msepoch_to_hour_tenth_secs(epoch_timestamp));
+    auto cur_time_plus_2hours = epoch_timestamp + 60*60*1000*2;
+    ASSERT_EQ(tcd.convert_msepoch_to_hour_tenth_secs(cur_time_plus_2hours), 36000);
 }
 
 TEST_F(test_time_change_detail, set_start_time)
