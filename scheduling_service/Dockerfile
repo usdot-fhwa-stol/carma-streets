@@ -84,6 +84,23 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+RUN echo " ------> Install streets_vehicle_scheduler library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_desired_phase_plan/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_desired_phase_plan/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_tsc_configuration
+RUN echo " ------> Install streets_tsc_configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install streets_signal_phase_and_timing
 RUN echo " ------> Install streets_signal_phase_and_timing library from streets_utils..."
 WORKDIR  /home/carma-streets/streets_utils/streets_signal_phase_and_timing/
