@@ -354,7 +354,7 @@ namespace message_services
                             break;
                         }
                     }
-                    if ( possible_link.id() != 0 ) {
+                    if ( possible_link.id() != lanelet::InvalId ) {
                         lanelet::ConstLanelet possible_entry = vehicleGraph_ptr->previous(possible_link).front();
                         if (!possible_entry.regulatoryElements().empty())
                         {
