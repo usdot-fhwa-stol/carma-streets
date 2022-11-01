@@ -76,19 +76,19 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     auto intersection_state = spat_object.get_intersection();
 
     /** Create a list of movement groups */
-    movement_groups move_groups;
+    std::shared_ptr<movement_groups> move_groups = std::make_shared<movement_groups>();
     movement_group mg1;
-    mg1.name = "movement_group 1";
+    mg1.name = "movement_group_1";
     mg1.signal_groups = {1, 3};
-    move_groups.groups.push_back(mg1);
+    move_groups->groups.push_back(mg1);
     movement_group mg2;
-    mg2.name = "movement_group 2";
+    mg2.name = "movement_group_2";
     mg2.signal_groups = {2, 0};
-    move_groups.groups.push_back(mg2);
+    move_groups->groups.push_back(mg2);
     movement_group mg3;
-    mg3.name = "movement_group 3";
+    mg3.name = "movement_group_3";
     mg3.signal_groups = {4, 0};
-    move_groups.groups.push_back(mg3);
+    move_groups->groups.push_back(mg3);
 
     streets_desired_phase_plan_generator generator;
     generator.set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
@@ -138,7 +138,6 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
 
 }
 
-// to-do : add a test for convert_spat_to_dpp failure case.
 
 
 /**
@@ -259,19 +258,19 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     }
 
     /** Create a list of movement groups */
-    movement_groups move_groups;
+    std::shared_ptr<movement_groups> move_groups;
     movement_group mg1;
     mg1.name = "movement_group 1";
     mg1.signal_groups = {1, 3};
-    move_groups.groups.push_back(mg1);
+    move_groups->groups.push_back(mg1);
     movement_group mg2;
     mg2.name = "movement_group 2";
     mg2.signal_groups = {2, 0};
-    move_groups.groups.push_back(mg2);
+    move_groups->groups.push_back(mg2);
     movement_group mg3;
     mg3.name = "movement_group 3";
     mg3.signal_groups = {4, 0};
-    move_groups.groups.push_back(mg3);
+    move_groups->groups.push_back(mg3);
 
     /** Add vehicle updates */
     vehicle veh_dv;

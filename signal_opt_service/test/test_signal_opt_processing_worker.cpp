@@ -274,8 +274,50 @@ namespace signal_opt_service
         ASSERT_EQ(0, veh_list_ptr->get_vehicles().size());
 
         // Initialize buffer params
-        uint64_t initial_green_buffer = 1000;
-        uint64_t final_green_buffer = 1000;
+        streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config;
+        dpp_config.initial_green_buffer = 1000;
+        dpp_config.final_green_buffer = 1000;
+        dpp_config.et_inaccuracy_buffer = 2000;
+        dpp_config.queue_max_time_headway = 3000;
+        dpp_config.so_radius = 200;
+        dpp_config.min_green = 5000;
+        dpp_config.max_green = 120000;
+        dpp_config.desired_future_move_group_count = 2;
+
+        // create a movement_group shared pointer
+        std::shared_ptr<streets_signal_optimization::movement_groups> movement_group_list = std::make_shared<streets_signal_optimization::movement_groups> ();
+        streets_signal_optimization::movement_group mg1;
+        mg1.name = "movement_group 1";
+        mg1.signal_groups = {1, 5};
+        movement_group_list->groups.push_back(mg1);
+        streets_signal_optimization::movement_group mg2;
+        mg2.name = "movement_group 2";
+        mg2.signal_groups = {1, 6};
+        movement_group_list->groups.push_back(mg2);
+        streets_signal_optimization::movement_group mg3;
+        mg3.name = "movement_group 3";
+        mg3.signal_groups = {2, 5};
+        movement_group_list->groups.push_back(mg3);
+        streets_signal_optimization::movement_group mg4;
+        mg4.name = "movement_group 4";
+        mg4.signal_groups = {2, 6};
+        movement_group_list->groups.push_back(mg4);
+        streets_signal_optimization::movement_group mg5;
+        mg5.name = "movement_group 5";
+        mg5.signal_groups = {3, 7};
+        movement_group_list->groups.push_back(mg5);
+        streets_signal_optimization::movement_group mg6;
+        mg6.name = "movement_group 6";
+        mg6.signal_groups = {3, 8};
+        movement_group_list->groups.push_back(mg6);
+        streets_signal_optimization::movement_group mg7;
+        mg7.name = "movement_group 7";
+        mg7.signal_groups = {4, 7};
+        movement_group_list->groups.push_back(mg7);
+        streets_signal_optimization::movement_group mg8;
+        mg8.name = "movement_group 8";
+        mg8.signal_groups = {4, 8};
+        movement_group_list->groups.push_back(mg8);
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
@@ -284,9 +326,10 @@ namespace signal_opt_service
             ASSERT_EQ(1, movement_state.state_time_speed.size());
         }
 
+        so_processing_worker->configure_dpp_optimizer(dpp_config);
         try
         {
-            so_processing_worker->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+            so_processing_worker->select_optimal_dpp(intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, movement_group_list, dpp_config);
         }
         catch (const streets_signal_optimization::streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -310,7 +353,7 @@ namespace signal_opt_service
             veh_list_ptr->process_update(update);
         }
         ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
-        auto chosen_dpp = so_processing_worker->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+        auto chosen_dpp = so_processing_worker->select_optimal_dpp(intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, movement_group_list, dpp_config);
         ASSERT_TRUE(chosen_dpp.desired_phase_plan.size() == 3);
     }
 }

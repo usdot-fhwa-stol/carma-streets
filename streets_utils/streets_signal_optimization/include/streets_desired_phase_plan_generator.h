@@ -123,7 +123,7 @@ namespace streets_signal_optimization {
              * this method will add a new desired phase plan to the list, where the last movement group is the subject movement group and 
              * the end time of the green is the end time of required green duration for clearing the queue of the subject entry lane.
              * 
-             * @param move_groups A list of possible movement groups.
+             * @param move_groups Shared pointer to a list of possible movement groups.
              * @param green_end_per_entry_lane End time of required green duration for clearing the queue to entry lane id mapping.
              * @param base_desired_phase_plan The desired_phase_plan converted from the provided intersection_state.
              * @param desired_phase_plan_list An empty desired phase plan list to be populated by this method.
@@ -131,7 +131,7 @@ namespace streets_signal_optimization {
              * @param tbd_start Start time of the TBD area.
              * @throws If the base_desired_phase_plan is empty.
              */     
-            void update_desired_phase_plan_list(const streets_signal_optimization::movement_groups &move_groups, 
+            void update_desired_phase_plan_list(const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups, 
                                                 const std::unordered_map<int, uint64_t> &green_end_per_entry_lane, 
                                                 const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
                                                 std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &desired_phase_plan_list, 
@@ -185,7 +185,7 @@ namespace streets_signal_optimization {
              * @param intersection_info_ptr An intersection_info pointer.
              * @param vehicles A map of the vehicles to schedule, with vehicle id as keys.
              * @param intersection_state An intersection_state object from the most recent spat.
-             * @param move_groups A list of possible movement groups.
+             * @param move_groups Shared pointer to a list of possible movement groups.
              * @return vector<streets_desired_phase_plan::streets_desired_phase_plan> list of desired phase plans.
              * @throws if the provided intersection_state does not have any fixed future movement group.
              */
@@ -193,7 +193,7 @@ namespace streets_signal_optimization {
                                                     const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                                                     std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles,
                                                     signal_phase_and_timing::intersection_state &intersection_state,
-                                                    const streets_signal_optimization::movement_groups &move_groups);
+                                                    const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups);
             
 
             /**
@@ -201,14 +201,14 @@ namespace streets_signal_optimization {
              * shall be at least 1.
              * 
              * @param intersection_info_ptr An intersection_info pointer.
-             * @param move_groups A list of possible movement groups.
+             * @param move_groups Shared pointer to a list of possible movement groups.
              * @return streets_desired_phase_plan::streets_desired_phase_plan desired phase plan converted from intersection_state.
              * @throws If a movement state does not have any movement event in its state_time_speed list.
              * @throws If a signal group has a green timing that partially overlaps with a green timing of another signal group.
              */
             streets_desired_phase_plan::streets_desired_phase_plan convert_spat_to_dpp(
                                                     signal_phase_and_timing::intersection_state &intersection_state, 
-                                                    const streets_signal_optimization::movement_groups &move_groups) const;
+                                                    const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) const;
 
 
             /**

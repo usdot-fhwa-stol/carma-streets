@@ -197,7 +197,7 @@ TEST(signal_opt_service, consume_vsi) {
 TEST(signal_opt_service, populate_movement_group) {
     signal_opt_service::signal_opt_service so_service;
     auto tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
-    auto m_groups = std::make_shared<signal_opt_service::movement_groups>();
+    auto m_groups = std::make_shared<streets_signal_optimization::movement_groups>();
     streets_tsc_configuration::signal_group_configuration sig5;
     sig5.signal_group_id = 5;
     sig5.yellow_change_duration = 3000;
@@ -249,7 +249,7 @@ TEST(signal_opt_service, populate_movement_group) {
 TEST(signal_opt_service, populate_movement_group_no_concurrent_sg) {
     signal_opt_service::signal_opt_service so_service;
     auto tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
-    auto m_groups = std::make_shared<signal_opt_service::movement_groups>();
+    auto m_groups = std::make_shared<streets_signal_optimization::movement_groups>();
     streets_tsc_configuration::signal_group_configuration sig5;
     sig5.signal_group_id = 5;
     sig5.yellow_change_duration = 3000;
@@ -309,7 +309,7 @@ TEST(signal_opt_service, populate_movement_group_no_concurrent_sg) {
 TEST(signal_opt_service, populate_movement_group_nema) {
     signal_opt_service::signal_opt_service so_service;
     auto tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
-    auto m_groups = std::make_shared<signal_opt_service::movement_groups>();
+    auto m_groups = std::make_shared<streets_signal_optimization::movement_groups>();
     streets_tsc_configuration::signal_group_configuration sig1;
     sig1.signal_group_id = 1;
     sig1.yellow_change_duration = 3000;

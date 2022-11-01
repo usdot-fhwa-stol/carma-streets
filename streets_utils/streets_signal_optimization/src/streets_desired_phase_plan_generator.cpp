@@ -6,7 +6,7 @@ namespace streets_signal_optimization {
                                         (const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                                         std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles,
                                         signal_phase_and_timing::intersection_state &intersection_state,
-                                        const streets_signal_optimization::movement_groups &move_groups) {
+                                        const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) {
 
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list;
 
@@ -125,14 +125,14 @@ namespace streets_signal_optimization {
 
     streets_desired_phase_plan::streets_desired_phase_plan streets_desired_phase_plan_generator::convert_spat_to_dpp
                                                                     (signal_phase_and_timing::intersection_state &intersection_state, 
-                                                                    const streets_signal_optimization::movement_groups &move_groups) const {
+                                                                    const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) const {
         
         streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan;
         base_desired_phase_plan.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
         std::vector<streets_desired_phase_plan::signal_group2green_phase_timing> mg_green_list;
 
-        for (const auto& mg : move_groups.groups) {
+        for (const auto& mg : move_groups->groups) {
             signal_phase_and_timing::movement_state move_state_1;
             signal_phase_and_timing::movement_state move_state_2;
             move_state_1 = intersection_state.get_movement(mg.signal_groups.first); 
@@ -354,12 +354,13 @@ namespace streets_signal_optimization {
     }
 
 
-    void streets_desired_phase_plan_generator::update_desired_phase_plan_list(const streets_signal_optimization::movement_groups &move_groups, 
-                                                        const std::unordered_map<int, uint64_t> &green_end_per_entry_lane, 
-                                                        const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
-                                                        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &desired_phase_plan_list, 
-                                                        const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
-                                                        const uint64_t &tbd_start) {
+    void streets_desired_phase_plan_generator::update_desired_phase_plan_list(
+                                        const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups, 
+                                        const std::unordered_map<int, uint64_t> &green_end_per_entry_lane, 
+                                        const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
+                                        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &desired_phase_plan_list, 
+                                        const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
+                                        const uint64_t &tbd_start) {
         
         /** If the base_desired_phase_plan, it means that either the base_desired_phase_plan is not created based on the spat,
          * or the spat does not have any fixed movement group (even the current active phase timing) in it.
@@ -378,7 +379,7 @@ namespace streets_signal_optimization {
          * Loop through all candidate movement groups, check if it can be added to the base_desired_phase_plan, and if yes, 
          * add it to the base_desired_phase_plan with all different possible green duration options.
         */
-        for (const auto &move_group : move_groups.groups) {
+        for (const auto &move_group : move_groups->groups) {
             
             /** Check if the movement group can be added to the end of the base desired phase plan */
             bool can_mg_be_added = true;

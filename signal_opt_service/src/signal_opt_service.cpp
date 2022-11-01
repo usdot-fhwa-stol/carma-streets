@@ -8,14 +8,16 @@ namespace signal_opt_service
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
             _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
-            _movement_groups = std::make_shared<movement_groups>();
-            intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
+            
+            movement_groups_ptr = std::make_shared<streets_signal_optimization::movement_groups>();
             vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
             auto processor = std::make_shared<streets_vehicles::signalized_status_intent_processor>();
             processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
             vehicle_list_ptr->set_processor(processor);
+            intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
             spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
             tsc_configuration_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
+
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
             _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
@@ -25,15 +27,17 @@ namespace signal_opt_service
             _vsi_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
             _tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_consumer_topic");
             _tsc_config_group_id = streets_service::streets_configuration::get_string_config("tsc_config_group_id");
+            _dpp_topic_name = streets_service::streets_configuration::get_string_config("dpp_producer_topic");
 
             _spat_consumer = client->create_consumer(_bootstrap_server, _spat_topic_name, _spat_group_id);
             _vsi_consumer = client->create_consumer(_bootstrap_server, _vsi_topic_name, _vsi_group_id);
             _tsc_config_consumer = client->create_consumer(_bootstrap_server, _tsc_config_topic_name, _tsc_config_group_id);
+            _dpp_producer = client->create_producer(_bootstrap_server, _dpp_topic_name);
 
 
             if (!_spat_consumer->init() || !_vsi_consumer->init() || !_tsc_config_consumer->init() )
             {
-                SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer  or _vsi_consumer ) initialize error");
+                SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer  or _vsi_consumer ) initialize error!");
                 exit(EXIT_FAILURE);
             }
             else
@@ -43,9 +47,15 @@ namespace signal_opt_service
                 _tsc_config_consumer->subscribe();
                 if (!_spat_consumer->is_running() || !_vsi_consumer->is_running() || !_tsc_config_consumer->is_running())
                 {
-                    SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer or _vsi_consumer) is not running");
+                    SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer or _vsi_consumer) is not running!");
                     exit(EXIT_FAILURE);
                 }
+            }
+
+            if(!_dpp_producer->init())
+            {
+                SPDLOG_CRITICAL("kafka producer (_dpp_producer) initialize error!");
+                exit(EXIT_FAILURE);
             }
 
             // Serice config
@@ -58,12 +68,20 @@ namespace signal_opt_service
                 SPDLOG_CRITICAL("Failed to initialize signal_opt_service due to intersection client request failure!");
                 return false;
             }
-            SPDLOG_INFO("signal_opt_service initialized successfully!!!");
-            return true;
 
             //Parameter config
-            _initial_green_buffer =streets_service::streets_configuration::get_int_config("initial_green_buffer");
-            _final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
+            dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
+            dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
+            dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
+            dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
+            dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
+            dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
+            dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
+            dpp_config.desired_future_move_group_count = streets_service::streets_configuration::get_int_config("desired_future_move_group_count");
+            _so_processing_worker_ptr->configure_dpp_optimizer(dpp_config);
+
+            SPDLOG_INFO("signal_opt_service initialized successfully!!!");
+            return true;
         }
         catch (const streets_service::streets_configuration_exception &ex)
         {
@@ -78,14 +96,22 @@ namespace signal_opt_service
         // Block until TSC configuration information is received 
         tsc_config_t.join();
         // After TSC configuration information is received, use it to determine movemement groups
-        populate_movement_groups(_movement_groups, tsc_configuration_ptr);
+        populate_movement_groups(movement_groups_ptr, tsc_configuration_ptr);
         // After movement groups are created, process vehicle status and intent and spat messages to
         // maintain information about current vehicle states and TSC state
         std::thread vsi_t(&signal_opt_service::consume_vsi,  this, this->_vsi_consumer, this->vehicle_list_ptr);
         std::thread spat_t(&signal_opt_service::consume_spat,this, this->_spat_consumer, this->spat_ptr);
+        std::thread dpp_t(&signal_opt_service::produce_dpp, this, this->_dpp_producer,
+                                                            this->intersection_info_ptr,
+                                                            this->vehicle_list_ptr, 
+                                                            this->spat_ptr, 
+                                                            this->tsc_configuration_ptr,
+                                                            this->movement_groups_ptr,
+                                                            this->dpp_config);
         // Running in parallel
         spat_t.join();
         vsi_t.join();
+        dpp_t.join();
     }
 
     void signal_opt_service::consume_spat(const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer, 
@@ -94,9 +120,10 @@ namespace signal_opt_service
             const std::string payload = spat_consumer->consume(1000); 
             if (!payload.empty()) {
                 bool update = _so_msgs_worker_ptr->update_spat(payload,_spat_ptr);
-                if ( !update )
+                if ( !update ){
                     SPDLOG_CRITICAL("Failed to update SPaT with update {0}!", payload);
-            }
+                }
+            }   
         }
     }
 
@@ -106,9 +133,10 @@ namespace signal_opt_service
             const std::string payload = vsi_consumer->consume(1000); 
             if (!payload.empty()) {
                 bool update = _so_msgs_worker_ptr->update_vehicle_list(payload,_vehicle_list_ptr);
-                if (!update)
+                if (!update) {
                     SPDLOG_CRITICAL("Failed to update Vehicle List with update {0}!", payload);
-            }
+                }
+            }   
         }
     }
 
@@ -127,8 +155,55 @@ namespace signal_opt_service
             }
         }
     }
+
+    void signal_opt_service::produce_dpp(const std::shared_ptr<kafka_clients::kafka_producer_worker> dpp_producer,
+                                const std::shared_ptr<OpenAPI::OAIIntersection_info> _intersection_info_ptr, 
+                                const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr, 
+                                const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr, 
+                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr, 
+                                const std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups_ptr,
+                                const streets_signal_optimization::streets_desired_phase_plan_generator_configuration _dpp_config) const
+    {
+        
+        SPDLOG_INFO("Starting desired phase plan producer thread.");
+        int sleep_millisecs = streets_service::streets_configuration::get_int_config("dpp_producer_sleep_time");
+        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
+        int prev_future_move_group_count = 0;
+        int current_future_move_group_count = 0;
+        while (true) {
+            
+            // First, convert the spat to desired phase plan
+            streets_desired_phase_plan::streets_desired_phase_plan spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
+            current_future_move_group_count = spat_dpp.desired_phase_plan.size();
+
+            /**
+             * If the number of future movement groups in the spat has changed compared to the previous step
+             * and it is less than or equal to the desired number of future movement groups, run streets_signal_optimization
+             * libraries to get optimal desired_phase_plan.
+            */
+            if (current_future_move_group_count != prev_future_move_group_count) {
+                SPDLOG_DEBUG("The number of future movement groups in the spat is updated from {0} to {1}.", current_future_move_group_count, _dpp_config.desired_future_move_group_count);
+                if (current_future_move_group_count <= _dpp_config.desired_future_move_group_count) {
+                    streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = _so_processing_worker_ptr->
+                            select_optimal_dpp(_intersection_info_ptr, _spat_ptr, _tsc_config_ptr, _vehicle_list_ptr, _movement_groups_ptr, _dpp_config);
+                    std::string msg_to_send = optimal_dpp.toJson();
+                    /* produce the optimal desired phase plan to kafka */
+                    dpp_producer->send(msg_to_send);
+                }
+            }
+            else {
+                SPDLOG_DEBUG("The number of future movement groups in the spat did not change from the previous check.");
+            }
+            prev_future_move_group_count = current_future_move_group_count;
+            sleep(sleep_secs);
+        }
+        SPDLOG_WARN("Stopping desired phase plan producer thread!");
+        dpp_producer->stop();
+
+    }
+
     
-    void signal_opt_service::populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
+    void signal_opt_service::populate_movement_groups(std::shared_ptr<streets_signal_optimization::movement_groups> _groups, 
                                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const {
         if (tsc_config) {
             for (const auto &phase_config : tsc_config->tsc_config_list) {
@@ -136,7 +211,7 @@ namespace signal_opt_service
                 if ( !phase_config.concurrent_signal_groups.empty() ) {
                     // Loop through concurrent phases and create a movement group for each pair
                     for (const auto &concur : phase_config.concurrent_signal_groups) {
-                        movement_group new_group;
+                        streets_signal_optimization::movement_group new_group;
                         new_group.signal_groups = {phase_config.signal_group_id, concur};
                         // Initialize a flag for if this pair already exists in the movement groups in reverse.
                         bool already_added = false;
@@ -156,7 +231,7 @@ namespace signal_opt_service
                 // If signal group does not have any concurrent phases add it as a movement group pair of between itself and 0 since
                 // 0 is an invalid signal group
                 else {
-                    movement_group new_group;
+                    streets_signal_optimization::movement_group new_group;
                     // Add invalid signal group 0 as current signal group to indicate there is none.
                     new_group.signal_groups = { phase_config.signal_group_id, 0};
                     _groups->groups.push_back(new_group);
@@ -197,7 +272,6 @@ namespace signal_opt_service
         {
             _spat_consumer->stop();
         }
-
         if (_vsi_consumer)
         {
             _vsi_consumer->stop();
@@ -205,6 +279,10 @@ namespace signal_opt_service
         if (_tsc_config_consumer) 
         {
             _tsc_config_consumer->stop();
+        }
+        if (_dpp_producer) 
+        {
+            _dpp_producer->stop();
         }
     }
 }

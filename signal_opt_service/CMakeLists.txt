@@ -39,22 +39,21 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC
     kafka_clients_lib
     rdkafka++
+    Qt5::Core
+    Qt5::Network
     Boost::system
     Boost::thread
     Boost::filesystem
     spdlog::spdlog
     rapidjson
     intersection_client_api_lib
-    streets_signal_optimization_lib
-    streets_vehicle_scheduler_lib
-    streets_service_base_lib::streets_service_base_lib
-    streets_vehicle_list_lib
     streets_signal_phase_and_timing_lib
     streets_desired_phase_plan_lib
+    streets_vehicle_list_lib
+    streets_vehicle_scheduler_lib
+    streets_service_base_lib::streets_service_base_lib
     streets_tsc_configuration_lib
-
-    Qt5::Core
-    Qt5::Network
+    streets_signal_optimization_lib
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -75,7 +74,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_l
                                                             streets_service_base_lib 
                                                             streets_vehicle_scheduler_lib
                                                             streets_signal_phase_and_timing_lib
-                                                            streets_vehicle_list_lib)
+                                                            streets_vehicle_list_lib
+                                                            streets_signal_optimization_lib)
 
 # #######################
 # googletest for unit testing

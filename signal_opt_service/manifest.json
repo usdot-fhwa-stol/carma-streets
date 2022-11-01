@@ -33,6 +33,24 @@
             "type": "STRING"
         },
         {
+            "name": "tsc_config_consumer_topic",
+            "value": "tsc_config_state",
+            "description": "Kafka topic for CARMA Streets internal traffic signal controller phase configuration message.",
+            "type": "STRING"
+        },
+        {
+            "name": "tsc_config_group_id",
+            "value": "tsc_config_group",
+            "description": "Kafka consumer group for SO tsc_config_consumer.",
+            "type": "STRING"
+        },
+        {
+            "name": "dpp_producer_topic",
+            "value": "desired_phase_plan",
+            "description": "Kafka topic for streets internal desired phase plan messages.",
+            "type": "STRING"
+        },
+        {
             "name": "exp_delta",
             "value": 60000,
             "description": "Time(in milliseconds) without receiving status & intent updates after which a vehicle is removed from the vehicle list!",
@@ -51,6 +69,12 @@
             "type": "INTEGER"
         },
         {
+            "name": "dpp_producer_sleep_time",
+            "value": 1000,
+            "description": "dpp_producer thread sleep in milliseconds",
+            "type": "INTEGER"
+        },
+        {
             "name": "initial_green_buffer",
             "value": 2000,
             "description": "The time buffer in milliseconds to apply to the time when the phase will become green to avoid vehicles that are ahead of schedule entering before the phase is green.",
@@ -63,16 +87,40 @@
             "type": "INTEGER"
         },
         {
-            "name": "tsc_config_consumer_topic",
-            "value": "tsc_config_state",
-            "description": "Kafka topic for CARMA Streets internal traffic signal controller phase configuration message.",
-            "type": "STRING"
+            "name": "et_inaccuracy_buffer",
+            "value": 2000,
+            "description": "The configurable time interval in milliseconds defined to account for entering time (ET) estimation inaccuracy.",
+            "type": "INTEGER"
         },
         {
-            "name": "tsc_config_group_id",
-            "value": "tsc_config_group",
-            "description": "Kafka consumer group for SO tsc_config_consumer.",
-            "type": "STRING"
+            "name": "queue_max_time_headway",
+            "value": 3000,
+            "description": "The configurable time headway in milliseconds that defines the maximum allowed time headway between the estimated entering time (ET) of two consecutive vehicles within a queue.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "so_radius",
+            "value": 200.0,
+            "description": "The configurable distance in meters defined as the radius of the signal optimization (SO) area.",
+            "type": "DOUBLE"
+        },
+        {
+            "name": "min_green",
+            "value": 5000,
+            "description": "The configurable minimum green duration in milliseconds. This minimum green duration is used for all signal groups.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "max_green",
+            "value": 120000,
+            "description": "The configurable maximum green duration in milliseconds. This maximum green duration is used for all signal groups.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "desired_future_move_group_count",
+            "value": 1,
+            "description": "The configurable parameter that defines the desired number of fixed future movement groups in the spat.",
+            "type": "INTEGER"
         }
     ]
 }
