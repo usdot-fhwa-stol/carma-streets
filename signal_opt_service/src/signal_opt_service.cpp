@@ -58,6 +58,11 @@ namespace signal_opt_service
                 exit(EXIT_FAILURE);
             }
 
+            // Create logger
+            if ( streets_service::streets_configuration::get_boolean_config("enable_so_logging") ) {
+                configure_csv_logger();
+            }
+
             // Serice config
             auto sleep_millisecs = streets_service::streets_configuration::get_int_config("sleep_millisecs");
             auto int_client_request_attempts = streets_service::streets_configuration::get_int_config("int_client_request_attempts");            
@@ -204,7 +209,8 @@ namespace signal_opt_service
 
     
     void signal_opt_service::populate_movement_groups(std::shared_ptr<streets_signal_optimization::movement_groups> _groups, 
-                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const {
+                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const 
+    {
         if (tsc_config) {
             for (const auto &phase_config : tsc_config->tsc_config_list) {
                 // If signal group has one or more concurrent phase
@@ -264,6 +270,29 @@ namespace signal_opt_service
         // If failed to update the intersection information after certain numbers of attempts
         SPDLOG_ERROR("Updating Intersection information failed. ");
         return false;
+    }
+
+
+    void signal_opt_service::configure_csv_logger() const
+    {
+        try{
+            SPDLOG_INFO("csv log path: {0}", streets_service::streets_configuration::get_string_config("so_log_path") + 
+                    streets_service::streets_configuration::get_string_config("so_log_filename") + ".csv");
+            auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
+                "csv_so_logger",  // logger name
+                streets_service::streets_configuration::get_string_config("so_log_path")+
+                    streets_service::streets_configuration::get_string_config("so_log_filename") +".csv",  // log file name and path
+                23, // hours to rotate
+                59 // minutes to rotate
+                );
+            // Only log log statement content
+            csv_logger->set_pattern("%v");
+            csv_logger->set_level(spdlog::level::info);
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
+        }
     }
 
     signal_opt_service::~signal_opt_service()

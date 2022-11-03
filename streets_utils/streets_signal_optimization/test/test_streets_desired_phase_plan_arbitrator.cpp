@@ -13,6 +13,7 @@
 #include "signalized_status_intent_processor.h"
 #include "rapidjson/istreamwrapper.h"
 #include <fstream>
+#include <boost/range/algorithm/count.hpp>
 
 namespace streets_signal_optimization
 {
@@ -286,6 +287,9 @@ namespace streets_signal_optimization
         dpp_list.push_back(*desired_phase_plan1_ptr);
         dpp_list.push_back(*desired_phase_plan2_ptr);
 
+        double so_radius = 150;
+        bool enable_so_logging = true;
+
         // Current spat should only contain the ONLY one current movement event for each movement state.
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
@@ -295,7 +299,7 @@ namespace streets_signal_optimization
 
         try
         {
-            arbitrator->select_optimal_dpp(dpp_list, intersection_info, nullptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+            arbitrator->select_optimal_dpp(dpp_list, intersection_info, nullptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius, enable_so_logging);
         }
         catch (const streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -304,7 +308,7 @@ namespace streets_signal_optimization
 
         try
         {
-            arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+            arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius, enable_so_logging);
         }
         catch (const streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -328,7 +332,7 @@ namespace streets_signal_optimization
             veh_list_ptr->process_update(update);
         }
         ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
-        auto dpp = arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer);
+        auto dpp = arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius, enable_so_logging);
         ASSERT_TRUE(dpp.desired_phase_plan.size() == 3);
     }
 
@@ -1002,10 +1006,12 @@ namespace streets_signal_optimization
         vehicle_schedule_2.eet = epoch_timestamp + 20000;
         schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_2);
         int desired_phase_plan_index = 0;
-        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+
+        bool enable_so_logging = true;
+        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
         desired_phase_plan_index++;
         ASSERT_EQ(1, delay_measure_1);
-        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
         ASSERT_EQ(20000, delay_measure_2);
     }
 
@@ -1042,14 +1048,15 @@ namespace streets_signal_optimization
         schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_2);
 
         // Calculate delay measures
+        bool enable_so_logging = true;
         int desired_phase_plan_index = 0;
         std::unordered_map<int, float> ddp_index_delay_measure_mappings;
-        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
         ASSERT_EQ(1, delay_measure_1);
         ddp_index_delay_measure_mappings.insert({desired_phase_plan_index, delay_measure_1});
         desired_phase_plan_index++;
 
-        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
+        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
         ASSERT_EQ(20000, delay_measure_2);
         ddp_index_delay_measure_mappings.insert({desired_phase_plan_index, delay_measure_2});
 
@@ -1063,6 +1070,35 @@ namespace streets_signal_optimization
         {
             ASSERT_EQ(streets_desired_phase_plan_str_2, final_dpp.toJson());
         }
+    }
+
+    TEST_F(test_streets_desired_phase_plan_arbitrator, dpp_delay_toCSV) {
+        auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+        uint64_t epoch_timestamp = epochMs.count();
+
+        // Create mock desired phase plan list
+        std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
+        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":1111111111,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
+        auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan1_ptr->fromJson(streets_desired_phase_plan_str_1);
+
+        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":2222222222,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
+        auto desired_phase_plan2_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
+        dpp_list.push_back(*desired_phase_plan1_ptr);
+        dpp_list.push_back(*desired_phase_plan2_ptr);
+
+        u_int64_t candidate_vehicle_delay = 10000; 
+        u_int64_t TBD_delay = 40000;
+        float delay_measure = (float)(candidate_vehicle_delay / TBD_delay);
+
+        std::string csv_log = arbitrator->dpp_delay_toCSV(dpp_list[0], candidate_vehicle_delay, TBD_delay, delay_measure);
+        int lines_count = boost::count( csv_log, '\n');
+        ASSERT_EQ( lines_count, 1);
+        int cell_count = boost::count( csv_log, ',');
+        ASSERT_EQ( cell_count, 28);
     }
 
 }

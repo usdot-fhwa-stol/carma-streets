@@ -1,5 +1,5 @@
 {
-    "service_name": "signal_optmization",
+    "service_name": "signal_optimization",
     "loglevel": "debug",
     "configurations": [
         {
@@ -73,6 +73,24 @@
             "value": 1000,
             "description": "dpp_producer thread sleep in milliseconds",
             "type": "INTEGER"
+        },
+        {
+            "name": "enable_so_logging",
+            "value": true,
+            "description": "Bool flag to enable signal optimization calculation csv logging.",
+            "type": "BOOL"
+        }, 
+        {
+            "name": "so_log_path",
+            "value": "../logs/",
+            "description": "File path where signal optimization calculation csv file will be written(Note: set enable_so_logging true).",
+            "type": "STRING"
+        },
+        {
+            "name": "so_log_filename",
+            "value": "soLogs",
+            "description": "Filename for signal optimization calculation csv logging (Note: set enable_so_logging true).",
+            "type": "STRING"
         },
         {
             "name": "initial_green_buffer",

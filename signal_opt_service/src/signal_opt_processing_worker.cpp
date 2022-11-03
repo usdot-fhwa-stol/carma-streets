@@ -41,13 +41,14 @@ namespace signal_opt_service
         const streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config) const
     {
         
+        bool enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
         auto intersection_state = spat_ptr->get_intersection();
         auto vehicle_map = veh_list_ptr->get_vehicles();
         
         dpp_generator_ptr->create_signal_group_entry_lane_mapping(intersection_info_ptr);
         auto dpp_list = dpp_generator_ptr->generate_desire_phase_plan_list(intersection_info_ptr, vehicle_map, intersection_state, move_groups);
         
-        auto chosen_dpp = dpp_arbitrator_ptr->select_optimal_dpp(dpp_list, intersection_info_ptr, spat_ptr, tsc_config_state, veh_list_ptr, dpp_config.initial_green_buffer, dpp_config.final_green_buffer);
+        auto chosen_dpp = dpp_arbitrator_ptr->select_optimal_dpp(dpp_list, intersection_info_ptr, spat_ptr, tsc_config_state, veh_list_ptr, dpp_config.initial_green_buffer, dpp_config.final_green_buffer, dpp_config.so_radius, enable_so_logging);
 
         return chosen_dpp;
     }

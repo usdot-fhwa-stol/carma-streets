@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-
+find_package(Boost COMPONENTS thread)
 find_package(Qt5Network REQUIRED)
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)

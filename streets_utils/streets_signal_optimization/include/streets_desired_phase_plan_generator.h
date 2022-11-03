@@ -46,6 +46,19 @@ namespace streets_signal_optimization {
             std::unordered_map<uint8_t, std::vector<int>> signal_group_entry_lane_mapping;
 
             /**
+             * @brief Given an intersection_info pointer and a list of possible movement groups, this method checks if all
+             * signal groups included in the movement groups list are included in the intersection_info pointer. Basically, 
+             * a signal group cannot be used if it is not connected to a given link lanelet (i.e., it does not exist in the 
+             * intersection_info pointer). This method will throw exception if this requirement is not satisfied.
+             * 
+             * @param intersection_info_ptr An intersection_info pointer.
+             * @param move_groups Shared pointer to a list of possible movement groups.
+             * @throws If a signal group included in the movement group list does not exist in the intersection_info pointer.
+             */           
+            void verify_movement_group_list(const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
+                                        const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) const;
+
+            /**
              * @brief Given a map of vehicles and vehicle ids, this method will run the signalized_vehicle_scheduler methods to populate 
              * the signalized_intersection_schedule with a schedule for all vehicles in the vehicle map based on UC 3 scheduling logic 
              * which estimates vehicles' entering times to the intersection box based on the modified spat.

@@ -113,5 +113,10 @@ namespace signal_opt_service
          * @return boolean. True if intersection information is updated, otherwise failed to update intersection information
          */
         bool update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const;
+
+        /**
+         * @brief Method to configure spdlog::logger for logging signal optimization metrics into daily rotating csv file.
+         */
+        void configure_csv_logger() const;
     };
 }
