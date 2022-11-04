@@ -64,7 +64,7 @@ namespace streets_vehicle_scheduler {
     }
 
     int signalized_vehicle_schedule::get_delay() const{
-        auto delta_et = et-eet;
+        auto delta_et = int(et-eet);
         if(delta_et < 0)
         {
             throw streets_vehicle_scheduler::scheduling_exception("EET cannot be greater than ET.");

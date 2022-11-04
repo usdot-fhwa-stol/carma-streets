@@ -80,12 +80,47 @@ namespace kafka_clients
             producer_event_cb _producer_event_cb;
 
         public:
+            /**
+             * @brief Construct a new kafka producer worker object
+             * 
+             * @param broker_str network address of kafka broker.
+             * @param topic_str topic producer should produce to.
+             * @param n_partition partition producer should be assigned to.
+             */
             kafka_producer_worker(const std::string &brokers, const std::string &topics, int n_partition = 0);
+            /**
+             * @brief Initialize kafka_producer_worker
+             * 
+             * @return true if successful.
+             * @return false if unsuccessful.
+             */
             virtual bool init();
+            /**
+             * @brief Produce to topic.
+             * 
+             * @param msg message to produce.
+             */
             virtual void send(const std::string &msg);
+            /**
+             * @brief Is kafka_producer_worker still running?
+             * 
+             * @return true if kafka producer is still running.
+             * @return false if kafka producer is stopped.
+             */
             virtual bool is_running() const;
+            /**
+             * @brief Stop running kafka producer.
+             */
             virtual void stop();
+            /**
+             * @brief Print current configurations.
+             */
             virtual void printCurrConf();
+            /**
+             * @brief Destroy the kafka producer worker object
+             * 
+             */
+            virtual ~kafka_producer_worker() = default;
         };
 }
 
