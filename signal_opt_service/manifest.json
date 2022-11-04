@@ -1,6 +1,6 @@
 {
     "service_name": "signal_optimization",
-    "loglevel": "debug",
+    "loglevel": "info",
     "configurations": [
         {
             "name": "bootstrap_server",

@@ -6,6 +6,7 @@
 #include "movement_group.h"
 #include "streets_desired_phase_plan_generator.h"
 #include "streets_desired_phase_plan_arbitrator.h"
+#include <gtest/gtest_prod.h>
 
 namespace signal_opt_service
 {
@@ -35,6 +36,8 @@ namespace signal_opt_service
         std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr;
+
+        FRIEND_TEST(signal_opt_service, configure_so_processing_worker);
 
     public:
         /**
@@ -96,7 +99,7 @@ namespace signal_opt_service
                                const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr, 
                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr, 
                                const std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups_ptr,
-                               const streets_signal_optimization::streets_desired_phase_plan_generator_configuration _dpp_config) const;
+                               const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config) const;
         /**
          * @brief Method to use the tsc_config_state pointer from the 
          * signal_opt_message_worker to populate movement_groups pointer
@@ -113,6 +116,11 @@ namespace signal_opt_service
          * @return boolean. True if intersection information is updated, otherwise failed to update intersection information
          */
         bool update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const;
+
+        /**
+         * @brief Method for configuring the so_processing_worker pointer.
+        */
+        void configure_so_processing_worker();
 
         /**
          * @brief Method to configure spdlog::logger for logging signal optimization metrics into daily rotating csv file.

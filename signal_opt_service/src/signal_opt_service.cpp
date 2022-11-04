@@ -7,8 +7,8 @@ namespace signal_opt_service
         try
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
-            _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
-            
+            configure_so_processing_worker();
+
             movement_groups_ptr = std::make_shared<streets_signal_optimization::movement_groups>();
             vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
             auto processor = std::make_shared<streets_vehicles::signalized_status_intent_processor>();
@@ -73,17 +73,6 @@ namespace signal_opt_service
                 SPDLOG_CRITICAL("Failed to initialize signal_opt_service due to intersection client request failure!");
                 return false;
             }
-
-            //Parameter config
-            dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
-            dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
-            dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
-            dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
-            dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
-            dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
-            dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
-            dpp_config.desired_future_move_group_count = streets_service::streets_configuration::get_int_config("desired_future_move_group_count");
-            _so_processing_worker_ptr->configure_dpp_optimizer(dpp_config);
 
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
@@ -167,7 +156,7 @@ namespace signal_opt_service
                                 const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr, 
                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr, 
                                 const std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups_ptr,
-                                const streets_signal_optimization::streets_desired_phase_plan_generator_configuration _dpp_config) const
+                                const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config) const
     {
         
         SPDLOG_INFO("Starting desired phase plan producer thread.");
@@ -175,19 +164,19 @@ namespace signal_opt_service
         auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
-        while (true) {
+        while ( dpp_producer->is_running() ) {
             
             // First, convert the spat to desired phase plan
             streets_desired_phase_plan::streets_desired_phase_plan spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
-            current_future_move_group_count = spat_dpp.desired_phase_plan.size();
-
+            current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
             /**
              * If the number of future movement groups in the spat has changed compared to the previous step
              * and it is less than or equal to the desired number of future movement groups, run streets_signal_optimization
              * libraries to get optimal desired_phase_plan.
             */
             if (current_future_move_group_count != prev_future_move_group_count) {
-                SPDLOG_DEBUG("The number of future movement groups in the spat is updated from {0} to {1}.", current_future_move_group_count, _dpp_config.desired_future_move_group_count);
+                SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
+                                                            prev_future_move_group_count, current_future_move_group_count);
                 if (current_future_move_group_count <= _dpp_config.desired_future_move_group_count) {
                     streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = _so_processing_worker_ptr->
                             select_optimal_dpp(_intersection_info_ptr, _spat_ptr, _tsc_config_ptr, _vehicle_list_ptr, _movement_groups_ptr, _dpp_config);
@@ -197,7 +186,7 @@ namespace signal_opt_service
                 }
             }
             else {
-                SPDLOG_DEBUG("The number of future movement groups in the spat did not change from the previous check.");
+                SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
             }
             prev_future_move_group_count = current_future_move_group_count;
             sleep(sleep_secs);
@@ -272,6 +261,19 @@ namespace signal_opt_service
         return false;
     }
 
+    void signal_opt_service::configure_so_processing_worker() {
+        _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
+        //Parameter config
+        dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
+        dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
+        dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
+        dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
+        dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
+        dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
+        dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
+        dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+        _so_processing_worker_ptr->configure_dpp_optimizer(dpp_config);
+    }
 
     void signal_opt_service::configure_csv_logger() const
     {

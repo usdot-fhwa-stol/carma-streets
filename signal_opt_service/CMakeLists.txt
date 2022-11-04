@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
 find_package(spdlog REQUIRED)
-add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(RapidJSON REQUIRED)
 
 # Add definition for rapidjson to include std::string

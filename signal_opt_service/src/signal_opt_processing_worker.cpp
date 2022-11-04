@@ -2,7 +2,8 @@
 namespace signal_opt_service
 {
     
-    void signal_opt_processing_worker::configure_dpp_optimizer(const streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config) {
+    void signal_opt_processing_worker::configure_dpp_optimizer(
+                    const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &dpp_config) {
         dpp_arbitrator_ptr = std::make_shared<streets_signal_optimization::streets_desired_phase_plan_arbitrator>();
         dpp_generator_ptr = std::make_shared<streets_signal_optimization::streets_desired_phase_plan_generator>();
         dpp_generator_ptr->set_configuration(dpp_config.initial_green_buffer,
@@ -16,8 +17,8 @@ namespace signal_opt_service
     }
     
     streets_desired_phase_plan::streets_desired_phase_plan signal_opt_processing_worker::convert_spat_to_dpp(
-                        const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr,
-                        const std::shared_ptr<streets_signal_optimization::movement_groups> move_groups) const
+                        const std::shared_ptr<signal_phase_and_timing::spat> &spat_ptr,
+                        const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) const
     {
         streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
     
@@ -33,23 +34,28 @@ namespace signal_opt_service
     }
     
     streets_desired_phase_plan::streets_desired_phase_plan signal_opt_processing_worker::select_optimal_dpp(
-        const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
-        const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
-        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state, 
-        const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
-        const std::shared_ptr<streets_signal_optimization::movement_groups> move_groups,
-        const streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config) const
+        const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr,
+        const std::shared_ptr<signal_phase_and_timing::spat> &spat_ptr, 
+        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> &tsc_config_state, 
+        const std::shared_ptr<streets_vehicles::vehicle_list> &veh_list_ptr,
+        const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups,
+        const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &dpp_config) const
     {
         
         bool enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
         auto intersection_state = spat_ptr->get_intersection();
         auto vehicle_map = veh_list_ptr->get_vehicles();
-        
+        SPDLOG_DEBUG("so_processing_worker - dpp_generator start!");
         dpp_generator_ptr->create_signal_group_entry_lane_mapping(intersection_info_ptr);
         auto dpp_list = dpp_generator_ptr->generate_desire_phase_plan_list(intersection_info_ptr, vehicle_map, intersection_state, move_groups);
-        
+        SPDLOG_DEBUG("so_processing_worker - dpp_arbitrator start!");
         auto chosen_dpp = dpp_arbitrator_ptr->select_optimal_dpp(dpp_list, intersection_info_ptr, spat_ptr, tsc_config_state, veh_list_ptr, dpp_config.initial_green_buffer, dpp_config.final_green_buffer, dpp_config.so_radius, enable_so_logging);
 
         return chosen_dpp;
+    }
+
+    std::shared_ptr<streets_signal_optimization::streets_desired_phase_plan_generator> 
+                                                    signal_opt_processing_worker::get_dpp_generator() const {
+        return dpp_generator_ptr;
     }
 }

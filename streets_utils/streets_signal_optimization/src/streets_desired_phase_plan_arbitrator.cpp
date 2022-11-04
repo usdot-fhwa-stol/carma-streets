@@ -45,6 +45,7 @@ namespace streets_signal_optimization
                 // Add those vehicles that are within SO radius to schedule_ptr
                 auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
                 schedule_ptr->timestamp = all_schedule_ptr->timestamp;
+                schedule_ptr->vehicle_schedules.clear();
                 for (const auto& veh_sched : all_schedule_ptr->vehicle_schedules) {
                     if (veh_sched.state == streets_vehicles::vehicle_state::EV && veh_list_ptr->get_vehicles().at(veh_sched.v_id)._cur_distance <= so_radius) {
                         schedule_ptr->vehicle_schedules.push_back(veh_sched);
@@ -81,15 +82,16 @@ namespace streets_signal_optimization
         return result;
     }
 
-    void streets_desired_phase_plan_arbitrator::update_spat_with_candidate_dpp(std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
-                                                                               const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
-                                                                               const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const
+    void streets_desired_phase_plan_arbitrator::update_spat_with_candidate_dpp(
+                        std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
+                        const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
+                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state) const
     {
         local_spat_ptr->update_spat_with_candidate_dpp(candidate_dpp, tsc_state);
     }
 
     void streets_desired_phase_plan_arbitrator::calculate_vehicle_schedules(
-                            std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> schedule_ptr,
+                            std::shared_ptr<streets_vehicle_scheduler::intersection_schedule> all_schedule_ptr,
                             std::shared_ptr<signal_phase_and_timing::spat> local_spat_ptr,
                             const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
                             const std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr,
@@ -102,8 +104,8 @@ namespace streets_signal_optimization
         scheduler_ptr->set_initial_green_buffer(initial_green_buffer);
         scheduler_ptr->set_final_green_buffer(final_green_buffer);
         auto vehicles = veh_list_ptr->get_vehicles();
-        schedule_ptr->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        scheduler_ptr->schedule_vehicles(vehicles, schedule_ptr);
+        all_schedule_ptr->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        scheduler_ptr->schedule_vehicles(vehicles, all_schedule_ptr);
     }
 
     float streets_desired_phase_plan_arbitrator::calculate_delay_measure(
@@ -136,7 +138,7 @@ namespace streets_signal_optimization
         float delay_measure = 0.0;
         if (TBD_delay > 0)
         {
-            delay_measure = (float)((float)candidate_vehicles_delay / (float)TBD_delay);
+            delay_measure = (float)candidate_vehicles_delay / (float)TBD_delay;
         }
         else
         {

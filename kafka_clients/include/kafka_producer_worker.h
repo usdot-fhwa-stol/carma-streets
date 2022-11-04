@@ -81,10 +81,11 @@ namespace kafka_clients
 
         public:
             kafka_producer_worker(const std::string &brokers, const std::string &topics, int n_partition = 0);
-            bool init();
-            void send(const std::string &msg);
-            void stop();
-            void printCurrConf();
+            virtual bool init();
+            virtual void send(const std::string &msg);
+            virtual bool is_running() const;
+            virtual void stop();
+            virtual void printCurrConf();
         };
 }
 

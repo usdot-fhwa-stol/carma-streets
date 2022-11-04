@@ -358,7 +358,38 @@ namespace signal_opt_service
         auto chosen_dpp = so_processing_worker->select_optimal_dpp(intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, movement_group_list, dpp_config);
         ASSERT_TRUE(chosen_dpp.desired_phase_plan.size() == 2);
 
-
-        
     }
+
+
+    TEST_F(test_signal_opt_processing_worker, configure_dpp_optimizer) {
+
+        auto so_processing_worker = std::make_shared<signal_opt_processing_worker>();
+        streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config;
+
+
+        dpp_config.initial_green_buffer = 1500; 
+        dpp_config.final_green_buffer = 1000;
+        dpp_config.et_inaccuracy_buffer = 2000;
+        dpp_config.queue_max_time_headway = 4000;
+        dpp_config.so_radius = 150;
+        dpp_config.min_green = 6000;
+        dpp_config.max_green = 100000;
+        dpp_config.desired_future_move_group_count = 2;
+
+        so_processing_worker->configure_dpp_optimizer(dpp_config);
+
+        auto dpp_generator_ptr = so_processing_worker->get_dpp_generator();
+        
+        ASSERT_EQ( dpp_generator_ptr->get_initial_green_buffer(), 1500);
+        ASSERT_EQ( dpp_generator_ptr->get_final_green_buffer(), 1000);
+        ASSERT_EQ( dpp_generator_ptr->get_et_inaccuracy_buffer(), 2000);
+        ASSERT_EQ( dpp_generator_ptr->get_queue_max_time_headway(), 4000);
+        ASSERT_EQ( dpp_generator_ptr->get_so_radius(), 150);
+        ASSERT_EQ( dpp_generator_ptr->get_min_green(), 6000);
+        ASSERT_EQ( dpp_generator_ptr->get_max_green(), 100000);
+        ASSERT_EQ( dpp_generator_ptr->get_desired_future_move_group_count(), 2);
+
+
+    }
+
 }

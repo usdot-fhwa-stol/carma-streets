@@ -199,6 +199,9 @@ namespace streets_signal_optimization
             tsc_config_8.yellow_change_duration = 0;
             tsc_state->tsc_config_list.push_back(tsc_config_8);
 
+            intersection_state.time_stamp = 130;
+            intersection_state.id = 1909;
+            intersection_state.moy = 34232;
             spat_msg_ptr->set_intersection(intersection_state);
             spat_msg_two_ptr->set_intersection(intersection_state_two);
             spat_msg_three_ptr->set_intersection(intersection_state_three);
@@ -249,6 +252,10 @@ namespace streets_signal_optimization
                     }
                 }
                 return updates;
+            }
+            else {
+                SPDLOG_ERROR("vehicle update is not array!");
+                throw streets_vehicles::status_intent_processing_exception("vehicle update is not array!");
             }
         }
     };

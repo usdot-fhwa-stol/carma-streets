@@ -28,7 +28,7 @@ namespace streets_signal_optimization {
          * - max_green = 120,000 ms
          * - desired_future_move_group_count = 1
          */
-        if (is_configured) {
+        if (!is_configured) {
             SPDLOG_WARN("set_configuration was not called. Setting configuration to default!");
             set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
         }
