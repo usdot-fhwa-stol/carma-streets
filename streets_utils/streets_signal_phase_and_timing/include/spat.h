@@ -122,7 +122,8 @@ namespace signal_phase_and_timing
          * @param candidate_dpp  desired phase plan .
          * @param tsc_state tsc state and signal group mapping information.
          */
-        void update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp, const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state);
+        void update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp, 
+                                            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state);
         // Conversion constants
         /**
          * @brief Process first desired green signal group and duration in desired phase plan. Populate

@@ -1,9 +1,11 @@
 #pragma once
+#include <spdlog/spdlog.h>
+
 #include "streets_desired_phase_plan.h"
 #include "spat.h"
 #include "monitor_tsc_state.h"
 #include "monitor_desired_phase_plan_exception.h"
-#include "spdlog/spdlog.h"
+#include "snmp_client.h"
 
 namespace traffic_signal_controller_service
 {
@@ -12,12 +14,16 @@ namespace traffic_signal_controller_service
     private:
         std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_ptr;
 
+        std::shared_ptr<snmp_client> _snmp_client;
+
     public:
         /**
          * @brief Construct a new monitor desired phase plan object
          * 
          */
         monitor_desired_phase_plan() = default;
+
+        monitor_desired_phase_plan( const std::shared_ptr<snmp_client> client );
         /**
          * @brief Destroy the monitor desired phase plan object
          * 
@@ -43,6 +49,8 @@ namespace traffic_signal_controller_service
          * @return std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> 
          */
         std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> get_desired_phase_plan_ptr() const;
+
+        void fix_upcoming_green(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const;
     };
 
 }

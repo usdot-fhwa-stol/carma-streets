@@ -131,7 +131,8 @@ namespace signal_phase_and_timing{
         }
     }
 
-    void spat::update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp, const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state)
+    void spat::update_spat_with_candidate_dpp(const streets_desired_phase_plan::streets_desired_phase_plan& candidate_dpp,
+                                                const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_state)
     {
         std::unique_lock lock(spat_lock);
         //Removing all the future movement events from each intersection state because the future movements event should be recalculated using desired phase plan
