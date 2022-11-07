@@ -35,7 +35,7 @@ namespace signal_opt_service
         ~signal_opt_processing_worker() = default;
 
         /**
-         * @brief Configure streets_signal_optimization library.
+         * @brief Configure the dpp_generator and dpp_arbitrator in signal_opt_processing_worker.
          * 
          * @param dpp_config desired_phase_plan_generator_configuration object
          */
@@ -54,7 +54,7 @@ namespace signal_opt_service
                                 const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) const;
 
         /**
-         * @brief Call streets_signal_optimization library to choose the optimized desired phase plan.
+         * @brief Method that chooses the optimized desired phase plan.
          *
          * @param intersection_info_ptr The current intersection model intersection information
          * @param spat_ptr The spat pointer that points to the latest spat information received from the Kafka stream.

@@ -191,32 +191,24 @@ namespace streets_signal_optimization
     {
         
         std::string so_info = "";
-        so_info += "timestamp";
-        so_info += ",";
+        // timestamp
         so_info += std::to_string(candidate_dpp.timestamp) + ",";
         for (const auto &move_group : candidate_dpp.desired_phase_plan) {
-            so_info += "start time";
-            so_info += ",";
+            // start time
             so_info += std::to_string(move_group.start_time) + ",";
-            so_info += "end time";
-            so_info += ",";
+            // end time
             so_info += std::to_string(move_group.end_time) + ",";
-            so_info += "signal groups";
-            so_info += ",";
+            // signal groups
             for (const auto &signal_group : move_group.signal_groups) {
                 so_info += std::to_string(signal_group) + ",";
             }
         }
-        so_info += "candidate vehicle delay";
-        so_info += ",";
+        // candidate vehicle delay
         so_info += std::to_string(candidate_vehicle_delay) + ",";
-        so_info += "TBD delay";
-        so_info += ",";
+        // TBD delay
         so_info += std::to_string(TBD_delay) + ",";
-        so_info += "delay measure";
-        so_info += ",";
+        // delay measure
         so_info += std::to_string(delay_measure);
-        so_info += "\n";
 
         return so_info;
     }

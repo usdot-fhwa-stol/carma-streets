@@ -159,7 +159,7 @@ namespace signal_opt_service
                                 const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config) const
     {
         
-        SPDLOG_INFO("Starting desired phase plan producer thread.");
+        SPDLOG_DEBUG("Starting desired phase plan producer thread.");
         int sleep_millisecs = streets_service::streets_configuration::get_int_config("dpp_producer_sleep_time");
         auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
         int prev_future_move_group_count = 0;

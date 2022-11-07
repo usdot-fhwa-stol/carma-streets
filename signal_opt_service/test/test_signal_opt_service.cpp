@@ -32,7 +32,7 @@ TEST(signal_opt_service, configure_so_processing_worker)
     auto dpp_generator_ptr = so_service._so_processing_worker_ptr->get_dpp_generator();
     ASSERT_EQ( dpp_generator_ptr->get_initial_green_buffer(), 2000);
     ASSERT_EQ( dpp_generator_ptr->get_final_green_buffer(), 2000);
-    ASSERT_EQ( dpp_generator_ptr->get_et_inaccuracy_buffer(), 2000);
+    ASSERT_EQ( dpp_generator_ptr->get_et_inaccuracy_buffer(), 0);
     ASSERT_EQ( dpp_generator_ptr->get_queue_max_time_headway(), 3000);
     ASSERT_EQ( dpp_generator_ptr->get_so_radius(), 200);
     ASSERT_EQ( dpp_generator_ptr->get_min_green(), 5000);

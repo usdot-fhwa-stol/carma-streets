@@ -254,7 +254,6 @@ namespace streets_signal_optimization
                 return updates;
             }
             else {
-                SPDLOG_ERROR("vehicle update is not array!");
                 throw streets_vehicles::status_intent_processing_exception("vehicle update is not array!");
             }
         }
@@ -1103,9 +1102,9 @@ namespace streets_signal_optimization
 
         std::string csv_log = arbitrator->dpp_delay_toCSV(dpp_list[0], candidate_vehicle_delay, TBD_delay, delay_measure);
         int lines_count = boost::count( csv_log, '\n');
-        ASSERT_EQ( lines_count, 1);
+        ASSERT_EQ( lines_count, 0);
         int cell_count = boost::count( csv_log, ',');
-        ASSERT_EQ( cell_count, 28);
+        ASSERT_EQ( cell_count, 15);
     }
 
 }
