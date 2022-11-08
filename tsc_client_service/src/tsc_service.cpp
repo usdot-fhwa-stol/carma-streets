@@ -181,7 +181,8 @@ namespace traffic_signal_controller_service {
             while(true) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
-                    
+                    uint64_t spat_latency = 0;
+                    int count = 0;
                     if(!use_desired_phase_plan_update_){
                         try{
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
@@ -200,7 +201,13 @@ namespace traffic_signal_controller_service {
                     }
                     
                     spat_producer->send(spat_ptr->toJson());
-                    
+                    if (count <= 20 ) {
+                        uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
+                    } else {
+                        uint64_t latency_measure = spat_latency/20;
+                        SPDLOG_WARN("SPat average latency is {0} ms!", latency_measure);
+                    }
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
