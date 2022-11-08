@@ -206,7 +206,7 @@ namespace traffic_signal_controller_service {
                         spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
                         count++;
                     } else {
-                        uint64_t latency_measure = spat_latency/20;
+                        double latency_measure = spat_latency/20.0;
                         SPDLOG_WARN("SPat average latency over 2 seconds is {0} ms and total latency for 20 messages is {1} ms!", latency_measure, spat_latency);
                         spat_latency = 0;
                         count = 0;
