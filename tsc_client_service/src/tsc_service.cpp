@@ -70,7 +70,7 @@ namespace traffic_signal_controller_service {
             control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             
             // Initialize monitor desired phase plan
-            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
 
             // Initialize control_tsc_state ptr
             control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
