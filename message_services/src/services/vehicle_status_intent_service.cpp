@@ -113,7 +113,6 @@ namespace message_services
             std::shared_ptr<message_services::workers::bsm_worker> bsm_w_ptr = std::make_shared<message_services::workers::bsm_worker>();
             std::shared_ptr<message_services::workers::mobilitypath_worker> mp_w_ptr = std::make_shared<message_services::workers::mobilitypath_worker>();
             std::shared_ptr<message_services::workers::mobilityoperation_worker> mo_w_ptr = std::make_shared<message_services::workers::mobilityoperation_worker>();
-            std::shared_ptr<message_services::workers::vehicle_status_intent_worker> vsi_w_ptr = std::make_shared<message_services::workers::vehicle_status_intent_worker>();
             run(bsm_w_ptr, mp_w_ptr, mo_w_ptr);
         }
 
@@ -264,8 +263,8 @@ namespace message_services
 
                 // Update vehicle status intent with BSM
                 vsi.setVehicle_length(bsm.getCore_data().size.length);
-                vsi.setCur_speed(bsm.getCore_data().speed);
-                vsi.setCur_accel(bsm.getCore_data().accelSet.Long);
+                vsi.setCur_speed(bsm.getCore_data().speed * 0.02); //convert to mps
+                vsi.setCur_accel(bsm.getCore_data().accelSet.Long * 0.01); //convert to mps2
                 std::string turn_direction = mo.get_value_from_strategy_params("turn_direction");
                 vsi.SetTurn_direction(turn_direction);
                 double cur_lat = bsm.getCore_data().latitude / 10000000;
