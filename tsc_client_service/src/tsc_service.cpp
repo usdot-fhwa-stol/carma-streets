@@ -178,11 +178,11 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::produce_spat_json() const {
         try {
+            int count = 0;
+            uint64_t spat_latency = 0;
             while(true) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
-                    uint64_t spat_latency = 0;
-                    int count = 0;
                     if(!use_desired_phase_plan_update_){
                         try{
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
