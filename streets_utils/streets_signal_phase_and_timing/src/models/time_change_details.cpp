@@ -20,14 +20,14 @@ namespace signal_phase_and_timing {
         if (max_end_time <= 36000) {
             detail.AddMember("max_end_time",max_end_time,allocator);
         } else {
-            SPDLOG_WARN("Skipping invalid value {0} for max_end_time! Valid range (0-36000).", max_end_time);
+            SPDLOG_TRACE("Skipping invalid value {0} for max_end_time! Valid range (0-36000).", max_end_time);
         }
         // value represents unknow see J2735 spec
         if (likely_time <= 36000) {
             detail.AddMember("likely_time", likely_time, allocator);
         }
         else {
-            SPDLOG_WARN("Skipping invalid value {0} for likely_time! Valid range (0-36000).", likely_time);
+            SPDLOG_TRACE("Skipping invalid value {0} for likely_time! Valid range (0-36000).", likely_time);
         }
         detail.AddMember("confidence", confidence, allocator);
         // value represents unknow see J2735 spec  
@@ -35,7 +35,7 @@ namespace signal_phase_and_timing {
             detail.AddMember("next_time", next_time, allocator);
         }
         else {
-            SPDLOG_WARN("Skipping invalid value {0} for next_time! Valid range (0-36000).", next_time);
+            SPDLOG_TRACE("Skipping invalid value {0} for next_time! Valid range (0-36000).", next_time);
         }
         return detail;
     }
