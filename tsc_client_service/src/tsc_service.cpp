@@ -204,9 +204,11 @@ namespace traffic_signal_controller_service {
                     if (count <= 20 ) {
                         uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
+                        count++;
                     } else {
                         uint64_t latency_measure = spat_latency/20;
                         SPDLOG_WARN("SPat average latency is {0} ms!", latency_measure);
+                        spat_latency = 0;
                     }
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {

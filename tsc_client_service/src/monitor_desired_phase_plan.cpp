@@ -36,12 +36,10 @@ namespace traffic_signal_controller_service
             for (const auto &movement : state.states) {
                 if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
                     is_green_present = true;
-                    SPDLOG_INFO("Green is present in SPat. No need to fix upcoming green");
                     break;
                 }
             }
             if (!is_green_present ) {
-                SPDLOG_INFO("This is happening!");
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
             }
         } else {
