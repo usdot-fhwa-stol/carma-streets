@@ -35,8 +35,9 @@ namespace traffic_signal_controller_service
             bool is_green_present = false;
             auto state = spat_ptr->get_intersection();
             for (const auto &movement : state.states) {
-                if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance) {
+                if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
                     is_green_present = true;
+                    SPDLOG_INFO("Green is present in SPat. No need to fix upcoming green");
                 }
             }
             if (!is_green_present ) {
