@@ -97,9 +97,10 @@ namespace ntcip_oids {
      * @brief Phase Next Status Mask returns a 8 bit value. When a bit = 1, this phase is currently commited to be 
      * next, when a bit = 0, this phase is NOT commited to be next. The phase commited to be next is determined at
      * the end of each green interval, except if that decision cannot be made. In this case it will wait until all 
-     * vehicel change and clearance intervales.
+     * vehicel change and clearance intervales. NOTE:Uses first entry in the phaseStatusGroupTable which is assumed
+     * to be the vehicle phase group.
      * 
      */
-    static const std::string PHASE_STATUS_GROUP_PHASE_NEXT = "1.3.6.1.4.1.1206.4.2.1.1.4.1.11";
+    static const std::string PHASE_STATUS_GROUP_PHASE_NEXT = "1.3.6.1.4.1.1206.4.2.1.1.4.1.11.1";
 
 }
