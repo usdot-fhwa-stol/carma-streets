@@ -207,8 +207,9 @@ namespace traffic_signal_controller_service {
                         count++;
                     } else {
                         uint64_t latency_measure = spat_latency/20;
-                        SPDLOG_WARN("SPat average latency is {0} ms!", latency_measure);
+                        SPDLOG_WARN("SPat average latency over 2 seconds is {0} ms and total latency for 20 messages is {1} ms!", latency_measure, spat_latency);
                         spat_latency = 0;
+                        count = 0;
                     }
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
