@@ -251,11 +251,11 @@ namespace streets_signal_optimization
                         updates.push_back(up);
                     }
                 }
-                return updates;
             }
             else {
-                throw streets_vehicles::status_intent_processing_exception("vehicle update is not array!");
+                SPDLOG_ERROR("vehicle update is not array!");
             }
+            return updates;
         }
     };
 
@@ -295,6 +295,7 @@ namespace streets_signal_optimization
 
         double so_radius = 150;
         bool enable_so_logging = true;
+        arbitrator->set_enable_so_logging(enable_so_logging);
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
@@ -305,7 +306,7 @@ namespace streets_signal_optimization
 
         try
         {
-            arbitrator->select_optimal_dpp(dpp_list, intersection_info, nullptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius, enable_so_logging);
+            arbitrator->select_optimal_dpp(dpp_list, intersection_info, nullptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius);
         }
         catch (const streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -314,7 +315,7 @@ namespace streets_signal_optimization
 
         try
         {
-            arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius, enable_so_logging);
+            arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius);
         }
         catch (const streets_desired_phase_plan_arbitrator_exception &e)
         {
@@ -338,7 +339,7 @@ namespace streets_signal_optimization
             veh_list_ptr->process_update(update);
         }
         ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
-        auto dpp = arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius, enable_so_logging);
+        auto dpp = arbitrator->select_optimal_dpp(dpp_list, intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, initial_green_buffer, final_green_buffer, so_radius);
         ASSERT_TRUE(dpp.desired_phase_plan.size() == 3);
     }
 
@@ -1014,10 +1015,11 @@ namespace streets_signal_optimization
         int desired_phase_plan_index = 0;
 
         bool enable_so_logging = true;
-        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
+        arbitrator->set_enable_so_logging(enable_so_logging);
+        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
         desired_phase_plan_index++;
         ASSERT_EQ(1, delay_measure_1);
-        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
+        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
         ASSERT_EQ(20000, delay_measure_2);
     }
 
@@ -1055,14 +1057,15 @@ namespace streets_signal_optimization
 
         // Calculate delay measures
         bool enable_so_logging = true;
+        arbitrator->set_enable_so_logging(enable_so_logging);
         int desired_phase_plan_index = 0;
         std::unordered_map<int, float> ddp_index_delay_measure_mappings;
-        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
+        float delay_measure_1 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
         ASSERT_EQ(1, delay_measure_1);
         ddp_index_delay_measure_mappings.insert({desired_phase_plan_index, delay_measure_1});
         desired_phase_plan_index++;
 
-        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index], enable_so_logging);
+        float delay_measure_2 = arbitrator->calculate_delay_measure(schedule_ptr, dpp_list[desired_phase_plan_index]);
         ASSERT_EQ(20000, delay_measure_2);
         ddp_index_delay_measure_mappings.insert({desired_phase_plan_index, delay_measure_2});
 

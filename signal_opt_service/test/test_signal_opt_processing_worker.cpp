@@ -237,12 +237,11 @@ namespace signal_opt_service
                         updates.push_back(up);
                     }
                 }
-                return updates;
             }
             else {
                 SPDLOG_ERROR("vehicle update is not array!");
-                throw streets_vehicles::status_intent_processing_exception("vehicle update is not array!");
             }
+            return updates;
         }
     };
 
@@ -324,7 +323,9 @@ namespace signal_opt_service
             }
         }
 
-        so_processing_worker->configure_dpp_optimizer(dpp_config);
+        bool enable_so_logging = true;
+        so_processing_worker->set_enable_so_logging(enable_so_logging);
+        so_processing_worker->configure_signal_opt_processing_worker(dpp_config);
         try
         {
             so_processing_worker->select_optimal_dpp(intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, movement_group_list, dpp_config);
@@ -355,13 +356,13 @@ namespace signal_opt_service
             veh_list_ptr->process_update(update);
         }
         ASSERT_EQ(veh_list_ptr->get_vehicles().size(), 2);
-        auto chosen_dpp = so_processing_worker->select_optimal_dpp(intersection_info, spat_msg_ptr, tsc_state, veh_list_ptr, movement_group_list, dpp_config);
+        auto chosen_dpp = so_processing_worker->select_optimal_dpp(intersection_info, spat_msg_ptr, tsc_state, 
+                                                                    veh_list_ptr, movement_group_list, dpp_config);
         ASSERT_TRUE(chosen_dpp.desired_phase_plan.size() == 2);
 
     }
 
-
-    TEST_F(test_signal_opt_processing_worker, configure_dpp_optimizer) {
+    TEST_F(test_signal_opt_processing_worker, test_configure_signal_opt_processing_worker) {
 
         auto so_processing_worker = std::make_shared<signal_opt_processing_worker>();
         streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config;
@@ -376,10 +377,10 @@ namespace signal_opt_service
         dpp_config.max_green = 100000;
         dpp_config.desired_future_move_group_count = 2;
 
-        so_processing_worker->configure_dpp_optimizer(dpp_config);
-
-        auto dpp_generator_ptr = so_processing_worker->get_dpp_generator();
+        so_processing_worker->configure_signal_opt_processing_worker(dpp_config);
+        ASSERT_TRUE(so_processing_worker->get_is_configured());
         
+        auto dpp_generator_ptr = so_processing_worker->dpp_generator_ptr;
         ASSERT_EQ( dpp_generator_ptr->get_initial_green_buffer(), 1500);
         ASSERT_EQ( dpp_generator_ptr->get_final_green_buffer(), 1000);
         ASSERT_EQ( dpp_generator_ptr->get_et_inaccuracy_buffer(), 2000);
@@ -387,7 +388,7 @@ namespace signal_opt_service
         ASSERT_EQ( dpp_generator_ptr->get_so_radius(), 150);
         ASSERT_EQ( dpp_generator_ptr->get_min_green(), 6000);
         ASSERT_EQ( dpp_generator_ptr->get_max_green(), 100000);
-        ASSERT_EQ( dpp_generator_ptr->get_desired_future_move_group_count(), 2);
+        ASSERT_EQ( dpp_generator_ptr->get_desired_future_move_group_count(), 2);        
 
 
     }

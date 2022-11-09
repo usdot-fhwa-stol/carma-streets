@@ -11,8 +11,7 @@ namespace streets_signal_optimization
         const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
         uint64_t initial_green_buffer,
         uint64_t final_green_buffer, 
-        const double so_radius, 
-        const bool enable_so_logging) const
+        const double so_radius) const
     {
         streets_desired_phase_plan::streets_desired_phase_plan result;
         if (!dpp_list.empty())
@@ -42,10 +41,9 @@ namespace streets_signal_optimization
                 // set_timestamp for the all_schedule_ptr current Unix timestamp
                 calculate_vehicle_schedules(all_schedule_ptr, local_spat_ptr, veh_list_ptr, intersection_info_ptr, initial_green_buffer, final_green_buffer);
 
-                // Add those vehicles that are within SO radius to schedule_ptr
+                // Add vehicle schedules from all_schedule_ptr for vehicle that are in SO area.
                 auto schedule_ptr = std::make_shared<streets_vehicle_scheduler::signalized_intersection_schedule>();
                 schedule_ptr->timestamp = all_schedule_ptr->timestamp;
-                schedule_ptr->vehicle_schedules.clear();
                 for (const auto& veh_sched : all_schedule_ptr->vehicle_schedules) {
                     if (veh_sched.state == streets_vehicles::vehicle_state::EV && veh_list_ptr->get_vehicles().at(veh_sched.v_id)._cur_distance <= so_radius) {
                         schedule_ptr->vehicle_schedules.push_back(veh_sched);
@@ -53,7 +51,7 @@ namespace streets_signal_optimization
                 }
 
                 // Given vehicles' ET and EET from signalized intersection schedule, Calculate vehicles' delay measure for the current candidatedesired phase plan
-                float delay_measure = calculate_delay_measure(schedule_ptr, candidate_dpp, enable_so_logging);
+                float delay_measure = calculate_delay_measure(schedule_ptr, candidate_dpp);
 
                 // Add delay measure and candidatedesired phase plan index mapping to a list
                 ddp_delay_measures.insert({dpp_index, delay_measure});
@@ -63,13 +61,6 @@ namespace streets_signal_optimization
             if (ddp_delay_measures.empty())
             {
                 throw(streets_desired_phase_plan_arbitrator_exception("There is no desired phase plan and delay measures mapping."));
-            }
-
-            if (enable_so_logging) {
-                auto logger = spdlog::get("csv_so_logger");
-                if ( logger != nullptr ) {
-                    logger->info( "\n" );
-                }               
             }
 
             // Find the largest delay_measure value, and return final desired phase plan
@@ -110,8 +101,7 @@ namespace streets_signal_optimization
 
     float streets_desired_phase_plan_arbitrator::calculate_delay_measure(
         const std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr,
-        const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
-        const bool enable_so_logging) const
+        const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp) const
     {
         if (schedule_ptr->vehicle_schedules.empty())
         {
@@ -193,6 +183,12 @@ namespace streets_signal_optimization
         std::string so_info = "";
         // timestamp
         so_info += std::to_string(candidate_dpp.timestamp) + ",";
+        // candidate vehicle delay
+        so_info += std::to_string(candidate_vehicle_delay) + ",";
+        // TBD delay
+        so_info += std::to_string(TBD_delay) + ",";
+        // delay measure
+        so_info += std::to_string(delay_measure);
         for (const auto &move_group : candidate_dpp.desired_phase_plan) {
             // start time
             so_info += std::to_string(move_group.start_time) + ",";
@@ -203,13 +199,11 @@ namespace streets_signal_optimization
                 so_info += std::to_string(signal_group) + ",";
             }
         }
-        // candidate vehicle delay
-        so_info += std::to_string(candidate_vehicle_delay) + ",";
-        // TBD delay
-        so_info += std::to_string(TBD_delay) + ",";
-        // delay measure
-        so_info += std::to_string(delay_measure);
 
         return so_info;
+    }
+
+    void streets_desired_phase_plan_arbitrator::set_enable_so_logging(const bool _enable_so_logging) {
+        enable_so_logging = _enable_so_logging;
     }
 }

@@ -14,6 +14,12 @@ namespace streets_signal_optimization
 {
     class streets_desired_phase_plan_arbitrator
     {
+    private:
+        /**
+         * @brief The bool flag to enable signal optimization calculation csv logging.
+         */   
+        bool enable_so_logging = false;
+
     public:
         streets_desired_phase_plan_arbitrator() = default;
         ~streets_desired_phase_plan_arbitrator() = default;
@@ -28,7 +34,6 @@ namespace streets_signal_optimization
          * @param initial_green_buffer A configuration parameter for green phase.
          * @param final_green_buffer A configuration parameter for green phase.
          * @param so_radius The configurable distance in meters defined as the radius of the signal optimization (SO) area.
-         * @param enable_so_logging A bool parameter indicating if the calculation details must be saved in a CSV.
          */
         streets_desired_phase_plan::streets_desired_phase_plan select_optimal_dpp(
             const std::vector<streets_desired_phase_plan::streets_desired_phase_plan> &dpp_list,
@@ -38,8 +43,7 @@ namespace streets_signal_optimization
             const std::shared_ptr<streets_vehicles::vehicle_list> veh_list_ptr,
             uint64_t initial_green_buffer,
             uint64_t final_green_buffer, 
-            const double so_radius, 
-            const bool enable_so_logging) const;
+            const double so_radius) const;
 
         /**
          * @brief Update the local copy of spat object with the desired phase plan.
@@ -74,13 +78,11 @@ namespace streets_signal_optimization
          *
          * @param schedule_ptr A schedule pointer that points to schedule object with list of vehicle schedules.
          * @param candidate_dpp  The current candidate  desired phase plan.
-         * @param enable_so_logging A bool parameter indicating if the calculation details must be saved in a CSV.
          * @return float The calculated delay measure.
          */
         float calculate_delay_measure(
             const std::shared_ptr<streets_vehicle_scheduler::signalized_intersection_schedule> schedule_ptr,
-            const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp,
-            const bool enable_so_logging) const;
+            const streets_desired_phase_plan::streets_desired_phase_plan &candidate_dpp) const;
 
         /**
          * @brief Find the desired phase plan based on the highest delay measure.
@@ -110,5 +112,10 @@ namespace streets_signal_optimization
                                     const u_int64_t candidate_vehicle_delay, 
                                     const u_int64_t TBD_delay, 
                                     const float delay_measure) const;
+
+        /**
+         * @brief Method to set enable_so_logging.
+        */
+        void set_enable_so_logging(const bool _enable_so_logging);
     };
 }

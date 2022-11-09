@@ -7,7 +7,7 @@ namespace signal_opt_service
         try
         {
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
-            configure_so_processing_worker();
+            _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
 
             movement_groups_ptr = std::make_shared<streets_signal_optimization::movement_groups>();
             vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
@@ -38,7 +38,7 @@ namespace signal_opt_service
             if (!_spat_consumer->init() || !_vsi_consumer->init() || !_tsc_config_consumer->init() )
             {
                 SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer  or _vsi_consumer ) initialize error!");
-                exit(EXIT_FAILURE);
+                return false;
             }
             else
             {
@@ -48,31 +48,45 @@ namespace signal_opt_service
                 if (!_spat_consumer->is_running() || !_vsi_consumer->is_running() || !_tsc_config_consumer->is_running())
                 {
                     SPDLOG_CRITICAL("kafka consumers ( _spat_consumer, _tsc_config_consumer or _vsi_consumer) is not running!");
-                    exit(EXIT_FAILURE);
+                    return false;
                 }
             }
 
             if(!_dpp_producer->init())
             {
                 SPDLOG_CRITICAL("kafka producer (_dpp_producer) initialize error!");
-                exit(EXIT_FAILURE);
+                return false;
             }
 
             // Create logger
-            if ( streets_service::streets_configuration::get_boolean_config("enable_so_logging") ) {
+            enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
+            if ( enable_so_logging ) {
                 configure_csv_logger();
+                _so_processing_worker_ptr->set_enable_so_logging(enable_so_logging);
             }
 
-            // Serice config
+            // Service config
             auto sleep_millisecs = streets_service::streets_configuration::get_int_config("sleep_millisecs");
             auto int_client_request_attempts = streets_service::streets_configuration::get_int_config("int_client_request_attempts");            
-
             // HTTP request to update intersection information
             if (!update_intersection_info(sleep_millisecs, int_client_request_attempts))
             {
                 SPDLOG_CRITICAL("Failed to initialize signal_opt_service due to intersection client request failure!");
                 return false;
             }
+
+            //Read so_processing_worker configuration parameters
+            dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
+            dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
+            dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
+            dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
+            dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
+            dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
+            dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
+            dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+            _so_processing_worker_ptr->configure_signal_opt_processing_worker(dpp_config);
+
+            so_sleep_time = streets_service::streets_configuration::get_int_config("signal_optimization_frequency");
 
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
@@ -101,7 +115,8 @@ namespace signal_opt_service
                                                             this->spat_ptr, 
                                                             this->tsc_configuration_ptr,
                                                             this->movement_groups_ptr,
-                                                            this->dpp_config);
+                                                            this->dpp_config,
+                                                            this->so_sleep_time);
         // Running in parallel
         spat_t.join();
         vsi_t.join();
@@ -156,19 +171,30 @@ namespace signal_opt_service
                                 const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr, 
                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr, 
                                 const std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups_ptr,
-                                const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config) const
+                                const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config,
+                                const int &_so_sleep_time) const
     {
+        // auto is_so_processing_worker_configured = _so_processing_worker_ptr->get_is_configured();
+        if (!_so_processing_worker_ptr->get_is_configured()) {
+            _so_processing_worker_ptr->configure_signal_opt_processing_worker(_dpp_config);
+        }
         
-        SPDLOG_DEBUG("Starting desired phase plan producer thread.");
-        int sleep_millisecs = streets_service::streets_configuration::get_int_config("dpp_producer_sleep_time");
-        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
+        auto sleep_secs = static_cast<unsigned int>(_so_sleep_time / 1000);
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
         while ( dpp_producer->is_running() ) {
             
-            // First, convert the spat to desired phase plan
-            streets_desired_phase_plan::streets_desired_phase_plan spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
+            streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
+            try
+            {
+                spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
+            }
+            catch(const streets_signal_optimization::streets_desired_phase_plan_generator_exception &ex)
+            {
+                SPDLOG_ERROR("dpp_generator_ptr is not initialized! : {0} ", ex.what());
+            }
             current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
+
             /**
              * If the number of future movement groups in the spat has changed compared to the previous step
              * and it is less than or equal to the desired number of future movement groups, run streets_signal_optimization
@@ -178,8 +204,13 @@ namespace signal_opt_service
                 SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
                                                             prev_future_move_group_count, current_future_move_group_count);
                 if (current_future_move_group_count <= _dpp_config.desired_future_move_group_count) {
-                    streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = _so_processing_worker_ptr->
-                            select_optimal_dpp(_intersection_info_ptr, _spat_ptr, _tsc_config_ptr, _vehicle_list_ptr, _movement_groups_ptr, _dpp_config);
+                    streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
+                                _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
+                                                                            _spat_ptr, 
+                                                                            _tsc_config_ptr, 
+                                                                            _vehicle_list_ptr, 
+                                                                            _movement_groups_ptr, 
+                                                                            _dpp_config);
                     std::string msg_to_send = optimal_dpp.toJson();
                     /* produce the optimal desired phase plan to kafka */
                     dpp_producer->send(msg_to_send);
@@ -259,20 +290,6 @@ namespace signal_opt_service
         // If failed to update the intersection information after certain numbers of attempts
         SPDLOG_ERROR("Updating Intersection information failed. ");
         return false;
-    }
-
-    void signal_opt_service::configure_so_processing_worker() {
-        _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
-        //Parameter config
-        dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
-        dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
-        dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
-        dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
-        dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
-        dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
-        dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
-        dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
-        _so_processing_worker_ptr->configure_dpp_optimizer(dpp_config);
     }
 
     void signal_opt_service::configure_csv_logger() const

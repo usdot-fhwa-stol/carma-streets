@@ -69,9 +69,9 @@
             "type": "INTEGER"
         },
         {
-            "name": "dpp_producer_sleep_time",
+            "name": "signal_optimization_frequency",
             "value": 1000,
-            "description": "dpp_producer thread sleep in milliseconds",
+            "description": "The time interval between two iterations of calling signal optimization libraries in the dpp_producer thread",
             "type": "INTEGER"
         },
         {
@@ -112,7 +112,7 @@
         },
         {
             "name": "queue_max_time_headway",
-            "value": 3000,
+            "value": 0,
             "description": "The configurable time headway in milliseconds that defines the maximum allowed time headway between the estimated entering time (ET) of two consecutive vehicles within a queue.",
             "type": "INTEGER"
         },
@@ -125,13 +125,13 @@
         {
             "name": "min_green",
             "value": 5000,
-            "description": "The configurable minimum green duration in milliseconds. This minimum green duration is used for all signal groups.",
+            "description": "The configurable minimum green duration in milliseconds. This minimum green duration is used for all signal groups. Note that any min_green set here shall be greater than, or equal to, the min_green set for any active phase on the controller. Otherwise it won't be achievable.",
             "type": "INTEGER"
         },
         {
             "name": "max_green",
             "value": 120000,
-            "description": "The configurable maximum green duration in milliseconds. This maximum green duration is used for all signal groups.",
+            "description": "The configurable maximum green duration in milliseconds. This maximum green duration is used for all signal groups. Note that any max_green set here shall be greater than, or equal to, the max_green set for any active phase on the controller. Otherwise it won't be achievable.",
             "type": "INTEGER"
         },
         {

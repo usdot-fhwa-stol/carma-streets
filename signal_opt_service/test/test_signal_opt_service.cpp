@@ -8,7 +8,6 @@
 
 using testing::_;
 using testing::Return;
-using testing::AtLeast;
 
 /**
  * @brief Test signal opt service initialize method.
@@ -22,26 +21,6 @@ TEST(signal_opt_service, initialize)
 /**
  * @brief Test signal opt service update intersection info method.
  */
-
-namespace signal_opt_service {
-TEST(signal_opt_service, configure_so_processing_worker)
-{   
-    signal_opt_service so_service;
-    so_service.configure_so_processing_worker();
-
-    auto dpp_generator_ptr = so_service._so_processing_worker_ptr->get_dpp_generator();
-    ASSERT_EQ( dpp_generator_ptr->get_initial_green_buffer(), 2000);
-    ASSERT_EQ( dpp_generator_ptr->get_final_green_buffer(), 2000);
-    ASSERT_EQ( dpp_generator_ptr->get_et_inaccuracy_buffer(), 0);
-    ASSERT_EQ( dpp_generator_ptr->get_queue_max_time_headway(), 3000);
-    ASSERT_EQ( dpp_generator_ptr->get_so_radius(), 200);
-    ASSERT_EQ( dpp_generator_ptr->get_min_green(), 5000);
-    ASSERT_EQ( dpp_generator_ptr->get_max_green(), 120000);
-    ASSERT_EQ( dpp_generator_ptr->get_desired_future_move_group_count(), 1);
-}
-}
-
-
 TEST(signal_opt_service, update_intersection_info)
 {   
     signal_opt_service::signal_opt_service so_service;
@@ -51,10 +30,11 @@ TEST(signal_opt_service, update_intersection_info)
 /**
  * @brief Test produce dpp with mock kafka producer.
  */
-TEST(signal_opt_service, produce_dpp) {
+namespace signal_opt_service {
+TEST(signal_opt_service, test_produce_dpp) {
         
-    signal_opt_service::signal_opt_service so_service;
-    so_service.configure_so_processing_worker();
+    signal_opt_service so_service;
+    so_service._so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
     auto mock_dpp_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
     
     // Create mock intersection_info_ptr
@@ -147,8 +127,8 @@ TEST(signal_opt_service, produce_dpp) {
     veh_list_ptr->process_update(json_vehicle_1);
     veh_list_ptr->process_update(json_vehicle_2);
 
-    std::string json_dpp = "{\"timestamp\": 12121212121, \"desired_phase_plan\": [{\"signal_groups\": [2], \"start_time\": 1660747993, \"end_time\": 1660747998}, {\"signal_groups\": [1, 3], \"start_time\": 1660747993, \"end_time\": 1660747998}]}";
-
+    int so_sleep_time = 1000;
+    // std::string json_dpp = "{\"timestamp\": 12121212121, \"desired_phase_plan\": [{\"signal_groups\": [2], \"start_time\": 1660747993, \"end_time\": 1660747998}, {\"signal_groups\": [1, 3], \"start_time\": 1660747993, \"end_time\": 1660747998}]}";
 
     EXPECT_CALL(*mock_dpp_producer,is_running()).Times(3).WillOnce(Return(false))
                                                         .WillOnce(Return(true))
@@ -157,11 +137,26 @@ TEST(signal_opt_service, produce_dpp) {
     EXPECT_CALL(*mock_dpp_producer, send(_)).Times(1);
 
     // try to produce chosen dpp while kafka producer is not running.
-    so_service.produce_dpp(mock_dpp_producer, intersection_info_ptr, veh_list_ptr, spat_ptr, tsc_config_ptr, move_groups_ptr, dpp_config);
+    so_service.produce_dpp(mock_dpp_producer, 
+                            intersection_info_ptr, 
+                            veh_list_ptr, 
+                            spat_ptr, 
+                            tsc_config_ptr, 
+                            move_groups_ptr, 
+                            dpp_config, 
+                            so_sleep_time);
 
     // produce chosen dpp while kafka producer is running.
     // After sending 1 chosen dpp, kafka producer stops running.
-    so_service.produce_dpp(mock_dpp_producer, intersection_info_ptr, veh_list_ptr, spat_ptr, tsc_config_ptr, move_groups_ptr, dpp_config);
+    so_service.produce_dpp(mock_dpp_producer, 
+                            intersection_info_ptr, 
+                            veh_list_ptr, 
+                            spat_ptr, 
+                            tsc_config_ptr, 
+                            move_groups_ptr, 
+                            dpp_config,  
+                            so_sleep_time);
+}
 }
 
 /**
