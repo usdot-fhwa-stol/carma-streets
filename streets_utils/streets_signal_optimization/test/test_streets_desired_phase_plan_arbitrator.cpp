@@ -1107,7 +1107,7 @@ namespace streets_signal_optimization
         int lines_count = boost::count( csv_log, '\n');
         ASSERT_EQ( lines_count, 0);
         int cell_count = boost::count( csv_log, ',');
-        ASSERT_EQ( cell_count, 15);
+        ASSERT_EQ( cell_count, 16);
     }
 
 }

@@ -188,17 +188,9 @@ namespace streets_signal_optimization
         // TBD delay
         so_info += std::to_string(TBD_delay) + ",";
         // delay measure
-        so_info += std::to_string(delay_measure);
-        for (const auto &move_group : candidate_dpp.desired_phase_plan) {
-            // start time
-            so_info += std::to_string(move_group.start_time) + ",";
-            // end time
-            so_info += std::to_string(move_group.end_time) + ",";
-            // signal groups
-            for (const auto &signal_group : move_group.signal_groups) {
-                so_info += std::to_string(signal_group) + ",";
-            }
-        }
+        so_info += std::to_string(delay_measure) + ",";
+        //desired phase plan
+        so_info += candidate_dpp.toJson();
 
         return so_info;
     }
