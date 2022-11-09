@@ -24,6 +24,11 @@ namespace signal_opt_service
         std::string _tsc_config_group_id;
         std::string _tsc_config_topic_name;
         std::string _dpp_topic_name;
+        std::string _so_log_path;
+        std::string _so_log_filename;
+        int _exp_delta;
+        bool enable_so_logging = false;
+        int so_sleep_time;
 
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
@@ -37,10 +42,9 @@ namespace signal_opt_service
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr;
 
-        bool enable_so_logging = false;
-        int so_sleep_time;
 
         FRIEND_TEST(signal_opt_service, test_produce_dpp);
+        FRIEND_TEST(signal_opt_service, test_read_configuration_params);
 
     public:
         /**
@@ -126,5 +130,10 @@ namespace signal_opt_service
          * @brief Method to configure spdlog::logger for logging signal optimization metrics into daily rotating csv file.
          */
         void configure_csv_logger() const;
+
+        /**
+         * @brief Method for reading the configuration parameters from manifest.json.
+        */
+        void read_configuration_params();
     };
 }

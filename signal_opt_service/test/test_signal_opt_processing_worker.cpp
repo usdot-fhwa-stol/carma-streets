@@ -366,8 +366,7 @@ namespace signal_opt_service
 
         auto so_processing_worker = std::make_shared<signal_opt_processing_worker>();
         streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config;
-
-
+        
         dpp_config.initial_green_buffer = 1500; 
         dpp_config.final_green_buffer = 1000;
         dpp_config.et_inaccuracy_buffer = 2000;

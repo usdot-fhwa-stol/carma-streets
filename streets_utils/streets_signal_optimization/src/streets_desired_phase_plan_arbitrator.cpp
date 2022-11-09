@@ -137,7 +137,7 @@ namespace streets_signal_optimization
         SPDLOG_DEBUG("calculated delay_measure (= candidate/TBD) = {0}", delay_measure);
 
         if (enable_so_logging) {
-            auto logger = spdlog::get("csv_so_logger");
+            auto logger = spdlog::get("so_csv_logger");
             if ( logger != nullptr ) {
                 logger->info( dpp_delay_toCSV(candidate_dpp, candidate_vehicles_delay, TBD_delay, delay_measure) );
             }

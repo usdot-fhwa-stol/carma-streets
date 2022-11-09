@@ -70,7 +70,7 @@
         },
         {
             "name": "signal_optimization_frequency",
-            "value": 1000,
+            "value": 4000,
             "description": "The time interval between two iterations of calling signal optimization libraries in the dpp_producer thread",
             "type": "INTEGER"
         },

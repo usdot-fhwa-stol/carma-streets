@@ -27,10 +27,42 @@ TEST(signal_opt_service, update_intersection_info)
     ASSERT_FALSE(so_service.initialize());
     ASSERT_FALSE(so_service.update_intersection_info(1000, 1));
 }
+namespace signal_opt_service {
+/**
+ * @brief Test read configuration parameters from manifest.json.
+ */
+TEST(signal_opt_service, test_read_configuration_params)
+{
+    signal_opt_service so_service;
+    so_service.read_configuration_params();
+
+    ASSERT_EQ( so_service._exp_delta, 60000);
+    ASSERT_EQ( so_service._bootstrap_server, "127.0.0.1:9092");
+    ASSERT_EQ( so_service._spat_topic_name, "modified_spat");
+    ASSERT_EQ( so_service._spat_group_id, "spat_msg_group");
+    ASSERT_EQ( so_service._vsi_topic_name, "vehicle_status_intent_output");
+    ASSERT_EQ( so_service._vsi_group_id, "vsi_msg_group");
+    ASSERT_EQ( so_service._tsc_config_topic_name, "tsc_config_state");
+    ASSERT_EQ( so_service._tsc_config_group_id, "tsc_config_group");
+    ASSERT_EQ( so_service._dpp_topic_name, "desired_phase_plan");
+    ASSERT_EQ( so_service._so_log_path, "../logs/");
+    ASSERT_EQ( so_service._so_log_filename, "soLogs");
+    ASSERT_EQ( so_service.enable_so_logging, true);
+    ASSERT_EQ( so_service.so_sleep_time, 4000);
+
+    ASSERT_EQ( so_service.dpp_config.initial_green_buffer, 2000);
+    ASSERT_EQ( so_service.dpp_config.final_green_buffer, 2000);
+    ASSERT_EQ( so_service.dpp_config.et_inaccuracy_buffer, 0);
+    ASSERT_EQ( so_service.dpp_config.queue_max_time_headway, 0);
+    ASSERT_EQ( so_service.dpp_config.so_radius, 200.0);
+    ASSERT_EQ( so_service.dpp_config.min_green, 5000);
+    ASSERT_EQ( so_service.dpp_config.max_green, 120000);
+    ASSERT_EQ( so_service.dpp_config.desired_future_move_group_count, 1);
+}
+
 /**
  * @brief Test produce dpp with mock kafka producer.
  */
-namespace signal_opt_service {
 TEST(signal_opt_service, test_produce_dpp) {
         
     signal_opt_service so_service;

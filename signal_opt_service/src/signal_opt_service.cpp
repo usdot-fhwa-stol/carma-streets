@@ -6,13 +6,15 @@ namespace signal_opt_service
     {
         try
         {
+            read_configuration_params();
+            
             _so_msgs_worker_ptr = std::make_shared<signal_opt_messages_worker>();
             _so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
 
             movement_groups_ptr = std::make_shared<streets_signal_optimization::movement_groups>();
             vehicle_list_ptr = std::make_shared<streets_vehicles::vehicle_list>();
             auto processor = std::make_shared<streets_vehicles::signalized_status_intent_processor>();
-            processor->set_timeout(streets_service::streets_configuration::get_int_config("exp_delta"));
+            processor->set_timeout(_exp_delta);
             vehicle_list_ptr->set_processor(processor);
             intersection_info_ptr = std::make_shared<OpenAPI::OAIIntersection_info>();
             spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
@@ -20,15 +22,6 @@ namespace signal_opt_service
 
             // Kafka config
             auto client = std::make_unique<kafka_clients::kafka_client>();
-            _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
-            _spat_topic_name = streets_service::streets_configuration::get_string_config("spat_consumer_topic");
-            _spat_group_id = streets_service::streets_configuration::get_string_config("spat_group_id");
-            _vsi_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
-            _vsi_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
-            _tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_consumer_topic");
-            _tsc_config_group_id = streets_service::streets_configuration::get_string_config("tsc_config_group_id");
-            _dpp_topic_name = streets_service::streets_configuration::get_string_config("dpp_producer_topic");
-
             _spat_consumer = client->create_consumer(_bootstrap_server, _spat_topic_name, _spat_group_id);
             _vsi_consumer = client->create_consumer(_bootstrap_server, _vsi_topic_name, _vsi_group_id);
             _tsc_config_consumer = client->create_consumer(_bootstrap_server, _tsc_config_topic_name, _tsc_config_group_id);
@@ -59,7 +52,6 @@ namespace signal_opt_service
             }
 
             // Create logger
-            enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
             if ( enable_so_logging ) {
                 configure_csv_logger();
                 _so_processing_worker_ptr->set_enable_so_logging(enable_so_logging);
@@ -75,18 +67,8 @@ namespace signal_opt_service
                 return false;
             }
 
-            //Read so_processing_worker configuration parameters
-            dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
-            dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
-            dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
-            dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
-            dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
-            dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
-            dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
-            dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+            //Configure signal_opt_processing_worker
             _so_processing_worker_ptr->configure_signal_opt_processing_worker(dpp_config);
-
-            so_sleep_time = streets_service::streets_configuration::get_int_config("signal_optimization_frequency");
 
             SPDLOG_INFO("signal_opt_service initialized successfully!!!");
             return true;
@@ -174,7 +156,6 @@ namespace signal_opt_service
                                 const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config,
                                 const int &_so_sleep_time) const
     {
-        // auto is_so_processing_worker_configured = _so_processing_worker_ptr->get_is_configured();
         if (!_so_processing_worker_ptr->get_is_configured()) {
             _so_processing_worker_ptr->configure_signal_opt_processing_worker(_dpp_config);
         }
@@ -295,12 +276,10 @@ namespace signal_opt_service
     void signal_opt_service::configure_csv_logger() const
     {
         try{
-            SPDLOG_INFO("csv log path: {0}", streets_service::streets_configuration::get_string_config("so_log_path") + 
-                    streets_service::streets_configuration::get_string_config("so_log_filename") + ".csv");
+            SPDLOG_INFO("csv log path: {0}", _so_log_path + _so_log_filename + ".csv");
             auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "csv_so_logger",  // logger name
-                streets_service::streets_configuration::get_string_config("so_log_path")+
-                    streets_service::streets_configuration::get_string_config("so_log_filename") +".csv",  // log file name and path
+                "so_csv_logger",  // logger name
+                _so_log_path + _so_log_filename +".csv",  // log file name and path
                 23, // hours to rotate
                 59 // minutes to rotate
                 );
@@ -313,6 +292,33 @@ namespace signal_opt_service
             spdlog::error( "Log initialization failed: {0}!",ex.what());
         }
     }
+
+    void signal_opt_service::read_configuration_params() 
+    {
+        _exp_delta = streets_service::streets_configuration::get_int_config("exp_delta");
+        _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
+        _spat_topic_name = streets_service::streets_configuration::get_string_config("spat_consumer_topic");
+        _spat_group_id = streets_service::streets_configuration::get_string_config("spat_group_id");
+        _vsi_topic_name = streets_service::streets_configuration::get_string_config("vsi_consumer_topic");
+        _vsi_group_id = streets_service::streets_configuration::get_string_config("vsi_group_id");
+        _tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_consumer_topic");
+        _tsc_config_group_id = streets_service::streets_configuration::get_string_config("tsc_config_group_id");
+        _dpp_topic_name = streets_service::streets_configuration::get_string_config("dpp_producer_topic");
+        _so_log_path = streets_service::streets_configuration::get_string_config("so_log_path");
+        _so_log_filename = streets_service::streets_configuration::get_string_config("so_log_filename");
+        enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
+        so_sleep_time = streets_service::streets_configuration::get_int_config("signal_optimization_frequency");
+
+        dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
+        dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
+        dpp_config.et_inaccuracy_buffer = streets_service::streets_configuration::get_int_config("et_inaccuracy_buffer");
+        dpp_config.queue_max_time_headway = streets_service::streets_configuration::get_int_config("queue_max_time_headway");
+        dpp_config.so_radius = streets_service::streets_configuration::get_double_config("so_radius");
+        dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
+        dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
+        dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+    }
+
 
     signal_opt_service::~signal_opt_service()
     {
