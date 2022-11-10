@@ -77,7 +77,7 @@ namespace traffic_signal_controller_service
                     uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_min_end_time();
                     // If red phase end - current time is less than or equal to red clearance then this phase is currently in red clearance
                     // and will get green next.
-                    if ( local_start_time_epoch - cur_time_since_epoch <= red_phase_configuration.red_clearance ) {
+                    if ( local_start_time_epoch - cur_time_since_epoch <= (uint) (red_phase_configuration.red_clearance) ) {
                         start_time_epoch_ms = local_start_time_epoch;
                     }
 

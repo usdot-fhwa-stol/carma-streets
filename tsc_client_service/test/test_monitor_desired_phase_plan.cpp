@@ -621,7 +621,7 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs+100, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs+100, movement_event.timing.min_end_time);
                         }
                         else
                         {
@@ -633,12 +633,12 @@ namespace traffic_signal_controller_service
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); // last 10 secs
+                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -662,23 +662,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 20 secs from the last red
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); // last 10 secs, but it starts with second desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -702,23 +702,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.min_end_time);
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 10 secs from the last red.
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); // last 10 secs, but it starts with third desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -742,23 +742,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 10 secs from the last red
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 10 secs, but it starts with fourth desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -835,23 +835,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 30 secs
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); // last 10 secs
+                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -875,12 +875,12 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs + 10)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.min_end_time); // start with yellow (current yellow duration intial =0), and change red start time = yellow start time and end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 20 secs from the last red
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
@@ -888,18 +888,18 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs )
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
+                            ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time);
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
+                            ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); 
                         }
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: // Green
                         ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); // last 10 secs, but it starts with second desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time);
                         state_name = "green";
                         break;
 
@@ -923,23 +923,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 10 secs from the last red.
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); // last 10 secs, but it starts with third desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time);
                         state_name = "green";
                         break;
 
@@ -963,23 +963,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 10 secs from the last red
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 10 secs, but it starts with fourth desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -1054,23 +1054,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs )
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 30 secs
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance: //Yellow
                         ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 110, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed://Green
                         ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); // last 10 secs
+                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time);
                         state_name = "green";
                         break;
 
@@ -1094,23 +1094,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.min_end_time); // start with yellow (current yellow duration intial =0), and change red start time = yellow start time and end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 20 secs from the last red
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance: // Yellow
                         ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time);
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: // Green
                         ASSERT_EQ(current_hour_in_tenths_secs + 125, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); // last 10 secs, but it starts with second desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
@@ -1134,23 +1134,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 10 secs from the last red.
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 310, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 225, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time); // last 10 secs, but it starts with third desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 300, movement_event.timing.min_end_time);
                         state_name = "green";
                         break;
 
@@ -1174,23 +1174,23 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.min_end_time); // start with red, and change red end time to green start time
+                            ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.min_end_time); 
                         }
                         else
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); // last 10 secs from the last red
+                            ASSERT_EQ(current_hour_in_tenths_secs + 425, movement_event.timing.min_end_time); 
                         }
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
                         ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.min_end_time); // last 0 secs as desired yellow duration and red clearance are initial 0.
+                        ASSERT_EQ(current_hour_in_tenths_secs + 410, movement_event.timing.min_end_time); 
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
                         ASSERT_EQ(current_hour_in_tenths_secs + 325, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); // last 10 secs, but it starts with fourth desired green
+                        ASSERT_EQ(current_hour_in_tenths_secs + 400, movement_event.timing.min_end_time); 
                         state_name = "green";
                         break;
 
