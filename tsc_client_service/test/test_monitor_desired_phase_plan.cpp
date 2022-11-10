@@ -419,7 +419,7 @@ namespace traffic_signal_controller_service
                 // Define get min green
                 std::string min_green_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(i);
                 snmp_response_obj min_green;
-                min_green.val_int = 50;
+                min_green.val_int = 5;
                 EXPECT_CALL(*mock_snmp, process_snmp_request(min_green_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
                     SetArgReferee<2>(min_green), 
                     Return(true)));
@@ -1104,16 +1104,8 @@ namespace traffic_signal_controller_service
                         state_name = "red";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance: // Yellow
-                        // if (movement_event.timing.start_time == current_hour_in_tenths_secs)
-                        // {
-                        //     ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                        //     ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
-                        // }
-                        // else
-                        // {
-                            ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
-                        // }
+                        ASSERT_EQ(current_hour_in_tenths_secs + 200, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 210, movement_event.timing.min_end_time); // last 0 secs as current yellow duration is initial 0.
                         state_name = "yellow";
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: // Green
@@ -1212,5 +1204,165 @@ namespace traffic_signal_controller_service
         /****
          * END: Test Scenario three
          * ***/
+    }
+
+    TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red) {
+        // Initialize tsc_state
+        mock_tsc_ntcip();
+        tsc_state_ptr->initialize();
+        // mock next phase NTCIP OID
+        snmp_response_obj next_phase;
+        next_phase.val_int = 68;
+        // Binary 01000100 -> phase 3 and phase 7 next green
+        std::string next_phase_oid = ntcip_oids::PHASE_STATUS_GROUP_PHASE_NEXT;
+        EXPECT_CALL(*mock_snmp, process_snmp_request(next_phase_oid, request_type::GET , _) ).Times(1).
+            WillRepeatedly(
+                testing::DoAll(
+                    SetArgReferee<2>(next_phase), 
+                    Return(true))
+                    );
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_three_ptr, tsc_state_ptr);
+
+        // End time will be yellow change + Red Clear + min Green + yellow change + RED Clear = 1+5+1+1.5 = 8.5s
+        for (auto movement_state : spat_msg_three_ptr->get_intersection().states)
+        {
+            int sg = (int)movement_state.signal_group;
+            if (sg == 1 || sg == 5 || sg == 4 || sg == 8 || sg == 2 || sg == 6)
+            {
+                ASSERT_EQ( 1 ,movement_state.state_time_speed.size());
+                ASSERT_EQ( signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
+                ASSERT_EQ(current_hour_in_tenths_secs, movement_state.state_time_speed.front().timing.start_time);
+                ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_state.state_time_speed.front().timing.min_end_time);
+            }
+            else if (sg == 3 || sg == 7)
+            {
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); 
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 70, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_event.timing.min_end_time); 
+                        }
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 60, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 70, movement_event.timing.min_end_time); 
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 60, movement_event.timing.min_end_time); 
+                        break;
+
+                    default:
+                        GTEST_FATAL_FAILURE_( "There should be no movement events for SG3 or SG7 that are not RED or YELLOW!");
+                        break;
+                    }
+                }
+            }
+            
+        }
+
+    }
+
+    TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_yellow) {
+        // Initialize tsc_state
+        mock_tsc_ntcip();
+        tsc_state_ptr->initialize();
+        // mock next phase NTCIP OID
+        snmp_response_obj next_phase;
+        next_phase.val_int = 68;
+        // Binary 01000100 -> phase 3 and phase 7 next green
+        std::string next_phase_oid = ntcip_oids::PHASE_STATUS_GROUP_PHASE_NEXT;
+        EXPECT_CALL(*mock_snmp, process_snmp_request(next_phase_oid, request_type::GET , _) ).Times(1).
+            WillRepeatedly(
+                testing::DoAll(
+                    SetArgReferee<2>(next_phase), 
+                    Return(true))
+                    );
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_two_ptr, tsc_state_ptr);
+
+        // End time will be yellow change + Red Clear + min Green + yellow change + RED Clear = 1+1.5+5+1+1.5 = 10s
+        for (auto movement_state : spat_msg_two_ptr->get_intersection().states)
+        {
+            int sg = (int)movement_state.signal_group;
+            if (sg == 1 || sg == 5 || sg == 4 || sg == 8)
+            {
+                ASSERT_EQ( 1 ,movement_state.state_time_speed.size());
+                ASSERT_EQ( signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
+                ASSERT_EQ(current_hour_in_tenths_secs, movement_state.state_time_speed.front().timing.start_time);
+                ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_state.state_time_speed.front().timing.min_end_time);
+            }
+            else if (sg == 2 || sg == 6)
+            {
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain: // Red
+                        
+                        ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time);    
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance: // Yellow
+                        ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); 
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: // Green
+                        GTEST_FATAL_FAILURE_( "There should be no GREEN movement event for SGs 2 or 6!");
+                        break;
+
+                    default:
+                        GTEST_FATAL_FAILURE_( "There should be no movement events for SG2 or SG6 that are not RED or YELLOW!");
+                        break;
+                    }
+                }
+            }
+            else if (sg == 3 || sg == 7)
+            {
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.min_end_time); 
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); 
+                        }
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 75, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_event.timing.min_end_time); 
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 75, movement_event.timing.min_end_time); 
+                        break;
+
+                    default:
+                        GTEST_FATAL_FAILURE_( "There should be no movement events for SG3 or SG7 that are not RED or YELLOW!");
+                        break;
+                    }
+                }
+            }
+            
+        }
+
     }
 }
