@@ -76,19 +76,19 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     auto intersection_state = spat_object.get_intersection();
 
     /** Create a list of movement groups */
-    movement_groups move_groups;
+    std::shared_ptr<movement_groups> move_groups = std::make_shared<movement_groups>();
     movement_group mg1;
-    mg1.name = "movement_group 1";
+    mg1.name = "movement_group_1";
     mg1.signal_groups = {1, 3};
-    move_groups.groups.push_back(mg1);
+    move_groups->groups.push_back(mg1);
     movement_group mg2;
-    mg2.name = "movement_group 2";
+    mg2.name = "movement_group_2";
     mg2.signal_groups = {2, 0};
-    move_groups.groups.push_back(mg2);
+    move_groups->groups.push_back(mg2);
     movement_group mg3;
-    mg3.name = "movement_group 3";
+    mg3.name = "movement_group_3";
     mg3.signal_groups = {4, 0};
-    move_groups.groups.push_back(mg3);
+    move_groups->groups.push_back(mg3);
 
     streets_desired_phase_plan_generator generator;
     generator.set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
@@ -138,7 +138,6 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
 
 }
 
-// to-do : add a test for convert_spat_to_dpp failure case.
 
 
 /**
@@ -257,21 +256,6 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
         }
         d1_iterator += 1;
     }
-
-    /** Create a list of movement groups */
-    movement_groups move_groups;
-    movement_group mg1;
-    mg1.name = "movement_group 1";
-    mg1.signal_groups = {1, 3};
-    move_groups.groups.push_back(mg1);
-    movement_group mg2;
-    mg2.name = "movement_group 2";
-    mg2.signal_groups = {2, 0};
-    move_groups.groups.push_back(mg2);
-    movement_group mg3;
-    mg3.name = "movement_group 3";
-    mg3.signal_groups = {4, 0};
-    move_groups.groups.push_back(mg3);
 
     /** Add vehicle updates */
     vehicle veh_dv;
@@ -512,9 +496,36 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     std::unordered_map<std::string, vehicle> veh_list;
     veh_list.insert({{veh_dv._id, veh_dv}, {veh_ev1._id, veh_ev1}, {veh_ev2._id, veh_ev2}, {veh_ev3._id, veh_ev3}, {veh_ev4._id, veh_ev4}, {veh_ev5._id, veh_ev5}, {veh_ev6._id, veh_ev6}, {veh_ev7._id, veh_ev7}, {veh_ev8._id, veh_ev8}, {veh_ev9._id, veh_ev9}, {veh_ev10._id, veh_ev10}, {veh_ev11._id, veh_ev11}, {veh_ev12._id, veh_ev12}});
     
-
     /** Generate the list of desired phase plans. */
     generator.configure_scheduler(intersection);
+
+
+    /** First, try a failure case. The list of movement groups will include a signal group that 
+     *      does not exist in the intersection_info.
+    */
+
+    /** Create a list of movement groups */
+    auto move_groups = std::make_shared<movement_groups>();
+    movement_group mg1;
+    mg1.name = "movement_group_1";
+    mg1.signal_groups = {1, 3};
+    move_groups->groups.push_back(mg1);
+    movement_group mg2;
+    mg2.name = "movement_group_2";
+    mg2.signal_groups = {2, 0};
+    move_groups->groups.push_back(mg2);
+    movement_group mg3;
+    mg3.name = "movement_group_3";
+    mg3.signal_groups = {4, 5};
+    move_groups->groups.push_back(mg3);
+
+    ASSERT_THROW(generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups), 
+                                                            streets_desired_phase_plan_generator_exception);
+
+
+    /** Now, try a successful case by removing the signal group that does not exist in intersection_info. */
+    move_groups->groups.back().signal_groups.second = 0;
+
     std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list = generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups);
     uint64_t tbd_start_time = generator.find_tbd_start_time(intersection_state);
     ASSERT_LE( tbd_start_time, current_time + 10000 + 200);

@@ -4,6 +4,9 @@
 #include "signal_opt_processing_worker.h"
 #include "streets_configuration.h"
 #include "movement_group.h"
+#include "streets_desired_phase_plan_generator.h"
+#include "streets_desired_phase_plan_arbitrator.h"
+#include <gtest/gtest_prod.h>
 
 namespace signal_opt_service
 {
@@ -12,6 +15,7 @@ namespace signal_opt_service
     private:
         std::shared_ptr<signal_opt_messages_worker> _so_msgs_worker_ptr;
         std::shared_ptr<signal_opt_processing_worker> _so_processing_worker_ptr;
+
         std::string _bootstrap_server;
         std::string _spat_group_id;
         std::string _spat_topic_name;
@@ -19,16 +23,28 @@ namespace signal_opt_service
         std::string _vsi_topic_name;
         std::string _tsc_config_group_id;
         std::string _tsc_config_topic_name;
+        std::string _dpp_topic_name;
+        std::string _so_log_path;
+        std::string _so_log_filename;
+        int _exp_delta;
+        bool enable_so_logging = false;
+        int so_sleep_time;
+
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
-        uint64_t _initial_green_buffer = 0;
-        uint64_t _final_green_buffer = 0;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _tsc_config_consumer;
-        std::shared_ptr<movement_groups> _movement_groups;
+        std::shared_ptr<kafka_clients::kafka_producer_worker> _dpp_producer;
+        
+        streets_signal_optimization::streets_desired_phase_plan_generator_configuration dpp_config;
+        std::shared_ptr<streets_signal_optimization::movement_groups> movement_groups_ptr;
         std::shared_ptr<OpenAPI::OAIIntersection_info> intersection_info_ptr;
         std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
         std::shared_ptr<streets_vehicles::vehicle_list> vehicle_list_ptr;
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_configuration_ptr;
+
+
+        FRIEND_TEST(signal_opt_service, test_produce_dpp);
+        FRIEND_TEST(signal_opt_service, test_read_configuration_params);
 
     public:
         /**
@@ -74,13 +90,33 @@ namespace signal_opt_service
         void consume_tsc_config(const std::shared_ptr<kafka_clients::kafka_consumer_worker> tsc_config_consumer, 
                                 const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr) const;
         /**
+         * @brief Method to produce desired phase plan Json to kafka.
+         * 
+         * @param dpp_producer shared pointer to kafka producer.
+         * @param _intersection_info_ptr shared pointer to intersection info object.
+         * @param _vehicle_list_ptr shared pointer to vehicle list object.
+         * @param _spat_ptr shared pointer to spat object.
+         * @param _tsc_config_ptr shared pointer to tsc configuration state object.
+         * @param _movement_groups_ptr shared pointer to movement groups object.
+         * @param _dpp_config desired phase plan generator configuration object.
+         * @param _so_sleep_time the time interval between two iterations of calling signal optimization libraries
+         */
+        void produce_dpp(const std::shared_ptr<kafka_clients::kafka_producer_worker> dpp_producer,
+                               const std::shared_ptr<OpenAPI::OAIIntersection_info> _intersection_info_ptr, 
+                               const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr, 
+                               const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr, 
+                               const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> _tsc_config_ptr, 
+                               const std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups_ptr,
+                               const streets_signal_optimization::streets_desired_phase_plan_generator_configuration &_dpp_config,
+                               const int &_so_sleep_time) const;
+        /**
          * @brief Method to use the tsc_config_state pointer from the 
          * signal_opt_message_worker to populate movement_groups pointer
          * 
          * @param movement_groups shared pointer to list of movement groups
          * @param tsc_config shared pointer to tsc configuration state object.
          */
-        void populate_movement_groups(std::shared_ptr<movement_groups> _groups, 
+        void populate_movement_groups(std::shared_ptr<streets_signal_optimization::movement_groups> _groups, 
                                     const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config) const ;
         /**
          * @brief Updating the intersection info.
@@ -89,5 +125,15 @@ namespace signal_opt_service
          * @return boolean. True if intersection information is updated, otherwise failed to update intersection information
          */
         bool update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const;
+
+        /**
+         * @brief Method to configure spdlog::logger for logging signal optimization metrics into daily rotating csv file.
+         */
+        void configure_csv_logger() const;
+
+        /**
+         * @brief Method for reading the configuration parameters from manifest.json.
+        */
+        void read_configuration_params();
     };
 }

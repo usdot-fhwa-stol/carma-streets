@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-
+find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIRED)
@@ -29,6 +29,9 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC
+    Boost::system 
+    Boost::thread 
+    Boost::filesystem
     spdlog::spdlog
     streets_desired_phase_plan_lib
     intersection_client_api_lib
@@ -88,6 +91,9 @@ add_executable(${BINARY} ${TEST_SOURCES}
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC  
+                Boost::system 
+                Boost::thread 
+                Boost::filesystem
                 spdlog::spdlog
                 gtest 
                 ${PROJECT_NAME}_lib

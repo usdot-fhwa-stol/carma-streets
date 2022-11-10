@@ -64,6 +64,10 @@ namespace kafka_clients
         return true;
     }
 
+    bool kafka_producer_worker::is_running() const {
+        return _run;
+    }
+
     void kafka_producer_worker::send(const std::string &msg)
     {
 
