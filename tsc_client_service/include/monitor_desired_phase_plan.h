@@ -22,7 +22,7 @@ namespace traffic_signal_controller_service
          * 
          * @param client shared pointer to an initialized SNMP client for NTCIP next phase group requests.
          */
-        monitor_desired_phase_plan( const std::shared_ptr<snmp_client> client );
+        explicit monitor_desired_phase_plan( const std::shared_ptr<snmp_client> client );
         /**
          * @brief Destroy the monitor desired phase plan object
          * 
