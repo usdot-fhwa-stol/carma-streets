@@ -96,11 +96,8 @@ namespace streets_vehicles {
 		}
 
 			
-		/* the unit of the received speed from the message is 0.02 of meter per second
-		*  the unit of the speed defined in the vehicle class is meter per second. 
-		*/
 		if (payload.FindMember("cur_speed")->value.IsDouble()){
-			vehicle._cur_speed = payload["cur_speed"].GetDouble() * 0.02;
+			vehicle._cur_speed = payload["cur_speed"].GetDouble();
 		} else{
 			throw status_intent_processing_exception("The \"cur_speed\" " + vehicle._id + " is missing/incorrect in received update!");
 		}
