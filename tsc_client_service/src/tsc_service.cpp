@@ -201,6 +201,7 @@ namespace traffic_signal_controller_service {
                     }
                     
                     spat_producer->send(spat_ptr->toJson());
+                    // TODO: Increase sample size once we are confident latency does not have large spikes in small intervals.
                     if (count <= 20 ) {
                         uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();

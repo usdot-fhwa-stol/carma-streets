@@ -51,7 +51,9 @@ namespace traffic_signal_controller_service
             const std::shared_ptr<tsc_state> tsc_state)  const{
         // Find start time of next green
         bool is_yellow_change = false;
+        // Start time for fixed up coming green
         uint64_t start_time_epoch_ms = 0;
+        // Current time used for any calculations
         uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         auto state = spat_ptr->get_intersection();
 
@@ -61,9 +63,10 @@ namespace traffic_signal_controller_service
             if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance ) {
                 is_yellow_change = true;
                 auto yellow_phase_configuration =tsc_state->get_signal_group_state_map().find(movement.signal_group)->second;
+                // Start time of upcoming green will be end of yellow + red clearance 
                 uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_min_end_time() + yellow_phase_configuration.red_clearance;
-                // account for yellow change + red clearance of concurrent signal group being larger than first.
                 if ( local_start_time_epoch > start_time_epoch_ms) {
+                    // If there are multiple movement groups in yellow, start time will be the largest end of yellow + red clearance time
                     start_time_epoch_ms = local_start_time_epoch;
                 }
             }
@@ -94,7 +97,22 @@ namespace traffic_signal_controller_service
         one_fixed_green.timestamp = cur_time_since_epoch;
         streets_desired_phase_plan::signal_group2green_phase_timing fixed_green;
         fixed_green.start_time = start_time_epoch_ms;
-
+        
+        /**
+         * Response value is 8 bit int in which each bit is interpreted individually as 1 or 0. 1 
+         * indicates that the vehicle phase for that bit is committed to be next. 0 indicates this 
+         * phase is not committed to be next.
+         * 
+         * bit 0 represent vehicle phase 1
+         * bit 1 represent vehicle phase 2
+         * bit 2 represent vehicle phase 3
+         * bit 3 represent vehicle phase 4
+         * bit 4 represent vehicle phase 5
+         * bit 5 represent vehicle phase 6
+         * bit 6 represent vehicle phase 7
+         * bit 7 represent vehicle phase 8
+         * 
+         */
         for (uint i = 0; i < 8; ++i) {
             if (((response.val_int >> i) & 1) == 1) {
                 // Add any signal group for phase that has bit as 1
@@ -108,11 +126,15 @@ namespace traffic_signal_controller_service
         else if ( fixed_green.signal_groups.size() < 1) {
             throw monitor_desired_phase_plan_exception("No signal groups were found to be next");
         }
+        // Calculating the end of the fixed green by using min green configuration
+        // for all signal groups included in the movement group that is assigned the 
+        // next green.
         uint64_t fixed_green_end_time_epoch_ms = 0;
         for ( const auto &s_g_id : fixed_green.signal_groups ) {
             auto sig_group_config = tsc_state->get_signal_group_state_map().find(s_g_id)->second;
             uint64_t local_end_time_epoch_ms = fixed_green.start_time + sig_group_config.min_green;
             if ( local_end_time_epoch_ms > fixed_green_end_time_epoch_ms ) {
+                // find max of green start + min green to assign end time
                 fixed_green_end_time_epoch_ms = local_end_time_epoch_ms;
             }
         }
