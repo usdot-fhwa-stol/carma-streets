@@ -90,6 +90,30 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     mg3.signal_groups = {4, 0};
     move_groups->groups.push_back(mg3);
 
+    /** Create tsc_config */
+    auto tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
+    streets_tsc_configuration::signal_group_configuration tsc_config_1;
+    tsc_config_1.signal_group_id = 1;
+    tsc_config_1.red_clearance = 2000;
+    tsc_config_1.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_1);
+    streets_tsc_configuration::signal_group_configuration tsc_config_2;
+    tsc_config_2.signal_group_id = 2;
+    tsc_config_2.red_clearance = 2000;
+    tsc_config_2.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_2);
+    streets_tsc_configuration::signal_group_configuration tsc_config_3;
+    tsc_config_3.signal_group_id = 3;
+    tsc_config_3.red_clearance = 2000;
+    tsc_config_3.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_3);
+    streets_tsc_configuration::signal_group_configuration tsc_config_4;
+    tsc_config_4.signal_group_id = 4;
+    tsc_config_4.red_clearance = 2000;
+    tsc_config_4.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_4);
+
+
     streets_desired_phase_plan_generator generator;
     generator.set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
     streets_desired_phase_plan::streets_desired_phase_plan base_desired_phase_plan = generator.convert_spat_to_dpp(intersection_state, move_groups);
@@ -97,7 +121,7 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     // SPDLOG_INFO("The number of fixed future movement groups in the modified spat: {0}", base_desired_phase_plan.desired_phase_plan.size());
     
     uint64_t _tbd_start = intersection_state.states.front().state_time_speed.back().timing.get_epoch_min_end_time();
-    uint64_t tbd_start = generator.find_tbd_start_time(intersection_state);
+    uint64_t tbd_start = generator.find_tbd_start_time(base_desired_phase_plan, tsc_state);
     ASSERT_EQ( tbd_start, _tbd_start);
     // SPDLOG_INFO("TBD start time: {0}", tbd_start);
     
@@ -256,6 +280,30 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
         }
         d1_iterator += 1;
     }
+
+    /** Create tsc_config */
+    auto tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
+    streets_tsc_configuration::signal_group_configuration tsc_config_1;
+    tsc_config_1.signal_group_id = 1;
+    tsc_config_1.red_clearance = 2000;
+    tsc_config_1.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_1);
+    streets_tsc_configuration::signal_group_configuration tsc_config_2;
+    tsc_config_2.signal_group_id = 2;
+    tsc_config_2.red_clearance = 2000;
+    tsc_config_2.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_2);
+    streets_tsc_configuration::signal_group_configuration tsc_config_3;
+    tsc_config_3.signal_group_id = 3;
+    tsc_config_3.red_clearance = 2000;
+    tsc_config_3.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_3);
+    streets_tsc_configuration::signal_group_configuration tsc_config_4;
+    tsc_config_4.signal_group_id = 4;
+    tsc_config_4.red_clearance = 2000;
+    tsc_config_4.yellow_change_duration = 3000;
+    tsc_state->tsc_config_list.push_back(tsc_config_4);
+
 
     /** Add vehicle updates */
     vehicle veh_dv;
@@ -519,15 +567,17 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     mg3.signal_groups = {4, 5};
     move_groups->groups.push_back(mg3);
 
-    ASSERT_THROW(generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups), 
+    ASSERT_THROW(generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups, tsc_state), 
                                                             streets_desired_phase_plan_generator_exception);
 
 
     /** Now, try a successful case by removing the signal group that does not exist in intersection_info. */
     move_groups->groups.back().signal_groups.second = 0;
 
-    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list = generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups);
-    uint64_t tbd_start_time = generator.find_tbd_start_time(intersection_state);
+    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list = generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups, tsc_state);
+
+    auto base_desired_phase_plan = generator.convert_spat_to_dpp(intersection_state, move_groups);
+    uint64_t tbd_start_time = generator.find_tbd_start_time(base_desired_phase_plan, tsc_state);
     ASSERT_LE( tbd_start_time, current_time + 10000 + 200);
     SPDLOG_INFO("Current timestamp: {0}, TBD start time: {1}", current_time, tbd_start_time);
 
