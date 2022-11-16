@@ -159,10 +159,9 @@ namespace traffic_signal_controller_service
             int signal_group_id = movement.signal_group;
 
             // Assumption here is that the movement states have only one event, since this method adds future events to the list.
-            //Throw exception is list size is great than 1
+            // Throw exception is list size is great than 1
             if (movement.state_time_speed.size() > 1)
             {
-                SPDLOG_ERROR("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group: {0}", signal_group_id);
                 throw monitor_states_exception("Event list has more than one events, not usable when adding future movement events. Associated with Signal Group:" + std::to_string(signal_group_id));
             }
 
@@ -225,7 +224,7 @@ namespace traffic_signal_controller_service
 
         for(auto ring : active_ring_sequences)
         {
-            for (int i = 0; i < ring.size(); ++i)
+            for (uint i = 0; i < ring.size(); ++i)
             {
                 if (ring[i] == phase_num)
                 {

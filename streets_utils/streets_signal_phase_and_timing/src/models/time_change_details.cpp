@@ -20,14 +20,14 @@ namespace signal_phase_and_timing {
         if (max_end_time <= 36000) {
             detail.AddMember("max_end_time",max_end_time,allocator);
         } else {
-            SPDLOG_WARN("Skipping invalid value {0} for max_end_time! Valid range (0-36000).", max_end_time);
+            SPDLOG_TRACE("Skipping invalid value {0} for max_end_time! Valid range (0-36000).", max_end_time);
         }
         // value represents unknow see J2735 spec
         if (likely_time <= 36000) {
             detail.AddMember("likely_time", likely_time, allocator);
         }
         else {
-            SPDLOG_WARN("Skipping invalid value {0} for likely_time! Valid range (0-36000).", likely_time);
+            SPDLOG_TRACE("Skipping invalid value {0} for likely_time! Valid range (0-36000).", likely_time);
         }
         detail.AddMember("confidence", confidence, allocator);
         // value represents unknow see J2735 spec  
@@ -35,7 +35,7 @@ namespace signal_phase_and_timing {
             detail.AddMember("next_time", next_time, allocator);
         }
         else {
-            SPDLOG_WARN("Skipping invalid value {0} for next_time! Valid range (0-36000).", next_time);
+            SPDLOG_TRACE("Skipping invalid value {0} for next_time! Valid range (0-36000).", next_time);
         }
         return detail;
     }
@@ -64,7 +64,7 @@ namespace signal_phase_and_timing {
                 max_end_time = static_cast<uint16_t>(val["max_end_time"].GetUint());
             }
             else if ( val.HasMember("max_end_time") && val["max_end_time"].IsUint() && val["max_end_time"].GetUint() > 36000) {
-                SPDLOG_WARN("Skipping invalid value {0} for max_end_time! Valid range (0-36000).", val["max_end_time"].GetUint());
+                SPDLOG_TRACE("Skipping invalid value {0} for max_end_time! Valid range (0-36000).", val["max_end_time"].GetUint());
             }
 
             if (val.HasMember("likely_time") &&  val["likely_time"].IsUint() && val["likely_time"].GetUint() <= 36000 ) {
@@ -72,7 +72,7 @@ namespace signal_phase_and_timing {
                 likely_time = static_cast<uint16_t>(val["likely_time"].GetInt() );
             }
             else if ( val.HasMember("likely_time") && val["likely_time"].IsUint() && val["likely_time"].GetUint() > 36000) {
-                SPDLOG_WARN("Skipping invalid value {0} for likely_time! Valid range (0-36000).", val["likely_time"].GetUint());
+                SPDLOG_TRACE("Skipping invalid value {0} for likely_time! Valid range (0-36000).", val["likely_time"].GetUint());
             }
             if ( val.HasMember("confidence") && val["confidence"].IsUint() ) {
                 // OPTIONAL see J2735 TimeChangeDetails definition 
@@ -84,7 +84,7 @@ namespace signal_phase_and_timing {
                 next_time = static_cast<uint16_t>(val["next_time"].GetUint());
             }
             else if (val.HasMember("next_time") && val["next_time"].IsUint() && val["next_time"].GetUint() > 36000) {
-                SPDLOG_WARN("Skipping invalid value {0} for next_time! Valid range (0-36000).", val["next_time"].GetUint());
+                SPDLOG_TRACE("Skipping invalid value {0} for next_time! Valid range (0-36000).", val["next_time"].GetUint());
             }
         }
     }

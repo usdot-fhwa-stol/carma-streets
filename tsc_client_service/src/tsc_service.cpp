@@ -70,7 +70,7 @@ namespace traffic_signal_controller_service {
             control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             
             // Initialize monitor desired phase plan
-            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>();
+            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
 
             // Initialize control_tsc_state ptr
             control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
@@ -178,10 +178,11 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::produce_spat_json() const {
         try {
+            int count = 0;
+            uint64_t spat_latency = 0;
             while(true) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
-                    
                     if(!use_desired_phase_plan_update_){
                         try{
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
@@ -200,7 +201,17 @@ namespace traffic_signal_controller_service {
                     }
                     
                     spat_producer->send(spat_ptr->toJson());
-                    
+                    // TODO: Increase sample size once we are confident latency does not have large spikes in small intervals.
+                    if (count <= 20 ) {
+                        uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
+                        count++;
+                    } else {
+                        double latency_measure = ((double)(spat_latency))/20.0;
+                        SPDLOG_WARN("SPat average latency over 2 seconds is {0} ms and total latency for 20 messages is {1} ms!", latency_measure, spat_latency);
+                        spat_latency = 0;
+                        count = 0;
+                    }
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
