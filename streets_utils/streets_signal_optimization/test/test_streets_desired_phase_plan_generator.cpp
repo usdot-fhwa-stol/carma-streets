@@ -70,6 +70,14 @@ TEST(test_streets_desired_phase_plan_generator, test_set_configuration) {
  */
 TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
 
+    /**
+     * spat:
+     * 
+     * signal group 1    green (10 sec), yellow (3  sec), red    (17 sec)
+     * signal group 2    red   (15 sec), green  (10 sec), yellow (3  sec), red (2 sec)
+     * signal group 3    green (10 sec), yellow (3  sec), red    (17 sec)
+     * signla group 4    red   (30 sec)
+    */
     signal_phase_and_timing::spat spat_object;
     std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10300}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10400}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_object.fromJson(json_spat);
@@ -90,7 +98,15 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     mg3.signal_groups = {4, 0};
     move_groups->groups.push_back(mg3);
 
-    /** Create tsc_config */
+    /** Create tsc_config 
+     * 
+     *                      Yellow_change    red_clearance
+     * Signal group 1           3 sec            2 sec
+     * Signal group 2           3 sec            2 sec
+     * Signal group 3           3 sec            2 sec
+     * Signal group 4           3 sec            2 sec
+     * 
+    */
     auto tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
     streets_tsc_configuration::signal_group_configuration tsc_config_1;
     tsc_config_1.signal_group_id = 1;
@@ -281,7 +297,15 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
         d1_iterator += 1;
     }
 
-    /** Create tsc_config */
+    /** Create tsc_config 
+     * 
+     *                      Yellow_change    red_clearance
+     * Signal group 1           3 sec            2 sec
+     * Signal group 2           3 sec            2 sec
+     * Signal group 3           3 sec            2 sec
+     * Signal group 4           3 sec            2 sec
+     * 
+    */
     auto tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
     streets_tsc_configuration::signal_group_configuration tsc_config_1;
     tsc_config_1.signal_group_id = 1;

@@ -232,9 +232,9 @@ namespace streets_signal_optimization {
              * @param base_desired_phase_plan The desired_phase_plan converted from the provided intersection_state.
              * @param tsc_config_ptr shared pointer to tsc configuration state object.
              * @return uint64_t start time of TBD.
-             * @throws If the base_desired_phase_plan converted from spat is empty.
-             * @throws If the tsc_config_ptr does not include the configuration parameter for a signal group.
-             * @throws If the maximum (yellow_change_interval + red_clearance) for the last movement group stays zero!
+             * @throws An exception if the base_desired_phase_plan converted from spat is empty.
+             * @throws An exception if the tsc_config_ptr does not include the configuration parameter for a signal group.
+             * @throws An exception if the maximum (yellow_change_interval + red_clearance) for the last movement group stays zero!
              */
             uint64_t find_tbd_start_time(const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
                                         const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> &tsc_config_ptr) const;
