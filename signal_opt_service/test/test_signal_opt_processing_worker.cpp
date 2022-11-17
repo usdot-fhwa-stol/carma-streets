@@ -66,8 +66,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_1;
             tsc_config_1.signal_group_id = 1;
-            tsc_config_1.red_clearance = 0;
-            tsc_config_1.yellow_change_duration = 0;
+            tsc_config_1.red_clearance = 1000;
+            tsc_config_1.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_1);
 
             signal_phase_and_timing::movement_state state_2;
@@ -81,8 +81,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_2;
             tsc_config_2.signal_group_id = 2;
-            tsc_config_2.red_clearance = 0;
-            tsc_config_2.yellow_change_duration = 0;
+            tsc_config_2.red_clearance = 1000;
+            tsc_config_2.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_2);
 
             signal_phase_and_timing::movement_state state_3;
@@ -96,8 +96,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_3;
             tsc_config_3.signal_group_id = 3;
-            tsc_config_3.red_clearance = 0;
-            tsc_config_3.yellow_change_duration = 0;
+            tsc_config_3.red_clearance = 1000;
+            tsc_config_3.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_3);
 
             signal_phase_and_timing::movement_state state_4;
@@ -111,8 +111,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_4;
             tsc_config_4.signal_group_id = 4;
-            tsc_config_4.red_clearance = 0;
-            tsc_config_4.yellow_change_duration = 0;
+            tsc_config_4.red_clearance = 1000;
+            tsc_config_4.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_4);
 
             signal_phase_and_timing::movement_state state_5;
@@ -136,8 +136,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_5;
             tsc_config_5.signal_group_id = 5;
-            tsc_config_5.red_clearance = 0;
-            tsc_config_5.yellow_change_duration = 0;
+            tsc_config_5.red_clearance = 1000;
+            tsc_config_5.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_5);
 
             signal_phase_and_timing::movement_state state_6;
@@ -151,8 +151,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_6;
             tsc_config_6.signal_group_id = 6;
-            tsc_config_6.red_clearance = 0;
-            tsc_config_6.yellow_change_duration = 0;
+            tsc_config_6.red_clearance = 1000;
+            tsc_config_6.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_6);
 
             signal_phase_and_timing::movement_state state_7;
@@ -166,8 +166,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_7;
             tsc_config_7.signal_group_id = 7;
-            tsc_config_7.red_clearance = 0;
-            tsc_config_7.yellow_change_duration = 0;
+            tsc_config_7.red_clearance = 1000;
+            tsc_config_7.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_7);
 
             signal_phase_and_timing::movement_state state_8;
@@ -181,8 +181,8 @@ namespace signal_opt_service
 
             streets_tsc_configuration::signal_group_configuration tsc_config_8;
             tsc_config_8.signal_group_id = 8;
-            tsc_config_8.red_clearance = 0;
-            tsc_config_8.yellow_change_duration = 0;
+            tsc_config_8.red_clearance = 1000;
+            tsc_config_8.yellow_change_duration = 2000;
             tsc_state->tsc_config_list.push_back(tsc_config_8);
 
             intersection_state.time_stamp = 130;

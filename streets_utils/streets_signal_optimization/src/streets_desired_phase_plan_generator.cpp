@@ -7,7 +7,8 @@ namespace streets_signal_optimization {
                             (const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
                             std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles,
                             signal_phase_and_timing::intersection_state &intersection_state,
-                            const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups) {
+                            const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups, 
+                            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> &tsc_config_ptr) {
 
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_list;
 
@@ -50,11 +51,11 @@ namespace streets_signal_optimization {
         }
         /**
          * The provided spat have only a configurable number of fixed future movement groups. Any time area after the fixed future movement
-         *     groups is defined as the to-be-determined (TBD) area. Basically, the TBD area starts from the end time of the last 
-         *     movement_state of a signal group. If a vehicle's estimated entering time (ET) is within the TBD area (after the end 
+         *     groups is defined as the to-be-determined (TBD) area. Basically, the TBD area starts from the end time of the red clearance of
+         *     the last fixed greens. If a vehicle's estimated entering time (ET) is within the TBD area (after the end 
          *     time of the last movement_state), the vehicle will be considered in the queue calculation.
         */
-        uint64_t tbd_start = find_tbd_start_time(intersection_state);
+        uint64_t tbd_start = find_tbd_start_time(base_desired_phase_plan, tsc_config_ptr);
 
 
         /** If the vehicle map is empty, return an empty desired phase plan list. */
@@ -241,28 +242,32 @@ namespace streets_signal_optimization {
 
 
     uint64_t streets_desired_phase_plan_generator::find_tbd_start_time(
-                    const signal_phase_and_timing::intersection_state &intersection_state) const {
+                    const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
+                    const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> &tsc_config_ptr) const {
         uint64_t tbd_start = 0;
-        for (const auto& move_state : intersection_state.states) {
-            if (move_state.state_time_speed.empty()) {
-                throw streets_desired_phase_plan_generator_exception("signal group " + std::to_string(move_state.signal_group) + " has empty movement_state list in the provided intersection_state object!");
-            } 
-            if (move_state.state_time_speed.back().event_state != signal_phase_and_timing::movement_phase_state::stop_and_remain) {
-                throw streets_desired_phase_plan_generator_exception("The last movement_event's state of signal group " + std::to_string(move_state.signal_group) + " is not stop_and_remain!");
+        if (base_desired_phase_plan.desired_phase_plan.empty()) {
+            throw streets_desired_phase_plan_generator_exception("No green movement group is found in the spat. base_desired_phase_plan is empty!");
+        }
+        // find the last fixed movement group in the base_desired_phase_plan
+        auto last_movement_group = base_desired_phase_plan.desired_phase_plan.back();
+        uint64_t yellow_red_interval_local = 0;
+        uint64_t yellow_red_interval_max = 0;
+        // find the maximum (yellow_change_duration + red_clearance) for the signal groups included in the last fixed movement group
+        for (const auto sg : last_movement_group.signal_groups) {
+            auto sg_config = tsc_config_ptr->get_signal_group_configuration_by_sg(sg);
+            if (sg != static_cast<int>(sg_config.signal_group_id)) {
+                throw streets_desired_phase_plan_generator_exception("TSC_config does not have signal group " + std::to_string(sg) + "'s configuration parameters!");
             }
-            else {
-                if (tbd_start == 0) {
-                    tbd_start = move_state.state_time_speed.back().timing.get_epoch_min_end_time();
-                }
-                else if (tbd_start != move_state.state_time_speed.back().timing.get_epoch_min_end_time()) {
-                    SPDLOG_WARN("The end time of the last movement_event for signal group {0} is not the same as the stored tbd_start.", move_state.signal_group);
-                    SPDLOG_WARN("stored tbd_start = {0}, the end time of the last movement event for signal group {1} = {2}", tbd_start, move_state.signal_group, move_state.state_time_speed.back().timing.get_epoch_min_end_time());
-                    if (tbd_start < move_state.state_time_speed.back().timing.get_epoch_min_end_time()) {
-                        tbd_start = move_state.state_time_speed.back().timing.get_epoch_min_end_time();
-                    }
-                }
+            yellow_red_interval_local = static_cast<uint64_t>(sg_config.yellow_change_duration + sg_config.red_clearance);
+            if (yellow_red_interval_max < yellow_red_interval_local) {
+                yellow_red_interval_max = yellow_red_interval_local;
             }
         }
+        if (yellow_red_interval_max == 0) {
+            throw streets_desired_phase_plan_generator_exception("yellow_red_interval_max that stores the maximum (yellow_change_duration + red_clearance) for the signal groups included in the last fixed movement group, is not updated!");
+        }
+        tbd_start = last_movement_group.end_time + yellow_red_interval_max;
+
         SPDLOG_DEBUG("TBD start time: {0}", tbd_start);
         return tbd_start;
     }

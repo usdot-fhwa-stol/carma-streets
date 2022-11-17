@@ -199,14 +199,16 @@ namespace streets_signal_optimization {
              * @param vehicles A map of the vehicles to schedule, with vehicle id as keys.
              * @param intersection_state An intersection_state object from the most recent spat.
              * @param move_groups Shared pointer to a list of possible movement groups.
+             * @param tsc_config_ptr shared pointer to tsc configuration state object.
              * @return vector<streets_desired_phase_plan::streets_desired_phase_plan> list of desired phase plans.
              * @throws if the provided intersection_state does not have any fixed future movement group.
              */
             std::vector<streets_desired_phase_plan::streets_desired_phase_plan> generate_desire_phase_plan_list(
-                                                    const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
-                                                    std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles,
-                                                    signal_phase_and_timing::intersection_state &intersection_state,
-                                                    const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups);
+                                            const std::shared_ptr<OpenAPI::OAIIntersection_info> &intersection_info_ptr, 
+                                            std::unordered_map<std::string,streets_vehicles::vehicle> &vehicles,
+                                            signal_phase_and_timing::intersection_state &intersection_state,
+                                            const std::shared_ptr<streets_signal_optimization::movement_groups> &move_groups, 
+                                            const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> &tsc_config_ptr);
             
 
             /**
@@ -227,13 +229,15 @@ namespace streets_signal_optimization {
             /**
              * @brief Find the TBD start time based on the provided modified spat. The start time of the TBD area is equal to
              * the end time of the last movement event of a given signal group\movement event.
-             * 
-             * @param intersection_info_ptr An intersection_info pointer.
+             * @param base_desired_phase_plan The desired_phase_plan converted from the provided intersection_state.
+             * @param tsc_config_ptr shared pointer to tsc configuration state object.
              * @return uint64_t start time of TBD.
-             * @throws If a movement state does not have any movement event in its state_time_speed list.
-             * @throws If the last movement event of a signal group\movement event has a state different than stop_and_remain.
+             * @throws An exception if the base_desired_phase_plan converted from spat is empty.
+             * @throws An exception if the tsc_config_ptr does not include the configuration parameter for a signal group.
+             * @throws An exception if the maximum (yellow_change_interval + red_clearance) for the last movement group stays zero!
              */
-            uint64_t find_tbd_start_time(const signal_phase_and_timing::intersection_state &intersection_state) const;
+            uint64_t find_tbd_start_time(const streets_desired_phase_plan::streets_desired_phase_plan &base_desired_phase_plan, 
+                                        const std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> &tsc_config_ptr) const;
 
             /**
              * @brief Configure the scheduler pointer.

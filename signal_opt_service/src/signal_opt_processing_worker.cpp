@@ -67,7 +67,8 @@ namespace signal_opt_service
             dpp_list = dpp_generator_ptr->generate_desire_phase_plan_list(intersection_info_ptr, 
                                                                             vehicle_map, 
                                                                             intersection_state, 
-                                                                            move_groups);
+                                                                            move_groups, 
+                                                                            tsc_config_state);
         }
         catch (const streets_signal_optimization::streets_desired_phase_plan_generator_exception &ex) 
         {

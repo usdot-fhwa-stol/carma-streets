@@ -193,9 +193,11 @@ namespace signal_opt_service
                                                                             _vehicle_list_ptr, 
                                                                             _movement_groups_ptr, 
                                                                             _dpp_config);
-                    std::string msg_to_send = optimal_dpp.toJson();
-                    /* produce the optimal desired phase plan to kafka */
-                    dpp_producer->send(msg_to_send);
+                    if (!optimal_dpp.desired_phase_plan.empty()) {
+                        std::string msg_to_send = optimal_dpp.toJson();
+                        /* produce the optimal desired phase plan to kafka */
+                        dpp_producer->send(msg_to_send);
+                    }
                 }
             }
             else {
