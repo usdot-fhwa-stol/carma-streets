@@ -360,7 +360,12 @@ namespace streets_signal_optimization {
                 // in case the green_end is overwritten by max_green, check if there is any ET within the new green duration.
                 // if not, skip this entry lane, assuming there is no queue that can be served.
                 if (green_end < green_end_compared_with_min_green && evs_in_lane.front().et >= green_end - config.final_green_buffer) {
-                    SPDLOG_DEBUG("The required green duration for dissipation the queue in entry lane " + std::to_string(entry_lane_id) + " is overwritten by max_green which cannot serve any vehicle!");
+                    SPDLOG_WARN("The required green duration for dissipation the queue in entry lane " + 
+                            std::to_string(entry_lane_id) + 
+                            " is overwritten by max_green which cannot serve any vehicle! green_end without considering max_green: " + 
+                            std::to_string(green_end_compared_with_min_green) + 
+                            ", green_end considering max_green: " + std::to_string(green_end) + 
+                            ", first EV's entering time: " + std::to_string(evs_in_lane.front().et) + ".");
                 }
                 else 
                 {
