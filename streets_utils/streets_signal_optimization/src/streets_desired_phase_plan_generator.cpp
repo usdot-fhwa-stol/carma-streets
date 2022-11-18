@@ -31,7 +31,7 @@ namespace streets_signal_optimization {
          */
         if (!is_configured) {
             SPDLOG_WARN("set_configuration was not called. Setting configuration to default!");
-            set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
+            set_configuration(2000, 2000, 2000, 3000, 200, 5000, 120000, 1);
         }
         
         /** 

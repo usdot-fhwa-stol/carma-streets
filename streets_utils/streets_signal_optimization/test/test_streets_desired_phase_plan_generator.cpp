@@ -252,7 +252,6 @@ namespace streets_signal_optimization {
 TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan_list) {
 
     streets_desired_phase_plan_generator generator;
-    generator.set_configuration(2000, 2000, 2000, 3000, 250, 50000, 120000, 3);
 
     OpenAPI::OAIIntersection_info info;
     std::string json_info = "{\"departure_lanelets\":[{ \"id\":5, \"length\":41.60952439839113, \"speed_limit\":11.176}, { \"id\":6, \"length\":189.44565302601367, \"speed_limit\":11.176 }, { \"id\":7, \"length\":34.130869420842046, \"speed_limit\":11.176 }, { \"id\":8, \"length\":50.123213235343123, \"speed_limit\":11.176 }], \"entry_lanelets\":[{ \"id\":1, \"length\":195.73023157287864, \"speed_limit\":8.0, \"connecting_lanelet_ids\": [9, 10] }, { \"id\":2, \"length\":34.130869411176431136, \"speed_limit\":8.0, \"connecting_lanelet_ids\": [11, 12] }, { \"id\":3, \"length\":41.60952435603712, \"speed_limit\":8.0 , \"connecting_lanelet_ids\": [13, 14]}, { \"id\":4, \"length\":53.19846216254821, \"speed_limit\":8.0 , \"connecting_lanelet_ids\": [15, 16]}], \"id\":9001, \"link_lanelets\":[{ \"conflict_lanelet_ids\":[ 11, 15, 16 ], \"id\":9, \"length\":15.85409574709938, \"speed_limit\":8.0, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 11 ], \"id\":10, \"length\":16.796388658952235, \"speed_limit\":4.4704, \"signal_group_id\":1 }, { \"conflict_lanelet_ids\":[ 9, 10, 13 ], \"id\":11, \"length\":16.043077028554038, \"speed_limit\":8.0, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 13 ], \"id\":12, \"length\":10.295559117055083, \"speed_limit\":4.4704, \"signal_group_id\":2 }, { \"conflict_lanelet_ids\":[ 11, 12, 15 ], \"id\":13, \"length\":15.853947840111768943, \"speed_limit\":8.0, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 15 ], \"id\":14, \"length\":9.744590320260139, \"speed_limit\":4.4704, \"signal_group_id\":3 }, { \"conflict_lanelet_ids\":[ 9, 13, 14 ], \"id\":15, \"length\":13.6473819283719203846, \"speed_limit\":8.0, \"signal_group_id\":4 }, { \"conflict_lanelet_ids\":[ 9 ], \"id\":16, \"length\":8.182736100981263, \"speed_limit\":4.4704, \"signal_group_id\":4 }], \"name\":\"WestIntersection\"}";  
@@ -328,11 +327,61 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     tsc_config_4.yellow_change_duration = 3000;
     tsc_state->tsc_config_list.push_back(tsc_config_4);
 
+    /** Create a list of movement groups */
+    auto move_groups = std::make_shared<movement_groups>();
+    movement_group mg1;
+    mg1.name = "movement_group_1";
+    mg1.signal_groups = {1, 3};
+    move_groups->groups.push_back(mg1);
+    movement_group mg2;
+    mg2.name = "movement_group_2";
+    mg2.signal_groups = {2, 0};
+    move_groups->groups.push_back(mg2);
+    movement_group mg3;
+    mg3.name = "movement_group_3";
+    mg3.signal_groups = {4, 0};
+    move_groups->groups.push_back(mg3);
+
+
+    /** First, try a case where a required green for an entry lane will be overwritten by max_green which cannot cover any ET.
+     *  The expected behavior is that such this entry lane be skipped. Because, the required green for this entry lane will not 
+     *  serve any vehicle.
+    */
+    vehicle veh_ev_test;
+    veh_ev_test._id = "TEST_EV";
+    veh_ev_test._length = 500.0;
+    veh_ev_test._min_gap = 5.0;
+    veh_ev_test._reaction_time = 0.5;
+    veh_ev_test._accel_max = 1.0;
+    veh_ev_test._decel_max = -1.0;
+    veh_ev_test._cur_speed = 2.0;
+    veh_ev_test._cur_accel = 0.0;
+    veh_ev_test._cur_distance = 240.0;
+    veh_ev_test._cur_lane_id = 3;
+    veh_ev_test._cur_state = vehicle_state::EV;
+    veh_ev_test._cur_time = current_time;
+    veh_ev_test._entry_lane_id = 3;
+    veh_ev_test._link_id = 13;
+    veh_ev_test._exit_lane_id = 7;
+    veh_ev_test._direction = "straight";
+
+    std::unordered_map<std::string, vehicle> veh_list_max_green_test;
+    veh_list_max_green_test.insert({{veh_ev_test._id, veh_ev_test}});
+    
+    /** Configure generator */
+    generator.set_configuration(2000, 2000, 2000, 3000, 250, 5000, 10000, 3);
+    generator.configure_scheduler(intersection);
+
+    std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list = generator.generate_desire_phase_plan_list(intersection, veh_list_max_green_test, intersection_state, move_groups, tsc_state);
+    ASSERT_TRUE(dpp_list.empty());
+
+
+    /** Now, try the actual case */
 
     /** Add vehicle updates */
     vehicle veh_dv;
     veh_dv._id = "TEST_DV_01";
-    veh_dv._length = 5.0;
+    veh_dv._length = 500.0;
     veh_dv._min_gap = 5.0;
     veh_dv._reaction_time = 0.5;
     veh_dv._accel_max = 1.0;
@@ -351,7 +400,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev1;
     veh_ev1._id = "TEST_EV_01";
-    veh_ev1._length = 5.0;
+    veh_ev1._length = 500.0;
     veh_ev1._min_gap = 5.0;
     veh_ev1._reaction_time = 0.5;
     veh_ev1._accel_max = 1.0;
@@ -369,7 +418,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev2;
     veh_ev2._id = "TEST_EV_02";
-    veh_ev2._length = 5.0;
+    veh_ev2._length = 500.0;
     veh_ev2._min_gap = 5.0;
     veh_ev2._reaction_time = 0.5;
     veh_ev2._accel_max = 1.0;
@@ -387,7 +436,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev3;
     veh_ev3._id = "TEST_EV_03";
-    veh_ev3._length = 5.0;
+    veh_ev3._length = 500.0;
     veh_ev3._min_gap = 5.0;
     veh_ev3._reaction_time = 0.5;
     veh_ev3._accel_max = 1.0;
@@ -405,7 +454,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev4;
     veh_ev4._id = "TEST_EV_04";
-    veh_ev4._length = 5.0;
+    veh_ev4._length = 500.0;
     veh_ev4._min_gap = 5.0;
     veh_ev4._reaction_time = 0.5;
     veh_ev4._accel_max = 1.0;
@@ -423,7 +472,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev5;
     veh_ev5._id = "TEST_EV_05";
-    veh_ev5._length = 5.0;
+    veh_ev5._length = 500.0;
     veh_ev5._min_gap = 5.0;
     veh_ev5._reaction_time = 0.5;
     veh_ev5._accel_max = 1.0;
@@ -441,7 +490,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev6;
     veh_ev6._id = "TEST_EV_06";
-    veh_ev6._length = 5.0;
+    veh_ev6._length = 500.0;
     veh_ev6._min_gap = 5.0;
     veh_ev6._reaction_time = 0.5;
     veh_ev6._accel_max = 1.0;
@@ -459,7 +508,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev7;
     veh_ev7._id = "TEST_EV_07";
-    veh_ev7._length = 5.0;
+    veh_ev7._length = 500.0;
     veh_ev7._min_gap = 5.0;
     veh_ev7._reaction_time = 0.5;
     veh_ev7._accel_max = 1.0;
@@ -477,7 +526,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev8;
     veh_ev8._id = "TEST_EV_08";
-    veh_ev8._length = 5.0;
+    veh_ev8._length = 500.0;
     veh_ev8._min_gap = 5.0;
     veh_ev8._reaction_time = 0.5;
     veh_ev8._accel_max = 1.0;
@@ -495,7 +544,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev9;
     veh_ev9._id = "TEST_EV_09";
-    veh_ev9._length = 5.0;
+    veh_ev9._length = 500.0;
     veh_ev9._min_gap = 5.0;
     veh_ev9._reaction_time = 0.5;
     veh_ev9._accel_max = 1.0;
@@ -513,7 +562,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev10;
     veh_ev10._id = "TEST_EV_10";
-    veh_ev10._length = 5.0;
+    veh_ev10._length = 500.0;
     veh_ev10._min_gap = 5.0;
     veh_ev10._reaction_time = 0.5;
     veh_ev10._accel_max = 1.0;
@@ -531,7 +580,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev11;
     veh_ev11._id = "TEST_EV_11";
-    veh_ev11._length = 5.0;
+    veh_ev11._length = 500.0;
     veh_ev11._min_gap = 5.0;
     veh_ev11._reaction_time = 0.5;
     veh_ev11._accel_max = 1.0;
@@ -549,7 +598,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     vehicle veh_ev12;
     veh_ev12._id = "TEST_EV_12";
-    veh_ev12._length = 5.0;
+    veh_ev12._length = 500.0;
     veh_ev12._min_gap = 5.0;
     veh_ev12._reaction_time = 0.5;
     veh_ev12._accel_max = 1.0;
@@ -568,7 +617,8 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     std::unordered_map<std::string, vehicle> veh_list;
     veh_list.insert({{veh_dv._id, veh_dv}, {veh_ev1._id, veh_ev1}, {veh_ev2._id, veh_ev2}, {veh_ev3._id, veh_ev3}, {veh_ev4._id, veh_ev4}, {veh_ev5._id, veh_ev5}, {veh_ev6._id, veh_ev6}, {veh_ev7._id, veh_ev7}, {veh_ev8._id, veh_ev8}, {veh_ev9._id, veh_ev9}, {veh_ev10._id, veh_ev10}, {veh_ev11._id, veh_ev11}, {veh_ev12._id, veh_ev12}});
     
-    /** Generate the list of desired phase plans. */
+    /** Configure generator */
+    generator.set_configuration(2000, 2000, 2000, 3000, 250, 5000, 120000, 3);
     generator.configure_scheduler(intersection);
 
 
@@ -576,20 +626,8 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
      *      does not exist in the intersection_info.
     */
 
-    /** Create a list of movement groups */
-    auto move_groups = std::make_shared<movement_groups>();
-    movement_group mg1;
-    mg1.name = "movement_group_1";
-    mg1.signal_groups = {1, 3};
-    move_groups->groups.push_back(mg1);
-    movement_group mg2;
-    mg2.name = "movement_group_2";
-    mg2.signal_groups = {2, 0};
-    move_groups->groups.push_back(mg2);
-    movement_group mg3;
-    mg3.name = "movement_group_3";
-    mg3.signal_groups = {4, 5};
-    move_groups->groups.push_back(mg3);
+    /** Add a signal group that does not exist in intersection_info to the movement group list */
+    move_groups->groups.back().signal_groups.second = 5;
 
     ASSERT_THROW(generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups, tsc_state), 
                                                             streets_desired_phase_plan_generator_exception);
