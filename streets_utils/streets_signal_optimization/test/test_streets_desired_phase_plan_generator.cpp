@@ -356,7 +356,7 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     veh_ev_test._decel_max = -1.0;
     veh_ev_test._cur_speed = 2.0;
     veh_ev_test._cur_accel = 0.0;
-    veh_ev_test._cur_distance = 240.0;
+    veh_ev_test._cur_distance = 190.0;
     veh_ev_test._cur_lane_id = 3;
     veh_ev_test._cur_state = vehicle_state::EV;
     veh_ev_test._cur_time = current_time;
@@ -374,6 +374,11 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
 
     std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list = generator.generate_desire_phase_plan_list(intersection, veh_list_max_green_test, intersection_state, move_groups, tsc_state);
     ASSERT_TRUE(dpp_list.empty());
+
+    // Now, try a case where the generator configuration parameters are not set and must be set to their default values.
+    generator.is_configured = false;
+    dpp_list = generator.generate_desire_phase_plan_list(intersection, veh_list_max_green_test, intersection_state, move_groups, tsc_state);
+    ASSERT_EQ(dpp_list.size(), 1);
 
 
     /** Now, try the actual case */
@@ -618,20 +623,21 @@ TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan
     veh_list.insert({{veh_dv._id, veh_dv}, {veh_ev1._id, veh_ev1}, {veh_ev2._id, veh_ev2}, {veh_ev3._id, veh_ev3}, {veh_ev4._id, veh_ev4}, {veh_ev5._id, veh_ev5}, {veh_ev6._id, veh_ev6}, {veh_ev7._id, veh_ev7}, {veh_ev8._id, veh_ev8}, {veh_ev9._id, veh_ev9}, {veh_ev10._id, veh_ev10}, {veh_ev11._id, veh_ev11}, {veh_ev12._id, veh_ev12}});
     
 
-    /** First, try a failure case. The list of movement groups will include a signal group that 
-     *      does not exist in the intersection_info.
+    /** 
+     * First, try a failure case. The list of movement groups will include a signal group that 
+     *     does not exist in the intersection_info.
     */
 
-    /** Add a signal group that does not exist in intersection_info to the movement group list */
+    // Add a signal group that does not exist in intersection_info to the movement group list
     move_groups->groups.back().signal_groups.second = 5;
-    generator.is_configured = false;
-
     ASSERT_THROW(generator.generate_desire_phase_plan_list(intersection, veh_list, intersection_state, move_groups, tsc_state), 
                                                             streets_desired_phase_plan_generator_exception);
 
 
-    /** Now, try a successful case by removing the signal group that does not exist in intersection_info. */
-    move_groups->groups.back().signal_groups.second = 0;
+    /** 
+     * Now, try a successful case by removing the signal group that does not exist in intersection_info. 
+    */
+    move_groups->groups.back().signal_groups.second = 0; 
     /** Configure generator */
     generator.set_configuration(2000, 2000, 2000, 3000, 250, 5000, 120000, 3);
     generator.configure_scheduler(intersection);
