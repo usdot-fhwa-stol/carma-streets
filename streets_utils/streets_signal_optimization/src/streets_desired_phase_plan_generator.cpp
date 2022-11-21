@@ -31,7 +31,7 @@ namespace streets_signal_optimization {
          */
         if (!is_configured) {
             SPDLOG_WARN("set_configuration was not called. Setting configuration to default!");
-            set_configuration(2000, 2000, 2000, 3000, 200, 50000, 120000, 1);
+            set_configuration(2000, 2000, 2000, 3000, 200, 5000, 120000, 1);
         }
         
         /** 
@@ -357,8 +357,20 @@ namespace streets_signal_optimization {
                 uint64_t et_rounded = uint64_t(std::ceil(double(last_ev_in_queue.et)/100.0) * 100);
                 uint64_t green_end_compared_with_min_green = std::max(et_rounded + config.et_inaccuracy_buffer + config.final_green_buffer, tbd_start + config.min_green);
                 uint64_t green_end = std::min(green_end_compared_with_min_green, tbd_start + config.max_green);
-
-                green_end_per_entry_lane.try_emplace(entry_lane_id, green_end);   
+                // in case the green_end is overwritten by max_green, check if there is any ET within the new green duration.
+                // if not, skip this entry lane, assuming there is no queue that can be served.
+                if (green_end < green_end_compared_with_min_green && evs_in_lane.front().et >= green_end - config.final_green_buffer) {
+                    SPDLOG_WARN("The required green duration for dissipation the queue in entry lane " + 
+                            std::to_string(entry_lane_id) + 
+                            " is overwritten by max_green which cannot serve any vehicle! green_end without considering max_green: " + 
+                            std::to_string(green_end_compared_with_min_green) + 
+                            ", green_end considering max_green: " + std::to_string(green_end) + 
+                            ", first EV's entering time: " + std::to_string(evs_in_lane.front().et) + ".");
+                }
+                else 
+                {
+                    green_end_per_entry_lane.try_emplace(entry_lane_id, green_end);   
+                }
             }
             else {
                 SPDLOG_DEBUG("There are no EVs in entry lane {0} that is within the SO area and has an estimated ET after the start time of the TBD area", entry_lane_id);
