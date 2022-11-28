@@ -31,16 +31,17 @@ namespace traffic_signal_controller_service
         {
             // If no current green -> then either yellow change or red clearance active
             // => Fix next green phase in SPaT
-            bool is_green_present = false;
+            std::vector<signal_phase_and_timing::movement_state> green_phases_present;
             auto state = spat_ptr->get_intersection();
             for (const auto &movement : state.states) {
                 if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
-                    is_green_present = true;
-                    break;
+                    green_phases_present.push_back(movement);
                 }
             }
-            if (!is_green_present ) {
+            if ( green_phases_present.empty() ) {
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
+            } else {
+                fix_upcoming_yell_red(spat_ptr, tsc_state_ptr, green_phases_present);
             }
         } else {
             spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr->get_tsc_config_state());
@@ -143,5 +144,32 @@ namespace traffic_signal_controller_service
         SPDLOG_DEBUG("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
         spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());
 
+    }
+
+
+    void monitor_desired_phase_plan::fix_upcoming_yell_red(  const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
+            const std::shared_ptr<tsc_state> tsc_state, const std::vector<signal_phase_and_timing::movement_state> green_phases)  const{
+        streets_desired_phase_plan::signal_group2green_phase_timing fixed_green;
+
+        if ( green_phases.size() > 2 ) {
+            throw monitor_desired_phase_plan_exception( "More than two present phase were found to be green concurrently!");
+        } else {
+            for ( const auto &phase : green_phases ) {
+                fixed_green.signal_groups.push_back(phase.signal_group);
+            }
+        }
+        // Current time used for any calculations
+        streets_desired_phase_plan::streets_desired_phase_plan one_fixed_green;
+        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        auto state = spat_ptr->get_intersection();
+
+            
+        // Generate Desired Phase Plan with next green fixed.
+        one_fixed_green.timestamp = cur_time_since_epoch;
+        fixed_green.start_time = green_phases.front().state_time_speed.front().timing.get_epoch_start_time();
+        fixed_green.end_time =  green_phases.front().state_time_speed.front().timing.get_epoch_min_end_time();
+        one_fixed_green.desired_phase_plan.push_back(fixed_green);
+        SPDLOG_DEBUG("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
+        spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());    
     }
 }

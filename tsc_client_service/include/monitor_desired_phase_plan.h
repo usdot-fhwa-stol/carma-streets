@@ -62,6 +62,10 @@ namespace traffic_signal_controller_service
          * @param tsc_state_ptr shared pointer to the tsc state information including tsc phase configuration information.
          */
         void fix_upcoming_green(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const;
+
+        void fix_upcoming_yell_red(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
+                                    const std::shared_ptr<tsc_state> tsc_state_ptr, 
+                                    const std::vector<signal_phase_and_timing::movement_state> green_phases) const;
     };
 
 }

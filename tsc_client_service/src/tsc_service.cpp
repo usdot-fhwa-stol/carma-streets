@@ -44,9 +44,9 @@ namespace traffic_signal_controller_service {
             tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
 
             // Enable SPaT
-            if (!enable_spat()) {
-                return false;
-            }
+            // if (!enable_spat()) {
+            //     return false;
+            // }
             // Initialize spat_worker
             std::string socket_ip = streets_service::streets_configuration::get_string_config("udp_socket_ip");
             int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
@@ -73,7 +73,7 @@ namespace traffic_signal_controller_service {
             monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
 
             // Initialize control_tsc_state ptr
-            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_signal_group_to_ped_phase_map());
+            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_vehicle_phase_map());
 
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
