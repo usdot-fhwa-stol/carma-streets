@@ -107,6 +107,7 @@ namespace signal_opt_service
 
     void signal_opt_service::consume_spat(const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer, 
                                             const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr ) const{
+        SPDLOG_INFO("Consuming SPat.");
         while( spat_consumer->is_running()) {
             const std::string payload = spat_consumer->consume(1000); 
             if (!payload.empty()) {
@@ -120,6 +121,7 @@ namespace signal_opt_service
 
     void signal_opt_service::consume_vsi(const std::shared_ptr<kafka_clients::kafka_consumer_worker> vsi_consumer,
                                          const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const{
+        SPDLOG_INFO("Consuming VSI.");
         while( vsi_consumer->is_running()) {
             const std::string payload = vsi_consumer->consume(1000); 
             if (!payload.empty()) {
@@ -164,8 +166,9 @@ namespace signal_opt_service
         auto sleep_secs = static_cast<unsigned int>(_so_sleep_time / 1000);
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
+
         while ( dpp_producer->is_running() ) {
-            
+            SPDLOG_INFO("Signal Optimization iteration!");
             streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
             try
             {
@@ -176,16 +179,18 @@ namespace signal_opt_service
                 SPDLOG_ERROR("dpp_generator_ptr is not initialized! : {0} ", ex.what());
             }
             current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
-
+            SPDLOG_INFO("Current movement groups represented in SPAT : {0}!", spat_dpp.desired_phase_plan.size());
             /**
              * If the number of future movement groups in the spat has changed compared to the previous step
              * and it is less than or equal to the desired number of future movement groups, run streets_signal_optimization
              * libraries to get optimal desired_phase_plan.
             */
-            if (current_future_move_group_count != prev_future_move_group_count) {
+            if (current_future_move_group_count != prev_future_move_group_count ) {
                 SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
                                                             prev_future_move_group_count, current_future_move_group_count);
-                if (current_future_move_group_count <= _dpp_config.desired_future_move_group_count) {
+                // Current movement group count includes current fix momvement group.
+                // Desired future movemement group count only includes future movement groups
+                if (current_future_move_group_count -1 <= _dpp_config.desired_future_move_group_count) {
                     streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
                                 _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
                                                                             _spat_ptr, 
