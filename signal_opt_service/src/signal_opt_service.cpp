@@ -170,44 +170,55 @@ namespace signal_opt_service
 
         while ( dpp_producer->is_running() ) {
             SPDLOG_INFO("Signal Optimization iteration!");
-            streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
-            try
-            {
-                spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
-            }
-            catch(const streets_signal_optimization::streets_desired_phase_plan_generator_exception &ex)
-            {
-                SPDLOG_ERROR("dpp_generator_ptr is not initialized! : {0} ", ex.what());
-            }
-            current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
-            SPDLOG_INFO("Current movement groups represented in SPAT : {0}!", spat_dpp.desired_phase_plan.size());
-            /**
-             * If the number of future movement groups in the spat has changed compared to the previous step
-             * and it is less than or equal to the desired number of future movement groups, run streets_signal_optimization
-             * libraries to get optimal desired_phase_plan.
-            */
-            if (current_future_move_group_count != prev_future_move_group_count ) {
-                SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
-                                                            prev_future_move_group_count, current_future_move_group_count);
-                // Current movement group count includes current fix momvement group.
-                // Desired future movemement group count only includes future movement groups
-                if (current_future_move_group_count -1 <= _dpp_config.desired_future_move_group_count) {
-                    streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
-                                _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
-                                                                            _spat_ptr, 
-                                                                            _tsc_config_ptr, 
-                                                                            _vehicle_list_ptr, 
-                                                                            _movement_groups_ptr, 
-                                                                            _dpp_config);
-                    if (!optimal_dpp.desired_phase_plan.empty()) {
-                        std::string msg_to_send = optimal_dpp.toJson();
-                        /* produce the optimal desired phase plan to kafka */
-                        dpp_producer->send(msg_to_send);
+            if ( !_spat_ptr->intersections.empty() && !_vehicle_list_ptr->get_vehicles().empty() ) {
+                streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
+                try
+                {
+                    spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
+                }
+                catch(const std::runtime_error &ex)
+                {
+                    SPDLOG_ERROR("Encountered Exception : {0} ", ex.what());
+                    continue;
+                }
+                
+                current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
+                SPDLOG_INFO("Current movement groups represented in SPAT : {0}!", spat_dpp.desired_phase_plan.size());
+                /**
+                 * If the number of future movement groups in the spat has changed compared to the previous step
+                 * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
+                 * libraries to get optimal desired_phase_plan.
+                */
+                if (current_future_move_group_count != prev_future_move_group_count ) {
+                    SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
+                                                                prev_future_move_group_count, current_future_move_group_count);
+                    // Current movement group count includes current fix momvement group.
+                    // Desired future movemement group count only includes future movement groups
+                    if (current_future_move_group_count -1 <= _dpp_config.desired_future_move_group_count) {
+                        streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
+                                    _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
+                                                                                _spat_ptr, 
+                                                                                _tsc_config_ptr, 
+                                                                                _vehicle_list_ptr, 
+                                                                                _movement_groups_ptr, 
+                                                                                _dpp_config);
+                        if (!optimal_dpp.desired_phase_plan.empty()) {
+                            std::string msg_to_send = optimal_dpp.toJson();
+                            /* produce the optimal desired phase plan to kafka */
+                            dpp_producer->send(msg_to_send);
+                        }
                     }
                 }
+                else {
+                    SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
+                }
+            }
+            else if (vehicle_list_ptr->get_vehicles().empty() ) {
+                SPDLOG_DEBUG("No vehicles present");
             }
             else {
-                SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
+                SPDLOG_WARN("No SPaT information received!");
+ 
             }
             prev_future_move_group_count = current_future_move_group_count;
             sleep(sleep_secs);
