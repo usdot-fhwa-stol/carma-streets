@@ -164,7 +164,6 @@ namespace signal_opt_service
             _so_processing_worker_ptr->configure_signal_opt_processing_worker(_dpp_config);
         }
         
-        auto sleep_secs = static_cast<unsigned int>(_so_sleep_time / 1000);
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
 
@@ -218,7 +217,7 @@ namespace signal_opt_service
  
             }
             prev_future_move_group_count = current_future_move_group_count;
-            sleep(sleep_secs);
+            std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
         }
         SPDLOG_WARN("Stopping desired phase plan producer thread!");
         dpp_producer->stop();
@@ -272,8 +271,7 @@ namespace signal_opt_service
 
     bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const
     {
-        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
-        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} seconds for maximum {1} times.", sleep_secs, int_client_request_attempts);
+        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} ms for maximum {1} times.", sleep_millisecs, int_client_request_attempts);
         int attempt_count = 0;
         while (attempt_count < int_client_request_attempts)
         {
@@ -282,7 +280,7 @@ namespace signal_opt_service
             {
                 return true;
             }
-            sleep(sleep_secs);
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep_millisecs));
             attempt_count++;
         }
         // If failed to update the intersection information after certain numbers of attempts
