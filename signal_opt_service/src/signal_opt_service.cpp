@@ -143,6 +143,7 @@ namespace signal_opt_service
                     SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
                 }else {
                     // Stop consumer after receiving tsc_configuration information
+                    SPDLOG_INFO("TSC Configuration sucessfully loaded : \n{0}", payload );
                     tsc_config_consumer->stop();
                     break;
                 }
