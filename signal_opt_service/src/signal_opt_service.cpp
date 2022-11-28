@@ -170,7 +170,7 @@ namespace signal_opt_service
 
         while ( dpp_producer->is_running() ) {
             SPDLOG_INFO("Signal Optimization iteration!");
-            if ( !_spat_ptr->intersections.empty() && !_vehicle_list_ptr->get_vehicles().empty() ) {
+            if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
                 streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
                 try
                 {
@@ -179,7 +179,7 @@ namespace signal_opt_service
                 catch(const std::runtime_error &ex)
                 {
                     SPDLOG_ERROR("Encountered Exception : {0} ", ex.what());
-                    continue;
+                    break;
                 }
                 
                 current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
@@ -213,11 +213,8 @@ namespace signal_opt_service
                     SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
                 }
             }
-            else if (vehicle_list_ptr->get_vehicles().empty() ) {
-                SPDLOG_DEBUG("No vehicles present");
-            }
             else {
-                SPDLOG_WARN("No SPaT information received!");
+                SPDLOG_DEBUG("No vehicles present");
  
             }
             prev_future_move_group_count = current_future_move_group_count;
