@@ -171,6 +171,7 @@ namespace signal_opt_service
             SPDLOG_INFO("Signal Optimization iteration!");
             if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
                 streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
+                
                 try
                 {
                     spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
@@ -180,36 +181,44 @@ namespace signal_opt_service
                     SPDLOG_ERROR("Encountered Exception : {0} ", ex.what());
                     break;
                 }
-                
+                auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
                 current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
                 SPDLOG_INFO("Current movement groups represented in SPAT : {0}!", spat_dpp.desired_phase_plan.size());
-                /**
-                 * If the number of future movement groups in the spat has changed compared to the previous step
-                 * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
-                 * libraries to get optimal desired_phase_plan.
-                */
-                if (current_future_move_group_count != prev_future_move_group_count ) {
-                    SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
-                                                                prev_future_move_group_count, current_future_move_group_count);
-                    // Current movement group count includes current fix momvement group.
-                    // Desired future movemement group count only includes future movement groups
-                    if (current_future_move_group_count -1 <= _dpp_config.desired_future_move_group_count) {
-                        streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
-                                    _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
-                                                                                _spat_ptr, 
-                                                                                _tsc_config_ptr, 
-                                                                                _vehicle_list_ptr, 
-                                                                                _movement_groups_ptr, 
-                                                                                _dpp_config);
-                        if (!optimal_dpp.desired_phase_plan.empty()) {
-                            std::string msg_to_send = optimal_dpp.toJson();
-                            /* produce the optimal desired phase plan to kafka */
-                            dpp_producer->send(msg_to_send);
+
+                auto time_to_yellow = current_timestamp - spat_dpp.desired_phase_plan.front().end_time;
+                if ( time_to_yellow <= _time_to_yellow ) {
+                    /**
+                     * If the number of future movement groups in the spat has changed compared to the previous step
+                     * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
+                     * libraries to get optimal desired_phase_plan.
+                    */
+                    if (current_future_move_group_count != prev_future_move_group_count ) {
+                        SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
+                                                                    prev_future_move_group_count, current_future_move_group_count);
+                        // Current movement group count includes current fix momvement group.
+                        // Desired future movemement group count only includes future movement groups
+                        if (current_future_move_group_count -1 <= _dpp_config.desired_future_move_group_count) {
+                            streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
+                                        _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
+                                                                                    _spat_ptr, 
+                                                                                    _tsc_config_ptr, 
+                                                                                    _vehicle_list_ptr, 
+                                                                                    _movement_groups_ptr, 
+                                                                                    _dpp_config);
+                            if (!optimal_dpp.desired_phase_plan.empty()) {
+                                std::string msg_to_send = optimal_dpp.toJson();
+                                /* produce the optimal desired phase plan to kafka */
+                                dpp_producer->send(msg_to_send);
+                            }
                         }
+                    }
+                    else {
+                        SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
                     }
                 }
                 else {
-                    SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
+                    SPDLOG_WARN("Currently {0} ms to yellow! Waiting for {1} ms or lower time to yellow!", time_to_yellow, _time_to_yellow);
                 }
             }
             else {
@@ -323,6 +332,7 @@ namespace signal_opt_service
         _so_log_filename = streets_service::streets_configuration::get_string_config("so_log_filename");
         enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
         so_sleep_time = streets_service::streets_configuration::get_int_config("signal_optimization_frequency");
+        _time_to_yellow = streets_service::streets_configuration::get_int_config("time_before_yellow_change");
 
         dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
         dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
@@ -332,6 +342,7 @@ namespace signal_opt_service
         dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
         dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
         dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+
     }
 
 
