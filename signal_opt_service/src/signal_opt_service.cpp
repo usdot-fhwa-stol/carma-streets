@@ -196,25 +196,24 @@ namespace signal_opt_service
                      * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
                      * libraries to get optimal desired_phase_plan.
                     */
-                    if (current_future_move_group_count != prev_future_move_group_count ) {
+                    if (current_future_move_group_count != prev_future_move_group_count || current_future_move_group_count < dpp_config.desired_future_move_group_count-1 ) {
                         SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
                                                                     prev_future_move_group_count, current_future_move_group_count);
                         // Current movement group count includes current fix momvement group.
                         // Desired future movemement group count only includes future movement groups
-                        if (current_future_move_group_count -1 <= _dpp_config.desired_future_move_group_count) {
-                            streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
-                                        _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
-                                                                                    _spat_ptr, 
-                                                                                    _tsc_config_ptr, 
-                                                                                    _vehicle_list_ptr, 
-                                                                                    _movement_groups_ptr, 
-                                                                                    _dpp_config);
-                            if (!optimal_dpp.desired_phase_plan.empty()) {
-                                std::string msg_to_send = optimal_dpp.toJson();
-                                /* produce the optimal desired phase plan to kafka */
-                                dpp_producer->send(msg_to_send);
-                            }
+                        streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
+                                    _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
+                                                                                _spat_ptr, 
+                                                                                _tsc_config_ptr, 
+                                                                                _vehicle_list_ptr, 
+                                                                                _movement_groups_ptr, 
+                                                                                _dpp_config);
+                        if (!optimal_dpp.desired_phase_plan.empty()) {
+                            std::string msg_to_send = optimal_dpp.toJson();
+                            /* produce the optimal desired phase plan to kafka */
+                            dpp_producer->send(msg_to_send);
                         }
+                        
                     }
                     else {
                         SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
