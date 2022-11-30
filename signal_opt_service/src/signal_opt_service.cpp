@@ -188,6 +188,7 @@ namespace signal_opt_service
                 SPDLOG_INFO("Current green ends at time {0} and current timestamp is {1}", spat_dpp.desired_phase_plan.front().end_time, current_timestamp );
                 auto time_to_yellow = current_timestamp - spat_dpp.desired_phase_plan.front().end_time;
                 SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
+                SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
                 if ( time_to_yellow <= _time_to_yellow ) {
                     SPDLOG_INFO("Checking fixed phases");
                     /**
