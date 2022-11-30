@@ -182,8 +182,6 @@ namespace signal_opt_service
                     SPDLOG_ERROR("Encountered Exception : {0} ", ex.what());
                     break;
                 }
-                auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
                 SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
                 current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
                 if (new_dpp_generated) {
@@ -196,8 +194,9 @@ namespace signal_opt_service
                         continue;
                     }
                 }
+                auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
-                
+                SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
                 if ( time_to_yellow <= _time_to_yellow ) {
                     SPDLOG_INFO("Checking fixed phases");
                     /**
