@@ -166,6 +166,7 @@ namespace signal_opt_service
         
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
+        bool new_dpp_generated = false;
 
         while ( dpp_producer->is_running() ) {
             SPDLOG_INFO("Signal Optimization iteration!");
@@ -182,13 +183,21 @@ namespace signal_opt_service
                     break;
                 }
                 auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-                current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
-                SPDLOG_INFO("Current movement groups represented in SPAT : {0}!", spat_dpp.desired_phase_plan.size());
-                SPDLOG_INFO("Current green ends at time {0} and current timestamp is {1}", spat_dpp.desired_phase_plan.front().end_time, current_timestamp );
-                auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
                 SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
                 SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
+                current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
+                if (new_dpp_generated) {
+                    SPDLOG_INFO("Current number of movement groups represented in SPAT : {0}!", prev_future_move_group_count);
+                    if (current_future_move_group_count > prev_future_move_group_count) {
+                        new_dpp_generated = false;
+                    }
+                    else {
+                        SPDLOG_WARN("Skipping SO iteration. Previously sent DPP is not yet reflected in SPaT!");
+                        continue;
+                    }
+                }
+                auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
+                
                 if ( time_to_yellow <= _time_to_yellow ) {
                     SPDLOG_INFO("Checking fixed phases");
                     /**
@@ -196,7 +205,7 @@ namespace signal_opt_service
                      * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
                      * libraries to get optimal desired_phase_plan.
                     */
-                    if (current_future_move_group_count != prev_future_move_group_count || current_future_move_group_count <= dpp_config.desired_future_move_group_count ) {
+                    if (current_future_move_group_count <= dpp_config.desired_future_move_group_count ) {
                         SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
                                                                     prev_future_move_group_count, current_future_move_group_count);
                         // Current movement group count includes current fix momvement group.
@@ -212,6 +221,8 @@ namespace signal_opt_service
                             std::string msg_to_send = optimal_dpp.toJson();
                             /* produce the optimal desired phase plan to kafka */
                             dpp_producer->send(msg_to_send);
+                            prev_future_move_group_count = current_future_move_group_count;
+                            new_dpp_generated = true;
                         }
                         
                     }
@@ -227,7 +238,6 @@ namespace signal_opt_service
                 SPDLOG_DEBUG("No vehicles present");
  
             }
-            prev_future_move_group_count = current_future_move_group_count;
             std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
         }
         SPDLOG_WARN("Stopping desired phase plan producer thread!");
