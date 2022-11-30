@@ -196,7 +196,7 @@ namespace signal_opt_service
                      * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
                      * libraries to get optimal desired_phase_plan.
                     */
-                    if (current_future_move_group_count != prev_future_move_group_count || current_future_move_group_count < dpp_config.desired_future_move_group_count-1 ) {
+                    if (current_future_move_group_count != prev_future_move_group_count || current_future_move_group_count <= dpp_config.desired_future_move_group_count ) {
                         SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
                                                                     prev_future_move_group_count, current_future_move_group_count);
                         // Current movement group count includes current fix momvement group.
