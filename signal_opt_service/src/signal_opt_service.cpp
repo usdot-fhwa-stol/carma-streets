@@ -186,7 +186,7 @@ namespace signal_opt_service
                 current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
                 SPDLOG_INFO("Current movement groups represented in SPAT : {0}!", spat_dpp.desired_phase_plan.size());
                 SPDLOG_INFO("Current green ends at time {0} and current timestamp is {1}", spat_dpp.desired_phase_plan.front().end_time, current_timestamp );
-                auto time_to_yellow = current_timestamp - spat_dpp.desired_phase_plan.front().end_time;
+                auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
                 SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
                 SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
                 if ( time_to_yellow <= _time_to_yellow ) {
