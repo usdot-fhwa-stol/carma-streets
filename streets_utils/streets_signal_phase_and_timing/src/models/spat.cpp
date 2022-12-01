@@ -139,7 +139,7 @@ namespace signal_phase_and_timing{
         intersections.front().clear_future_movement_events();
         auto states = intersections.front().states;
         // Loop through desired phase plan
-        bool is_procssing_first_desired_green = true;
+        bool is_processing_first_desired_green = true;
         for (const auto &desired_sg_green_timing : candidate_dpp.desired_phase_plan)
         {
             if (desired_sg_green_timing.signal_groups.empty())
@@ -161,7 +161,7 @@ namespace signal_phase_and_timing{
                 // Get movement_state by reference. With this reference, it can update the original SPAT movement state list
                 auto &cur_movement_state_ref = intersections.front().get_movement(current_signal_group_id);
                 // Processing the next current or first desired future movement event from the desired phase plan
-                if (is_procssing_first_desired_green)
+                if (is_processing_first_desired_green)
                 {
                    process_first_desired_green(cur_movement_state_ref, desired_sg_green_timing, tsc_state);
                 }
@@ -171,7 +171,7 @@ namespace signal_phase_and_timing{
                     process_second_onward_desired_green(cur_movement_state_ref, desired_sg_green_timing, tsc_state);
                 }
             }
-            is_procssing_first_desired_green = false;
+            is_processing_first_desired_green = false;
         }
     }
 

@@ -20,7 +20,7 @@ namespace traffic_signal_controller_service
     {
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr || tsc_state_ptr->get_tsc_config_state() == nullptr)
         {
-            throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
+            throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP processing!");
         }
 
         if (spat_ptr->get_intersection().states.empty())
@@ -43,6 +43,20 @@ namespace traffic_signal_controller_service
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
             }
         } else {
+
+            // Loop through the desired phase plan and remove an event if the end time is past current
+            bool no_expired_events = false;
+            while(!no_expired_events){
+                // Check first event in desired phase plan and remove if expired
+                uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                if(cur_time_since_epoch < desired_phase_plan_ptr->desired_phase_plan.front().end_time){
+                    no_expired_events = true;
+                }
+                else{
+                    desired_phase_plan_ptr->desired_phase_plan.erase(desired_phase_plan_ptr->desired_phase_plan.begin());
+                }
+            }
+
             spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr->get_tsc_config_state());
         }
     }
