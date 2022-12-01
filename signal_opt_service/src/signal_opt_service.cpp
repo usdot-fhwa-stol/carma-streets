@@ -284,10 +284,13 @@ namespace signal_opt_service
             for ( const auto &mg : _groups->groups) {
                 SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.signal_groups.first, mg.signal_groups.second );
             }
+
+            SPDLOG_WARN("Attempting to ignore {0} signal groups!", ignore_signal_groups.size());
             // Remove configured signal groups to ignore them
             auto mg_itr = _groups->groups.begin();
             while ( mg_itr != _groups->groups.end() ) {
                 bool erased = false;
+                
                 for (const auto &ignore : ignore_signal_groups) {
                     if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second == 0) {
                         SPDLOG_WARN("Removing movement group with signal groups {0} , {0}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
