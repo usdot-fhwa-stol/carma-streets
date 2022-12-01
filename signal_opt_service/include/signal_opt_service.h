@@ -30,6 +30,7 @@ namespace signal_opt_service
         bool enable_so_logging = false;
         int so_sleep_time;
         uint64_t _time_to_yellow;
+        std::vector<uint> ignore_signal_groups;
 
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;

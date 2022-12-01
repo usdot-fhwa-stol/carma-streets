@@ -284,6 +284,24 @@ namespace signal_opt_service
             for ( const auto &mg : _groups->groups) {
                 SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.signal_groups.first, mg.signal_groups.second );
             }
+            // Remove configured signal groups to ignore them
+            auto mg_itr = _groups->groups.begin();
+            while ( mg_itr != _groups->groups.end() ) {
+                bool erased = false;
+                for (const auto &ignore : ignore_signal_groups) {
+                    if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second == 0) {
+                        SPDLOG_WARN("Removing movement group with signal groups {0} , {0}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                        mg_itr = _groups->groups.erase(mg_itr);
+                        erased = true;
+                    }
+                }
+                if (!erased) {
+                    mg_itr++;
+                }
+
+            }
+            
+            
             
         }
     }
@@ -353,6 +371,14 @@ namespace signal_opt_service
         dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
         dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
         dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+        std::stringstream comma_separated_list (streets_service::streets_configuration::get_string_config("ignore_signal_groups"));
+        while( comma_separated_list.good() )
+        {
+            std::string signal_group;
+            getline( comma_separated_list, signal_group, ',' );
+            SPDLOG_WARN("Adding signal group {0} to the list of ignored signal groups", std::stoi(signal_group));
+            ignore_signal_groups.push_back( std::stoi(signal_group) );
+        }
 
     }
 
