@@ -145,6 +145,12 @@
             "value": 2000,
             "description": "Time (in milliseconds) before next yellow change interval to run signal optimization. Signal Optmization will only run during a green phase between this threshold and the next yellow. For example, if this threshold is set to 2 seconds, signal optmization will only run in a time window starting at 2 seconds before the next yellow and ending at the next yellow!",
             "type": "INTEGER"
+        },
+        {
+            "name": "ignore_signal_groups",
+            "value": "10",
+            "description": "Comma seperated list of signal groups to ignore.",
+            "type": "STRING"
         }
     ]
 }
