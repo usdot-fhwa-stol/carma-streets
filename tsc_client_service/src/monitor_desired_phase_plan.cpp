@@ -189,7 +189,7 @@ namespace traffic_signal_controller_service
         fixed_green.start_time = green_phases.front().state_time_speed.front().timing.get_epoch_start_time();
         fixed_green.end_time =  green_phases.front().state_time_speed.front().timing.get_epoch_min_end_time();
         one_fixed_green.desired_phase_plan.push_back(fixed_green);
-        SPDLOG_DEBUG("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
+        SPDLOG_INFO("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
         spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());    
     }
 }
