@@ -148,24 +148,9 @@ namespace traffic_signal_controller_service
         std::string execution_start_time = std::to_string(start_time_);
 
         // Convert value set to phases nums
-        int64_t value_set = set_val_.val_int;
-        std::string signal_groups_set;
-        
-        int binary_val[8];
-        int i = 0;
+        std::string value_set = std::to_string(set_val_.val_int);
 
-        while (value_set > 0)
-        {
-            binary_val[i] = value_set % 2;
-            value_set = value_set / 2;
-            if(binary_val[i] == 1){
-                signal_groups_set += std::to_string(i + 1);
-            }
-
-            i++;
-        }
-
-        return "control_cmd_type:" + command_type + ";execution_start_time:" + execution_start_time + ";signal_groups_set:" + signal_groups_set;
+        return "control_cmd_type:" + command_type + ";execution_start_time:" + execution_start_time + ";value_set:" + value_set;
         
     }
 
