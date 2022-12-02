@@ -50,7 +50,7 @@ namespace traffic_signal_controller_service
             
             // Loop through the desired phase plan and remove an event if the end time is past current
             bool no_expired_events = false;
-            while(desired_phase_plan_ptr != nullptr && !desired_phase_plan_ptr->desired_phase_plan.empty() && !no_expired_events){
+            while( !no_expired_events || desired_phase_plan_ptr != nullptr || !desired_phase_plan_ptr->desired_phase_plan.empty()){
                 // Check first event in desired phase plan and remove if expired
                 uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 if(cur_time_since_epoch < desired_phase_plan_ptr->desired_phase_plan.front().end_time){
