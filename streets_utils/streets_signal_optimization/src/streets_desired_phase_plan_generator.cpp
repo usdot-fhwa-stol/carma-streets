@@ -322,7 +322,7 @@ namespace streets_signal_optimization {
         for ( const auto &entry_lane_obj : intersection_info_ptr->getEntryLanelets() ) {
             std::list<streets_vehicle_scheduler::signalized_vehicle_schedule> schedules_in_lane;
             for ( const auto &ev_sched : ev_schedules_within_so.vehicle_schedules ) {
-                if (ev_sched.state == streets_vehicles::vehicle_state::EV && ev_sched.entry_lane == entry_lane_obj.getId() && ev_sched.et > tbd_start) {
+                if (ev_sched.state == streets_vehicles::vehicle_state::EV && ev_sched.entry_lane == entry_lane_obj.getId() && ev_sched.et >= tbd_start) {
                     SPDLOG_DEBUG("Adding schedule for vehicle {0} to EV schedule list in entry lane {1}", ev_sched.v_id, ev_sched.entry_lane);
                     schedules_in_lane.push_back(ev_sched);
                 }

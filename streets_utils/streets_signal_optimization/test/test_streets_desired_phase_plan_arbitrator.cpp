@@ -991,11 +991,11 @@ namespace streets_signal_optimization
 
         // Create mock desired phase plan list
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
-        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
+        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 12000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 22000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
         auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan1_ptr->fromJson(streets_desired_phase_plan_str_1);
 
-        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
+        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 12000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 22000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
         auto desired_phase_plan2_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
         dpp_list.push_back(*desired_phase_plan1_ptr);
@@ -1009,8 +1009,8 @@ namespace streets_signal_optimization
 
         streets_vehicle_scheduler::signalized_vehicle_schedule vehicle_schedule_2;
         vehicle_schedule_2.v_id = "DOT-112";
-        vehicle_schedule_2.et = epoch_timestamp + 30000;
-        vehicle_schedule_2.eet = epoch_timestamp + 20000;
+        vehicle_schedule_2.et = epoch_timestamp + 32000;
+        vehicle_schedule_2.eet = epoch_timestamp + 22000;
         schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_2);
         int desired_phase_plan_index = 0;
 
@@ -1033,11 +1033,11 @@ namespace streets_signal_optimization
 
         // Create mock desired phase plan list
         std::vector<streets_desired_phase_plan::streets_desired_phase_plan> dpp_list;
-        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":1111111111,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
+        std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":1111111111,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 12000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 22000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 30000) + "}]}";
         auto desired_phase_plan1_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan1_ptr->fromJson(streets_desired_phase_plan_str_1);
 
-        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":2222222222,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 10000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 20000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
+        std::string streets_desired_phase_plan_str_2 = "{\"timestamp\":2222222222,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":" + std::to_string(epoch_timestamp) + ",\"end_time\":" + std::to_string(epoch_timestamp + 10000) + "},{\"signal_groups\":[2,6],\"start_time\":" + std::to_string(epoch_timestamp + 12000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 20000) + "},{\"signal_groups\":[3,7],\"start_time\":" + std::to_string(epoch_timestamp + 22000) + ",\"end_time\":" + std::to_string(epoch_timestamp + 40000) + "}]}";
         auto desired_phase_plan2_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         desired_phase_plan2_ptr->fromJson(streets_desired_phase_plan_str_2);
         dpp_list.push_back(*desired_phase_plan1_ptr);
@@ -1051,8 +1051,8 @@ namespace streets_signal_optimization
 
         streets_vehicle_scheduler::signalized_vehicle_schedule vehicle_schedule_2;
         vehicle_schedule_2.v_id = "DOT-112";
-        vehicle_schedule_2.et = epoch_timestamp + 30000;
-        vehicle_schedule_2.eet = epoch_timestamp + 20000;
+        vehicle_schedule_2.et = epoch_timestamp + 32000;
+        vehicle_schedule_2.eet = epoch_timestamp + 22000;
         schedule_ptr->vehicle_schedules.push_back(vehicle_schedule_2);
 
         // Calculate delay measures

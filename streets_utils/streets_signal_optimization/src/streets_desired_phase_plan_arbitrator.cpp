@@ -111,14 +111,14 @@ namespace streets_signal_optimization
         u_int64_t candidate_vehicles_delay = 0;
         for (const auto &veh_schedule : schedule_ptr->vehicle_schedules)
         {
-            // If find the vehicles’ schedule ET >= candidate desired phase plan end time, these vehicles are considered TBD.
-            if (veh_schedule.et >= candidate_dpp.desired_phase_plan.back().end_time)
+            // If find the vehicles’ schedule ET > candidate desired phase plan end time, these vehicles are considered TBD.
+            if (veh_schedule.et > candidate_dpp.desired_phase_plan.back().end_time)
             {
                 TBD_delay += veh_schedule.get_delay();
                 SPDLOG_DEBUG("TBD veh_schedule v_ID= {0}, get_delay = {1}", veh_schedule.v_id, veh_schedule.get_delay());
             }
-            // If find the vehicles’ schedule ET < candidate desired phase plan end time and the vehicles’ schedule ET > candidate desired phase plan start time.
-            else if (veh_schedule.et > candidate_dpp.desired_phase_plan.back().start_time)
+            // If find the vehicles’ schedule ET <= candidate desired phase plan end time and the vehicles’ schedule ET => candidate desired phase plan start time.
+            else if (veh_schedule.et >= candidate_dpp.desired_phase_plan.back().start_time)
             {
                 candidate_vehicles_delay += veh_schedule.get_delay();
                 SPDLOG_DEBUG("candidate veh_schedule v_ID= {0}, get_delay = {1}", veh_schedule.v_id, veh_schedule.get_delay());
