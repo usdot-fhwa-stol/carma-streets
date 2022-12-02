@@ -60,6 +60,12 @@ namespace traffic_signal_controller_service
             return true;
             
         }
+
+        /**
+         * @brief Method to return information about the snmp set command
+         * @return Returns string formatted as "control_cmd_type:<HOLD/OMIT>;execution_start_time:<calculated_start_time>;signal_groups_set:<signal groups being set separated by commas>".
+         * */
+        std::string get_cmd_info();
     };
 
     class control_tsc_state

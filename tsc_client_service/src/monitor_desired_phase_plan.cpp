@@ -20,7 +20,7 @@ namespace traffic_signal_controller_service
     {
         if (tsc_state_ptr == nullptr || spat_ptr == nullptr || tsc_state_ptr->get_tsc_config_state() == nullptr)
         {
-            throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
+            throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP processing!");
         }
 
         if (spat_ptr->get_intersection().states.empty())
