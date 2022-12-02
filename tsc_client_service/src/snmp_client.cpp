@@ -59,12 +59,12 @@ namespace traffic_signal_controller_service
         // Create pdu for the data
         if (request_type == request_type::GET)
         {
-            SPDLOG_INFO("Attemping to GET value for: {0}", input_oid);
+            SPDLOG_DEBUG("Attemping to GET value for: {0}", input_oid);
             pdu = snmp_pdu_create(SNMP_MSG_GET);
         }
         else if (request_type == request_type::SET)
         {
-            SPDLOG_INFO("Attemping to SET value for {0}", input_oid, " to {1}", val.val_int);
+            SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", val.val_int);
             pdu = snmp_pdu_create(SNMP_MSG_SET);
         }
         else{
@@ -99,7 +99,7 @@ namespace traffic_signal_controller_service
                 }
             }
 
-            SPDLOG_INFO("Created OID for input: {0}", input_oid);
+            SPDLOG_DEBUG("Created OID for input: {0}", input_oid);
         }
 
         // Send the request
@@ -108,7 +108,7 @@ namespace traffic_signal_controller_service
         // Check response
         if(status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
             
-            SPDLOG_INFO("STAT_SUCCESS, received a response");
+            SPDLOG_DEBUG("STAT_SUCCESS, received a response");
             
             if(request_type == request_type::GET){
                 for(auto vars = response->variables; vars; vars = vars->next_variable){
@@ -118,7 +118,7 @@ namespace traffic_signal_controller_service
                     if(vars->type == ASN_INTEGER){
                         if(vars->val.integer){
                             val.val_int = *vars->val.integer;
-                            SPDLOG_INFO("Integer value in object: {0}", val.val_int);
+                            SPDLOG_DEBUG("Integer value in object: {0}", val.val_int);
                         }
                         else{
                             SPDLOG_ERROR("Response specifies type integer, but no integer value found");
@@ -149,13 +149,13 @@ namespace traffic_signal_controller_service
             else if(request_type == request_type::SET){
                 
                 if(val.type == snmp_response_obj::response_type::INTEGER){
-                    SPDLOG_INFO("Success in SET for OID: {0} Value: {1}", input_oid ,val.val_int);
+                    SPDLOG_DEBUG("Success in SET for OID: {0} Value: {1}", input_oid ,val.val_int);
                 }
 
                 else if(val.type == snmp_response_obj::response_type::STRING){
-                    SPDLOG_INFO("Success in SET for OID: {0} Value:", input_oid);
+                    SPDLOG_DEBUG("Success in SET for OID: {0} Value:", input_oid);
                     for(auto data : val.val_string){
-                        SPDLOG_INFO("{0}", data);
+                        SPDLOG_DEBUG("{0}", data);
                     }
                 }
             }
