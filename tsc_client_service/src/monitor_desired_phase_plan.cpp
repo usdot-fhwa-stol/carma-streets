@@ -18,7 +18,10 @@ namespace traffic_signal_controller_service
 
     void monitor_desired_phase_plan::update_spat_future_movement_events(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const
     {
-        if (tsc_state_ptr == nullptr || spat_ptr == nullptr || tsc_state_ptr->get_tsc_config_state() == nullptr)
+        if (tsc_state_ptr == nullptr || 
+            spat_ptr == nullptr || 
+            tsc_state_ptr->get_tsc_config_state() == nullptr ||
+            tsc_state_ptr->get_tsc_config_state()->tsc_config_list.empty())
         {
             throw monitor_desired_phase_plan_exception("SPAT and TSC state pointers cannot be null. SKIP prcessing!");
         }
