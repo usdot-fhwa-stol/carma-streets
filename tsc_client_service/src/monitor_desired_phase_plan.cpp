@@ -81,8 +81,8 @@ namespace traffic_signal_controller_service
             if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_clearance ) {
                 is_yellow_change = true;
                 auto yellow_phase_configuration =tsc_state->get_signal_group_state_map().find(movement.signal_group)->second;
-                // Start time of upcoming green will be end of yellow + red clearance 
-                uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_min_end_time() + yellow_phase_configuration.red_clearance;
+                // Start time of upcoming green will be start of yellow + yellow duration + red clearance 
+                uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_start_time() + yellow_phase_configuration.yellow_duration + yellow_phase_configuration.red_clearance;
                 if ( local_start_time_epoch > start_time_epoch_ms) {
                     // If there are multiple movement groups in yellow, start time will be the largest end of yellow + red clearance time
                     start_time_epoch_ms = local_start_time_epoch;
@@ -95,10 +95,11 @@ namespace traffic_signal_controller_service
                 // Found red states
                 if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain ) {
                     auto red_phase_configuration =tsc_state->get_signal_group_state_map().find(movement.signal_group)->second;
-                    uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_min_end_time();
-                    // If red phase end - current time is less than or equal to red clearance then this phase is currently in red clearance
+                    // Start time is red clearance start + red clearance if start time is > current time
+                    uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_start_time() + red_phase_configuration.red_clearance;
+                    // If red phase start + red clearance is greater than current time this phase is in red clearance
                     // and will get green next.
-                    if ( local_start_time_epoch - cur_time_since_epoch <= (uint) (red_phase_configuration.red_clearance) ) {
+                    if ( local_start_time_epoch > cur_time_since_epoch ) {
                         start_time_epoch_ms = local_start_time_epoch;
                     }
 
