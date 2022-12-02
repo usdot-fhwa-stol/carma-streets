@@ -291,7 +291,8 @@ namespace traffic_signal_controller_service {
             {
                 throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
             }
-            SPDLOG_TRACE("Sent TSC SET command");
+            // Log command info sent
+            SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
             tsc_set_command_queue_.pop();
         }

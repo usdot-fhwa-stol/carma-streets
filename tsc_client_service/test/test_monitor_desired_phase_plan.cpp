@@ -496,7 +496,7 @@ namespace traffic_signal_controller_service
             monitor_dpp_ptr->update_spat_future_movement_events(nullptr, nullptr);
         }
         catch( const monitor_desired_phase_plan_exception &e ) {
-            ASSERT_STREQ(e.what(), "SPAT and TSC state pointers cannot be null. SKIP prcessing!");
+            ASSERT_STREQ(e.what(), "SPAT and TSC state pointers cannot be null. SKIP processing!");
         }
         // Initialize tsc_state
         mock_tsc_ntcip();
