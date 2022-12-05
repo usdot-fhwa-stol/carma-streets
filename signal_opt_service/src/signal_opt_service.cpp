@@ -172,7 +172,6 @@ namespace signal_opt_service
             SPDLOG_INFO("Signal Optimization iteration!");
             if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
                 streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
-                
                 try
                 {
                     spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
@@ -195,6 +194,17 @@ namespace signal_opt_service
                     }
                 }
                 auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                auto spat_lag =  current_timestamp - spat_ptr->get_intersection().get_epoch_timestamp() ;
+                if ( spat_lag > 200 ) {
+                    SPDLOG_WARN("Current spat lag is {0} ms!");
+                } else {
+                    SPDLOG_DEBUG("Current spat lag is {0} ms!");
+                }
+                if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
+                    SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
+                    continue;
+                }
+
                 auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
                 SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
                 if ( time_to_yellow <= _time_to_yellow ) {
