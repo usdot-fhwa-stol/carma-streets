@@ -77,7 +77,7 @@ namespace traffic_signal_controller_service
             std::shared_ptr<snmp_client> snmp_client_worker_;
 
             // Mapping from signal group ids to pedestrian phases
-            std::unordered_map<int, int> signal_group_2ped_phase_map_;
+            std::unordered_map<int, int> signal_group_2vehicle_phase_map_;
         
         public:
 

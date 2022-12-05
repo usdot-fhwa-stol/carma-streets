@@ -4,7 +4,7 @@
 namespace traffic_signal_controller_service
 {
     control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, const std::unordered_map<int, int>& signal_group_to_phase_map)  
-                            : snmp_client_worker_(snmp_client), signal_group_2ped_phase_map_(signal_group_to_phase_map)
+                            : snmp_client_worker_(snmp_client), signal_group_2vehicle_phase_map_(signal_group_to_phase_map)
     {
                 
     }
@@ -93,7 +93,7 @@ namespace traffic_signal_controller_service
 
             for(auto signal_group : signal_groups)
             {
-                int phase = signal_group_2ped_phase_map_[signal_group];
+                int phase = signal_group_2vehicle_phase_map_[signal_group];
                 // Omit all phases except the ones in the given movement group
                 // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
                 omit_val &= ~(1 << (phase - 1));
@@ -119,7 +119,7 @@ namespace traffic_signal_controller_service
 
             for(auto signal_group : signal_groups)
             {
-                int phase = signal_group_2ped_phase_map_[signal_group];
+                int phase = signal_group_2vehicle_phase_map_[signal_group];
                 // Hold phases in the given movement group
                 //For Hold only given phase bits are 1. Subtract 1 since phases range from 1-8.
                 hold_val |= (1 << ( phase - 1));

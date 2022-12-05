@@ -225,6 +225,11 @@ namespace traffic_signal_controller_service
              * @throws monitor_states_exception if signal group id is less than 1.
              */
             int get_phase_number(const int signal_group_id);
+
+
+            std::unordered_map<int,int> get_signal_group_2_vehicle_phase() const ;
+
+
             /**
              * @brief Get the signal group id using phase number.Only for vehicle phases
              * 
