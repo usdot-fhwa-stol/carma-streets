@@ -264,8 +264,8 @@ namespace signal_phase_and_timing {
         cur_event.timing.max_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_max_time_to_change());
         cur_event.timing.min_end_time = convert_offset(spat_data.get_phasetime(phase_number).get_spat_veh_min_time_to_change());
 
-        SPDLOG_WARN("Max end time offset for phase {0}: {1}", phase_number, cur_event.timing.max_end_time);
-        SPDLOG_WARN("Min end time offset for phase {0}: {1}", phase_number, cur_event.timing.min_end_time);
+        SPDLOG_WARN("Max time offset for phase {0}: {1}", phase_number, spat_data.get_phasetime(phase_number).get_spat_veh_max_time_to_change());
+        SPDLOG_WARN("Min time offset for phase {0}: {1}", phase_number, spat_data.get_phasetime(phase_number).get_spat_veh_min_time_to_change());
     }
 
     void intersection_state::update_movements(ntcip::ntcip_1202_ext &spat_data, const std::unordered_map<int,int> &phase_number_to_signal_group ) {
