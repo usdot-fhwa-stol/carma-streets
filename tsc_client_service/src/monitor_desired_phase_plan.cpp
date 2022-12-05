@@ -16,7 +16,7 @@ namespace traffic_signal_controller_service
         return desired_phase_plan_ptr;
     }
 
-    void monitor_desired_phase_plan::update_spat_future_movement_events(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const
+    void monitor_desired_phase_plan::update_spat_future_movement_events(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) 
     {
         if (tsc_state_ptr == nullptr || 
             spat_ptr == nullptr || 
@@ -38,12 +38,22 @@ namespace traffic_signal_controller_service
             auto state = spat_ptr->get_intersection();
             for (const auto &movement : state.states) {
                 if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
+                    
                     green_phases_present.push_back(movement);
                 }
             }
+           
             if ( green_phases_present.empty() ) {
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
             } else {
+                // Track which greens were served last and update this value.
+                if ( last_green_served.empty() || green_phases_present.front().signal_group != last_green_served.front().signal_group || 
+                    green_phases_present.back().signal_group != last_green_served.front().signal_group) {
+                    last_green_served = green_phases_present;
+                    SPDLOG_DEBUG("Last served greens set to {0} and {0}!", 
+                        last_green_served.front().signal_group,
+                        last_green_served.size() == 1 ? 0 : last_green_served.back().signal_group );
+                }
                 fix_upcoming_yell_red(spat_ptr, tsc_state_ptr, green_phases_present);
             }
         } else {
@@ -68,7 +78,7 @@ namespace traffic_signal_controller_service
     }
 
     void monitor_desired_phase_plan::fix_upcoming_green(  const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
-            const std::shared_ptr<tsc_state> tsc_state)  const{
+            const std::shared_ptr<tsc_state> tsc_state) {
         // Find start time of next green
         bool is_yellow_change = false;
         // Start time for fixed up coming green
@@ -89,13 +99,22 @@ namespace traffic_signal_controller_service
                     // If there are multiple movement groups in yellow, start time will be the largest end of yellow + red clearance time
                     start_time_epoch_ms = local_start_time_epoch;
                 }
+                // If service starts on yellow change, set last green served to yellow change.
+                if ( last_green_served.empty() ) {
+                    last_green_served.push_back( movement);
+                    SPDLOG_DEBUG("Last served greens set to {0} and {0}!", 
+                        last_green_served.front().signal_group,
+                        last_green_served.size() == 1 ? 0 : last_green_served.back().signal_group );
+                }
             }
         }
         // If it does not include a green and does not include a yellow assume it is in all red clearance 
         if ( !is_yellow_change ) {
             for (const auto &movement : state.states) {
                 // Found red states
-                if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain ) {
+                if ( (movement.signal_group == last_green_served.front().signal_group 
+                    || movement.signal_group == last_green_served.back().signal_group) 
+                    && movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain ) {
                     auto red_phase_configuration =tsc_state->get_signal_group_state_map().find(movement.signal_group)->second;
                     // Start time is red clearance start + red clearance if start time is > current time
                     uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_start_time() + red_phase_configuration.red_clearance;
@@ -182,12 +201,14 @@ namespace traffic_signal_controller_service
         streets_desired_phase_plan::streets_desired_phase_plan one_fixed_green;
         uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         auto state = spat_ptr->get_intersection();
+        // Get green phase configuration to get min green.
+        auto green_phase_config =tsc_state->get_signal_group_state_map().find(green_phases.front().signal_group)->second;
 
             
         // Generate Desired Phase Plan with next green fixed.
         one_fixed_green.timestamp = cur_time_since_epoch;
         fixed_green.start_time = green_phases.front().state_time_speed.front().timing.get_epoch_start_time();
-        fixed_green.end_time =  green_phases.front().state_time_speed.front().timing.get_epoch_min_end_time();
+        fixed_green.end_time =  fixed_green.start_time + green_phase_config.min_green;
         one_fixed_green.desired_phase_plan.push_back(fixed_green);
         SPDLOG_INFO("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
         spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());    

@@ -15,6 +15,11 @@ namespace traffic_signal_controller_service
         std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan_ptr;
 
         std::shared_ptr<snmp_client> _snmp_client;
+        /**
+         * @brief Holds a vector of signal groups that represent the phases that were most recently green. This 
+         * vector is used to determine which signal group is currently in red clearance.
+         */
+        std::vector<signal_phase_and_timing::movement_state> last_green_served;
 
     public:
         /**
@@ -41,7 +46,7 @@ namespace traffic_signal_controller_service
          * @param tsc_state_ptr shared pointer to tsc_state object.
          */
         void update_spat_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
-                                                const std::shared_ptr<tsc_state> tsc_state_ptr) const;
+                                                const std::shared_ptr<tsc_state> tsc_state_ptr) ;
         /**
          * @brief Returns shared pointer to desired_phase_plan object.
          * 
@@ -61,7 +66,7 @@ namespace traffic_signal_controller_service
          * @param spat_ptr shared pointer to the current spat information.
          * @param tsc_state_ptr shared pointer to the tsc state information including tsc phase configuration information.
          */
-        void fix_upcoming_green(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) const;
+        void fix_upcoming_green(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) ;
 
         void fix_upcoming_yell_red(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
                                     const std::shared_ptr<tsc_state> tsc_state_ptr, 
