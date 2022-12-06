@@ -1,0 +1,151 @@
+import os
+import time
+import re
+import signal
+import subprocess
+import argparse
+from threading import timer
+
+
+## Python script to download and store kafka logs
+# Opens the kafka docker container, then uses the example script kafka-console-consumer.sh to grab messages.
+# Creates a local folder with given name
+# For each specified topic (default is all):
+#   downloads all messages between the given times (default is all)
+#   stores these messages to a file named $(topic).log
+# Then once all topics are downloaded, zips up the folder
+
+
+def store_kafka_topic(topic, dir, start_time, end_time):
+
+    kill = lambda process: process.kill()
+    timestamp_regex = 'CreateTime:(\d+)\t{'
+    filename = f'{dir}/{topic}.log'
+
+    # docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic v2xhub_scheduling_plan_sub | awk -F ":" '{sum += $3} END {print sum}'
+    # Command to get messages from specified topic, from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
+    command = f'docker exec kafka kafka-console-consumer.sh --topic {topic} --property print.timestamp=true --from-beginning --bootstrap-server localhost:9092'
+    result = subprocess.check_output(f'docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic {topic} | awk -F \":\" \'{{sum += $3}} END {{print sum}}\'', shell=True)
+    if result == b'\n':
+        return 1
+    else:
+        num_msgs = int(result)
+    print(f'total messages on topic {topic}: {num_msgs}')
+
+    line_count = 0
+    with open(filename, 'w+') as outfile:
+        # Popen returns a generator containing the command output line by line
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, universal_newlines=True, preexec_fn=os.setsid)
+        my_timer = Timer(10, kill, [process])
+        try:
+            while line_count < num_msgs:
+                # print(f'{line_count}')
+                line = process.stdout.readline()
+                if line == '' and process.poll() is not None:
+                    if line_count == 0:
+                        print(f'storing from topic {topic} failed')
+                        return 1
+                    else:
+                        print(f'got {line_count} messages from {topic}')
+                        print('Out of lines, exiting')
+                        return 0
+
+                # We have a valid line of output, find timestamp
+                #print(topic, dir, start_time, end_time)
+                # print(line)
+                match = re.search(timestamp_regex, line)
+                if not match:
+                    # The map topic has each message with multiple lines
+                    if topic == 'v2xhub_map_msg_in':
+                        outfile.write(line)
+                    else:
+                        print(f'got {line_count} messages from {topic}')
+                        print('no timestamp, exiting')
+                        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                        return 1
+                else:
+                    timestamp = int(match.group()[11:-1])
+                    # print(timestamp)
+
+                    if timestamp > end_time:
+                        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                        print(f'got {line_count} messages from {topic}')
+                        return 0
+                    if timestamp > start_time:
+                        outfile.write(line)
+                        line_count += 1
+            print(f'got all {num_msgs} expected messages from {topic}')
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+            return 0
+        finally:
+            my_timer.cancel()
+            print(f'got {line_count} messages from {topic}')
+            return 0
+
+
+def main():
+
+    # Default list of topics, aka all topics from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
+    #topics = ['modified_spat']
+    # topic desire_phase_plan is in the list from confluence, but doesn't exist in kafka as of 2022/12/05
+    topics = ['v2xhub_scheduling_plan_sub' ,'v2xhub_bsm_in', 'v2xhub_mobility_operation_in', 'v2xhub_mobility_path_in',
+              'vehicle_status_intent_output', 'v2xhub_map_msg_in', 'modified_spat', 'tsc_config_state']
+
+    # Get arguments
+    # The idea here was to give the user the bare minimum options, and make the default condition the most used.
+    parser = argparse.ArgumentParser(description='Script to grab data from kafka')
+    parser.add_argument('outfile', help='Filename for the resulting zip file', type=str)  # Required argument
+    start_group = parser.add_mutually_exclusive_group()
+    end_group = parser.add_mutually_exclusive_group()
+    start_group.add_argument('--start_timestamp', help='Unix timestamp (seconds) for the first message to grab. Exclusive with start_hours_ago. ', type=int)
+    end_group.add_argument('--end_timestamp', help='Unix timestamp (seconds) for the last message to grab. Exclusive with end_hours_ago. ', type=int)
+    start_group.add_argument('--start_hours_ago', help='float hours before current time to grab first message. Exclusive with start_timestamp. ', type=float)
+    end_group.add_argument('--end_hours_ago', help='float hours before current time to grab last message. Exclusive with start_timestamp. ', type=float)
+    parser.add_argument('--topics', type=str, nargs='+', help=f'list of topics to grab data from')
+    args = parser.parse_args()
+
+    # Correct and validate outfile name
+    if args.outfile[-4:] == '.zip':
+        outfile = args.outfile[:-4]
+    else:
+        outfile = args.outfile
+
+    if os.path.isdir(f'{os.getcwd()}/{outfile}'):
+        print(f'folder {outfile} exists, please remove or rename')
+        return
+    elif os.path.isfile(f'{os.getcwd()}/{outfile}.zip'):
+        print(f'zip file {outfile}.zip exists, please remove or rename')
+        return
+
+    # Convert given time to unix timestamp (in ms)
+    if args.start_timestamp:
+        start_time = args.start_timestamp * 1000
+    elif args.start_hours_ago:
+        start_time = int(time.time() - 3600 * args.start_hours_ago) * 1000
+    else:
+        start_time = 0
+
+    if args.end_timestamp:
+        end_time = args.end_timestamp * 1000
+    elif args.end_hours_ago:
+        end_time = int(time.time() - 3600 * args.end_hours_ago) * 1000
+    else:
+        end_time = int(time.time()) * 1000
+
+    if args.topics:
+        topics = args.topics
+
+    os.system(f'mkdir {outfile}')
+    for topic in topics:
+        ret = store_kafka_topic(topic, outfile, start_time, end_time)
+        if ret != 0:
+            print('received error, stopping execution')
+            return
+
+    print('Available logs collected, zipping and removing the temporary folder')
+    os.system(f'zip -r {outfile}.zip {outfile}')
+    os.system(f'rm -r {outfile}')
+
+
+if __name__ == "__main__":
+    main()
