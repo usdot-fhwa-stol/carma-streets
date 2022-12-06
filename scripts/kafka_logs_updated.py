@@ -24,7 +24,7 @@ def store_kafka_topic(topic, dir, start_time, end_time):
 
     # docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic v2xhub_scheduling_plan_sub | awk -F ":" '{sum += $3} END {print sum}'
     # Command to get messages from specified topic, from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
-    command = f'docker exec kafka kafka-console-consumer.sh --topic {topic} --property print.timestamp=true --from-beginning --bootstrap-server localhost:9092'
+    command = f'docker exec kafka timeout 10 kafka-console-consumer.sh --topic {topic} --property print.timestamp=true --from-beginning --bootstrap-server localhost:9092'
     result = subprocess.check_output(f'docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic {topic} | awk -F \":\" \'{{sum += $3}} END {{print sum}}\'', shell=True)
     if result == b'\n':
         return 1
@@ -56,7 +56,8 @@ def store_kafka_topic(topic, dir, start_time, end_time):
                 match = re.search(timestamp_regex, line)
                 if not match:
                     # The map topic has each message with multiple lines
-                    if topic == 'v2xhub_map_msg_in':
+                    if topic == 'v2xhub_map_msg_in' or topic == 'v2xhub_bsm_in' \
+                            or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in':
                         outfile.write(line)
                     else:
                         print(f'got {line_count} messages from {topic}')
