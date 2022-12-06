@@ -4,7 +4,6 @@ import re
 import signal
 import subprocess
 import argparse
-from threading import timer
 
 
 ## Python script to download and store kafka logs
@@ -18,7 +17,6 @@ from threading import timer
 
 def store_kafka_topic(topic, dir, start_time, end_time):
 
-    kill = lambda process: process.kill()
     timestamp_regex = 'CreateTime:(\d+)\t{'
     filename = f'{dir}/{topic}.log'
 
@@ -36,52 +34,46 @@ def store_kafka_topic(topic, dir, start_time, end_time):
     with open(filename, 'w+') as outfile:
         # Popen returns a generator containing the command output line by line
         process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, universal_newlines=True, preexec_fn=os.setsid)
-        my_timer = Timer(10, kill, [process])
-        try:
-            while line_count < num_msgs:
-                # print(f'{line_count}')
-                line = process.stdout.readline()
-                if line == '' and process.poll() is not None:
-                    if line_count == 0:
-                        print(f'storing from topic {topic} failed')
-                        return 1
-                    else:
-                        print(f'got {line_count} messages from {topic}')
-                        print('Out of lines, exiting')
-                        return 0
-
-                # We have a valid line of output, find timestamp
-                #print(topic, dir, start_time, end_time)
-                # print(line)
-                match = re.search(timestamp_regex, line)
-                if not match:
-                    # The map topic has each message with multiple lines
-                    if topic == 'v2xhub_map_msg_in' or topic == 'v2xhub_bsm_in' \
-                            or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in':
-                        outfile.write(line)
-                    else:
-                        print(f'got {line_count} messages from {topic}')
-                        print('no timestamp, exiting')
-                        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-                        return 1
+        while line_count < num_msgs:
+            # print(f'{line_count}')
+            line = process.stdout.readline()
+            if line == '' and process.poll() is not None:
+                if line_count == 0:
+                    print(f'storing from topic {topic} failed')
+                    return 1
                 else:
-                    timestamp = int(match.group()[11:-1])
-                    # print(timestamp)
+                    print(f'got {line_count} messages from {topic}')
+                    print('Out of lines, exiting')
+                    return 0
 
-                    if timestamp > end_time:
-                        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-                        print(f'got {line_count} messages from {topic}')
-                        return 0
-                    if timestamp > start_time:
-                        outfile.write(line)
-                        line_count += 1
-            print(f'got all {num_msgs} expected messages from {topic}')
-            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-            return 0
-        finally:
-            my_timer.cancel()
-            print(f'got {line_count} messages from {topic}')
-            return 0
+            # We have a valid line of output, find timestamp
+            #print(topic, dir, start_time, end_time)
+            # print(line)
+            match = re.search(timestamp_regex, line)
+            if not match:
+                # The map topic has each message with multiple lines
+                if topic == 'v2xhub_map_msg_in' or topic == 'v2xhub_bsm_in' \
+                        or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in':
+                    outfile.write(line)
+                else:
+                    print(f'got {line_count} messages from {topic}')
+                    print('no timestamp, exiting')
+                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                    return 1
+            else:
+                timestamp = int(match.group()[11:-1])
+                # print(timestamp)
+
+                if timestamp > end_time:
+                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                    print(f'got {line_count} messages from {topic}')
+                    return 0
+                if timestamp > start_time:
+                    outfile.write(line)
+                    line_count += 1
+        print(f'got all {num_msgs} expected messages from {topic}')
+        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        return 0
 
 
 def main():
