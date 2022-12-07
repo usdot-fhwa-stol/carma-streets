@@ -20,7 +20,6 @@ def store_kafka_topic(topic, dir, start_time, end_time):
     timestamp_regex = 'CreateTime:(\d+)\t{'
     filename = f'{dir}/{topic}.log'
 
-    # docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic v2xhub_scheduling_plan_sub | awk -F ":" '{sum += $3} END {print sum}'
     # Command to get messages from specified topic, from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
     command = f'docker exec kafka timeout 10 kafka-console-consumer.sh --topic {topic} --property print.timestamp=true --from-beginning --bootstrap-server localhost:9092'
     result = subprocess.check_output(f'docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic {topic} | awk -F \":\" \'{{sum += $3}} END {{print sum}}\'', shell=True)
@@ -28,30 +27,22 @@ def store_kafka_topic(topic, dir, start_time, end_time):
         return 1
     else:
         num_msgs = int(result)
-    print(f'total messages on topic {topic}: {num_msgs}')
 
     line_count = 0
     with open(filename, 'w+') as outfile:
         # Popen returns a generator containing the command output line by line
         process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, universal_newlines=True, preexec_fn=os.setsid)
         while line_count < num_msgs:
-            # print(f'{line_count}')
             line = process.stdout.readline()
             if line == '' and process.poll() is not None:
-                if line_count == 0:
-                    print(f'storing from topic {topic} failed')
-                    return 1
-                else:
-                    print(f'got {line_count} messages from {topic}')
-                    print('Out of lines, exiting')
-                    return 0
+                print(f'got {line_count} messages from {topic}')
+                return 0
 
             # We have a valid line of output, find timestamp
-            #print(topic, dir, start_time, end_time)
-            # print(line)
             match = re.search(timestamp_regex, line)
             if not match:
-                # The map topic has each message with multiple lines
+                # Some topics have multiple lines. For those, store each line that doesn't have a timestamp,
+                # and therefore is part of the 'current' message
                 if topic == 'v2xhub_map_msg_in' or topic == 'v2xhub_bsm_in' \
                         or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in':
                     outfile.write(line)
@@ -62,12 +53,13 @@ def store_kafka_topic(topic, dir, start_time, end_time):
                     return 1
             else:
                 timestamp = int(match.group()[11:-1])
-                # print(timestamp)
 
+                # If we receive a message past the end time, we are done
                 if timestamp > end_time:
                     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
                     print(f'got {line_count} messages from {topic}')
                     return 0
+                # If we receive a message between the start and end times, store it
                 if timestamp > start_time:
                     outfile.write(line)
                     line_count += 1
@@ -79,7 +71,6 @@ def store_kafka_topic(topic, dir, start_time, end_time):
 def main():
 
     # Default list of topics, aka all topics from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
-    #topics = ['modified_spat']
     # topic desire_phase_plan is in the list from confluence, but doesn't exist in kafka as of 2022/12/05
     topics = ['v2xhub_scheduling_plan_sub' ,'v2xhub_bsm_in', 'v2xhub_mobility_operation_in', 'v2xhub_mobility_path_in',
               'vehicle_status_intent_output', 'v2xhub_map_msg_in', 'modified_spat', 'tsc_config_state']
