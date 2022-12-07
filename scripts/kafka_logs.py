@@ -15,13 +15,13 @@ import argparse
 # Then once all topics are downloaded, zips up the folder
 
 
-def store_kafka_topic(topic, dir, start_time, end_time):
+def store_kafka_topic(topic, dir, timeout, start_time, end_time):
 
     timestamp_regex = 'CreateTime:(\d+)\t{'
     filename = f'{dir}/{topic}.log'
 
     # Command to get messages from specified topic, from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
-    command = f'docker exec kafka timeout 10 kafka-console-consumer.sh --topic {topic} --property print.timestamp=true --from-beginning --bootstrap-server localhost:9092'
+    command = f'docker exec kafka timeout {timeout} kafka-console-consumer.sh --topic {topic} --property print.timestamp=true --from-beginning --bootstrap-server localhost:9092'
     result = subprocess.check_output(f'docker exec kafka kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic {topic} | awk -F \":\" \'{{sum += $3}} END {{print sum}}\'', shell=True)
     if result == b'\n':
         return 1
@@ -74,6 +74,7 @@ def main():
     # topic desire_phase_plan is in the list from confluence, but doesn't exist in kafka as of 2022/12/05
     topics = ['v2xhub_scheduling_plan_sub' ,'v2xhub_bsm_in', 'v2xhub_mobility_operation_in', 'v2xhub_mobility_path_in',
               'vehicle_status_intent_output', 'v2xhub_map_msg_in', 'modified_spat', 'tsc_config_state']
+    timeout = 5
 
     # Get arguments
     # The idea here was to give the user the bare minimum options, and make the default condition the most used.
@@ -86,6 +87,8 @@ def main():
     start_group.add_argument('--start_hours_ago', help='float hours before current time to grab first message. Exclusive with start_timestamp. ', type=float)
     end_group.add_argument('--end_hours_ago', help='float hours before current time to grab last message. Exclusive with start_timestamp. ', type=float)
     parser.add_argument('--topics', type=str, nargs='+', help=f'list of topics to grab data from')
+    parser.add_argument('--timeout', type=float, help=f'timeout for receiving messages on a topic, default is 5 seconds')
+
     args = parser.parse_args()
 
     # Correct and validate outfile name
@@ -118,10 +121,12 @@ def main():
 
     if args.topics:
         topics = args.topics
+    if args.timeout:
+        timeout = args.timeout
 
     os.system(f'mkdir {outfile}')
     for topic in topics:
-        ret = store_kafka_topic(topic, outfile, start_time, end_time)
+        ret = store_kafka_topic(topic, outfile, timeout, start_time, end_time)
         if ret != 0:
             print('received error, stopping execution')
             return
