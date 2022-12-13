@@ -196,9 +196,9 @@ namespace signal_opt_service
                 auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 auto spat_lag =  current_timestamp - spat_ptr->get_intersection().get_epoch_timestamp() ;
                 if ( spat_lag > 200 ) {
-                    SPDLOG_WARN("Current spat lag is {0} ms!");
+                    SPDLOG_WARN("Current spat lag is {0} ms!", spat_lag);
                 } else {
-                    SPDLOG_DEBUG("Current spat lag is {0} ms!");
+                    SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag);
                 }
                 if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
                     SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
@@ -303,7 +303,7 @@ namespace signal_opt_service
                 
                 for (const auto &ignore : ignore_signal_groups) {
                     if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second == 0) {
-                        SPDLOG_WARN("Removing movement group with signal groups {0} , {0}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                        SPDLOG_WARN("Removing movement group with signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
                         mg_itr = _groups->groups.erase(mg_itr);
                         erased = true;
                     }

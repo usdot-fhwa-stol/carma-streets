@@ -42,8 +42,11 @@ namespace traffic_signal_controller_service
                     green_phases_present.push_back(movement);
                 }
             }
-           
+
             if ( green_phases_present.empty() ) {
+                if (last_green_served.empty() ) {
+                    throw monitor_desired_phase_plan_exception("No information on previous green!");
+                }
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
             } else {
                 // Track which greens were served last and update this value.

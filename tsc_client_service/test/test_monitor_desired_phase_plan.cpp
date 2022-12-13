@@ -1,6 +1,4 @@
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
 #include "monitor_desired_phase_plan_exception.h"
 #include "mock_snmp_client.h"
@@ -16,15 +14,53 @@ namespace traffic_signal_controller_service
     class test_monitor_desired_phase_plan : public ::testing::Test
     {
     public:
+        /**
+         * @brief Signal Phase and Timing Summary:
+         *     SG   Timing          state    
+         *      1:  start 0s end 1s GREEN
+         *      2:  start 0s end 1s RED
+         *      3:  start 0s end 1s RED     
+         *      4:  start 0s end 1s RED
+         *      5:  start 0s end 1s GREEN
+         *      6:  start 0s end 1s RED
+         *      7:  start 0s end 1s RED 
+         *      8:  start 0s end 1s RED
+         * 
+         */
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_ptr;
+         /**
+         * @brief Signal Phase and Timing Summary:
+         *      SG  Timing          state    
+         *      1:  start 0s end 1s  RED           
+         *      2:  start 0s end 1s  YELLOW  
+         *      3:  start 0s end 1s  RED     
+         *      4:  start 0s end 1s  RED     
+         *      5:  start 0s end 1s  RED     
+         *      6:  start 0s end 1s  YELLOW  
+         *      7:  start 0s end 1s  RED     
+         *      8:  start 0s end 1s  RED     
+         * 
+         */
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_two_ptr;
+         /**
+         * @brief Signal Phase and Timing Summary:
+         *      SG  Timing          state  
+         *      1:  start 0s end 1s RED
+         *      2:  start 0s end 1s RED     
+         *      3:  start 0s end 1s RED    
+         *      4:  start 0s end 1s RED   
+         *      5:  start 0s end 1s RED
+         *      6:  start 0s end 1s RED
+         *      7:  start 0s end 1s RED
+         *      8:  start 0s end 1s RED
+         * 
+         */
         std::shared_ptr<signal_phase_and_timing::spat> spat_msg_three_ptr;
         std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
         std::shared_ptr<mock_snmp_client> mock_snmp;
         std::shared_ptr<tsc_state> tsc_state_ptr;
         uint16_t current_hour_in_tenths_secs;
         uint64_t epoch_timestamp;
-
     protected:
         void SetUp() override
         {
@@ -182,27 +218,26 @@ namespace traffic_signal_controller_service
 
             SPDLOG_INFO("Setup complete");
         }
-
+        /**
+         * @brief TSC Configuration Summary:
+         *  phase number
+         *    ring 1 ->  | 1 | 2 || 3 | 4 ||
+         *    ring 2 ->  | 5 | 6 || 7 | 8 ||
+         *   signal group
+         *    ring 1 ->  | 1 | 2 || 3 | 4 ||
+         *    ring 2 ->  | 5 | 6 || 7 | 8 ||
+         *   red clear 
+         *    ring 1 ->  | 1.5s | 1.5s || 1.5s | 1.5s ||
+         *    ring 2 ->  | 1.5s | 1.5s || 1.5s | 1.5s ||
+         *   yellow change 
+         *    ring 1 ->  | 1s | 1s || 1s | 1s ||
+         *    ring 2 ->  | 1s | 1s || 1s | 1s ||
+         *   min_green
+         *    ring 1 ->  | 5s | 5s || 5s | 5s ||
+         *    ring 2 ->  | 5s | 5s || 5s | 5s ||
+         * 
+         */
         void mock_tsc_ntcip() {
-            /**
-             * Summary:
-             *  phase number
-             *    ring 1 ->  | 1 | 2 || 3 | 4 ||
-             *    ring 2 ->  | 5 | 6 || 7 | 8 ||
-             *   signal group
-             *    ring 1 ->  | 1 | 2 || 3 | 4 ||
-             *    ring 2 ->  | 5 | 6 || 7 | 8 ||
-             *   red clear 
-             *    ring 1 ->  | 1.5s | 1.5s || 1.5s | 1.5s ||
-             *    ring 2 ->  | 1.5s | 1.5s || 1.5s | 1.5s ||
-             *   yellow change 
-             *    ring 1 ->  | 1s | 1s || 1s | 1s ||
-             *    ring 2 ->  | 1s | 1s || 1s | 1s ||
-             *   min_green
-             *    ring 1 ->  | 5s | 5s || 5s | 5s ||
-             *    ring 2 ->  | 5s | 5s || 5s | 5s ||
-             * 
-             */
             // gmock SNMP response ---------------------------------------------------------------------------------------------------------------------
             // Test get max channels
             snmp_response_obj max_channels_in_tsc;
@@ -550,16 +585,36 @@ namespace traffic_signal_controller_service
         {
             ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
             ASSERT_EQ(1, movement_state.state_time_speed.size());
-        }
-
-        
+        }   
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
 
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
-            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
-            ASSERT_EQ(1, movement_state.state_time_speed.size());
+            if ( movement_state.signal_group == 1 || movement_state.signal_group == 5) {
+                ASSERT_EQ(3, movement_state.state_time_speed.size());
+                // First event GREEN
+                auto event = movement_state.state_time_speed.begin();
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::protected_movement_allowed, 
+                    event->event_state);
+                // Second event YELLOW
+                std::advance(event,1);
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::protected_clearance, 
+                    event->event_state);
+
+                // Last event RED
+                std::advance(event,1);
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::stop_and_remain, 
+                    event->event_state);
+
+            } 
+            else {
+                ASSERT_EQ(1, movement_state.state_time_speed.size());
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
+            }
         }
+        ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
+
+        
     }
 
     TEST_F(test_monitor_desired_phase_plan, update_spat_future_movement_events_current_greens)
@@ -1210,6 +1265,26 @@ namespace traffic_signal_controller_service
         // Initialize tsc_state
         mock_tsc_ntcip();
         tsc_state_ptr->initialize();
+        // Expect exception before last_green_served is initialized since we can not determine what the last 
+        // green phase was at an all red clearance interval
+        ASSERT_THROW(monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_three_ptr, tsc_state_ptr), monitor_desired_phase_plan_exception);
+
+        // Initialized last green private field in monitor desired phase plan
+        // Last Green was SGs 2,5 from -10s to -1s 
+        // Yellow clearance from -1s to 0s
+        std::vector<signal_phase_and_timing::movement_state> last_green_served;
+        signal_phase_and_timing::movement_state five;
+        signal_phase_and_timing::movement_state two;
+        five.signal_group= 5;
+        two.signal_group = 2;
+        signal_phase_and_timing::movement_event green;
+        green.timing.start_time = current_hour_in_tenths_secs - 100;
+        green.timing.min_end_time =  current_hour_in_tenths_secs - 10;
+        five.state_time_speed.push_back(green);
+        two.state_time_speed.push_back(green);
+        last_green_served.push_back(two);
+        last_green_served.push_back(five);
+        monitor_dpp_ptr->last_green_served = last_green_served ;
         // mock next phase NTCIP OID
         snmp_response_obj next_phase;
         next_phase.val_int = 68;
@@ -1232,10 +1307,11 @@ namespace traffic_signal_controller_service
                 ASSERT_EQ( 1 ,movement_state.state_time_speed.size());
                 ASSERT_EQ( signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
                 ASSERT_EQ(current_hour_in_tenths_secs, movement_state.state_time_speed.front().timing.start_time);
-                ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_state.state_time_speed.front().timing.min_end_time);
+                ASSERT_EQ(current_hour_in_tenths_secs + 90, movement_state.state_time_speed.front().timing.min_end_time);
             }
             else if (sg == 3 || sg == 7)
             {
+                ASSERT_EQ( 4 ,movement_state.state_time_speed.size());
                 for (auto movement_event : movement_state.state_time_speed)
                 {
                     std::string state_name = "";
@@ -1245,21 +1321,21 @@ namespace traffic_signal_controller_service
                         if (movement_event.timing.start_time == current_hour_in_tenths_secs)
                         {
                             ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); 
+                            ASSERT_EQ(current_hour_in_tenths_secs + 15, movement_event.timing.min_end_time); 
                         }
                         else
                         {
-                            ASSERT_EQ(current_hour_in_tenths_secs + 70, movement_event.timing.start_time);
-                            ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_event.timing.min_end_time); 
+                            ASSERT_EQ(current_hour_in_tenths_secs + 75, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 90, movement_event.timing.min_end_time); 
                         }
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_clearance:
-                        ASSERT_EQ(current_hour_in_tenths_secs + 60, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 70, movement_event.timing.min_end_time); 
+                        ASSERT_EQ(current_hour_in_tenths_secs + 65, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 75, movement_event.timing.min_end_time); 
                         break;
                     case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
-                        ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.start_time);
-                        ASSERT_EQ(current_hour_in_tenths_secs + 60, movement_event.timing.min_end_time); 
+                        ASSERT_EQ(current_hour_in_tenths_secs + 15, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 65, movement_event.timing.min_end_time); 
                         break;
 
                     default:
@@ -1277,6 +1353,24 @@ namespace traffic_signal_controller_service
         // Initialize tsc_state
         mock_tsc_ntcip();
         tsc_state_ptr->initialize();
+
+        // Initialized last green private field in monitor desired phase plan
+        // Last Green was SGs 2,5 from -10s to 0s 
+        // Yellow clearance from 0s to 1s
+        std::vector<signal_phase_and_timing::movement_state> last_green_served;
+        signal_phase_and_timing::movement_state five;
+        signal_phase_and_timing::movement_state two;
+        five.signal_group= 5;
+        two.signal_group = 2;
+        signal_phase_and_timing::movement_event green;
+        green.timing.start_time = current_hour_in_tenths_secs - 100;
+        green.timing.min_end_time =  current_hour_in_tenths_secs;
+        five.state_time_speed.push_back(green);
+        two.state_time_speed.push_back(green);
+        last_green_served.push_back(two);
+        last_green_served.push_back(five);
+        monitor_dpp_ptr->last_green_served = last_green_served ;
+
         // mock next phase NTCIP OID
         snmp_response_obj next_phase;
         next_phase.val_int = 68;

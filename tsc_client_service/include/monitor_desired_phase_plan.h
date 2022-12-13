@@ -1,12 +1,12 @@
 #pragma once
 #include <spdlog/spdlog.h>
+#include <gtest/gtest_prod.h>
 
 #include "streets_desired_phase_plan.h"
 #include "spat.h"
 #include "monitor_tsc_state.h"
 #include "monitor_desired_phase_plan_exception.h"
 #include "snmp_client.h"
-
 namespace traffic_signal_controller_service
 {
     class monitor_desired_phase_plan
@@ -20,6 +20,11 @@ namespace traffic_signal_controller_service
          * vector is used to determine which signal group is currently in red clearance.
          */
         std::vector<signal_phase_and_timing::movement_state> last_green_served;
+        // Add friend test fixture to allow access to priveate members.
+        friend class test_monitor_desired_phase_plan;
+        FRIEND_TEST(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red);
+        FRIEND_TEST(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_yellow);
+
 
     public:
         /**

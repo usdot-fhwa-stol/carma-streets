@@ -51,6 +51,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     kafka_clients_lib
     Qt5::Core
     Qt5::Network
+    gmock
     ${NETSNMPAGENT} ${NETSNMPMIBS} ${NETSNMP}
     ${NETSNMP_LIBRARIES}
 )
@@ -82,7 +83,6 @@ target_link_libraries(${PROJECT_NAME}_test PUBLIC
     ${PROJECT_NAME}_lib
     rdkafka++ 
     kafka_clients_lib
-    gtest 
-    gmock)
+    gtest )
 add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
 
