@@ -194,7 +194,7 @@ namespace signal_opt_service
                     }
                 }
                 auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                auto spat_lag =  current_timestamp - spat_ptr->get_intersection().get_epoch_timestamp() ;
+                auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
                 if ( spat_lag > 200 ) {
                     SPDLOG_WARN("Current spat lag is {0} ms!", spat_lag);
                 } else {
