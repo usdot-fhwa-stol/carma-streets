@@ -196,10 +196,10 @@ namespace signal_opt_service
                 auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
                 if ( spat_lag > 200 ) {
-                    SPDLOG_WARN("Current spat lag is {0} ms!", spat_lag);
-                } else {
-                    SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag);
-                }
+                    SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
+                } 
+                SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag);
+                
                 if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
                     SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
                     continue;
@@ -295,27 +295,8 @@ namespace signal_opt_service
                 SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.signal_groups.first, mg.signal_groups.second );
             }
 
-            SPDLOG_WARN("Attempting to ignore {0} signal groups!", ignore_signal_groups.size());
-            // Remove configured signal groups to ignore them
-            auto mg_itr = _groups->groups.begin();
-            while ( mg_itr != _groups->groups.end() ) {
-                bool erased = false;
-                
-                for (const auto &ignore : ignore_signal_groups) {
-                    if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second == 0) {
-                        SPDLOG_WARN("Removing movement group with signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
-                        mg_itr = _groups->groups.erase(mg_itr);
-                        erased = true;
-                    }
-                }
-                if (!erased) {
-                    mg_itr++;
-                }
+            remove_signal_groups( _groups ,ignore_signal_groups);
 
-            }
-            
-            
-            
         }
     }
 
@@ -393,6 +374,42 @@ namespace signal_opt_service
             ignore_signal_groups.push_back( std::stoi(signal_group) );
         }
 
+    }
+
+    void signal_opt_service::remove_signal_groups(std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups,
+                                     const std::vector<uint> rm_signal_groups) const {
+        SPDLOG_WARN("Attempting to ignore {0} signal groups!", rm_signal_groups.size());
+        // Remove configured signal groups to ignore them
+        for (const auto &ignore : rm_signal_groups) {
+            SPDLOG_DEBUG("Removing {0} from size {1}!", ignore, _movement_groups->groups.size());
+            auto mg_itr = _movement_groups->groups.begin();
+            while ( mg_itr != _movement_groups->groups.end() ) {
+                if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second == 0) {
+                    SPDLOG_WARN("Removing movement group with signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr = _movement_groups->groups.erase(mg_itr);
+                }
+                else if (mg_itr->signal_groups.first != 0 &&  mg_itr->signal_groups.second == ignore) {
+                    SPDLOG_WARN("Removing signal group from {0} signal groups {1} , {2}",ignore, mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr->signal_groups.second = 0;
+                    SPDLOG_WARN("New movement group includes signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr++; 
+                }
+                else if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second != 0) {
+                    SPDLOG_WARN("Removing signal group from {0} signal groups {1} , {2}",ignore, mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr->signal_groups.first = mg_itr->signal_groups.second;
+                    mg_itr->signal_groups.second = 0;
+                    SPDLOG_WARN("New movement group includes signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr++; 
+
+                }
+                else {
+                    SPDLOG_DEBUG("Ignored SG {0} is not present in MG ({1},{2})", ignore,mg_itr->signal_groups.first, mg_itr->signal_groups.second );
+                    mg_itr++; 
+
+                }
+            }
+        }
+        
     }
 
 

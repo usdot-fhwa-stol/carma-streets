@@ -597,3 +597,99 @@ TEST(signal_opt_service, populate_movement_group_nema) {
     ASSERT_EQ(4, mg.signal_groups.first);
     ASSERT_EQ(8, mg.signal_groups.second);
 }
+
+TEST(signal_opt_service,test_remove_single_signal_groups){
+    signal_opt_service::signal_opt_service service;
+    // Setup movement groups
+    auto movement_groups = std::make_shared<streets_signal_optimization::movement_groups>();
+    streets_signal_optimization::movement_group mg1;
+    mg1.signal_groups = {2,0};
+    streets_signal_optimization::movement_group mg2;
+    mg2.signal_groups = {5,0};
+    streets_signal_optimization::movement_group mg3;
+    mg3.signal_groups = {8,0};
+    streets_signal_optimization::movement_group mg4;
+    mg4.signal_groups = {10,0};
+    streets_signal_optimization::movement_group mg5;
+    mg5.signal_groups = {11,0};
+    movement_groups->groups.push_back(mg1);
+    movement_groups->groups.push_back(mg2);
+    movement_groups->groups.push_back(mg3);
+    movement_groups->groups.push_back(mg4);
+    movement_groups->groups.push_back(mg5);
+
+    // Setup Ignore Signal Groups
+    std::vector<uint> ignore_signal_groups;
+    ignore_signal_groups.push_back(10);
+    
+    // Remove SG 10
+    service.remove_signal_groups( movement_groups, ignore_signal_groups);
+    
+    // Assert Movement Groups size and does not contain 10.
+    ASSERT_EQ(4, movement_groups->groups.size());
+    for (const auto &move_group: movement_groups->groups ) {
+        ASSERT_NE( 10, move_group.signal_groups.first);
+        ASSERT_NE( 10, move_group.signal_groups.second);
+
+    }
+
+    
+
+
+}
+
+TEST(signal_opt_service, test_remove__signal_groups ) {
+
+    signal_opt_service::signal_opt_service service;
+    // Setup movement groups
+    auto movement_groups = std::make_shared<streets_signal_optimization::movement_groups>();
+    // Setup movement groups
+    streets_signal_optimization::movement_group mg1;
+    mg1.signal_groups = {1,5};
+    streets_signal_optimization::movement_group mg2;
+    mg2.signal_groups = {2,5};
+    streets_signal_optimization::movement_group mg3;
+    mg3.signal_groups = {1,6};
+    streets_signal_optimization::movement_group mg4;
+    mg4.signal_groups = {2,6};
+    streets_signal_optimization::movement_group mg5;
+    mg5.signal_groups = {7,4};
+    streets_signal_optimization::movement_group mg6;
+    mg6.signal_groups = {8,4};
+    streets_signal_optimization::movement_group mg7;
+    mg7.signal_groups = {7,3};
+    streets_signal_optimization::movement_group mg8;
+    mg8.signal_groups = {8,3};
+    movement_groups->groups.push_back(mg1);
+    movement_groups->groups.push_back(mg2);
+    movement_groups->groups.push_back(mg3);
+    movement_groups->groups.push_back(mg4);
+    movement_groups->groups.push_back(mg5);
+    movement_groups->groups.push_back(mg6);
+    movement_groups->groups.push_back(mg7);
+    movement_groups->groups.push_back(mg8);
+
+    // Setup ignore
+    std::vector<uint> ignore_signal_groups;
+    // 10 does not exist
+    ignore_signal_groups.push_back(10);
+    ignore_signal_groups.push_back(2);
+    ignore_signal_groups.push_back(7);
+    ignore_signal_groups.push_back(4);
+
+    service.remove_signal_groups( movement_groups, ignore_signal_groups);
+
+    // Assert Movement Groups size and does not contain 2,7,4.
+    ASSERT_EQ(7, movement_groups->groups.size());
+    for (const auto &move_group: movement_groups->groups ) {
+        SPDLOG_INFO("SG {0}, {1} ! ", move_group.signal_groups.first, move_group.signal_groups.second);
+        ASSERT_NE( 2, move_group.signal_groups.first);
+        ASSERT_NE( 2, move_group.signal_groups.second);
+        ASSERT_NE( 7, move_group.signal_groups.first);
+        ASSERT_NE( 7, move_group.signal_groups.second);
+        ASSERT_NE( 4, move_group.signal_groups.first);
+        ASSERT_NE( 4, move_group.signal_groups.second);
+
+    }
+
+}
