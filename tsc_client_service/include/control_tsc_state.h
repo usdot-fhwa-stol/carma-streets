@@ -76,8 +76,7 @@ namespace traffic_signal_controller_service
             /* A local pointer to an snmp_client object to be used through the tsc_state*/
             std::shared_ptr<snmp_client> snmp_client_worker_;
 
-            // Mapping from signal group ids to pedestrian phases
-            std::unordered_map<int, int> signal_group_2vehicle_phase_map_;
+            std::shared_ptr<tsc_state> _tsc_state;
         
         public:
 
@@ -88,7 +87,7 @@ namespace traffic_signal_controller_service
              * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
              * @param desired_phase_plan Pointer to the desired phase plan.
              **/
-            explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client,const std::unordered_map<int, int>& signal_group_to_phase_map);
+            explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client,std::shared_ptr<tsc_state> _tsc_state);
             
             /** 
              * @brief Method to update the queue of tsc_control

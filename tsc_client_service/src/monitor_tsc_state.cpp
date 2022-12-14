@@ -553,10 +553,6 @@ namespace traffic_signal_controller_service
         return signal_group_2tsc_state_map_;
     }
 
-    std::unordered_map<int,int> tsc_state::get_signal_group_2_vehicle_phase() const {
-        return signal_group_2vehiclephase_map_;
-    }       
-
     std::unordered_map<int, int> tsc_state::get_signal_group_to_ped_phase_map()
     {
         std::unordered_map<int,int> signal_group_to_ped_phase;

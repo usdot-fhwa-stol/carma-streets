@@ -69,7 +69,7 @@ namespace traffic_signal_controller_service {
             monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
 
             // Initialize control_tsc_state ptr
-            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr->get_signal_group_2_vehicle_phase());
+            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);
 
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
