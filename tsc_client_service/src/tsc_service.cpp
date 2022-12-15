@@ -20,8 +20,7 @@ namespace traffic_signal_controller_service {
                     return false;
                 }
                 if (!spat_producer) {
-                    SPDLOG_ERROR("Failed to initialize SPAT producer");
-                    return false;
+                    throw std::runtime_error("Failed to initialize SPAT producer");
                 }
             }
 
@@ -46,8 +45,7 @@ namespace traffic_signal_controller_service {
                     return false;
                 }
                 if ( !snmp_client_ptr ) {
-                    SPDLOG_ERROR("Failed to initialize SNMP client");
-                    return false;
+                    throw std::runtime_error("Failed to initialize SNMP client");
                 }
             }
             
@@ -58,15 +56,13 @@ namespace traffic_signal_controller_service {
                     return false;
                 }
                 if (!tsc_config_producer) {
-                    SPDLOG_ERROR("Failed to initialize tsc_config producer");
-                    return false;
+                    throw std::runtime_error("Failed to initialize tsc_config producer");
                 }
             }
             //Initialize TSC State
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
             if (!initialize_tsc_state(snmp_client_ptr)){
-                SPDLOG_ERROR("Failed to initialize tsc state");
-                return false;
+                throw std::runtime_error("Failed to initialize tsc state");
             }
             tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
             // Initialize spat_worker
@@ -75,13 +71,11 @@ namespace traffic_signal_controller_service {
             int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
             bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
             if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
-                SPDLOG_ERROR("Failed to initialize SPaT Worker");
-                return false;
+                throw std::runtime_error("Failed to initialize SPaT Worker");
             }
 
             if (!initialize_intersection_client()) {
-                SPDLOG_ERROR("Failed to initialize intersection client");
-                return false;
+                throw std::runtime_error("Failed to initialize intersection client");
             }
             // Add all phases to a single map
             auto all_phases = tsc_state_ptr->get_vehicle_phase_map();

@@ -400,7 +400,6 @@ namespace signal_opt_service
                     mg_itr->signal_groups.second = 0;
                     SPDLOG_WARN("New movement group includes signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
                     mg_itr++; 
-
                 }
                 else {
                     SPDLOG_DEBUG("Ignored SG {0} is not present in MG ({1},{2})", ignore,mg_itr->signal_groups.first, mg_itr->signal_groups.second );
