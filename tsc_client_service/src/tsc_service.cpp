@@ -19,10 +19,16 @@ namespace traffic_signal_controller_service {
                 if  (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
                     return false;
                 }
+                if (!spat_producer) {
+                    return false;
+                }
             }
 
             if (!desired_phase_plan_consumer) {
                 if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
+                    return false;
+                }
+                if (!desired_phase_plan_consumer) {
                     return false;
                 }
 
@@ -37,12 +43,18 @@ namespace traffic_signal_controller_service {
                 if  (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
                     return false;
                 }
+                if ( !snmp_client_ptr ) {
+                    return false;
+                }
             }
             
             //  Initialize tsc configuration state kafka producer
             std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
             if (!tsc_config_producer) {
                 if  (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+                    return false;
+                }
+                if (!tsc_config_producer) {
                     return false;
                 }
             }
@@ -207,8 +219,9 @@ namespace traffic_signal_controller_service {
                             SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
                         }
                     }
-                    
-                    spat_producer->send(spat_ptr->toJson());
+                    if (spat_ptr && spat_producer) {
+                        spat_producer->send(spat_ptr->toJson());
+                    }
                     // TODO: Increase sample size once we are confident latency does not have large spikes in small intervals.
                     if (count <= 20 ) {
                         uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
