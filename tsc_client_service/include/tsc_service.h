@@ -131,7 +131,7 @@ namespace traffic_signal_controller_service {
              */
 
             bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
-                    std::shared_ptr<kafka_clients::kafka_producer_worker>& producer);
+                    std::shared_ptr<kafka_clients::kafka_producer_worker> &producer);
             /**
              * @brief Initialize Kafka Desired phase plan consumer. 
              * @param bootstap_server for CARMA-Streets Kafka broker.
@@ -142,7 +142,7 @@ namespace traffic_signal_controller_service {
             bool initialize_kafka_consumer(const std::string &bootstrap_server, 
                                             const std::string &consumer_topic, 
                                             std::string &consumer_group,
-                                            std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer);
+                                            std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer);
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.

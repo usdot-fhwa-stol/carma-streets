@@ -127,7 +127,7 @@ namespace traffic_signal_controller_service {
     bool tsc_service::initialize_kafka_consumer(const std::string &bootstrap_server, 
                                                 const std::string &consumer_topic,  
                                                 std::string &consumer_group, 
-                                                std::shared_ptr<kafka_clients::kafka_consumer_worker> kafka_consumer) {
+                                                std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer) {
         auto client = std::make_unique<kafka_clients::kafka_client>();
         kafka_consumer = client->create_consumer(bootstrap_server, consumer_topic, consumer_group);
         if (!kafka_consumer->init())
