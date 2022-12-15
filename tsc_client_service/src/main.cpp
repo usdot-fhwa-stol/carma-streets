@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include <QCoreApplication>
+#include <spdlog/spdlog.h>
 #include "streets_configuration.h"
 #include "tsc_service.h"
 
@@ -13,7 +14,12 @@ int main(int argc, char **argv)
 
     streets_service::streets_configuration::initialize_logger();
     traffic_signal_controller_service::tsc_service service;
-    service.initialize();
-    service.start();
+    if (service.initialize()){
+        service.start();
+    }
+    else {
+        SPDLOG_ERROR("TSC Service Initialization failed!");
+    }
+    
     return QCoreApplication::exec();
 }
