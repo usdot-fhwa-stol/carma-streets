@@ -16,11 +16,16 @@ namespace traffic_signal_controller_service {
             std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
             
             if (!spat_producer) {
-                return initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer);
+                if  (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
+                    return false;
+                }
             }
 
             if (!desired_phase_plan_consumer) {
-                return initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer);
+                if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
+                    return false;
+                }
+
             }            
             // Initialize SNMP Client
             std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
@@ -29,13 +34,17 @@ namespace traffic_signal_controller_service {
             int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
             int timeout = streets_service::streets_configuration::get_int_config("timeout");
             if (!snmp_client_ptr) {
-                return initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout);
+                if  (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
+                    return false;
+                }
             }
             
             //  Initialize tsc configuration state kafka producer
             std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
             if (!tsc_config_producer) {
-                return initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer);
+                if  (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+                    return false;
+                }
             }
             //Initialize TSC State
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
@@ -82,7 +91,7 @@ namespace traffic_signal_controller_service {
     }
 
     bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &producer_topic,
-         std::shared_ptr<kafka_clients::kafka_producer_worker>& producer) {
+         std::shared_ptr<kafka_clients::kafka_producer_worker> &producer) {
         
         auto client = std::make_unique<kafka_clients::kafka_client>();
         producer = client->create_producer(bootstrap_server, producer_topic);
@@ -101,7 +110,7 @@ namespace traffic_signal_controller_service {
                                                 std::shared_ptr<kafka_clients::kafka_consumer_worker> kafka_consumer) {
         auto client = std::make_unique<kafka_clients::kafka_client>();
         kafka_consumer = client->create_consumer(bootstrap_server, consumer_topic, consumer_group);
-        if (!desired_phase_plan_consumer->init())
+        if (!kafka_consumer->init())
         {
             SPDLOG_CRITICAL("Kafka desired phase plan initialize error");
             return false;
