@@ -110,7 +110,16 @@ namespace signal_phase_and_timing {
         auto system_time = std::chrono::system_clock::now();
         auto duration = system_time.time_since_epoch();
         auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
-        auto tenth_seconds_from_current_hour = (epoch_time_ms - (hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS))/100;
+        auto hours_since_epoch_ms = hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS;
+        uint64_t tenth_seconds_from_current_hour;
+        if ( hours_since_epoch_ms > epoch_time_ms ) {
+            SPDLOG_WARN("Epoch time provided {0} is smaller than the current UTC hour time {1}! SPaT cannot represent a time from a previous our. Approximating time as beginning of current hour."
+                , epoch_time_ms, hours_since_epoch_ms);
+            tenth_seconds_from_current_hour = hours_since_epoch_ms/100;
+        }
+        else {
+            tenth_seconds_from_current_hour = (epoch_time_ms - hours_since_epoch_ms )/100;
+        }
         // TimeMark Max value is 36001 and 36001 is reserved for invalid unknown times (see J2737 TimeMark message documentation).
         // Relevant section
         //         TimeMark ::= INTEGER (0..36001)

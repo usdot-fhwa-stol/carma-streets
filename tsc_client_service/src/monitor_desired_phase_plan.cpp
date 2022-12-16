@@ -75,6 +75,7 @@ namespace traffic_signal_controller_service
                     desired_phase_plan_ptr->desired_phase_plan.erase(desired_phase_plan_ptr->desired_phase_plan.begin());
                 }
             }
+            SPDLOG_INFO("Updating SPaT with SO requested DPP : \n{0}", desired_phase_plan_ptr.toJson());
 
             spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr->get_tsc_config_state());
         }
@@ -183,7 +184,7 @@ namespace traffic_signal_controller_service
         }
         fixed_green.end_time = fixed_green_end_time_epoch_ms;
         one_fixed_green.desired_phase_plan.push_back(fixed_green);
-        SPDLOG_DEBUG("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
+        SPDLOG_DEBUG("Updating SPaT with fixed green : \n{0}", one_fixed_green.toJson());
         spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());
 
     }
@@ -213,7 +214,7 @@ namespace traffic_signal_controller_service
         fixed_green.start_time = green_phases.front().state_time_speed.front().timing.get_epoch_start_time();
         fixed_green.end_time =  fixed_green.start_time + green_phase_config.min_green;
         one_fixed_green.desired_phase_plan.push_back(fixed_green);
-        SPDLOG_INFO("Updating SPaT with DPP : \n{0}", one_fixed_green.toJson());
+        SPDLOG_INFO("Updating SPaT with fixed green : \n{0}", one_fixed_green.toJson());
         spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());    
     }
 }
