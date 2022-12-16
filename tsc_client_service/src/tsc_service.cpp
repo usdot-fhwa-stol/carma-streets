@@ -202,7 +202,7 @@ namespace traffic_signal_controller_service {
         try {
             int count = 0;
             uint64_t spat_latency = 0;
-            while(true) {
+            while(spat_worker_ptr && tsc_state_ptr && spat_producer) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
                     if(!use_desired_phase_plan_update_){
@@ -239,7 +239,9 @@ namespace traffic_signal_controller_service {
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
                 }   
-            }
+            } 
+            SPDLOG_WARN("Stopping produce_spat_json! Are pointers null: spat_worker {0}, spat_producer {1}, tsc_state {2}",
+                spat_worker_ptr == nullptr, spat_ptr == nullptr, tsc_state_ptr == nullptr);
         }
         catch( const udp_socket_listener_exception &e) {
             SPDLOG_ERROR("Encountered exception : \n {0}", e.what());

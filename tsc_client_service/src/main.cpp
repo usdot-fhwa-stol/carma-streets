@@ -23,7 +23,7 @@ int main(int argc, char **argv)
         }
     }
     catch ( const std::runtime_error &e) {
-        SPDLOG_ERROR("Exception Encountered : {0}" , e.what())
+        SPDLOG_ERROR("Exception Encountered : {0}" , e.what());
         exit(1);
     }
     
