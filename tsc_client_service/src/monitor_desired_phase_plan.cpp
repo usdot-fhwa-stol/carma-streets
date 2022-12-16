@@ -75,7 +75,7 @@ namespace traffic_signal_controller_service
                     desired_phase_plan_ptr->desired_phase_plan.erase(desired_phase_plan_ptr->desired_phase_plan.begin());
                 }
             }
-            SPDLOG_INFO("Updating SPaT with SO requested DPP : \n{0}", desired_phase_plan_ptr.toJson());
+            SPDLOG_INFO("Updating SPaT with SO requested DPP : \n{0}", desired_phase_plan_ptr->toJson());
 
             spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr->get_tsc_config_state());
         }
