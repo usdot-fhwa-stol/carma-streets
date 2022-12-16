@@ -65,7 +65,7 @@ namespace traffic_signal_controller_service
          * @brief Method to return information about the snmp set command
          * @return Returns string formatted as "control_cmd_type:<HOLD/OMIT>;execution_start_time:<calculated_start_time>;signal_groups_set:<signal groups being set separated by commas>".
          * */
-        std::string get_cmd_info();
+        std::string get_cmd_info() const;
     };
 
     class control_tsc_state
@@ -104,7 +104,7 @@ namespace traffic_signal_controller_service
              * @param is_reset if true, omit command is reset on the traffic signal controller to 0. 
              * If false will calculate the omit value required to reach given signal groups
              **/
-            snmp_cmd_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            snmp_cmd_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false) const;
 
             /** 
              * @brief Method to create command for Hold for provided signal groups, 
@@ -114,6 +114,6 @@ namespace traffic_signal_controller_service
              * @param is_reset if true, hold command is reset on the traffic signal controller to 0. 
              * If false will calculate the value required to hold given signal groups
              **/
-            snmp_cmd_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            snmp_cmd_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false) const;
     };
 }

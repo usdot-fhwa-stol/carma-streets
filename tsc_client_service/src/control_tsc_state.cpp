@@ -86,7 +86,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)
         {
@@ -112,7 +112,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)
         {
@@ -137,7 +137,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    std::string snmp_cmd_struct::get_cmd_info(){
+    std::string snmp_cmd_struct::get_cmd_info() const{
 
         std::string command_type;
         if(control_type_ == control_type::Hold){

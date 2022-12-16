@@ -376,8 +376,8 @@ namespace signal_opt_service
 
     }
 
-    void signal_opt_service::remove_signal_groups(std::shared_ptr<streets_signal_optimization::movement_groups> _movement_groups,
-                                     const std::vector<uint> rm_signal_groups) const {
+    void signal_opt_service::remove_signal_groups(std::shared_ptr<streets_signal_optimization::movement_groups> &_movement_groups,
+                                     const std::vector<uint> &rm_signal_groups) const {
         SPDLOG_WARN("Attempting to ignore {0} signal groups!", rm_signal_groups.size());
         // Remove configured signal groups to ignore them
         for (const auto &ignore : rm_signal_groups) {
