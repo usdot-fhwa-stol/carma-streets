@@ -238,6 +238,14 @@ namespace traffic_signal_controller_service {
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
+                    if (spat_ptr) {
+                        try{
+                            SPDLOG_ERROR("Current SPaT : {0} ", spat_ptr->toJson());
+                        }
+                        catch (const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
+                            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
+                        }
+                    }
                 }   
             } 
             SPDLOG_WARN("Stopping produce_spat_json! Are pointers null: spat_worker {0}, spat_producer {1}, tsc_state {2}",
