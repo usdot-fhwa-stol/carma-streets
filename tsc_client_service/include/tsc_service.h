@@ -101,6 +101,7 @@ namespace traffic_signal_controller_service {
             friend class tsc_service_test;
             FRIEND_TEST(tsc_service_test,test_tsc_control);
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
+            FRIEND_TEST(tsc_service_test,test_init_kafka_consumer);
 
 
         public:
@@ -141,7 +142,7 @@ namespace traffic_signal_controller_service {
              */
             bool initialize_kafka_consumer(const std::string &bootstrap_server, 
                                             const std::string &consumer_topic, 
-                                            std::string &consumer_group,
+                                            const std::string &consumer_group,
                                             std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer);
 
             /**

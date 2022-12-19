@@ -191,7 +191,7 @@ namespace traffic_signal_controller_service
 
 
     void monitor_desired_phase_plan::fix_upcoming_yell_red(  const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
-            const std::shared_ptr<tsc_state> tsc_state, const std::vector<signal_phase_and_timing::movement_state> green_phases)  const{
+            const std::shared_ptr<tsc_state> tsc_state, const std::vector<signal_phase_and_timing::movement_state> &green_phases)  const{
         streets_desired_phase_plan::signal_group2green_phase_timing fixed_green;
 
         if ( green_phases.size() > 2 ) {

@@ -11,7 +11,7 @@ namespace traffic_signal_controller_service
     }
 
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
-                                             std::queue<snmp_cmd_struct>& tsc_command_queue)
+                                             std::queue<snmp_cmd_struct>& tsc_command_queue) const
     {
         if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");

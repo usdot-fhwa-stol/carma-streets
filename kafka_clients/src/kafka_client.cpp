@@ -3,7 +3,7 @@
 namespace kafka_clients
 {
     std::shared_ptr<kafka_clients::kafka_consumer_worker> kafka_client::create_consumer(const std::string &bootstrap_server, const std::string &topic_str,
-                                                                                        std::string &group_id_str) const
+                                                                                        const std::string &group_id_str) const
     {
         try
         {

@@ -94,7 +94,8 @@ namespace traffic_signal_controller_service
              * @param desired_phase_plan Pointer to the desired phase plan.
              * @param tsc_command_queue Queue of snmp commands to set HOLD and OMIT on the traffic signal controller
              **/
-            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<snmp_cmd_struct>& tsc_command_queue);
+            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, 
+                                        std::queue<snmp_cmd_struct>& tsc_command_queue) const;
 
             /** 
              * @brief Method to create OMIT snmp command for provided signal groups, which will result in the traffic signal controller skipping the specified phases. 

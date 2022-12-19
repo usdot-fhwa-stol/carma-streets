@@ -109,7 +109,7 @@ namespace traffic_signal_controller_service {
 
     bool tsc_service::initialize_kafka_consumer(const std::string &bootstrap_server, 
                                                 const std::string &consumer_topic,  
-                                                std::string &consumer_group, 
+                                                const std::string &consumer_group, 
                                                 std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer) {
         auto client = std::make_unique<kafka_clients::kafka_client>();
         kafka_consumer = client->create_consumer(bootstrap_server, consumer_topic, consumer_group);
@@ -354,7 +354,7 @@ namespace traffic_signal_controller_service {
             tsc_config_producer->stop();
         }
         if (desired_phase_plan_consumer) {
-            SPDLOG_WARN("Stoping desired phase plan consumer!");
+            SPDLOG_WARN("Stopping desired phase plan consumer!");
             desired_phase_plan_consumer->stop();
         }
     }
