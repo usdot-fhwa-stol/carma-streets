@@ -19,20 +19,12 @@ namespace traffic_signal_controller_service {
                 if  (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
                     return false;
                 }
-                if (!spat_producer) {
-                    throw std::runtime_error("Failed to initialize SPAT producer");
-                }
             }
 
             if (!desired_phase_plan_consumer) {
                 if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
                     return false;
                 }
-                if (!desired_phase_plan_consumer) {
-                    SPDLOG_ERROR("Failed to initialize DPP consumer");
-                    return false;
-                }
-
             }            
             // Initialize SNMP Client
             std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
@@ -44,9 +36,6 @@ namespace traffic_signal_controller_service {
                 if  (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
                     return false;
                 }
-                if ( !snmp_client_ptr ) {
-                    throw std::runtime_error("Failed to initialize SNMP client");
-                }
             }
             
             //  Initialize tsc configuration state kafka producer
@@ -55,14 +44,12 @@ namespace traffic_signal_controller_service {
                 if  (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
                     return false;
                 }
-                if (!tsc_config_producer) {
-                    throw std::runtime_error("Failed to initialize tsc_config producer");
-                }
             }
             //Initialize TSC State
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
             if (!initialize_tsc_state(snmp_client_ptr)){
-                throw std::runtime_error("Failed to initialize tsc state");
+                SPDLOG_ERROR("Failed to initialize tsc state");
+                return false;
             }
             tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
             // Initialize spat_worker
@@ -71,11 +58,13 @@ namespace traffic_signal_controller_service {
             int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
             bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
             if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
-                throw std::runtime_error("Failed to initialize SPaT Worker");
+                SPDLOG_ERROR("Failed to initialize SPaT Worker");
+                return false;
             }
 
             if (!initialize_intersection_client()) {
-                throw std::runtime_error("Failed to initialize intersection client");
+                SPDLOG_ERROR("Failed to initialize intersection client");
+                return false;
             }
             // Add all phases to a single map
             auto all_phases = tsc_state_ptr->get_vehicle_phase_map();
@@ -257,7 +246,7 @@ namespace traffic_signal_controller_service {
         
     }
 
-    void tsc_service::produce_tsc_config_json() {
+    void tsc_service::produce_tsc_config_json() const{
         try {
             
             while(tsc_config_producer->is_running() && tsc_config_state_ptr )

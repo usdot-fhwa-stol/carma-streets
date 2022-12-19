@@ -144,7 +144,7 @@ namespace signal_opt_service
          * @param _movement_groups collection of movement groups to remove signal groups from
          * @param rm_signal_groups signal groups to remove from movement groups.
          */
-        void remove_signal_groups( std::shared_ptr<streets_signal_optimization::movement_groups> &movement_groups,
+        void remove_signal_groups( const std::shared_ptr<streets_signal_optimization::movement_groups> &movement_groups,
                                      const std::vector<uint> &rm_signal_groups ) const;
     };
 }

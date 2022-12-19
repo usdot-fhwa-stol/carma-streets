@@ -224,7 +224,7 @@ namespace traffic_signal_controller_service {
              * @brief Method to receive traffic signal controller configuration information from the tsc_state and broadcast spat JSON data to 
              * the carma-streets kafka broker.
              */
-            void produce_tsc_config_json();
+            void produce_tsc_config_json() const;
 
             void consume_desired_phase_plan();
             
