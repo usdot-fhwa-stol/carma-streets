@@ -101,7 +101,7 @@ namespace traffic_signal_controller_service {
             friend class tsc_service_test;
             FRIEND_TEST(tsc_service_test,test_tsc_control);
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
-            FRIEND_TEST(tsc_service_test,test_init_kafka_consumer);
+            FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
 
 
         public:
