@@ -138,9 +138,14 @@ namespace streets_signal_optimization
 
         if (enable_so_logging) {
             auto logger = spdlog::get("so_csv_logger");
+            SPDLOG_DEBUG("getting so_csv_logger!");
             if ( logger != nullptr ) {
+                SPDLOG_DEBUG("logging info: {0} ", dpp_delay_toCSV(candidate_dpp, candidate_vehicles_delay, TBD_delay, delay_measure));
                 logger->info( dpp_delay_toCSV(candidate_dpp, candidate_vehicles_delay, TBD_delay, delay_measure) );
             }
+        }
+        else {
+            SPDLOG_WARN("so_csv_logger in arbitrator pointer is not enabled!");
         }
 
         return delay_measure;

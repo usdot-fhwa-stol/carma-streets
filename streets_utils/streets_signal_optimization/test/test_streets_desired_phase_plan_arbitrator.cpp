@@ -31,6 +31,9 @@ namespace streets_signal_optimization
     protected:
         void SetUp() override
         {
+            
+            
+            
             tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
             std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
             std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
@@ -261,6 +264,19 @@ namespace streets_signal_optimization
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, select_optimal_dpp)
     {
+        std::string _so_log_path = "../logs/";
+        std::string _so_log_filename = "soLogs";
+        SPDLOG_INFO("csv log path: {0}", _so_log_path + _so_log_filename + ".csv");
+        auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
+            "so_csv_logger",  // logger name
+            _so_log_path + _so_log_filename +".csv",  // log file name and path
+            23, // hours to rotate
+            59 // minutes to rotate
+            );
+        // Only log log statement content
+        csv_logger->set_pattern("%v");
+        csv_logger->set_level(spdlog::level::info);
+        
         auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
@@ -345,6 +361,9 @@ namespace streets_signal_optimization
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, update_spat_with_candidate_dpp)
     {
+
+
+        
         auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
         std::string streets_desired_phase_plan_str_1 = "{\"timestamp\":12121212121,\"desired_phase_plan\":[{\"signal_groups\":[1,5],\"start_time\":1660747993,\"end_time\":1660757998},{\"signal_groups\":[2,6],\"start_time\":1660749993,\"end_time\":1660749098},{\"signal_groups\":[3,7],\"start_time\":1660750993,\"end_time\":1660750998},{\"signal_groups\":[4,8],\"start_time\":1660757993,\"end_time\":1660757998}]}";
         auto desired_phase_plan_ptr = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();

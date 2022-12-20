@@ -67,6 +67,11 @@ TEST(signal_opt_service, test_produce_dpp) {
         
     signal_opt_service so_service;
     so_service._so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
+    so_service.read_configuration_params();
+    so_service.configure_csv_logger();
+    so_service._time_to_yellow = 5000;
+    so_service._so_processing_worker_ptr->set_enable_so_logging(true);
+    so_service._so_processing_worker_ptr->configure_signal_opt_processing_worker(so_service.dpp_config);
     auto mock_dpp_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
     
     // Create mock intersection_info_ptr
