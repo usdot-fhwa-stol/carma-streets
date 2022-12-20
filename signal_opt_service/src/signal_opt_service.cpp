@@ -183,6 +183,10 @@ namespace signal_opt_service
                 }
                 SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
                 current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
+                if ( current_future_move_group_count < 1) {
+                    SPDLOG_ERROR("DPP size is zero! Skipping SO iteration");
+                    continue;
+                }
                 if (new_dpp_generated) {
                     SPDLOG_INFO("Current number of movement groups represented in SPAT : {0}!", prev_future_move_group_count);
                     if (current_future_move_group_count > prev_future_move_group_count) {
