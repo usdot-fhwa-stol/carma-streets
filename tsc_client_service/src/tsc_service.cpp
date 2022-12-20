@@ -17,12 +17,15 @@ namespace traffic_signal_controller_service {
             
             if (!spat_producer) {
                 if  (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
+                    SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
                     return false;
                 }
             }
 
             if (!desired_phase_plan_consumer) {
                 if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
+                    SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
+
                     return false;
                 }
             }            
@@ -34,6 +37,7 @@ namespace traffic_signal_controller_service {
             int timeout = streets_service::streets_configuration::get_int_config("timeout");
             if (!snmp_client_ptr) {
                 if  (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
+                    SPDLOG_ERROR("Failed to initialize snmp_client!");
                     return false;
                 }
             }
@@ -42,6 +46,7 @@ namespace traffic_signal_controller_service {
             std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
             if (!tsc_config_producer) {
                 if  (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+                    SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
                     return false;
                 }
             }
@@ -194,26 +199,20 @@ namespace traffic_signal_controller_service {
             while(spat_worker_ptr && tsc_state_ptr && spat_producer) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
+                    SPDLOG_DEBUG("Current SPaT : {0} ", spat_ptr->toJson());   
                     if(!use_desired_phase_plan_update_){
-                        try{
-                            tsc_state_ptr->add_future_movement_events(spat_ptr);
-                        }
-                        catch(const traffic_signal_controller_service::monitor_states_exception &e){
-                            SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
-                        }
+                       // throws monitor_states_exception
+                        tsc_state_ptr->add_future_movement_events(spat_ptr);
+                        
                     }else{
-                        try {
-                            std::scoped_lock<std::mutex> lck{dpp_mtx};
-                            monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr);
-                        }
-                        catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
-                            SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
-                        }
+                        std::scoped_lock<std::mutex> lck{dpp_mtx};
+                         // throws desired phase plan exception when no previous green information present
+                        monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr); 
                     }
                     if (spat_ptr && spat_producer) {
                         spat_producer->send(spat_ptr->toJson());
                     }
-                    // TODO: Increase sample size once we are confident latency does not have large spikes in small intervals.
+                    // Sample size for spat latency measurement 20 mgs
                     if (count <= 20 ) {
                         uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                         spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
@@ -226,17 +225,15 @@ namespace traffic_signal_controller_service {
                     }
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
-                    SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
-                    if (spat_ptr) {
-                        try{
-                            SPDLOG_ERROR("Current SPaT : {0} ", spat_ptr->toJson());
-                        }
-                        catch (const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
-                            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
-                        }
-                    }
+                    SPDLOG_ERROR("Encountered exception, spat not published : \n {0}", e.what());
+                }
+                catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
+                    SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                }
+                catch(const traffic_signal_controller_service::monitor_states_exception &e){
+                    SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                 }   
-            } 
+    } 
             SPDLOG_WARN("Stopping produce_spat_json! Are pointers null: spat_worker {0}, spat_producer {1}, tsc_state {2}",
                 spat_worker_ptr == nullptr, spat_ptr == nullptr, tsc_state_ptr == nullptr);
         }
@@ -293,7 +290,9 @@ namespace traffic_signal_controller_service {
         }
         catch(const control_tsc_state_exception &e){
             SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
-            throw control_tsc_state_exception("Could not set state on traffic signal controller");
+            SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
+            tsc_set_command_queue_.pop();
+
         }
 
     }
@@ -306,7 +305,9 @@ namespace traffic_signal_controller_service {
             auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().start_time_);
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
             if(duration.count() < 0){
-                throw control_tsc_state_exception("SNMP set command is expired");
+                throw control_tsc_state_exception("SNMP set command is expired! Start time was " 
+                    + std::to_string(event_execution_start_time.count()) + " and current time is " 
+                    + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()) + ".");
             }
             std::this_thread::sleep_for(duration);
 

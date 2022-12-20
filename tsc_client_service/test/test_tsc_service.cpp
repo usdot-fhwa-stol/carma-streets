@@ -393,16 +393,19 @@ namespace traffic_signal_controller_service
         tsc_set_command_queue.push(hold_command);
         service.tsc_set_command_queue_ = tsc_set_command_queue;
         EXPECT_THROW(service.set_tsc_hold_and_omit(), control_tsc_state_exception);
-
+        ASSERT_EQ(1, service.tsc_set_command_queue_.size());
         // Test control_tsc_phases
-        EXPECT_THROW(service.control_tsc_phases(), control_tsc_state_exception);
-        
+        service.control_tsc_phases();
+        ASSERT_EQ(0, service.tsc_set_command_queue_.size());
+
         start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 100;
         snmp_cmd_struct hold_command_2(mock_snmp, start_time, control_type, 0);
         std::queue<snmp_cmd_struct> tsc_set_command_queue_2;
         tsc_set_command_queue_2.push(hold_command_2);
         service.tsc_set_command_queue_ = tsc_set_command_queue_2;
+        ASSERT_EQ(1, service.tsc_set_command_queue_.size());
         EXPECT_NO_THROW(service.set_tsc_hold_and_omit());
+        ASSERT_EQ(0, service.tsc_set_command_queue_.size());
 
     }
 

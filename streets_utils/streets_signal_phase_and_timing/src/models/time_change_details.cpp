@@ -113,7 +113,7 @@ namespace signal_phase_and_timing {
         auto hours_since_epoch_ms = hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS;
         uint64_t tenth_seconds_from_current_hour;
         if ( hours_since_epoch_ms > epoch_time_ms ) {
-            SPDLOG_WARN("Epoch time provided {0} is smaller than the current UTC hour time {1}! SPaT cannot represent a time from a previous our. Approximating time as beginning of current hour."
+            SPDLOG_WARN("Epoch time provided {0} is smaller than the current UTC hour time {1}! SPaT cannot represent a time from a previous hour. Approximating time as beginning of current hour."
                 , epoch_time_ms, hours_since_epoch_ms);
             tenth_seconds_from_current_hour = 0;
         }

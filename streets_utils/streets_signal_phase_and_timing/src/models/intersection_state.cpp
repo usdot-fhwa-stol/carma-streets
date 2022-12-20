@@ -22,9 +22,6 @@ namespace signal_phase_and_timing {
         // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
         state.AddMember("moy", moy, allocator);
         // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
-        if ( time_stamp == 0 ) {
-            throw signal_phase_and_timing_exception("IntersectionState is missing required time_stamp property!");
-        }
         state.AddMember("time_stamp", time_stamp, allocator);
         // OPTIONAL see J2735 IntersectionState definition
         if ( !enabled_lanes.empty() ) {

@@ -122,10 +122,14 @@ namespace traffic_signal_controller_service
                     auto red_phase_configuration =tsc_state->get_signal_group_state_map().find(movement.signal_group)->second;
                     // Start time is red clearance start + red clearance if start time is > current time
                     uint64_t local_start_time_epoch = movement.state_time_speed.front().timing.get_epoch_start_time() + red_phase_configuration.red_clearance;
-                    // If red phase start + red clearance is greater than current time this phase is in red clearance
+                    // If red phase start + red clearance is greater than or equal to current time this phase is in red clearance
                     // and will get green next.
-                    if ( local_start_time_epoch > cur_time_since_epoch ) {
-                        start_time_epoch_ms = local_start_time_epoch;
+                    start_time_epoch_ms = local_start_time_epoch;
+
+                    if ( local_start_time_epoch < cur_time_since_epoch ) {
+                        SPDLOG_ERROR("Error state SPaT : {0}", spat_ptr->toJson());
+                        SPDLOG_ERROR("Error state last green served : {0}, {1}", last_green_served.front().signal_group, last_green_served.back().signal_group);
+                        throw monitor_desired_phase_plan_exception("Local start time is less than current time which means this is not an upcoming green!");
                     }
 
                 }
@@ -161,6 +165,7 @@ namespace traffic_signal_controller_service
             if (((response.val_int >> i) & 1) == 1) {
                 // Add any signal group for phase that has bit as 1
                 auto signal_group_id = tsc_state->get_vehicle_signal_group_id(i+1);
+                
                 fixed_green.signal_groups.push_back(signal_group_id);
             }
         }
@@ -194,8 +199,8 @@ namespace traffic_signal_controller_service
             const std::shared_ptr<tsc_state> tsc_state, const std::vector<signal_phase_and_timing::movement_state> &green_phases)  const{
         streets_desired_phase_plan::signal_group2green_phase_timing fixed_green;
 
-        if ( green_phases.size() > 2 ) {
-            throw monitor_desired_phase_plan_exception( "More than two present phase were found to be green concurrently!");
+        if ( green_phases.size() > 2 || green_phases.size() < 1) {
+            throw monitor_desired_phase_plan_exception( "More than two or less than one present phases were found to be green!");
         } else {
             for ( const auto &phase : green_phases ) {
                 fixed_green.signal_groups.push_back(phase.signal_group);
