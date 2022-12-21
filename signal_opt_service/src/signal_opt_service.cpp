@@ -107,7 +107,6 @@ namespace signal_opt_service
 
     void signal_opt_service::consume_spat(const std::shared_ptr<kafka_clients::kafka_consumer_worker> spat_consumer, 
                                             const std::shared_ptr<signal_phase_and_timing::spat> _spat_ptr ) const{
-        SPDLOG_INFO("Consuming SPat.");
         while( spat_consumer->is_running()) {
             const std::string payload = spat_consumer->consume(1000); 
             if (!payload.empty()) {
@@ -121,7 +120,6 @@ namespace signal_opt_service
 
     void signal_opt_service::consume_vsi(const std::shared_ptr<kafka_clients::kafka_consumer_worker> vsi_consumer,
                                          const std::shared_ptr<streets_vehicles::vehicle_list> _vehicle_list_ptr) const{
-        SPDLOG_INFO("Consuming VSI.");
         while( vsi_consumer->is_running()) {
             const std::string payload = vsi_consumer->consume(1000); 
             if (!payload.empty()) {
@@ -169,7 +167,7 @@ namespace signal_opt_service
         bool new_dpp_generated = false;
 
         while ( dpp_producer->is_running() ) {
-            SPDLOG_INFO("Signal Optimization iteration!");
+            SPDLOG_DEBUG("Signal Optimization iteration!");
             if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
                 streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
                 try
