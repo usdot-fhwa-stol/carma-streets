@@ -176,6 +176,23 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
 
     ASSERT_THROW(generator.convert_spat_to_dpp(intersection_state, move_groups), streets_desired_phase_plan_generator_exception);
 
+
+    // case with 2 greens from the same signal group!
+    move_groups->groups.front().signal_groups.second = 0;
+    move_groups->groups.front().signal_groups.first = 3;
+    movement_group mg4;
+    mg4.name = "movement_group_4";
+    mg4.signal_groups = {1, 0};
+    move_groups->groups.push_back(mg4);
+    
+    std::string json_spat_2green = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":6,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}},{\"event_state\":8,\"timing\":{\"start_time\":10100,\"min_end_time\":10130}}, {\"event_state\":3,\"timing\":{\"start_time\":10130,\"min_end_time\":10300}},{\"event_state\":6,\"timing\":{\"start_time\":10300,\"min_end_time\":10400}},{\"event_state\":8,\"timing\":{\"start_time\":10400,\"min_end_time\":10430}}, {\"event_state\":3,\"timing\":{\"start_time\":10430,\"min_end_time\":10450}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10150}},{\"event_state\":6,\"timing\":{\"start_time\":10150,\"min_end_time\":10250}}, {\"event_state\":8,\"timing\":{\"start_time\":10250,\"min_end_time\":10280}}, {\"event_state\":3,\"timing\":{\"start_time\":10280,\"min_end_time\":10450}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10450}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10450}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    spat_object.fromJson(json_spat_2green);
+    intersection_state = spat_object.get_intersection();
+    base_desired_phase_plan = generator.convert_spat_to_dpp(intersection_state, move_groups);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.size(), 3);
+    SPDLOG_INFO("converted spat to dpp: {0}", base_desired_phase_plan.toJson());
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.front().signal_groups.front(), 1);
+    ASSERT_EQ( base_desired_phase_plan.desired_phase_plan.back().signal_groups.front(), 1);
 }
 
 
