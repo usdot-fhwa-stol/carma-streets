@@ -72,7 +72,20 @@ namespace traffic_signal_controller_service
          * @param tsc_state_ptr shared pointer to the tsc state information including tsc phase configuration information.
          */
         void fix_upcoming_green(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, const std::shared_ptr<tsc_state> tsc_state_ptr) ;
-
+        /**
+         * @brief Method to represent yellow change and red clearance when no desired phase plan is present and the TSC is currently
+         * GREEN for a given phase. This method assumes the current green will continue for min_green time and adds future events for all
+         * signal groups to account for the current green, the following yellow change and red clearance. This method will add future events 
+         * with this information to the current spat_ptr data. Upon successful execution a SPaT message that previously only had current state and start time
+         * information will included future state information assuming the current green ends at min green and is followed by a yellow change and red clearance.
+         * 
+         * @throws monitor_desired_phase_plan_exception if more than 2 green phases are passed to this method.
+         * 
+         * @param spat_ptr SPaT data to include projected future events 
+         * @param tsc_state_ptr traffic signal controller configuration information like SG to phase number mapping, min green, yellow change
+         *      and red clearance.
+         * @param green_phases movement state objects of the phases that are currently green.
+         */
         void fix_upcoming_yell_red(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
                                     const std::shared_ptr<tsc_state> tsc_state_ptr, 
                                     const std::vector<signal_phase_and_timing::movement_state> &green_phases) const;

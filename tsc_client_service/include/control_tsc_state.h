@@ -81,11 +81,10 @@ namespace traffic_signal_controller_service
         public:
 
             /** 
-             * @brief Constructor for the control_tsc_state class. Needs to be initialized with pointer to snmp client to make snmp calls, 
-             * A mapping between ped phases and signal group ids and desired phase plan
+             * @brief Constructor for the control_tsc_state class. Needs to be initialized with pointer to snmp client to make snmp calls and 
+             * a shared pointer to the tsc_state which is used to store traffic signal controller configuration information
              * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
-             * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
-             * @param desired_phase_plan Pointer to the desired phase plan.
+             * @param _tsc_state A shared pointer to the tsc_state which stores information about traffic signal controller configuration
              **/
             explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client,std::shared_ptr<tsc_state> _tsc_state);
             

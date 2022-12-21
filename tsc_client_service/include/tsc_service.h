@@ -126,7 +126,7 @@ namespace traffic_signal_controller_service {
              * 
              * @param bootstap_server for CARMA-Streets Kafka broker.
              * @param producer_topic name of topic to produce to.
-             * @param producer kafka producer set up on producer topic.
+             * @param producer a shared pointer to the consumer to initialize.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
@@ -137,6 +137,8 @@ namespace traffic_signal_controller_service {
              * @brief Initialize Kafka Desired phase plan consumer. 
              * @param bootstap_server for CARMA-Streets Kafka broker.
              * @param desired_phase_plan_consumer_topic name of topic to produce to.
+             * @param consumer_group a id associated with a saved offset in the topic queue
+             * @param consumer a shared pointer to the consumer to initialize.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */

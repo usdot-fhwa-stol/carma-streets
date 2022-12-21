@@ -212,15 +212,14 @@ namespace signal_opt_service
                 auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
                 SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
                 if ( time_to_yellow <= _time_to_yellow ) {
-                    SPDLOG_INFO("Checking fixed phases");
                     /**
                      * If the number of future movement groups in the spat has changed compared to the previous step
                      * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
                      * libraries to get optimal desired_phase_plan.
                     */
                     if (current_future_move_group_count <= dpp_config.desired_future_move_group_count ) {
-                        SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
-                                                                    prev_future_move_group_count, current_future_move_group_count);
+                        SPDLOG_INFO("The number of future movement groups in the spat is {0} which is less than the max desired future movement groups {1}.", 
+                                                                    current_future_move_group_count-1, dpp_config.desired_future_move_group_count );
                         // Current movement group count includes current fix momvement group.
                         // Desired future movemement group count only includes future movement groups
                         streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
@@ -240,7 +239,7 @@ namespace signal_opt_service
                         
                     }
                     else {
-                        SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
+                        SPDLOG_INFO("The number of future movement groups in spat is greater than or equal to the desired number future movement groups");
                     }
                 }
                 else {
