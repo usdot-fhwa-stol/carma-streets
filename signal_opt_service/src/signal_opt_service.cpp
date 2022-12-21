@@ -177,12 +177,14 @@ namespace signal_opt_service
                 catch(const std::runtime_error &ex)
                 {
                     SPDLOG_ERROR("Encountered Exception : {0} ", ex.what());
-                    break;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                    continue;
                 }
                 SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
                 current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
                 if ( current_future_move_group_count < 1) {
                     SPDLOG_ERROR("DPP size is zero! Skipping SO iteration");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
                     continue;
                 }
                 if (new_dpp_generated) {
@@ -192,6 +194,7 @@ namespace signal_opt_service
                     }
                     else {
                         SPDLOG_WARN("Skipping SO iteration. Previously sent DPP is not yet reflected in SPaT!");
+                        std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
                         continue;
                     }
                 }
@@ -204,6 +207,7 @@ namespace signal_opt_service
                 
                 if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
                     SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
                     continue;
                 }
 
