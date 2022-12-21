@@ -177,7 +177,16 @@ TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
     ASSERT_THROW(generator.convert_spat_to_dpp(intersection_state, move_groups), streets_desired_phase_plan_generator_exception);
 
 
-    // case with 2 greens from the same signal group!
+    /**
+     * Case with 2 greens from the same signal group!
+     * Movement group sequence from spat:  [signal group 1 {9950, 10100}, 
+     *                                      signal group 2 {10150, 10250}, 
+     *                                      signal group 1 {10350, 10450}]
+     * Movement_group_list: [Movement group 1 {signal group 3, 0}, 
+     *                       Movement group 2 {signal group 2, 0},
+     *                       Movement group 3 {signal group 4, 0},
+     *                       Movement group 4 {signal group 1, 0},]
+     */ 
     move_groups->groups.front().signal_groups.second = 0;
     move_groups->groups.front().signal_groups.first = 3;
     movement_group mg4;

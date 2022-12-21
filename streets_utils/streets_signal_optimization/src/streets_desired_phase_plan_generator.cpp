@@ -217,6 +217,11 @@ namespace streets_signal_optimization {
                 base_desired_phase_plan.desired_phase_plan.push_back(mg_green);
             }
             else {
+                /** 
+                 * is_added parameter checks if mg_green has been added to the base_desired_phase_plan 
+                 *      somewhere before the last existing movement_group. If this parameter is false at the end of
+                 *      the for loop, mg_green must be added to the end of the list.
+                 */
                 bool is_added = false;
                 for (int index = 0; index < base_desired_phase_plan.desired_phase_plan.size(); ++index) {
                     if ( (mg_green.start_time < base_desired_phase_plan.desired_phase_plan[index].start_time && 
@@ -231,6 +236,10 @@ namespace streets_signal_optimization {
                         break;
                     }
                 }
+                /**
+                 * If is_added is false, mg_green is not added to the base_desired_phase_plan which means that mg_green
+                 *      must be added to the end of the list!
+                */
                 if (!is_added) {
                     base_desired_phase_plan.desired_phase_plan.push_back(mg_green);
                 }
