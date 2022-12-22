@@ -103,7 +103,7 @@ namespace traffic_signal_controller_service
         // Current time used for any calculations
         uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         auto state = spat_ptr->get_intersection();
-
+        std::vector<signal_phase_and_timing::movement_state> yellow_phase_present;
         // Check if current spat includes yellow clearance
         for (const auto &movement : state.states) {
             // Found yellow states
@@ -117,13 +117,11 @@ namespace traffic_signal_controller_service
                     start_time_epoch_ms = local_start_time_epoch;
                 }
                 // If service starts on yellow change, set last green served to yellow change.
-                if ( last_green_served.empty() ) {
-                    last_green_served.push_back( movement);
-                    SPDLOG_DEBUG("Last served greens set to {0} and {1}!", 
-                        last_green_served.front().signal_group,
-                        last_green_served.size() == 1 ? 0 : last_green_served.back().signal_group );
-                }
+                yellow_phase_present.push_back( movement);          
             }
+        }
+        if ( !yellow_phase_present.empty() ) {
+            update_last_green_served(yellow_phase_present);
         }
         // If it does not include a green and does not include a yellow assume it is in all red clearance 
         if ( !is_yellow_change ) {

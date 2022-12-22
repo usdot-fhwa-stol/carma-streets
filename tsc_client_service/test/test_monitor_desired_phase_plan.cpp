@@ -1378,7 +1378,10 @@ namespace traffic_signal_controller_service
         ASSERT_THROW( monitor_dpp_ptr->fix_upcoming_yell_red(spat_msg_ptr, tsc_state_ptr, greens_present), monitor_desired_phase_plan_exception);
     }
 
-
+    /**
+     * @brief Test update_last_green_served with valid and invalid inputs
+     * 
+     */
     TEST_F(test_monitor_desired_phase_plan, update_last_green_served) {
         signal_phase_and_timing::movement_event green;
         green.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed; // Green
