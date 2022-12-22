@@ -90,6 +90,11 @@ namespace traffic_signal_controller_service {
             // Initialize control_tsc_state ptr
             control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);
 
+            if (enable_snmp_cmd_logging_)
+            {
+                configure_csv_logger();
+            }
+
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
@@ -302,11 +307,6 @@ namespace traffic_signal_controller_service {
     void tsc_service::set_tsc_hold_and_omit()
     {
 
-        if (enable_snmp_cmd_logging_)
-        {
-            configure_csv_logger();
-        }
-
         while(!tsc_set_command_queue_.empty())
         {
             //Check if event is expired
@@ -342,8 +342,8 @@ namespace traffic_signal_controller_service {
                 "snmp_cmd_logger",  // logger name
                     streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
                     streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
-                23, // hours to rotate
-                59 // minutes to rotate
+                    23, // hours to rotate
+                    59 // minutes to rotate
                 );
             // Only log log statement content
             snmp_cmd_logger->set_pattern("%v");
