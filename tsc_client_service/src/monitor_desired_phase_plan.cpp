@@ -264,7 +264,7 @@ namespace traffic_signal_controller_service
             }
         }
         else {
-            SPDLOG_WARN("Green phases present is empty! Cannot update last served green");
+            throw monitor_desired_phase_plan_exception("Green phases present is empty! Cannot update last served green");
         }
     }
 }

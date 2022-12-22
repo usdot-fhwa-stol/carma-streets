@@ -24,6 +24,7 @@ namespace traffic_signal_controller_service
         friend class test_monitor_desired_phase_plan;
         FRIEND_TEST(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red);
         FRIEND_TEST(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_yellow);
+        FRIEND_TEST(test_monitor_desired_phase_plan, update_last_green_served);
 
 
     public:
@@ -96,9 +97,10 @@ namespace traffic_signal_controller_service
          */
         void prune_expired_greens_from_dpp( const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> &desired_phase_plan ) const;
         /**
-         * @brief Method to update last greens served with currently present green movement states./
+         * @brief Method to update last greens served with currently present green movement states.
          * 
-         * @param green_phases_present Currently present green phases in SPAT
+         * @throws monitor_desired_phase_plan_exception if greens_phases_present empty.
+         * @param green_phases_present Currently present green phases in SPAT.
          */
         void update_last_green_served(const std::vector<signal_phase_and_timing::movement_state> &green_phases_present);
     };

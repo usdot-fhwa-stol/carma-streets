@@ -1378,6 +1378,53 @@ namespace traffic_signal_controller_service
         ASSERT_THROW( monitor_dpp_ptr->fix_upcoming_yell_red(spat_msg_ptr, tsc_state_ptr, greens_present), monitor_desired_phase_plan_exception);
     }
 
+
+    TEST_F(test_monitor_desired_phase_plan, update_last_green_served) {
+        signal_phase_and_timing::movement_event green;
+        green.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed; // Green
+        green.timing.start_time = current_hour_in_tenths_secs;
+        green.timing.min_end_time = current_hour_in_tenths_secs + 10;
+        
+        signal_phase_and_timing::movement_state g1,g2;
+        g1.signal_group = 1;
+        g1.state_time_speed.push_back(green);
+        g2.signal_group = 2;
+        g2.state_time_speed.push_back(green);
+        std::vector<signal_phase_and_timing::movement_state> greens_present;
+        
+        ASSERT_TRUE( monitor_dpp_ptr->last_green_served.empty());
+        ASSERT_THROW( monitor_dpp_ptr->update_last_green_served(greens_present), monitor_desired_phase_plan_exception);
+
+        greens_present.push_back(g1);
+        greens_present.push_back(g2);
+        monitor_dpp_ptr->update_last_green_served(greens_present);
+
+        ASSERT_EQ( 1, monitor_dpp_ptr->last_green_served.front().signal_group);
+        ASSERT_EQ( 2, monitor_dpp_ptr->last_green_served.back().signal_group);
+
+        g1.signal_group = 1;
+        g2.signal_group = 3;
+        
+        greens_present.clear();
+        greens_present.push_back(g1);
+        greens_present.push_back(g2);
+        monitor_dpp_ptr->update_last_green_served(greens_present);
+
+        ASSERT_EQ( 1, monitor_dpp_ptr->last_green_served.front().signal_group);
+        ASSERT_EQ( 3, monitor_dpp_ptr->last_green_served.back().signal_group);
+
+        g1.signal_group = 2;
+        g2.signal_group = 5;
+        
+        greens_present.clear();
+        greens_present.push_back(g1);
+        greens_present.push_back(g2);
+        monitor_dpp_ptr->update_last_green_served(greens_present);
+
+        ASSERT_EQ( 2, monitor_dpp_ptr->last_green_served.front().signal_group);
+        ASSERT_EQ( 5, monitor_dpp_ptr->last_green_served.back().signal_group);
+
+    }
     TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red) {
         // Initialize tsc_state
         mock_tsc_ntcip();
