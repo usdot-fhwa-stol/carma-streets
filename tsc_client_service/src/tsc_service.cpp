@@ -327,8 +327,8 @@ namespace traffic_signal_controller_service {
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
             auto logger = spdlog::get("csv_logger");
-            if ( logger != nullptr && !veh_map.empty() ){
-                logger->info( int_schedule->toCSV());
+            if ( logger != nullptr ){
+                logger->info( tsc_set_command_queue_.front().get_cmd_info());
             }
 
             tsc_set_command_queue_.pop();
