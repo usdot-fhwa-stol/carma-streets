@@ -1260,7 +1260,10 @@ namespace traffic_signal_controller_service
          * END: Test Scenario three
          * ***/
     }
-
+    /**
+     * @brief Test to test prune_expired_greens_from_dpp method against different valid DPPs
+     * 
+     */
     TEST_F(test_monitor_desired_phase_plan, test_prune_expired_from_dpp) {
         
         auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
@@ -1343,6 +1346,36 @@ namespace traffic_signal_controller_service
         ASSERT_EQ( 8, dpp->desired_phase_plan.back().signal_groups.front());
 
 
+    }
+
+    /**
+     * @brief Test that fix_upcoming_yell_red throws exception if more that two or less than one
+     * current green movement states are provided.
+     * 
+     */
+    TEST_F(test_monitor_desired_phase_plan, fix_upcoming_yell_red_exception ) {
+        mock_tsc_ntcip();
+        tsc_state_ptr->initialize();
+        
+        signal_phase_and_timing::movement_event green;
+        green.event_state = signal_phase_and_timing::movement_phase_state::protected_movement_allowed; // Green
+        green.timing.start_time = current_hour_in_tenths_secs;
+        green.timing.min_end_time = current_hour_in_tenths_secs + 10;
+        
+        signal_phase_and_timing::movement_state g1,g2,g3;
+        g1.signal_group = 1;
+        g1.state_time_speed.push_back(green);
+        g2.signal_group = 2;
+        g2.state_time_speed.push_back(green);
+        g3.signal_group = 2;
+        g3.state_time_speed.push_back(green);
+        std::vector<signal_phase_and_timing::movement_state> greens_present;
+        ASSERT_THROW( monitor_dpp_ptr->fix_upcoming_yell_red(spat_msg_ptr, tsc_state_ptr, greens_present), monitor_desired_phase_plan_exception);
+
+        greens_present.push_back(g1);
+        greens_present.push_back(g2);
+        greens_present.push_back(g3);
+        ASSERT_THROW( monitor_dpp_ptr->fix_upcoming_yell_red(spat_msg_ptr, tsc_state_ptr, greens_present), monitor_desired_phase_plan_exception);
     }
 
     TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red) {
