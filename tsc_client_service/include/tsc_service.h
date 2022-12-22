@@ -99,7 +99,6 @@ namespace traffic_signal_controller_service {
 
             bool enable_snmp_cmd_logging_;
 
-            std::shared_ptr<spdlog::logger> snmp_cmd_logger_;
             //Add Friend Test to share private members
             friend class tsc_service_test;
             FRIEND_TEST(tsc_service_test,test_tsc_control);
@@ -244,6 +243,8 @@ namespace traffic_signal_controller_service {
              * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
              **/
             void set_tsc_hold_and_omit();
+
+            void configure_csv_logger() const;
 
     };
 }

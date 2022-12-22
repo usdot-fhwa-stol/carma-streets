@@ -301,6 +301,12 @@ namespace traffic_signal_controller_service {
     
     void tsc_service::set_tsc_hold_and_omit()
     {
+
+        if (enable_snmp_cmd_logging_)
+        {
+            configure_csv_logger();
+        }
+
         while(!tsc_set_command_queue_.empty())
         {
             //Check if event is expired
@@ -320,30 +326,33 @@ namespace traffic_signal_controller_service {
             // Log command info sent
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
-            if (enable_snmp_cmd_logging_)
-            {
-            
-                try{
-                    snmp_cmd_logger_ = spdlog::daily_logger_mt<spdlog::async_factory>(
-                        "snmp_cmd_logger_",  // logger name
-                            streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
-                            streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
-                        23, // hours to rotate
-                        59 // minutes to rotate
-                        );
-                    // Only log log statement content
-                    snmp_cmd_logger_->set_pattern("%v");
-                    snmp_cmd_logger_->set_level(spdlog::level::info);
-                    snmp_cmd_logger_->info(tsc_set_command_queue_.front().get_cmd_info());
-                
-                }
-                catch (const spdlog::spdlog_ex& ex)
-                {
-                    spdlog::error( "Log initialization failed: {0}!",ex.what());
-                }
+            auto logger = spdlog::get("csv_logger");
+            if ( logger != nullptr && !veh_map.empty() ){
+                logger->info( int_schedule->toCSV());
             }
 
             tsc_set_command_queue_.pop();
+        }
+    }
+
+    void tsc_service::configure_csv_logger() const
+    {
+        try{
+            auto csv_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                "csv_logger",  // logger name
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
+                23, // hours to rotate
+                59 // minutes to rotate
+                );
+            // Only log log statement content
+            csv_logger->set_pattern("%v");
+            csv_logger->set_level(spdlog::level::info);
+            
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
         }
     }
     
