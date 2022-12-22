@@ -322,31 +322,28 @@ namespace traffic_signal_controller_service {
 
             if (enable_snmp_cmd_logging_)
             {
-                configure_csv_logger();
+            
+                try{
+                    snmp_cmd_logger_ = spdlog::daily_logger_mt<spdlog::async_factory>(
+                        "snmp_cmd_logger_",  // logger name
+                            streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
+                            streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
+                        23, // hours to rotate
+                        59 // minutes to rotate
+                        );
+                    // Only log log statement content
+                    snmp_cmd_logger_->set_pattern("%v");
+                    snmp_cmd_logger_->set_level(spdlog::level::info);
+                    snmp_cmd_logger_->info(tsc_set_command_queue_.front().get_cmd_info());
+                
+                }
+                catch (const spdlog::spdlog_ex& ex)
+                {
+                    spdlog::error( "Log initialization failed: {0}!",ex.what());
+                }
             }
 
             tsc_set_command_queue_.pop();
-        }
-    }
-
-    void tsc_service::configure_csv_logger() const
-    {
-        try{
-            snmp_cmd_logger_ = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "snmp_cmd_logger_",  // logger name
-                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
-                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
-                23, // hours to rotate
-                59 // minutes to rotate
-                );
-            // Only log log statement content
-            snmp_cmd_logger_->set_pattern("%v");
-            snmp_cmd_logger_->set_level(spdlog::level::info);
-            
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
         }
     }
     
