@@ -228,7 +228,7 @@ namespace traffic_signal_controller_service {
                     SPDLOG_ERROR("Encountered exception, spat not published : \n {0}", e.what());
                 }
                 catch( const traffic_signal_controller_service::monitor_desired_phase_plan_exception &e) {
-                    SPDLOG_ERROR("Could not update movement events, spat not published. Encounted exception : \n {0}", e.what());
+                    SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                 }
                 catch(const traffic_signal_controller_service::monitor_states_exception &e){
                     SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());

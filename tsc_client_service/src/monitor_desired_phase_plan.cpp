@@ -30,54 +30,67 @@ namespace traffic_signal_controller_service
         {
             throw monitor_desired_phase_plan_exception("Intersections states cannot be empty!");
         }
-        if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
-        {
-            // If no current green -> then either yellow change or red clearance active
-            // => Fix next green phase in SPaT
-            std::vector<signal_phase_and_timing::movement_state> green_phases_present;
-            auto state = spat_ptr->get_intersection();
-            for (const auto &movement : state.states) {
-                if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
-                    
-                    green_phases_present.push_back(movement);
-                }
+        // If no current green -> then either yellow change or red clearance active
+        // => Fix next green phase in SPaT
+        std::vector<signal_phase_and_timing::movement_state> green_phases_present;
+        auto state = spat_ptr->get_intersection();
+        for (const auto &movement : state.states) {
+            if ( movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed) {
+                
+                green_phases_present.push_back(movement);
             }
-
+        }
+        // If no desired phase plan is currently set
+        if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
+        {  
             if ( green_phases_present.empty() ) {
+                // If green phases present is empty and last green served is empty
+                // TSC is in YELLOW CHANGE or RED CLEAR and monitor desired phase plan
+                // has not yet encountered a green to store as last green served
                 if (last_green_served.empty() ) {
                     throw monitor_desired_phase_plan_exception("No information on previous green!");
                 }
+                // Using next phase group NTCIP OID fix min green, yellow change and red clear for next green
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
-            } else {
-                // Track which greens were served last and update this value.
-                if ( last_green_served.empty() || green_phases_present.front().signal_group != last_green_served.front().signal_group || 
-                    green_phases_present.back().signal_group != last_green_served.front().signal_group) {
-                    last_green_served = green_phases_present;
-                    SPDLOG_DEBUG("Last served greens set to {0} and {0}!", 
-                        last_green_served.front().signal_group,
-                        last_green_served.size() == 1 ? 0 : last_green_served.back().signal_group );
-                }
+            } 
+            else {
+                // Update last green served
+                update_last_green_served(green_phases_present);
+                // Fix min green, yellow change and red clear for current green
                 fix_upcoming_yell_red(spat_ptr, tsc_state_ptr, green_phases_present);
             }
-        } else {
-            
-            // Loop through the desired phase plan and remove an event if the end time is past current
-            bool no_expired_events = false;
-            while( !no_expired_events && desired_phase_plan_ptr != nullptr && !desired_phase_plan_ptr->desired_phase_plan.empty()){
-                // Check first event in desired phase plan and remove if expired
-                uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                if(cur_time_since_epoch < desired_phase_plan_ptr->desired_phase_plan.front().end_time){
-                    no_expired_events = true;
-                }
-                else{
-                    // Warning for removing entries from dpp
-                    SPDLOG_WARN("Current time is greater than event end time {0}, removing expired entry from desired phase plan", desired_phase_plan_ptr->desired_phase_plan.front().end_time);
-                    desired_phase_plan_ptr->desired_phase_plan.erase(desired_phase_plan_ptr->desired_phase_plan.begin());
+        } 
+        // If a desired phase plan is currently set 
+        else {
+            // Remove expired entries from desired phase plan
+            prune_expired_greens_from_dpp(desired_phase_plan_ptr);
+            // If desired phase plan is not empty 
+            if ( !desired_phase_plan_ptr->desired_phase_plan.empty()) {
+                // If desired phase plan not empty use it to project future movement events
+                SPDLOG_INFO("Updating SPaT with SO requested DPP : \n{0}", desired_phase_plan_ptr->toJson());
+                spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr->get_tsc_config_state());                
+            }
+            // If desired phase plan is empty
+            else  {
+                
+                if ( green_phases_present.empty() ) {
+                    // If green phases present is empty and last green served is empty
+                    // TSC is in YELLOW CHANGE or RED CLEAR and monitor desired phase plan
+                    // has not yet encountered a green to store as last green served
+                    if (last_green_served.empty() ) {
+                        throw monitor_desired_phase_plan_exception("No information on previous green!");
+                    }
+                    // Using next phase group NTCIP OID fix min green, yellow change and red clear for next green
+                    fix_upcoming_green(spat_ptr, tsc_state_ptr);
+                } 
+                // If any signal group is currently green
+                else {
+                    // Update last green served
+                    update_last_green_served(green_phases_present);
+                    // Fix min green, yellow change and red clear for current green
+                    fix_upcoming_yell_red(spat_ptr, tsc_state_ptr, green_phases_present);
                 }
             }
-            SPDLOG_INFO("Updating SPaT with SO requested DPP : \n{0}", desired_phase_plan_ptr->toJson());
-
-            spat_ptr->update_spat_with_candidate_dpp(*desired_phase_plan_ptr, tsc_state_ptr->get_tsc_config_state());
         }
     }
 
@@ -106,7 +119,7 @@ namespace traffic_signal_controller_service
                 // If service starts on yellow change, set last green served to yellow change.
                 if ( last_green_served.empty() ) {
                     last_green_served.push_back( movement);
-                    SPDLOG_DEBUG("Last served greens set to {0} and {0}!", 
+                    SPDLOG_DEBUG("Last served greens set to {0} and {1}!", 
                         last_green_served.front().signal_group,
                         last_green_served.size() == 1 ? 0 : last_green_served.back().signal_group );
                 }
@@ -221,5 +234,37 @@ namespace traffic_signal_controller_service
         one_fixed_green.desired_phase_plan.push_back(fixed_green);
         SPDLOG_INFO("Updating SPaT with fixed green : \n{0}", one_fixed_green.toJson());
         spat_ptr->update_spat_with_candidate_dpp(one_fixed_green, tsc_state->get_tsc_config_state());    
+    }
+
+    void monitor_desired_phase_plan::prune_expired_greens_from_dpp( const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> &dpp ) const{
+        // Loop through the desired phase plan and remove an event if the end time is past current
+            bool no_expired_events = false;
+            while( !no_expired_events && desired_phase_plan_ptr != nullptr && !dpp->desired_phase_plan.empty()){
+                // Check first event in desired phase plan and remove if expired
+                uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                if(cur_time_since_epoch < dpp->desired_phase_plan.front().end_time){
+                    no_expired_events = true;
+                }
+                else{
+                    // Warning for removing entries from dpp
+                    SPDLOG_WARN("Current time is greater than event end time {0}, removing expired entry from desired phase plan", dpp->desired_phase_plan.front().end_time);
+                    dpp->desired_phase_plan.erase(dpp->desired_phase_plan.begin());
+                }
+            }
+    }
+
+    void monitor_desired_phase_plan::update_last_green_served(const std::vector<signal_phase_and_timing::movement_state> &green_phases_present) {
+        if ( !green_phases_present.empty() ) {
+            if ( last_green_served.empty() || green_phases_present.front().signal_group != last_green_served.front().signal_group || 
+                        green_phases_present.back().signal_group != last_green_served.front().signal_group) {
+                last_green_served = green_phases_present;
+                SPDLOG_DEBUG("Last served greens set to {0} and {1}!", 
+                    last_green_served.front().signal_group,
+                    last_green_served.size() == 1 ? 0 : last_green_served.back().signal_group );
+            }
+        }
+        else {
+            SPDLOG_WARN("Green phases present is empty! Cannot update last served green");
+        }
     }
 }

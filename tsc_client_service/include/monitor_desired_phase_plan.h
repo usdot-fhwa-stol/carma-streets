@@ -89,6 +89,18 @@ namespace traffic_signal_controller_service
         void fix_upcoming_yell_red(const std::shared_ptr<signal_phase_and_timing::spat> spat_ptr, 
                                     const std::shared_ptr<tsc_state> tsc_state_ptr, 
                                     const std::vector<signal_phase_and_timing::movement_state> &green_phases) const;
+        /**
+         * @brief Method to prune the desired phase plan of any entries for which the end time is less than the current time.
+         * 
+         * @param desired_phase_plan desired phase plan shared pointer from which to prune expired entries.
+         */
+        void prune_expired_greens_from_dpp( const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> &desired_phase_plan ) const;
+        /**
+         * @brief Method to update last greens served with currently present green movement states./
+         * 
+         * @param green_phases_present Currently present green phases in SPAT
+         */
+        void update_last_green_served(const std::vector<signal_phase_and_timing::movement_state> &green_phases_present);
     };
 
 }
