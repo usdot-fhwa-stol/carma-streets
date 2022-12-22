@@ -1417,7 +1417,7 @@ namespace traffic_signal_controller_service
         ASSERT_EQ( 3, monitor_dpp_ptr->last_green_served.back().signal_group);
 
         g1.signal_group = 2;
-        g2.signal_group = 5;
+        g2.signal_group = 3;
         
         greens_present.clear();
         greens_present.push_back(g1);
@@ -1425,6 +1425,17 @@ namespace traffic_signal_controller_service
         monitor_dpp_ptr->update_last_green_served(greens_present);
 
         ASSERT_EQ( 2, monitor_dpp_ptr->last_green_served.front().signal_group);
+        ASSERT_EQ( 3, monitor_dpp_ptr->last_green_served.back().signal_group);
+
+        g1.signal_group = 8;
+        g2.signal_group = 5;
+        
+        greens_present.clear();
+        greens_present.push_back(g1);
+        greens_present.push_back(g2);
+        monitor_dpp_ptr->update_last_green_served(greens_present);
+
+        ASSERT_EQ( 8, monitor_dpp_ptr->last_green_served.front().signal_group);
         ASSERT_EQ( 5, monitor_dpp_ptr->last_green_served.back().signal_group);
 
     }
