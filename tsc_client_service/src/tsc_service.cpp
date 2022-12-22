@@ -326,7 +326,7 @@ namespace traffic_signal_controller_service {
             // Log command info sent
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
-            auto logger = spdlog::get("csv_logger");
+            auto logger = spdlog::get("snmp_cmd_logger");
             if ( logger != nullptr ){
                 logger->info( tsc_set_command_queue_.front().get_cmd_info());
             }
@@ -338,16 +338,16 @@ namespace traffic_signal_controller_service {
     void tsc_service::configure_csv_logger() const
     {
         try{
-            auto csv_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "csv_logger",  // logger name
+            auto snmp_cmd_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                "snmp_cmd_logger",  // logger name
                     streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
                     streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
                 23, // hours to rotate
                 59 // minutes to rotate
                 );
             // Only log log statement content
-            csv_logger->set_pattern("%v");
-            csv_logger->set_level(spdlog::level::info);
+            snmp_cmd_logger->set_pattern("%v");
+            snmp_cmd_logger->set_level(spdlog::level::info);
             
         }
         catch (const spdlog::spdlog_ex& ex)
