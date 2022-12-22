@@ -62,6 +62,8 @@ namespace traffic_signal_controller_service {
             int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
             int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
             bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
+            enable_snmp_cmd_logging_ = streets_service::streets_configuration::get_boolean_config("enable_snmp_cmd_logging");
+
             if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
                 SPDLOG_ERROR("Failed to initialize SPaT Worker");
                 return false;
@@ -318,7 +320,33 @@ namespace traffic_signal_controller_service {
             // Log command info sent
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
+            if (enable_snmp_cmd_logging_)
+            {
+                configure_csv_logger();
+            }
+
             tsc_set_command_queue_.pop();
+        }
+    }
+
+    void tsc_service::configure_csv_logger() const
+    {
+        try{
+            snmp_cmd_logger_ = spdlog::daily_logger_mt<spdlog::async_factory>(
+                "snmp_cmd_logger_",  // logger name
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
+                23, // hours to rotate
+                59 // minutes to rotate
+                );
+            // Only log log statement content
+            snmp_cmd_logger_->set_pattern("%v");
+            snmp_cmd_logger_->set_level(spdlog::level::info);
+            
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
         }
     }
     
