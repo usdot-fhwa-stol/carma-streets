@@ -1261,6 +1261,90 @@ namespace traffic_signal_controller_service
          * ***/
     }
 
+    TEST_F(test_monitor_desired_phase_plan, test_prune_expired_from_dpp) {
+        
+        auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        // DPP with all expired events
+        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        streets_desired_phase_plan::signal_group2green_phase_timing expire1;
+        expire1.signal_groups.push_back(3);
+        expire1.start_time = cur_time_since_epoch - 40 * 1000; // current time - 40s
+        expire1.end_time = cur_time_since_epoch - 30 * 1000; // current time - 30s
+
+        streets_desired_phase_plan::signal_group2green_phase_timing expire2;
+        expire2.signal_groups.push_back(6);
+        expire2.start_time = cur_time_since_epoch - 25 * 1000; // current time - 25s
+        expire2.end_time = cur_time_since_epoch - 15 * 1000;// current time - 15s
+
+        streets_desired_phase_plan::signal_group2green_phase_timing current;
+        current.signal_groups.push_back(2);
+        current.start_time = cur_time_since_epoch - 10 * 1000; // current time - 10s
+        current.end_time = cur_time_since_epoch + 5 * 1000; // current time + 5s
+
+        streets_desired_phase_plan::signal_group2green_phase_timing future;
+        future.signal_groups.push_back(8);
+        future.start_time = cur_time_since_epoch + 15 * 1000; // current time + 15s
+        future.end_time = cur_time_since_epoch + 25 * 1000; // current time + 25s
+
+        // Test DPP with two expired greens
+        dpp->desired_phase_plan.push_back(expire1);
+        dpp->desired_phase_plan.push_back(expire2);
+        ASSERT_EQ( 2, dpp->desired_phase_plan.size());
+        monitor_dpp_ptr->prune_expired_greens_from_dpp(dpp);
+        ASSERT_TRUE(dpp->desired_phase_plan.empty());
+
+        dpp->desired_phase_plan.clear();
+
+        // Test DPP with two expired and one current green
+        dpp->desired_phase_plan.push_back(expire1);
+        dpp->desired_phase_plan.push_back(expire2);
+        dpp->desired_phase_plan.push_back(current);
+        ASSERT_EQ( 3, dpp->desired_phase_plan.size());
+        monitor_dpp_ptr->prune_expired_greens_from_dpp(dpp);
+        ASSERT_EQ( 1, dpp->desired_phase_plan.size());
+        ASSERT_EQ( 2, dpp->desired_phase_plan.front().signal_groups.front());
+
+        ASSERT_EQ( cur_time_since_epoch - 10*1000, dpp->desired_phase_plan.front().start_time);
+        ASSERT_EQ( cur_time_since_epoch + 5*1000, dpp->desired_phase_plan.front().end_time);
+
+        dpp->desired_phase_plan.clear();
+        // Test DPP with two expired, one current and one future green
+        dpp->desired_phase_plan.push_back(expire1);
+        dpp->desired_phase_plan.push_back(expire2);
+        dpp->desired_phase_plan.push_back(current);
+        dpp->desired_phase_plan.push_back(future);
+        ASSERT_EQ( 4, dpp->desired_phase_plan.size());
+        monitor_dpp_ptr->prune_expired_greens_from_dpp(dpp);
+        ASSERT_EQ( 2, dpp->desired_phase_plan.size());
+        // Check first entry = current
+        ASSERT_EQ( cur_time_since_epoch - 10*1000, dpp->desired_phase_plan.front().start_time);
+        ASSERT_EQ( cur_time_since_epoch + 5*1000, dpp->desired_phase_plan.front().end_time);
+        ASSERT_EQ( 2, dpp->desired_phase_plan.front().signal_groups.front());
+        // Check last entry = future
+        ASSERT_EQ( cur_time_since_epoch + 15*1000, dpp->desired_phase_plan.back().start_time);
+        ASSERT_EQ( cur_time_since_epoch + 25*1000, dpp->desired_phase_plan.back().end_time);
+        ASSERT_EQ( 8, dpp->desired_phase_plan.back().signal_groups.front());
+
+        dpp->desired_phase_plan.clear();
+        // Test DPP with current and future green
+        dpp->desired_phase_plan.push_back(current);
+        dpp->desired_phase_plan.push_back(future);
+        ASSERT_EQ( 2, dpp->desired_phase_plan.size());
+        monitor_dpp_ptr->prune_expired_greens_from_dpp(dpp);
+        ASSERT_EQ( 2, dpp->desired_phase_plan.size());
+        // Check first entry = current
+        ASSERT_EQ( cur_time_since_epoch - 10*1000, dpp->desired_phase_plan.front().start_time);
+        ASSERT_EQ( cur_time_since_epoch + 5*1000, dpp->desired_phase_plan.front().end_time);
+        ASSERT_EQ( 2, dpp->desired_phase_plan.front().signal_groups.front());
+        // Check last entry = future
+        ASSERT_EQ( cur_time_since_epoch + 15*1000, dpp->desired_phase_plan.back().start_time);
+        ASSERT_EQ( cur_time_since_epoch + 25*1000, dpp->desired_phase_plan.back().end_time);
+        ASSERT_EQ( 8, dpp->desired_phase_plan.back().signal_groups.front());
+
+
+    }
+
     TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red) {
         // Initialize tsc_state
         mock_tsc_ntcip();

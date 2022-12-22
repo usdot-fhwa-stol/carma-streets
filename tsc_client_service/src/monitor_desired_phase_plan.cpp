@@ -239,9 +239,9 @@ namespace traffic_signal_controller_service
     void monitor_desired_phase_plan::prune_expired_greens_from_dpp( const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> &dpp ) const{
         // Loop through the desired phase plan and remove an event if the end time is past current
             bool no_expired_events = false;
-            while( !no_expired_events && desired_phase_plan_ptr != nullptr && !dpp->desired_phase_plan.empty()){
+            uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            while( !no_expired_events && dpp != nullptr && !dpp->desired_phase_plan.empty()){
                 // Check first event in desired phase plan and remove if expired
-                uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 if(cur_time_since_epoch < dpp->desired_phase_plan.front().end_time){
                     no_expired_events = true;
                 }
