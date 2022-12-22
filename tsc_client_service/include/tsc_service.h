@@ -245,7 +245,7 @@ namespace traffic_signal_controller_service {
              **/
             void set_tsc_hold_and_omit();
 
-            void configure_csv_logger() const
+            void configure_csv_logger() const;
 
     };
 }
