@@ -617,6 +617,65 @@ namespace traffic_signal_controller_service
         
     }
 
+    TEST_F(test_monitor_desired_phase_plan, update_spat_future_movement_events_cur_greens_expired_desired_phase_plan) {
+        // Initialize tsc_state
+        mock_tsc_ntcip();
+        tsc_state_ptr->initialize();
+        // Verifying Setup for spat_msg_ptr
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
+        {
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
+            ASSERT_EQ(1, movement_state.state_time_speed.size());
+        } 
+        // Create Expired DPP
+        auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        // DPP with all expired events
+        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        streets_desired_phase_plan::signal_group2green_phase_timing expire1, expire2;
+        expire1.signal_groups.push_back(3);
+        expire1.start_time = cur_time_since_epoch - 40 * 1000; // current time - 40s
+        expire1.end_time = cur_time_since_epoch - 30 * 1000; // current time - 30s
+
+        expire2.signal_groups.push_back(6);
+        expire2.start_time = cur_time_since_epoch - 25 * 1000; // current time - 25s
+        expire2.end_time = cur_time_since_epoch - 15 * 1000;// current time - 15s
+
+        dpp->desired_phase_plan.push_back(expire1);
+        dpp->desired_phase_plan.push_back(expire2);
+        monitor_dpp_ptr->update_desired_phase_plan( dpp->toJson( ) );
+
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
+        {
+            if ( movement_state.signal_group == 1 || movement_state.signal_group == 5) {
+                ASSERT_EQ(3, movement_state.state_time_speed.size());
+                // First event GREEN
+                auto event = movement_state.state_time_speed.begin();
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::protected_movement_allowed, 
+                    event->event_state);
+                // Second event YELLOW
+                std::advance(event,1);
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::protected_clearance, 
+                    event->event_state);
+
+                // Last event RED
+                std::advance(event,1);
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::stop_and_remain, 
+                    event->event_state);
+
+            } 
+            else {
+                ASSERT_EQ(1, movement_state.state_time_speed.size());
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
+            }
+        }
+        ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
+
+        
+    }
+
     TEST_F(test_monitor_desired_phase_plan, update_spat_future_movement_events_current_greens)
     {
         
@@ -1527,6 +1586,7 @@ namespace traffic_signal_controller_service
 
     }
 
+
     TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_yellow) {
         // Initialize tsc_state
         mock_tsc_ntcip();
@@ -1560,6 +1620,133 @@ namespace traffic_signal_controller_service
                     SetArgReferee<2>(next_phase), 
                     Return(true))
                     );
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_two_ptr, tsc_state_ptr);
+
+        // End time will be yellow change + Red Clear + min Green + yellow change + RED Clear = 1+1.5+5+1+1.5 = 10s
+        for (auto movement_state : spat_msg_two_ptr->get_intersection().states)
+        {
+            int sg = (int)movement_state.signal_group;
+            if (sg == 1 || sg == 5 || sg == 4 || sg == 8)
+            {
+                ASSERT_EQ( 1 ,movement_state.state_time_speed.size());
+                ASSERT_EQ( signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
+                ASSERT_EQ(current_hour_in_tenths_secs, movement_state.state_time_speed.front().timing.start_time);
+                ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_state.state_time_speed.front().timing.min_end_time);
+            }
+            else if (sg == 2 || sg == 6)
+            {
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain: // Red
+                        
+                        ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time);    
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance: // Yellow
+                        ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 10, movement_event.timing.min_end_time); 
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed: // Green
+                        GTEST_FATAL_FAILURE_( "There should be no GREEN movement event for SGs 2 or 6!");
+                        break;
+
+                    default:
+                        GTEST_FATAL_FAILURE_( "There should be no movement events for SG2 or SG6 that are not RED or YELLOW!");
+                        break;
+                    }
+                }
+            }
+            else if (sg == 3 || sg == 7)
+            {
+                for (auto movement_event : movement_state.state_time_speed)
+                {
+                    std::string state_name = "";
+                    switch (movement_event.event_state)
+                    {
+                    case signal_phase_and_timing::movement_phase_state::stop_and_remain:
+                        if (movement_event.timing.start_time == current_hour_in_tenths_secs)
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.min_end_time); 
+                        }
+                        else
+                        {
+                            ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_event.timing.start_time);
+                            ASSERT_EQ(current_hour_in_tenths_secs + 100, movement_event.timing.min_end_time); 
+                        }
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_clearance:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 75, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 85, movement_event.timing.min_end_time); 
+                        break;
+                    case signal_phase_and_timing::movement_phase_state::protected_movement_allowed:
+                        ASSERT_EQ(current_hour_in_tenths_secs + 25, movement_event.timing.start_time);
+                        ASSERT_EQ(current_hour_in_tenths_secs + 75, movement_event.timing.min_end_time); 
+                        break;
+
+                    default:
+                        GTEST_FATAL_FAILURE_( "There should be no movement events for SG3 or SG7 that are not RED or YELLOW!");
+                        break;
+                    }
+                }
+            }
+            
+        }
+
+    }
+
+    TEST_F(test_monitor_desired_phase_plan, test_spat_prediction_expired_desired_phase_plan_cur_yellow) {
+        // Initialize tsc_state
+        mock_tsc_ntcip();
+        tsc_state_ptr->initialize();
+
+        // Initialized last green private field in monitor desired phase plan
+        // Last Green was SGs 2,5 from -10s to 0s 
+        // Yellow clearance from 0s to 1s
+        std::vector<signal_phase_and_timing::movement_state> last_green_served;
+        signal_phase_and_timing::movement_state five;
+        signal_phase_and_timing::movement_state two;
+        five.signal_group= 5;
+        two.signal_group = 2;
+        signal_phase_and_timing::movement_event green;
+        green.timing.start_time = current_hour_in_tenths_secs - 100;
+        green.timing.min_end_time =  current_hour_in_tenths_secs;
+        five.state_time_speed.push_back(green);
+        two.state_time_speed.push_back(green);
+    
+        // mock next phase NTCIP OID
+        snmp_response_obj next_phase;
+        next_phase.val_int = 68;
+        // Binary 01000100 -> phase 3 and phase 7 next green
+        std::string next_phase_oid = ntcip_oids::PHASE_STATUS_GROUP_PHASE_NEXT;
+        EXPECT_CALL(*mock_snmp, process_snmp_request(next_phase_oid, request_type::GET , _) ).Times(1).
+            WillRepeatedly(
+                testing::DoAll(
+                    SetArgReferee<2>(next_phase), 
+                    Return(true))
+                    );
+
+        // Create expired DPP
+        auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        // DPP with all expired events
+        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        streets_desired_phase_plan::signal_group2green_phase_timing expire1, expire2;
+        expire1.signal_groups.push_back(3);
+        expire1.start_time = cur_time_since_epoch - 40 * 1000; // current time - 40s
+        expire1.end_time = cur_time_since_epoch - 30 * 1000; // current time - 30s
+
+        expire2.signal_groups.push_back(6);
+        expire2.start_time = cur_time_since_epoch - 25 * 1000; // current time - 25s
+        expire2.end_time = cur_time_since_epoch - 15 * 1000;// current time - 15s
+
+        dpp->desired_phase_plan.push_back(expire1);
+        dpp->desired_phase_plan.push_back(expire2);
+        monitor_dpp_ptr->update_desired_phase_plan( dpp->toJson( ) );
+
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_two_ptr, tsc_state_ptr);
 
         // End time will be yellow change + Red Clear + min Green + yellow change + RED Clear = 1+1.5+5+1+1.5 = 10s

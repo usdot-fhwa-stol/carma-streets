@@ -44,12 +44,6 @@ namespace traffic_signal_controller_service
         if (desired_phase_plan_ptr == nullptr || desired_phase_plan_ptr->desired_phase_plan.empty())
         {  
             if ( green_phases_present.empty() ) {
-                // If green phases present is empty and last green served is empty
-                // TSC is in YELLOW CHANGE or RED CLEAR and monitor desired phase plan
-                // has not yet encountered a green to store as last green served
-                if (last_green_served.empty() ) {
-                    throw monitor_desired_phase_plan_exception("No information on previous green!");
-                }
                 // Using next phase group NTCIP OID fix min green, yellow change and red clear for next green
                 fix_upcoming_green(spat_ptr, tsc_state_ptr);
             } 
@@ -74,12 +68,7 @@ namespace traffic_signal_controller_service
             else  {
                 
                 if ( green_phases_present.empty() ) {
-                    // If green phases present is empty and last green served is empty
-                    // TSC is in YELLOW CHANGE or RED CLEAR and monitor desired phase plan
-                    // has not yet encountered a green to store as last green served
-                    if (last_green_served.empty() ) {
-                        throw monitor_desired_phase_plan_exception("No information on previous green!");
-                    }
+                    
                     // Using next phase group NTCIP OID fix min green, yellow change and red clear for next green
                     fix_upcoming_green(spat_ptr, tsc_state_ptr);
                 } 
@@ -126,7 +115,13 @@ namespace traffic_signal_controller_service
         // If it does not include a green and does not include a yellow assume it is in all red clearance 
         if ( !is_yellow_change ) {
             for (const auto &movement : state.states) {
-                // Found red states
+                // If last green served is empty
+                // TSC is in YELLOW CHANGE or RED CLEAR and monitor desired phase plan
+                // has not yet encountered a green to store as last green served
+                if (last_green_served.empty() ) {
+                    throw monitor_desired_phase_plan_exception("No information on previous green!");
+                }
+                // Found red clearance states
                 if ( (movement.signal_group == last_green_served.front().signal_group 
                     || movement.signal_group == last_green_served.back().signal_group) 
                     && movement.state_time_speed.front().event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain ) {
