@@ -25,6 +25,7 @@ namespace traffic_signal_controller_service
         FRIEND_TEST(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_all_red);
         FRIEND_TEST(test_monitor_desired_phase_plan, test_spat_prediction_no_desired_phase_plan_cur_yellow);
         FRIEND_TEST(test_monitor_desired_phase_plan, update_last_green_served);
+        FRIEND_TEST(test_monitor_desired_phase_plan, fix_upcoming_green_exception);
 
 
     public:
@@ -69,6 +70,7 @@ namespace traffic_signal_controller_service
          * using phase configuration information (min green, yellow change, and red clearance) to set timing data. THe projected
          * GREEN phase will be fixed to last the minimum GREEN duration.
          * 
+         * @throws monitor_desired_phase_plan_exception if last_green_served is empty
          * @param spat_ptr shared pointer to the current spat information.
          * @param tsc_state_ptr shared pointer to the tsc state information including tsc phase configuration information.
          */

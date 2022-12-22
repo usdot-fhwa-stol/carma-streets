@@ -1436,6 +1436,16 @@ namespace traffic_signal_controller_service
         greens_present.push_back(g3);
         ASSERT_THROW( monitor_dpp_ptr->fix_upcoming_yell_red(spat_msg_ptr, tsc_state_ptr, greens_present), monitor_desired_phase_plan_exception);
     }
+    /**
+     * @brief Test fix_upcoming_green throws exception if spat is all red (red clearance) but last_green_served is empty
+     * 
+     */
+    TEST_F(test_monitor_desired_phase_plan, fix_upcoming_green_exception) {
+        mock_tsc_ntcip();
+        tsc_state_ptr->initialize();
+        ASSERT_TRUE( monitor_dpp_ptr->last_green_served.empty());
+        ASSERT_THROW( monitor_dpp_ptr->fix_upcoming_green(spat_msg_three_ptr,tsc_state_ptr), monitor_desired_phase_plan_exception);
+    }
 
     /**
      * @brief Test update_last_green_served with valid and invalid inputs
