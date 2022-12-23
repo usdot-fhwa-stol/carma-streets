@@ -97,7 +97,8 @@ namespace traffic_signal_controller_service {
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;
 
-            bool enable_snmp_cmd_logging_;
+            // Configurable parameter that is used to enable logging of snmp commands to a log file if set to true. 
+            bool enable_snmp_cmd_logging_ = false;
 
             //Add Friend Test to share private members
             friend class tsc_service_test;
@@ -244,6 +245,9 @@ namespace traffic_signal_controller_service {
              **/
             void set_tsc_hold_and_omit();
 
+            /**
+             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
+            */
             void configure_csv_logger() const;
 
     };
