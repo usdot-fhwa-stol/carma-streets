@@ -338,6 +338,7 @@ namespace signal_opt_service
             // Only log log statement content
             csv_logger->set_pattern("%v");
             csv_logger->set_level(spdlog::level::info);
+            csv_logger->flush_on(spdlog::level::info);
         }
         catch (const spdlog::spdlog_ex& ex)
         {
