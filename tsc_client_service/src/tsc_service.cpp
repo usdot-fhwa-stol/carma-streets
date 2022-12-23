@@ -327,7 +327,7 @@ namespace traffic_signal_controller_service {
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
             auto logger = spdlog::get("snmp_cmd_logger");
-            if ( logger != nullptr ){
+            if ( enable_snmp_cmd_logging_ && logger != nullptr ){
                 logger->info( tsc_set_command_queue_.front().get_cmd_info());
             }
 
@@ -346,9 +346,9 @@ namespace traffic_signal_controller_service {
                     59 // minutes to rotate
                 );
             // Only log log statement content
-            snmp_cmd_logger->set_pattern("%v");
+            snmp_cmd_logger->set_pattern("[%H:%M:%S %z] [%^%L%$] [thread %t] %v");
             snmp_cmd_logger->set_level(spdlog::level::info);
-            
+            snmp_cmd_logger->flush_on(spdlog::level::info);
         }
         catch (const spdlog::spdlog_ex& ex)
         {
