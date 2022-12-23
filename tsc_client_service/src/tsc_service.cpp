@@ -341,7 +341,7 @@ namespace traffic_signal_controller_service {
             auto snmp_cmd_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
                 "snmp_cmd_logger",  // logger name
                     streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
-                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".csv",  // log file name and path
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".log",  // log file name and path
                     23, // hours to rotate
                     59 // minutes to rotate
                 );

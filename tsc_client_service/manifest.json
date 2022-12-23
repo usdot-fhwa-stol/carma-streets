@@ -105,19 +105,19 @@
         {
             "name": "enable_snmp_cmd_logging",
             "value": true,
-            "description": "Bool flag to enable snmp commands csv logging.",
+            "description": "Bool flag to enable snmp commands logging.",
             "type": "BOOL"
         }, 
         {
             "name": "snmp_cmd_log_path",
             "value": "../logs/",
-            "description": "File path where snmp commands csv file will be written(Note: set enable_snmp_cmd_logging true).",
+            "description": "File path where snmp commands log file will be written(Note: set enable_snmp_cmd_logging true).",
             "type": "STRING"
         },
         {
             "name": "snmp_cmd_log_filename",
             "value": "snmpcmdLogs",
-            "description": "Filename for snmp commands csv logging (Note: set enable_snmp_cmd_logging true).",
+            "description": "Filename for snmp commands logging (Note: set enable_snmp_cmd_logging true).",
             "type": "STRING"
         }
         
