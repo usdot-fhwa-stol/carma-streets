@@ -15,19 +15,18 @@ namespace traffic_signal_controller_service {
             std::string dpp_consumer_topic = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
             std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
             
-            if (!spat_producer) {
-                if  (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
-                    SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
-                    return false;
-                }
+            if (!spat_producer && !initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
+                
+                SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
+                return false;
+                
             }
 
-            if (!desired_phase_plan_consumer) {
-                if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
-                    SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
-
-                    return false;
-                }
+            if (!desired_phase_plan_consumer && !initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
+                
+                SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
+                return false;
+                
             }            
             // Initialize SNMP Client
             std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
@@ -35,20 +34,18 @@ namespace traffic_signal_controller_service {
             std::string community = streets_service::streets_configuration::get_string_config("community");
             int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
             int timeout = streets_service::streets_configuration::get_int_config("timeout");
-            if (!snmp_client_ptr) {
-                if  (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
-                    SPDLOG_ERROR("Failed to initialize snmp_client!");
-                    return false;
-                }
+            if (!snmp_client_ptr && !initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
+                
+                SPDLOG_ERROR("Failed to initialize snmp_client!");
+                return false;
             }
             
             //  Initialize tsc configuration state kafka producer
             std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
-            if (!tsc_config_producer) {
-                if  (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
-                    SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
-                    return false;
-                }
+            if (!tsc_config_producer && !initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+
+                SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
+                return false;
             }
             //Initialize TSC State
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
@@ -326,9 +323,11 @@ namespace traffic_signal_controller_service {
             // Log command info sent
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
-            auto logger = spdlog::get("snmp_cmd_logger");
-            if ( enable_snmp_cmd_logging_ && logger != nullptr ){
-                logger->info( tsc_set_command_queue_.front().get_cmd_info());
+            
+            if ( enable_snmp_cmd_logging_ ){
+                if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
+                    logger->info( tsc_set_command_queue_.front().get_cmd_info());
+                }
             }
 
             tsc_set_command_queue_.pop();
