@@ -30,8 +30,7 @@ add_library(${PROJECT_NAME}_lib STATIC
             src/services/vehicle_status_intent_service.cpp 
             src/workers/bsm_worker.cpp 
             src/workers/mobilitypath_worker.cpp  
-            src/workers/mobilityoperation_worker.cpp 
-            src/workers/vehicle_status_intent_worker.cpp 
+            src/workers/mobilityoperation_worker.cpp  
             src/workers/base_worker.cpp 
             src/models/bsm.cpp 
             src/models/mobilitypath.cpp
