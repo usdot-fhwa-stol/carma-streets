@@ -217,6 +217,12 @@ namespace streets_signal_optimization {
                 base_desired_phase_plan.desired_phase_plan.push_back(mg_green);
             }
             else {
+                /** 
+                 * is_added parameter checks if mg_green has been added to the base_desired_phase_plan 
+                 *      somewhere before the last existing movement_group. If this parameter is false at the end of
+                 *      the for loop, mg_green must be added to the end of the list.
+                 */
+                bool is_added = false;
                 for (int index = 0; index < base_desired_phase_plan.desired_phase_plan.size(); ++index) {
                     if ( (mg_green.start_time < base_desired_phase_plan.desired_phase_plan[index].start_time && 
                                 mg_green.end_time > base_desired_phase_plan.desired_phase_plan[index].start_time) || 
@@ -226,12 +232,16 @@ namespace streets_signal_optimization {
                     }
                     if (mg_green.end_time < base_desired_phase_plan.desired_phase_plan[index].start_time) {
                         base_desired_phase_plan.desired_phase_plan.insert(base_desired_phase_plan.desired_phase_plan.begin() + index, mg_green);
+                        is_added = true;
                         break;
                     }
-                    if (mg_green.start_time > base_desired_phase_plan.desired_phase_plan[index].end_time) {
-                        base_desired_phase_plan.desired_phase_plan.insert(base_desired_phase_plan.desired_phase_plan.begin() + index + 1, mg_green);
-                        break;
-                    }
+                }
+                /**
+                 * If is_added is false, mg_green is not added to the base_desired_phase_plan which means that mg_green
+                 *      must be added to the end of the list!
+                */
+                if (!is_added) {
+                    base_desired_phase_plan.desired_phase_plan.push_back(mg_green);
                 }
             }
         }
@@ -322,7 +332,7 @@ namespace streets_signal_optimization {
         for ( const auto &entry_lane_obj : intersection_info_ptr->getEntryLanelets() ) {
             std::list<streets_vehicle_scheduler::signalized_vehicle_schedule> schedules_in_lane;
             for ( const auto &ev_sched : ev_schedules_within_so.vehicle_schedules ) {
-                if (ev_sched.state == streets_vehicles::vehicle_state::EV && ev_sched.entry_lane == entry_lane_obj.getId() && ev_sched.et > tbd_start) {
+                if (ev_sched.state == streets_vehicles::vehicle_state::EV && ev_sched.entry_lane == entry_lane_obj.getId() && ev_sched.et >= tbd_start) {
                     SPDLOG_DEBUG("Adding schedule for vehicle {0} to EV schedule list in entry lane {1}", ev_sched.v_id, ev_sched.entry_lane);
                     schedules_in_lane.push_back(ev_sched);
                 }
