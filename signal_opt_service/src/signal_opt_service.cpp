@@ -141,6 +141,7 @@ namespace signal_opt_service
                     SPDLOG_CRITICAL("Failed to update TSC Configuration with update {0}!", payload);
                 }else {
                     // Stop consumer after receiving tsc_configuration information
+                    SPDLOG_INFO("TSC Configuration sucessfully loaded : \n{0}", payload );
                     tsc_config_consumer->stop();
                     break;
                 }
@@ -161,50 +162,97 @@ namespace signal_opt_service
             _so_processing_worker_ptr->configure_signal_opt_processing_worker(_dpp_config);
         }
         
-        auto sleep_secs = static_cast<unsigned int>(_so_sleep_time / 1000);
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
-        while ( dpp_producer->is_running() ) {
-            
-            streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
-            try
-            {
-                spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
-            }
-            catch(const streets_signal_optimization::streets_desired_phase_plan_generator_exception &ex)
-            {
-                SPDLOG_ERROR("dpp_generator_ptr is not initialized! : {0} ", ex.what());
-            }
-            current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
+        bool new_dpp_generated = false;
 
-            /**
-             * If the number of future movement groups in the spat has changed compared to the previous step
-             * and it is less than or equal to the desired number of future movement groups, run streets_signal_optimization
-             * libraries to get optimal desired_phase_plan.
-            */
-            if (current_future_move_group_count != prev_future_move_group_count) {
-                SPDLOG_INFO("The number of future movement groups in the spat is updated from {0} to {1}.", 
-                                                            prev_future_move_group_count, current_future_move_group_count);
-                if (current_future_move_group_count <= _dpp_config.desired_future_move_group_count) {
-                    streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
-                                _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
-                                                                            _spat_ptr, 
-                                                                            _tsc_config_ptr, 
-                                                                            _vehicle_list_ptr, 
-                                                                            _movement_groups_ptr, 
-                                                                            _dpp_config);
-                    if (!optimal_dpp.desired_phase_plan.empty()) {
-                        std::string msg_to_send = optimal_dpp.toJson();
-                        /* produce the optimal desired phase plan to kafka */
-                        dpp_producer->send(msg_to_send);
+        while ( dpp_producer->is_running() ) {
+            SPDLOG_DEBUG("Signal Optimization iteration!");
+            if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
+                streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
+                try
+                {
+                    spat_dpp = _so_processing_worker_ptr->convert_spat_to_dpp(_spat_ptr, _movement_groups_ptr);
+                }
+                catch(const std::runtime_error &ex)
+                {
+                    SPDLOG_ERROR("Encountered Exception : {0} ", ex.what());
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                    continue;
+                }
+                SPDLOG_INFO("Base DPP is {0}", spat_dpp.toJson());
+                current_future_move_group_count = static_cast<int>(spat_dpp.desired_phase_plan.size());
+                if ( current_future_move_group_count < 1) {
+                    SPDLOG_ERROR("DPP size is zero! Skipping SO iteration");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                    continue;
+                }
+                if (new_dpp_generated) {
+                    SPDLOG_INFO("Current number of movement groups represented in SPAT : {0}!", prev_future_move_group_count);
+                    if (current_future_move_group_count > prev_future_move_group_count) {
+                        new_dpp_generated = false;
                     }
+                    else {
+                        SPDLOG_WARN("Skipping SO iteration. Previously sent DPP is not yet reflected in SPaT!");
+                        std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                        continue;
+                    }
+                }
+                auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
+                if ( spat_lag > 200 ) {
+                    SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
+                } 
+                SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag);
+                
+                if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
+                    SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                    continue;
+                }
+
+                auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
+                SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
+                if ( time_to_yellow <= _time_to_yellow ) {
+                    /**
+                     * If the number of future movement groups in the spat has changed compared to the previous step
+                     * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
+                     * libraries to get optimal desired_phase_plan.
+                    */
+                    if (current_future_move_group_count <= dpp_config.desired_future_move_group_count ) {
+                        SPDLOG_INFO("The number of future movement groups in the spat is {0} which is less than the max desired future movement groups {1}.", 
+                                                                    current_future_move_group_count-1, dpp_config.desired_future_move_group_count );
+                        // Current movement group count includes current fix momvement group.
+                        // Desired future movemement group count only includes future movement groups
+                        streets_desired_phase_plan::streets_desired_phase_plan optimal_dpp = 
+                                    _so_processing_worker_ptr->select_optimal_dpp(_intersection_info_ptr, 
+                                                                                _spat_ptr, 
+                                                                                _tsc_config_ptr, 
+                                                                                _vehicle_list_ptr, 
+                                                                                _movement_groups_ptr, 
+                                                                                _dpp_config);
+                        if (!optimal_dpp.desired_phase_plan.empty()) {
+                            std::string msg_to_send = optimal_dpp.toJson();
+                            /* produce the optimal desired phase plan to kafka */
+                            dpp_producer->send(msg_to_send);
+                            prev_future_move_group_count = current_future_move_group_count;
+                            new_dpp_generated = true;
+                        }
+                        
+                    }
+                    else {
+                        SPDLOG_INFO("The number of future movement groups in spat is greater than or equal to the desired number future movement groups");
+                    }
+                }
+                else {
+                    SPDLOG_WARN("Currently {0} ms to yellow! Waiting for {1} ms or lower time to yellow!", time_to_yellow, _time_to_yellow);
                 }
             }
             else {
-                SPDLOG_INFO("The number of future movement groups in the spat did not change from the previous check.");
+                SPDLOG_DEBUG("No vehicles present");
+ 
             }
-            prev_future_move_group_count = current_future_move_group_count;
-            sleep(sleep_secs);
+            std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
         }
         SPDLOG_WARN("Stopping desired phase plan producer thread!");
         dpp_producer->stop();
@@ -251,15 +299,16 @@ namespace signal_opt_service
             for ( const auto &mg : _groups->groups) {
                 SPDLOG_DEBUG("Signal Group {0} and Signal Group {1}.", mg.signal_groups.first, mg.signal_groups.second );
             }
-            
+
+            remove_signal_groups( _groups ,ignore_signal_groups);
+
         }
     }
 
 
     bool signal_opt_service::update_intersection_info(unsigned long sleep_millisecs, unsigned long int_client_request_attempts) const
     {
-        auto sleep_secs = static_cast<unsigned int>(sleep_millisecs / 1000);
-        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} seconds for maximum {1} times.", sleep_secs, int_client_request_attempts);
+        SPDLOG_INFO("Send client request to update intersection inforamtion every {0} ms for maximum {1} times.", sleep_millisecs, int_client_request_attempts);
         int attempt_count = 0;
         while (attempt_count < int_client_request_attempts)
         {
@@ -268,7 +317,7 @@ namespace signal_opt_service
             {
                 return true;
             }
-            sleep(sleep_secs);
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep_millisecs));
             attempt_count++;
         }
         // If failed to update the intersection information after certain numbers of attempts
@@ -311,6 +360,7 @@ namespace signal_opt_service
         _so_log_filename = streets_service::streets_configuration::get_string_config("so_log_filename");
         enable_so_logging = streets_service::streets_configuration::get_boolean_config("enable_so_logging");
         so_sleep_time = streets_service::streets_configuration::get_int_config("signal_optimization_frequency");
+        _time_to_yellow = streets_service::streets_configuration::get_int_config("time_before_yellow_change");
 
         dpp_config.initial_green_buffer = streets_service::streets_configuration::get_int_config("initial_green_buffer");
         dpp_config.final_green_buffer = streets_service::streets_configuration::get_int_config("final_green_buffer");
@@ -320,6 +370,50 @@ namespace signal_opt_service
         dpp_config.min_green = streets_service::streets_configuration::get_int_config("min_green");
         dpp_config.max_green = streets_service::streets_configuration::get_int_config("max_green");
         dpp_config.desired_future_move_group_count = static_cast<uint8_t>(streets_service::streets_configuration::get_int_config("desired_future_move_group_count"));
+        std::stringstream comma_separated_list (streets_service::streets_configuration::get_string_config("ignore_signal_groups"));
+        while( comma_separated_list.good() )
+        {
+            std::string signal_group;
+            getline( comma_separated_list, signal_group, ',' );
+            SPDLOG_WARN("Adding signal group {0} to the list of ignored signal groups", std::stoi(signal_group));
+            ignore_signal_groups.push_back( std::stoi(signal_group) );
+        }
+
+    }
+
+    void signal_opt_service::remove_signal_groups(const std::shared_ptr<streets_signal_optimization::movement_groups> &_movement_groups,
+                                     const std::vector<uint> &rm_signal_groups) const {
+        SPDLOG_WARN("Attempting to ignore {0} signal groups!", rm_signal_groups.size());
+        // Remove configured signal groups to ignore them
+        for (const auto &ignore : rm_signal_groups) {
+            SPDLOG_DEBUG("Removing {0} from size {1}!", ignore, _movement_groups->groups.size());
+            auto mg_itr = _movement_groups->groups.begin();
+            while ( mg_itr != _movement_groups->groups.end() ) {
+                if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second == 0) {
+                    SPDLOG_WARN("Removing movement group with signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr = _movement_groups->groups.erase(mg_itr);
+                }
+                else if (mg_itr->signal_groups.first != 0 &&  mg_itr->signal_groups.second == ignore) {
+                    SPDLOG_WARN("Removing signal group from {0} signal groups {1} , {2}",ignore, mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr->signal_groups.second = 0;
+                    SPDLOG_WARN("New movement group includes signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr++; 
+                }
+                else if ( mg_itr->signal_groups.first == ignore && mg_itr->signal_groups.second != 0) {
+                    SPDLOG_WARN("Removing signal group from {0} signal groups {1} , {2}",ignore, mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr->signal_groups.first = mg_itr->signal_groups.second;
+                    mg_itr->signal_groups.second = 0;
+                    SPDLOG_WARN("New movement group includes signal groups {0} , {1}", mg_itr->signal_groups.first, mg_itr->signal_groups.second);
+                    mg_itr++; 
+                }
+                else {
+                    SPDLOG_DEBUG("Ignored SG {0} is not present in MG ({1},{2})", ignore,mg_itr->signal_groups.first, mg_itr->signal_groups.second );
+                    mg_itr++; 
+
+                }
+            }
+        }
+        
     }
 
 

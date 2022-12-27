@@ -29,6 +29,7 @@ namespace traffic_signal_controller_service
         session.community = comm;
         session.community_len = community_.length();
         session.timeout = timeout_;
+        session.retries = 0;
 
         ss = snmp_open(&session);
 

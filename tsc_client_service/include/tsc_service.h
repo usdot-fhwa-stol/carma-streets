@@ -13,12 +13,13 @@
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
 #include "tsc_configuration_state_exception.h"
-#include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
 #include "monitor_desired_phase_plan_exception.h"
 #include "control_tsc_state.h"
 #include "control_tsc_state_exception.h"
-#include <mutex>    
+
+#include <mutex>  
+#include <gtest/gtest_prod.h>  
 
 namespace traffic_signal_controller_service {
 
@@ -97,10 +98,12 @@ namespace traffic_signal_controller_service {
             int control_tsc_state_sleep_dur_ = 0;
 
             //Add Friend Test to share private members
-            FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
-            FRIEND_TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout);
-            FRIEND_TEST(tsc_service_test, test_tsc_control);
-            
+            friend class tsc_service_test;
+            FRIEND_TEST(tsc_service_test,test_tsc_control);
+            FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
+            FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
+
+
         public:
             tsc_service() = default;
 
@@ -123,21 +126,26 @@ namespace traffic_signal_controller_service {
              * 
              * @param bootstap_server for CARMA-Streets Kafka broker.
              * @param producer_topic name of topic to produce to.
-             * @param producer kafka producer set up on producer topic.
+             * @param producer a shared pointer to the consumer to initialize.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
 
             bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
-                    std::shared_ptr<kafka_clients::kafka_producer_worker>& producer);
+                    std::shared_ptr<kafka_clients::kafka_producer_worker> &producer);
             /**
              * @brief Initialize Kafka Desired phase plan consumer. 
              * @param bootstap_server for CARMA-Streets Kafka broker.
              * @param desired_phase_plan_consumer_topic name of topic to produce to.
+             * @param consumer_group a id associated with a saved offset in the topic queue
+             * @param consumer a shared pointer to the consumer to initialize.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
-            bool initialize_kafka_consumer(const std::string &bootstrap_server, const std::string &desired_phase_plan_consumer_topic, std::string &consumer_group);
+            bool initialize_kafka_consumer(const std::string &bootstrap_server, 
+                                            const std::string &consumer_topic, 
+                                            const std::string &consumer_group,
+                                            std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer);
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.
@@ -219,7 +227,7 @@ namespace traffic_signal_controller_service {
              * @brief Method to receive traffic signal controller configuration information from the tsc_state and broadcast spat JSON data to 
              * the carma-streets kafka broker.
              */
-            void produce_tsc_config_json();
+            void produce_tsc_config_json() const;
 
             void consume_desired_phase_plan();
             

@@ -26,7 +26,9 @@ namespace kafka_clients {
                                         const std::string &group_id="", 
                                         int64_t cur_offset = 0, 
                                         int32_t partition = 0) : kafka_consumer_worker(broker_str,topic_str, group_id, cur_offset, partition ) 
-                                        {}
+                                        {};
+            ~mock_kafka_consumer_worker() = default;
+
             MOCK_METHOD(bool, init,(),(override));
             MOCK_METHOD(const char*, consume, (int timeout_ms), (override));
             MOCK_METHOD(void, subscribe, (), (override));

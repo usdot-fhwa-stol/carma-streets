@@ -29,6 +29,8 @@ namespace signal_opt_service
         int _exp_delta;
         bool enable_so_logging = false;
         int so_sleep_time;
+        uint64_t _time_to_yellow;
+        std::vector<uint> ignore_signal_groups;
 
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _vsi_consumer;
         std::shared_ptr<kafka_clients::kafka_consumer_worker> _spat_consumer;
@@ -135,5 +137,14 @@ namespace signal_opt_service
          * @brief Method for reading the configuration parameters from manifest.json.
         */
         void read_configuration_params();
+
+        /**
+         * @brief Remove list of provided signal groups from movement groups considered for signal optmization
+         * 
+         * @param _movement_groups collection of movement groups to remove signal groups from
+         * @param rm_signal_groups signal groups to remove from movement groups.
+         */
+        void remove_signal_groups( const std::shared_ptr<streets_signal_optimization::movement_groups> &movement_groups,
+                                     const std::vector<uint> &rm_signal_groups ) const;
     };
 }

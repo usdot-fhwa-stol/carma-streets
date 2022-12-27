@@ -60,6 +60,12 @@ namespace traffic_signal_controller_service
             return true;
             
         }
+
+        /**
+         * @brief Method to return information about the snmp set command
+         * @return Returns string formatted as "control_cmd_type:<HOLD/OMIT>;execution_start_time:<calculated_start_time>;signal_groups_set:<signal groups being set separated by commas>".
+         * */
+        std::string get_cmd_info() const;
     };
 
     class control_tsc_state
@@ -70,26 +76,25 @@ namespace traffic_signal_controller_service
             /* A local pointer to an snmp_client object to be used through the tsc_state*/
             std::shared_ptr<snmp_client> snmp_client_worker_;
 
-            // Mapping from signal group ids to pedestrian phases
-            std::unordered_map<int, int> signal_group_2ped_phase_map_;
+            std::shared_ptr<tsc_state> _tsc_state;
         
         public:
 
             /** 
-             * @brief Constructor for the control_tsc_state class. Needs to be initialized with pointer to snmp client to make snmp calls, 
-             * A mapping between ped phases and signal group ids and desired phase plan
+             * @brief Constructor for the control_tsc_state class. Needs to be initialized with pointer to snmp client to make snmp calls and 
+             * a shared pointer to the tsc_state which is used to store traffic signal controller configuration information
              * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
-             * @param phase_to_signal_group_map A map from pedestrian phases in the traffic signal controller to the signal group ids
-             * @param desired_phase_plan Pointer to the desired phase plan.
+             * @param _tsc_state A shared pointer to the tsc_state which stores information about traffic signal controller configuration
              **/
-            explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client,const std::unordered_map<int, int>& signal_group_to_phase_map);
+            explicit control_tsc_state(std::shared_ptr<snmp_client> snmp_client,std::shared_ptr<tsc_state> _tsc_state);
             
             /** 
              * @brief Method to update the queue of tsc_control
              * @param desired_phase_plan Pointer to the desired phase plan.
              * @param tsc_command_queue Queue of snmp commands to set HOLD and OMIT on the traffic signal controller
              **/
-            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, std::queue<snmp_cmd_struct>& tsc_command_queue);
+            void update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan, 
+                                        std::queue<snmp_cmd_struct>& tsc_command_queue) const;
 
             /** 
              * @brief Method to create OMIT snmp command for provided signal groups, which will result in the traffic signal controller skipping the specified phases. 
@@ -99,7 +104,7 @@ namespace traffic_signal_controller_service
              * @param is_reset if true, omit command is reset on the traffic signal controller to 0. 
              * If false will calculate the omit value required to reach given signal groups
              **/
-            snmp_cmd_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            snmp_cmd_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false) const;
 
             /** 
              * @brief Method to create command for Hold for provided signal groups, 
@@ -109,6 +114,6 @@ namespace traffic_signal_controller_service
              * @param is_reset if true, hold command is reset on the traffic signal controller to 0. 
              * If false will calculate the value required to hold given signal groups
              **/
-            snmp_cmd_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false);
+            snmp_cmd_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false) const;
     };
 }

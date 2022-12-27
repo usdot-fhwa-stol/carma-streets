@@ -67,6 +67,11 @@ TEST(signal_opt_service, test_produce_dpp) {
         
     signal_opt_service so_service;
     so_service._so_processing_worker_ptr = std::make_shared<signal_opt_processing_worker>();
+    so_service.read_configuration_params();
+    so_service.configure_csv_logger();
+    so_service._time_to_yellow = 5000;
+    so_service._so_processing_worker_ptr->set_enable_so_logging(true);
+    so_service._so_processing_worker_ptr->configure_signal_opt_processing_worker(so_service.dpp_config);
     auto mock_dpp_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
     
     // Create mock intersection_info_ptr
@@ -77,7 +82,7 @@ TEST(signal_opt_service, test_produce_dpp) {
 
     // Create mock spat_ptr
     auto spat_ptr = std::make_shared<signal_phase_and_timing::spat>();
-    std::string json_spat = "{\"timestamp\":0,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10000}},{\"event_state\":6,\"timing\":{\"start_time\":10000,\"min_end_time\":10050}}, {\"event_state\":8,\"timing\":{\"start_time\":10050,\"min_end_time\":10080}}, {\"event_state\":3,\"timing\":{\"start_time\":10080,\"min_end_time\":10100}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
+    std::string json_spat = "{\"timestamp\":34232,\"name\":\"West Intersection\",\"intersections\":[{\"name\":\"West Intersection\",\"id\":1909,\"status\":0,\"revision\":123,\"moy\":34232,\"time_stamp\":130,\"enabled_lanes\":[9, 10, 11, 12, 13, 14, 15, 16],\"states\":[{\"movement_name\":\"All Directions\",\"signal_group\":1,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]},{\"movement_name\":\"All Directions\",\"signal_group\":2,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10000}},{\"event_state\":6,\"timing\":{\"start_time\":10000,\"min_end_time\":10050}}, {\"event_state\":8,\"timing\":{\"start_time\":10050,\"min_end_time\":10080}}, {\"event_state\":3,\"timing\":{\"start_time\":10080,\"min_end_time\":10100}}]},{\"movement_name\":\"All Directions\",\"signal_group\":3,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]}, {\"movement_name\":\"All Directions\",\"signal_group\":4,\"state_time_speed\":[{\"event_state\":3,\"timing\":{\"start_time\":9950,\"min_end_time\":10100}}]}],\"maneuver_assist_list\":[{\"connection_id\":7,\"queue_length\":4,\"available_storage_length\":8,\"wait_on_stop\":true,\"ped_bicycle_detect\":false}]}]}";
     spat_ptr->fromJson(json_spat);
 
     uint64_t current_time = std::chrono::duration_cast<std::chrono::milliseconds>
@@ -246,11 +251,10 @@ TEST(signal_opt_service, consume_tsc_config) {
     signal_opt_service::signal_opt_service so_service;
     std::shared_ptr<kafka_clients::mock_kafka_consumer_worker> mock_tsc_config_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
     std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
-    EXPECT_CALL(*mock_tsc_config_consumer,is_running()).Times(5).WillOnce(Return(false))
+    EXPECT_CALL(*mock_tsc_config_consumer,is_running()).Times(4).WillOnce(Return(false))
                                                             .WillOnce(Return(true))
                                                             .WillOnce(Return(true))
-                                                            .WillOnce(Return(true))
-                                                            .WillRepeatedly(Return(false));
+                                                            .WillOnce(Return(true));
     EXPECT_CALL(*mock_tsc_config_consumer, consume(1000)).Times(3).WillOnce(Return("")).WillOnce(Return("Not JSON")).WillRepeatedly(Return(
         "{"
         "\"tsc_config_list\":["
@@ -597,4 +601,100 @@ TEST(signal_opt_service, populate_movement_group_nema) {
 
     ASSERT_EQ(4, mg.signal_groups.first);
     ASSERT_EQ(8, mg.signal_groups.second);
+}
+
+TEST(signal_opt_service,test_remove_single_signal_groups){
+    signal_opt_service::signal_opt_service service;
+    // Setup movement groups
+    auto movement_groups = std::make_shared<streets_signal_optimization::movement_groups>();
+    streets_signal_optimization::movement_group mg1;
+    mg1.signal_groups = {2,0};
+    streets_signal_optimization::movement_group mg2;
+    mg2.signal_groups = {5,0};
+    streets_signal_optimization::movement_group mg3;
+    mg3.signal_groups = {8,0};
+    streets_signal_optimization::movement_group mg4;
+    mg4.signal_groups = {10,0};
+    streets_signal_optimization::movement_group mg5;
+    mg5.signal_groups = {11,0};
+    movement_groups->groups.push_back(mg1);
+    movement_groups->groups.push_back(mg2);
+    movement_groups->groups.push_back(mg3);
+    movement_groups->groups.push_back(mg4);
+    movement_groups->groups.push_back(mg5);
+
+    // Setup Ignore Signal Groups
+    std::vector<uint> ignore_signal_groups;
+    ignore_signal_groups.push_back(10);
+    
+    // Remove SG 10
+    service.remove_signal_groups( movement_groups, ignore_signal_groups);
+    
+    // Assert Movement Groups size and does not contain 10.
+    ASSERT_EQ(4, movement_groups->groups.size());
+    for (const auto &move_group: movement_groups->groups ) {
+        ASSERT_NE( 10, move_group.signal_groups.first);
+        ASSERT_NE( 10, move_group.signal_groups.second);
+
+    }
+
+    
+
+
+}
+
+TEST(signal_opt_service, test_remove__signal_groups ) {
+
+    signal_opt_service::signal_opt_service service;
+    // Setup movement groups
+    auto movement_groups = std::make_shared<streets_signal_optimization::movement_groups>();
+    // Setup movement groups
+    streets_signal_optimization::movement_group mg1;
+    mg1.signal_groups = {1,5};
+    streets_signal_optimization::movement_group mg2;
+    mg2.signal_groups = {2,5};
+    streets_signal_optimization::movement_group mg3;
+    mg3.signal_groups = {1,6};
+    streets_signal_optimization::movement_group mg4;
+    mg4.signal_groups = {2,6};
+    streets_signal_optimization::movement_group mg5;
+    mg5.signal_groups = {7,4};
+    streets_signal_optimization::movement_group mg6;
+    mg6.signal_groups = {8,4};
+    streets_signal_optimization::movement_group mg7;
+    mg7.signal_groups = {7,3};
+    streets_signal_optimization::movement_group mg8;
+    mg8.signal_groups = {8,3};
+    movement_groups->groups.push_back(mg1);
+    movement_groups->groups.push_back(mg2);
+    movement_groups->groups.push_back(mg3);
+    movement_groups->groups.push_back(mg4);
+    movement_groups->groups.push_back(mg5);
+    movement_groups->groups.push_back(mg6);
+    movement_groups->groups.push_back(mg7);
+    movement_groups->groups.push_back(mg8);
+
+    // Setup ignore
+    std::vector<uint> ignore_signal_groups;
+    // 10 does not exist
+    ignore_signal_groups.push_back(10);
+    ignore_signal_groups.push_back(2);
+    ignore_signal_groups.push_back(7);
+    ignore_signal_groups.push_back(4);
+
+    service.remove_signal_groups( movement_groups, ignore_signal_groups);
+
+    // Assert Movement Groups size and does not contain 2,7,4.
+    ASSERT_EQ(7, movement_groups->groups.size());
+    for (const auto &move_group: movement_groups->groups ) {
+        SPDLOG_INFO("SG {0}, {1} ! ", move_group.signal_groups.first, move_group.signal_groups.second);
+        ASSERT_NE( 2, move_group.signal_groups.first);
+        ASSERT_NE( 2, move_group.signal_groups.second);
+        ASSERT_NE( 7, move_group.signal_groups.first);
+        ASSERT_NE( 7, move_group.signal_groups.second);
+        ASSERT_NE( 4, move_group.signal_groups.first);
+        ASSERT_NE( 4, move_group.signal_groups.second);
+
+    }
+
 }

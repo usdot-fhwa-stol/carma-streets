@@ -3,14 +3,15 @@
 
 namespace traffic_signal_controller_service
 {
-    control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, const std::unordered_map<int, int>& signal_group_to_phase_map)  
-                            : snmp_client_worker_(snmp_client), signal_group_2ped_phase_map_(signal_group_to_phase_map)
+    control_tsc_state::control_tsc_state(std::shared_ptr<snmp_client> snmp_client, 
+        std::shared_ptr<tsc_state> _tsc_state)  
+                            : snmp_client_worker_(snmp_client), _tsc_state(_tsc_state)
     {
                 
     }
 
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
-                                             std::queue<snmp_cmd_struct>& tsc_command_queue)
+                                             std::queue<snmp_cmd_struct>& tsc_command_queue) const
     {
         if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");
@@ -85,7 +86,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)
         {
@@ -93,7 +94,7 @@ namespace traffic_signal_controller_service
 
             for(auto signal_group : signal_groups)
             {
-                int phase = signal_group_2ped_phase_map_[signal_group];
+                int phase = _tsc_state->get_phase_number(signal_group);
                 // Omit all phases except the ones in the given movement group
                 // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
                 omit_val &= ~(1 << (phase - 1));
@@ -111,7 +112,7 @@ namespace traffic_signal_controller_service
 
     }
 
-    snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset)
+    snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)
         {
@@ -119,7 +120,7 @@ namespace traffic_signal_controller_service
 
             for(auto signal_group : signal_groups)
             {
-                int phase = signal_group_2ped_phase_map_[signal_group];
+                int phase = _tsc_state->get_phase_number(signal_group);
                 // Hold phases in the given movement group
                 //For Hold only given phase bits are 1. Subtract 1 since phases range from 1-8.
                 hold_val |= (1 << ( phase - 1));
@@ -134,6 +135,24 @@ namespace traffic_signal_controller_service
             snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Hold, static_cast<int64_t>(0));
             return command;
         }
+    }
+
+    std::string snmp_cmd_struct::get_cmd_info() const{
+
+        std::string command_type;
+        if(control_type_ == control_type::Hold){
+            command_type = "Hold";
+        }
+        else{
+            command_type = "Omit";
+        }
+        std::string execution_start_time = std::to_string(start_time_);
+
+        // Convert value set to phases nums
+        std::string value_set = std::to_string(set_val_.val_int);
+
+        return "control_cmd_type:" + command_type + ";execution_start_time:" + execution_start_time + ";value_set:" + value_set;
+        
     }
 
 

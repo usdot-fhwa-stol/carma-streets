@@ -22,7 +22,8 @@ namespace kafka_clients {
             mock_kafka_producer_worker(const std::string &broker_str="",
                                         const std::string &topic_str="", 
                                         int n_partition = 0) : kafka_producer_worker(broker_str,topic_str, n_partition ) 
-                                        {}
+                                        {};
+            ~mock_kafka_producer_worker() = default;
             MOCK_METHOD(bool, init,(),(override));
             MOCK_METHOD(void, send, (const std::string &msg), (override));
             MOCK_METHOD(bool, is_running, (), (const, override));
