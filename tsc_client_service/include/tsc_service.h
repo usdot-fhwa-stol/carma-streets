@@ -248,7 +248,7 @@ namespace traffic_signal_controller_service {
             /**
              * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
             */
-            void configure_csv_logger() const;
+            void configure_snmp_cmd_logger() const;
 
     };
 }
