@@ -588,11 +588,65 @@ namespace traffic_signal_controller_service
         }   
         monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
 
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
+        {
+            if ( movement_state.signal_group == 1 || movement_state.signal_group == 5) {
+                ASSERT_EQ(3, movement_state.state_time_speed.size());
+                // First event GREEN
+                auto event = movement_state.state_time_speed.begin();
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::protected_movement_allowed, 
+                    event->event_state);
+                // Second event YELLOW
+                std::advance(event,1);
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::protected_clearance, 
+                    event->event_state);
+
+                // Last event RED
+                std::advance(event,1);
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::stop_and_remain, 
+                    event->event_state);
+
+            } 
+            else {
+                ASSERT_EQ(1, movement_state.state_time_speed.size());
+                ASSERT_EQ(signal_phase_and_timing::movement_phase_state::stop_and_remain, movement_state.state_time_speed.front().event_state);
+            }
+        }
+        ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
+
+        
+    }
+
     TEST_F(test_monitor_desired_phase_plan, update_spat_future_movement_events_cur_greens_expired_desired_phase_plan) {
         // Initialize tsc_state
         mock_tsc_ntcip();
         tsc_state_ptr->initialize();
         // Verifying Setup for spat_msg_ptr
+        for (auto movement_state : spat_msg_ptr->get_intersection().states)
+        {
+            ASSERT_EQ(8, spat_msg_ptr->get_intersection().states.size());
+            ASSERT_EQ(1, movement_state.state_time_speed.size());
+        } 
+        // Create Expired DPP
+        auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
+        // DPP with all expired events
+        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        streets_desired_phase_plan::signal_group2green_phase_timing expire1, expire2;
+        expire1.signal_groups.push_back(3);
+        expire1.start_time = cur_time_since_epoch - 40 * 1000; // current time - 40s
+        expire1.end_time = cur_time_since_epoch - 30 * 1000; // current time - 30s
+
+        expire2.signal_groups.push_back(6);
+        expire2.start_time = cur_time_since_epoch - 25 * 1000; // current time - 25s
+        expire2.end_time = cur_time_since_epoch - 15 * 1000;// current time - 15s
+
+        dpp->desired_phase_plan.push_back(expire1);
+        dpp->desired_phase_plan.push_back(expire2);
+        monitor_dpp_ptr->update_desired_phase_plan( dpp->toJson( ) );
+
+        monitor_dpp_ptr->update_spat_future_movement_events(spat_msg_ptr, tsc_state_ptr);
+
         for (auto movement_state : spat_msg_ptr->get_intersection().states)
         {
             if ( movement_state.signal_group == 1 || movement_state.signal_group == 5) {
