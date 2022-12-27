@@ -345,7 +345,7 @@ namespace traffic_signal_controller_service {
                     59 // minutes to rotate
                 );
             // Only log log statement content
-            snmp_cmd_logger->set_pattern("[%H:%M:%S %z] %v");
+            snmp_cmd_logger->set_pattern("[%H:%M:%S:%e %z] %v");
             snmp_cmd_logger->set_level(spdlog::level::info);
             snmp_cmd_logger->flush_on(spdlog::level::info);
         }
