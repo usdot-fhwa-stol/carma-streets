@@ -165,9 +165,22 @@ namespace signal_opt_service
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
         bool new_dpp_generated = false;
-
+               
         while ( dpp_producer->is_running() ) {
-            SPDLOG_DEBUG("Signal Optimization iteration!");
+            auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            SPDLOG_DEBUG("Signal Optimization iteration start time {0}!", current_timestamp);
+            try{
+                auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
+                    if ( spat_lag > 200 ) {
+                        SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
+                    } 
+                SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag); 
+            }
+            catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
+                SPDLOG_ERROR("Cannot interpret SPAT due to exception :  {0}", e);
+                std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                continue;
+            }
             if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
                 streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
                 try
@@ -198,13 +211,8 @@ namespace signal_opt_service
                         continue;
                     }
                 }
-                auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
-                if ( spat_lag > 200 ) {
-                    SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
-                } 
-                SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag);
-                
+                current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+              
                 if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
                     SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
                     std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
@@ -235,6 +243,9 @@ namespace signal_opt_service
                             std::string msg_to_send = optimal_dpp.toJson();
                             /* produce the optimal desired phase plan to kafka */
                             dpp_producer->send(msg_to_send);
+                            current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                            SPDLOG_DEBUG("Signal Optimization iteration end time {0}!", current_timestamp);
+
                             prev_future_move_group_count = current_future_move_group_count;
                             new_dpp_generated = true;
                         }
