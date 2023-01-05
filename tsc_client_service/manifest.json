@@ -28,9 +28,9 @@
             "type": "INTEGER" 
         },
         {
-            "name": "timeout",
-            "value": 10000,
-            "description": "Time in millisecond after which the the snmp request times out",
+            "name": "snmp_timeout",
+            "value": 15000,
+            "description": "Time in microseconds after which the the snmp request times out",
             "type": "INTEGER" 
         },
         {

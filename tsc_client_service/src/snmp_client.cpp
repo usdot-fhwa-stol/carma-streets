@@ -4,7 +4,7 @@ namespace traffic_signal_controller_service
 {
     
     snmp_client::snmp_client(const std::string& ip, const int& port, const std::string& community, int snmp_version, int timeout)
-        : ip_(ip), port_(port), community_(community),snmp_version_(snmp_version), timeout_(timeout)
+        : ip_(ip), port_(port), community_(community),snmp_version_(snmp_version)
     {
         
         SPDLOG_DEBUG("Starting SNMP Client");
@@ -28,7 +28,7 @@ namespace traffic_signal_controller_service
         
         session.community = comm;
         session.community_len = community_.length();
-        session.timeout = timeout_;
+        session.timeout = timeout;
         session.retries = 0;
 
         ss = snmp_open(&session);
