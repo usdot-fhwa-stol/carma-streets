@@ -101,6 +101,24 @@
             "value": 100,
             "description": "Sleep Duration for the control tsc state thread , in milliseconds, which makes Hold and Omit calls to the TSC. This sleep duration is the time between checking new events in queue, once it has been emptied",
             "type": "INTEGER"
+        },
+        {
+            "name": "enable_snmp_cmd_logging",
+            "value": true,
+            "description": "Bool flag to enable snmp commands logging.",
+            "type": "BOOL"
+        }, 
+        {
+            "name": "snmp_cmd_log_path",
+            "value": "../logs/",
+            "description": "File path where snmp commands log file will be written(Note: set enable_snmp_cmd_logging true).",
+            "type": "STRING"
+        },
+        {
+            "name": "snmp_cmd_log_filename",
+            "value": "snmpcmdLogs",
+            "description": "Filename for snmp commands logging (Note: set enable_snmp_cmd_logging true).",
+            "type": "STRING"
         }
         
     ]

@@ -15,19 +15,18 @@ namespace traffic_signal_controller_service {
             std::string dpp_consumer_topic = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
             std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
             
-            if (!spat_producer) {
-                if  (!initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
-                    SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
-                    return false;
-                }
+            if (!spat_producer && !initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
+                
+                SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
+                return false;
+                
             }
 
-            if (!desired_phase_plan_consumer) {
-                if (!initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
-                    SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
-
-                    return false;
-                }
+            if (!desired_phase_plan_consumer && !initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
+                
+                SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
+                return false;
+                
             }            
             // Initialize SNMP Client
             std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
@@ -35,20 +34,17 @@ namespace traffic_signal_controller_service {
             std::string community = streets_service::streets_configuration::get_string_config("community");
             int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
             int timeout = streets_service::streets_configuration::get_int_config("snmp_timeout");
-            if (!snmp_client_ptr) {
-                if  (!initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
-                    SPDLOG_ERROR("Failed to initialize snmp_client!");
-                    return false;
-                }
+            if (!snmp_client_ptr && !initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {    
+                SPDLOG_ERROR("Failed to initialize snmp_client!");
+                return false;
             }
             
             //  Initialize tsc configuration state kafka producer
             std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
-            if (!tsc_config_producer) {
-                if  (!initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
-                    SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
-                    return false;
-                }
+            if (!tsc_config_producer && !initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+
+                SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
+                return false;
             }
             //Initialize TSC State
             use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
@@ -62,6 +58,8 @@ namespace traffic_signal_controller_service {
             int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
             int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
             bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
+            enable_snmp_cmd_logging_ = streets_service::streets_configuration::get_boolean_config("enable_snmp_cmd_logging");
+
             if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
                 SPDLOG_ERROR("Failed to initialize SPaT Worker");
                 return false;
@@ -87,6 +85,11 @@ namespace traffic_signal_controller_service {
 
             // Initialize control_tsc_state ptr
             control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);
+
+            if (enable_snmp_cmd_logging_)
+            {
+                configure_snmp_cmd_logger();
+            }
 
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
@@ -299,6 +302,7 @@ namespace traffic_signal_controller_service {
     
     void tsc_service::set_tsc_hold_and_omit()
     {
+
         while(!tsc_set_command_queue_.empty())
         {
             //Check if event is expired
@@ -318,7 +322,35 @@ namespace traffic_signal_controller_service {
             // Log command info sent
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
 
+            
+            if ( enable_snmp_cmd_logging_ ){
+                if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
+                    logger->info( tsc_set_command_queue_.front().get_cmd_info());
+                }
+            }
+
             tsc_set_command_queue_.pop();
+        }
+    }
+
+    void tsc_service::configure_snmp_cmd_logger() const
+    {
+        try{
+            auto snmp_cmd_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                "snmp_cmd_logger",  // logger name
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
+                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".log",  // log file name and path
+                    23, // hours to rotate
+                    59 // minutes to rotate
+                );
+            // Only log log statement content
+            snmp_cmd_logger->set_pattern("[%H:%M:%S:%e ] %v");
+            snmp_cmd_logger->set_level(spdlog::level::info);
+            snmp_cmd_logger->flush_on(spdlog::level::info);
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
         }
     }
     

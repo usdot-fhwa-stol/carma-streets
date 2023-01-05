@@ -426,5 +426,12 @@ namespace traffic_signal_controller_service
         service.tsc_config_state_ptr = std::make_shared<streets_tsc_configuration::tsc_configuration_state>(state);
         service.produce_tsc_config_json();
     }
+
+    TEST_F(tsc_service_test, test_configure_snmp_cmd_logger)
+    {
+        service.configure_snmp_cmd_logger();
+        auto logger = spdlog::get("snmp_cmd_logger"); 
+        EXPECT_TRUE(logger != nullptr);
+    }
 }
 
