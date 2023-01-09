@@ -33,9 +33,8 @@ namespace traffic_signal_controller_service {
             int target_port = streets_service::streets_configuration::get_int_config("target_port");
             std::string community = streets_service::streets_configuration::get_string_config("community");
             int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
-            int timeout = streets_service::streets_configuration::get_int_config("timeout");
-            if (!snmp_client_ptr && !initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {
-                
+            int timeout = streets_service::streets_configuration::get_int_config("snmp_timeout");
+            if (!snmp_client_ptr && !initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {    
                 SPDLOG_ERROR("Failed to initialize snmp_client!");
                 return false;
             }
