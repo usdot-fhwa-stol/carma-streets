@@ -28,6 +28,7 @@ namespace traffic_signal_controller_service
         
         session.community = comm;
         session.community_len = community_.length();
+        // Timeout is in microseconds
         session.timeout = timeout;
         session.retries = 0;
 
