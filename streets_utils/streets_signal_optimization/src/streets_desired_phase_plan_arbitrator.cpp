@@ -125,15 +125,9 @@ namespace streets_signal_optimization
             }
         }
 
-        float delay_measure = 0.0;
-        if (TBD_delay > 0)
-        {
-            delay_measure = (float)candidate_vehicles_delay / (float)TBD_delay;
-        }
-        else
-        {
-            delay_measure = (float)candidate_vehicles_delay;
-        }
+        // The minimum value of the calculated delay can be 1 millisecond.
+        float delay_measure = (float)std::max(candidate_vehicles_delay, u_int64_t(1)) / (float)std::max(TBD_delay, u_int64_t(1));
+
         SPDLOG_DEBUG("calculated delay_measure (= candidate/TBD) = {0}", delay_measure);
 
         if (enable_so_logging) {
