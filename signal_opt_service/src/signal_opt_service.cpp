@@ -177,7 +177,7 @@ namespace signal_opt_service
                 SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag); 
             }
             catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
-                SPDLOG_ERROR("Cannot interpret SPAT due to exception :  {0}", e);
+                SPDLOG_ERROR("Cannot interpret SPAT due to exception :  {0}", e.what());
                 std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
                 continue;
             }
