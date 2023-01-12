@@ -106,7 +106,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastolcandidate/message_services:develop
+    image: usdotfhwastolcandidate/message_services:isetta
     build: 
       context: .
       dockerfile: message_services/Dockerfile
