@@ -56,7 +56,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
       - mysql-datavolume:/var/lib/mysql
   php:
-    image: usdotfhwaops/php:latest
+    image: usdotfhwaops/php:isetta
     container_name: php
     network_mode: host
     depends_on:
@@ -65,7 +65,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:latest
+    image: usdotfhwaops/v2xhubamd:isetta
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -81,7 +81,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
-    image: usdotfhwastoldev/scheduling_service:develop
+    image: usdotfhwastolcandidate/scheduling_service:isetta
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -106,7 +106,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastoldev/message_services:develop
+    image: usdotfhwastolcandidate/message_services:isetta
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -124,7 +124,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastoldev/intersection_model:develop
+    image: usdotfhwastolcandidate/intersection_model:isetta
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -142,7 +142,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   signal_opt_service:
-    image: usdotfhwastoldev/signal_opt_service:develop
+    image: usdotfhwastolcandidate/signal_opt_service:isetta
     command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
     build: 
       context: .
@@ -168,7 +168,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   tsc_service:
-    image: usdotfhwastoldev/tsc_service:develop
+    image: usdotfhwastolcandidate/tsc_service:isetta
     command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
     build: 
       context: .
