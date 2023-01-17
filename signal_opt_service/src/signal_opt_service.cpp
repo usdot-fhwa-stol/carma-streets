@@ -170,11 +170,18 @@ namespace signal_opt_service
             auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             SPDLOG_DEBUG("Signal Optimization iteration start time {0}!", current_timestamp);
             try{
-                auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
-                    if ( spat_lag > 200 ) {
-                        SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
-                    } 
-                SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag); 
+                if ( _spat_ptr ) {
+                    auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
+                        if ( spat_lag > 200 ) {
+                            SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
+                        } 
+                    SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag); 
+                }
+                else {
+                    SPDLOG_WARN("SPaT Pointer is unset, skipping SO Iteration");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                    continue;
+                }
             }
             catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
                 SPDLOG_ERROR("Cannot interpret SPAT due to exception :  {0}", e.what());
