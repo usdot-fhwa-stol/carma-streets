@@ -195,7 +195,7 @@ namespace traffic_signal_controller_service {
     void tsc_service::produce_spat_json() const {
         try {
             int count = 0;
-            uint64_t spat_latency = 0;
+            uint64_t spat_processing_time = 0;
             while(spat_worker_ptr && tsc_state_ptr && spat_producer) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
@@ -211,18 +211,19 @@ namespace traffic_signal_controller_service {
                     }
                     if (spat_ptr && spat_producer) {
                         spat_producer->send(spat_ptr->toJson());
+                        // Calculate and average spat processing time over 20 messages sent 
+                        if (count <= 20 ) {
+                            uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                            spat_processing_time += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
+                            count++;
+                        } else {
+                            double total_processing_time = ((double)(spat_processing_time))/20.0;
+                            SPDLOG_INFO("SPat average processing time over 20 messages is {0} ms and total processing time for 20 messages is {1} ms!", total_processing_time, spat_processing_time);
+                            spat_processing_time = 0;
+                            count = 0;
+                        }
                     }
-                    // Sample size for spat latency measurement 20 mgs
-                    if (count <= 20 ) {
-                        uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                        spat_latency += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
-                        count++;
-                    } else {
-                        double latency_measure = ((double)(spat_latency))/20.0;
-                        SPDLOG_WARN("SPat average latency over 2 seconds is {0} ms and total latency for 20 messages is {1} ms!", latency_measure, spat_latency);
-                        spat_latency = 0;
-                        count = 0;
-                    }
+                    
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception, spat not published : \n {0}", e.what());
