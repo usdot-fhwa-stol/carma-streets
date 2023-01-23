@@ -228,7 +228,8 @@ namespace scheduling_service{
 
         while (true)
         {
-            
+            auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            SPDLOG_DEBUG("Schedule iteration start time {0}!", current_timestamp);
             SPDLOG_TRACE("schedule number #{0}", sch_count);      
             auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
@@ -245,6 +246,8 @@ namespace scheduling_service{
                 std::string msg_to_send = int_schedule->toJson();
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
+                current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                SPDLOG_DEBUG("Schedule iteration end time {0}!", current_timestamp);
             }
             catch( const streets_vehicle_scheduler::scheduling_exception &e) {
                 SPDLOG_ERROR("Scheduling Exception: {0}",e.what());
