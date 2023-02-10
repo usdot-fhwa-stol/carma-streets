@@ -1,6 +1,6 @@
 version: 2.1
 
-#  Copyright (C) 2019-2020 LEIDOS.
+#  Copyright (C) 2019-2022 LEIDOS.
 # 
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -32,7 +32,7 @@ jobs:
         environment:
           TERM: xterm
           INIT_ENV: /home/carma-streets/.base-image/init-env.sh
-    resource_class: large 
+    resource_class: xlarge 
     # Set working directory
     working_directory: "/home/carma-streets"
     # Pull code and execute tests |
@@ -48,13 +48,8 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcovr gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev
-            
-            cd /home/carma-streets/streets_utils/streets_api/intersection_client_api
-            mkdir build
-            cd /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
-            cmake .. && make
-            make install
+            apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev curl unzip gcc-7 g++-7 autotools-dev automake qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev python3-pip
+            pip3 install gcovr
 
             mkdir -p /home/carma-streets/ext
             cd /home/carma-streets/ext
@@ -85,6 +80,16 @@ jobs:
             mkdir build
             cd /home/carma-streets/ext/rapidjson/build
             cmake .. && make -j
+            make install
+
+            #Install net-snmp
+            cd /home/carma-streets/ext/
+            apt-get update  && apt-get install -y wget libperl-dev
+            wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+            tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
+            cd net-snmp-5.9.1/
+            ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
+            make
             make install
 
             # Install qhttpengine
@@ -200,126 +205,3 @@ jobs:
               cd /home/carma-streets/
               sonar-scanner -X -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}            
             fi 
-  docker_build_push_scheduling_service :
-   machine:
-    image: ubuntu-1604:202004-01
-   resource_class: large 
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-         docker build -t usdotfhwastol/scheduling_service:${CIRCLE_BRANCH,,} -f scheduling_service/Dockerfile .         
-    
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-         echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastol/scheduling_service:${CIRCLE_BRANCH,,}   
-  docker_build_push_message_service :
-   machine:
-    image: ubuntu-1604:202004-01
-   resource_class: large 
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-         docker build -t usdotfhwastol/message_services:${CIRCLE_BRANCH,,} -f message_services/Dockerfile .
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-         echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastol/message_services:${CIRCLE_BRANCH,,}
-  docker_build_push_intersection_model :
-   machine:
-    image: ubuntu-1604:202004-01
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-          docker build -t usdotfhwastol/intersection_model:${CIRCLE_BRANCH,,} -f intersection_model/Dockerfile .
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastol/intersection_model:${CIRCLE_BRANCH,,}
-   
-  docker_build_push_develop_scheduling_service :
-   machine:
-    image: ubuntu-1604:202004-01
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-          docker build -t usdotfhwastoldev/scheduling_service:latest -f scheduling_service/Dockerfile .   
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/scheduling_service:latest
-  docker_build_push_develop_message_service :
-   machine:
-    image: ubuntu-1604:202004-01
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-          docker build -t usdotfhwastoldev/message_services:latest -f message_services/Dockerfile .
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/message_services:latest
-  docker_build_push_develop_intersection_model :
-   machine:
-    image: ubuntu-1604:202004-01
-   steps:
-     - checkout
-     - run: 
-        name: Docker Build
-        command: |
-          docker build -t usdotfhwastoldev/intersection_model:latest -f intersection_model/Dockerfile .
-     - run: 
-        name: Docker Push
-        # Push carma-streets docker image to usdotfhwastoldev dockerhub
-        command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/intersection_model:latest
-workflows:
-  version: 2
-  build:
-    jobs:
-      - docker_build_push_develop_scheduling_service:
-          filters:
-            branches:
-              only: develop
-      - docker_build_push_develop_message_service:
-          filters:
-            branches:
-              only: develop
-      - docker_build_push_develop_intersection_model:
-          filters:
-            branches:
-              only: develop
-      - docker_build_push_scheduling_service:
-          filters:
-           branches:
-              ignore: develop
-      - docker_build_push_message_service:
-          filters:
-           branches:
-              ignore: develop
-      - docker_build_push_intersection_model:
-          filters:
-           branches:
-              ignore: develop
-      - build

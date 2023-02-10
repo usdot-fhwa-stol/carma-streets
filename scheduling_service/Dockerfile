@@ -1,6 +1,6 @@
 FROM ubuntu:bionic-20210702
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev build-essential git qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -45,6 +45,17 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
+
+COPY ./streets_utils/ /home/carma-streets/streets_utils
+# Install streets_service_base
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_base
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
@@ -55,11 +66,55 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-RUN echo " ------> Install intersection client library from carma-utils..."
-COPY ./streets_utils/ /home/carma-streets/streets_utils
+# Install intersection_client
+RUN echo " ------> Install intersection client library from streets_utils..."
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
 RUN mkdir build
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_vehicle_list
+RUN echo " ------> Install streets_vehicle_list library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_list/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_list/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+RUN echo " ------> Install streets_vehicle_scheduler library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_desired_phase_plan/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_desired_phase_plan/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_tsc_configuration
+RUN echo " ------> Install streets_tsc_configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_signal_phase_and_timing
+RUN echo " ------> Install streets_signal_phase_and_timing library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_signal_phase_and_timing/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_signal_phase_and_timing/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_vehicle_scheduler
+RUN echo " ------> Install streets_vehicle_scheduler library from streets_utils..."
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_scheduler/
+RUN mkdir build
+WORKDIR  /home/carma-streets/streets_utils/streets_vehicle_scheduler/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install

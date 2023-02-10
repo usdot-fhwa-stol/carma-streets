@@ -3,7 +3,7 @@ FROM ubuntu:bionic-20210702
 # Avoid interactive prompts during the building of this docker image
 ARG DEBIAN_FRONTEND="noninteractive"
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+RUN apt-get update && apt-get install -y cmake libboost1.65-all-dev git autotools-dev automake sqlite3 libsqlite3-dev curl libpugixml-dev libgeographic-dev qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
 
 RUN mkdir -p /home/carma-streets/
 
@@ -19,16 +19,6 @@ RUN cmake .
 RUN make
 RUN make install
 
-# Install librdkafka
-RUN echo " ------> Install librdkafka..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
-WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
-RUN make
-RUN make install
-
-
 # Install spdlog
 RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
@@ -37,6 +27,15 @@ WORKDIR /home/carma-streets/ext/spdlog/
 RUN mkdir build 
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
+RUN make install
+
+# Install librdkafka
+RUN echo " ------> Install librdkafka..."
+WORKDIR /home/carma-streets/ext
+RUN git clone https://github.com/edenhill/librdkafka
+WORKDIR /home/carma-streets/ext/librdkafka/
+RUN ./configure --prefix=/usr
+RUN make
 RUN make install
 
 # Install rapidjson
@@ -49,15 +48,6 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./ /home/carma-streets
-WORKDIR  /home/carma-streets/kafka_clients
-RUN mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
 
 # Install qhttpengine
 RUN echo " ------> Install qhttpengine..."
@@ -68,6 +58,7 @@ RUN mkdir build
 WORKDIR /home/carma-streets/ext/qhttpengine/build
 RUN cmake .. && make -j
 RUN make install
+
 
 # Install PROJ, a package for coordinate transformations
 RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
@@ -128,6 +119,36 @@ RUN source /opt/ros/melodic/setup.bash && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
+COPY ./streets_utils/ /home/carma-streets/streets_utils
+# Install streets_service_base
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_base
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install intersection_server_api
+RUN echo " ------> Install streets intersection api server from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_api/intersection_server_api/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+COPY ./intersection_model/ /home/carma-streets/intersection_model
 # Install intersection_model
 RUN echo " ------> compile examples..."
 WORKDIR  /home/carma-streets/intersection_model
@@ -151,4 +172,4 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 
-CMD ["/home/carma-streets/intersection_model/build/src/server/src/intersection-server"]
+CMD ["/home/carma-streets/intersection_model/build/src/server/intersection-server"]

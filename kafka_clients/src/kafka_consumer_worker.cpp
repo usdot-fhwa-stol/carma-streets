@@ -12,20 +12,20 @@ namespace kafka_clients
 
     bool kafka_consumer_worker::init()
     {
-        spdlog::info("kafka_consumer_worker init()... ");
+        SPDLOG_INFO("kafka_consumer_worker init()... ");
 
         std::string errstr;
         RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
         if (!conf)
         {
-            spdlog::critical("RDKafka create global conf failed ");
+            SPDLOG_CRITICAL("RDKafka create global conf failed ");
             return false;
         }
 
         // set bootstrap server
         if (conf->set(BOOTSTRAP_SERVER, _broker_str, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RDKafka conf set bootstrap server failed: {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RDKafka conf set bootstrap server failed: {0} ", errstr.c_str());
             return false;
         }
 
@@ -33,51 +33,51 @@ namespace kafka_clients
 
         if (conf->set(EVENT_CB, &_consumer_event_cb, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RDKafka conf set event call back failed:  {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RDKafka conf set event call back failed:  {0} ", errstr.c_str());
             return false;
         }
 
         if (conf->set(ENABLE_PARTITION_END_OF, "true", errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RDKafka conf set partition end of failed: {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RDKafka conf set partition end of failed: {0} ", errstr.c_str());
             return false;
         }
 
         // set consumer group
         if (conf->set(GROUP_ID, _group_id_str, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RDKafka conf set group id failed:  {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RDKafka conf set group id failed:  {0} ", errstr.c_str());
             return false;
         }
 
         if (conf->set(MAX_PARTITION_FETCH_SIZE, STR_FETCH_NUM, errstr) != RdKafka::Conf::CONF_OK)
         {
-            spdlog::critical("RDKafka cof set max.partition failed:  {0} ", errstr.c_str());
+            SPDLOG_CRITICAL("RDKafka cof set max.partition failed:  {0} ", errstr.c_str());
         }
 
         // create consumer
         _consumer = RdKafka::KafkaConsumer::create(conf, errstr);
         if (!_consumer)
         {
-            spdlog::critical("failed to create consumer:  {0}", errstr.c_str());
+            SPDLOG_CRITICAL("failed to create consumer:  {0}", errstr.c_str());
             return false;
         }
 
-        spdlog::info("created consumer: {0} ", _consumer->name());
+        SPDLOG_INFO("created consumer: {0} ", _consumer->name());
         delete conf;
 
         // create kafka topic
         RdKafka::Conf *tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
         if (!tconf)
         {
-            spdlog::critical("RDKafka create topic conf failed ");
+            SPDLOG_CRITICAL("RDKafka create topic conf failed ");
             return false;
         }
 
         _topic = RdKafka::Topic::create(_consumer, _topics_str, tconf, errstr);
         if (!_topic)
         {
-            spdlog::critical("RDKafka create topic failed:  {0}", errstr.c_str());
+            SPDLOG_CRITICAL("RDKafka create topic failed:  {0}", errstr.c_str());
             return false;
         }
 
@@ -100,11 +100,13 @@ namespace kafka_clients
         RdKafka::ErrorCode err = _consumer->subscribe(_topics_str_list);
         if (err)
         {
-            spdlog::critical(" {0} Failed to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
+            SPDLOG_CRITICAL(" {0} Failed to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
+            _run = false;
             exit(1);
+        } else {
+            SPDLOG_INFO("{0} Successfully to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
+            _run = true;
         }
-        spdlog::info("{0} Successfully to subscribe to   {1} topics: {2} ", _consumer->name(), _topics_str_list.size(), RdKafka::err2str(err).c_str());
-        _run = true;
     }
 
     const char *kafka_consumer_worker::consume(int timeout_ms)
@@ -121,7 +123,7 @@ namespace kafka_clients
     }
     void kafka_consumer_worker::printCurrConf()
     {
-        spdlog::info("Consumer connect to bootstrap_server: {0} , topic:  {1} , partition:  {2}, group id: {3} ",
+        SPDLOG_INFO("Consumer connect to bootstrap_server: {0} , topic:  {1} , partition:  {2}, group id: {3} ",
                      (_broker_str.empty() ? "UNKNOWN" : _broker_str), (_topics_str.empty() ? "UNKNOWN" : _topics_str), _partition, (_group_id_str.empty() ? "UNKNOWN" : _group_id_str));
     }
 
@@ -133,23 +135,23 @@ namespace kafka_clients
         case RdKafka::ERR__TIMED_OUT:
             break;
         case RdKafka::ERR_NO_ERROR:
-            spdlog::info(" {0} Read message at offset {1} ", _consumer->name(), message->offset());
-            spdlog::info(" {0} Message Consued: {1}   bytes ):  {2}", _consumer->name(), static_cast<int>(message->len()), static_cast<const char *>(message->payload()));
+            SPDLOG_TRACE(" {0} Read message at offset {1} ", _consumer->name(), message->offset());
+            SPDLOG_TRACE(" {0} Message Consumed: {1}   bytes ):  {2}", _consumer->name(), static_cast<int>(message->len()), static_cast<const char *>(message->payload()));
             _last_offset = message->offset();
             return_msg_str = static_cast<const char *>(message->payload());
             break;
         case RdKafka::ERR__PARTITION_EOF:
-            spdlog::info("{0} Reached the end of the queue, offset : {1}", _consumer->name(), _last_offset);
+            SPDLOG_TRACE("{0} Reached the end of the queue, offset : {1}", _consumer->name(), _last_offset);
             break;
         case RdKafka::ERR__UNKNOWN_TOPIC:
         case RdKafka::ERR__UNKNOWN_PARTITION:
-            spdlog::critical("{0} Consume failed:  {1} ", _consumer->name(), message->errstr());
+            SPDLOG_CRITICAL("{0} Consume failed:  {1} ", _consumer->name(), message->errstr());
             stop();
             break;
 
         default:
             /* Errors */
-            spdlog::critical("{0} Consume failed:  {1} ", _consumer->name(), message->errstr());
+            SPDLOG_CRITICAL("{0} Consume failed:  {1} ", _consumer->name(), message->errstr());
             stop();
             break;
         }

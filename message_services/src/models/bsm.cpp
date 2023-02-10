@@ -202,7 +202,7 @@ namespace message_services
             }
             catch (std::exception &ex)
             {
-                spdlog::critical("BSM model: asJsonObject error.: ", ex.what());
+                SPDLOG_CRITICAL("BSM model: asJsonObject error.: ", ex.what());
                 return false;
             }
         }

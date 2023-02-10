@@ -27,7 +27,7 @@ namespace message_services
             }
             else
             {
-                spdlog::critical("mobilityoperation_worker: Document parse error");
+                SPDLOG_CRITICAL("mobilityoperation_worker: Document parse error");
             }
 
         }

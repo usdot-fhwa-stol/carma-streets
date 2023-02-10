@@ -1,5 +1,60 @@
 {
-    "osm_file_path": "../vector_map.osm",
-    "intersection_name": "West Intersection",
-    "intersection_id": 9001
+    "service_name": "intersection_model",
+    "loglevel": "debug",
+    "configurations": [
+        {
+            "name": "osm_file_path",
+            "value": "../MAP/East_Intersection.osm",
+            "description": "Path to lanelet2 osm map for a given intersection.",
+            "type": "STRING"
+        },
+        {
+            "name": "intersection_name",
+            "value": "East Intersection",
+            "description": "Name of intersection.",
+            "type": "STRING"
+        },
+        {
+            "name": "intersection_id",
+            "value": 9945,
+            "description": "Unique ID of intersection.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "lane_to_lanelet_corr_thres",
+            "value": 7.5,
+            "description": "The lane (MAP) to lanelet (lanelet2 map) correlation threshold in meters. If the average distance between nodes in a lane of the MAP and the centerline of the any existing intersection lanelet described in the lanelet2 map exceeds lanewidth plus this threshold they will not correlate.",
+            "type":"DOUBLE"
+        },
+        {
+            "name": "host_address",
+            "value": "127.0.0.1",
+            "description": "Address to host intersection model REST server.",
+            "type": "STRING"
+        },
+        {
+            "name": "host_port",
+            "value": 8080,
+            "description": "Port to host intersection model REST server",
+            "type": "INTEGER"
+        },
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        },
+        {
+            "name": "map_msg_topic",
+            "value": "v2xhub_map_msg_in",
+            "description": "Kafka topic for vehicle status and intent messages",
+            "type": "STRING"
+        },
+        {
+            "name": "map_msg_group_id",
+            "value": "map_msg_consumer",
+            "description": "Kafka consumer group for BSM kafka consumer.",
+            "type": "STRING"
+        }
+    ]
 }

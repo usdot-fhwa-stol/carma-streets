@@ -1,0 +1,14 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(streets_desired_phase_plan_lib REQUIRED)
+find_dependency(streets_vehicle_list_lib REQUIRED)
+find_dependency(streets_signal_phase_and_timing_lib REQUIRED)
+find_dependency(streets_vehicle_scheduler_lib REQUIRED)
+find_dependency(streets_tsc_configuration_lib REQUIRED)
+find_dependency(spdlog REQUIRED)
+
+
+
+include("${CMAKE_CURRENT_LIST_DIR}/streets_signal_optimization_libTargets.cmake")
