@@ -165,9 +165,33 @@ namespace signal_opt_service
         int prev_future_move_group_count = 0;
         int current_future_move_group_count = 0;
         bool new_dpp_generated = false;
-
+        // Keeps track of sequential SO iteration skips caused by percieved missing DPP data in spat.
+        // TODO: More robust fix could use check last entry in sent DPP vs last entry in received spat 
+        // instead of future movement group counts/
+        int sequential_skips_for_missing_dpp = 0;
+               
         while ( dpp_producer->is_running() ) {
-            SPDLOG_DEBUG("Signal Optimization iteration!");
+            auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            SPDLOG_DEBUG("Signal Optimization iteration start time {0}!", current_timestamp);
+            try{
+                if ( _spat_ptr ) {
+                    auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
+                        if ( spat_lag > 200 ) {
+                            SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
+                        } 
+                    SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag); 
+                }
+                else {
+                    SPDLOG_WARN("SPaT Pointer is unset, skipping SO Iteration");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                    continue;
+                }
+            }
+            catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e) {
+                SPDLOG_ERROR("Cannot interpret SPAT due to exception :  {0}", e.what());
+                std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
+                continue;
+            }
             if ( !_vehicle_list_ptr->get_vehicles().empty() ) {
                 streets_desired_phase_plan::streets_desired_phase_plan spat_dpp;
                 try
@@ -193,18 +217,23 @@ namespace signal_opt_service
                         new_dpp_generated = false;
                     }
                     else {
-                        SPDLOG_WARN("Skipping SO iteration. Previously sent DPP is not yet reflected in SPaT!");
+                        // Increment sequential skip count for each skip
+                        sequential_skips_for_missing_dpp++;
+                        SPDLOG_WARN("Skipping SO iteration {0}. Previously sent DPP is not yet reflected in SPaT!", sequential_skips_for_missing_dpp);
+                        if (sequential_skips_for_missing_dpp > 5 ) {
+                            // Log error and attempt to reset previous movement group count and new dpp generated flag if error occurs more than 5 times sequentially.
+                            SPDLOG_ERROR("DPP producer is in error state, attempting to reset previous future movement group count {0} and new DPP generated flag {1}", new_dpp_generated, prev_future_move_group_count);
+                            new_dpp_generated = false;
+                            prev_future_move_group_count  = 0;
+                        } 
                         std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
                         continue;
                     }
                 }
-                auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                auto spat_lag =  current_timestamp - _spat_ptr->get_intersection().get_epoch_timestamp() ;
-                if ( spat_lag > 200 ) {
-                    SPDLOG_WARN("Current SPat Lag exceends 200 ms!");
-                } 
-                SPDLOG_DEBUG("Current spat lag is {0} ms!", spat_lag);
-                
+                // If we do not skip an iteration for this purpose, reset counter to 0
+                sequential_skips_for_missing_dpp = 0;
+                current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+              
                 if ( current_timestamp > spat_dpp.desired_phase_plan.front().end_time ) {
                     SPDLOG_WARN("Spat DPP does not include current time!\n DPP : {0}",spat_dpp.toJson());
                     std::this_thread::sleep_for(std::chrono::milliseconds(_so_sleep_time));
@@ -213,7 +242,8 @@ namespace signal_opt_service
 
                 auto time_to_yellow = spat_dpp.desired_phase_plan.front().end_time - current_timestamp;
                 SPDLOG_INFO("Time to yellow is : {0}", time_to_yellow );
-                if ( time_to_yellow <= _time_to_yellow ) {
+                // Check that time to yellow is within configured threshold and also above 200 ms to account for DPP transimission latency
+                if ( time_to_yellow <= _time_to_yellow && time_to_yellow > 200 ) {
                     /**
                      * If the number of future movement groups in the spat has changed compared to the previous step
                      * and it is less than or equal to the desired numNo vehicles presenter of future movement groups, run streets_signal_optimization
@@ -235,6 +265,9 @@ namespace signal_opt_service
                             std::string msg_to_send = optimal_dpp.toJson();
                             /* produce the optimal desired phase plan to kafka */
                             dpp_producer->send(msg_to_send);
+                            current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                            SPDLOG_DEBUG("Signal Optimization iteration end time {0}!", current_timestamp);
+
                             prev_future_move_group_count = current_future_move_group_count;
                             new_dpp_generated = true;
                         }
