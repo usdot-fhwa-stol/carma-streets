@@ -1,25 +1,50 @@
 # Files to be ignored by the Docker context
 # Any files mentioned here will not trigger Docker to force an image reuild
 # if they change
+# Ignore Circle CI scripts for Docker build context
 .circleci
+# Ignore VS Code project files for Docker build context
 .vscode
+# Ignore Dockerfiles for Docker build context
 /intersection_model/Dockerfile
+/message_services/Dockerfile
+/scheduling_service/Dockerfile
+/tsc_client_service/Dockerfile
+/signal_opt_service/Dockerfile
+# Ignore any documentation for Docker build context
 /docs
+# Ignore any examples for Docker build context
 /examples
+# Ignore any external locally cloned github repos for Docker build context
 /ext
+# Ignore any testing scripts for Docker build context
 /scripts
+# Ignore all local build files for Docker build context
 /kafka_clients/build
 /scheduling_service/build
 /message_services/build
+/signal_opt_service/build
+/intersection_model/build
+/tsc_client_service/build
+/scheduling_service/build
 /streets_utils/streets_service_base/build
 /streets_utils/streets_vehicle_list/build
 /streets_utils/streets_vehicle_scheduler/build
 /streets_utils/streets_api/intersection_client_api/build
+/streets_utils/streets_api/intersection_server_api/build
 /streets_utils/streets_signal_phase_and_timing/build
 /streets_utils/streets_desired_phase_plan/build
+/streets_utils/streets_signal_optimization/build
+/streets_utils/streets_tsc_configuration/build
+# Ignore all local log files for Docker build context
+/message_services/logs
+/signal_opt_service/logs
+/intersection_model/logs
+/tsc_client_service/logs
+/scheduling_service/logs
+# Ignore local external cloned repos for Docker build context
 /carma_lanelet2
-/intersection_model/build
 /intersection_model/src/server/external/lib/pkgconfig/qhttpengine.pc
-/tsc_client_service/build
+# Ignore any Mark Down documentation or git repo files for Docker build context
 *.md
 *.git*

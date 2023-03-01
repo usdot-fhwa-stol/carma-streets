@@ -64,6 +64,10 @@ namespace kafka_clients
         return true;
     }
 
+    bool kafka_producer_worker::is_running() const {
+        return _run;
+    }
+
     void kafka_producer_worker::send(const std::string &msg)
     {
 
@@ -145,10 +149,9 @@ namespace kafka_clients
                     SPDLOG_INFO("  {0} {1} message(s) were not delivered  ", _producer->name(), _producer->outq_len());
             }
         }
-        catch (...)
+        catch (const std::runtime_error &e)
         {
-
-            SPDLOG_CRITICAL("Flushing final messages.??.. ");
+            SPDLOG_CRITICAL("Error encountered flushing producer : {0}", e.what());
         }
     }
 

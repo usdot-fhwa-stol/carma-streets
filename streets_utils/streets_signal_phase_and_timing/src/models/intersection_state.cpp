@@ -22,9 +22,6 @@ namespace signal_phase_and_timing {
         // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
         state.AddMember("moy", moy, allocator);
         // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
-        if ( time_stamp == 0 ) {
-            throw signal_phase_and_timing_exception("IntersectionState is missing required time_stamp property!");
-        }
         state.AddMember("time_stamp", time_stamp, allocator);
         // OPTIONAL see J2735 IntersectionState definition
         if ( !enabled_lanes.empty() ) {
@@ -289,6 +286,24 @@ namespace signal_phase_and_timing {
         }
     }
 
+    void intersection_state::clear_future_movement_events()
+    {
+         for ( auto &move_state : states ) {
+            // If movement event list is empty, create a current event.
+            if ( move_state.state_time_speed.empty()) {
+                // Add current movement_event
+                movement_event cur_event;
+                move_state.state_time_speed.push_front(cur_event);
+            }
+            // If movement event list contains future events, clear future events.
+            if ( move_state.state_time_speed.size() > 1) {
+                // Clear all movement events except current (front)
+                movement_event cur_event = move_state.state_time_speed.front();
+                move_state.state_time_speed.clear();
+                move_state.state_time_speed.push_front(cur_event);
+            }           
+        }
+    }
     uint16_t intersection_state::convert_offset( const uint16_t offset_tenths_of_seconds)  const{
         // Convert tenths of seconds to milliseconds
         int offset_ms = offset_tenths_of_seconds * 100;

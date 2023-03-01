@@ -48,27 +48,9 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN sudo make install
 
-COPY ./streets_utils/ /home/carma-streets/streets_utils
-# Install streets_service_base
-RUN echo " ------> Install streets service base library from streets_utils..."
-WORKDIR /home/carma-streets/streets_utils/streets_service_base
-RUN mkdir build
-WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
-
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./kafka_clients /home/carma-streets/kafka_clients
-WORKDIR  /home/carma-streets/kafka_clients
-RUN  rm -rf build && mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN sudo make install
 
 # Install PROJ, a package for coordinate transformations
+WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1 && \
         cd /home/carma-streets/PROJ && \
         ./autogen.sh && \
@@ -127,6 +109,25 @@ RUN source /opt/ros/melodic/setup.bash && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
+COPY ./streets_utils/ /home/carma-streets/streets_utils
+# Install streets_service_base
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_base
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN  rm -rf build && mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN sudo make install
 
 RUN echo " ------> compile message_services..."
 COPY ./message_services /home/carma-streets/message_services

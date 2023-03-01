@@ -23,7 +23,7 @@ namespace streets_vehicles {
 					SPDLOG_WARN("The \"est_paths\" " + vehicle._id + " is missing in received update!");
 				}
 				SPDLOG_DEBUG("Vehicle Class Vehicle Info Update - timestamp = {0}, vehicle = {1}, lane_id = {2}, state = {3}, speed = {4} m/s, distance = {5} m, access = {6}", 
-					vehicle._cur_time, vehicle._id, vehicle._cur_lane_id, vehicle._cur_speed, vehicle._cur_distance, vehicle._access);
+					vehicle._cur_time, vehicle._id, vehicle._cur_lane_id, int(vehicle._cur_state), vehicle._cur_speed, vehicle._cur_distance, vehicle._access);
 			}
 		}  
 	}
@@ -96,11 +96,8 @@ namespace streets_vehicles {
 		}
 
 			
-		/* the unit of the received speed from the message is 0.02 of meter per second
-		*  the unit of the speed defined in the vehicle class is meter per second. 
-		*/
 		if (payload.FindMember("cur_speed")->value.IsDouble()){
-			vehicle._cur_speed = payload["cur_speed"].GetDouble() * 0.02;
+			vehicle._cur_speed = payload["cur_speed"].GetDouble();
 		} else{
 			throw status_intent_processing_exception("The \"cur_speed\" " + vehicle._id + " is missing/incorrect in received update!");
 		}

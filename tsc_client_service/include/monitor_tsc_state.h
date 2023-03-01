@@ -43,16 +43,16 @@ namespace traffic_signal_controller_service
             std::shared_ptr<snmp_client> snmp_client_worker_;
 
             /* Mapping between signal group ids(key) and their states(value) defined as a signal group state struct for all active vehicle phases*/
-            std::unordered_map<int, signal_group_state> signal_group_state_map_;
+            std::unordered_map<int, signal_group_state> signal_group_2tsc_state_map_;
             
             /* Map between signal group ids(key) and phase numbers(value) for all active vehicle phases in the Traffic Signal Controller*/
-            std::unordered_map<int, int> signal_group_phase_map_;
+            std::unordered_map<int, int> signal_group_2vehiclephase_map_;
 
             /* Map between phase numbers(key) and signal group ids(value) for all active vehicle phases in the Traffic Signal Controller*/
-            std::unordered_map<int,int> vehicle_phase_num_map_;
+            std::unordered_map<int,int> vehicle_phase_2signalgroup_map_;
 
             /* Map between phase numbers(key) and signal group ids(value) for all active pedestrian phases in the Traffic Signal Controller*/
-            std::unordered_map<int,int> ped_phase_num_map_;
+            std::unordered_map<int,int> ped_phase_2signalgroup_map_;
 
             /* The sequence of vehicle phases in ring 1 of TSC*/
             std::vector<int> phase_seq_ring1_;
@@ -77,113 +77,134 @@ namespace traffic_signal_controller_service
              * @brief Creates tsc_configuration_state object pointer which is used to forward configuration information required
              * to understand ring and barrier information on the traffic signal controller.
              * This includes signal_group_id, yellow_change duration, red_clearance and concurrent signal groups
+             * @return shared ptr to tsc_config state
              */
-            void define_tsc_config_state();
+            std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> define_tsc_config_state();
 
-            /** @brief Creates vectors of channels associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
-            **  @param max_channels The maximum number of channels in the traffic signal controller.
-            **  @param vehicle_phase_channels a vector of active vehicle phases associated with a channel
-            **  @param ped_phase_channels a vector of active pedestrian phases associated with a channel
+            /** @brief Creates vectors of channels (or signal group id) associated with a vehicle phase and a pedestrian. Ignores overlap, ped Overlap, queueJump and other (types defined in NTCIP1202 v03)
+             *  Expects empty input arguments which are filled in by reference.
+             *  @param max_channels The maximum number of channels in the traffic signal controller.
+             *  @param vehicle_channels a vector of active vehicle phases associated with a channel
+             *  @param ped_channels a vector of active pedestrian phases associated with a channel
             **/
-            void get_phase_channels(int max_channels, std::vector<int>& vehicle_phase_channels, std::vector<int>& ped_phase_channels) const;
+            void get_channels(int max_channels, std::vector<int>& vehicle_channels, std::vector<int>& ped_channels) const;
 
-            /** @brief Constructs a map between phase number and signal group ids
-            ** @param phase_channels a vector of channel numbers in the traffic signal controller associated with a phase
-            ** @param is_source_vehicle_channel a boolean that indicates whether the phase_channels arg is for channels associated with vehicle phases. 
-            ** In case they are not its assumed that they are pedestrian phases
-            * According to the NTCIP 1202 v03 documentation signal group ids in the SPAT message are the channel numbers in the TSC
-            * **/
-            void map_phase_and_signalgroup(const std::vector<int>& phase_channels, bool is_source_vehicle_channel);
+            /** @brief Creates a map of phases associated with a vehicle phase and a pedestrian phase.
+             *  @param signal_group_ids a map of known signal_group_ids/channels for vehicle or pedestrian to the corresponding phases
+             *  @return a mapping from phases to signal_group ids. Will return empty map if 
+             *  no phases associated with a vehicle or pedestrian are found.
+            **/
+            std::unordered_map<int,int> get_phases_associated_with_channel(const std::vector<int>& signal_group_ids) const;
+
+            /** 
+             * @brief Method for getting populated rings in sequence (default sequence = 1).
+             * Sequence table contains multiple sequence plans, consisting of the phase sequence in each ring available in the traffic signal controller.
+             * We assume the active sequence plan is sequence number 1 by default.
+             * @param max_rings Maximum number of rings in the traffic signal controller
+             * @param vehicle_phase_2signalgroup_map a map for all vehicle phases and signal groups associated with them
+             * @param sequence The sequence number to check for active rings, defaults to 1
+             * @return List of active rings in the traffic signal controller
+            **/
+            std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1) const;
+
+            /** 
+             * @brief Method for mapping vehicle phases and signal groups. Modifies non-const arguments by reference.
+             * Signal group map is expected to be passed empty. 
+             * Vehicle phase map is expected to contain known vehicle phases. These are modified to only contain phases in the active ring sequence.
+             * @param active_ring_sequences A list of phases from the traffic signal controller in rows corresponding to the ring number
+             * @param vehicle_phase_2signalgroup_map a map for all vehicle phases and signal groups associated with them
+             * @param signal_group_2vehiclephase_map Mapping from signal groups id to vehicle phases
+             * 
+            **/
+            void map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, 
+                                                                                            std::unordered_map<int, int>& signal_group_2vehiclephase_map) const;
+
             /** 
              * @brief Method for getting maximum channels for the traffic signal controller
              * @return number of maximum channels in the traffic signal controller
             **/
             int get_max_channels() const;
 
+            /** 
+             * @brief Method for getting maximum rings for the traffic signal controller
+             * @return number of maximum rings in the traffic signal controller
+            **/
+            int get_max_rings() const;
+
             /** @brief Get minimum green time for a phase
-            ** @param phase_num The phase for which the min green needs to be requested
-            ** @return minimum green time in milliseconds
-            * **/
+             * @param phase_num The phase for which the min green needs to be requested
+             * @return minimum green time in milliseconds
+            **/
             int get_min_green(int phase_num) const;
 
             /** @brief Get maximum green time for a phase
-            ** @param phase_num The phase for which the maximum green needs to be requested
-            ** @return maximum green time in milliseconds
-            * **/
+             * @param phase_num The phase for which the maximum green needs to be requested
+             * @return maximum green time in milliseconds
+            **/
             int get_max_green(int phase_num) const;
 
             /** @brief Get yellow duration time for a phase
-            ** @param phase_num The phase for which the yellow duration needs to be requested
-            ** @return yellow duration time in milliseconds
-            * **/
+             * @param phase_num The phase for which the yellow duration needs to be requested
+             * @return yellow duration time in milliseconds
+            **/
             int get_yellow_duration(int phase_num) const;
 
             /** @brief Get red clearance time for a phase
-            ** @param phase_num The phase for which the red clearance needs to be requested
-            ** @return red clearance time in milliseconds
-            * **/
+             * @param phase_num The phase for which the red clearance needs to be requested
+             * @return red clearance time in milliseconds
+            **/
             int get_red_clearance(int phase_num) const;
 
             /** @brief Get red duration for a phase
-            ** @param phase_num The phase for which the red duration needs to be requested
-            ** @return red duration time in milliseconds
-            * **/
+             * @param phase_num The phase for which the red duration needs to be requested
+             * @return red duration time in milliseconds
+            **/
             int get_red_duration(int phase_num);
 
             /** @brief Get a sequence of phases following the given phase
-            ** @param phase_num The phase for which the sequence needs to be obtained
-            ** @return a vector as a sequence of phases starting from the given phase
-            * **/
-            std::vector<int> get_following_phases(int phase_num);
-
-            /** @brief Get a sequence of phases in the given ring
-            ** @param ring_num The phase for which the sequence needs to be obtained
-            ** @return a vector as a sequence of phases in the ring
-            * **/
-            std::vector<int> phase_seq(int ring_num);
+             * @param phase_num The phase for which the sequence needs to be obtained
+             * @param active_ring_sequences The sequence of phases in active rings in the traffic signal controller
+             * @return a vector as a sequence of phases starting from the given phase
+            **/
+            std::vector<int> get_following_phases(int phase_num, const std::vector<std::vector<int>>& active_ring_sequences) const;
 
             /** @brief The concurrent phases that the given phase can be green along with
-            ** @param ring_num The phase for which the concurrent phases needs to be obtained
-            ** @return a vector of phases that may be concurrent with the given phase
-            * **/
+             * @param ring_num The phase for which the concurrent phases needs to be obtained
+             * @return a vector of phases that may be concurrent with the given phase
+            **/
             std::vector<int> get_concurrent_signal_groups(int phase_num);
 
-            /** @brief Helper function to convert epoch time to hour-tenths time
-            ** @param epoch_time_ms epoch time in milliseconds
-            ** @return tenths of a second in current or next hour
-            * **/
-            uint16_t convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const;
-
-            /** @brief Helper function to convert hour-tenths time to epoch time
-            ** @param hour_tenth_secs tenths of a second in current or next hour
-            ** @return epoch time in milliseconds
-            * **/
-            uint64_t convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const;
-
             /** @brief Get predicted next movement event given a current event
-            ** @param current_event movement_event from the next movement needs to be predicted
-            ** @param current_event_end_time End time of the current event in epoch time (milliseconds)
-            ** @param phase_state signal_group_state for the phase of which the movement events are a part
-            ** @return predicted next movement event
-            * **/
+             * @param current_event movement_event from the next movement needs to be predicted
+             * @param current_event_end_time End time of the current event in epoch time (milliseconds)
+             * @param phase_state signal_group_state for the phase of which the movement events are a part
+             * @return predicted next movement event
+            **/
             signal_phase_and_timing::movement_event get_following_event(const signal_phase_and_timing::movement_event& current_event,
                                                                  uint64_t current_event_end_time, const signal_group_state& phase_state) const;
-
+            
             //Add Friend Test to share private members
-            FRIEND_TEST(traffic_signal_controller_service, test_get_following_movement_events);                                                              
+            FRIEND_TEST(test_monitor_state, test_get_following_movement_events);
+                                                              
 
         public:
             /** 
              * @brief Constructor for the tsc_state class 
              * @param snmp_client A pointer to an snmp_client worker with a connection established to a traffic signal controller
-             **/
+            **/
             explicit tsc_state(std::shared_ptr<snmp_client> snmp_client);
             /**
              * @brief Return reference to signal group state map 
              * 
              * @return std::unordered_map<int, signal_group_state>& 
-             */
+            **/
             std::unordered_map<int, signal_group_state>& get_signal_group_state_map();
+            /**
+             * @brief Returns a map of signal group ids to pedestrian phases
+             * 
+             * @return a map of signal group ids to pedestrian phases
+            **/
+            std::unordered_map<int, int> get_signal_group_to_ped_phase_map();
             /** 
              * @brief Returns a map of pedestrian phases to signal group ids
              * @return a map of pedestrian phases to signal group ids 
@@ -197,6 +218,24 @@ namespace traffic_signal_controller_service
             const std::unordered_map<int,int>& get_vehicle_phase_map();
 
             /**
+             * @brief Get the phase number using signal group id.
+             * 
+             * @param signal_group_id 
+             * @return int
+             * @throws monitor_states_exception if signal group id is less than 1.
+             */
+            int get_phase_number(const int signal_group_id);
+
+            /**
+             * @brief Get the signal group id using phase number.Only for vehicle phases
+             * 
+             * @param phase_number 
+             * @return int
+             * @throws monitor_states_exception if phase number is less than 1. 
+             */
+            int get_vehicle_signal_group_id(const int phase_number);
+
+            /**
              * @brief Initialize tsc_state by making SNMP calls to TSC for phase sequence and timing information.
              * 
              * @return true if initialization is successful.
@@ -204,9 +243,9 @@ namespace traffic_signal_controller_service
             bool initialize();
 
             /** @brief Updates spat with future movement events for vehicle phases
-            ** @param spat_ptr pointer to spat message to update
-            ** @return true if update was successful, false if it failed
-            * **/
+             * @param spat_ptr pointer to spat message to update
+             * @return true if update was successful, false if it failed
+            **/
             void add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr);
 
             /** 

@@ -9,5 +9,9 @@ int main(int argc, char **argv)
     {
         so_service.start();
     }
+    else 
+    {
+        exit(EXIT_FAILURE);
+    }
     return a.exec();
 }

@@ -1,0 +1,103 @@
+{
+    "vehicle_updates": 
+    [
+        {
+            "metadata": {
+                "timestamp": 1665190126001
+            },
+            "payload": {
+                "v_id": "DOT-507",
+                "v_length": 5,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 5.0,
+                "max_decel": 5.0,
+                "cur_speed": 5.0,
+                "cur_accel": 0.0,
+                "cur_lane_id": 163,
+                "cur_ds": 7.0,
+                "direction": "straight",
+                "entry_lane_id": 163,
+                "link_lane_id": 155,
+                "dest_lane_id": 162,
+                "is_allowed": false,
+                "depart_pos": 1,
+                "est_paths": [{
+                        "ts": 1623677096200,
+                        "id": 7,
+                        "ds": 6.0
+                    },
+                    {
+                        "ts": 1623677096400,
+                        "id": 7,
+                        "ds": 5.0
+                    },
+                    {
+                        "ts": 1623677096600,
+                        "id": 7,
+                        "ds": 4.0
+                    },
+                    {
+                        "ts": 1623677096800,
+                        "id": 7,
+                        "ds": 3.0
+                    },
+                    {
+                        "ts": 1623677097000,
+                        "id": 7,
+                        "ds": 2.0
+                    }
+                ]
+            }
+        },
+        {
+            "metadata": {
+                "timestamp": 1665190126002
+            },
+            "payload": {
+                "v_id": "DOT-508",
+                "v_length": 5,
+                "min_gap": 10.0,
+                "react_t": 1.5,
+                "max_accel": 5.0,
+                "max_decel": 5.0,
+                "cur_speed": 5.0,
+                "cur_accel": 0.0,
+                "cur_lane_id": 167,
+                "cur_ds": 7.0,
+                "direction": "straight",
+                "entry_lane_id": 167,
+                "link_lane_id": 169,
+                "dest_lane_id": 164,
+                "is_allowed": false,
+                "depart_pos": 2,
+                "est_paths": [{
+                        "ts": 1623677096200,
+                        "id": 5,
+                        "ds": 6.0
+                    },
+                    {
+                        "ts": 1623677096400,
+                        "id": 5,
+                        "ds": 5.0
+                    },
+                    {
+                        "ts": 1623677096600,
+                        "id": 5,
+                        "ds": 4.0
+                    },
+                    {
+                        "ts": 1623677096800,
+                        "id": 5,
+                        "ds": 3.0
+                    },
+                    {
+                        "ts": 1623677097000,
+                        "id": 5,
+                        "ds": 2.0
+                    }
+                ]
+            }
+        }
+    ]
+}

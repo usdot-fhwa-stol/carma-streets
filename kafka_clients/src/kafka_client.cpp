@@ -3,7 +3,7 @@
 namespace kafka_clients
 {
     std::shared_ptr<kafka_clients::kafka_consumer_worker> kafka_client::create_consumer(const std::string &bootstrap_server, const std::string &topic_str,
-                                                                                        std::string &group_id_str) const
+                                                                                        const std::string &group_id_str) const
     {
         try
         {
@@ -12,10 +12,9 @@ namespace kafka_clients
             auto consumer_ptr = std::make_shared<kafka_clients::kafka_consumer_worker>(bootstrap_server, topic_str, group_id_str, cur_offset, partition);
             return consumer_ptr;
         }
-        catch (...)
+        catch (const std::runtime_error &e)
         {
-            std::exception_ptr p = std::current_exception();
-            SPDLOG_CRITICAL("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
+            SPDLOG_CRITICAL("Create consumer failure: {0}", e.what());
             exit(1);
         }
     }
@@ -28,10 +27,9 @@ namespace kafka_clients
             auto producer_ptr = std::make_shared<kafka_clients::kafka_producer_worker>(bootstrap_server, topic_str, partition);
             return producer_ptr;
         }
-        catch (...)
+        catch (const std::runtime_error &e)
         {
-            std::exception_ptr p = std::current_exception();
-            SPDLOG_CRITICAL("Create consumer failure: {0}", (p ? p.__cxa_exception_type()->name() : "null"));
+            SPDLOG_CRITICAL("Create producer failure: {0}", e.what());
             exit(1);
         }
     }

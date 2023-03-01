@@ -37,7 +37,7 @@ target_include_directories(${PROJECT_NAME}_lib
                            PRIVATE
                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-TARGET_LINK_LIBRARIES (${PROJECT_NAME}_lib PUBLIC Boost::system Boost::thread rdkafka++ spdlog::spdlog )
+TARGET_LINK_LIBRARIES (${PROJECT_NAME}_lib PUBLIC Boost::system Boost::thread rdkafka++ spdlog::spdlog gmock )
 
 
 #######
@@ -75,4 +75,4 @@ target_include_directories(${BINARY}
                            $<INSTALL_INTERFACE:include>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                            PRIVATE
-                           ${CMAKE_CURRENT_SOURCE_DIR}/src})
+                           ${CMAKE_CURRENT_SOURCE_DIR}/src)

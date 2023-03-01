@@ -4,12 +4,12 @@ namespace traffic_signal_controller_service
 {
     
     snmp_client::snmp_client(const std::string& ip, const int& port, const std::string& community, int snmp_version, int timeout)
-        : ip_(ip), port_(port), community_(community),snmp_version_(snmp_version), timeout_(timeout)
+        : ip_(ip), port_(port), community_(community),snmp_version_(snmp_version)
     {
         
         SPDLOG_DEBUG("Starting SNMP Client");
         SPDLOG_DEBUG("Target device IP address: {0}", ip_);
-        SPDLOG_INFO("Target device NTCIP port: {0}", port_);
+        SPDLOG_DEBUG("Target device NTCIP port: {0}", port_);
 
 
         // Bring the IP address and port of the target SNMP device in the required form, which is "IPADDRESS:PORT":
@@ -28,7 +28,9 @@ namespace traffic_signal_controller_service
         
         session.community = comm;
         session.community_len = community_.length();
-        session.timeout = timeout_;
+        // Timeout is in microseconds
+        session.timeout = timeout;
+        session.retries = 0;
 
         ss = snmp_open(&session);
 
@@ -46,7 +48,7 @@ namespace traffic_signal_controller_service
     }
     
     snmp_client::~snmp_client(){
-        SPDLOG_INFO("Closing snmp session");
+        SPDLOG_WARN("Closing snmp session");
         snmp_close(ss);
     }
 
@@ -99,7 +101,7 @@ namespace traffic_signal_controller_service
                 }
             }
 
-            SPDLOG_INFO("Created OID for input: {0}", input_oid);
+            SPDLOG_DEBUG("Created OID for input: {0}", input_oid);
         }
 
         // Send the request
@@ -108,7 +110,7 @@ namespace traffic_signal_controller_service
         // Check response
         if(status == STAT_SUCCESS && response->errstat == SNMP_ERR_NOERROR) {
             
-            SPDLOG_INFO("STAT_SUCCESS, received a response");
+            SPDLOG_DEBUG("STAT_SUCCESS, received a response");
             
             if(request_type == request_type::GET){
                 for(auto vars = response->variables; vars; vars = vars->next_variable){

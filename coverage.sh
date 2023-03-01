@@ -75,12 +75,21 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_desired_phase_plan/coverage/coverage.xml -s -f streets_utils/streets_desired_phase_plan/ -r .
 
-# cd /home/carma-streets/message_services/build/
-# ./message_services_test --gtest_output=xml:../../test_results/
-# cd /home/carma-streets/message_services/
-# mkdir coverage
-# cd /home/carma-streets/
-# gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
+cd /home/carma-streets/streets_utils/streets_signal_optimization/build/
+./streets_signal_optimization_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_signal_optimization
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_signal_optimization/coverage/coverage.xml -s -f streets_utils/streets_signal_optimization/ -r .
+
+cd /home/carma-streets/message_services/build/
+# Currently only running a subset of message_services tests. TODO: Fix the remaining test cases.
+./message_services_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/message_services/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
+
 
 cd /home/carma-streets/intersection_model/build/
 ./intersection_model_test ---gtest_output=xml:../../test_results/

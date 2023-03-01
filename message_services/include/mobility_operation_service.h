@@ -9,7 +9,6 @@
 #include "bsm_worker.h"
 #include "mobilitypath_worker.h"
 #include "mobilityoperation_worker.h"
-#include "vehicle_status_intent_worker.h"
 #include "vehicle_status_intent.h"
 #include "kafka_client.h"
 

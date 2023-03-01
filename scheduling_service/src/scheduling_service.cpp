@@ -179,15 +179,11 @@ namespace scheduling_service{
         {
             
             const std::string payload = consumer_worker->consume(1000);
-            try {
             if(payload.length() != 0 && vehicle_list_ptr)
             {                
 
                 vehicle_list_ptr->process_update(payload);
     
-            }}
-            catch(const streets_vehicles::status_intent_processing_exception &e) {
-                SPDLOG_ERROR("Exception encounter during update parsing! \n{0}", e.what());
             }
         }
         SPDLOG_WARN("Stopping status and intent consumer thread!");
@@ -232,7 +228,8 @@ namespace scheduling_service{
 
         while (true)
         {
-            
+            auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            SPDLOG_DEBUG("Schedule iteration start time {0}!", current_timestamp);
             SPDLOG_TRACE("schedule number #{0}", sch_count);      
             auto next_schedule_time_epoch = std::chrono::system_clock::now() + std::chrono::milliseconds(scheduling_delta);
 
@@ -249,6 +246,8 @@ namespace scheduling_service{
                 std::string msg_to_send = int_schedule->toJson();
                 /* produce the scheduling plan to kafka */
                 producer_worker->send(msg_to_send);
+                current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                SPDLOG_DEBUG("Schedule iteration end time {0}!", current_timestamp);
             }
             catch( const streets_vehicle_scheduler::scheduling_exception &e) {
                 SPDLOG_ERROR("Scheduling Exception: {0}",e.what());
@@ -281,6 +280,7 @@ namespace scheduling_service{
             // Only log log statement content
             csv_logger->set_pattern("%v");
             csv_logger->set_level(spdlog::level::info);
+            csv_logger->flush_on(spdlog::level::info);
         }
         catch (const spdlog::spdlog_ex& ex)
         {

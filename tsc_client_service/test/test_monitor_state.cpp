@@ -1,37 +1,23 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <gmock/gmock.h>
-#include <gtest/gtest_prod.h>
 
 #include "ntcip_oids.h"
 #include "monitor_tsc_state.h"
 #include "streets_configuration.h"
+#include "mock_snmp_client.h"
 
 using testing::_;
+using testing::Return;
+using testing::SetArgReferee;
+
 
 namespace traffic_signal_controller_service
 {
-    class mock_snmp_client : public snmp_client
+   
+    TEST(test_monitor_state, test_get_tsc_state)
     {
-        
-        public:
-        mock_snmp_client(const std::string& ip, const int& port) : snmp_client(ip, port){}
-    
-        mock_snmp_client(mock_snmp_client& t, const std::string ip = "", const int port = 0): snmp_client(ip, port){}
-        virtual ~mock_snmp_client(void){};
-        MOCK_METHOD3(process_snmp_request, bool(const std::string& input_oid, const request_type& request_type,snmp_response_obj& val));
-        
-    };   
-
-
-    TEST(traffic_signal_controller_service, test_get_tsc_state)
-    {
-        streets_service::streets_configuration::initialize_logger();
-        std::string dummy_ip = "192.168.10.10";
-        int dummy_port = 601;
-        mock_snmp_client mock_client_worker(dummy_ip, dummy_port);
-
-        auto unique_client = std::make_unique<mock_snmp_client>(mock_client_worker);
+        auto mock_client = std::make_shared<mock_snmp_client>();
 
         int phase_num = 0;
         const std::string&input_oid = "";
@@ -41,8 +27,42 @@ namespace traffic_signal_controller_service
         snmp_response_obj max_channels_in_tsc;
         max_channels_in_tsc.val_int = 4;
         max_channels_in_tsc.type = snmp_response_obj::response_type::INTEGER;
-        ON_CALL(*unique_client, process_snmp_request(ntcip_oids::MAX_CHANNELS, _ , _) )
-            .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(max_channels_in_tsc), testing::Return(true)));
+
+        EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(max_channels_in_tsc), 
+            Return(true)));
+
+        snmp_response_obj max_rings_in_tsc;
+        max_rings_in_tsc.val_int = 4;
+        max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::MAX_RINGS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(max_rings_in_tsc), 
+            Return(true)));
+        // Define Sequence Data
+        snmp_response_obj seq_data;
+        seq_data.val_string = {char(1),char(2)};
+        std::string seq_data_ring1_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(1);
+
+        EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring1_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        seq_data.val_string = {char(3),char(4)};
+        std::string seq_data_ring2_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(2);
+        EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring2_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        seq_data.val_string = {};
+        std::string seq_data_ring3_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(3);
+        EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring3_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        std::string seq_data_ring4_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(4);
+        EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring4_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
         
         //get_vehicle_phase channel
         for(int i = 1; i <= max_channels_in_tsc.val_int; ++i){
@@ -51,50 +71,45 @@ namespace traffic_signal_controller_service
             snmp_response_obj channel_control_resp;
             channel_control_resp.val_int = 2;
             std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
-            ON_CALL(*unique_client, process_snmp_request(channel_control_oid, _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(channel_control_resp), testing::Return(true)));
+            EXPECT_CALL(*mock_client, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(channel_control_resp), 
+                testing::Return(true)));
 
             // Define Control Source
             snmp_response_obj control_source_resp;
             control_source_resp.val_int = i;
             std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
-            ON_CALL(*unique_client, process_snmp_request(control_source_oid, _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(control_source_resp), testing::Return(true)));
+            EXPECT_CALL(*mock_client, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(control_source_resp), 
+                Return(true)));
 
-            // Define Sequence Data
-            snmp_response_obj seq_data;
-            seq_data.val_string = {char(1),char(2)};
-            std::string seq_data_ring1_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(1);
-            ON_CALL(*unique_client, process_snmp_request(seq_data_ring1_oid, _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(seq_data), testing::Return(true)));
-
-            seq_data.val_string = {char(3),char(4)};
-            std::string seq_data_ring2_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(2);
-            ON_CALL(*unique_client, process_snmp_request(seq_data_ring2_oid, _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(seq_data), testing::Return(true)));
+            
 
              // Define get min green
             std::string min_green_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(i);
             snmp_response_obj min_green;
             min_green.val_int = 20;
-            ON_CALL(*unique_client, process_snmp_request(min_green_oid , _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(min_green), testing::Return(true)));
+            EXPECT_CALL(*mock_client, process_snmp_request(min_green_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(min_green), 
+                Return(true)));
             
 
             // Define get max green
             std::string max_green_oid = ntcip_oids::MAXIMUM_GREEN + "." + std::to_string(i);
             snmp_response_obj max_green;
             max_green.val_int = 30;
-            ON_CALL(*unique_client, process_snmp_request(max_green_oid , _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(max_green), testing::Return(true)));
+            EXPECT_CALL(*mock_client, process_snmp_request(max_green_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(max_green), 
+                Return(true)));
 
 
             // Define get yellow Duration
             std::string yellow_oid = ntcip_oids::YELLOW_CHANGE_PARAMETER + "." + std::to_string(i);
             snmp_response_obj yellow_duration;
             yellow_duration.val_int = 40;
-            ON_CALL(*unique_client, process_snmp_request(yellow_oid , _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(yellow_duration), testing::Return(true)));
+            EXPECT_CALL(*mock_client, process_snmp_request(yellow_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(yellow_duration), 
+                Return(true)));
 
             
 
@@ -102,20 +117,26 @@ namespace traffic_signal_controller_service
             std::string red_clearance_oid = ntcip_oids::RED_CLEAR_PARAMETER + "." + std::to_string(i);
             snmp_response_obj red_clearance_duration;
             red_clearance_duration.val_int = 10;
-            ON_CALL(*unique_client, process_snmp_request(red_clearance_oid , _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(red_clearance_duration), testing::Return(true)));
-
+            EXPECT_CALL(*mock_client, process_snmp_request(red_clearance_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(red_clearance_duration), 
+                Return(true)));
 
             //Define get concurrent phases
             std::string concurrent_phase_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(i);
             snmp_response_obj concurrent_phase_resp;
-            concurrent_phase_resp.val_string = {char(5), char(6)};
-            ON_CALL(*unique_client, process_snmp_request(concurrent_phase_oid , _ , _) )
-                .WillByDefault(testing::DoAll(testing::SetArgReferee<2>(concurrent_phase_resp), testing::Return(true)));
+            if ( i == 1 || i == 2) {
+                concurrent_phase_resp.val_string = {char(2), char(3)};
+            }
+            else if (i == 3|| i == 4) {
+                concurrent_phase_resp.val_string = {char(2), char(3)};
+
+            }
+            EXPECT_CALL(*mock_client, process_snmp_request(concurrent_phase_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(concurrent_phase_resp), 
+                testing::Return(true)));
         }
         
-        std::shared_ptr<mock_snmp_client> shared_client = std::move(unique_client);
-        traffic_signal_controller_service::tsc_state worker(shared_client);
+        traffic_signal_controller_service::tsc_state worker(mock_client);
         worker.initialize();
 
         std::unordered_map<int, signal_group_state> state_map = worker.get_signal_group_state_map();
@@ -136,12 +157,12 @@ namespace traffic_signal_controller_service
 
         //Test tsc_config_state
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state = worker.get_tsc_config_state();
-        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 2);
+        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 3);
         EXPECT_EQ(tsc_config_state->tsc_config_list.front().red_clearance, 1000);
 
     }
 
-    TEST(traffic_signal_controller_service, test_get_following_movement_events)
+    TEST(test_monitor_state, test_get_following_movement_events)
     {
         // Create mock spat
         auto spat_msg_ptr = std::make_shared<signal_phase_and_timing::spat>();
@@ -174,15 +195,12 @@ namespace traffic_signal_controller_service
         state_3.state_time_speed.push_back(event_3);
 
         intersection_state.states.push_back(state_3);
+        spat_msg_ptr->set_intersection(intersection_state);
+        SPDLOG_INFO("Setting Intersection state!");
 
-        streets_service::streets_configuration::initialize_logger();
-        std::string dummy_ip = "192.168.10.10";
-        int dummy_port = 601;
-        mock_snmp_client mock_client_worker(dummy_ip, dummy_port);
+        auto mock_client = std::make_shared<mock_snmp_client>();
 
-        auto unique_client = std::make_unique<mock_snmp_client>(mock_client_worker);
-
-        traffic_signal_controller_service::tsc_state worker(std::move(unique_client));
+        traffic_signal_controller_service::tsc_state worker(mock_client);
         traffic_signal_controller_service::signal_group_state phase_1_state;
         phase_1_state.signal_group_id = 1;
         phase_1_state.phase_num = 1;
@@ -193,26 +211,27 @@ namespace traffic_signal_controller_service
         phase_1_state.red_clearance = 1000;
         phase_1_state.red_duration = 10000;
         
-        worker.signal_group_state_map_.insert({1, phase_1_state});
+        worker.signal_group_2tsc_state_map_.insert({1, phase_1_state});
 
         traffic_signal_controller_service::signal_group_state phase_2_state;
         phase_2_state = phase_1_state;
         phase_2_state.signal_group_id = 2;
         phase_2_state.phase_num = 2;
 
-        worker.signal_group_state_map_.insert({2, phase_2_state});
+        worker.signal_group_2tsc_state_map_.insert({2, phase_2_state});
 
         traffic_signal_controller_service::signal_group_state phase_3_state;
         phase_3_state = phase_1_state;
         phase_3_state.signal_group_id = 3;
         phase_3_state.phase_num = 3;
 
-        spat_msg_ptr->intersections.push_back(intersection_state);
         worker.add_future_movement_events(spat_msg_ptr);
+        SPDLOG_INFO( "Updating future movement events in SPAT");
+        auto new_intersection_state = spat_msg_ptr->get_intersection();
         
         // Check if movement events have been added
-        EXPECT_TRUE(spat_msg_ptr->intersections.front().states.front().state_time_speed.size() > 1);
-        for(auto it : spat_msg_ptr->intersections.front().states.front().state_time_speed){
+        EXPECT_TRUE(new_intersection_state.states.front().state_time_speed.size() > 1);
+        for(auto it : new_intersection_state.states.front().state_time_speed){
             
             if(it.event_state == signal_phase_and_timing::movement_phase_state::protected_movement_allowed)
                 EXPECT_EQ(it.timing.min_end_time - it.timing.start_time , phase_1_state.green_duration/100);
@@ -222,6 +241,9 @@ namespace traffic_signal_controller_service
             
             else if(it.event_state == signal_phase_and_timing::movement_phase_state::stop_and_remain)
                 EXPECT_EQ(it.timing.min_end_time - it.timing.start_time, phase_1_state.red_duration/100);
+            else {
+                GTEST_FATAL_FAILURE_("Invalid Event State!");
+            }
         }       
 
         // Test exception 
@@ -233,8 +255,321 @@ namespace traffic_signal_controller_service
         intersection_state_2.states.push_back(state_4);
         
         auto spat_msg_ptr_2 = std::make_shared<signal_phase_and_timing::spat>();
-        spat_msg_ptr->intersections.push_back(intersection_state_2);
+        spat_msg_ptr->set_intersection(intersection_state_2);
         EXPECT_THROW(worker.add_future_movement_events(spat_msg_ptr),monitor_states_exception);
 
+    }
+    
+    TEST(test_monitor_state, test_get_phase_number) {
+
+        std::shared_ptr<mock_snmp_client> mock_snmp =  std::make_shared<mock_snmp_client>();
+        tsc_state state(mock_snmp);
+         // When phase to signal group map is empty, 
+        ASSERT_THROW(state.get_phase_number(1), monitor_states_exception);
+        // Test get max channels
+        snmp_response_obj max_channels_in_tsc;
+        max_channels_in_tsc.val_int = 16;
+        max_channels_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+
+        request_type request_type = request_type::GET;
+
+        EXPECT_CALL( *mock_snmp, process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(max_channels_in_tsc), 
+            Return(true)));
+
+        snmp_response_obj max_rings_in_tsc;
+        max_rings_in_tsc.val_int = 4;
+        max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        EXPECT_CALL( *mock_snmp, process_snmp_request(ntcip_oids::MAX_RINGS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(max_rings_in_tsc), 
+            Return(true)));
+        // Define Sequence Data
+        snmp_response_obj seq_data;
+        seq_data.val_string = {char(1),char(2), char(3), char(4)};
+        std::string seq_data_ring1_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(1);
+
+        EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring1_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        seq_data.val_string = {char(5),char(6), char(7), char(8)};
+        std::string seq_data_ring2_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(2);
+        EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring2_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        seq_data.val_string = {};
+        std::string seq_data_ring3_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(3);
+        EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring3_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+
+        std::string seq_data_ring4_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(4);
+        EXPECT_CALL(*mock_snmp, process_snmp_request(seq_data_ring4_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+            SetArgReferee<2>(seq_data), 
+            Return(true)));
+        //get_vehicle_phase channel
+        for(int i = 1; i <= max_channels_in_tsc.val_int; ++i){
+            // phase number
+            // ring 1 ->  | 1 | 2 || 3 | 4 ||
+            // ring 2 ->  | 5 | 6 || 7 | 8 ||
+            // signal group
+            // ring 1 ->  | 3  | 7 || 9  | 14 ||
+            // ring 2 ->  | 11 | 6 || 15 | 1  ||
+            //
+            switch(i) {
+                case 3: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 1;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 7: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 2;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 9: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 3;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 14: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 4;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 11: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 5;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 6: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 6;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 15: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 7;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                    break;
+                }
+                case 1: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 2;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 8;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true))); 
+                    break;
+                }
+                default: {
+                    snmp_response_obj channel_control_resp;
+                    channel_control_resp.val_int = 0;
+                    std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(channel_control_resp),
+                        Return(true)));
+
+                    // Define Control Source
+                    // Note this OID is not actually called for any non vehicle/pedestrian phases which is why the Times() assertion 
+                    // is not included
+                    snmp_response_obj control_source_resp;
+                    control_source_resp.val_int = 0;
+                    std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
+                    EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
+                        SetArgReferee<2>(control_source_resp), 
+                        Return(true)));
+                }
+            }
+            
+        }
+        for(int i = 1; i <= 8; i++) {
+            
+
+             // Define get min green
+            std::string min_green_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(i);
+            snmp_response_obj min_green;
+            min_green.val_int = 20;
+            EXPECT_CALL(*mock_snmp, process_snmp_request(min_green_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(min_green), 
+                Return(true)));
+            
+
+            // Define get max green
+            std::string max_green_oid = ntcip_oids::MAXIMUM_GREEN + "." + std::to_string(i);
+            snmp_response_obj max_green;
+            max_green.val_int = 30;
+            EXPECT_CALL(*mock_snmp, process_snmp_request(max_green_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(max_green), 
+                Return(true)));
+
+
+            // Define get yellow Duration
+            std::string yellow_oid = ntcip_oids::YELLOW_CHANGE_PARAMETER + "." + std::to_string(i);
+            snmp_response_obj yellow_duration;
+            yellow_duration.val_int = 40;
+            EXPECT_CALL(*mock_snmp, process_snmp_request(yellow_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(yellow_duration), 
+                Return(true)));
+
+            
+
+            // Define red clearance
+            std::string red_clearance_oid = ntcip_oids::RED_CLEAR_PARAMETER + "." + std::to_string(i);
+            snmp_response_obj red_clearance_duration;
+            red_clearance_duration.val_int = 10;
+            EXPECT_CALL(*mock_snmp, process_snmp_request(red_clearance_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(red_clearance_duration), 
+                Return(true)));
+
+
+            //Define get concurrent phases
+            std::string concurrent_phase_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(i);
+            snmp_response_obj concurrent_phase_resp;
+            if ( i == 1 || i == 2) {
+                concurrent_phase_resp.val_string = {char(5), char(6)};
+            }
+            else if (i == 3|| i == 4) {
+                concurrent_phase_resp.val_string = {char(7), char(8)};
+            }
+            else if (i == 5|| i == 6) {
+                concurrent_phase_resp.val_string = {char(1), char(2)};
+            }
+            // if 7 || 8
+            else {
+               concurrent_phase_resp.val_string = {char(3), char(4)}; 
+            }
+            EXPECT_CALL(*mock_snmp, process_snmp_request(concurrent_phase_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
+                SetArgReferee<2>(concurrent_phase_resp), 
+                Return(true)));
+        }
+
+        state.initialize();
+        // phase number
+        // ring 1 ->  | 1 | 2 || 3 | 4 ||
+        // ring 2 ->  | 5 | 6 || 7 | 8 ||
+        // signal group
+        // ring 1 ->  | 3  | 7 || 9  | 14 ||
+        // ring 2 ->  | 11 | 6 || 15 | 1  ||
+        //
+        ASSERT_EQ(1, state.get_phase_number(3));
+        ASSERT_EQ(2, state.get_phase_number(7));
+        ASSERT_EQ(3, state.get_phase_number(9));
+        ASSERT_EQ(4, state.get_phase_number(14));
+        ASSERT_EQ(5, state.get_phase_number(11));
+        ASSERT_EQ(6, state.get_phase_number(6));
+        ASSERT_EQ(7, state.get_phase_number(15));
+        ASSERT_EQ(8, state.get_phase_number(1));
+        ASSERT_THROW(state.get_phase_number(2), monitor_states_exception);
+        ASSERT_THROW(state.get_phase_number(0), monitor_states_exception);
+
+
+        ASSERT_EQ(3, state.get_vehicle_signal_group_id(1));
+        ASSERT_EQ(7, state.get_vehicle_signal_group_id(2));
+        ASSERT_EQ(9, state.get_vehicle_signal_group_id(3));
+        ASSERT_EQ(14, state.get_vehicle_signal_group_id(4));
+        ASSERT_EQ(11, state.get_vehicle_signal_group_id(5));
+        ASSERT_EQ(6, state.get_vehicle_signal_group_id(6));
+        ASSERT_EQ(15, state.get_vehicle_signal_group_id(7));
+        ASSERT_EQ(1, state.get_vehicle_signal_group_id(8));
+        ASSERT_THROW(state.get_vehicle_signal_group_id(9), monitor_states_exception);
+        ASSERT_THROW(state.get_vehicle_signal_group_id(0), monitor_states_exception);
+
+
+        
+
+       
     }
 }

@@ -8,6 +8,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - zookeeper-datavolume:/opt/zookeeper-3.4.13/data
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
@@ -18,27 +19,30 @@ services:
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
-      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,modified_spat:1:1,desire_phase_plan:1:1"
+      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,modified_spat:1:1,desired_phase_plan:1:1, tsc_config_state:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_DIRS: "/kafka/kafka-logs"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - kafka-datavolume:/kafka/kafka-logs
 ##############################################################
 # Kafka Owl for monitoring kafka traffic. UI can be accessed on 
-# configurable port set in performance/kowl.yaml
-#  kowl:
-#    image: quay.io/cloudhut/kowl
-#    container_name: kowl
-#    restart: on-failure
-#    network_mode: host
-#    depends_on:
-#      - kafka
-#    environment:
-#      CONFIG_FILEPATH: /etc/kowl/kowl.yaml
-#    volumes:
-#      - ./performance/kowl.yaml:/etc/kowl/kowl.yaml
+# configurable port set in performance/kowl.yaml NOTE: IS NOT 
+# NECESSARY FOR DEPLOYMENT BUT HELFUL FOR DEBUGGING! 
+################################################################
+  kowl:
+    image: quay.io/cloudhut/kowl
+    container_name: kowl
+    restart: on-failure
+    network_mode: host
+    depends_on:
+      - kafka
+    environment:
+      CONFIG_FILEPATH: /etc/kowl/kowl.yaml
+    volumes:
+      - ./performance/kowl.yaml:/etc/kowl/kowl.yaml
   db:
     image: mysql:5.7
     container_name: mysql
@@ -54,7 +58,7 @@ services:
       - mysql_root_password
     volumes:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
-
+      - mysql-datavolume:/var/lib/mysql
   php:
     image: usdotfhwaops/php:latest
     container_name: php
@@ -71,7 +75,6 @@ services:
     restart: always
     depends_on:
       - db
-      - kafka
     environment:
       - MYSQL_PASSWORD=/run/secrets/mysql_password
     secrets:
@@ -80,8 +83,7 @@ services:
       - ./logs:/var/log/tmx
       - ./MAP:/var/www/plugins/MAP
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      
+      - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
     image: usdotfhwastoldev/scheduling_service:develop
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
@@ -121,7 +123,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
-      - ./MAP/vector_map.osm:/home/carma-streets/message_services/vector_map.osm
+      - ./MAP/:/home/carma-streets/message_services/MAP/
       - ./message_services/logs/:/home/carma-streets/message_services/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -139,7 +141,7 @@ services:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
-      - ./MAP/vector_map.osm:/home/carma-streets/intersection_model/vector_map.osm
+      - ./MAP/:/home/carma-streets/intersection_model/MAP/
       - ./intersection_model/logs/:/home/carma-streets/intersection_model/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -156,7 +158,8 @@ services:
       - kafka
       - intersection_model
       - message_services
-      - scheduling_service    
+      - scheduling_service 
+      - tsc_service   
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
@@ -196,4 +199,7 @@ secrets:
         file: ./secrets/mysql_password.txt
     mysql_root_password:
         file: ./secrets/mysql_root_password.txt
-
+volumes:
+    mysql-datavolume:
+    kafka-datavolume:
+    zookeeper-datavolume:

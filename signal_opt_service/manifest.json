@@ -1,6 +1,6 @@
 {
-    "service_name": "signal_optmization",
-    "loglevel": "debug",
+    "service_name": "signal_optimization",
+    "loglevel": "info",
     "configurations": [
         {
             "name": "bootstrap_server",
@@ -33,6 +33,30 @@
             "type": "STRING"
         },
         {
+            "name": "tsc_config_consumer_topic",
+            "value": "tsc_config_state",
+            "description": "Kafka topic for CARMA Streets internal traffic signal controller phase configuration message.",
+            "type": "STRING"
+        },
+        {
+            "name": "tsc_config_group_id",
+            "value": "tsc_config_group",
+            "description": "Kafka consumer group for SO tsc_config_consumer.",
+            "type": "STRING"
+        },
+        {
+            "name": "dpp_producer_topic",
+            "value": "desired_phase_plan",
+            "description": "Kafka topic for streets internal desired phase plan messages.",
+            "type": "STRING"
+        },
+        {
+            "name": "exp_delta",
+            "value": 60000,
+            "description": "Time(in milliseconds) without receiving status & intent updates after which a vehicle is removed from the vehicle list!",
+            "type": "INTEGER"
+        },
+        {
             "name": "sleep_millisecs",
             "value": 5000,
             "description": "Current thread sleep for milliseconds",
@@ -43,6 +67,90 @@
             "value": 10,
             "description": "Number of attempts intersection client sending the HTTP request to get response with valid signal group ids.",
             "type": "INTEGER"
+        },
+        {
+            "name": "signal_optimization_frequency",
+            "value": 4000,
+            "description": "The time interval between two iterations of calling signal optimization libraries in the dpp_producer thread",
+            "type": "INTEGER"
+        },
+        {
+            "name": "enable_so_logging",
+            "value": true,
+            "description": "Bool flag to enable signal optimization calculation csv logging.",
+            "type": "BOOL"
+        }, 
+        {
+            "name": "so_log_path",
+            "value": "../logs/",
+            "description": "File path where signal optimization calculation csv file will be written(Note: set enable_so_logging true).",
+            "type": "STRING"
+        },
+        {
+            "name": "so_log_filename",
+            "value": "soLogs",
+            "description": "Filename for signal optimization calculation csv logging (Note: set enable_so_logging true).",
+            "type": "STRING"
+        },
+        {
+            "name": "initial_green_buffer",
+            "value": 2000,
+            "description": "The time buffer in milliseconds to apply to the time when the phase will become green to avoid vehicles that are ahead of schedule entering before the phase is green.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "final_green_buffer",
+            "value": 2000,
+            "description": "Additional buffer in milliseconds for the end of a green phase that allows additional safety on top of the yellow clearance and red clearance.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "et_inaccuracy_buffer",
+            "value": 0,
+            "description": "The configurable time interval in milliseconds defined to account for entering time (ET) estimation inaccuracy.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "queue_max_time_headway",
+            "value": 0,
+            "description": "The configurable time headway in milliseconds that defines the maximum allowed time headway between the estimated entering time (ET) of two consecutive vehicles within a queue.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "so_radius",
+            "value": 200.0,
+            "description": "The configurable distance in meters defined as the radius of the signal optimization (SO) area.",
+            "type": "DOUBLE"
+        },
+        {
+            "name": "min_green",
+            "value": 5000,
+            "description": "The configurable minimum green duration in milliseconds. This minimum green duration is used for all signal groups. Note that any min_green set here shall be greater than, or equal to, the min_green set for any active phase on the controller. Otherwise it won't be achievable.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "max_green",
+            "value": 120000,
+            "description": "The configurable maximum green duration in milliseconds. This maximum green duration is used for all signal groups. Note that any max_green set here shall be greater than, or equal to, the max_green set for any active phase on the controller. Otherwise it won't be achievable.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "desired_future_move_group_count",
+            "value": 1,
+            "description": "The configurable parameter that defines the desired number of fixed future movement groups in the spat.",
+            "type": "INTEGER"
+        },
+        {
+            "name": "time_before_yellow_change",
+            "value": 2000,
+            "description": "Time (in milliseconds) before next yellow change interval to run signal optimization. Signal Optmization will only run during a green phase between this threshold and the next yellow. For example, if this threshold is set to 2 seconds, signal optmization will only run in a time window starting at 2 seconds before the next yellow and ending at the next yellow!",
+            "type": "INTEGER"
+        },
+        {
+            "name": "ignore_signal_groups",
+            "value": "10",
+            "description": "Comma seperated list of signal groups to ignore.",
+            "type": "STRING"
         }
     ]
 }

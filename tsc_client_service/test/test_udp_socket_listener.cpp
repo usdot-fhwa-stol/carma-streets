@@ -17,7 +17,7 @@ namespace traffic_signal_controller_service
     {
         std::string tsc_ip_bad = "192.168.120.51";
         int tsc_port = 6055;
-        int tsc_timeout = 3;
+        int tsc_timeout = 1;
 
         udp_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
         ASSERT_FALSE( listener.initialize() );
@@ -54,9 +54,9 @@ namespace traffic_signal_controller_service
      */
     TEST(udp_socket_listener_test, test_invalid_ip)
     {
-        std::string tsc_ip_bad = "asdhas.asd";
+        std::string tsc_ip_bad = "192.168.55.75";
         int tsc_port = 6055;
-        int tsc_timeout = 2;
+        int tsc_timeout = 1;
 
         udp_socket_listener listener(tsc_ip_bad, tsc_port, tsc_timeout);
         bool initialized = listener.initialize();

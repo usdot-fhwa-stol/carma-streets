@@ -150,6 +150,7 @@ TEST_F(signalized_json_csv_schedule_test, csv_schedule){
     schedule.vehicle_schedules.push_back(sched4);
 
     int new_lines = boost::count( schedule.toCSV(), '\n');
-    ASSERT_EQ( new_lines, 4);
+    //New line after each schedule
+    ASSERT_EQ( new_lines, 3);
 
 }

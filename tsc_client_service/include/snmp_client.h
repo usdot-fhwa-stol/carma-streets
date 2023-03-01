@@ -73,8 +73,6 @@ class snmp_client
         /* net-snmp version definition: SNMP_VERSION_1:0 SNMP_VERSION_2c:1 SNMP_VERSION_2u:2 SNMP_VERSION_3:3 
         https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/library/snmp.h */
         int snmp_version_ = 0;
-        /*Time after which the the snmp request times out*/
-        int timeout_ = 10000;
 
 
     public:

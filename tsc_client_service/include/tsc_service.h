@@ -13,10 +13,13 @@
 #include "ntcip_oids.h"
 #include "monitor_states_exception.h"
 #include "tsc_configuration_state_exception.h"
-#include <gtest/gtest_prod.h>
 #include "monitor_desired_phase_plan.h"
 #include "monitor_desired_phase_plan_exception.h"
-#include <mutex>    
+#include "control_tsc_state.h"
+#include "control_tsc_state_exception.h"
+
+#include <mutex>  
+#include <gtest/gtest_prod.h>  
 
 namespace traffic_signal_controller_service {
 
@@ -46,6 +49,9 @@ namespace traffic_signal_controller_service {
              * and red clearance, yellow change, min/max green times.
              */
             std::shared_ptr<tsc_state> tsc_state_ptr;
+            /**
+             * @brief Object used to process and store desired phase plan consumed from kafka,
+             */
             std::shared_ptr<monitor_desired_phase_plan> monitor_dpp_ptr;
             /**
              * @brief snmp_client used for making SNMP GET and SET calls th NTCIP OIDs to set
@@ -71,16 +77,36 @@ namespace traffic_signal_controller_service {
              */
             std::shared_ptr<intersection_client> intersection_client_ptr;
 
+            /**
+             * @brief Pointer to the control_tsc_state worker responsible for make snmp HOLD and OMIT calls to follow the desired phase plan.
+             * 
+             */
+            std::shared_ptr<control_tsc_state> control_tsc_state_ptr_;
+
             // Counter for publishing the tsc_config information. The configuration will be published a hardcoded 10 times
             int tsc_config_producer_counter_ = 0;
+            // Default value for number of attempts to send TSC configuration information.
+            int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
             bool use_desired_phase_plan_update_ = false;
 
+            // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
+            std::queue<snmp_cmd_struct> tsc_set_command_queue_;
+
+            // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
+            int control_tsc_state_sleep_dur_ = 0;
+
+            // Configurable parameter that is used to enable logging of snmp commands to a log file if set to true. 
+            bool enable_snmp_cmd_logging_ = false;
+
             //Add Friend Test to share private members
-            FRIEND_TEST(traffic_signal_controller_service, test_produce_spat_json_timeout) ;
-            FRIEND_TEST(traffic_signal_controller_service, test_produce_tsc_config_json_timeout);
-            
+            friend class tsc_service_test;
+            FRIEND_TEST(tsc_service_test,test_tsc_control);
+            FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
+            FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
+
+
         public:
             tsc_service() = default;
 
@@ -103,21 +129,26 @@ namespace traffic_signal_controller_service {
              * 
              * @param bootstap_server for CARMA-Streets Kafka broker.
              * @param producer_topic name of topic to produce to.
-             * @param producer kafka producer set up on producer topic.
+             * @param producer a shared pointer to the consumer to initialize.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
 
             bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
-                    std::shared_ptr<kafka_clients::kafka_producer_worker>& producer);
+                    std::shared_ptr<kafka_clients::kafka_producer_worker> &producer);
             /**
              * @brief Initialize Kafka Desired phase plan consumer. 
              * @param bootstap_server for CARMA-Streets Kafka broker.
              * @param desired_phase_plan_consumer_topic name of topic to produce to.
+             * @param consumer_group a id associated with a saved offset in the topic queue
+             * @param consumer a shared pointer to the consumer to initialize.
              * @return true if initialization is successful.
              * @return false if initialization is not successful.
              */
-            bool initialize_kafka_consumer(const std::string &bootstrap_server, const std::string &desired_phase_plan_consumer_topic, std::string &consumer_group);
+            bool initialize_kafka_consumer(const std::string &bootstrap_server, 
+                                            const std::string &consumer_topic, 
+                                            const std::string &consumer_group,
+                                            std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer);
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.
@@ -196,12 +227,28 @@ namespace traffic_signal_controller_service {
             void produce_spat_json() const;
 
             /**
-             * @brief Method to receive traffic signal controller conguration information from the tsc_state and broadcast spat JSON data to 
+             * @brief Method to receive traffic signal controller configuration information from the tsc_state and broadcast spat JSON data to 
              * the carma-streets kafka broker.
              */
-            void produce_tsc_config_json();
+            void produce_tsc_config_json() const;
 
-            void consume_desired_phase_plan() const;
+            void consume_desired_phase_plan();
+            
+            /**
+             * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
+             * follow the desired phase plan. Calls set_tsc_hold_and_omit
+             **/
+            void control_tsc_phases();
+
+            /**
+             * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
+             **/
+            void set_tsc_hold_and_omit();
+
+            /**
+             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
+            */
+            void configure_snmp_cmd_logger() const;
 
     };
 }

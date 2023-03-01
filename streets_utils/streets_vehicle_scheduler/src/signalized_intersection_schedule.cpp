@@ -5,6 +5,7 @@ namespace streets_vehicle_scheduler {
 
     std::string signalized_intersection_schedule::toCSV() const {
     
+        int count = 0;
         std::string schedule_info = "";
         for (const auto &sched : vehicle_schedules ){
             schedule_info += std::to_string(timestamp) + ",";
@@ -18,10 +19,16 @@ namespace streets_vehicle_scheduler {
                 schedule_info += "EV";
             }else if ( sched.state == streets_vehicles::vehicle_state::DV) {
                 schedule_info += "DV";
+            }else if (sched.state == streets_vehicles::vehicle_state::LV) {
+                schedule_info += "LV";
             }else {
                 schedule_info += "ND";
+            }	
+            count++;
+            // If not last schedule, give line break
+            if(count != vehicle_schedules.size()){
+                schedule_info += "\n";	
             }
-            schedule_info += "\n";	
         }
 
         return schedule_info;
@@ -61,5 +68,14 @@ namespace streets_vehicle_scheduler {
         vehicle_sched.AddMember("et", et, allocator);
         vehicle_sched.AddMember("dt", dt, allocator);
         return vehicle_sched;
+    }
+
+    int signalized_vehicle_schedule::get_delay() const{
+        auto delta_et = int(et-eet);
+        if(delta_et < 0)
+        {
+            throw streets_vehicle_scheduler::scheduling_exception("EET cannot be greater than ET.");
+        }
+        return delta_et;
     }
 }

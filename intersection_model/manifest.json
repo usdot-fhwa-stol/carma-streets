@@ -4,19 +4,19 @@
     "configurations": [
         {
             "name": "osm_file_path",
-            "value": "../vector_map.osm",
+            "value": "../MAP/East_Intersection.osm",
             "description": "Path to lanelet2 osm map for a given intersection.",
             "type": "STRING"
         },
         {
             "name": "intersection_name",
-            "value": "West Intersection",
+            "value": "East Intersection",
             "description": "Name of intersection.",
             "type": "STRING"
         },
         {
             "name": "intersection_id",
-            "value": 9001,
+            "value": 9945,
             "description": "Unique ID of intersection.",
             "type": "INTEGER"
         },

@@ -29,7 +29,9 @@ add_library(${PROJECT_NAME}_lib
         src/snmp_client.cpp
         src/spat_worker.cpp
         src/monitor_tsc_state.cpp        
-        src/monitor_desired_phase_plan.cpp)
+        src/monitor_desired_phase_plan.cpp
+        src/control_tsc_state.cpp
+        src/exceptions/control_tsc_state_exception.cpp)
 
 add_executable( ${PROJECT_NAME} 
         src/main.cpp
@@ -49,6 +51,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     kafka_clients_lib
     Qt5::Core
     Qt5::Network
+    gmock
     ${NETSNMPAGENT} ${NETSNMPMIBS} ${NETSNMP}
     ${NETSNMP_LIBRARIES}
 )
@@ -80,7 +83,6 @@ target_link_libraries(${PROJECT_NAME}_test PUBLIC
     ${PROJECT_NAME}_lib
     rdkafka++ 
     kafka_clients_lib
-    gtest 
-    gmock)
+    gtest )
 add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
 

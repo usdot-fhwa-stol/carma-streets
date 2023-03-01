@@ -57,6 +57,7 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install intersection_client
 RUN echo " ------> Install intersection client library from streets_utils..."
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
 RUN mkdir build
@@ -65,6 +66,7 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install streets_vehicle_list
 RUN echo " ------> Install streets_vehicle_list library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_vehicle_list
 RUN mkdir build
@@ -73,10 +75,47 @@ RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAG
 RUN make
 RUN make install
 
+# Install streets_tsc_configuration
+RUN echo " ------> Install streets_tsc_configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_tsc_configuration/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_desired_phase_plan
+RUN echo " ------> Install streets_desired_phase_plan from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_desired_phase_plan/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_signal_phase_and_timing
 RUN echo " ------> Install streets_signal_phase_and_timing library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing
 RUN mkdir build
 WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing/build
+RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_vehicle_scheduler
+RUN echo " ------> Install streets_vehicle_scheduler from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_vehicle_scheduler
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_vehicle_scheduler/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
+# Install streets_signal_optimization
+RUN echo " ------> Install streets_signal_optimization library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_signal_optimization
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_signal_optimization/build
 RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install

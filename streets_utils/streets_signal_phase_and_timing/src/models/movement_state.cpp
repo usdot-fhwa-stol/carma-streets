@@ -6,6 +6,9 @@ namespace signal_phase_and_timing {
         rapidjson::Value move_state(rapidjson::kObjectType);
         // Populate
         move_state.AddMember( "movement_name", movement_name, allocator);
+        if ( signal_group == 0 ) {
+            throw signal_phase_and_timing_exception("MovementState is missing required signal_group property!");
+        }
         move_state.AddMember( "signal_group", signal_group, allocator );
         if ( !state_time_speed.empty() ) {
             rapidjson::Value event_list(rapidjson::kArrayType);
