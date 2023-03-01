@@ -1,6 +1,6 @@
 FROM ubuntu:bionic-20210702
 
-RUN apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev
+RUN apt-get update  && apt-get install -y cmake git build-essential libboost1.65-all-dev 
 
 RUN mkdir -p /home/carma-streets/
 
@@ -31,7 +31,7 @@ RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/gabime/spdlog.git
 WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build
+RUN mkdir build 
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install

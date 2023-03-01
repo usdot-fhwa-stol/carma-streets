@@ -29,7 +29,7 @@ RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
 RUN git clone https://github.com/gabime/spdlog.git
 WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build
+RUN mkdir build 
 WORKDIR /home/carma-streets/ext/spdlog/build
 RUN cmake .. && make -j
 RUN make install
