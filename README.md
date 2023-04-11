@@ -1,6 +1,6 @@
-| CicleCI Build Status | Sonar Code Quality |
+| CI Build Status | Sonar Code Quality |
 |----------------------|---------------------|
-|[![CircleCI](https://circleci.com/gh/usdot-fhwa-stol/carma-streets.svg?style=svg)](https://circleci.com/gh/usdot-fhwa-stol/carma-streets)  	|  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_carma-streets&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_carma-streets)  | 
+|[![CI](https://github.com/usdot-fhwa-stol/carma-streets/actions/workflows/ci.yml/badge.svg)](https://github.com/usdot-fhwa-stol/carma-streets/actions/workflows/ci.yml) | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_carma-streets&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_carma-streets) |
 # DockerHub Release Builds
 | Scheduling Service | Message Services | Intersection Model | Signal Opt Service | Tsc Service |
 |-----|-----|-----|-----|-----|
