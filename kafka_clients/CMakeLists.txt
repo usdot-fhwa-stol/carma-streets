@@ -12,7 +12,7 @@ find_package(carma-clock REQUIRED)
 
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
-find_package(streets_service_base_lib REQUIRED)
+# find_package(streets_service_base_lib REQUIRED)
 
 add_library(${PROJECT_NAME}_lib STATIC 
             src/kafka_producer_worker.cpp 
@@ -20,18 +20,18 @@ add_library(${PROJECT_NAME}_lib STATIC
             src/kafka_client.cpp )
 
 
-add_executable(${PROJECT_NAME}  src/main.cpp
-                                src/kafka_producer_worker.cpp 
-                                src/kafka_consumer_worker.cpp
-                                src/kafka_client.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC 
-                            Boost::system
-                            Boost::thread 
-                            spdlog::spdlog 
-                            rdkafka++ 
-                            streets_service_base_lib::streets_service_base_lib
-                            ${PROJECT_NAME}_lib
-                            )
+# add_executable(${PROJECT_NAME}  src/main.cpp
+#                                 src/kafka_producer_worker.cpp 
+#                                 src/kafka_consumer_worker.cpp
+#                                 src/kafka_client.cpp)
+# target_link_libraries(${PROJECT_NAME} PUBLIC 
+#                             Boost::system
+#                             Boost::thread 
+#                             spdlog::spdlog 
+#                             rdkafka++ 
+#                             streets_service_base_lib::streets_service_base_lib
+#                             ${PROJECT_NAME}_lib
+#                             )
 
 target_include_directories(${PROJECT_NAME}_lib 
                            PUBLIC
@@ -69,7 +69,6 @@ target_link_libraries(${BINARY} PUBLIC
                             Boost::thread
                             Boost::filesystem
                             spdlog::spdlog
-                            streets_service_base_lib::streets_service_base_lib 
                             rdkafka++   
                             ${PROJECT_NAME}_lib 
                             gtest)

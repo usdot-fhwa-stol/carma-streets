@@ -63,7 +63,6 @@ void create_test_configuration(const std::string &filepath){
    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
    doc.Accept(writer);
    file.close();
-   streets_configuration::create("../manifest.json");
 };
 
 /**
@@ -100,7 +99,7 @@ void update_configuration(const std::string &filepath, const std::string &new_va
  * Remove all .json configuration files 
  */
 void clear_configuration_files(){
-   std::remove( "../*.json");
+   std::remove( "../manifest.json");
 }
 
 
@@ -109,15 +108,23 @@ void clear_configuration_files(){
  */ 
 TEST(test_streets_configuration, missing_configuration_file)
 {
-   streets_configuration::create("../manifest.json");
-   EXPECT_THROW(streets_configuration::get_boolean_config("test"), streets_configuration_exception);
+   clear_configuration_files();
+   EXPECT_THROW(streets_configuration::create("../manifest.json"), streets_configuration_exception);
+   clear_configuration_files();
+
 };
 /**
  * @brief Tested get_config methods with created manifest.json file including updates
  */ 
 TEST(test_streets_configuration, get_config) {
    create_test_configuration("../manifest.json");
+   streets_configuration::create("../manifest.json");
+   
+
+
    streets_configuration::initialize_logger();
+   SPDLOG_INFO("Calling methods");
+
    // Test Correct Parameters
    ASSERT_TRUE(streets_configuration::get_boolean_config("param2"));
    ASSERT_EQ(streets_configuration::get_int_config("param1"), 123);

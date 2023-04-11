@@ -114,7 +114,7 @@ namespace streets_service {
              * @param doc rapidjson::Document containing parse manifest.json
              * configuration file. 
              */
-            void configure_logger(const rapidjson::Document &doc) const; 
+            void configure_logger(const rapidjson::Document &doc); 
             /**
              * @brief Method to configuration spdlog default multisink logger. Includes
              * a file sink which rotates daily and terminal sink.

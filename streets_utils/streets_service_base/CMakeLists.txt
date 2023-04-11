@@ -10,14 +10,10 @@ find_package(carma-clock REQUIRED)
 
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
+file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 
-add_library(${PROJECT_NAME}_lib
-                src/streets_configuration_exception.cpp
-                src/configuration.cpp
-                src/streets_configuration.cpp
-                src/streets_singleton_exception.cpp
-                )
+add_library(${PROJECT_NAME}_lib ${SOURCES} )
 
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
@@ -31,6 +27,8 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
                 Boost::filesystem
                 spdlog::spdlog
                 ::carma-clock
+                rdkafka++
+                kafka_clients_lib
                 )
 
                 
@@ -73,22 +71,24 @@ install(FILES ${templates} DESTINATION include/internal)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
-set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
+set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 
-add_executable(${BINARY} ${TEST_SOURCES} 
+add_executable(${BINARY} ${TEST_SOURCES}
                 src/streets_configuration_exception.cpp
                 src/configuration.cpp
-                src/streets_configuration.cpp
-                )
+                src/streets_configuration.cpp )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
-target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${BINARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} PUBLIC 
                 Boost::system 
                 Boost::thread
                 Boost::filesystem 
                 spdlog::spdlog
                 gtest 
+                ::carma-clock
+                rdkafka++
+                kafka_clients_lib
                 ${PROJECT_NAME}_lib
                 )
