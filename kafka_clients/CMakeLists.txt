@@ -2,11 +2,14 @@ cmake_minimum_required(VERSION 3.10.2)
 project(kafka_clients)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 
 
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(carma-clock REQUIRED)
+
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 find_package(streets_service_base_lib REQUIRED)

@@ -1,29 +1,12 @@
-FROM ubuntu:bionic-20210702
+ARG UBUNTU_VERSION=jammy-20230126
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev build-essential git qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+FROM ubuntu:$UBUNTU_VERSION
+
+COPY ./build_scripts /home/carma-streets/build_scripts
+WORKDIR /home/carma-streets/build_scripts
+RUN ./install_dependencies.sh
 
 RUN mkdir -p /home/carma-streets/
-
-# Install google test
-RUN echo " ------> Install googletest..."
-WORKDIR /home/carma-streets/
-RUN mkdir -p /home/carma-streets/ext
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/google/googletest/
-WORKDIR /home/carma-streets/ext/googletest/
-RUN cmake .
-RUN make
-RUN make install
-
-# Install spdlog
-RUN echo " ------> Install spdlog... "
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/gabime/spdlog.git
-WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
-WORKDIR /home/carma-streets/ext/spdlog/build
-RUN cmake .. && make -j
-RUN make install
 
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."

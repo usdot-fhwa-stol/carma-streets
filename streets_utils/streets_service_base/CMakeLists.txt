@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 3.10.2)
 project(streets_service_base)
                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(carma-clock REQUIRED)
+
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 
@@ -13,6 +16,7 @@ add_library(${PROJECT_NAME}_lib
                 src/streets_configuration_exception.cpp
                 src/configuration.cpp
                 src/streets_configuration.cpp
+                src/streets_singleton_exception.cpp
                 )
 
 
@@ -26,6 +30,7 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
                 Boost::thread 
                 Boost::filesystem
                 spdlog::spdlog
+                ::carma-clock
                 )
 
                 

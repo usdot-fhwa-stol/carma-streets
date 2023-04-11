@@ -39,7 +39,8 @@ namespace streets_service {
 
     void streets_configuration::configure_logger( const rapidjson::Document &doc ) const {
         if ( doc.HasMember("service_name") && doc.FindMember("service_name")->value.IsString() ) {
-            create_default_logger( doc.FindMember("service_name")->value.GetString());
+            set_service_name(doc.FindMember("service_name")->value.GetString());
+            create_default_logger( get_service_name());
         }
         else {
             SPDLOG_WARN("Parameter \"service_name\" missing/incorrectly formatted in manifest.json! Setting \"service_name\" to streets_service!");
@@ -161,6 +162,11 @@ namespace streets_service {
         }
     }
 
+    std::string streets_configuration::get_service_name() {
+        auto &instance = get_singleton();
+        return instance._service_name;
+    }
+
     
     void streets_configuration::set_loglevel(const std::string &loglevel ) const{
         // Get main logger and set loglevel
@@ -223,6 +229,10 @@ namespace streets_service {
         }
     }
 
+}
+
+void streets_configuration::set_service_name(const std::string &service_name) {
+    _service_name = service_name;
 }
 
 

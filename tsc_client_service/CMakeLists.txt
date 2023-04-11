@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10.2)
 project(traffic_signal_controller_service)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wno-unused-variable")
+
 set(CMAKE_CXX_STANDARD 17)
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
@@ -16,6 +17,10 @@ find_library(NETSNMPMIBS "netsnmpmibs")
 find_library(NETSNMP "netsnmp")
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+
+find_package(carma-clock REQUIRED)
+
 
 
 add_library(${PROJECT_NAME}_lib

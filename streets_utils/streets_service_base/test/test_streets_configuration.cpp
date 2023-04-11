@@ -63,6 +63,7 @@ void create_test_configuration(const std::string &filepath){
    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
    doc.Accept(writer);
    file.close();
+   streets_configuration::create("../manifest.json");
 };
 
 /**
@@ -84,6 +85,7 @@ void update_configuration(const std::string &filepath, const std::string &new_va
       if  (doc.FindMember("configurations")->value.GetArray()[2].IsObject()){
          if (doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("value")->value.IsString()) {
             doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("value")->value.SetString(new_value,doc.GetAllocator());
+            SPDLOG_INFO("Updated {0} to {1}!",  doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("name")->value.GetString(), new_value );
          }
       }
    }
@@ -107,6 +109,7 @@ void clear_configuration_files(){
  */ 
 TEST(test_streets_configuration, missing_configuration_file)
 {
+   streets_configuration::create("../manifest.json");
    EXPECT_THROW(streets_configuration::get_boolean_config("test"), streets_configuration_exception);
 };
 /**
@@ -129,7 +132,8 @@ TEST(test_streets_configuration, get_config) {
    // sleep for a second to allow last modified timestamp to change
    sleep(1);
    // update values
-   update_configuration( "../manifest.json", "UPDATED");
+   update_configuration( "../manifest.json", "UPDATED");   
+
    ASSERT_EQ(streets_configuration::get_string_config("param3"), "UPDATED");
    // Clean up created configuration files
    clear_configuration_files();

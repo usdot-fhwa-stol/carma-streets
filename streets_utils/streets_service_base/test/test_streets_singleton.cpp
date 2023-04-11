@@ -1,19 +1,20 @@
 #include <gtest/gtest.h>
 #include <spdlog/spdlog.h>
 #include "streets_singleton.h"
+#include "streets_singleton_exception.h"
 
 
 using namespace streets_service;
 // Test singleton class
-class test_singleton_impl : public streets_singleton<test_singleton_impl>{
-    friend class streets_singleton<test_singleton_impl>;
+class test_singleton_impl : public streets_singleton<test_singleton_impl,  int, std::string>{
+    friend class streets_singleton<test_singleton_impl, int, std::string >;
     private:
         // Double property
         int test_int_property;
         // String property
         std::string test_string_property;
         // Parameterized Constructor 
-        test_singleton_impl(int init_param1=1, std::string init_param2="TEST"): test_int_property(init_param1), test_string_property(init_param2) {};
+        test_singleton_impl(int init_param1, std::string init_param2): test_int_property(init_param1), test_string_property(init_param2) {};
     public:
         // test
         int const get_test_int_property() {
@@ -33,6 +34,8 @@ class test_singleton_impl : public streets_singleton<test_singleton_impl>{
 };
 TEST(test_streets_singleton, test_streets_singleton_scope)
 {
+    ASSERT_THROW(test_singleton_impl::get_singleton(), streets_singleton_exception);
+    test_singleton_impl::create(1, "TEST");
     ASSERT_EQ(test_singleton_impl::get_singleton().get_test_string_property(), "TEST");
     ASSERT_EQ(test_singleton_impl::get_singleton().get_test_int_property(), 1);
     

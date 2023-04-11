@@ -24,9 +24,8 @@ namespace streets_service {
      * configuration parameter values. Singleton also configures default
      * multisink logger file and terminal logger.
      */ 
-    class streets_configuration : public streets_singleton<streets_configuration> {
-        friend class streets_singleton<streets_configuration>;
-
+    class streets_configuration : public streets_singleton<streets_configuration,std::string> {
+        friend class streets_singleton<streets_configuration,std::string>;
         private:
             /* String filepath to manifest.json configuration file */
             std::string filepath;
@@ -35,7 +34,9 @@ namespace streets_service {
             /* Map of configuration names and values*/
             std::map< std::string, configuration > configuration_map;
             /* Time stamp for when the configuration file was last modified to only update on modifications*/
-            std::time_t last_modified;
+            std::time_t last_modified = 0;
+
+            std::string _service_name;
 
             /**
              * @brief Constructor that takes filepath as a parameter. 
@@ -73,6 +74,8 @@ namespace streets_service {
              * @return bool configuration value.
              */ 
             static bool get_boolean_config( const std::string &config_param_name);
+
+            static std::string get_service_name();
             /**
              * @brief Static method to initialize spdlog default logger. 
              */ 
@@ -130,6 +133,10 @@ namespace streets_service {
              * @throws streets_configuration_exception if update_configurations fails.
              */ 
             void check_update();
+
+            void set_service_name(const std::string &service_name);
+
+
 
             // Hide get_singleton method. Use static methods instead.
             using streets_singleton::get_singleton;
