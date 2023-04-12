@@ -1,13 +1,24 @@
 #include "streets_service.h"
 
 namespace streets_service {
+
+    streets_service::~streets_service() {
+        SPDLOG_INFO("Destructor called for streets service {0}!", _service_name);
+        if ( _time_consumer ) {
+            _time_consumer->stop();
+        }
+    }
+
     bool streets_service::initialize() {
         try {
-            streets_configuration::create("../manifest.json");
+            SPDLOG_INFO("Is any of this being called");
+            std::string config_file_path = get_system_config("CONFIG_FILE_PATH");
+            streets_configuration::create(config_file_path);
             _simulation_mode = get_system_config("SIMULATION_MODE").compare("TRUE") == 0;
             std::string time_sync_topic = get_system_config("TIME_SYNC_TOPIC");
             streets_clock_singleton::create(_simulation_mode);
             _service_name = streets_configuration::get_service_name();
+            SPDLOG_INFO("Initializing {0}!", _service_name);
             if ( _simulation_mode ) {
                 if (!initialize_kafka_consumer(time_sync_topic, _time_consumer)){
                     return false;
@@ -72,5 +83,22 @@ namespace streets_service {
             std::thread time_sync_thread(&streets_service::consume_time_sync_message, this);
             time_sync_thread.join();
         }
+    }
+
+    std::string streets_service::get_system_config(const char *config_name) const {
+        if (config_name) {
+            try {
+                std::string config =  std::getenv(config_name);
+                SPDLOG_INFO("{0} is set to {1}", config_name, config);
+                return config;
+            }
+            catch(const std::logic_error &e) {
+                std::string config_name_str = config_name;
+                throw std::runtime_error("Simulation Config " + config_name_str + " not set!");
+            }
+        } else {
+            throw std::runtime_error("Config param name is null pointer!");
+        }
+        return "";
     }
 }

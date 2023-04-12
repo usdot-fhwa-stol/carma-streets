@@ -2,11 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 
-set(CMAKE_PREFIX_PATH $ENV{CARMA_OPT_DIR})
-include_directories($ENV{CARMA_OPT_DIR}/include)
-link_directories($ENV{CARMA_OPT_DIR}/lib)
-
-find_dependency(Boost 1.65.1 COMPONENTS system filesystem thread REQUIRED)
+find_dependency(Boost COMPONENTS system filesystem thread REQUIRED)
 find_dependency(spdlog REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/streets_service_base_libTargets.cmake")

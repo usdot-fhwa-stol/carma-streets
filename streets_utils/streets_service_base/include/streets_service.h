@@ -4,11 +4,18 @@
 #include "kafka_client.h"
 #include "streets_clock_singleton.h"
 #include "time_sync_message.h"
+#include <gtest/gtest.h>
 
 
 namespace streets_service { 
+
     class streets_service {
+        FRIEND_TEST(test_service_test,test_tsc_control);
+
         public:
+            streets_service() = default;
+
+            ~streets_service();
 
             virtual bool initialize();
 
@@ -30,6 +37,7 @@ namespace streets_service {
             std::string get_system_config(const char *config_name ) const;
 
             void consume_time_sync_message();
+
 
     };  
 }

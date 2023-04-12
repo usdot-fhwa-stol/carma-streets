@@ -16,11 +16,12 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_library(${PROJECT_NAME}_lib ${SOURCES} )
 
 
-target_include_directories(${PROJECT_NAME}_lib PUBLIC
-                            $<INSTALL_INTERFACE:include>
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+target_include_directories(${PROJECT_NAME}_lib 
+                            PUBLIC
+                                $<INSTALL_INTERFACE:include>
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                             PRIVATE
-                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
                 Boost::system 
                 Boost::thread 
@@ -74,21 +75,13 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 
-add_executable(${BINARY} ${TEST_SOURCES}
-                src/streets_configuration_exception.cpp
-                src/configuration.cpp
-                src/streets_configuration.cpp )
+add_executable(${BINARY} ${TEST_SOURCES} )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
-target_include_directories(${BINARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY} PUBLIC 
-                Boost::system 
-                Boost::thread
-                Boost::filesystem 
-                spdlog::spdlog
-                gtest 
-                ::carma-clock
-                rdkafka++
-                kafka_clients_lib
-                ${PROJECT_NAME}_lib
-                )
+
+target_link_libraries(${BINARY} PUBLIC ${PROJECT_NAME}_lib Boost::system Boost::thread Boost::filesystem spdlog::spdlog gtest gmock ::carma-clock /lib/librdkafka++.so kafka_clients_lib)
+target_include_directories(${BINARY} PUBLIC PUBLIC
+                $<INSTALL_INTERFACE:include>
+                "/lib/"
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src )
