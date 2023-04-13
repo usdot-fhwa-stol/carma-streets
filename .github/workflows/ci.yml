@@ -21,8 +21,6 @@ jobs:
     # remove this step after rebasing carma-streets to newer Ubuntu release
     - name: Install newer git for checkout
       run: |
-        mkdir /home/carma-streets/.base-image
-        touch /home/carma-streets/.base-image/init-env.sh
         apt-get update
         apt-get install -y software-properties-common
         add-apt-repository -u ppa:git-core/ppa
@@ -36,6 +34,8 @@ jobs:
       run: mv $GITHUB_WORKSPACE/${{ github.event.repository.name }} /home/carma-streets
     - name: Install dependencies
       run: |
+        mkdir /home/carma-streets/.base-image
+        touch /home/carma-streets/.base-image/init-env.sh
         cd /home/carma-streets/build_scripts
         ./install_dependencies.sh
         ./install_rest_server_dependencies.sh
