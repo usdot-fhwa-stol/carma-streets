@@ -140,6 +140,7 @@ jobs:
     - name: Tests
       run: |
         cd /home/carma-streets/
+        ls  -l /usr/local/lib/
         ./coverage.sh
     - name: Archive test results
       uses: actions/upload-artifact@v3

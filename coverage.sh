@@ -28,6 +28,13 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube kafka_clients/coverage/coverage.xml -s -f kafka_clients/ -r .
 
+cd /home/carma-streets/streets_utils/streets_service_base/build/
+./streets_service_base_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_service_base
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_service_base/coverage/coverage.xml -s -f streets_utils/streets_service_base/ -r .
+
 cd /home/carma-streets/scheduling_service/build/
 ./scheduling_service_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/scheduling_service/
@@ -49,12 +56,6 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_tsc_configuration/coverage/coverage.xml -s -f streets_utils/streets_tsc_configuration/ -r .
 
-cd /home/carma-streets/streets_utils/streets_service_base/build/
-./streets_service_base_test --gtest_output=xml:../../../test_results/
-cd /home/carma-streets/streets_utils/streets_service_base
-mkdir coverage
-cd /home/carma-streets/
-gcovr --sonarqube streets_utils/streets_service_base/coverage/coverage.xml -s -f streets_utils/streets_service_base/ -r .
 
 cd /home/carma-streets/streets_utils/streets_vehicle_list/build/
 ./streets_vehicle_list_test --gtest_output=xml:../../../test_results/
