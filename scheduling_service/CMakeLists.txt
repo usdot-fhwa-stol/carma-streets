@@ -16,7 +16,8 @@ find_package(streets_service_base_lib COMPONENTS streets_service_base_lib REQUIR
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib REQUIRED)
-
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+find_package(carma-clock REQUIRED)
 
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
@@ -37,6 +38,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Boost::system Boost::filesystem 
     Boost::thread spdlog::spdlog 
     intersection_client_api_lib 
+    ::carma-clock
     streets_service_base_lib::streets_service_base_lib 
     streets_vehicle_list_lib::streets_vehicle_list_lib 
     streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib)
