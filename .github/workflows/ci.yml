@@ -21,6 +21,7 @@ jobs:
     # remove this step after rebasing carma-streets to newer Ubuntu release
     - name: Install newer git for checkout
       run: |
+        touch /home/carma-streets/.base-image/init-env.sh
         apt-get update
         apt-get install -y software-properties-common
         add-apt-repository -u ppa:git-core/ppa
