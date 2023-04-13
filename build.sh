@@ -21,6 +21,7 @@ COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
 # make install for these subdirectories
 MAKE_INSTALL_DIRS=(
+    "streets_utils/streets_service_configuration"
     "kafka_clients"
     "streets_utils/streets_service_base"
     "streets_utils/streets_vehicle_list"
