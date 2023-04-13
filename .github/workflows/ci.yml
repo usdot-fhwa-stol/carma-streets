@@ -132,13 +132,15 @@ jobs:
         mv $(ls $SONAR_DIR |grep "build-wrapper-") $SONAR_DIR/build-wrapper/
         echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
         echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
-    - name: Build and Test
+    - name: Build
       run: |
         source ${INIT_ENV}
         cd /home/carma-streets/
         build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output ./build.sh
+    - name: Tests
+      run: |
         cd /home/carma-streets/
-        ls  -l /usr/local/lib/
+        ldconfig
         ./coverage.sh
     - name: Archive test results
       uses: actions/upload-artifact@v3
