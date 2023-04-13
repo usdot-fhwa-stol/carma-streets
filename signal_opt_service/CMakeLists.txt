@@ -22,7 +22,9 @@ find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_
 find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib COMPONENTS streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_signal_optimization_lib COMPONENTS streets_signal_optimization_lib REQUIRED)
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 
+find_package(carma-clock REQUIRED)
 
 add_library(${PROJECT_NAME}_lib
     src/signal_opt_service.cpp
@@ -37,8 +39,9 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(${PROJECT_NAME}_lib PUBLIC
+    RdKafka::rdkafka++   
     kafka_clients_lib
-    rdkafka++
+    ::carma-clock
     Qt5::Core
     Qt5::Network
     Boost::system
@@ -65,7 +68,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib kafka_clients_lib 
-                                                            rdkafka++ Boost::system 
+                                                            Boost::system 
                                                             Boost::filesystem 
                                                             Boost::thread 
                                                             spdlog::spdlog 

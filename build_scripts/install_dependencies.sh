@@ -19,8 +19,7 @@ DEPENDENCIES="build-essential \
     wget \
     libperl-dev \
     wget \
-    libspdlog-dev \
-    libqhttpengine-dev"
+    libspdlog-dev"
     
 # STOL library dependencies
 

@@ -22,7 +22,6 @@ list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 find_package(carma-clock REQUIRED)
 
 
-
 add_library(${PROJECT_NAME}_lib
         src/exceptions/udp_socket_listener_exception.cpp
         src/exceptions/snmp_client_exception.cpp
@@ -47,16 +46,17 @@ target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
     Boost::thread 
     Boost::filesystem
     spdlog::spdlog
+    RdKafka::rdkafka++  
+    kafka_clients_lib
     streets_service_base_lib::streets_service_base_lib
     streets_signal_phase_and_timing_lib
     streets_tsc_configuration_lib
     streets_desired_phase_plan_lib
     intersection_client_api_lib
-    rdkafka++ 
-    kafka_clients_lib
     Qt5::Core
     Qt5::Network
     gmock
+    ::carma-clock
     ${NETSNMPAGENT} ${NETSNMPMIBS} ${NETSNMP}
     ${NETSNMP_LIBRARIES}
 )
@@ -71,8 +71,9 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
 
 target_link_libraries( ${PROJECT_NAME}  
     ${PROJECT_NAME}_lib
-    rdkafka++ 
     kafka_clients_lib
+    ::carma-clock
+
     )
 
 #############
@@ -86,7 +87,6 @@ add_executable(${PROJECT_NAME}_test
 )
 target_link_libraries(${PROJECT_NAME}_test PUBLIC 
     ${PROJECT_NAME}_lib
-    rdkafka++ 
     kafka_clients_lib
     gtest )
 add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)

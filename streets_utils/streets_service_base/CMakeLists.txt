@@ -7,6 +7,9 @@ list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(carma-clock REQUIRED)
+find_package(kafka_clients_lib REQUIRED)
+
+add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
@@ -21,16 +24,18 @@ target_include_directories(${PROJECT_NAME}_lib
                                 $<INSTALL_INTERFACE:include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                             PRIVATE
-                                ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
-                Boost::system 
-                Boost::thread 
-                Boost::filesystem
-                spdlog::spdlog
-                ::carma-clock
-                rdkafka++
-                kafka_clients_lib
-                )
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_link_libraries( ${PROJECT_NAME}_lib 
+                    PUBLIC
+                        Boost::system 
+                        Boost::thread 
+                        Boost::filesystem
+                        spdlog::spdlog
+                        ::carma-clock
+                        RdKafka::rdkafka++  
+                        kafka_clients_lib
+)
 
                 
 
@@ -79,9 +84,21 @@ add_executable(${BINARY} ${TEST_SOURCES} )
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
-target_link_libraries(${BINARY} PUBLIC ${PROJECT_NAME}_lib Boost::system Boost::thread Boost::filesystem spdlog::spdlog gtest gmock ::carma-clock /lib/librdkafka++.so kafka_clients_lib)
-target_include_directories(${BINARY} PUBLIC PUBLIC
-                $<INSTALL_INTERFACE:include>
-                "/lib/"
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src )
+target_link_libraries(${BINARY} PUBLIC
+                                    Boost::system 
+                                    Boost::thread
+                                    Boost::filesystem
+                                    spdlog::spdlog
+                                    ::carma-clock 
+                                    gtest 
+                                    gmock 
+                                    kafka_clients_lib
+                                    ${PROJECT_NAME}_lib                                   
+)
+
+target_include_directories(${BINARY} 
+                PUBLIC 
+                    $<INSTALL_INTERFACE:include>
+                    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                PRIVATE 
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src )

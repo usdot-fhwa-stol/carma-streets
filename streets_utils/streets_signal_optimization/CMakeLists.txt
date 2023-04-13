@@ -14,6 +14,10 @@ find_package(streets_vehicle_list_lib COMPONENTS streets_vehicle_list_lib REQUIR
 find_package(streets_signal_phase_and_timing_lib COMPONENTS streets_signal_phase_and_timing_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib COMPONENTS streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+
+find_package(carma-clock REQUIRED)
+
 
 add_library(${PROJECT_NAME}_lib
     src/streets_desired_phase_plan_arbitrator.cpp
@@ -95,6 +99,7 @@ target_link_libraries(${BINARY} PUBLIC
                 Boost::thread 
                 Boost::filesystem
                 spdlog::spdlog
+                ::carma-clock
                 gtest 
                 ${PROJECT_NAME}_lib
                 )

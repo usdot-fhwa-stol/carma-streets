@@ -8,6 +8,15 @@ RUN ./install_dependencies.sh
 
 RUN mkdir -p /home/carma-streets/
 
+# Install librdkafka
+RUN echo " ------> Install librdkafka..."
+WORKDIR /home/carma-streets/ext
+RUN git clone https://github.com/confluentinc/librdkafka.git 
+WORKDIR /home/carma-streets/ext/librdkafka/
+RUN cmake -H. -B_cmake_build
+RUN cmake --build _cmake_build
+RUN cmake --build _cmake_build --target install
+
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
@@ -18,12 +27,13 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
-# Install librdkafka
-RUN echo " ------> Install librdkafka..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
-WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
@@ -73,15 +83,6 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./kafka_clients/ /home/carma-streets/kafka_clients
-WORKDIR  /home/carma-streets/kafka_clients
-RUN mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
 
 # Install net-snmp
 WORKDIR /home/carma-streets/ext/

@@ -9,7 +9,7 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: ubuntu:bionic-20210702
+      image: ubuntu:jammy-20230126
       env:
         DEBIAN_FRONTEND: noninteractive
         INIT_ENV: "/home/carma-streets/.base-image/init-env.sh"
@@ -34,32 +34,17 @@ jobs:
       run: mv $GITHUB_WORKSPACE/${{ github.event.repository.name }} /home/carma-streets
     - name: Install dependencies
       run: |
-        apt-get update
-        apt-get install -y cmake git build-essential libboost-all-dev curl unzip gcc-7 g++-7 autotools-dev automake jq qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev libpugixml-dev libgeographic-dev sqlite3 libsqlite3-dev python3-pip
-        pip3 install gcovr
+        ./build_scripts/install_dependencies.sh
+        ./build_scripts/install_rest_server_dependencies.sh
+        ./build_scripts/install_test_dependencies.sh
         mkdir -p /home/carma-streets/ext
-    - name: Install gtest
-      run: |
-        git clone --depth 1 https://github.com/google/googletest/ /home/carma-streets/ext/googletest
-        cd /home/carma-streets/ext/googletest/
-        cmake .
-        make -j
-        make install
     - name: Install librdkafka
       run: |
-        git clone --depth 1 https://github.com/edenhill/librdkafka /home/carma-streets/ext/librdkafka
+        git clone --depth 1 https://github.com/confluentinc/librdkafka.git /home/carma-streets/ext/librdkafka
         cd /home/carma-streets/ext/librdkafka/
-        ./configure --prefix=/usr
-        make -j
-        make install
-    - name: Install spdlog
-      run: |
-        git clone --depth 1 https://github.com/gabime/spdlog.git /home/carma-streets/ext/spdlog
-        mkdir -p /home/carma-streets/ext/spdlog/build
-        cd /home/carma-streets/ext/spdlog/build
-        cmake ..
-        make -j
-        make install
+        cmake -H. -B_cmake_build
+        cmake --build _cmake_build
+        cmake --build _cmake_build --target install
     - name: Install rapidjson
       run: |
         git clone --depth 1 https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson
@@ -78,60 +63,52 @@ jobs:
         ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
         make -j
         make install
-    - name: Install qhttpengine
-      run: |
-        git clone --depth 1 https://github.com/etherealjoy/qhttpengine.git /home/carma-streets/ext/qhttpengine
-        mkdir -p /home/carma-streets/ext/qhttpengine/build
-        cd /home/carma-streets/ext/qhttpengine/build
-        cmake ..
-        make -j
-        make install
-    - name: Install PROJ for coordinate transformations
-      run: |
-        git clone --depth 1 https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1
-        cd /home/carma-streets/PROJ
-        ./autogen.sh
-        ./configure 
-        make -j
-        make install
-    - name: Download a cmake module for PROJ
-      run: |
-        cd /usr/share/cmake-3.10/Modules
-        curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
-    - name: Install ROS melodic
-      run: |
-        apt install -y lsb-release
-        sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-        curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc |apt-key add -
-        apt-get update
-        apt-get install -y ros-melodic-catkin
-        cd /opt/ros/melodic/
-        ls -a
-        mkdir -p /home/carma-streets/.base-image
-        echo "source /opt/ros/melodic/setup.bash" > "$INIT_ENV"
-    - name: Install carma_lanelet2
-      run: |
-        mkdir -p /home/carma-streets/carma_lanelet2/src
-        cd /home/carma-streets/carma_lanelet2/src
-        git init
-        echo "temp"
-        git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git
-        git config core.sparsecheckout true
-        echo "common/hardcoded_params/*" >> .git/info/sparse-checkout
-        echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout
-        echo "lanelet2/*" >> .git/info/sparse-checkout
-        echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout
-        git pull --depth 1 origin refactor_lanelet2_extension
-        git checkout refactor_lanelet2_extension
-        rm -r lanelet2/lanelet2_python
-        rm -r lanelet2/lanelet2_examples
-        cd /home/carma-streets/carma_lanelet2
-        source /opt/ros/melodic/setup.bash
-        apt-get install -y libeigen3-dev python-rospkg
-        ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
-        cd /home/carma-streets/carma_lanelet2/install/
-        ls -a
-        echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> "$INIT_ENV"
+    # - name: Install PROJ for coordinate transformations
+    #   run: |
+    #     git clone --depth 1 https://github.com/OSGeo/PROJ.git /home/carma-streets/PROJ --branch 6.2.1
+    #     cd /home/carma-streets/PROJ
+    #     ./autogen.sh
+    #     ./configure 
+    #     make -j
+    #     make install
+    # - name: Download a cmake module for PROJ
+    #   run: |
+    #     cd /usr/share/cmake-3.10/Modules
+    #     curl -O https://raw.githubusercontent.com/mloskot/cmake-modules/master/modules/FindPROJ4.cmake
+    # - name: Install ROS melodic
+    #   run: |
+    #     apt install -y lsb-release
+    #     sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+    #     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc |apt-key add -
+    #     apt-get update
+    #     apt-get install -y ros-melodic-catkin
+    #     cd /opt/ros/melodic/
+    #     ls -a
+    #     mkdir -p /home/carma-streets/.base-image
+    #     echo "source /opt/ros/melodic/setup.bash" > "$INIT_ENV"
+    # - name: Install carma_lanelet2
+    #   run: |
+    #     mkdir -p /home/carma-streets/carma_lanelet2/src
+    #     cd /home/carma-streets/carma_lanelet2/src
+    #     git init
+    #     echo "temp"
+    #     git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git
+    #     git config core.sparsecheckout true
+    #     echo "common/hardcoded_params/*" >> .git/info/sparse-checkout
+    #     echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout
+    #     echo "lanelet2/*" >> .git/info/sparse-checkout
+    #     echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout
+    #     git pull --depth 1 origin refactor_lanelet2_extension
+    #     git checkout refactor_lanelet2_extension
+    #     rm -r lanelet2/lanelet2_python
+    #     rm -r lanelet2/lanelet2_examples
+    #     cd /home/carma-streets/carma_lanelet2
+    #     source /opt/ros/melodic/setup.bash
+    #     apt-get install -y libeigen3-dev python-rospkg
+    #     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
+    #     cd /home/carma-streets/carma_lanelet2/install/
+    #     ls -a
+    #     echo "source /home/carma-streets/carma_lanelet2/install/setup.bash" >> "$INIT_ENV"
     - name: Install Sonar
       run: |
         SONAR_DIR=/opt/sonarqube

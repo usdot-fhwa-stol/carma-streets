@@ -11,14 +11,13 @@ namespace streets_service {
 
     bool streets_service::initialize() {
         try {
-            SPDLOG_INFO("Is any of this being called");
             std::string config_file_path = get_system_config("CONFIG_FILE_PATH");
             streets_configuration::create(config_file_path);
             _simulation_mode = get_system_config("SIMULATION_MODE").compare("TRUE") == 0;
             std::string time_sync_topic = get_system_config("TIME_SYNC_TOPIC");
             streets_clock_singleton::create(_simulation_mode);
             _service_name = streets_configuration::get_service_name();
-            SPDLOG_INFO("Initializing {0}!", _service_name);
+            SPDLOG_INFO("Initializing {0} streets service in simulation mode : {1}!", _service_name, _simulation_mode);
             if ( _simulation_mode ) {
                 if (!initialize_kafka_consumer(time_sync_topic, _time_consumer)){
                     return false;
@@ -89,15 +88,15 @@ namespace streets_service {
         if (config_name) {
             try {
                 std::string config =  std::getenv(config_name);
-                SPDLOG_INFO("{0} is set to {1}", config_name, config);
+                SPDLOG_DEBUG("Reading system config {0} as : {1}!", config_name, config);
                 return config;
             }
             catch(const std::logic_error &e) {
                 std::string config_name_str = config_name;
-                throw std::runtime_error("Simulation Config " + config_name_str + " not set!");
+                throw std::runtime_error("System config " + config_name_str + " not set!");
             }
         } else {
-            throw std::runtime_error("Config param name is null pointer!");
+            throw std::runtime_error(" Systme config param name is null pointer!");
         }
         return "";
     }

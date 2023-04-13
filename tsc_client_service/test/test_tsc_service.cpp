@@ -348,8 +348,8 @@ namespace traffic_signal_controller_service
 
     TEST_F(tsc_service_test, test_init_kafka_consumer_producer) {
         std::string test = "test";
-        ASSERT_TRUE(service.initialize_kafka_consumer(test, test, test , service.desired_phase_plan_consumer ));
-        ASSERT_TRUE(service.initialize_kafka_producer(test, test, service.spat_producer));
+        ASSERT_TRUE(service.initialize_kafka_consumer(test , service.desired_phase_plan_consumer ));
+        ASSERT_TRUE(service.initialize_kafka_producer(test, service.spat_producer));
     }
 
     TEST_F(tsc_service_test, test_init_spat) {

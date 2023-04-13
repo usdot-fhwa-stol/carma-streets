@@ -1,64 +1,62 @@
 #include "tsc_service.h"
-#include <chrono>
 
 namespace traffic_signal_controller_service {
     
     std::mutex dpp_mtx;
-
+    using namespace streets_service;
     bool tsc_service::initialize() {
+        streets_service::initialize();
         try
         {
             // Intialize spat kafka producer
-            std::string bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
-            std::string spat_topic_name = streets_service::streets_configuration::get_string_config("spat_producer_topic");
+            std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
-            std::string dpp_consumer_topic = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
-            std::string dpp_consumer_group = streets_service::streets_configuration::get_string_config("desired_phase_plan_consumer_group");
+            std::string dpp_consumer_topic = streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
             
-            if (!spat_producer && !initialize_kafka_producer(bootstrap_server, spat_topic_name, spat_producer)) {
+            if (!spat_producer && !initialize_kafka_producer( spat_topic_name, spat_producer)) {
                 
                 SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
                 return false;
                 
             }
 
-            if (!desired_phase_plan_consumer && !initialize_kafka_consumer(bootstrap_server, dpp_consumer_topic, dpp_consumer_group, desired_phase_plan_consumer)) {
+            if (!desired_phase_plan_consumer && !initialize_kafka_consumer( dpp_consumer_topic, desired_phase_plan_consumer)) {
                 
                 SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
                 return false;
                 
             }            
             // Initialize SNMP Client
-            std::string target_ip = streets_service::streets_configuration::get_string_config("target_ip");
-            int target_port = streets_service::streets_configuration::get_int_config("target_port");
-            std::string community = streets_service::streets_configuration::get_string_config("community");
-            int snmp_version = streets_service::streets_configuration::get_int_config("snmp_version");
-            int timeout = streets_service::streets_configuration::get_int_config("snmp_timeout");
+            std::string target_ip = streets_configuration::get_string_config("target_ip");
+            int target_port = streets_configuration::get_int_config("target_port");
+            std::string community = streets_configuration::get_string_config("community");
+            int snmp_version = streets_configuration::get_int_config("snmp_version");
+            int timeout = streets_configuration::get_int_config("snmp_timeout");
             if (!snmp_client_ptr && !initialize_snmp_client(target_ip, target_port, community, snmp_version, timeout)) {    
                 SPDLOG_ERROR("Failed to initialize snmp_client!");
                 return false;
             }
             
             //  Initialize tsc configuration state kafka producer
-            std::string tsc_config_topic_name = streets_service::streets_configuration::get_string_config("tsc_config_producer_topic");
-            if (!tsc_config_producer && !initialize_kafka_producer(bootstrap_server, tsc_config_topic_name, tsc_config_producer)) {
+            std::string tsc_config_topic_name = streets_configuration::get_string_config("tsc_config_producer_topic");
+            if (!tsc_config_producer && !initialize_kafka_producer( tsc_config_topic_name, tsc_config_producer)) {
 
                 SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
                 return false;
             }
             //Initialize TSC State
-            use_desired_phase_plan_update_ = streets_service::streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
+            use_desired_phase_plan_update_ = streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
             if (!initialize_tsc_state(snmp_client_ptr)){
                 SPDLOG_ERROR("Failed to initialize tsc state");
                 return false;
             }
             tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
             // Initialize spat_worker
-            std::string socket_ip = streets_service::streets_configuration::get_string_config("udp_socket_ip");
-            int socket_port = streets_service::streets_configuration::get_int_config("udp_socket_port");
-            int socket_timeout = streets_service::streets_configuration::get_int_config("socket_timeout");
-            bool use_msg_timestamp =  streets_service::streets_configuration::get_boolean_config("use_tsc_timestamp");         
-            enable_snmp_cmd_logging_ = streets_service::streets_configuration::get_boolean_config("enable_snmp_cmd_logging");
+            std::string socket_ip = streets_configuration::get_string_config("udp_socket_ip");
+            int socket_port = streets_configuration::get_int_config("udp_socket_port");
+            int socket_timeout = streets_configuration::get_int_config("socket_timeout");
+            bool use_msg_timestamp =  streets_configuration::get_boolean_config("use_tsc_timestamp");         
+            enable_snmp_cmd_logging_ = streets_configuration::get_boolean_config("enable_snmp_cmd_logging");
 
             if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
                 SPDLOG_ERROR("Failed to initialize SPaT Worker");
@@ -78,7 +76,7 @@ namespace traffic_signal_controller_service {
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
                                 all_phases);
             
-            control_tsc_state_sleep_dur_ = streets_service::streets_configuration::get_int_config("control_tsc_state_sleep_duration");
+            control_tsc_state_sleep_dur_ = streets_configuration::get_int_config("control_tsc_state_sleep_duration");
             
             // Initialize monitor desired phase plan
             monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
@@ -94,40 +92,11 @@ namespace traffic_signal_controller_service {
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
-        catch (const streets_service::streets_configuration_exception &ex)
+        catch (const streets_configuration_exception &ex)
         {
             SPDLOG_ERROR("Signal Optimization Service Initialization failure: {0} ", ex.what());
             return false;
         }
-    }
-
-    bool tsc_service::initialize_kafka_producer(const std::string &bootstrap_server, const std::string &producer_topic,
-         std::shared_ptr<kafka_clients::kafka_producer_worker> &producer) {
-        
-        auto client = std::make_unique<kafka_clients::kafka_client>();
-        producer = client->create_producer(bootstrap_server, producer_topic);
-        if (!producer->init())
-        {
-            SPDLOG_CRITICAL("Kafka producer initialize error on topic {0}", producer_topic);
-            return false;
-        }
-        SPDLOG_DEBUG("Initialized Kafka producer on topic {0}!", producer_topic);
-        return true;
-    }
-
-    bool tsc_service::initialize_kafka_consumer(const std::string &bootstrap_server, 
-                                                const std::string &consumer_topic,  
-                                                const std::string &consumer_group, 
-                                                std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer) {
-        auto client = std::make_unique<kafka_clients::kafka_client>();
-        kafka_consumer = client->create_consumer(bootstrap_server, consumer_topic, consumer_group);
-        if (!kafka_consumer->init())
-        {
-            SPDLOG_CRITICAL("Kafka initialize error");
-            return false;
-        }
-        SPDLOG_DEBUG("Initialized Kafka consumer!");
-        return true;
     }
 
     bool tsc_service::initialize_snmp_client(const std::string &server_ip, const int server_port, const std::string &community,
@@ -339,8 +308,8 @@ namespace traffic_signal_controller_service {
         try{
             auto snmp_cmd_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
                 "snmp_cmd_logger",  // logger name
-                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_path")+
-                    streets_service::streets_configuration::get_string_config("snmp_cmd_log_filename") +".log",  // log file name and path
+                    streets_configuration::get_string_config("snmp_cmd_log_path")+
+                    streets_configuration::get_string_config("snmp_cmd_log_filename") +".log",  // log file name and path
                     23, // hours to rotate
                     59 // minutes to rotate
                 );
@@ -357,7 +326,7 @@ namespace traffic_signal_controller_service {
     
 
     void tsc_service::start() {
-        
+        streets_service::streets_service::start();
         std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
 
         std::thread spat_t(&tsc_service::produce_spat_json, this);
