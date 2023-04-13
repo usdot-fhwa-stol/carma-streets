@@ -225,8 +225,8 @@ namespace scheduling_service{
         auto scheduling_delta = u_int64_t(streets_service::streets_configuration::get_double_config("scheduling_delta") * 1000);
         int sch_count = 0;
         std::unordered_map<std::string, streets_vehicles::vehicle> veh_map;
-
-        while (true)
+        // Check health of producer worker to only run scheduling while producer is running
+        while (_producer_worker->is_running())
         {
             auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             SPDLOG_DEBUG("Schedule iteration start time {0}!", current_timestamp);
@@ -291,6 +291,7 @@ namespace scheduling_service{
 
     scheduling_service::~scheduling_service()
     {
+        SPDLOG_WARN("Stopping Scheduling Service!");
         if (consumer_worker)
         {
             SPDLOG_WARN("Stopping consumer worker!");
@@ -301,6 +302,10 @@ namespace scheduling_service{
         {
             SPDLOG_WARN("Stopping producer worker");
             producer_worker->stop();
+        }
+        if (spat_consumer_worker) {
+            SPDLOG_WARN("Stopping spat consumer worker");
+            spat_consumer_worker->stop();
         }
 
     }
