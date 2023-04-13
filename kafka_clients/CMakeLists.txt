@@ -80,7 +80,6 @@ target_link_libraries(${BINARY} PUBLIC
                             Boost::thread
                             Boost::filesystem
                             spdlog::spdlog
-                            RdKafka::rdkafka++  
                             ${PROJECT_NAME}_lib 
                             gtest)
 target_include_directories(${BINARY}
