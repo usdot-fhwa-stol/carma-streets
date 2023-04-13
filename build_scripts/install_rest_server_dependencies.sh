@@ -14,11 +14,11 @@ DEPENDENCIES="libssl-dev \
 # install all things needed for deployment, always done
 apt-get install -y $DEPENDENCIES 
 
-cd /home/carma-streets/ext
+cd ../ext
 git clone https://github.com/etherealjoy/qhttpengine.git
-cd /home/carma-streets/ext/qhttpengine/
+cd qhttpengine/
 mkdir build
-cd /home/carma-streets/ext/qhttpengine/build
+cd build
 cmake .. 
 make -j
 make install
