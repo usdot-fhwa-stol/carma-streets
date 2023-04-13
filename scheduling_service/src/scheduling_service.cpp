@@ -226,7 +226,7 @@ namespace scheduling_service{
         int sch_count = 0;
         std::unordered_map<std::string, streets_vehicles::vehicle> veh_map;
         // Check health of producer worker to only run scheduling while producer is running
-        while (_producer_worker->is_running())
+        while (producer_worker->is_running())
         {
             auto current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             SPDLOG_DEBUG("Schedule iteration start time {0}!", current_timestamp);
