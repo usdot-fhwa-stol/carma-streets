@@ -22,7 +22,7 @@ cd /home/carma-streets
 mkdir test_results
 
 cd /home/carma-streets/streets_utils/streets_service_configuration/build/
-./streets_service_configuration --gtest_output=xml:../../../test_results/
+./streets_service_configuration_test --gtest_output=xml:../../../test_results/
 cd /home/carma-streets/streets_utils/streets_service_configuration
 mkdir coverage
 cd /home/carma-streets/
