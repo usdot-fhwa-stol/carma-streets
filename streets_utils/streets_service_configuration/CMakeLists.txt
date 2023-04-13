@@ -57,7 +57,7 @@ install(
     DESTINATION  lib/cmake/${PROJECT_NAME}_lib/
 )
 install(FILES ${files} DESTINATION include)
-
+install(FILES ${templates} DESTINATION include/internal)
 ########################
 # googletest for unit testing
 ########################
