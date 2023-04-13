@@ -39,8 +39,8 @@ jobs:
         cd /home/carma-streets/build_scripts
         ./install_dependencies.sh
         ./install_rest_server_dependencies.sh
-        ./install_test_dependencies.sh
         mkdir -p /home/carma-streets/ext
+        ./install_test_dependencies.sh
     - name: Install librdkafka
       run: |
         cd /home/carma-streets/ext/
