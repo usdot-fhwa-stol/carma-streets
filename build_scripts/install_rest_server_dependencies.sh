@@ -18,7 +18,7 @@ cd /home/carma-streets/ext
 git clone https://github.com/etherealjoy/qhttpengine.git
 cd /home/carma-streets/ext/qhttpengine/
 mkdir /home/carma-streets/ext/qhttpengine/build
-cd /home/carma-streets/ext/qhttpengine/buildbuild
+cd /home/carma-streets/ext/qhttpengine/build
 cmake .. 
 make -j
 make install
