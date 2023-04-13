@@ -14,11 +14,11 @@ namespace streets_service {
             std::string config_file_path = get_system_config("CONFIG_FILE_PATH");
             streets_configuration::create(config_file_path);
             _simulation_mode = get_system_config("SIMULATION_MODE").compare("TRUE") == 0;
-            std::string time_sync_topic = get_system_config("TIME_SYNC_TOPIC");
             streets_clock_singleton::create(_simulation_mode);
             _service_name = streets_configuration::get_service_name();
             SPDLOG_INFO("Initializing {0} streets service in simulation mode : {1}!", _service_name, _simulation_mode);
             if ( _simulation_mode ) {
+                std::string time_sync_topic = get_system_config("TIME_SYNC_TOPIC");
                 if (!initialize_kafka_consumer(time_sync_topic, _time_consumer)){
                     return false;
                 }

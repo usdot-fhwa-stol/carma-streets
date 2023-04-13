@@ -4,6 +4,7 @@ packer_cache/
 message_services/build/
 kafka_clients/build/
 scheduling_service/build/
+streets_utils/streets_service_configuration/build/
 streets_utils/streets_service_base/build/
 streets_utils/streets_vehicle_list/build/
 streets_utils/streets_vehicle_scheduler/build/

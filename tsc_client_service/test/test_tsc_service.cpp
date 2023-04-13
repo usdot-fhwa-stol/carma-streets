@@ -32,6 +32,8 @@ namespace traffic_signal_controller_service
                 service.tsc_config_producer = tsc_config_producer;
                 service.desired_phase_plan_consumer = dpp_consumer;
                 service.snmp_client_ptr = mock_snmp;
+                setenv("SIMULATION_MODE", "FALSE", 1);
+                setenv("CONFIG_FILE_PATH", "../manifest.json", 1);
 
 
             }
@@ -348,6 +350,7 @@ namespace traffic_signal_controller_service
 
     TEST_F(tsc_service_test, test_init_kafka_consumer_producer) {
         std::string test = "test";
+        service.initialize();
         ASSERT_TRUE(service.initialize_kafka_consumer(test , service.desired_phase_plan_consumer ));
         ASSERT_TRUE(service.initialize_kafka_producer(test, service.spat_producer));
     }
