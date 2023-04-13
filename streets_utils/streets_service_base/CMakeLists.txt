@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_service_base)
-                    
+
+########################################################
+# Find Dependent Packages and set configurations
+########################################################                  
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -v")
 find_package(spdlog REQUIRED)
 find_package(kafka_clients_lib REQUIRED)
 find_package(streets_service_configuration_lib REQUIRED)
-
+find_package(GTest COMPONENTS GTest::gtest GTest::gmock)
 # carma-clock is installed under this directory
 list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 find_package(carma-clock REQUIRED)
@@ -14,9 +17,11 @@ add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 # enable all loglevels for SPDLOG
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
+########################################################
+# Build Library
+########################################################  
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_library(${PROJECT_NAME}_lib ${SOURCES} )
-
 target_include_directories(${PROJECT_NAME}_lib 
     PUBLIC
         $<INSTALL_INTERFACE:include>
@@ -32,14 +37,11 @@ target_link_libraries( ${PROJECT_NAME}_lib
         ::carma-clock
 )
 
-                
-
 ########################################################
 # Install streets_service_base_lib package.
 ########################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
-
 install(
     TARGETS ${PROJECT_NAME}_lib
     EXPORT ${PROJECT_NAME}_libTargets
@@ -65,25 +67,19 @@ install(
 install(FILES ${files} DESTINATION include)
 install(FILES ${templates} DESTINATION include/internal)
 
-
 ########################
 # googletest for unit testing
 ########################
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
-
-
 add_executable(${BINARY} ${TEST_SOURCES} )
-
 add_test(NAME ${BINARY} COMMAND ${BINARY})
-
 target_link_libraries(${BINARY} 
     PUBLIC
         ${PROJECT_NAME}_lib                                   
-        gtest
+        GTest::gtest
 )
-
 target_include_directories(${BINARY} 
     PUBLIC 
         $<INSTALL_INTERFACE:include>

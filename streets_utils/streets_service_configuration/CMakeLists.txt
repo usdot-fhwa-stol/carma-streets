@@ -1,21 +1,19 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_service_configuration)
-set(CMAKE_CXX_STANDARD 17)
-                   
+########################################################
+# Find Dependent Packages and set configurations
+########################################################                   
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(spdlog REQUIRED)
-
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-
+find_package(GTest COMPONENTS GTest::gtest GTest::gmock)
+########################################################
+# Build Library
+######################################################## 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-
-
 add_library(${PROJECT_NAME}_lib ${SOURCES} )
-
-
 target_include_directories(${PROJECT_NAME}_lib 
     PUBLIC
         $<INSTALL_INTERFACE:include>
@@ -29,8 +27,6 @@ target_link_libraries( ${PROJECT_NAME}_lib
         Boost::filesystem
         spdlog::spdlog
 )
-
-                
 
 ########################################################
 # Install streets_service_configuration_lib package.
@@ -61,28 +57,20 @@ install(
     DESTINATION  lib/cmake/${PROJECT_NAME}_lib/
 )
 install(FILES ${files} DESTINATION include)
-install(FILES ${templates} DESTINATION include/internal)
-
 
 ########################
 # googletest for unit testing
 ########################
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
-
-
 add_executable(${BINARY} ${TEST_SOURCES} )
-
 add_test(NAME ${BINARY} COMMAND ${BINARY})
-
 target_link_libraries(${BINARY} 
     PUBLIC
         ${PROJECT_NAME}_lib
-        gtest                                  
+        GTest::gtest                                  
 )
-
 target_include_directories(${BINARY} 
     PUBLIC 
         $<INSTALL_INTERFACE:include>
