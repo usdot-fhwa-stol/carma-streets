@@ -21,6 +21,13 @@ set -e
 cd /home/carma-streets
 mkdir test_results
 
+cd /home/carma-streets/streets_utils/streets_service_configuration/build/
+./streets_service_configuration --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_service_configuration
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_service_configuration/coverage/coverage.xml -s -f streets_utils/streets_service_configuration/ -r .
+
 cd /home/carma-streets/kafka_clients/build/
 ./kafka_clients_test --gtest_output=xml:../../test_results/
 cd /home/carma-streets/kafka_clients/
