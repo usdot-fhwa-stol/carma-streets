@@ -264,18 +264,6 @@ namespace streets_signal_optimization
 
     TEST_F(test_streets_desired_phase_plan_arbitrator, select_optimal_dpp)
     {
-        std::string _so_log_path = "../logs/";
-        std::string _so_log_filename = "soLogs";
-        SPDLOG_INFO("csv log path: {0}", _so_log_path + _so_log_filename + ".csv");
-        auto csv_logger = spdlog::daily_logger_mt<spdlog::async_factory>(
-            "so_csv_logger",  // logger name
-            _so_log_path + _so_log_filename +".csv",  // log file name and path
-            23, // hours to rotate
-            59 // minutes to rotate
-            );
-        // Only log log statement content
-        csv_logger->set_pattern("%v");
-        csv_logger->set_level(spdlog::level::info);
         
         auto arbitrator = std::make_shared<streets_desired_phase_plan_arbitrator>();
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -310,8 +298,6 @@ namespace streets_signal_optimization
         dpp_list.push_back(*desired_phase_plan2_ptr);
 
         double so_radius = 150;
-        bool enable_so_logging = true;
-        arbitrator->set_enable_so_logging(enable_so_logging);
 
         // Current spat should only contain the ONLY one current movement event for each movement state.
         for (auto movement_state : spat_msg_ptr->get_intersection().states)

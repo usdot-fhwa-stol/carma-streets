@@ -9,6 +9,8 @@ find_package(spdlog REQUIRED)
 find_package(kafka_clients_lib REQUIRED)
 find_package(streets_service_configuration_lib REQUIRED)
 find_package(GTest COMPONENTS GTest::gtest GTest::gmock)
+find_package(RapidJSON REQUIRED)
+
 # carma-clock is installed under this directory
 list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 find_package(carma-clock REQUIRED)
@@ -34,6 +36,7 @@ target_link_libraries( ${PROJECT_NAME}_lib
         kafka_clients_lib::kafka_clients_lib
         streets_service_configuration_lib::streets_service_configuration_lib
         spdlog::spdlog
+        rapidjson
         ::carma-clock
 )
 

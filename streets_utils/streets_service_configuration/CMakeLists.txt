@@ -6,9 +6,10 @@ project(streets_service_configuration)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(RapidJSON REQUIRED)
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-find_package(GTest COMPONENTS GTest::gtest GTest::gmock)
+find_package(GTest REQUIRED)
 ########################################################
 # Build Library
 ######################################################## 
@@ -26,6 +27,7 @@ target_link_libraries( ${PROJECT_NAME}_lib
         Boost::system 
         Boost::filesystem
         spdlog::spdlog
+        rapidjson
 )
 
 ########################################################
