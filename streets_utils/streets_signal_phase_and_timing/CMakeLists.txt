@@ -8,8 +8,13 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(spdlog REQUIRED)
 find_package(streets_desired_phase_plan_lib REQUIRED)
 find_package(streets_tsc_configuration_lib REQUIRED)
+find_package(streets_service_base_lib REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(RapidJSON REQUIRED)
+find_package(GTest REQUIRED)
+# carma-clock is installed under this directory
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+find_package(carma-clock REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 
@@ -27,8 +32,9 @@ target_include_directories(${PROJECT_NAME}_lib
 )
 target_link_libraries( ${PROJECT_NAME}_lib 
     PUBLIC
-        streets_desired_phase_plan_lib
-        streets_tsc_configuration_lib
+        streets_service_base_lib::streets_service_base_lib
+        streets_desired_phase_plan_lib::streets_desired_phase_plan_lib
+        streets_tsc_configuration_lib::streets_tsc_configuration_lib
         spdlog::spdlog
         rapidjson 
 )              

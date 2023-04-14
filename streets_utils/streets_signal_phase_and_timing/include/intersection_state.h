@@ -4,6 +4,7 @@
 #include "connection_maneuver_assist.h"
 #include "signal_phase_and_timing_exception.h"
 #include "ntcip_1202_ext.h"
+#include "streets_clock_singleton.h"
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>

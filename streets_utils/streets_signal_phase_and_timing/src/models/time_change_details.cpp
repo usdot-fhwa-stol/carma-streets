@@ -99,17 +99,13 @@ namespace signal_phase_and_timing {
     }
 
     uint64_t time_change_details::convert_hour_tenth_secs2epoch_ts(uint16_t hour_tenth_secs) const{
-        auto tp = std::chrono::system_clock::now();
-        auto duration = tp.time_since_epoch();
-        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+        auto hours_since_epoch = std::floor(streets_service::streets_clock_singleton::time_in_ms()/ (HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS) );
         auto epoch_start_time = hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS + hour_tenth_secs * 100;
         return epoch_start_time;
     }
 
     uint16_t time_change_details::convert_msepoch_to_hour_tenth_secs(uint64_t epoch_time_ms) const{
-        auto system_time = std::chrono::system_clock::now();
-        auto duration = system_time.time_since_epoch();
-        auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+        auto hours_since_epoch = std::floor(streets_service::streets_clock_singleton::time_in_ms()/ (HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS) );
         auto hours_since_epoch_ms = hours_since_epoch * HOUR_TO_SECONDS * SECOND_TO_MILLISECONDS;
         uint64_t tenth_seconds_from_current_hour;
         if ( hours_since_epoch_ms > epoch_time_ms ) {

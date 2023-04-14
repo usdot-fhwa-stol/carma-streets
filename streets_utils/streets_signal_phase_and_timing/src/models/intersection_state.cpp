@@ -138,7 +138,7 @@ namespace signal_phase_and_timing {
 
     uint64_t intersection_state::convert_min_mills2epoch_ts(uint32_t moy_ll , uint16_t min_mills_timestamp) const{
         //Calculate timestamp for beginning of the year
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point now{std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
         time_t tt = std::chrono::system_clock::to_time_t(now);
         tm utctime;
         gmtime_r(&tt, &utctime);
@@ -162,7 +162,7 @@ namespace signal_phase_and_timing {
     }
 
     void intersection_state::set_timestamp_ntcip(const uint32_t second_of_day, const uint16_t millisecond_of_second ) {
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
         time_t tt = std::chrono::system_clock::to_time_t(now);
         tm utc_tm;
         gmtime_r(&tt, &utc_tm);
@@ -174,7 +174,7 @@ namespace signal_phase_and_timing {
        
 
     void intersection_state::set_timestamp_local() {
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
         time_t tt = std::chrono::system_clock::to_time_t(now);
         tm utc_tm;
         gmtime_r(&tt, &utc_tm);
@@ -308,7 +308,7 @@ namespace signal_phase_and_timing {
         // Convert tenths of seconds to milliseconds
         int offset_ms = offset_tenths_of_seconds * 100;
 
-        std::chrono::system_clock::time_point nowTimePoint = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point nowTimePoint {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
         std::chrono::system_clock::time_point nowPlusOffsetTimePoint = nowTimePoint +  std::chrono::milliseconds(offset_ms);
 
         std::chrono::system_clock::duration tp = nowPlusOffsetTimePoint.time_since_epoch();
