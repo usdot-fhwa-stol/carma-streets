@@ -4,13 +4,12 @@ project(streets_service_base)
 ########################################################
 # Find Dependent Packages and set configurations
 ########################################################                  
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -v")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 find_package(spdlog REQUIRED)
 find_package(kafka_clients_lib REQUIRED)
 find_package(streets_service_configuration_lib REQUIRED)
-find_package(GTest COMPONENTS GTest::gtest GTest::gmock)
+find_package(GTest REQUIRED)
 find_package(RapidJSON REQUIRED)
-
 # carma-clock is installed under this directory
 list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 find_package(carma-clock REQUIRED)

@@ -39,5 +39,6 @@ namespace streets_service {
             void consume_time_sync_message();
 
 
+
     };  
 }

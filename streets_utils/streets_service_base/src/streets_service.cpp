@@ -77,6 +77,7 @@ namespace streets_service {
         }        
     }
 
+
     void streets_service::start() {
         if (_simulation_mode ) {
             std::thread time_sync_thread(&streets_service::consume_time_sync_message, this);
