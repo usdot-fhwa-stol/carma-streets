@@ -185,7 +185,7 @@ namespace traffic_signal_controller_service {
                         spat_producer->send(spat_ptr->toJson());
                         // Calculate and average spat processing time over 20 messages sent 
                         if (count <= 20 ) {
-                            uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                            uint64_t timestamp = streets_clock_singleton::time_in_ms();
                             spat_processing_time += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
                             count++;
                         } else {
@@ -222,7 +222,7 @@ namespace traffic_signal_controller_service {
             while(tsc_config_producer->is_running() && tsc_config_state_ptr )
             { 
                 tsc_config_producer->send(tsc_config_state_ptr->toJson());
-                std::this_thread::sleep_for(std::chrono::milliseconds(10000)); // Sleep for 10 second between publish   
+                streets_clock_singleton::sleep_for(10000); // Sleep for 10 second between publish   
             }
         }
         catch( const streets_tsc_configuration::tsc_configuration_state_exception &e) {
@@ -258,7 +258,7 @@ namespace traffic_signal_controller_service {
             while(true)
             {
                 set_tsc_hold_and_omit();
-                std::this_thread::sleep_for(std::chrono::milliseconds(control_tsc_state_sleep_dur_));
+                streets_clock_singleton::sleep_for(control_tsc_state_sleep_dur_);
             }
         }
         catch(const control_tsc_state_exception &e){
@@ -276,14 +276,13 @@ namespace traffic_signal_controller_service {
         while(!tsc_set_command_queue_.empty())
         {
             //Check if event is expired
-            auto event_execution_start_time = std::chrono::milliseconds(tsc_set_command_queue_.front().start_time_);
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(event_execution_start_time - std::chrono::system_clock::now().time_since_epoch());
-            if(duration.count() < 0){
+            int duration = tsc_set_command_queue_.front().start_time_ - streets_clock_singleton::time_in_ms();
+            if(duration < 0){
                 throw control_tsc_state_exception("SNMP set command is expired! Start time was " 
-                    + std::to_string(event_execution_start_time.count()) + " and current time is " 
-                    + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()) + ".");
+                    + std::to_string(tsc_set_command_queue_.front().start_time_) + " and current time is " 
+                    + std::to_string(streets_clock_singleton::time_in_ms() ) + ".");
             }
-            std::this_thread::sleep_for(duration);
+            streets_clock_singleton::sleep_for(duration);
 
             if(!(tsc_set_command_queue_.front()).run())
             {

@@ -21,6 +21,7 @@
 #include <mutex>  
 #include <gtest/gtest_prod.h>  
 #include "streets_service.h"
+#include "streets_clock_singleton.h"
 
 namespace traffic_signal_controller_service {
 

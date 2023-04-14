@@ -34,6 +34,8 @@ namespace traffic_signal_controller_service
                 service.snmp_client_ptr = mock_snmp;
                 setenv("SIMULATION_MODE", "FALSE", 1);
                 setenv("CONFIG_FILE_PATH", "../manifest.json", 1);
+                // Initialize clock singleton in realtime mode
+                streets_service::streets_clock_singleton::create(false);
 
 
             }
