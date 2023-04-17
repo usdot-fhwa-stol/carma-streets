@@ -10,6 +10,13 @@ namespace kafka_clients
     {
     }
 
+    kafka_consumer_worker::~kafka_consumer_worker() {
+        if (_consumer)
+            delete _consumer;
+        if (_topic)
+            delete _topic;
+    }
+
     bool kafka_consumer_worker::init()
     {
         SPDLOG_INFO("kafka_consumer_worker init()... ");

@@ -183,7 +183,7 @@ namespace kafka_clients
              * @brief Destroy the kafka consumer worker object
              * 
              */
-            virtual ~kafka_consumer_worker() = default;
+            virtual ~kafka_consumer_worker();
     };
 }
 

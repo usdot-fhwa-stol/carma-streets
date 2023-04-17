@@ -47,6 +47,8 @@ namespace streets_service {
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _time_consumer;
 
             FRIEND_TEST(test_streets_service, test_consume_time_sync_message);
+            FRIEND_TEST(test_streets_service, test_initialize_consumer);
+            FRIEND_TEST(test_streets_service, test_initialize_producer);
 
 
     };  
