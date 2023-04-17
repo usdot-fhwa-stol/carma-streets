@@ -14,6 +14,9 @@ find_package(streets_signal_phase_and_timing_lib REQUIRED)
 find_package(streets_vehicle_scheduler_lib REQUIRED)
 find_package(streets_tsc_configuration_lib REQUIRED)
 find_package(GTest REQUIRED)
+# carma-clock is installed under this directory
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+find_package(carma-clock REQUIRED)
 
 ########################################################
 # Build Library
@@ -36,7 +39,8 @@ target_link_libraries(${PROJECT_NAME}_lib
         streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib
         streets_tsc_configuration_lib::streets_tsc_configuration_lib
         spdlog::spdlog
-        intersection_client_api_lib        
+        intersection_client_api_lib 
+        ::carma-clock       
 )
 
 # #######################################################

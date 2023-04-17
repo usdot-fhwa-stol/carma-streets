@@ -14,6 +14,9 @@ find_package(streets_signal_phase_and_timing_lib REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Boost COMPONENTS thread)
+# carma-clock is installed under this directory
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+find_package(carma-clock REQUIRED)
 
 ########################################################
 # Build Library
@@ -28,7 +31,8 @@ target_link_libraries(${PROJECT_NAME}_lib
         Qt5::Network 
         intersection_client_api_lib
         streets_vehicle_list_lib::streets_vehicle_list_lib
-        streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib 
+        streets_signal_phase_and_timing_lib::streets_signal_phase_and_timing_lib
+        ::carma-clock
 )
 target_include_directories(${PROJECT_NAME}_lib 
     PUBLIC

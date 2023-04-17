@@ -39,6 +39,16 @@ RUN make
 RUN make install
 
 COPY ./streets_utils/ /home/carma-streets/streets_utils
+
+# Install streets_service_configuration
+RUN echo " ------> Install streets service configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install streets_service_base
 RUN echo " ------> Install streets service base library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_service_base
@@ -47,6 +57,7 @@ WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
+
 
 
 # Install intersection_client

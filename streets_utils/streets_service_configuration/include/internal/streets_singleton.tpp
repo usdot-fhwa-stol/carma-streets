@@ -35,5 +35,7 @@ namespace streets_service {
      * Protected destructor
      */ 
     template <typename T, typename... Args>   
-    streets_singleton<T,Args...>::~streets_singleton() = default; 
+    streets_singleton<T,Args...>::~streets_singleton() {
+      delete instance;
+    }; 
 }

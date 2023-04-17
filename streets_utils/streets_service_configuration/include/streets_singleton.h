@@ -30,7 +30,13 @@ namespace streets_service {
             streets_singleton& operator=(const streets_singleton &) = delete;
             // Remove move assignment operator
             streets_singleton& operator=(const streets_singleton &&) = delete;
-
+            /**
+             * @brief Method to intialize streets_singleton with constructor params
+             * ...Args of templated class.
+             * 
+             * @param ...args constructor parameters of templated class.
+             * @return returns reference to singleton instance.
+             */
             static T& create(Args...args );
 
 
