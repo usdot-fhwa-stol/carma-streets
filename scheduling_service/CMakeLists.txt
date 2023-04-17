@@ -23,27 +23,43 @@ add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 
-add_executable(${PROJECT_NAME}  src/main.cpp
-                                src/intersection_client.cpp
+add_library(${PROJECT_NAME}_lib src/intersection_client.cpp
                                 src/scheduling_service.cpp
                                 src/scheduling_worker.cpp)
                                 
-target_include_directories( ${PROJECT_NAME} PUBLIC
-                            ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME}_lib 
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    streets_service_configuration_lib::streets_service_configuration_lib
-    streets_service_base_lib::streets_service_base_lib
-    kafka_clients_lib::kafka_clients_lib
-    Boost::system 
-    Boost::filesystem 
-    spdlog::spdlog 
-    intersection_client_api_lib 
-    ::carma-clock  
-    streets_vehicle_list_lib::streets_vehicle_list_lib 
-    streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network )
+target_link_libraries(${PROJECT_NAME}_lib
+    PUBLIC
+        streets_service_configuration_lib::streets_service_configuration_lib
+        streets_service_base_lib::streets_service_base_lib
+        kafka_clients_lib::kafka_clients_lib
+        Boost::system 
+        Boost::filesystem 
+        spdlog::spdlog 
+        intersection_client_api_lib 
+        ::carma-clock  
+        streets_vehicle_list_lib::streets_vehicle_list_lib 
+        streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib
+        Qt5::Core 
+        Qt5::Network 
+)
 
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_lib )
 
 ########################
 # googletest for unit testing
@@ -51,12 +67,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Network )
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
-add_executable(${BINARY} ${TEST_SOURCES}
-                        src/intersection_client.cpp
-                        src/scheduling_service.cpp
-                        src/scheduling_worker.cpp )
+add_executable(${BINARY} ${TEST_SOURCES})
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} 
-    PUBLIC  
-        GTest::gtest)    
+    PUBLIC 
+        ${PROJECT_NAME}_lib  
+        GTest::gtest
+)    
