@@ -31,7 +31,7 @@ namespace streets_service {
 
     }
 
-    bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer) {
+    bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const {
         
         auto client = std::make_unique<kafka_clients::kafka_client>();
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
@@ -46,8 +46,7 @@ namespace streets_service {
         return true;
     }
  
-    bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic,  
-                                                std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer) {
+    bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer ) const{
         auto client = std::make_unique<kafka_clients::kafka_client>();
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
         kafka_consumer = client->create_consumer(bootstrap_server, consumer_topic, _service_name);
@@ -60,7 +59,7 @@ namespace streets_service {
         return true;
     }
 
-    void streets_service::consume_time_sync_message()  {
+    void streets_service::consume_time_sync_message() const  {
         _time_consumer->subscribe();
         while (_time_consumer->is_running())
         {
@@ -100,5 +99,13 @@ namespace streets_service {
             throw std::runtime_error(" Systme config param name is null pointer!");
         }
         return "";
+    }
+
+    std::string streets_service::get_service_name() const {
+        return _service_name;
+    }
+
+    bool streets_service::is_simulation_mode() const {
+        return _simulation_mode;
     }
 }

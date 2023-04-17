@@ -8,10 +8,14 @@
 
 
 namespace streets_service { 
-
+    /** 
+     * @brief Streets Service is a base class for CARMA-Streets services. It initializes the streets_clock_singleton 
+     * is a maintains a time wrapper object that allows services to configurably use system time or time sync messages
+     * as a source for time. This allows CARMA-Streets services that extend this class use CDASim as a source for time.
+     * 
+     * @author Paul Bourelly
+    */
     class streets_service {
-        FRIEND_TEST(test_service_test,test_tsc_control);
-
         public:
             streets_service() = default;
 
@@ -22,22 +26,27 @@ namespace streets_service {
             virtual void start();
 
         protected:
-            
+
+            bool initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const;
+
+            bool initialize_kafka_consumer( const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer ) const;
+
+            std::string get_system_config(const char *config_name ) const;
+
+            void consume_time_sync_message() const;
+
+            std::string get_service_name() const;
+
+            bool is_simulation_mode() const;
+
+        private:
             std::string _service_name;
 
             bool _simulation_mode;
 
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _time_consumer;
 
-            bool initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer);
-
-            bool initialize_kafka_consumer( const std::string &consumer_topic, 
-                                            std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer );
-
-            std::string get_system_config(const char *config_name ) const;
-
-            void consume_time_sync_message();
-
+            FRIEND_TEST(test_streets_service, test_consume_time_sync_message);
 
 
     };  

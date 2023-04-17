@@ -16,7 +16,7 @@ namespace streets_service::simulation
             throw std::runtime_error("Missing or missformatted required propert timestep !");
         }
         if ( doc.HasMember("seq") && doc.FindMember("seq")->value.IsUint64()) {
-            timestep = doc["seq"].GetUint64(); // OPTIONAL in J2735 SPaT definition
+            seq = doc["seq"].GetUint64(); // OPTIONAL in J2735 SPaT definition
         } 
         else {
             throw std::runtime_error("Missing or missformatted required propert seq!");

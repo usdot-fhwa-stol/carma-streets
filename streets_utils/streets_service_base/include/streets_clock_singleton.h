@@ -14,6 +14,8 @@ namespace streets_service {
 
             static void sleep_for(uint64_t ms);
 
+            static void sleep_until(uint64_t ms);
+
 
         protected:
             // Hide get_singleton method. Use static methods instead.
