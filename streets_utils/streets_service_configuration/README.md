@@ -1,12 +1,12 @@
-# Streets Service Base Library
+# Streets Service Configuration Library
 
 ## Introduction
 
-This is the `streets_service_base` library meant to be the base of each new CARMA-Streets service. It contains a extensible templated singleton implementation that allows for the creation of singleton scoped objects in CARMA-Streets services with static access. This means that by extending this class you can implement a class of which there can only ever be a single instance and which is statically retrievable using the `streets_singleton::get_singleton()` method. This library also includes an implemented singleton `streets_configuration` class which standardizes how CARMA-Streets services will read configuration parameters from `manifest.json` configuration files. This `streets_configuration` singleton parses the `manifest.json` configuration file and then allows for static retrieval of configuration parameters using the `get_int_config()`,`get_double_config`,`get_string_config()`, and `get_bool_config()` methods.
+This is the `streets_service_configuration` library meant to provide of each new CARMA-Streets service with utility methods to load configurations. It contains a extensible templated singleton implementation that allows for the creation of singleton scoped objects in CARMA-Streets services with static access. This means that by extending this class you can implement a class of which there can only ever be a single instance and which is statically retrievable using the `streets_singleton::get_singleton()` method. This library also includes an implemented singleton `streets_configuration` class which standardizes how CARMA-Streets services will read configuration parameters from `manifest.json` configuration files. This `streets_configuration` singleton parses the `manifest.json` configuration file and then allows for static retrieval of configuration parameters using the `get_int_config()`,`get_double_config`,`get_string_config()`, and `get_bool_config()` methods.
 
 ## Streets Singleton
 
-Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself, which is lazily initialized (not initialized until retrieved for the first time). To ensure that new instances of this class can not be created the constructors are deleted or hidden using private or protected access.
+Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself. To ensure that new instances of this class can not be created the constructors are deleted or hidden using private or protected access. Before accessing this object using the static `streets_singleton::get_singleton()` method, it must first be initialized using the `streets_singleon::create( Args ...)` method. Args should be the constructor parameters for the templated class, of which an instance will be created. 
 
 
 ## Streets Configuration
@@ -46,13 +46,13 @@ Example `manifest.json` configuration file.
 }
 ```
 
-## Include streets_service_base_lib::streets_service_base_lib
+## Include streets_service_configuration_lib::streets_service_configuration_lib
 
 Streets Service Base `CMakeList.txt` includes an install target which will install this library as a CMake package. The library along with it's dependencies can then be included by simply using the find_package() instruction.
 
 ```
-find_package(streets_service_base_lib COMPONENT streets_service_base_lib)
+find_package(streets_service_configuration_lib COMPONENT streets_service_configuration_lib)
 ...
-target_link_library( target PUBLIC streets_service_base_lib::streets_service_base_lib)
+target_link_library( target PUBLIC streets_service_configuration_lib::streets_service_configuration_lib)
 ```
 

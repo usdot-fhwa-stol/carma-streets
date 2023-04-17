@@ -34,5 +34,8 @@ TEST(test_streets_clock_singleton, test_real_time) {
     // allow time to change
     sleep(1);
     ASSERT_EQ(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto cur_time = streets_clock_singleton::time_in_ms();
+    streets_clock_singleton::sleep_for(2000);
+    ASSERT_EQ(cur_time+2000, streets_clock_singleton::time_in_ms());
 
 }
