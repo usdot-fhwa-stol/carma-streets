@@ -21,4 +21,21 @@ namespace streets_service::simulation {
         ASSERT_NE(msg_deserialize.timestep ,0 );
 
     };
+
+    TEST(test_time_sync_message, invalid_messages) {
+        time_sync_message msg_deserialize;
+        std::string not_json = "NOT JSON";
+
+        std::string missing_seq= "{"
+                                    "\"timestep\":1400"
+                                 "}";
+
+        std::string missing_timestep= "{"
+                                    "\"seq\":123"
+                                 "}";
+        ASSERT_THROW( msg_deserialize.fromJson(not_json), std::runtime_error );
+        ASSERT_THROW( msg_deserialize.fromJson(missing_seq), std::runtime_error );                         
+        ASSERT_THROW( msg_deserialize.fromJson(missing_timestep), std::runtime_error );                         
+
+    };
 }

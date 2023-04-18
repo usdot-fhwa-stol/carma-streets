@@ -49,3 +49,16 @@ TEST(test_streets_singleton, test_streets_singleton_scope)
     ASSERT_EQ(test_singleton_impl::get_singleton().get_test_string_property(), "TESTTESTTEST");
     ASSERT_EQ(test_singleton_impl::get_singleton().get_test_int_property(), 4);
 };
+
+TEST(test_streets_singleton, test_recreate_singleton) {
+    // Used a different singleton since unit testing revealed that the first singleton was not deconstructed by the time of this 
+    // unit test.
+    streets_singleton<int>::create();
+    try {
+        streets_singleton<int>::create();
+    }catch (const streets_singleton_exception &e ) {
+        ASSERT_STREQ("Singleton has already been created!", e.what());
+    }
+}
+
+   

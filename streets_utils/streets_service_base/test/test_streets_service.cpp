@@ -52,13 +52,18 @@ namespace streets_service{
         std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;
         ASSERT_TRUE(serv.initialize_kafka_consumer("test_topic", consumer));
         consumer->stop();
-    }
+    };
 
     TEST_F(test_streets_service, test_initialize_producer) {
         serv._service_name ="TestService";
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer;
         ASSERT_TRUE(serv.initialize_kafka_producer("test_topic", producer));
         producer->stop();
+    };
+
+    TEST_F(test_streets_service, test_get_system_config) {
+        std::string sys
+        ASSERT_EQ(serv.get_system_config("SIMULATION_MODE"), "TRUE");
     }
 
 }

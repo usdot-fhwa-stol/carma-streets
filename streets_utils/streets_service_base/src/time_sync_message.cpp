@@ -8,7 +8,6 @@ namespace streets_service::simulation
         if (doc.HasParseError()) {
             throw std::runtime_error("Time Sync Message JSON is misformatted. JSON parsing failed!");  
         }
-        // Write lock
         if ( doc.HasMember("timestep") && doc.FindMember("timestep")->value.IsUint64()) {
             timestep = doc["timestep"].GetUint64(); // OPTIONAL in J2735 SPaT definition
         } 

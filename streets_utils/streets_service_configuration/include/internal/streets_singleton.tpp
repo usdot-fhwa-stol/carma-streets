@@ -18,8 +18,7 @@ namespace streets_service {
     template <typename T, typename... Args>
     T& streets_singleton<T,Args...>::create(Args...args ){
       if (instance != nullptr){
-        delete instance;
-        instance = nullptr;
+        throw streets_singleton_exception("Singleton has already been created!");
       }
       instance = new T(args...);
       return *instance;
