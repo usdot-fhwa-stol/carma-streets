@@ -276,7 +276,7 @@ namespace traffic_signal_controller_service {
         while(!tsc_set_command_queue_.empty())
         {
             //Check if event is expired
-            int duration = tsc_set_command_queue_.front().start_time_ - streets_clock_singleton::time_in_ms();
+            long duration = tsc_set_command_queue_.front().start_time_ - streets_clock_singleton::time_in_ms();
             if(duration < 0){
                 throw control_tsc_state_exception("SNMP set command is expired! Start time was " 
                     + std::to_string(tsc_set_command_queue_.front().start_time_) + " and current time is " 

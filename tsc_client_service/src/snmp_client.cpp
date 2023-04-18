@@ -49,7 +49,7 @@ namespace traffic_signal_controller_service
     
     snmp_client::~snmp_client(){
         SPDLOG_WARN("Closing snmp session");
-        snmp_close(ss);
+        snmp_close(ss);  
     }
 
 

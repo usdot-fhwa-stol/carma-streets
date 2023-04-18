@@ -26,24 +26,19 @@ find_package(carma-clock REQUIRED)
 
 
 add_library(${PROJECT_NAME}_lib
-        src/exceptions/udp_socket_listener_exception.cpp
-        src/exceptions/snmp_client_exception.cpp
-        src/exceptions/monitor_states_exception
-        src/exceptions/monitor_desired_phase_plan_exception.cpp
-        src/intersection_client.cpp
-        src/udp_socket_listener.cpp
-        src/tsc_service.cpp
-        src/snmp_client.cpp
-        src/spat_worker.cpp
-        src/monitor_tsc_state.cpp        
-        src/monitor_desired_phase_plan.cpp
-        src/control_tsc_state.cpp
-        src/exceptions/control_tsc_state_exception.cpp)
-
-add_executable( ${PROJECT_NAME} 
-        src/main.cpp
-        )
-
+    src/exceptions/udp_socket_listener_exception.cpp
+    src/exceptions/snmp_client_exception.cpp
+    src/exceptions/monitor_states_exception
+    src/exceptions/monitor_desired_phase_plan_exception.cpp
+    src/intersection_client.cpp
+    src/udp_socket_listener.cpp
+    src/tsc_service.cpp
+    src/snmp_client.cpp
+    src/spat_worker.cpp
+    src/monitor_tsc_state.cpp        
+    src/monitor_desired_phase_plan.cpp
+    src/control_tsc_state.cpp
+    src/exceptions/control_tsc_state_exception.cpp)
 target_link_libraries( ${PROJECT_NAME}_lib 
     PUBLIC
         streets_service_configuration_lib::streets_service_configuration_lib
@@ -63,7 +58,7 @@ target_link_libraries( ${PROJECT_NAME}_lib
         ${NETSNMP}
         ${NETSNMP_LIBRARIES}
 )
-
+    
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -72,10 +67,17 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+add_executable( ${PROJECT_NAME} 
+        src/main.cpp
+        )
+
+
 target_link_libraries( ${PROJECT_NAME} 
     PUBLIC
         ${PROJECT_NAME}_lib
 )
+
+
 
 #############
 ## Testing ##

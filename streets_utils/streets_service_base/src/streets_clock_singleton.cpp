@@ -9,13 +9,13 @@ namespace streets_service {
 
     uint64_t streets_clock_singleton::time_in_ms() {
         auto &inst = get_singleton();
-        inst.wait_for_initialization();
         return inst.nowInMilliseconds();
     }
 
     void streets_clock_singleton::sleep_for(uint64_t ms ) {
         auto &inst = get_singleton();
-        auto cur_time = time_in_ms();
+        inst.wait_for_initialization();
+        auto cur_time = inst.nowInMilliseconds();
         inst.sleep_until(cur_time + ms);
     }
 
