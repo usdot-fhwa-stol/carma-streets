@@ -21,6 +21,8 @@ namespace streets_service{
 
     TEST_F(test_streets_service, test_initialize_sim) {
         ASSERT_TRUE(serv.initialize());
+        ASSERT_EQ( serv.get_service_name(), "test_service");
+        ASSERT_TRUE(serv.is_simulation_mode());
     };
 
     TEST_F(test_streets_service, test_consume_time_sync_message) {
@@ -62,8 +64,11 @@ namespace streets_service{
     };
 
     TEST_F(test_streets_service, test_get_system_config) {
-        std::string sys
-        ASSERT_EQ(serv.get_system_config("SIMULATION_MODE"), "TRUE");
-    }
+        std::string simulation_mode = serv.get_system_config("SIMULATION_MODE");
+        ASSERT_EQ(simulation_mode, "TRUE");
+
+        ASSERT_THROW(serv.get_system_config("NON_EXISTANT"), std::runtime_error);
+        ASSERT_THROW(serv.get_system_config(nullptr), std::runtime_error);
+    };
 
 }

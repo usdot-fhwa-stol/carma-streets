@@ -18,7 +18,9 @@ namespace streets_service {
     template <typename T, typename... Args>
     T& streets_singleton<T,Args...>::create(Args...args ){
       if (instance != nullptr){
-        throw streets_singleton_exception("Singleton has already been created!");
+        SPDLOG_WARN("Recreating Singleton!");
+        delete instance;
+        instance = nullptr;
       }
       instance = new T(args...);
       return *instance;
@@ -29,12 +31,16 @@ namespace streets_service {
      * Protected constructor
      */ 
     template <typename T,typename... Args>   
-    streets_singleton<T,Args...>::streets_singleton() = default;
+    streets_singleton<T,Args...>::streets_singleton(){
+      SPDLOG_INFO("Creating Singleton of type {0}!", typeid(instance).name());
+    };
     /**
      * Protected destructor
      */ 
     template <typename T, typename... Args>   
     streets_singleton<T,Args...>::~streets_singleton() {
+      SPDLOG_WARN("Deleting Singleton of type {0}!", typeid(instance).name());
       delete instance;
+      instance = nullptr;
     }; 
 }

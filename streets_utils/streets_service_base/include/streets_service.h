@@ -49,6 +49,12 @@ namespace streets_service {
             FRIEND_TEST(test_streets_service, test_consume_time_sync_message);
             FRIEND_TEST(test_streets_service, test_initialize_consumer);
             FRIEND_TEST(test_streets_service, test_initialize_producer);
+            FRIEND_TEST(test_streets_service, test_initialize_sim);
+            FRIEND_TEST(test_streets_service, test_get_system_config);
+
+            
+
+            
 
 
     };  
