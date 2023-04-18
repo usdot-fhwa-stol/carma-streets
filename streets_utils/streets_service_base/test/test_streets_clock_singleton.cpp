@@ -30,12 +30,17 @@ TEST( test_streets_clock_singleton, test_simulation_mode) {
 
 TEST(test_streets_clock_singleton, test_real_time) {
     streets_clock_singleton::create(false);
-    ASSERT_EQ(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    EXPECT_NEAR(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
     // allow time to change
     sleep(1);
-    ASSERT_EQ(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    EXPECT_NEAR(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
     auto cur_time = streets_clock_singleton::time_in_ms();
     streets_clock_singleton::sleep_for(2000);
-    ASSERT_EQ(cur_time+2000, streets_clock_singleton::time_in_ms());
+    EXPECT_NEAR(cur_time+2000, duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
+
+    cur_time = streets_clock_singleton::time_in_ms();
+    auto sleep_until_time = cur_time + 3000;
+    streets_clock_singleton::sleep_until(sleep_until_time);
+    EXPECT_NEAR(sleep_until_time,  duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
 
 }

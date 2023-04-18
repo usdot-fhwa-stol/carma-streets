@@ -19,7 +19,10 @@ namespace streets_service {
     T& streets_singleton<T,Args...>::create(Args...args ){
       if (instance != nullptr){
         SPDLOG_WARN("Recreating Singleton!");
-        delete instance;
+        // Avoid loop recursive call of destructor
+        if ( typeid(T) != typeid(instance) ){
+          delete instance;
+        }
         instance = nullptr;
       }
       instance = new T(args...);
@@ -40,7 +43,10 @@ namespace streets_service {
     template <typename T, typename... Args>   
     streets_singleton<T,Args...>::~streets_singleton() {
       SPDLOG_WARN("Deleting Singleton of type {0}!", typeid(instance).name());
-      delete instance;
+      // Avoid loop recursive call of destructor
+      if ( typeid(T) != typeid(instance) ){
+          delete instance;
+      }
       instance = nullptr;
     }; 
 }
