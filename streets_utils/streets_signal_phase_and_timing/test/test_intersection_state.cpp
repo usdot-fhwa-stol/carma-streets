@@ -19,7 +19,8 @@ public:
 protected:
     void SetUp() override
     {
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        streets_service::streets_clock_singleton::create(false);
+        std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
         time_t tt = std::chrono::system_clock::to_time_t(now);
         tm utctime;
         gmtime_r(&tt, &utctime);

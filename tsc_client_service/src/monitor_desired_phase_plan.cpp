@@ -90,7 +90,7 @@ namespace traffic_signal_controller_service
         // Start time for fixed up coming green
         uint64_t start_time_epoch_ms = 0;
         // Current time used for any calculations
-        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t cur_time_since_epoch = streets_service::streets_clock_singleton::time_in_ms();
         auto state = spat_ptr->get_intersection();
         std::vector<signal_phase_and_timing::movement_state> yellow_phase_present;
         // Check if current spat includes yellow clearance
@@ -214,7 +214,7 @@ namespace traffic_signal_controller_service
         }
         // Current time used for any calculations
         streets_desired_phase_plan::streets_desired_phase_plan one_fixed_green;
-        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t cur_time_since_epoch = streets_service::streets_clock_singleton::time_in_ms();
         auto state = spat_ptr->get_intersection();
         // Get green phase configuration to get min green.
         auto green_phase_config =tsc_state->get_signal_group_state_map().find(green_phases.front().signal_group)->second;
@@ -232,7 +232,7 @@ namespace traffic_signal_controller_service
     void monitor_desired_phase_plan::prune_expired_greens_from_dpp( const std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> &dpp ) const{
         // Loop through the desired phase plan and remove an event if the end time is past current
             bool no_expired_events = false;
-            uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            uint64_t cur_time_since_epoch = streets_service::streets_clock_singleton::time_in_ms();
             while( !no_expired_events && dpp != nullptr && !dpp->desired_phase_plan.empty()){
                 // Check first event in desired phase plan and remove if expired
                 if(cur_time_since_epoch < dpp->desired_phase_plan.front().end_time){

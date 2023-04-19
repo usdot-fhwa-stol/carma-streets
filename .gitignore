@@ -1,21 +1,8 @@
 # Cache objects
 packer_cache/
 # build directories
-message_services/build/
-kafka_clients/build/
-scheduling_service/build/
-streets_utils/streets_service_base/build/
-streets_utils/streets_vehicle_list/build/
-streets_utils/streets_vehicle_scheduler/build/
-streets_utils/streets_signal_phase_and_timing/build/
-streets_utils/streets_api/intersection_client_api/build/
-streets_utils/streets_api/intersection_server_api/build/
-streets_utils/streets_desired_phase_plan/build/
-streets_utils/streets_tsc_configuration/build/
-streets_utils/streets_signal_optimization/build/
-intersection_model/build
-signal_opt_service/build/
-tsc_client_service/build
+**/build/
+**/logs/
 # Crash log
 crash.log
 .env

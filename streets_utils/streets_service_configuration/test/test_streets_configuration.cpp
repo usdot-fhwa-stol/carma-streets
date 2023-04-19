@@ -63,6 +63,15 @@ void create_test_configuration(const std::string &filepath){
    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
    doc.Accept(writer);
    file.close();
+   /**
+      TODO: Creating/deleting files like this during unit test execution can be an issue for parallelizing test execution.
+      not critical but it can be nice to have if you've got a significant mass of unit tests. For stuff like this I find it better
+      to load files as a 2-step process: Read from disk into buffer
+      Parse buffer into config object. Then during unit tests you can pre-construct some buffer objects 
+      (just hardcode the strings or whatever) and verify that the parsing works as well as the things that 
+      use the config. The only thing that doesn't get validated that way is the act of reading from disc and
+      normally I don't see the value in validating environment stuff like syscalls (or message framework code) 
+      unless you're doing something particularly off the wall and you want to validate that it works.*/
 };
 
 /**
@@ -84,6 +93,7 @@ void update_configuration(const std::string &filepath, const std::string &new_va
       if  (doc.FindMember("configurations")->value.GetArray()[2].IsObject()){
          if (doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("value")->value.IsString()) {
             doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("value")->value.SetString(new_value,doc.GetAllocator());
+            SPDLOG_INFO("Updated {0} to {1}!",  doc.FindMember("configurations")->value.GetArray()[2].GetObject().FindMember("name")->value.GetString(), new_value );
          }
       }
    }
@@ -98,7 +108,7 @@ void update_configuration(const std::string &filepath, const std::string &new_va
  * Remove all .json configuration files 
  */
 void clear_configuration_files(){
-   std::remove( "../*.json");
+   std::remove( "../manifest.json");
 }
 
 
@@ -107,14 +117,23 @@ void clear_configuration_files(){
  */ 
 TEST(test_streets_configuration, missing_configuration_file)
 {
-   EXPECT_THROW(streets_configuration::get_boolean_config("test"), streets_configuration_exception);
+   clear_configuration_files();
+   EXPECT_THROW(streets_configuration::create("../manifest.json"), streets_configuration_exception);
+   clear_configuration_files();
+
 };
 /**
  * @brief Tested get_config methods with created manifest.json file including updates
  */ 
 TEST(test_streets_configuration, get_config) {
    create_test_configuration("../manifest.json");
+   streets_configuration::create("../manifest.json");
+   
+
+
    streets_configuration::initialize_logger();
+   SPDLOG_INFO("Calling methods");
+
    // Test Correct Parameters
    ASSERT_TRUE(streets_configuration::get_boolean_config("param2"));
    ASSERT_EQ(streets_configuration::get_int_config("param1"), 123);
@@ -129,7 +148,8 @@ TEST(test_streets_configuration, get_config) {
    // sleep for a second to allow last modified timestamp to change
    sleep(1);
    // update values
-   update_configuration( "../manifest.json", "UPDATED");
+   update_configuration( "../manifest.json", "UPDATED");   
+
    ASSERT_EQ(streets_configuration::get_string_config("param3"), "UPDATED");
    // Clean up created configuration files
    clear_configuration_files();

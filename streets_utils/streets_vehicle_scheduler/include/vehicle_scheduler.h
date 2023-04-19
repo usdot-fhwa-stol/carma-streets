@@ -1,8 +1,6 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
-#include <shared_mutex>
-#include <mutex>
 #include <math.h>
 
 #include "vehicle.h"

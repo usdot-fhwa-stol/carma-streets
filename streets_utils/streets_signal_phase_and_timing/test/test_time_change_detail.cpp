@@ -22,7 +22,9 @@ protected:
     void SetUp() override
     {
         typedef std::chrono::duration<int, std::ratio_multiply<std::chrono::hours::period, std::ratio<24>>::type> days;
-        auto tp = std::chrono::system_clock::now();
+        // Initialize streets clock singleton in real time mode
+        streets_service::streets_clock_singleton::create(false);
+        std::chrono::system_clock::time_point tp {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
         auto duration = tp.time_since_epoch();
         SPDLOG_INFO("epoch time point: {0}", tp.time_since_epoch().count());
 
@@ -329,7 +331,7 @@ TEST_F(test_time_change_detail, get_epoch_next_time)
 
 TEST_F(test_time_change_detail, convert_msepoch_to_hour_tenth_secs)
 {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     uint64_t epoch_timestamp = epochMs.count();
     auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
@@ -341,7 +343,7 @@ TEST_F(test_time_change_detail, convert_msepoch_to_hour_tenth_secs)
 
 TEST_F(test_time_change_detail, set_start_time)
 {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
     uint64_t epoch_timestamp = epochMs.count();
@@ -351,7 +353,7 @@ TEST_F(test_time_change_detail, set_start_time)
 
 TEST_F(test_time_change_detail, set_min_end_time)
 {
-     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
     uint64_t epoch_timestamp = epochMs.count();
@@ -361,7 +363,7 @@ TEST_F(test_time_change_detail, set_min_end_time)
 
 TEST_F(test_time_change_detail, set_max_end_time)
 {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
     uint64_t epoch_timestamp = epochMs.count();
@@ -371,7 +373,7 @@ TEST_F(test_time_change_detail, set_max_end_time)
 
 TEST_F(test_time_change_detail, set_next_time)
 {
-     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
     uint64_t epoch_timestamp = epochMs.count();

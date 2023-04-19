@@ -8,6 +8,15 @@ namespace kafka_clients
         SPDLOG_INFO("kafka_producer_worker init()... ");
     }
 
+    kafka_producer_worker::~kafka_producer_worker() {
+        if (_producer ) {
+            delete _producer;
+        }
+        if ( _topic ) {
+            delete _topic;
+        }
+    }
+
     bool kafka_producer_worker::init()
     {
         std::string errstr = "";

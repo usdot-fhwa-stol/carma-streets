@@ -3,32 +3,19 @@ project(kafka_clients)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-
-
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
+find_package(RdKafka REQUIRED)
+
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-
-find_package(streets_service_base_lib REQUIRED)
+# Add carma-clock install directory to cmake prefix path
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+find_package(carma-clock REQUIRED)
 
 add_library(${PROJECT_NAME}_lib STATIC 
             src/kafka_producer_worker.cpp 
             src/kafka_consumer_worker.cpp            
             src/kafka_client.cpp )
-
-
-add_executable(${PROJECT_NAME}  src/main.cpp
-                                src/kafka_producer_worker.cpp 
-                                src/kafka_consumer_worker.cpp
-                                src/kafka_client.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC 
-                            Boost::system
-                            Boost::thread 
-                            spdlog::spdlog 
-                            rdkafka++ 
-                            streets_service_base_lib::streets_service_base_lib
-                            ${PROJECT_NAME}_lib
-                            )
 
 target_include_directories(${PROJECT_NAME}_lib 
                            PUBLIC
@@ -37,16 +24,46 @@ target_include_directories(${PROJECT_NAME}_lib
                            PRIVATE
                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-TARGET_LINK_LIBRARIES (${PROJECT_NAME}_lib PUBLIC Boost::system Boost::thread rdkafka++ spdlog::spdlog gmock )
+TARGET_LINK_LIBRARIES (${PROJECT_NAME}_lib 
+                                PUBLIC 
+                                    Boost::system
+                                    Boost::thread 
+                                    RdKafka::rdkafka++ 
+                                    spdlog::spdlog 
+                                    gmock 
+)
 
 
-#######
-# Install  
-#######
+########################################################
+# Install kafka_clients_lib package.
+########################################################
+file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/include/internal/*.tpp)
 
-INSTALL(TARGETS ${PROJECT_NAME}_lib  DESTINATION lib)
-FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
-INSTALL(FILES ${files} DESTINATION include)
+install(
+    TARGETS ${PROJECT_NAME}_lib
+    EXPORT ${PROJECT_NAME}_libTargets
+    LIBRARY DESTINATION lib
+    INCLUDES DESTINATION include
+    ARCHIVE DESTINATION lib
+)
+install(
+    EXPORT ${PROJECT_NAME}_libTargets 
+    FILE ${PROJECT_NAME}_libTargets.cmake
+    DESTINATION lib/cmake/${PROJECT_NAME}_lib/
+    NAMESPACE ${PROJECT_NAME}_lib::
+)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    cmake/${PROJECT_NAME}_libConfig.cmake.in 
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
+    INSTALL_DESTINATION  lib/${PROJECT_NAME}_lib/${PROJECT_NAME}_lib/ )
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_libConfig.cmake
+    DESTINATION  lib/cmake/${PROJECT_NAME}_lib/
+)
+install(FILES ${files} DESTINATION include)
+install(FILES ${templates} DESTINATION include/internal)
 
 
 # #######################
@@ -56,18 +73,13 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
-add_executable(${BINARY} ${TEST_SOURCES}  
-                        src/kafka_producer_worker.cpp 
-                        src/kafka_consumer_worker.cpp
-                        src/kafka_client.cpp)
+add_executable(${BINARY} ${TEST_SOURCES} )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_link_libraries(${BINARY} PUBLIC 
                             Boost::system 
                             Boost::thread
                             Boost::filesystem
                             spdlog::spdlog
-                            streets_service_base_lib::streets_service_base_lib 
-                            rdkafka++   
                             ${PROJECT_NAME}_lib 
                             gtest)
 target_include_directories(${BINARY}

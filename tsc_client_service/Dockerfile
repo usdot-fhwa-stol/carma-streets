@@ -1,29 +1,21 @@
-FROM ubuntu:bionic-20210702
+ARG UBUNTU_VERSION=jammy-20230126
 
-RUN apt-get update  && apt-get install -y cmake libboost1.65-all-dev build-essential git qtbase5-dev qtbase5-dev-tools libqhttpengine-dev libssl-dev
+FROM ubuntu:$UBUNTU_VERSION
+
+COPY ./build_scripts /home/carma-streets/build_scripts
+WORKDIR /home/carma-streets/build_scripts
+RUN ./install_dependencies.sh
 
 RUN mkdir -p /home/carma-streets/
 
-# Install google test
-RUN echo " ------> Install googletest..."
-WORKDIR /home/carma-streets/
-RUN mkdir -p /home/carma-streets/ext
+# Install librdkafka
+RUN echo " ------> Install librdkafka..."
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/google/googletest/
-WORKDIR /home/carma-streets/ext/googletest/
-RUN cmake .
-RUN make
-RUN make install
-
-# Install spdlog
-RUN echo " ------> Install spdlog... "
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/gabime/spdlog.git
-WORKDIR /home/carma-streets/ext/spdlog/
-RUN mkdir build 
-WORKDIR /home/carma-streets/ext/spdlog/build
-RUN cmake .. && make -j
-RUN make install
+RUN git clone https://github.com/confluentinc/librdkafka.git 
+WORKDIR /home/carma-streets/ext/librdkafka/
+RUN cmake -H. -B_cmake_build
+RUN cmake --build _cmake_build
+RUN cmake --build _cmake_build --target install
 
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
@@ -35,16 +27,27 @@ WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
 RUN make install
 
-# Install librdkafka
-RUN echo " ------> Install librdkafka..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
-WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
 COPY ./streets_utils/ /home/carma-streets/streets_utils
+
+# Install streets_service_configuration
+RUN echo " ------> Install streets service base library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install streets_service_base
 RUN echo " ------> Install streets service base library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_service_base
@@ -90,15 +93,6 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./kafka_clients/ /home/carma-streets/kafka_clients
-WORKDIR  /home/carma-streets/kafka_clients
-RUN mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
 
 # Install net-snmp
 WORKDIR /home/carma-streets/ext/

@@ -125,10 +125,10 @@ namespace traffic_signal_controller_service
             std::string concurrent_phase_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(i);
             snmp_response_obj concurrent_phase_resp;
             if ( i == 1 || i == 2) {
-                concurrent_phase_resp.val_string = {char(2), char(3)};
+                concurrent_phase_resp.val_string = {char(1), char(2)};
             }
             else if (i == 3|| i == 4) {
-                concurrent_phase_resp.val_string = {char(2), char(3)};
+                concurrent_phase_resp.val_string = {char(3), char(4)};
 
             }
             EXPECT_CALL(*mock_client, process_snmp_request(concurrent_phase_oid , request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
@@ -157,8 +157,17 @@ namespace traffic_signal_controller_service
 
         //Test tsc_config_state
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state = worker.get_tsc_config_state();
-        EXPECT_EQ(tsc_config_state->tsc_config_list.front().signal_group_id, 3);
-        EXPECT_EQ(tsc_config_state->tsc_config_list.front().red_clearance, 1000);
+        for (auto const& conf : tsc_config_state->tsc_config_list ) {
+            if ( conf.signal_group_id == 1 || conf.signal_group_id == 2) {
+                EXPECT_EQ( conf.concurrent_signal_groups.front(), 1);
+                EXPECT_EQ( conf.concurrent_signal_groups.back(), 2);
+            } else {
+                EXPECT_EQ( conf.concurrent_signal_groups.front(), 3);
+                EXPECT_EQ( conf.concurrent_signal_groups.back(), 4);
+            }
+            EXPECT_EQ( conf.red_clearance, 1000);
+            EXPECT_EQ( conf.yellow_change_duration, 4000);
+        }
 
     }
 

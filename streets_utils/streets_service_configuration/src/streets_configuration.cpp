@@ -4,7 +4,6 @@
 namespace streets_service {
     // Constructor
     streets_configuration::streets_configuration( const std::string &filepath ): filepath(filepath){
-        SPDLOG_INFO("Printing Configuration Parameters ---------------------------------------");
         // Parse manifest.json configuration file into rapidjson::Document
         rapidjson::Document doc = parse_configuration_file();
         // Use service level configuration parameters from Document (i.e. loglevel and service_name)
@@ -13,6 +12,7 @@ namespace streets_service {
         // Use configurations array to populate configuration map with service specific configuration
         // parameters from Document
         update_configuration(doc);
+        SPDLOG_INFO("Printing Configuration Parameters ---------------------------------------");
         for(const auto& conf : configuration_map)
         {
             SPDLOG_INFO("{0} : {1} ", conf.first.c_str(), conf.second.value.c_str());
@@ -37,9 +37,10 @@ namespace streets_service {
         return doc;
     };
 
-    void streets_configuration::configure_logger( const rapidjson::Document &doc ) const {
+    void streets_configuration::configure_logger( const rapidjson::Document &doc ) {
         if ( doc.HasMember("service_name") && doc.FindMember("service_name")->value.IsString() ) {
-            create_default_logger( doc.FindMember("service_name")->value.GetString());
+            set_service_name(doc.FindMember("service_name")->value.GetString());
+            create_default_logger( _service_name );
         }
         else {
             SPDLOG_WARN("Parameter \"service_name\" missing/incorrectly formatted in manifest.json! Setting \"service_name\" to streets_service!");
@@ -161,6 +162,11 @@ namespace streets_service {
         }
     }
 
+    std::string streets_configuration::get_service_name() {
+        auto &instance = get_singleton();
+        return instance._service_name;
+    }
+
     
     void streets_configuration::set_loglevel(const std::string &loglevel ) const{
         // Get main logger and set loglevel
@@ -223,7 +229,13 @@ namespace streets_service {
         }
     }
 
+    void streets_configuration::set_service_name(const std::string &service_name) {
+        _service_name = service_name;
+    }   
+
 }
+
+
 
 
 

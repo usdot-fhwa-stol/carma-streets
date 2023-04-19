@@ -7,6 +7,8 @@
 #include "monitor_tsc_state.h"
 #include "monitor_desired_phase_plan_exception.h"
 #include "snmp_client.h"
+#include "streets_clock_singleton.h"
+
 namespace traffic_signal_controller_service
 {
     class monitor_desired_phase_plan
