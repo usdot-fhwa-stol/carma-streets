@@ -6,7 +6,7 @@ This is the `streets_service_configuration` library meant to provide of each new
 
 ## Streets Singleton
 
-Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself. To ensure that new instances of this class can not be created the constructors are deleted or hidden using private or protected access. Before accessing this object using the static `streets_singleton::get_singleton()` method, it must first be initialized using the `streets_singleon::create( Args ...)` method. Args should be the constructor parameters for the templated class, of which an instance will be created. 
+Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself. To ensure that new instances of this class can not be created the copy and assignment constructors are deleted and the regular constructor is hidden using protected access. Before accessing this object using the static `streets_singleton::get_singleton()` method, it must first be initialized using the `streets_singleon::create( Args ...)` method. Args should be the constructor parameter of the class which the singleton will manage an instance of. When implementating a new singleton it is recommended to separately create a class to manage the data and logic and then add this class and it's constructor parameters as the types for the singleton as shown below:  
 ```
 class example_data{
 
