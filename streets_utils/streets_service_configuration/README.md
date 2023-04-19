@@ -7,6 +7,34 @@ This is the `streets_service_configuration` library meant to provide of each new
 ## Streets Singleton
 
 Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself. To ensure that new instances of this class can not be created the constructors are deleted or hidden using private or protected access. Before accessing this object using the static `streets_singleton::get_singleton()` method, it must first be initialized using the `streets_singleon::create( Args ...)` method. Args should be the constructor parameters for the templated class, of which an instance will be created. 
+```
+class example_data{
+
+    std::string param1;
+    int param2;
+    void method_1() {
+        // DO SOMETHING
+    };
+    void example_data(const std::string &_param1, int _param2): param1(_param1), param2(_param2) {};
+};
+class example_singleton : public streets_singleton<example_data, std::string, int> {
+
+    public:
+        //Provide static access to singleton data methon
+        static void method_1() {
+            auto &inst = get_instance();
+            inst.method_1();
+        }
+    protected;
+        // Hide access to get_instance method
+        using streets_singleton::get_instance;
+};
+// Create singleton
+example_singleton::create("something", 3);
+// Call any singleton method
+example_singleton::method_1();
+
+```
 
 
 ## Streets Configuration

@@ -20,6 +20,14 @@ namespace streets_service {
             streets_service() = default;
 
             ~streets_service();
+            // Remove copy constructor 
+            streets_service(const streets_service &) = delete;
+            // Remove move constructor
+            streets_service(streets_service&& ) = delete;
+            // Remove copy assignment operator
+            streets_service& operator=(const streets_service &) = delete;
+            // Remove move assignment operator
+            streets_service& operator=(const streets_service &&) = delete;
 
             virtual bool initialize();
 
