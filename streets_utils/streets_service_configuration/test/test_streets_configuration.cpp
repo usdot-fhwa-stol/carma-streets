@@ -63,6 +63,15 @@ void create_test_configuration(const std::string &filepath){
    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
    doc.Accept(writer);
    file.close();
+   /**
+      TODO: Creating/deleting files like this during unit test execution can be an issue for parallelizing test execution.
+      not critical but it can be nice to have if you've got a significant mass of unit tests. For stuff like this I find it better
+      to load files as a 2-step process: Read from disk into buffer
+      Parse buffer into config object. Then during unit tests you can pre-construct some buffer objects 
+      (just hardcode the strings or whatever) and verify that the parsing works as well as the things that 
+      use the config. The only thing that doesn't get validated that way is the act of reading from disc and
+      normally I don't see the value in validating environment stuff like syscalls (or message framework code) 
+      unless you're doing something particularly off the wall and you want to validate that it works.*/
 };
 
 /**
