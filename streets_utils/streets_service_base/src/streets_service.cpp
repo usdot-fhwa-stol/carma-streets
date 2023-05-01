@@ -27,6 +27,14 @@ namespace streets_service {
             SPDLOG_ERROR("Exception occured during {0} initialization : {1}" , _service_name , e.what());
             return false;
         }
+        catch ( const streets_singleton_exception &e ) {
+            SPDLOG_ERROR("Exception occured during {0} initialization : {1}" , _service_name , e.what());
+            return false;
+        }
+        catch ( const std::runtime_error &e ) {
+            SPDLOG_ERROR("Exception occured during {0} initialization : {1}" , _service_name , e.what());
+            return false;
+        }
         return true;
 
     }
