@@ -71,14 +71,19 @@ namespace streets_service {
     void streets_service::consume_time_sync_message() const  {
         _time_consumer->subscribe();
         while (_time_consumer->is_running())
-        {
+        {   
             const std::string payload = _time_consumer->consume(1000);
             if (payload.length() != 0)
             {
-                SPDLOG_DEBUG("Consumed: {0}", payload);
-                simulation::time_sync_message msg;
-                msg.fromJson(payload);
-                streets_clock_singleton::update(msg.timestep);
+                try {
+                    SPDLOG_DEBUG("Consumed: {0}", payload);
+                    simulation::time_sync_message msg;
+                    msg.fromJson(payload);
+                    streets_clock_singleton::update(msg.timestep);
+                }
+                catch( const std::runtime_error &e) {
+                    SPDLOG_WARN( "{0} exception occured will consuming {1} msg! Skipping message!", e.what(), payload);
+                }
                 
             }
 

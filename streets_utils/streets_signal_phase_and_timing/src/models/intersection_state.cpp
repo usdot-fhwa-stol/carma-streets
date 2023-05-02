@@ -16,9 +16,6 @@ namespace signal_phase_and_timing {
         state.AddMember("revision", revision, allocator);
         // REQUIRED see J2735 IntersectionState definition
         state.AddMember("status", status, allocator);
-        if ( moy == 0 ) {
-            throw signal_phase_and_timing_exception("IntersectionState is missing required moy property!");
-        }
         // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
         state.AddMember("moy", moy, allocator);
         // OPTIONAL see J2735 IntersectionState definition but required for CARMA-Streets
