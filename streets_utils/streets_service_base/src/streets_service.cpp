@@ -13,7 +13,8 @@ namespace streets_service {
         try {
             std::string config_file_path = get_system_config("CONFIG_FILE_PATH");
             streets_configuration::create(config_file_path);
-            _simulation_mode = get_system_config("SIMULATION_MODE").compare("TRUE") == 0;
+            std::string sim_mode_string = get_system_config("SIMULATION_MODE");
+            _simulation_mode = sim_mode_string.compare("true") == 0 || sim_mode_string.compare("TRUE") == 0 ;
             streets_clock_singleton::create(_simulation_mode);
             _service_name = streets_configuration::get_service_name();
             SPDLOG_INFO("Initializing {0} streets service in simulation mode : {1}!", _service_name, _simulation_mode);
@@ -86,9 +87,9 @@ namespace streets_service {
 
 
     void streets_service::start() {
-        if (_simulation_mode ) {
+        if ( _simulation_mode ) {
             std::thread time_sync_thread(&streets_service::consume_time_sync_message, this);
-            time_sync_thread.join();
+            time_sync_thread.detach();
         }
     }
 

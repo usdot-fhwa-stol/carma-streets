@@ -183,17 +183,17 @@ namespace traffic_signal_controller_service {
                     }
                     if (spat_ptr && spat_producer) {
                         spat_producer->send(spat_ptr->toJson());
-                        // Calculate and average spat processing time over 20 messages sent 
-                        if (count <= 20 ) {
-                            uint64_t timestamp = streets_clock_singleton::time_in_ms();
-                            spat_processing_time += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
-                            count++;
-                        } else {
-                            double total_processing_time = ((double)(spat_processing_time))/20.0;
-                            SPDLOG_INFO("SPat average processing time over 20 messages is {0} ms and total processing time for 20 messages is {1} ms!", total_processing_time, spat_processing_time);
-                            spat_processing_time = 0;
-                            count = 0;
-                        }
+                        // // Calculate and average spat processing time over 20 messages sent 
+                        // if (count <= 20 ) {
+                        //     uint64_t timestamp = streets_clock_singleton::time_in_ms();
+                        //     spat_processing_time += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
+                        //     count++;
+                        // } else {
+                        //     double total_processing_time = ((double)(spat_processing_time))/20.0;
+                        //     SPDLOG_INFO("SPat average processing time over 20 messages is {0} ms and total processing time for 20 messages is {1} ms!", total_processing_time, spat_processing_time);
+                        //     spat_processing_time = 0;
+                        //     count = 0;
+                        // }
                     }
                     
                 }
@@ -326,6 +326,7 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::start() {
         streets_service::streets_service::start();
+        SPDLOG_INFO("Starting TSC Service threads");
         std::thread tsc_config_thread(&tsc_service::produce_tsc_config_json, this);
 
         std::thread spat_t(&tsc_service::produce_spat_json, this);

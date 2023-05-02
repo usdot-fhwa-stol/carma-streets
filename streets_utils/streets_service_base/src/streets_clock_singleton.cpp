@@ -9,6 +9,7 @@ namespace streets_service {
 
     uint64_t streets_clock_singleton::time_in_ms() {
         auto &inst = get_singleton();
+        inst.wait_for_initialization();
         return inst.nowInMilliseconds();
     }
 
@@ -21,6 +22,7 @@ namespace streets_service {
 
     void streets_clock_singleton::sleep_until(uint64_t ms) {
         auto &inst = get_singleton();
+        inst.wait_for_initialization();
         inst.sleep_until(ms);
     }
 }
