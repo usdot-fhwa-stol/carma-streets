@@ -186,17 +186,7 @@ namespace traffic_signal_controller_service {
                         spat_producer->send(spat_ptr->toJson());
                         // No utility in calculating spat latency in simulation mode
                         if ( !this->is_simulation_mode() ) {
-                            // Calculate and average spat processing time over 20 messages sent 
-                            if (count <= 20 ) {
-                                uint64_t timestamp = streets_clock_singleton::time_in_ms();
-                                spat_processing_time += timestamp - spat_ptr->get_intersection().get_epoch_timestamp();
-                                count++;
-                            } else {
-                                double total_processing_time = ((double)(spat_processing_time))/20.0;
-                                SPDLOG_INFO("SPat average processing time over 20 messages is {0} ms and total processing time for 20 messages is {1} ms!", total_processing_time, spat_processing_time);
-                                spat_processing_time = 0;
-                                count = 0;
-                            }
+                           log_spat_latency(count, spat_processing_time, spat_ptr->get_intersection().get_epoch_timestamp()) ;
                         }
                     }
                     
@@ -326,6 +316,22 @@ namespace traffic_signal_controller_service {
             spdlog::error( "Log initialization failed: {0}!",ex.what());
         }
     }
+
+    void  tsc_service::log_spat_latency(int &count, uint64_t &spat_processing_time, uint64_t spat_time_stamp) const {
+        // Calculate and average spat processing time over 20 messages sent 
+        if (count <= 20 ) {
+            uint64_t timestamp = streets_clock_singleton::time_in_ms();
+            spat_processing_time += timestamp - spat_time_stamp;
+            count++;
+        }
+        // Log result at 20 and clear counts  
+        if (count >= 20 ) {
+            double total_processing_time = ((double)(spat_processing_time))/20.0;
+            SPDLOG_INFO("SPat average processing time over 20 messages is {0} ms and total processing time for 20 messages is {1} ms!", total_processing_time, spat_processing_time);
+            spat_processing_time = 0;
+            count = 0;
+        }
+    } 
     
 
     void tsc_service::start() {

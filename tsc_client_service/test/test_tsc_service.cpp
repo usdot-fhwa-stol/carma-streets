@@ -424,6 +424,32 @@ namespace traffic_signal_controller_service
 
     }
 
+    TEST_F(tsc_service_test, test_log_spat_latency){
+        // Initialize clock singleton in realtime mode
+        SPDLOG_INFO("IS This happening");
+        streets_service::streets_clock_singleton::create(false);
+        int count = 0;
+        uint64_t spat_latency = 0;
+        // 100 ms latency
+        uint64_t spat_time_stamp = streets_service::streets_clock_singleton::time_in_ms() - 100;
+        service.log_spat_latency(count, spat_latency, spat_time_stamp);
+        // Confirm count and latency variables were passed by reference 
+        ASSERT_EQ( count, 1);
+        // 2ms threshold for system time comparisons
+        EXPECT_NEAR( spat_latency, 100, 2);
+        // Run 19 more times to get method to print average and reset count and latency.
+        for (int i = 0; i < 18 ; i++) {
+            service.log_spat_latency(count, spat_latency , spat_time_stamp);
+            ASSERT_EQ( count, i+2);
+            // 2ms threshold for system time comparisons
+            EXPECT_NEAR( spat_latency, 200 + i*100,2);
+        }
+        service.log_spat_latency(count, spat_latency , spat_time_stamp);
+        ASSERT_EQ( count, 0);
+        // 2ms threshold for system time comparisons
+        EXPECT_NEAR( spat_latency, 0, 2);
+
+    }
     TEST_F(tsc_service_test, test_produce_tsc_config_json_timeout) {
 
         // Initialize clock singleton in realtime mode
