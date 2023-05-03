@@ -70,5 +70,20 @@ namespace streets_service{
         ASSERT_THROW(serv.get_system_config("NON_EXISTANT"), std::runtime_error);
         ASSERT_THROW(serv.get_system_config(nullptr), std::runtime_error);
     };
+    TEST_F(test_streets_service, test_start) {
+        ASSERT_TRUE(serv.initialize());
+        serv.start();
+    }
+
+    TEST_F(test_streets_service, test_initialize_exception) {
+        unsetenv("CONFIG_FILE_PATH");
+        ASSERT_FALSE(serv.initialize());
+    }
+
+    TEST_F(test_streets_service, test_initialize_exception_config ) {
+        setenv("CONFIG_FILE_PATH", "../test/test_files/invalid.json", 1);
+        ASSERT_FALSE(serv.initialize());
+
+    }
 
 }

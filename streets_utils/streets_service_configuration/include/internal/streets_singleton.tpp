@@ -19,11 +19,10 @@ namespace streets_service {
     T& streets_singleton<T,Args...>::create(Args...args ){
       if (instance != nullptr){
         SPDLOG_WARN("Recreating Singleton of type {0}!", typeid(instance).name());
-        // Avoid loop recursive call of destructor
-        if ( typeid(T) != typeid(instance) ){
-          delete instance;
-        }
-        instance = nullptr;
+        // Remove old instance
+        
+        delete instance;
+      
       }
       instance = new T(args...);
       return *instance;
@@ -43,10 +42,9 @@ namespace streets_service {
     template <typename T, typename... Args>   
     streets_singleton<T,Args...>::~streets_singleton() {
       SPDLOG_WARN("Deleting Singleton of type {0}!", typeid(instance).name());
-      // Avoid loop recursive call of destructor
-      if ( typeid(T) != typeid(instance) ){
-          delete instance;
-      }
-      instance = nullptr;
+      // Zero out first to avoid recursive call to desctructor
+      // https://www.codeproject.com/Articles/987473/Unit-Testing-a-Singleton-in-Cplusplus
+      instance = 0;
+      delete instance;
     }; 
 }

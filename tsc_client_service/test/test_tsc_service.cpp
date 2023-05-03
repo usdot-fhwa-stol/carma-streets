@@ -480,9 +480,9 @@ namespace traffic_signal_controller_service
         auto logger = spdlog::get("snmp_cmd_logger"); 
         EXPECT_TRUE(logger != nullptr);
     }
-    // TODO: Restore test by fixting streets_configuration_singleton
-    // TEST_F(tsc_service_test, test_initialization_no_mock_response_from_snmp_client) {
-    //     ASSERT_FALSE(service.initialize());
-    // }
+    // Test tsc_service initialize without mocking snmp responses
+    TEST_F(tsc_service_test, test_initialization_no_mock_response_from_snmp_client) {
+        ASSERT_FALSE(service.initialize());
+    }
 }
 
