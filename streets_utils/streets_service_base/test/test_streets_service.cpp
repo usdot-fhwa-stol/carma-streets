@@ -41,9 +41,9 @@ namespace streets_service{
                                                                 "}"
                                                             ));
 
-        ASSERT_THROW(serv.consume_time_sync_message(), std::runtime_error);;
+        serv.consume_time_sync_message();   // Skip empty message and skip incorrect message and consume real message then 
+                                            // consumer is_running returns false and returns control
 
-        serv.consume_time_sync_message();
 
         ASSERT_EQ(1400, streets_clock_singleton::time_in_ms());
     }
