@@ -44,17 +44,17 @@ namespace streets_service {
             /**
              * Protected constructor
              */ 
-            streets_singleton();
+            streets_singleton() = default;
             /**
              * Protected destructor
              */        
-            ~streets_singleton();
+            ~streets_singleton() = default;
               
-            static T *instance;        
+            static std::unique_ptr<T> instance;        
     };
 
     template <typename T, typename ...Args>
-    T* streets_singleton<T, Args...>::instance = nullptr;
+    std::unique_ptr<T> streets_singleton<T, Args...>::instance = nullptr;
          
 };
 
