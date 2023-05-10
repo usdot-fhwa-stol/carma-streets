@@ -28,7 +28,7 @@ namespace streets_service {
         instance = std::unique_ptr<T>( new T(args...) );
       }
       
-      return *instance.get();
+      return *instance;
     }
         
 
