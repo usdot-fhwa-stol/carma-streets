@@ -7,10 +7,8 @@ find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(RdKafka REQUIRED)
 
 find_package(spdlog REQUIRED)
+find_package(GTest REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-# Add carma-clock install directory to cmake prefix path
-list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
-find_package(carma-clock REQUIRED)
 
 add_library(${PROJECT_NAME}_lib STATIC 
             src/kafka_producer_worker.cpp 
@@ -80,8 +78,10 @@ target_link_libraries(${BINARY} PUBLIC
                             Boost::thread
                             Boost::filesystem
                             spdlog::spdlog
-                            ${PROJECT_NAME}_lib 
-                            gtest)
+                            ${PROJECT_NAME}_lib
+                            GTest::gtest
+                            GTest::gmock 
+                            )
 target_include_directories(${BINARY}
                            PUBLIC
                            $<INSTALL_INTERFACE:include>

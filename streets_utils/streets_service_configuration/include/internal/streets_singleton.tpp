@@ -6,11 +6,10 @@ namespace streets_service {
     T& streets_singleton<T,Args...>::get_singleton() {
         if ( !instance ) {
           throw streets_singleton_exception("Singleton has not been created");
-        } // Guaranteed to be destroyed.
-                            // Instantiated on first use.
+        } 
         char strAddress[20];
         snprintf(strAddress,sizeof(strAddress) ,"%p",std::addressof(instance) );
-        SPDLOG_TRACE("Singleton class : {0}.", typeid(instance).name() );
+        SPDLOG_TRACE("Singleton class : {0}.", typeid(instance.get()).name() );
         SPDLOG_TRACE("Singleton address: {0}", strAddress);
         return *instance;
     };
@@ -18,35 +17,19 @@ namespace streets_service {
     template <typename T, typename... Args>
     T& streets_singleton<T,Args...>::create(Args...args ){
       if (instance != nullptr){
-        SPDLOG_WARN("Recreating Singleton of type {0}!", typeid(instance).name());
-        // Avoid loop recursive call of destructor
-        if ( typeid(T) != typeid(instance) ){
-          delete instance;
-        }
-        instance = nullptr;
+        SPDLOG_WARN("Recreating Singleton of type {0}!", typeid(instance.get()).name());
+        // Reset unique ptr
+        
+        instance.reset( new T(args...) );
+      
       }
-      instance = new T(args...);
+      else {
+        SPDLOG_INFO("Initializing Singleton of type {0}!", typeid(instance.get()).name());
+        instance = std::unique_ptr<T>( new T(args...) );
+      }
+      
       return *instance;
     }
         
 
-    /**
-     * Protected constructor
-     */ 
-    template <typename T,typename... Args>   
-    streets_singleton<T,Args...>::streets_singleton(){
-      SPDLOG_INFO("Creating Singleton of type {0}!", typeid(instance).name());
-    };
-    /**
-     * Protected destructor
-     */ 
-    template <typename T, typename... Args>   
-    streets_singleton<T,Args...>::~streets_singleton() {
-      SPDLOG_WARN("Deleting Singleton of type {0}!", typeid(instance).name());
-      // Avoid loop recursive call of destructor
-      if ( typeid(T) != typeid(instance) ){
-          delete instance;
-      }
-      instance = nullptr;
-    }; 
 }

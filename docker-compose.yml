@@ -77,6 +77,16 @@ services:
       - db
     environment:
       - MYSQL_PASSWORD=/run/secrets/mysql_password
+      - SIMULATION_MODE=FALSE
+      - SIMULATION_IP=127.0.0.1
+      - SIMULATION_REGISTRATION_PORT=1615
+      - LOCAL_IP=127.0.0.1
+      - TIME_SYNC_TOPIC=time_sync
+      - TIME_SYNC_PORT=7575
+      - SIM_V2X_PORT=5757
+      - V2X_PORT=8686
+      - INFRASTRUCTURE_ID=carma-streets_1
+      - KAFKA_BROKER_ADDRESS=127.0.0.1:9092
     secrets:
       - mysql_password
     volumes:
@@ -189,6 +199,9 @@ services:
       WAIT_HOSTS_TIMEOUT: 300
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
+      SIMULATION_MODE: TRUE
+      CONFIG_FILE_PATH: ../manifest.json
+      TIME_SYNC_TOPIC: time_sync
     volumes: 
       - ./tsc_client_service/manifest.json:/home/carma-streets/tsc_client_service/manifest.json
       - ./tsc_client_service/logs/:/home/carma-streets/tsc_client_service/logs/

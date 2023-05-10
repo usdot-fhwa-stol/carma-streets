@@ -19,6 +19,8 @@ find_library(NETSNMP "netsnmp")
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(GTest COMPONENTS GTest::gtest GTest::gmock)
+find_package(kafka_clients_lib REQUIRED)
+
 
 list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 
