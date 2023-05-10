@@ -11,7 +11,7 @@ namespace streets_service {
         snprintf(strAddress,sizeof(strAddress) ,"%p",std::addressof(instance) );
         SPDLOG_TRACE("Singleton class : {0}.", typeid(instance.get()).name() );
         SPDLOG_TRACE("Singleton address: {0}", strAddress);
-        return *instance.get();
+        return *instance;
     };
 
     template <typename T, typename... Args>
