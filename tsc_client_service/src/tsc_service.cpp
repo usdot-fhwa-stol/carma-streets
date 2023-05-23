@@ -88,7 +88,7 @@ namespace traffic_signal_controller_service {
             {
                 configure_snmp_cmd_logger();
             }
-
+            enable_spat();
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
