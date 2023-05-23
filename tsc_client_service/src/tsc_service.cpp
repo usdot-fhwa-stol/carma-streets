@@ -88,7 +88,10 @@ namespace traffic_signal_controller_service {
             {
                 configure_snmp_cmd_logger();
             }
-            enable_spat();
+            if (is_simulation_mode()) {
+                // Trigger spat broadcasting for EVC on startup.
+                enable_spat();
+            }
             SPDLOG_INFO("Traffic Signal Controller Service initialized successfully!");
             return true;
         }
