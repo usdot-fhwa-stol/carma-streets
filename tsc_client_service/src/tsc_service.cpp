@@ -5,7 +5,9 @@ namespace traffic_signal_controller_service {
     std::mutex dpp_mtx;
     using namespace streets_service;
     bool tsc_service::initialize() {
-        streets_service::initialize();
+        if (!streets_service::initialize()) {
+            return false;
+        }
         try
         {
             // Intialize spat kafka producer
