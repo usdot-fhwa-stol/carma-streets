@@ -81,8 +81,7 @@ namespace traffic_signal_controller_service
 
         hold_execution_time = last_event.end_time;
         tsc_command_queue.push(create_hold_command(empty_group, hold_execution_time, true));
-
-        SPDLOG_DEBUG("Updated queue");
+        SPDLOG_DEBUG("Updated queue with front command {0}!", tsc_command_queue.front().get_cmd_info());
 
     }
 

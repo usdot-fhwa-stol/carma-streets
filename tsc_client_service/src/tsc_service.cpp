@@ -10,6 +10,7 @@ namespace traffic_signal_controller_service {
         }
         try
         {
+            streets_clock_singleton::update(0);
             // Intialize spat kafka producer
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
@@ -254,8 +255,10 @@ namespace traffic_signal_controller_service {
     void tsc_service::control_tsc_phases()
     {
         try{
+            SPDLOG_INFO("Starting TSC Control Phases");
             while(true)
             {
+                SPDLOG_INFO("Iterate TSC Control Phases for time {0}", streets_clock_singleton::time_in_ms());
                 set_tsc_hold_and_omit();
                 streets_clock_singleton::sleep_for(control_tsc_state_sleep_dur_);
             }
@@ -274,6 +277,7 @@ namespace traffic_signal_controller_service {
 
         while(!tsc_set_command_queue_.empty())
         {
+            SPDLOG_DEBUG("Checking if front command {0} is expired", tsc_set_command_queue_.front().get_cmd_info());
             //Check if event is expired
             long duration = tsc_set_command_queue_.front().start_time_ - streets_clock_singleton::time_in_ms();
             if(duration < 0){
@@ -281,6 +285,7 @@ namespace traffic_signal_controller_service {
                     + std::to_string(tsc_set_command_queue_.front().start_time_) + " and current time is " 
                     + std::to_string(streets_clock_singleton::time_in_ms() ) + ".");
             }
+            SPDLOG_DEBUG("Sleeping for {0}ms.", duration);
             streets_clock_singleton::sleep_for(duration);
 
             if(!(tsc_set_command_queue_.front()).run())
