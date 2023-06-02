@@ -1,31 +1,45 @@
+#pragma once
 #include <stdint.h>
 #include <string>
+#include <boost/algorithm/string.hpp>
+#include <iostream>
+#include <iomanip>
 
 namespace streets_phase_control_schedule
 {
     // Define Command Actions (Used in phase controls)
     enum class COMMAND_TYPE
     {
-        CALL_VEH_PHASES = 1,
-        CALL_PED_PHASES = 2,
-        FORCEOFF_PHASES = 3,
-        HOLD_VEH_PHASES = 4,
-        OMIT_VEH_PHASES = 5,
-        OMIT_PED_PHASES = 6
+        CALL_VEH_PHASES = 1, // Call a vehicle phase
+        CALL_PED_PHASES = 2, // Call a pedestrian phase
+        FORCEOFF_PHASES = 3, // Forceoff a vehicle phase
+        HOLD_VEH_PHASES = 4, // Hold a vehicle phase
+        OMIT_VEH_PHASES = 5, // Omit a vehicle phase
+        OMIT_PED_PHASES = 6, // Omit a pedestrain phase
     };
 
-    class streets_phase_control_command
+    /**
+     * @brief This struct provides command information which will be sent to the Traffic signal controller
+     */
+    struct streets_phase_control_command
     {
-    private:
-        COMMAND_TYPE command_type;
-        int command_phase;
-        float command_start_time;
-        float command_end_time;
+        COMMAND_TYPE command_type; // Action
+        int command_phase;         // Affected phase (bitstring to integer)
+        double command_start_time;  // Start time from now in seconds
+        double command_end_time;    // End time from now in seconds
+        streets_phase_control_command() = default;
+        /***
+         * @brief Constructor with arguments to initialize the command object
+         */
+        streets_phase_control_command(const std::string &command_type_str, int command_phase, double command_start_time, double command_end_time);
+        /**
+         * @brief Set the command type variable
+         * @param string command type in string format
+         */
+        void set_command_type(const std::string &command_type_str);
+        ~streets_phase_control_command() = default;
 
-    public:
-        streets_phase_control_command(/* args */);
-        ~streets_phase_control_command();
-        bool set_command_type(const std::string& command_type_str);
+        // Overload operator<< to print command
+        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_command command);
     };
-
 }
