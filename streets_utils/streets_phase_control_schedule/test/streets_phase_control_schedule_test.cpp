@@ -53,6 +53,7 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     clear_schedule.fromJson(input_str);
     ASSERT_TRUE(clear_schedule.is_clear_current_schedule);
     ASSERT_EQ(0, clear_schedule.commands.size());
+    ASSERT_TRUE(clear_schedule.is_clear_current_schedule);
 
     streets_phase_control_schedule::streets_phase_control_schedule new_schedule;
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);

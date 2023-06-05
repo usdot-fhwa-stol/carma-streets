@@ -23,7 +23,6 @@ namespace streets_phase_control_schedule
         }
         else
         {
-
             throw streets_phase_control_schedule_exception("streets_phase_control_schedule message is missing required MsgType property!");
         }
 
@@ -39,7 +38,7 @@ namespace streets_phase_control_schedule
                 }
 
                 // Each command property has to be correct data type
-                if (!command_itr.FindMember("commandType")->value.IsString() || !command_itr.FindMember("commandPhase")->value.IsInt() || !(command_itr.FindMember("commandStartTime")->value.IsFloat() || command_itr.FindMember("commandStartTime")->value.IsInt64()) || !(command_itr.FindMember("commandEndTime")->value.IsFloat() || command_itr.FindMember("commandEndTime")->value.IsInt64()))
+                if (!command_itr.FindMember("commandType")->value.IsString() || !command_itr.FindMember("commandPhase")->value.IsInt() || !(command_itr.FindMember("commandStartTime")->value.IsDouble() || command_itr.FindMember("commandStartTime")->value.IsInt64()) || !(command_itr.FindMember("commandEndTime")->value.IsDouble() || command_itr.FindMember("commandEndTime")->value.IsInt64()))
                 {
                     throw streets_phase_control_schedule_exception("streets_phase_control_schedule message commandType, commandPhase, commandStartTime or commandEndTime property has incorrect data type.");
                 }
@@ -56,6 +55,8 @@ namespace streets_phase_control_schedule
             toLowerCaseAndTrim(value);
             if (value == "clear")
             {
+                // Clear the commands from the schedule
+                commands.clear();
                 is_clear_current_schedule = true;
             }
             else
