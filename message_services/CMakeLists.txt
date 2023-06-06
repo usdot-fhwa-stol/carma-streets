@@ -15,8 +15,7 @@ find_package(catkin COMPONENTS
                 lanelet2_core 
                 lanelet2_projection 
                 lanelet2_io REQUIRED)
-find_package( streets_service_base_lib COMPONENTS streets_service_base_lib REQUIRED)
-message(STATUS ${CMAKE_CURRENT_BINARY_DIR})
+find_package( streets_service_configuration_lib COMPONENTS streets_service_configuration_lib REQUIRED)
 
 find_package(Boost COMPONENTS thread system REQUIRED)
 find_package(spdlog REQUIRED)
@@ -53,7 +52,7 @@ target_link_libraries(${PROJECT_NAME}_lib PUBLIC
                         "${catkin_LIBRARY_DIRS}/liblanelet2_routing.so"
                         "${catkin_LIBRARY_DIRS}/liblanelet2_extension_lib.so"
                         Eigen3::Eigen
-                        streets_service_base_lib::streets_service_base_lib
+                        streets_service_configuration_lib::streets_service_configuration_lib
                         kafka_clients_lib 
                         rdkafka++
                         gmock

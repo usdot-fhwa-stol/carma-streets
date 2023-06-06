@@ -32,11 +32,11 @@ RUN make install
 # Install librdkafka
 RUN echo " ------> Install librdkafka..."
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
+RUN git clone https://github.com/confluentinc/librdkafka.git 
 WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
-RUN make
-RUN make install
+RUN cmake -H. -B_cmake_build
+RUN cmake --build _cmake_build
+RUN cmake --build _cmake_build --target install
 
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
@@ -119,12 +119,22 @@ RUN source /opt/ros/melodic/setup.bash && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y libeigen3-dev && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
+# Install kafka-clients
+RUN echo " ------> Install kafka-clients..."
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
+WORKDIR  /home/carma-streets/kafka_clients
+RUN mkdir build
+WORKDIR  /home/carma-streets/kafka_clients/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 COPY ./streets_utils/ /home/carma-streets/streets_utils
 # Install streets_service_base
-RUN echo " ------> Install streets service base library from streets_utils..."
-WORKDIR /home/carma-streets/streets_utils/streets_service_base
+RUN echo " ------> Install streets service configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration
 RUN mkdir build
-WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
@@ -138,15 +148,6 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-# Install kafka-clients
-RUN echo " ------> Install kafka-clients..."
-COPY ./kafka_clients/ /home/carma-streets/kafka_clients
-WORKDIR  /home/carma-streets/kafka_clients
-RUN mkdir build
-WORKDIR  /home/carma-streets/kafka_clients/build
-RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
-RUN make
-RUN make install
 
 COPY ./intersection_model/ /home/carma-streets/intersection_model
 # Install intersection_model

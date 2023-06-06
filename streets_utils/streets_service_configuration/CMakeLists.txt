@@ -71,8 +71,12 @@ add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_link_libraries(${BINARY} 
     PUBLIC
         ${PROJECT_NAME}_lib
-        GTest::gtest                                  
 )
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
+    target_link_libraries(${BINARY} PUBLIC GTest::gtest)
+else() 
+    target_link_libraries(${BINARY} PUBLIC gtest)
+endif()
 target_include_directories(${BINARY} 
     PUBLIC 
         $<INSTALL_INTERFACE:include>

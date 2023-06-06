@@ -14,7 +14,6 @@ add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(streets_service_configuration_lib REQUIRED)
-find_package(streets_service_base_lib REQUIRED)
 find_package(streets_vehicle_list_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib REQUIRED)
 find_package(streets_tsc_configuration_lib REQUIRED)
@@ -46,7 +45,6 @@ target_link_libraries(${PROJECT_NAME}_lib
         streets_desired_phase_plan_lib::streets_desired_phase_plan_lib
         streets_vehicle_list_lib::streets_vehicle_list_lib
         streets_vehicle_scheduler_lib::streets_vehicle_scheduler_lib
-        streets_service_base_lib::streets_service_base_lib
         streets_tsc_configuration_lib::streets_tsc_configuration_lib
         streets_signal_optimization_lib::streets_signal_optimization_lib
         kafka_clients_lib::kafka_clients_lib
@@ -82,6 +80,9 @@ target_link_libraries(${BINARY}
         ${PROJECT_NAME}_lib
         spdlog::spdlog
         rapidjson
-        GTest::gtest
-        GTest::gmock
 )
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
+    target_link_libraries( ${BINARY} PUBLIC GTest::gtest GTest::gmock )
+else() 
+    target_link_libraries( ${BINARY} PUBLIC gtest gmock)
+endif()

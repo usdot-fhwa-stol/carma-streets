@@ -79,9 +79,13 @@ target_link_libraries(${BINARY} PUBLIC
                             Boost::filesystem
                             spdlog::spdlog
                             ${PROJECT_NAME}_lib
-                            GTest::gtest
-                            GTest::gmock 
                             )
+message(CMAKE_VERSION)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
+    target_link_libraries( ${BINARY} PUBLIC GTest::gtest GTest::gmock )
+else() 
+    target_link_libraries( ${BINARY} PUBLIC gtest gmock)
+endif()
 target_include_directories(${BINARY}
                            PUBLIC
                            $<INSTALL_INTERFACE:include>
