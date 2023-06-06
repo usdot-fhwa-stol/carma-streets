@@ -38,14 +38,14 @@ namespace streets_phase_control_schedule
                 }
 
                 // Each command property has to be correct data type
-                if (!command_itr.FindMember("commandType")->value.IsString() || !command_itr.FindMember("commandPhase")->value.IsInt() || !(command_itr.FindMember("commandStartTime")->value.IsDouble() || command_itr.FindMember("commandStartTime")->value.IsInt64()) || !(command_itr.FindMember("commandEndTime")->value.IsDouble() || command_itr.FindMember("commandEndTime")->value.IsInt64()))
+                if (!command_itr.FindMember("commandType")->value.IsString() || !command_itr.FindMember("commandPhase")->value.IsInt() || !command_itr.FindMember("commandStartTime")->value.IsUint64() || !command_itr.FindMember("commandEndTime")->value.IsUint64() )
                 {
                     throw streets_phase_control_schedule_exception("streets_phase_control_schedule message commandType, commandPhase, commandStartTime or commandEndTime property has incorrect data type.");
                 }
 
                 std::string command_type_str = command_itr["commandType"].GetString();
                 toLowerCaseAndTrim(command_type_str);
-                streets_phase_control_command command(command_type_str, command_itr["commandPhase"].GetInt(), command_itr["commandStartTime"].GetDouble(), command_itr["commandEndTime"].GetDouble());
+                streets_phase_control_command command(command_type_str, command_itr["commandPhase"].GetInt(), command_itr["commandStartTime"].GetUint64(), command_itr["commandEndTime"].GetUint64());
                 commands.push_back(command);
             }
         }

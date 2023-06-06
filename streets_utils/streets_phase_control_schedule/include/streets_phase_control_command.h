@@ -25,13 +25,13 @@ namespace streets_phase_control_schedule
     {
         COMMAND_TYPE command_type; // Action
         int command_phase;         // Affected phase (bitstring to integer)
-        double command_start_time;  // Start time from now in seconds
-        double command_end_time;    // End time from now in seconds
+        uint64_t command_start_time;  // Start time in epoch unix timestamp
+        uint64_t command_end_time;    // End time  in epoch unix timestamp
         streets_phase_control_command() = default;
         /***
          * @brief Constructor with arguments to initialize the command object
          */
-        streets_phase_control_command(const std::string &command_type_str, int command_phase, double command_start_time, double command_end_time);
+        streets_phase_control_command(const std::string &command_type_str, int command_phase, uint64_t command_start_time, uint64_t command_end_time);
         /**
          * @brief Set the command type variable
          * @param string command type in string format

@@ -3,7 +3,7 @@
 
 namespace streets_phase_control_schedule
 {
-    streets_phase_control_command::streets_phase_control_command(const std::string &command_type_str, int phase, double start_time, double end_time)
+    streets_phase_control_command::streets_phase_control_command(const std::string &command_type_str, int phase, uint64_t start_time, uint64_t end_time)
         : command_phase(phase), command_start_time(start_time), command_end_time(end_time)
     {
         set_command_type(command_type_str);
