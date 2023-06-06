@@ -14,6 +14,9 @@ namespace traffic_signal_controller_service {
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
             std::string dpp_consumer_topic = streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
+
+            //Phase control schedule(PCS) consumer topic
+            std::string pcs_consumer_topic = streets_configuration::get_string_config("phase_control_schedule_consumer_topic");
             
             if (!spat_producer && !initialize_kafka_producer( spat_topic_name, spat_producer)) {
                 
@@ -27,7 +30,13 @@ namespace traffic_signal_controller_service {
                 SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
                 return false;
                 
-            }            
+            }      
+
+            if(!phase_control_schedule_consumer && !initialize_kafka_consumer(pcs_consumer_topic, phase_control_schedule_consumer)){
+                SPDLOG_ERROR("Failed to initialize kafka phase_control_schedule_consumer!");
+                return false;
+            }
+
             // Initialize SNMP Client
             std::string target_ip = streets_configuration::get_string_config("target_ip");
             int target_port = streets_configuration::get_int_config("target_port");
@@ -251,6 +260,36 @@ namespace traffic_signal_controller_service {
         }        
     }
 
+    void tsc_service::consume_phase_control_schedule(){
+        phase_control_schedule_consumer->subscribe();
+        while (phase_control_schedule_consumer->is_running())
+        {
+            const std::string payload = phase_control_schedule_consumer->consume(1000);
+            if (payload.length() != 0)
+            {
+                SPDLOG_DEBUG("Consumed: {0}", payload);
+                if(!phase_control_schedule_ptr->is_clear_current_schedule && phase_control_schedule_ptr->commands.size() != 0)
+                {
+                    SPDLOG_WARN("Received two phase control schedules with commands, and no clear schedule received in between. ");
+                }
+                try {
+                    //Update phase control schedule with the latest incoming schedule
+                    phase_control_schedule_ptr->fromJson(payload);
+                    if(phase_control_schedule_ptr->is_clear_current_schedule)
+                    {
+                        SPDLOG_DEBUG("Clear SNMP command queue!");
+                        //ToDo: Send clear all scheduled jobs or clear all commands on the update command queue
+                    }else{
+                        SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands!");
+                        //ToDo: Update command queue with the new phase control schedule commands
+                    }
+                } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
+                    SPDLOG_DEBUG("Failed to consume phase control schedule commands: {0}", ex.what());
+                }                
+            }
+        }  
+    }
+
     void tsc_service::control_tsc_phases()
     {
         try{
@@ -348,12 +387,15 @@ namespace traffic_signal_controller_service {
 
         std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
 
+        std::thread consume_phase_control_schedule_t(&tsc_service::consume_phase_control_schedule, this);
+
         std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
         
         // Run threads as joint so that they dont overlap execution 
         tsc_config_thread.join();
         spat_t.join();
         desired_phase_plan_t.join();
+        consume_phase_control_schedule_t.join();
         control_phases_t.join();
     }
     

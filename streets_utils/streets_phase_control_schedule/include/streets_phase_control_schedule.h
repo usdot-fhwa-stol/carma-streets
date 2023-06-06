@@ -14,12 +14,13 @@ namespace streets_phase_control_schedule
 
     struct streets_phase_control_schedule
     {
-        // When a new schedule is receivedm the commands list is populated for schedule execution.
+        // When a new schedule with commands is received, the commands list is populated for schedule execution.
         std::vector<streets_phase_control_command> commands;
 
         /***
-         * By default the indicator is set to false assumming that the above commands will be populated with incoming new schedule.
+         * By default the indicator is set to false assumming that the initial phase control schedule does not have clear execution schedule.
          * When a clear execution schedule is received, the indicator should be set to true to indicate clearing all scheduled jobs from the current phase control schedule.
+         * Note: A clear execution schedule has an empty list of commands. However, A schedule with an empty list of commands does not mean it is a clear schedule. Intially the schedule object has an empty list of commands. 
          * */
         bool is_clear_current_schedule = false;
 

@@ -67,6 +67,12 @@
             "type": "STRING"
         },
         {
+            "name": "phase_control_schedule_consumer_topic",
+            "value": "phase_control_schedule",
+            "description": "Kafka topic for streets internal phase control schedule messages",
+            "type": "STRING"
+        },
+        {
             "name": "desired_phase_plan_consumer_topic",
             "value": "desired_phase_plan",
             "description": "Kafka topic for streets internal desired phase plan messages",

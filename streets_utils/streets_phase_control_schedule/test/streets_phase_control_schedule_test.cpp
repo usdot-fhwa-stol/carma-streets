@@ -65,4 +65,6 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     streets_phase_control_schedule::streets_phase_control_schedule new_schedule_wrong_data_type;
     input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":[{\"commandEndTime\":0,\"commandPhase\":2,\"commandStartTime\":0.0,\"commandType\":\"hold\"}]}";
     ASSERT_THROW(new_schedule_wrong_data_type.fromJson(input_str), streets_phase_control_schedule_exception);
+    ASSERT_FALSE(new_schedule_wrong_data_type.is_clear_current_schedule);
+    ASSERT_EQ(0, new_schedule_wrong_data_type.commands.size());
 }

@@ -14,6 +14,7 @@
 #include "monitor_states_exception.h"
 #include "tsc_configuration_state_exception.h"
 #include "monitor_desired_phase_plan.h"
+#include "streets_phase_control_schedule.h"
 #include "monitor_desired_phase_plan_exception.h"
 #include "control_tsc_state.h"
 #include "control_tsc_state_exception.h"
@@ -39,6 +40,11 @@ namespace traffic_signal_controller_service {
              * @brief Kafka consumer for consuming desired phase plan JSON
              */
             std::shared_ptr<kafka_clients::kafka_consumer_worker> desired_phase_plan_consumer;
+
+            /*
+             * @brief Kafka consumer for consuming Phase Control Schedule JSON
+             */
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> phase_control_schedule_consumer;
 
             /**
              * @brief spat_worker contains udp_socket_listener and consumes UDP data 
@@ -66,6 +72,11 @@ namespace traffic_signal_controller_service {
              * JSON message.
              */
             std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+
+            /**
+             * @brief Point to phase control schedule object which is updated based on the received JSON message from MMITSS Road side processor.
+            */
+            std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule_ptr;
             /**
              * @brief Pointer to tsc_configuration_state object which is traffic signal controller
              * configuration information obtained from the tsc_state worker
@@ -210,6 +221,10 @@ namespace traffic_signal_controller_service {
             void produce_tsc_config_json() const;
 
             void consume_desired_phase_plan();
+            /**
+             * @brief Thread callback function to run the phase control schedule Kafka consumer to consume phase control schedule JSON message
+            */
+            void consume_phase_control_schedule();
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 

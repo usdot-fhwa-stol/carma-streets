@@ -28,6 +28,9 @@ namespace streets_phase_control_schedule
 
         if (doc.FindMember("Schedule")->value.IsArray())
         {
+            // Clear the commands from the schedule if there are existing commands. Always replacing the schedule commands with the latest new schedule.
+            commands.clear();           
+
             // Schedule consists of an array of commands
             for (const auto &command_itr : doc["Schedule"].GetArray())
             {
@@ -48,6 +51,8 @@ namespace streets_phase_control_schedule
                 streets_phase_control_command command(command_type_str, command_itr["commandPhase"].GetInt(), command_itr["commandStartTime"].GetUint64(), command_itr["commandEndTime"].GetUint64());
                 commands.push_back(command);
             }
+            //Make sure clear schedule indicator is false when there are commands in schedule
+            is_clear_current_schedule = false;
         }
         else if (doc.FindMember("Schedule")->value.IsString())
         {
