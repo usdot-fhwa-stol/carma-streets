@@ -72,7 +72,7 @@ target_link_libraries(${BINARY}
     PUBLIC
         ${PROJECT_NAME}_lib
 )
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20) 
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
     target_link_libraries(${BINARY} PUBLIC GTest::gtest)
 else() 
     target_link_libraries(${BINARY} PUBLIC gtest)
