@@ -28,9 +28,7 @@ namespace streets_phase_control_schedule
 
         if (doc.FindMember("Schedule")->value.IsArray())
         {
-            // Clear the commands from the schedule if there are existing commands. Always replacing the schedule commands with the latest new schedule.
-            commands.clear();           
-
+            std::vector<streets_phase_control_command> cmd_v;
             // Schedule consists of an array of commands
             for (const auto &command_itr : doc["Schedule"].GetArray())
             {
@@ -41,7 +39,7 @@ namespace streets_phase_control_schedule
                 }
 
                 // Each command property has to be correct data type
-                if (!command_itr.FindMember("commandType")->value.IsString() || !command_itr.FindMember("commandPhase")->value.IsInt() || !command_itr.FindMember("commandStartTime")->value.IsUint64() || !command_itr.FindMember("commandEndTime")->value.IsUint64() )
+                if (!command_itr.FindMember("commandType")->value.IsString() || !command_itr.FindMember("commandPhase")->value.IsInt() || !command_itr.FindMember("commandStartTime")->value.IsUint64() || !command_itr.FindMember("commandEndTime")->value.IsUint64())
                 {
                     throw streets_phase_control_schedule_exception("streets_phase_control_schedule message commandType, commandPhase, commandStartTime or commandEndTime property has incorrect data type.");
                 }
@@ -49,9 +47,16 @@ namespace streets_phase_control_schedule
                 std::string command_type_str = command_itr["commandType"].GetString();
                 toLowerCaseAndTrim(command_type_str);
                 streets_phase_control_command command(command_type_str, command_itr["commandPhase"].GetInt(), command_itr["commandStartTime"].GetUint64(), command_itr["commandEndTime"].GetUint64());
-                commands.push_back(command);
+                cmd_v.push_back(command);
             }
-            //Make sure clear schedule indicator is false when there are commands in schedule
+            //Display a warning message when receiving two schedules with commands, and there are no clear schedule in between.
+            if (commands.size() > 0)
+            {
+                SPDLOG_WARN("Current schedule has commands execution, but new schedule is not a clear schedule!");
+            }
+            // Always replacing the schedule commands with the latest new schedule.
+            commands = cmd_v;
+            // Make sure clear schedule indicator is false when there are commands in schedule
             is_clear_current_schedule = false;
         }
         else if (doc.FindMember("Schedule")->value.IsString())
@@ -91,7 +96,7 @@ namespace streets_phase_control_schedule
             {
                 os << "{" << command << "},";
             }
-            os << ";";
+            os << "]";
         }
         return os;
     }

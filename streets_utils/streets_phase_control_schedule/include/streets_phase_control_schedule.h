@@ -8,6 +8,7 @@
 #include <math.h>
 #include <chrono>
 #include "streets_phase_control_command.h"
+#include <spdlog/spdlog.h>
 
 namespace streets_phase_control_schedule
 {

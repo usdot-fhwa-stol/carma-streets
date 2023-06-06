@@ -268,10 +268,6 @@ namespace traffic_signal_controller_service {
             if (payload.length() != 0)
             {
                 SPDLOG_DEBUG("Consumed: {0}", payload);
-                if(!phase_control_schedule_ptr->is_clear_current_schedule && phase_control_schedule_ptr->commands.size() != 0)
-                {
-                    SPDLOG_WARN("Received two phase control schedules with commands, and no clear schedule received in between. ");
-                }
                 try {
                     //Update phase control schedule with the latest incoming schedule
                     phase_control_schedule_ptr->fromJson(payload);
