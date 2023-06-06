@@ -19,11 +19,11 @@ RUN sudo make install
 # Install librdkafka
 RUN echo " ------> Install librdkafka..."
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/edenhill/librdkafka
+RUN git clone https://github.com/confluentinc/librdkafka.git 
 WORKDIR /home/carma-streets/ext/librdkafka/
-RUN ./configure --prefix=/usr
-RUN make
-RUN sudo make install
+RUN cmake -H. -B_cmake_build
+RUN cmake --build _cmake_build
+RUN cmake --build _cmake_build --target install
 
 
 # Install spdlog
@@ -109,11 +109,11 @@ RUN source /opt/ros/melodic/setup.bash && \
     ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 
 COPY ./streets_utils/ /home/carma-streets/streets_utils
-# Install streets_service_base
-RUN echo " ------> Install streets service base library from streets_utils..."
-WORKDIR /home/carma-streets/streets_utils/streets_service_base
+# Install streets_service_configuration
+RUN echo " ------> Install streets_service_configuration library from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration
 RUN mkdir build
-WORKDIR /home/carma-streets/streets_utils/streets_service_base/build
+WORKDIR /home/carma-streets/streets_utils/streets_service_configuration/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install

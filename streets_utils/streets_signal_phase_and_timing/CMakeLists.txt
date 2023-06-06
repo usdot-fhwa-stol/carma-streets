@@ -81,6 +81,10 @@ target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} 
     PUBLIC
         ${PROJECT_NAME}_lib
-        GTest::gtest
         rapidjson
  )
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
+    target_link_libraries( ${BINARY} PUBLIC GTest::gtest )
+else() 
+    target_link_libraries( ${BINARY} PUBLIC gtest )
+endif()
