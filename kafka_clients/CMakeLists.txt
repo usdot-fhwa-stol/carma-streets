@@ -7,7 +7,7 @@ find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(RdKafka REQUIRED)
 
 find_package(spdlog REQUIRED)
-find_package(GTest REQUIRED)
+find_package(GTest COMPONENTS gtest gmock REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 add_library(${PROJECT_NAME}_lib STATIC 
@@ -79,9 +79,12 @@ target_link_libraries(${BINARY} PUBLIC
                             Boost::filesystem
                             spdlog::spdlog
                             ${PROJECT_NAME}_lib
-                            GTest::gtest
-                            GTest::gmock 
                             )
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20) 
+    target_link_libraries( ${BINARY} PUBLIC GTest::gtest GTest::gmock )
+else() 
+    target_link_libraries( ${BINARY} PUBLIC gtest gmock)
+endif()
 target_include_directories(${BINARY}
                            PUBLIC
                            $<INSTALL_INTERFACE:include>
