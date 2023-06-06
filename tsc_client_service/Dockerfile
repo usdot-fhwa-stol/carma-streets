@@ -84,6 +84,15 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install streets_phase_control_schedule
+RUN echo " ------> Install streets phase control schedule from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_phase_control_schedule
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_phase_control_schedule/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install streets_signal_phase_and_timing
 RUN echo " ------> Install streets service base library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing
