@@ -27,6 +27,7 @@ MAKE_INSTALL_DIRS=(
     "streets_utils/streets_vehicle_list"
     "streets_utils/streets_tsc_configuration"
     "streets_utils/streets_desired_phase_plan"
+    "streets_utils/streets_phase_control_schedule"
     "streets_utils/streets_signal_phase_and_timing"
     "streets_utils/streets_api/intersection_client_api"
     "streets_utils/streets_vehicle_scheduler"
