@@ -271,16 +271,7 @@ namespace traffic_signal_controller_service {
                 try {
                     //Update phase control schedule with the latest incoming schedule
                     phase_control_schedule_ptr->fromJson(payload);
-                    if(phase_control_schedule_ptr->is_clear_current_schedule)
-                    {
-                        SPDLOG_DEBUG("Clear SNMP command queue!");
-                        //ToDo: Send clear all scheduled jobs or clear all commands on the update command queue
-                    }else{
-                        std::stringstream ss;
-                        ss << *phase_control_schedule_ptr;    
-                        SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
-                        //ToDo: Update command queue with the new phase control schedule commands
-                    }
+                    control_tsc_state_ptr_->update_tsc_control_queue(phase_control_schedule_ptr, tsc_set_command_queue_);
                 } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
                     SPDLOG_DEBUG("Failed to consume phase control schedule commands: {0}", ex.what());
                 }                
