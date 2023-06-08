@@ -24,7 +24,7 @@ namespace streets_phase_control_schedule
     struct streets_phase_control_command
     {
         COMMAND_TYPE command_type; // Action
-        int command_phase;         // Affected phase (bitstring to integer)
+        int command_phase = 0;         // Affected phase (bitstring to integer)
         uint64_t command_start_time = 0;  // Start time in epoch unix timestamp
         uint64_t command_end_time = 0;    // End time  in epoch unix timestamp
         streets_phase_control_command() = default;

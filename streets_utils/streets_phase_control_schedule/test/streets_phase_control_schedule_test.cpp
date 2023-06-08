@@ -43,6 +43,9 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     std::string input_str = "invalid";
     ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
 
+    input_str = "{\"InvalidKey\":\"Invalid\"}";
+    ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
+
     input_str = "{\"MsgType\":\"Invalid\",\"Schedule\":\"Clear\"}";
     ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
 
@@ -56,6 +59,16 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_TRUE(clear_schedule.is_clear_current_schedule);
     ASSERT_EQ(0, clear_schedule.commands.size());
     ASSERT_TRUE(clear_schedule.is_clear_current_schedule);
+
+    input_str = "{\"MsgType\":\"Schedule\",\"Schedule\": [{\"commandEndTime\":0}]}";
+    ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
+
+
+    input_str = "{\"MsgType\":\"Schedule\",\"Schedule\": 0}";
+    ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
+
+    input_str = "{\"MsgType\":\"Schedule\",\"No Schedule\": []}";
+    ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
 
     streets_phase_control_schedule::streets_phase_control_schedule new_schedule_wrong_data_type;
     input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":[{\"commandEndTime\":0,\"commandPhase\":2,\"commandStartTime\":0.0,\"commandType\":\"hold\"}]}";
@@ -79,6 +92,7 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_EQ(1, new_schedule.commands.size());
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);
     expected_str = "Clear status: False, commands [{Command type: hold, command phase: 2, start time: 0, end time: 0},]";
+    out.str("");
     out << new_schedule;
     ASSERT_EQ(expected_str, out.str());
 
@@ -87,6 +101,7 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_EQ(1, new_schedule.commands.size());
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);
     expected_str = "Clear status: False, commands [{Command type: call_ped, command phase: 2, start time: 0, end time: 0},]";
+    out.str("");
     out << new_schedule;
     ASSERT_EQ(expected_str, out.str());
 
@@ -95,6 +110,7 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_EQ(1, new_schedule.commands.size());
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);
     expected_str = "Clear status: False, commands [{Command type: forceoff, command phase: 2, start time: 0, end time: 0},]";
+    out.str("");
     out << new_schedule;
     ASSERT_EQ(expected_str, out.str());
 
@@ -103,6 +119,7 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_EQ(1, new_schedule.commands.size());
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);
     expected_str = "Clear status: False, commands [{Command type: omit_veh, command phase: 2, start time: 0, end time: 0},]";
+    out.str("");
     out << new_schedule;
     ASSERT_EQ(expected_str, out.str());
 
@@ -111,6 +128,7 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_EQ(1, new_schedule.commands.size());
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);
     expected_str = "Clear status: False, commands [{Command type: omit_ped, command phase: 2, start time: 0, end time: 0},]";
+    out.str("");
     out << new_schedule;
     ASSERT_EQ(expected_str, out.str());
 

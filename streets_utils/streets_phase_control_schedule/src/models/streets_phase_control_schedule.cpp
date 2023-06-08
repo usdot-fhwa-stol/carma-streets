@@ -26,7 +26,7 @@ namespace streets_phase_control_schedule
             throw streets_phase_control_schedule_exception("streets_phase_control_schedule message is missing required MsgType property!");
         }
 
-        if (doc.FindMember("Schedule")->value.IsArray())
+        if (doc.HasMember("Schedule") && doc.FindMember("Schedule")->value.IsArray())
         {
             std::vector<streets_phase_control_command> cmd_v;
             // Schedule consists of an array of commands
@@ -59,7 +59,7 @@ namespace streets_phase_control_schedule
             // Make sure clear schedule indicator is false when there are commands in schedule
             is_clear_current_schedule = false;
         }
-        else if (doc.FindMember("Schedule")->value.IsString())
+        else if (doc.HasMember("Schedule") && doc.FindMember("Schedule")->value.IsString())
         {
             std::string value = doc["Schedule"].GetString();
             toLowerCaseAndTrim(value);
@@ -76,7 +76,7 @@ namespace streets_phase_control_schedule
         }
         else
         {
-            throw streets_phase_control_schedule_exception("streets_phase_control_schedule message is missing required Schedule property!");
+            throw streets_phase_control_schedule_exception("streets_phase_control_schedule message is missing required Schedule property, or schedule value is neither string nor array!");
         }
     }
 
