@@ -35,7 +35,7 @@ namespace streets_phase_control_schedule
          * @brief Transform the input value to lower case and trim the leading and tailing spaces
          * @param string input value reference
          */
-        void toLowerCaseAndTrim(std::string &value_str);
+        void toLowerCaseAndTrim(std::string &value_str) const;
 
         // Overload operator<< to print schedule
         friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_schedule schedule);

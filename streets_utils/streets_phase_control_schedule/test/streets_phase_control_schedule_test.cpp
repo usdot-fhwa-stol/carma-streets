@@ -37,6 +37,8 @@ namespace
 
 TEST_F(streets_phase_control_schedule_test, fromJson)
 {
+    std::stringstream  out;
+    std::string expected_str;
     streets_phase_control_schedule::streets_phase_control_schedule invalid_schedule;
     std::string input_str = "invalid";
     ASSERT_THROW(invalid_schedule.fromJson(input_str), streets_phase_control_schedule_exception);
@@ -76,6 +78,9 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     new_schedule.fromJson(input_str);
     ASSERT_EQ(1, new_schedule.commands.size());
     ASSERT_FALSE(new_schedule.is_clear_current_schedule);
+    expected_str = "Clear status: False, commands [{Command type: hold, command phase: 2, start time: 0, end time: 0},]";
+    out << new_schedule;
+    ASSERT_EQ(expected_str, out.str());
 
     input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":\"Clear\"}";
     new_schedule.fromJson(input_str);
@@ -85,4 +90,9 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     ASSERT_THROW(new_schedule.fromJson(input_str_wrong_data_type), streets_phase_control_schedule_exception);
     ASSERT_EQ(0, new_schedule.commands.size());
     ASSERT_TRUE(new_schedule.is_clear_current_schedule);
+
+    expected_str = "Clear status: True";
+    out.str("");
+    out << new_schedule;
+    ASSERT_EQ(expected_str, out.str());
 }

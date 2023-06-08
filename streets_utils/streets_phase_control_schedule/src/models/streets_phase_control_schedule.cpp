@@ -50,7 +50,7 @@ namespace streets_phase_control_schedule
                 cmd_v.push_back(command);
             }
             //Display a warning message when receiving two schedules with commands, and there are no clear schedule in between.
-            if (commands.size() > 0)
+            if (!commands.empty())
             {
                 SPDLOG_WARN("Current schedule has commands execution, but new schedule is not a clear schedule!");
             }
@@ -80,7 +80,7 @@ namespace streets_phase_control_schedule
         }
     }
 
-    void streets_phase_control_schedule::toLowerCaseAndTrim(std::string &value_str)
+    void streets_phase_control_schedule::toLowerCaseAndTrim(std::string &value_str) const
     {
         boost::to_lower(value_str);
         boost::algorithm::trim(value_str);
