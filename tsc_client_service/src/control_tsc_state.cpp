@@ -89,6 +89,11 @@ namespace traffic_signal_controller_service
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule_ptr,
         std::queue<snmp_cmd_struct>& tsc_command_queue) const
     {
+        if(!phase_control_schedule_ptr)
+        {
+            SPDLOG_DEBUG("Phase control schedule is not initialized.");
+            return;
+        }
         if(phase_control_schedule_ptr->is_clear_current_schedule)
         {
             SPDLOG_DEBUG("Clear SNMP command queue!");
