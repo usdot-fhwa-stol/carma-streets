@@ -276,7 +276,9 @@ namespace traffic_signal_controller_service {
                         SPDLOG_DEBUG("Clear SNMP command queue!");
                         //ToDo: Send clear all scheduled jobs or clear all commands on the update command queue
                     }else{
-                        SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands!");
+                        std::stringstream ss;
+                        ss << *phase_control_schedule_ptr;    
+                        SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
                         //ToDo: Update command queue with the new phase control schedule commands
                     }
                 } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
