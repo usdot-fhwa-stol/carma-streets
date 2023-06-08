@@ -82,6 +82,38 @@ TEST_F(streets_phase_control_schedule_test, fromJson)
     out << new_schedule;
     ASSERT_EQ(expected_str, out.str());
 
+    input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":[{\"commandEndTime\":0,\"commandPhase\":2,\"commandStartTime\":0,\"commandType\":\"call_ped\"}]}";
+    new_schedule.fromJson(input_str);
+    ASSERT_EQ(1, new_schedule.commands.size());
+    ASSERT_FALSE(new_schedule.is_clear_current_schedule);
+    expected_str = "Clear status: False, commands [{Command type: call_ped, command phase: 2, start time: 0, end time: 0},]";
+    out << new_schedule;
+    ASSERT_EQ(expected_str, out.str());
+
+    input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":[{\"commandEndTime\":0,\"commandPhase\":2,\"commandStartTime\":0,\"commandType\":\"forceoff\"}]}";
+    new_schedule.fromJson(input_str);
+    ASSERT_EQ(1, new_schedule.commands.size());
+    ASSERT_FALSE(new_schedule.is_clear_current_schedule);
+    expected_str = "Clear status: False, commands [{Command type: forceoff, command phase: 2, start time: 0, end time: 0},]";
+    out << new_schedule;
+    ASSERT_EQ(expected_str, out.str());
+
+    input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":[{\"commandEndTime\":0,\"commandPhase\":2,\"commandStartTime\":0,\"commandType\":\"omit_veh\"}]}";
+    new_schedule.fromJson(input_str);
+    ASSERT_EQ(1, new_schedule.commands.size());
+    ASSERT_FALSE(new_schedule.is_clear_current_schedule);
+    expected_str = "Clear status: False, commands [{Command type: omit_veh, command phase: 2, start time: 0, end time: 0},]";
+    out << new_schedule;
+    ASSERT_EQ(expected_str, out.str());
+
+    input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":[{\"commandEndTime\":0,\"commandPhase\":2,\"commandStartTime\":0,\"commandType\":\"omit_ped\"}]}";
+    new_schedule.fromJson(input_str);
+    ASSERT_EQ(1, new_schedule.commands.size());
+    ASSERT_FALSE(new_schedule.is_clear_current_schedule);
+    expected_str = "Clear status: False, commands [{Command type: omit_ped, command phase: 2, start time: 0, end time: 0},]";
+    out << new_schedule;
+    ASSERT_EQ(expected_str, out.str());
+
     input_str = "{\"MsgType\":\"Schedule\",\"Schedule\":\"Clear\"}";
     new_schedule.fromJson(input_str);
     ASSERT_EQ(0, new_schedule.commands.size());
