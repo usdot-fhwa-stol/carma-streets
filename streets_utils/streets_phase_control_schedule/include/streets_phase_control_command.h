@@ -40,6 +40,6 @@ namespace streets_phase_control_schedule
         ~streets_phase_control_command() = default;
 
         // Overload operator<< to print command
-        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_command command);
+        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_command& command);
     };
 }

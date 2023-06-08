@@ -86,7 +86,7 @@ namespace streets_phase_control_schedule
         boost::algorithm::trim(value_str);
     }
 
-    std::ostream &operator<<(std::ostream &os, const streets_phase_control_schedule schedule)
+    std::ostream &operator<<(std::ostream &os, const streets_phase_control_schedule& schedule)
     {
         os << "Clear status: " << (schedule.is_clear_current_schedule ? "True" : "False");
         if (!schedule.is_clear_current_schedule)

@@ -41,7 +41,7 @@ namespace streets_phase_control_schedule
         }
     }
 
-    std::ostream &operator<<(std::ostream &os, const streets_phase_control_command command)
+    std::ostream &operator<<(std::ostream &os, const streets_phase_control_command& command)
     {
         std::string command_type_str;
         switch (command.command_type)

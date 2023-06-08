@@ -38,6 +38,6 @@ namespace streets_phase_control_schedule
         void toLowerCaseAndTrim(std::string &value_str) const;
 
         // Overload operator<< to print schedule
-        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_schedule schedule);
+        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_schedule& schedule);
     };
 }
