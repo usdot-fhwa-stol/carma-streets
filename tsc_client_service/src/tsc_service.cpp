@@ -92,6 +92,9 @@ namespace traffic_signal_controller_service {
             // Initialize monitor desired phase plan
             monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
 
+            //Initialize phase control schedule
+            phase_control_schedule_ptr = std::make_shared<streets_phase_control_schedule::streets_phase_control_schedule>();
+
             // Initialize control_tsc_state ptr
             control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);
 
