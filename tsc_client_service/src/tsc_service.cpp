@@ -11,9 +11,11 @@ namespace traffic_signal_controller_service {
         try
         {
             // Temporary fix for bug in CarmaClock::wait_for_initialization(). No mechanism to support notifying multiple threads
-            // of initialization. This fix avoids any threads waiting on initialization.
+            // of initialization. This fix avoids any threads waiting on initialization. Only required in SIMULATION_MODE=TRUE
             // TODO: Remove initialization and fix issue in carma-time-lib (CarmaClock class) 
-            streets_clock_singleton::update(0);
+            if ( is_simulation_mode() ) {
+                streets_clock_singleton::update(0);
+            }
             // Intialize spat kafka producer
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
