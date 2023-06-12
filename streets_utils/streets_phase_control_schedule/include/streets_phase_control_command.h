@@ -19,14 +19,15 @@ namespace streets_phase_control_schedule
     };
 
     /**
-     * @brief This struct provides command information which will be sent to the Traffic signal controller
+     * @brief This struct provides command information received from MMITSS. (https://github.com/mmitss/mmitss-az/tree/master/src/mrp/traffic-controller-interface).
+     * The command will be translate into carma-streets snmp_command structure and sent to the Traffic signal controller.
      */
     struct streets_phase_control_command
     {
         COMMAND_TYPE command_type; // Action
         int command_phase = 0;         // Affected phase (bitstring to integer)
-        uint64_t command_start_time = 0;  // Start time in epoch unix timestamp
-        uint64_t command_end_time = 0;    // End time  in epoch unix timestamp
+        uint64_t command_start_time = 0;  // Start time in epoch unix timestamp in millisecond
+        uint64_t command_end_time = 0;    // End time  in epoch unix timestamp in millisecond
         streets_phase_control_command() = default;
         /***
          * @brief Constructor with arguments to initialize the command object
