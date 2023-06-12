@@ -32,6 +32,8 @@ The `intersection_client` is a REST client implemented using the `streets_utils/
 
 The `spat_worker` is a class which encapsulates a UDP socket listener. This socket listener, listens for UDP NTCIP data packets set from the **TSC** at 10 hz that provide traffic signal state information required for populating the **SPaT**. The `spat_worker` contains a method to consume a UDP datapacket and update the `spat` pointer which stores the most up-to-date information of the traffic signal controller state. The `tsc_service` `spat_thread` then continously consumes these messages and publishes the resulting **SPaT** JSON on the CARMA-Streets Kafka broker.
 
-
+## tsc_service to MMITSS integration 
+### Configuration parameter
+The  `use_mmitss_mrp` parameter in manifest.json file is used to determine whether the TSC service consume [phase control schedule](https://github.com/mmitss/mmitss-az/tree/master/src/mrp/traffic-controller-interface) from external [MMTISS Roadside processor](https://github.com/mmitss/mmitss-az) or not. By default, this parameter is set to false to consume desired phase plan from internal signal optimization service. The MRP and carma-streets signal optimization service shall run exclusively, meaning there is no scenario where both MRP and signal optmization service are trying to manipulate traffic signal controller at the same time.
 
 

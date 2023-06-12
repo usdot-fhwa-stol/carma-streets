@@ -118,6 +118,13 @@ namespace traffic_signal_controller_service {
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
             FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
 
+            /***
+             * Configuration parameter to control different interfaces to schedule the traffic signal controller
+             * If false, it will use carma-streets internal signal optimization service and its generated desired phase plan to schedule traffic signal controller. 
+             * If true, it will use external MRP (MMITSS Roadside Processor, link: https://github.com/mmitss/mmitss-az) and its generated phase control schedule to schedule the traffic sginal controller.
+             * **/
+            bool use_mmitss_mrp = false;
+
 
         public:
             tsc_service() = default;

@@ -20,7 +20,7 @@ namespace streets_phase_control_schedule
 
     /**
      * @brief This struct provides command information received from MMITSS. (https://github.com/mmitss/mmitss-az/tree/master/src/mrp/traffic-controller-interface).
-     * The command will be translate into carma-streets snmp_command structure and sent to the Traffic signal controller.
+     * The command will be translated into carma-streets snmp_command structure and sent to the Traffic signal controller.
      */
     struct streets_phase_control_command
     {
