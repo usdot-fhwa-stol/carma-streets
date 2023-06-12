@@ -232,5 +232,7 @@ namespace traffic_signal_controller_service
         input_schedule_str = "{\"MsgType\":\"Schedule\",\"Schedule\":\"Clear\"}";
         pcs_ptr->fromJson(input_schedule_str);
         worker.update_tsc_control_queue(pcs_ptr, control_commands_queue);
+        std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> pcs_ptr_null;
+        worker.update_tsc_control_queue(pcs_ptr_null, control_commands_queue);
     }
 }
