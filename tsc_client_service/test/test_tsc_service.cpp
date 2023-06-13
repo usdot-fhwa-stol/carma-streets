@@ -31,6 +31,7 @@ namespace traffic_signal_controller_service
                 service.spat_producer = spat_producer;
                 service.tsc_config_producer = tsc_config_producer;
                 service.desired_phase_plan_consumer = dpp_consumer;
+                service.phase_control_schedule_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
                 service.snmp_client_ptr = mock_snmp;
                 setenv("SIMULATION_MODE", "FALSE", 1);
                 setenv("CONFIG_FILE_PATH", "../manifest.json", 1);

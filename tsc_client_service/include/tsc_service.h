@@ -40,6 +40,11 @@ namespace traffic_signal_controller_service {
              */
             std::shared_ptr<kafka_clients::kafka_consumer_worker> desired_phase_plan_consumer;
 
+            /*
+             * @brief Kafka consumer for consuming Phase Control Schedule JSON
+             */
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> phase_control_schedule_consumer;
+
             /**
              * @brief spat_worker contains udp_socket_listener and consumes UDP data 
              * packets and updates spat accordingly.
@@ -66,6 +71,11 @@ namespace traffic_signal_controller_service {
              * JSON message.
              */
             std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+
+            /**
+             * @brief Point to phase control schedule object which is updated based on the received JSON message from MMITSS Road side processor.
+            */
+            std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule_ptr;
             /**
              * @brief Pointer to tsc_configuration_state object which is traffic signal controller
              * configuration information obtained from the tsc_state worker
@@ -107,6 +117,13 @@ namespace traffic_signal_controller_service {
             FRIEND_TEST(tsc_service_test,test_tsc_control);
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
             FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
+
+            /***
+             * Configuration parameter to control different interfaces to schedule the traffic signal controller
+             * If false, it will use carma-streets internal signal optimization service and its generated desired phase plan to schedule traffic signal controller. 
+             * If true, it will use external MRP (MMITSS Roadside Processor, link: https://github.com/mmitss/mmitss-az) and its generated phase control schedule to schedule the traffic sginal controller.
+             * **/
+            bool use_mmitss_mrp = false;
 
 
         public:
@@ -210,6 +227,10 @@ namespace traffic_signal_controller_service {
             void produce_tsc_config_json() const;
 
             void consume_desired_phase_plan();
+            /**
+             * @brief Thread callback function to run the phase control schedule Kafka consumer to consume phase control schedule JSON message
+            */
+            void consume_phase_control_schedule();
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 

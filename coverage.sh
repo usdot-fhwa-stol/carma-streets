@@ -83,6 +83,13 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_desired_phase_plan/coverage/coverage.xml -s -f streets_utils/streets_desired_phase_plan/ -r .
 
+cd /home/carma-streets/streets_utils/streets_phase_control_schedule/build/
+./streets_phase_control_schedule_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_phase_control_schedule
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_phase_control_schedule/coverage/coverage.xml -s -f streets_utils/streets_phase_control_schedule/ -r .
+
 cd /home/carma-streets/streets_utils/streets_signal_optimization/build/
 ./streets_signal_optimization_test --gtest_output=xml:../../../test_results/
 cd /home/carma-streets/streets_utils/streets_signal_optimization

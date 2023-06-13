@@ -85,6 +85,26 @@ namespace traffic_signal_controller_service
 
     }
 
+    void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule_ptr,
+        std::queue<snmp_cmd_struct>& tsc_command_queue) const
+    {
+        if(!phase_control_schedule_ptr)
+        {
+            SPDLOG_DEBUG("Phase control schedule is not initialized.");
+            return;
+        }
+        if(phase_control_schedule_ptr->is_clear_current_schedule)
+        {
+            SPDLOG_DEBUG("Clear SNMP command queue!");
+            //ToDo: Send clear all scheduled jobs or clear all commands on the update command queue
+        }else{
+            std::stringstream ss;
+            ss << *phase_control_schedule_ptr;    
+            SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
+            //ToDo: Update command queue with the new phase control schedule commands
+        }
+    }
+
     snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)

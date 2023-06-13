@@ -67,6 +67,12 @@
             "type": "STRING"
         },
         {
+            "name": "phase_control_schedule_consumer_topic",
+            "value": "phase_control_schedule",
+            "description": "Kafka topic for streets internal phase control schedule messages",
+            "type": "STRING"
+        },
+        {
             "name": "desired_phase_plan_consumer_topic",
             "value": "desired_phase_plan",
             "description": "Kafka topic for streets internal desired phase plan messages",
@@ -119,6 +125,12 @@
             "value": "snmpcmdLogs",
             "description": "Filename for snmp commands logging (Note: set enable_snmp_cmd_logging true).",
             "type": "STRING"
+        },
+        {
+            "name": "use_mmitss_mrp",
+            "value": false,
+            "description": "If false, it will use carma-streets internal signal optimization service and its generated desired phase plan to schedule traffic signal controller. If true, it will use external MRP (MMITSS Roadside Processor, link: https://github.com/mmitss/mmitss-az) and its generated phase control schedule to schedule the traffic sginal controller.",
+            "type": "BOOL"
         }
         
     ]
