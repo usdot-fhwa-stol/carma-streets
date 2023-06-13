@@ -4,7 +4,7 @@ This CARMA-streets library is meat to handle JSON serialization and deserializat
 
 ## Phase Control Schedule
 External MMITSS Roadside processor will communicate with CARMA Streets TSC service via Kafka Message Broker, and send the phase control schedule to the TSC service. Thereafter, the TSC service converts the phase control schedule to SNMP commands and communicate with Traffic Signal Controller to update the controller signal phase and schedule.
-### Parameter description
+### <b>Parameter description</b>
 | Prameter Name    | Data Type        | Description |
 | -------------    | -------------    | ----------- |
 | commandPhase     | Integer          | Traffic Singal Controller phase |
@@ -13,7 +13,33 @@ External MMITSS Roadside processor will communicate with CARMA Streets TSC servi
 | commandEndTime   | Unsigned integer | The end epoch time in millisecond of the command execution |
 
 Note: When a clear schedule is received, the commands are cleared from the phase control schedule.
-
+###  <b>Sample</b>
+A schedule with commands:
+```
+{
+  "MsgType": "Schedule",
+  "Schedule": [
+      {
+          "commandEndTime": 0,
+          "commandPhase": 2,
+          "commandStartTime": 0,
+          "commandType": "hold"
+      },
+      {
+          "commandEndTime": 69,
+          "commandPhase": 4,
+          "commandStartTime": 68,
+          "commandType": "forceoff"
+      }]
+}
+```
+A clear schedule:
+```
+{
+  "MsgType": "Schedule",
+  "Schedule": "Clear"
+}
+```
 ## Including library
 ```
 find_package( streets_phase_control_schedule_lib REQUIRED )
