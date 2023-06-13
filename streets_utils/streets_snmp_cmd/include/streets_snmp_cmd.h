@@ -5,6 +5,13 @@
 
 namespace streets_snmp_cmd
 {
+    enum class REQUEST_TYPE
+    {
+        GET,
+        SET,
+        OTHER // Processing this request type is not a defined behavior, included for testing only
+    };
+
     /** @brief The type of control being set on the TSC */
     enum class PHASE_CONTROL_TYPE
     {

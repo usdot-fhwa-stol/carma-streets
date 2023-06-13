@@ -17,6 +17,12 @@ namespace streets_snmp_cmd
          * @param start_time Time at which the snmp command needs to be sent.
          * **/
         snmp_cmd_struct create_snmp_command(const std::vector<int> &phases, PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const;
+        /***
+         * @brief Method to create SNMP reset commands for all phases and a given phase control type.         * 
+         * @param phase_control_type The type of phase control  of the SNMP command.
+         * @param start_time Time at which the snmp command needs to be sent.
+        */
+        snmp_cmd_struct create_snmp_reset_command(PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const;
         /**
          * @brief Method to create SNMP commands for provided phase control schedule.
          * @param phase_control_schedule The phase control schedule has a list of commands (commandPhase, commandType, commandStartTime, and commandEndTime).

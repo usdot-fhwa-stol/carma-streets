@@ -15,6 +15,14 @@ namespace streets_snmp_cmd
         return command;
     }
 
+    snmp_cmd_struct streets_snmp_cmd_converter::create_snmp_reset_command(PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const
+    {
+        snmp_cmd_struct command(start_time, phase_control_type, static_cast<int64_t>(0));
+        return command;
+    }
+
+    
+
     std::vector<snmp_cmd_struct> streets_snmp_cmd_converter::create_snmp_cmds_by_phase_control_schedule(const std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule) const
     {
         std::vector<snmp_cmd_struct> cmds_result;
