@@ -163,7 +163,11 @@ namespace traffic_signal_controller_service
     }
 
     bool control_tsc_state::run_snmp_cmd_set_request( streets_snmp_cmd::snmp_cmd_struct& snmp_cmd)
-    {      
+    {     
+        if(!snmp_client_worker_)
+        {
+            throw control_tsc_state_exception("SNMP Client worker is not initialized.");
+        }
         /*Type of request to be sent to the TSC, within this context it is always SET*/
         auto type = streets_snmp_cmd::REQUEST_TYPE::SET;
 

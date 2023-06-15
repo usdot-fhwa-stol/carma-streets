@@ -408,6 +408,8 @@ namespace traffic_signal_controller_service
         tsc_set_command_queue.push(hold_command);
         service.tsc_set_command_queue_ = tsc_set_command_queue;
 
+        auto tsc_state_ptr = std::make_shared<tsc_state>(service.snmp_client_ptr );
+        service.control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(service.snmp_client_ptr, tsc_state_ptr);
         EXPECT_THROW(service.set_tsc_hold_and_omit(), control_tsc_state_exception);
         ASSERT_EQ(1, service.tsc_set_command_queue_.size());
         // Test control_tsc_phases

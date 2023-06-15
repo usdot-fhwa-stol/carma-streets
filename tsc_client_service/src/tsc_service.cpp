@@ -323,8 +323,11 @@ namespace traffic_signal_controller_service {
             SPDLOG_DEBUG("Sleeping for {0}ms.", duration);
             streets_clock_singleton::sleep_for(duration);
 
-            // if(!(tsc_set_command_queue_.front()).run())
-            if(!control_tsc_state_ptr_->run_snmp_cmd_set_request(tsc_set_command_queue_.front()))
+            if(!control_tsc_state_ptr_)
+            {
+                throw control_tsc_state_exception("Control TSC state is not initialized.");
+            }
+            if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(tsc_set_command_queue_.front()))
             {
                 throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
             }
