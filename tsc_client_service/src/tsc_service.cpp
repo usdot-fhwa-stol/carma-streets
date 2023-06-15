@@ -296,7 +296,7 @@ namespace traffic_signal_controller_service {
             while(true)
             {
                 SPDLOG_INFO("Iterate TSC Control Phases for time {0}", streets_clock_singleton::time_in_ms());
-                set_tsc_hold_and_omit();
+                set_tsc_hold_and_omit_forceoff_call();
                 streets_clock_singleton::sleep_for(control_tsc_state_sleep_dur_);
             }
         }
