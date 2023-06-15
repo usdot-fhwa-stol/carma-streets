@@ -102,6 +102,14 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install streets_snmp_cmd
+RUN echo " ------> Install streets snmp command from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_snmp_cmd
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_snmp_cmd/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
 
 # Install net-snmp
 WORKDIR /home/carma-streets/ext/
