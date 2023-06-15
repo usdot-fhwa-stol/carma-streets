@@ -234,7 +234,7 @@ namespace traffic_signal_controller_service {
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
-             * follow the desired phase plan. Calls set_tsc_hold_and_omit
+             * follow the desired phase plan. Calls set_tsc_hold_and_omit_forceoff_call
              **/
             void control_tsc_phases();
 
