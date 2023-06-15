@@ -239,9 +239,9 @@ namespace traffic_signal_controller_service {
             void control_tsc_phases();
 
             /**
-             * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
+             * @brief Method to set HOLD and OMIT, CALL, FORCEOFF on the Traffic signal controller accorording to the desired phase plan/phase control schedule.
              **/
-            void set_tsc_hold_and_omit();
+            void set_tsc_hold_and_omit_forceoff_call();
 
             /**
              * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.

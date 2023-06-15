@@ -13,7 +13,9 @@ namespace traffic_signal_controller_service {
             // Temporary fix for bug in CarmaClock::wait_for_initialization(). No mechanism to support notifying multiple threads
             // of initialization. This fix avoids any threads waiting on initialization.
             // TODO: Remove initialization and fix issue in carma-time-lib (CarmaClock class) 
-            streets_clock_singleton::update(0);
+            if ( is_simulation_mode() ) {
+                streets_clock_singleton::update(0);
+            }
             // Intialize spat kafka producer
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
@@ -307,7 +309,7 @@ namespace traffic_signal_controller_service {
 
     }
     
-    void tsc_service::set_tsc_hold_and_omit()
+    void tsc_service::set_tsc_hold_and_omit_forceoff_call()
     {
 
         while(!tsc_set_command_queue_.empty())
@@ -329,7 +331,7 @@ namespace traffic_signal_controller_service {
             }
             if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(tsc_set_command_queue_.front()))
             {
-                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
+                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan/phase control schedule.");
             }
             // Log command info sent
             SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());

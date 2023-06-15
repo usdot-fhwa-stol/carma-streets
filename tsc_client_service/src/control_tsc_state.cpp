@@ -51,11 +51,11 @@ namespace traffic_signal_controller_service
         auto current_time = streets_service::streets_clock_singleton::time_in_ms();
         // Assuming the first event start doesn't need to be planned for, we execute omit and hold for the next event. Resetting Hold ends the first event
         int64_t omit_execution_time = current_time + (first_event.end_time - current_time)/2;
+        //Omit all others signal groups other than the second_event event signal_groups
         tsc_command_queue.push(create_omit_command(second_event.signal_groups, omit_execution_time));
 
         int64_t hold_execution_time = first_event.end_time;
-        tsc_command_queue.push(create_hold_command(second_event.signal_groups, hold_execution_time));
-
+        tsc_command_queue.push(create_snmp_command_by_signal_groups(second_event.signal_groups,streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, hold_execution_time));
 
         int event_itr = 1;
 
@@ -65,10 +65,11 @@ namespace traffic_signal_controller_service
             auto next_event = desired_phase_plan->desired_phase_plan[event_itr + 1];
 
             omit_execution_time = current_event.start_time + (current_event.end_time - current_event.start_time)/2;
+            //Omit all others signal groups other than the next_event event signal_groups
             tsc_command_queue.push(create_omit_command(next_event.signal_groups, omit_execution_time));
 
             hold_execution_time = current_event.end_time;
-            tsc_command_queue.push(create_hold_command(next_event.signal_groups, hold_execution_time));
+            tsc_command_queue.push(create_snmp_command_by_signal_groups(next_event.signal_groups,streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, hold_execution_time));
 
             event_itr++;
         }
@@ -76,11 +77,11 @@ namespace traffic_signal_controller_service
         // Reset Hold and Omit for last event
         auto last_event = desired_phase_plan->desired_phase_plan.back();
         omit_execution_time = last_event.start_time + (last_event.end_time - last_event.start_time)/2;
-        std::vector<int> empty_group = {};
-        tsc_command_queue.push(create_omit_command(empty_group, omit_execution_time, true));
+        streets_snmp_cmd::streets_snmp_cmd_converter converter;
+        tsc_command_queue.push(converter.create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, hold_execution_time));
 
         hold_execution_time = last_event.end_time;
-        tsc_command_queue.push(create_hold_command(empty_group, hold_execution_time, true));
+        tsc_command_queue.push(converter.create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, hold_execution_time));
         SPDLOG_DEBUG("Updated queue with front command {0}!", tsc_command_queue.front().get_cmd_info());
 
     }
@@ -137,29 +138,17 @@ namespace traffic_signal_controller_service
 
     }
 
-    streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
+    streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_snmp_command_by_signal_groups(const std::vector<int>& signal_groups, streets_snmp_cmd::PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const
     {
-        if(!is_reset)
+        streets_snmp_cmd::streets_snmp_cmd_converter converter;
+        std::vector<int> phases;
+        for(auto signal_group : signal_groups)
         {
-            uint8_t hold_val = 0;   //Initialize to 00000000
-
-            for(auto signal_group : signal_groups)
-            {
-                int phase = _tsc_state->get_phase_number(signal_group);
-                // Hold phases in the given movement group
-                //For Hold only given phase bits are 1. Subtract 1 since phases range from 1-8.
-                hold_val |= (1 << ( phase - 1));
-                
-            }
-
-            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(hold_val));
-            return command;
+            int phase = _tsc_state->get_phase_number(signal_group);
+            phases.push_back(phase);            
         }
-        else
-        {
-            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(0));
-            return command;
-        }
+        auto command = converter.create_snmp_command_by_phases(phases, phase_control_type, start_time);
+        return command;
     }
 
     bool control_tsc_state::run_snmp_cmd_set_request( streets_snmp_cmd::snmp_cmd_struct& snmp_cmd)
@@ -177,9 +166,33 @@ namespace traffic_signal_controller_service
                 return false;
             }
         }
-        else
+        else if (snmp_cmd.control_type_ ==  streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES)
         {
             if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, snmp_cmd.set_val_)){
+                return false;
+            }
+        }
+        else if (snmp_cmd.control_type_ ==  streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_PED_PHASES)
+        {
+            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_PEDESTRIAN_OMIT_CONTROL, type, snmp_cmd.set_val_)){
+                return false;
+            }
+        }
+        else if (snmp_cmd.control_type_ ==  streets_snmp_cmd::PHASE_CONTROL_TYPE::FORCEOFF_PHASES)
+        {
+            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_FORCEOFF_CONTROL, type, snmp_cmd.set_val_)){
+                return false;
+            }
+        }
+        else if (snmp_cmd.control_type_ ==  streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_PED_PHASES)
+        {
+            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_PEDESTRIAN_CALL_CONTROL, type, snmp_cmd.set_val_)){
+                return false;
+            }
+        }
+        else if (snmp_cmd.control_type_ ==  streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_VEH_PHASES)
+        {
+            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_VEHICLE_CALL_CONTROL, type, snmp_cmd.set_val_)){
                 return false;
             }
         }

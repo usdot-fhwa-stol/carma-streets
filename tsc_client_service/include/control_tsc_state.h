@@ -57,16 +57,12 @@ namespace traffic_signal_controller_service
             streets_snmp_cmd::snmp_cmd_struct create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false) const;
 
             /** 
-             * @brief Method to create command for Hold for provided signal groups, 
-             * which will result in the traffic signal controller "holding" the specified phases till a change in the Hold command.
+             * @brief Method to create command for provided signal groups. Calculate the value required to control (hold, forceoff, omit, call) given  signal groups.
              * @param signal_groups A list of signal groups NOT to be omitted. Hold command will aim to hold the signal groups specified here.
-             * @param start_time Time at which the snmp command needs to be sent
-             * @param is_reset if true, hold command is reset on the traffic signal controller to 0. 
-             * If false will calculate the value required to hold given signal groups
+             * @param start_time Time at which the snmp command needs to be sent.
              **/
-            streets_snmp_cmd::snmp_cmd_struct create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset = false) const;
-
-            /**
+            streets_snmp_cmd::snmp_cmd_struct create_snmp_command_by_signal_groups(const std::vector<int>& signal_groups, streets_snmp_cmd::PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const;
+               /**
             * @brief Method to call the snmp command. Object type determines what SET command is sent. 
             * Types are Omit, Forceoff, Call and Hold.
             * @return True if SET commands are successful. False if command fails.

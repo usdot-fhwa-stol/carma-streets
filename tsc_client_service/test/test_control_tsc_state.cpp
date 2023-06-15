@@ -199,10 +199,10 @@ namespace traffic_signal_controller_service
 
         // Test streets_snmp_cmd::snmp_cmd_struct
         streets_snmp_cmd::snmp_cmd_struct test_control_obj(event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, 0);
-        // EXPECT_TRUE(test_control_obj.run());
+        EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj));
 
         streets_snmp_cmd::snmp_cmd_struct test_control_obj_2( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, 0);
-        // EXPECT_TRUE(test_control_obj_2.run());
+        EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_2));
 
         // Test empty desired phase plan
         streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan_2;
@@ -216,7 +216,7 @@ namespace traffic_signal_controller_service
     }
     
 
-    TEST(traffic_signal_controller_service, update_tsc_control_queue)
+    TEST(traffic_signal_controller_service, update_tsc_control_queue_by_phase_control_schedule)
     {
         // Define Worker
         auto mock_client = std::make_shared<mock_snmp_client>();
