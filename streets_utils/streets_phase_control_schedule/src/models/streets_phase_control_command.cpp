@@ -41,7 +41,7 @@ namespace streets_phase_control_schedule
         }
     }
 
-    std::ostream &operator<<(std::ostream &os, const streets_phase_control_command& command)
+    std::ostream &operator<<(std::ostream &os, const streets_phase_control_command &command)
     {
         std::string command_type_str;
         switch (command.command_type)
@@ -67,8 +67,37 @@ namespace streets_phase_control_schedule
         default:
             break;
         }
-        os << "Command type: " << command_type_str << ", command phase: " << command.command_phase << ", start time: " << command.command_start_time << ", end time: " << std::setprecision(17)<< command.command_end_time;
+        os << "Command type: " << command_type_str << ", command phase: " << command.command_phase << ", start time: " << command.command_start_time << ", end time: " << std::setprecision(17) << command.command_end_time;
         return os;
+    }
+
+    const std::string streets_phase_control_command::COMMAND_TYPE_to_string(COMMAND_TYPE command_type) noexcept 
+    {
+        std::string command_type_str;
+        switch (command_type)
+        {
+        case streets_phase_control_schedule::COMMAND_TYPE::CALL_VEH_PHASES:
+            command_type_str = "call_veh";
+            break;
+        case streets_phase_control_schedule::COMMAND_TYPE::CALL_PED_PHASES:
+            command_type_str = "call_ped";
+            break;
+        case streets_phase_control_schedule::COMMAND_TYPE::FORCEOFF_PHASES:
+            command_type_str = "forceoff";
+            break;
+        case streets_phase_control_schedule::COMMAND_TYPE::HOLD_VEH_PHASES:
+            command_type_str = "hold";
+            break;
+        case streets_phase_control_schedule::COMMAND_TYPE::OMIT_VEH_PHASES:
+            command_type_str = "omit_veh";
+            break;
+        case streets_phase_control_schedule::COMMAND_TYPE::OMIT_PED_PHASES:
+            command_type_str = "omit_ped";
+            break;
+        default:
+            break;
+        }
+        return command_type_str;
     }
 
 }
