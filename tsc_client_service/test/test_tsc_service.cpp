@@ -41,24 +41,24 @@ namespace traffic_signal_controller_service
             void mock_tsc_ntcip() {
             // gmock SNMP response ---------------------------------------------------------------------------------------------------------------------
             // Test get max channels
-            snmp_response_obj max_channels_in_tsc;
+            streets_snmp_cmd::snmp_response_obj max_channels_in_tsc;
             max_channels_in_tsc.val_int = 16;
-            max_channels_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+            max_channels_in_tsc.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
-            request_type request_type = request_type::GET;
+            auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
 
             EXPECT_CALL( *mock_snmp, process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type , _) ).WillRepeatedly(testing::DoAll(
                 SetArgReferee<2>(max_channels_in_tsc), 
                 Return(true)));
 
-            snmp_response_obj max_rings_in_tsc;
+            streets_snmp_cmd::snmp_response_obj max_rings_in_tsc;
             max_rings_in_tsc.val_int = 4;
-            max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+            max_rings_in_tsc.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
             EXPECT_CALL( *mock_snmp, process_snmp_request(ntcip_oids::MAX_RINGS, request_type , _) ).WillRepeatedly(testing::DoAll(
                 SetArgReferee<2>(max_rings_in_tsc), 
                 Return(true)));
             // Define Sequence Data
-            snmp_response_obj seq_data;
+            streets_snmp_cmd::snmp_response_obj seq_data;
             seq_data.val_string = {char(1),char(2), char(3), char(4)};
             std::string seq_data_ring1_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(1);
 
@@ -93,7 +93,7 @@ namespace traffic_signal_controller_service
                 //
                 switch(i) {
                     case 1: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -101,7 +101,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 1;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -110,7 +110,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 2: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -118,7 +118,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 2;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -127,7 +127,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 3: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -135,7 +135,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 3;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -144,7 +144,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 4: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -152,7 +152,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 4;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -161,7 +161,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 5: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -169,7 +169,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 5;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -178,7 +178,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 6: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -186,7 +186,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 6;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -195,7 +195,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 7: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -203,7 +203,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 7;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -212,7 +212,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     case 8: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 2;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -220,7 +220,7 @@ namespace traffic_signal_controller_service
                             Return(true)));
 
                         // Define Control Source
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 8;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -229,7 +229,7 @@ namespace traffic_signal_controller_service
                         break;
                     }
                     default: {
-                        snmp_response_obj channel_control_resp;
+                        streets_snmp_cmd::snmp_response_obj channel_control_resp;
                         channel_control_resp.val_int = 0;
                         std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(channel_control_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -239,7 +239,7 @@ namespace traffic_signal_controller_service
                         // Define Control Source
                         // Note this OID is not actually called for any non vehicle/pedestrian phases which is why the Times() assertion 
                         // is not included
-                        snmp_response_obj control_source_resp;
+                        streets_snmp_cmd::snmp_response_obj control_source_resp;
                         control_source_resp.val_int = 0;
                         std::string control_source_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(i);
                         EXPECT_CALL(*mock_snmp, process_snmp_request(control_source_oid, request_type , _) ).WillRepeatedly(testing::DoAll(
@@ -254,7 +254,7 @@ namespace traffic_signal_controller_service
 
                 // Define get min green
                 std::string min_green_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(i);
-                snmp_response_obj min_green;
+                streets_snmp_cmd::snmp_response_obj min_green;
                 min_green.val_int = 5;
                 EXPECT_CALL(*mock_snmp, process_snmp_request(min_green_oid , request_type , _) ).WillRepeatedly(testing::DoAll(
                     SetArgReferee<2>(min_green), 
@@ -263,7 +263,7 @@ namespace traffic_signal_controller_service
 
                 // Define get max green
                 std::string max_green_oid = ntcip_oids::MAXIMUM_GREEN + "." + std::to_string(i);
-                snmp_response_obj max_green;
+                streets_snmp_cmd::snmp_response_obj max_green;
                 max_green.val_int = 300;
                 EXPECT_CALL(*mock_snmp, process_snmp_request(max_green_oid , request_type , _) ).WillRepeatedly(testing::DoAll(
                     SetArgReferee<2>(max_green), 
@@ -272,7 +272,7 @@ namespace traffic_signal_controller_service
 
                 // Define get yellow Duration
                 std::string yellow_oid = ntcip_oids::YELLOW_CHANGE_PARAMETER + "." + std::to_string(i);
-                snmp_response_obj yellow_duration;
+                streets_snmp_cmd::snmp_response_obj yellow_duration;
                 yellow_duration.val_int = 10;
                 EXPECT_CALL(*mock_snmp, process_snmp_request(yellow_oid , request_type , _) ).WillRepeatedly(testing::DoAll(
                     SetArgReferee<2>(yellow_duration), 
@@ -282,7 +282,7 @@ namespace traffic_signal_controller_service
 
                 // Define red clearance
                 std::string red_clearance_oid = ntcip_oids::RED_CLEAR_PARAMETER + "." + std::to_string(i);
-                snmp_response_obj red_clearance_duration;
+                streets_snmp_cmd::snmp_response_obj red_clearance_duration;
                 red_clearance_duration.val_int = 15;
                 EXPECT_CALL(*mock_snmp, process_snmp_request(red_clearance_oid , request_type , _) ).WillRepeatedly(testing::DoAll(
                     SetArgReferee<2>(red_clearance_duration), 
@@ -291,7 +291,7 @@ namespace traffic_signal_controller_service
 
                 //Define get concurrent phases
                 std::string concurrent_phase_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(i);
-                snmp_response_obj concurrent_phase_resp;
+                streets_snmp_cmd::snmp_response_obj concurrent_phase_resp;
                 if ( i == 1 || i == 2) {
                     concurrent_phase_resp.val_string = {char(5), char(6)};
                 }
@@ -398,13 +398,13 @@ namespace traffic_signal_controller_service
             .WillRepeatedly(testing::DoAll(testing::Return(true)));
         
         // Define command 
-        snmp_response_obj set_val;
-        set_val.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj set_val;
+        set_val.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
         uint64_t start_time = 0;
 
-        snmp_cmd_struct::control_type control_type = snmp_cmd_struct::control_type::Hold;
-        snmp_cmd_struct hold_command(mock_snmp, start_time, control_type, 0);
-        std::queue<snmp_cmd_struct> tsc_set_command_queue;
+        streets_snmp_cmd::PHASE_CONTROL_TYPE control_type = streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES;
+        streets_snmp_cmd::snmp_cmd_struct hold_command(start_time, control_type, 0);
+        std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue;
         tsc_set_command_queue.push(hold_command);
         service.tsc_set_command_queue_ = tsc_set_command_queue;
 
@@ -415,8 +415,8 @@ namespace traffic_signal_controller_service
         ASSERT_EQ(0, service.tsc_set_command_queue_.size());
 
         start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 100;
-        snmp_cmd_struct hold_command_2(mock_snmp, start_time, control_type, 0);
-        std::queue<snmp_cmd_struct> tsc_set_command_queue_2;
+        streets_snmp_cmd::snmp_cmd_struct hold_command_2(start_time, control_type, 0);
+        std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_2;
         tsc_set_command_queue_2.push(hold_command_2);
         service.tsc_set_command_queue_ = tsc_set_command_queue_2;
         ASSERT_EQ(1, service.tsc_set_command_queue_.size());

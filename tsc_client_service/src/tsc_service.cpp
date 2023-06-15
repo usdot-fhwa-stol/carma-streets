@@ -145,10 +145,10 @@ namespace traffic_signal_controller_service {
     }
     bool tsc_service::enable_spat() const{
         // Enable SPaT 
-        snmp_response_obj enable_spat;
-        enable_spat.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj enable_spat;
+        enable_spat.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
         enable_spat.val_int = 2;
-        if (!snmp_client_ptr->process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type::SET, enable_spat)){
+        if (!snmp_client_ptr->process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, streets_snmp_cmd::REQUEST_TYPE::SET, enable_spat)){
             SPDLOG_ERROR("Failed to enable SPaT broadcasting on Traffic Signal Controller!");
             return false;
         }
@@ -323,7 +323,8 @@ namespace traffic_signal_controller_service {
             SPDLOG_DEBUG("Sleeping for {0}ms.", duration);
             streets_clock_singleton::sleep_for(duration);
 
-            if(!(tsc_set_command_queue_.front()).run())
+            // if(!(tsc_set_command_queue_.front()).run())
+            if(!control_tsc_state_ptr_->run_snmp_cmd_set_request(tsc_set_command_queue_.front()))
             {
                 throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
             }

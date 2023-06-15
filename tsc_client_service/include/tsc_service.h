@@ -104,7 +104,7 @@ namespace traffic_signal_controller_service {
             bool use_desired_phase_plan_update_ = false;
 
             // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
-            std::queue<snmp_cmd_struct> tsc_set_command_queue_;
+            std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_;
 
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;

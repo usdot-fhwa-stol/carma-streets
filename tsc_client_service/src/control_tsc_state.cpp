@@ -11,7 +11,7 @@ namespace traffic_signal_controller_service
     }
 
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_desired_phase_plan::streets_desired_phase_plan> desired_phase_plan,
-                                             std::queue<snmp_cmd_struct>& tsc_command_queue) const
+                                             std::queue<streets_snmp_cmd::snmp_cmd_struct>& tsc_command_queue) const
     {
         if(desired_phase_plan->desired_phase_plan.empty()){
             SPDLOG_DEBUG("No events in desired phase plan");
@@ -42,7 +42,7 @@ namespace traffic_signal_controller_service
         
 
         //Reset queue
-        tsc_command_queue = std::queue<snmp_cmd_struct>();
+        tsc_command_queue = std::queue<streets_snmp_cmd::snmp_cmd_struct>();
 
         // add Omit and Hold commands
         auto first_event = desired_phase_plan->desired_phase_plan[0];
@@ -86,7 +86,7 @@ namespace traffic_signal_controller_service
     }
 
     void control_tsc_state::update_tsc_control_queue(std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule_ptr,
-        std::queue<snmp_cmd_struct>& tsc_command_queue) const
+        std::queue<streets_snmp_cmd::snmp_cmd_struct>& tsc_command_queue) const
     {
         if(!phase_control_schedule_ptr)
         {
@@ -105,7 +105,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
+    streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)
         {
@@ -120,18 +120,18 @@ namespace traffic_signal_controller_service
                 
             }
 
-            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Omit, static_cast<int64_t>(omit_val));
+            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(omit_val));
             return command;
         }
         else
         {
-            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Omit, static_cast<int64_t>(0));
+            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(0));
             return command;
         }
 
     }
 
-    snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
+    streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_hold_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
     {
         if(!is_reset)
         {
@@ -146,33 +146,34 @@ namespace traffic_signal_controller_service
                 
             }
 
-            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Hold, static_cast<int64_t>(hold_val));
+            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(hold_val));
             return command;
         }
         else
         {
-            snmp_cmd_struct command(snmp_client_worker_, start_time, snmp_cmd_struct::control_type::Hold, static_cast<int64_t>(0));
+            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(0));
             return command;
         }
     }
 
-    std::string snmp_cmd_struct::get_cmd_info() const{
+    bool control_tsc_state::run_snmp_cmd_set_request( streets_snmp_cmd::snmp_cmd_struct& snmp_cmd)
+    {      
+        /*Type of request to be sent to the TSC, within this context it is always SET*/
+        auto type = streets_snmp_cmd::REQUEST_TYPE::SET;
 
-        std::string command_type;
-        if(control_type_ == control_type::Hold){
-            command_type = "Hold";
+        if(snmp_cmd.control_type_ ==  streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES)
+        {
+            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_OMIT_CONTROL, type, snmp_cmd.set_val_)){
+                return false;
+            }
         }
-        else{
-            command_type = "Omit";
+        else
+        {
+            if(!snmp_client_worker_->process_snmp_request(ntcip_oids::PHASE_HOLD_CONTROL, type, snmp_cmd.set_val_)){
+                return false;
+            }
         }
-        std::string execution_start_time = std::to_string(start_time_);
 
-        // Convert value set to phases nums
-        std::string value_set = std::to_string(set_val_.val_int);
-
-        return "control_cmd_type:" + command_type + ";execution_start_time:" + execution_start_time + ";value_set:" + value_set;
-        
+        return true;
     }
-
-
 }

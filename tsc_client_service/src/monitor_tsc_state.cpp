@@ -273,12 +273,12 @@ namespace traffic_signal_controller_service
     std::unordered_map<int,int> tsc_state::get_phases_associated_with_channel(const std::vector<int>& signal_group_ids) const {
         
         std::unordered_map<int,int> phases_to_signal_group;
-        request_type request_type = request_type::GET;
+        auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
 
         for(int signal_group : signal_group_ids)
         {
-            snmp_response_obj phase_num;
-            phase_num.type = snmp_response_obj::response_type::INTEGER;
+            streets_snmp_cmd::snmp_response_obj phase_num;
+            phase_num.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
             // Control source returns the phase associated with the signal group. Channel and signal group id is synonymous according to the NTCIP documentation
             std::string control_source_parameter_oid = ntcip_oids::CHANNEL_CONTROL_SOURCE_PARAMETER + "." + std::to_string(signal_group);
             snmp_client_worker_->process_snmp_request(control_source_parameter_oid, request_type, phase_num);
@@ -302,10 +302,10 @@ namespace traffic_signal_controller_service
     void tsc_state::get_channels(int max_channels, std::vector<int>& vehicle_channels, std::vector<int>& ped_channels) const{
         
         // Loop through channel control types and add channels with vehicle phase to list
-        snmp_response_obj control_type;
-        control_type.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj control_type;
+        control_type.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
         
-        request_type request_type = request_type::GET;
+        auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
         for(int channel_num = 1; channel_num <= max_channels; ++channel_num)
         {
             std::string control_type_parameter_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(channel_num);
@@ -344,7 +344,7 @@ namespace traffic_signal_controller_service
         
         std::vector<std::vector<int>> active_ring_sequences;
         // Read sequence data for rings
-        request_type request_type = request_type::GET;
+        auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
 
         for(int i = 1 ; i <= max_rings; ++i){
             int ring_num = i;
@@ -352,8 +352,8 @@ namespace traffic_signal_controller_service
 
             std::string phase_seq_oid= ntcip_oids::SEQUENCE_DATA + "." + std::to_string(sequence) + "." + std::to_string(ring_num);
             
-            snmp_response_obj seq_data;
-            seq_data.type = snmp_response_obj::response_type::STRING;
+            streets_snmp_cmd::snmp_response_obj seq_data;
+            seq_data.type = streets_snmp_cmd::RESPONSE_TYPE::STRING;
             snmp_client_worker_->process_snmp_request(phase_seq_oid, request_type, seq_data);
 
             //extract phase numbers from strings
@@ -378,9 +378,9 @@ namespace traffic_signal_controller_service
     }
 
     int tsc_state::get_max_rings() const {
-        request_type request_type = request_type::GET;
-        snmp_response_obj max_rings_in_tsc;
-        max_rings_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
+        streets_snmp_cmd::snmp_response_obj max_rings_in_tsc;
+        max_rings_in_tsc.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
         if(!snmp_client_worker_->process_snmp_request(ntcip_oids::MAX_RINGS, request_type, max_rings_in_tsc))
         {
@@ -391,9 +391,9 @@ namespace traffic_signal_controller_service
     }
 
     int tsc_state::get_max_channels() const {
-        request_type request_type = request_type::GET;
-        snmp_response_obj max_channels_in_tsc;
-        max_channels_in_tsc.type = snmp_response_obj::response_type::INTEGER;
+        auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
+        streets_snmp_cmd::snmp_response_obj max_channels_in_tsc;
+        max_channels_in_tsc.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
         if(!snmp_client_worker_->process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type, max_channels_in_tsc))
         {
@@ -433,11 +433,11 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_min_green(int phase_num) const
     {
-        request_type request_type = request_type::GET;
+        auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
         std::string min_green_parameter_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(phase_num);
 
-        snmp_response_obj min_green;
-        min_green.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj min_green;
+        min_green.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
         snmp_client_worker_->process_snmp_request(min_green_parameter_oid, request_type, min_green);
 
@@ -446,11 +446,11 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_max_green(int phase_num) const
     {
-        request_type request_type = request_type::GET;
+        auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
 
         std::string max_green_parameter_oid = ntcip_oids::MAXIMUM_GREEN + "." + std::to_string(phase_num);
-        snmp_response_obj max_green;
-        max_green.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj max_green;
+        max_green.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
         
         snmp_client_worker_->process_snmp_request(max_green_parameter_oid, request_type, max_green);
 
@@ -459,11 +459,11 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_yellow_duration(int phase_num) const
     {
-        request_type request_type = request_type::GET;
+        auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
         std::string yellow_duration_oid = ntcip_oids::YELLOW_CHANGE_PARAMETER + "." + std::to_string(phase_num);
 
-        snmp_response_obj yellow_duration;
-        yellow_duration.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj yellow_duration;
+        yellow_duration.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
         
         snmp_client_worker_ ->process_snmp_request(yellow_duration_oid, request_type, yellow_duration);
 
@@ -472,11 +472,11 @@ namespace traffic_signal_controller_service
 
     int tsc_state::get_red_clearance(int phase_num) const
     {
-        request_type get_request = request_type::GET;
+        auto get_request = streets_snmp_cmd::REQUEST_TYPE::GET;
         std::string red_clearance_oid = ntcip_oids::RED_CLEAR_PARAMETER + "." + std::to_string(phase_num);
 
-        snmp_response_obj red_clearance;
-        red_clearance.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj red_clearance;
+        red_clearance.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
         snmp_client_worker_->process_snmp_request(red_clearance_oid, get_request, red_clearance);
 
@@ -518,9 +518,9 @@ namespace traffic_signal_controller_service
         std::vector<int> concurrent_signal_groups;
         std::string concurrent_phases_oid = ntcip_oids::PHASE_CONCURRENCY + "." + std::to_string(phase_num);
 
-        snmp_response_obj concurrent_phase_data;
-        request_type request_type = request_type::GET;
-        concurrent_phase_data.type = snmp_response_obj::response_type::STRING;
+        streets_snmp_cmd::snmp_response_obj concurrent_phase_data;
+        auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
+        concurrent_phase_data.type = streets_snmp_cmd::RESPONSE_TYPE::STRING;
         snmp_client_worker_->process_snmp_request(concurrent_phases_oid, request_type, concurrent_phase_data);
 
         //extract phase numbers from strings

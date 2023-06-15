@@ -53,18 +53,18 @@ namespace traffic_signal_controller_service
     }
 
 
-    bool snmp_client::process_snmp_request(const std::string& input_oid, const request_type& request_type, snmp_response_obj& val){
+    bool snmp_client::process_snmp_request(const std::string& input_oid, const streets_snmp_cmd::REQUEST_TYPE& request_type, streets_snmp_cmd::snmp_response_obj& val){
 
         /*Structure to hold response from the remote host*/
         snmp_pdu *response;
 
         // Create pdu for the data
-        if (request_type == request_type::GET)
+        if (request_type == streets_snmp_cmd::REQUEST_TYPE::GET)
         {
             SPDLOG_DEBUG("Attemping to GET value for: {0}", input_oid);
             pdu = snmp_pdu_create(SNMP_MSG_GET);
         }
-        else if (request_type == request_type::SET)
+        else if (request_type == streets_snmp_cmd::REQUEST_TYPE::SET)
         {
             SPDLOG_DEBUG("Attemping to SET value for {0}", input_oid, " to {1}", val.val_int);
             pdu = snmp_pdu_create(SNMP_MSG_SET);
@@ -85,17 +85,17 @@ namespace traffic_signal_controller_service
         }
         else{
             
-            if(request_type == request_type::GET)
+            if(request_type == streets_snmp_cmd::REQUEST_TYPE::GET)
             {
                 // Add OID to pdu for get request
                 snmp_add_null_var(pdu, OID, OID_len);
             }
-            else if(request_type == request_type::SET)
+            else if(request_type == streets_snmp_cmd::REQUEST_TYPE::SET)
             {
-                if(val.type == snmp_response_obj::response_type::INTEGER){
+                if(val.type == streets_snmp_cmd::RESPONSE_TYPE::INTEGER){
                     snmp_add_var(pdu, OID, OID_len, 'i', (std::to_string(val.val_int)).c_str());
                 }
-                else if(val.type == snmp_response_obj::response_type::STRING){
+                else if(val.type == streets_snmp_cmd::RESPONSE_TYPE::STRING){
                     SPDLOG_ERROR("Setting string value is currently not supported");
                     return false;
                 }
@@ -112,7 +112,7 @@ namespace traffic_signal_controller_service
             
             SPDLOG_DEBUG("STAT_SUCCESS, received a response");
             
-            if(request_type == request_type::GET){
+            if(request_type == streets_snmp_cmd::REQUEST_TYPE::GET){
                 for(auto vars = response->variables; vars; vars = vars->next_variable){
                     // Get value of variable depending on ASN.1 type
                     // Variable could be a integer, string, bitstring, ojbid, counter : defined here https://github.com/net-snmp/net-snmp/blob/master/include/net-snmp/types.h
@@ -148,13 +148,13 @@ namespace traffic_signal_controller_service
                     }
                 }
             }
-            else if(request_type == request_type::SET){
+            else if(request_type == streets_snmp_cmd::REQUEST_TYPE::SET){
                 
-                if(val.type == snmp_response_obj::response_type::INTEGER){
+                if(val.type == streets_snmp_cmd::RESPONSE_TYPE::INTEGER){
                     SPDLOG_DEBUG("Success in SET for OID: {0} Value: {1}", input_oid ,val.val_int);
                 }
 
-                else if(val.type == snmp_response_obj::response_type::STRING){
+                else if(val.type == streets_snmp_cmd::RESPONSE_TYPE::STRING){
                     SPDLOG_DEBUG("Success in SET for OID: {0} Value:", input_oid);
                     for(auto data : val.val_string){
                         SPDLOG_DEBUG("{0}", data);
@@ -178,7 +178,7 @@ namespace traffic_signal_controller_service
     }
 
 
-    void snmp_client::log_error(const int& status, const request_type& request_type, snmp_pdu *response) const
+    void snmp_client::log_error(const int& status, const streets_snmp_cmd::REQUEST_TYPE& request_type, snmp_pdu *response) const
     {
 
         if (status == STAT_SUCCESS)
@@ -191,10 +191,10 @@ namespace traffic_signal_controller_service
             SPDLOG_ERROR("Timeout, no response from server");
         }
         else{
-            if(request_type == request_type::GET){
+            if(request_type == streets_snmp_cmd::REQUEST_TYPE::GET){
                 SPDLOG_ERROR("Unknown SNMP Error for {0}", "GET");
             }
-            else if(request_type == request_type::SET){
+            else if(request_type == streets_snmp_cmd::REQUEST_TYPE::SET){
                 SPDLOG_ERROR("Unknown SNMP Error for {0}", "SET");
             }
         }
