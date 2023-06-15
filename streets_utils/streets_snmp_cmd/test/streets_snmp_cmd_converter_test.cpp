@@ -22,16 +22,6 @@ namespace
         streets_snmp_cmd_converter converter;
     };
 
-    TEST_F(streets_snmp_cmd_converter_test, to_phase_control_type)
-    {
-        ASSERT_EQ(streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_PED_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::CALL_PED_PHASES));
-        ASSERT_EQ(streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::CALL_VEH_PHASES));
-        ASSERT_EQ(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_PED_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::OMIT_PED_PHASES));
-        ASSERT_EQ(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::OMIT_VEH_PHASES));
-        ASSERT_EQ(streets_snmp_cmd::PHASE_CONTROL_TYPE::FORCEOFF_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::FORCEOFF_PHASES));
-        ASSERT_EQ(streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::HOLD_VEH_PHASES));
-    };
-
     TEST_F(streets_snmp_cmd_converter_test, create_snmp_command_by_phases)
     {
         std::vector<int> phases;
@@ -127,8 +117,10 @@ namespace
 
         auto cmds_result = converter.create_snmp_cmds_by_phase_control_schedule(pcs);
         std::string expected_str = "";
-        for (auto snmp_cmd : cmds_result)
+        while(!cmds_result.empty())
         {
+            auto snmp_cmd = cmds_result.front();
+            cmds_result.pop();
             SPDLOG_INFO("{0}", snmp_cmd.get_cmd_info());
             if (snmp_cmd.start_time_ == 0)
             {
@@ -380,5 +372,16 @@ namespace
                 }
             }
         }
+    
+    }
+
+    TEST_F(streets_snmp_cmd_converter_test, to_phase_control_type)
+    {
+        ASSERT_EQ(PHASE_CONTROL_TYPE::CALL_PED_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::CALL_PED_PHASES));
+        ASSERT_EQ(PHASE_CONTROL_TYPE::CALL_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::CALL_VEH_PHASES));
+        ASSERT_EQ(PHASE_CONTROL_TYPE::OMIT_PED_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::OMIT_PED_PHASES));
+        ASSERT_EQ(PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::OMIT_VEH_PHASES));
+        ASSERT_EQ(PHASE_CONTROL_TYPE::FORCEOFF_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::FORCEOFF_PHASES));
+        ASSERT_EQ(PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::HOLD_VEH_PHASES));
     }
 };

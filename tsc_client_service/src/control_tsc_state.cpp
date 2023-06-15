@@ -90,19 +90,25 @@ namespace traffic_signal_controller_service
     {
         if(!phase_control_schedule_ptr)
         {
-            SPDLOG_DEBUG("Phase control schedule is not initialized.");
+            SPDLOG_ERROR("Phase control schedule is not initialized.");
             return;
         }
         if(phase_control_schedule_ptr->is_clear_current_schedule)
         {
-            SPDLOG_DEBUG("Clear SNMP command queue!");
-            //ToDo: Send clear all scheduled jobs or clear all commands on the update command queue
+            SPDLOG_INFO("Clear SNMP command queue!");
+            // Clear all commands on the update command queue.
+            std::queue<streets_snmp_cmd::snmp_cmd_struct> empty_queue;
+            std::swap(tsc_command_queue, empty_queue);
         }else{
             std::stringstream ss;
             ss << *phase_control_schedule_ptr;    
-            SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
-            //ToDo: Update command queue with the new phase control schedule commands
+            SPDLOG_INFO("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
+            // Update command queue with the new phase control schedule commands.
+            streets_snmp_cmd::streets_snmp_cmd_converter converter;
+            auto snmp_cmd_queue = converter.create_snmp_cmds_by_phase_control_schedule(phase_control_schedule_ptr);
+            std::swap(tsc_command_queue, snmp_cmd_queue);
         }
+        SPDLOG_INFO("Updated Queue Size: {0}", tsc_command_queue.size());
     }
 
     streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const

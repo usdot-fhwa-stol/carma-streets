@@ -94,8 +94,6 @@ namespace streets_phase_control_schedule
         case streets_phase_control_schedule::COMMAND_TYPE::OMIT_PED_PHASES:
             command_type_str = "omit_ped";
             break;
-        default:
-            break;
         }
         return command_type_str;
     }

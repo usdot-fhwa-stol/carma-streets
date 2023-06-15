@@ -17,9 +17,9 @@ namespace streets_snmp_cmd
         return command;
     }
 
-    std::vector<snmp_cmd_struct> streets_snmp_cmd_converter::create_snmp_cmds_by_phase_control_schedule(const std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule) const
+    std::queue<snmp_cmd_struct> streets_snmp_cmd_converter::create_snmp_cmds_by_phase_control_schedule(const std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule) const
     {
-        std::vector<snmp_cmd_struct> cmds_result;
+        std::queue<snmp_cmd_struct> cmds_result;
         std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> start_time_cmd_m;
         std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> end_time_cmd_m;
         for (auto pcs_cmd : phase_control_schedule->commands)
@@ -29,10 +29,10 @@ namespace streets_snmp_cmd
             // End time commands
             add_phase_control_schedule_command_to_two_dimension_map(pcs_cmd.command_end_time, pcs_cmd, end_time_cmd_m);
         }
-        print_two_dimension_map(start_time_cmd_m);
-        print_two_dimension_map(end_time_cmd_m);
+        print_two_dimension_map(start_time_cmd_m, true);
+        print_two_dimension_map(end_time_cmd_m, false);
 
-        uint64_t snmp_cmd_start_time = 0; 
+        uint64_t snmp_cmd_start_time = 0;
         uint64_t prev_snmp_start_time = 0;
         uint8_t set_val_hold = 0;     // Initialize hold value to 00000000
         uint8_t set_val_forceoff = 0; // Initialize forceoff value to 00000000
@@ -64,37 +64,37 @@ namespace streets_snmp_cmd
                         {
                             set_val_call_ped = bitwise_xor_phases(set_val_call_ped, inner_itr->second);
                             snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
-                            cmds_result.push_back(command);
+                            cmds_result.push(command);
                         }
                         else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::CALL_VEH_PHASES)
                         {
                             set_val_call_veh = bitwise_xor_phases(set_val_call_veh, inner_itr->second);
                             snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
-                            cmds_result.push_back(command);
+                            cmds_result.push(command);
                         }
                         else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::OMIT_PED_PHASES)
                         {
                             set_val_omit_ped = bitwise_xor_phases(set_val_omit_ped, inner_itr->second);
                             snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped));
-                            cmds_result.push_back(command);
+                            cmds_result.push(command);
                         }
                         else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::OMIT_VEH_PHASES)
                         {
                             set_val_omit_veh = bitwise_xor_phases(set_val_omit_veh, inner_itr->second);
                             snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh));
-                            cmds_result.push_back(command);
+                            cmds_result.push(command);
                         }
                         else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::FORCEOFF_PHASES)
                         {
                             set_val_forceoff = bitwise_xor_phases(set_val_forceoff, inner_itr->second);
                             snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff));
-                            cmds_result.push_back(command);
+                            cmds_result.push(command);
                         }
                         else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::HOLD_VEH_PHASES)
                         {
                             set_val_hold = bitwise_xor_phases(set_val_hold, inner_itr->second);
                             snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
-                            cmds_result.push_back(command);
+                            cmds_result.push(command);
                         }
                     }
                 }
@@ -174,38 +174,38 @@ namespace streets_snmp_cmd
             if (is_hold)
             {
                 snmp_cmd_struct command(snmp_cmd_start_time, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
-                cmds_result.push_back(command);
+                cmds_result.push(command);
             }
 
             if (is_forceoff)
             {
                 snmp_cmd_struct command(snmp_cmd_start_time, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff));
-                cmds_result.push_back(command);
+                cmds_result.push(command);
             }
 
             if (is_omit_veh)
             {
 
                 snmp_cmd_struct command(snmp_cmd_start_time, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh));
-                cmds_result.push_back(command);
+                cmds_result.push(command);
             }
 
             if (is_omit_ped)
             {
                 snmp_cmd_struct command(snmp_cmd_start_time, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped));
-                cmds_result.push_back(command);
+                cmds_result.push(command);
             }
 
             if (is_call_ped)
             {
                 snmp_cmd_struct command(snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
-                cmds_result.push_back(command);
+                cmds_result.push(command);
             }
 
             if (is_call_veh)
             {
                 snmp_cmd_struct command(snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
-                cmds_result.push_back(command);
+                cmds_result.push(command);
             }
 
             // Update previous start time with current start time
@@ -224,37 +224,37 @@ namespace streets_snmp_cmd
                     {
                         set_val_call_ped = bitwise_xor_phases(set_val_call_ped, inner_itr->second);
                         snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
-                        cmds_result.push_back(command);
+                        cmds_result.push(command);
                     }
                     else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::CALL_VEH_PHASES)
                     {
                         set_val_call_veh = bitwise_xor_phases(set_val_call_veh, inner_itr->second);
                         snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
-                        cmds_result.push_back(command);
+                        cmds_result.push(command);
                     }
                     else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::OMIT_PED_PHASES)
                     {
                         set_val_omit_ped = bitwise_xor_phases(set_val_omit_ped, inner_itr->second);
                         snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped));
-                        cmds_result.push_back(command);
+                        cmds_result.push(command);
                     }
                     else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::OMIT_VEH_PHASES)
                     {
                         set_val_omit_veh = bitwise_xor_phases(set_val_omit_veh, inner_itr->second);
                         snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh));
-                        cmds_result.push_back(command);
+                        cmds_result.push(command);
                     }
                     else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::FORCEOFF_PHASES)
                     {
                         set_val_forceoff = bitwise_xor_phases(set_val_forceoff, inner_itr->second);
                         snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff));
-                        cmds_result.push_back(command);
+                        cmds_result.push(command);
                     }
                     else if (to_phase_control_type(inner_itr->first) == PHASE_CONTROL_TYPE::HOLD_VEH_PHASES)
                     {
                         set_val_hold = bitwise_xor_phases(set_val_hold, inner_itr->second);
                         snmp_cmd_struct command(end_time_itr->first, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
-                        cmds_result.push_back(command);
+                        cmds_result.push(command);
                     }
                 }
             }
@@ -283,6 +283,7 @@ namespace streets_snmp_cmd
 
     void streets_snmp_cmd_converter::add_phase_control_schedule_command_to_two_dimension_map(uint64_t start_time, streets_phase_control_schedule::streets_phase_control_command pcs_cmd, std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m) const
     {
+        // Checking start time, if the start time as key does not exist in the map, add the start time, the phase and control type as new record in the map.
         if (time_cmd_m.find(start_time) == time_cmd_m.end())
         {
             std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>> cmd_type_phase_m;
@@ -293,6 +294,11 @@ namespace streets_snmp_cmd
         }
         else
         {
+            /***
+             * Checking start time, if the start time already exist, then check the command type.
+             * If it is a new command type, add the phase abd control type as new record in the nest map.
+             * If the command type already exists, add the phase to the existing phases list.
+             * ***/
             auto tmp_cmd_phase_m = time_cmd_m.find(start_time)->second;
             // Different command types at the same start time
             if (tmp_cmd_phase_m.find(pcs_cmd.command_type) == tmp_cmd_phase_m.end())
@@ -310,17 +316,20 @@ namespace streets_snmp_cmd
         }
     }
 
-    void streets_snmp_cmd_converter::print_two_dimension_map(std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m) const
+    void streets_snmp_cmd_converter::print_two_dimension_map(std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m, bool is_cmd_start) const
     {
-        SPDLOG_INFO("---------------Printing Two Dimension Command Map---------");
+        SPDLOG_INFO("---------------Printing Two Dimension Command Map of Phase Control Schedule Command and Phases---------");
         for (auto cmd : time_cmd_m)
         {
-            SPDLOG_INFO("Start Timestamp: {0}", cmd.first);
+            // Start/End time
+            is_cmd_start ? SPDLOG_INFO("Start Timestamp: {0}", cmd.first) : SPDLOG_INFO("End Timestamp: {0}", cmd.first);
             for (auto cmd_inner : cmd.second)
             {
+                // Command type
                 streets_phase_control_schedule::streets_phase_control_command cmd_tmp;
                 std::string command_type_str = cmd_tmp.COMMAND_TYPE_to_string(cmd_inner.first);
                 SPDLOG_INFO("\tCommand Type: {0}", command_type_str);
+                // Phases
                 std::string cmd_inner_inner_str = "";
                 for (auto cmd_inner_inner : cmd_inner.second)
                 {

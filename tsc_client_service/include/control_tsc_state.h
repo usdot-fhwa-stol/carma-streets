@@ -2,6 +2,7 @@
 
 #include "streets_desired_phase_plan.h"
 #include "streets_phase_control_schedule.h"
+#include "streets_snmp_cmd_converter.h"
 #include "snmp_client.h"
 #include "ntcip_oids.h"
 #include "monitor_tsc_state.h"
@@ -41,7 +42,7 @@ namespace traffic_signal_controller_service
             /** 
              * @brief Method to update the queue of tsc_control
              * @param phase_control_schedule Pointer to the phase control schedule.
-             * @param tsc_command_queue Queue of snmp commands to set HOLD and OMIT on the traffic signal controller
+             * @param tsc_command_queue Queue of snmp commands to set HOLD and OMIT on the traffic signal controller.This queue is a managed by the tsc_service and passed by reference for update by incoming phase control schedule changes.
              **/
             void update_tsc_control_queue(std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule,
                                         std::queue<streets_snmp_cmd::snmp_cmd_struct>& tsc_command_queue) const;
