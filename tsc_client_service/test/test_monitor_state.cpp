@@ -154,6 +154,8 @@ namespace traffic_signal_controller_service
         EXPECT_TRUE(ped_phase_map.empty());
         std::unordered_map<int,int> vehicle_phase_map = worker.get_vehicle_phase_map();
         EXPECT_FALSE(vehicle_phase_map.empty());
+        std::unordered_map<int,int> signal_group_map = worker.get_signal_group_map();
+        EXPECT_FALSE(signal_group_map.empty());
 
         //Test tsc_config_state
         std::shared_ptr<streets_tsc_configuration::tsc_configuration_state> tsc_config_state = worker.get_tsc_config_state();

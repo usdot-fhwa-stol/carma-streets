@@ -13,7 +13,7 @@ namespace streets_snmp_cmd
         /***
          * @brief Private method to support the phase control schedule conversion to snmp_cmd_struct. It takes each individual streets_phase_control_command, and populate a two dimension map with start time, command type and  a vector of phases.
          * Sort the streets_phase_control_command using start time, and categorize the phases based on the phase control schedule command types.
-         * @param streets_phase_control_command
+         * @param streets_phase_control_command a structure of phase control command.
          * @param map Two dimension map with key of snmp_start_time, and value of inner map. Inner map is with key of phase control schedule command type, and value of a vector of phases numbers.
          */
         void add_phase_control_schedule_command_to_two_dimension_map(uint64_t start_time, streets_phase_control_schedule::streets_phase_control_command pcs_cmd, std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m) const;
@@ -24,11 +24,11 @@ namespace streets_snmp_cmd
         /**
          * @brief Private method to performe bitwise shift or operation on input value and left shift the value by the phases number of positions.
          */
-        uint8_t bitwise_or_phases(uint8_t val, std::vector<int> phases) const;
+        uint8_t bitwise_or_phases(uint8_t val, const std::vector<int>& phases) const;
         /**
          * @brief Private method to performe bitwise shift xor operation on input value and left shift the value by the phases number of positions.
          */
-        uint8_t bitwise_xor_phases(uint8_t val, std::vector<int> phases) const;
+        uint8_t bitwise_xor_phases(uint8_t val, const std::vector<int>& phases) const;
 
     public:
         streets_snmp_cmd_converter() = default;

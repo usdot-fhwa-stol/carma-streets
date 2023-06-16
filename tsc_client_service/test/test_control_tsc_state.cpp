@@ -204,6 +204,18 @@ namespace traffic_signal_controller_service
         streets_snmp_cmd::snmp_cmd_struct test_control_obj_2( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, 0);
         EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_2));
 
+        streets_snmp_cmd::snmp_cmd_struct test_control_obj_3( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_PED_PHASES, 0);
+        EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_3));
+
+        streets_snmp_cmd::snmp_cmd_struct test_control_obj_4( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::FORCEOFF_PHASES, 0);
+        EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_4));
+
+        streets_snmp_cmd::snmp_cmd_struct test_control_obj_5( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_PED_PHASES, 0);
+        EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_5));
+
+        streets_snmp_cmd::snmp_cmd_struct test_control_obj_6( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_VEH_PHASES, 0);
+        EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_6));
+
         // Test empty desired phase plan
         streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan_2;
         auto dpp_ptr_2 = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>(desired_phase_plan_2);

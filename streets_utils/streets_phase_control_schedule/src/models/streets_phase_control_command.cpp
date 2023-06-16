@@ -71,7 +71,7 @@ namespace streets_phase_control_schedule
         return os;
     }
 
-    const std::string streets_phase_control_command::COMMAND_TYPE_to_string(COMMAND_TYPE command_type) noexcept 
+    std::string streets_phase_control_command::COMMAND_TYPE_to_string( COMMAND_TYPE command_type) noexcept 
     {
         std::string command_type_str;
         switch (command_type)

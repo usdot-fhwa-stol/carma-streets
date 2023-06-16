@@ -117,7 +117,7 @@ namespace
 
         auto cmds_result = converter.create_snmp_cmds_by_phase_control_schedule(pcs);
         std::string expected_str = "";
-        while(!cmds_result.empty())
+        while (!cmds_result.empty())
         {
             auto snmp_cmd = cmds_result.front();
             cmds_result.pop();
@@ -372,9 +372,124 @@ namespace
                 }
             }
         }
-    
     }
 
+    TEST_F(streets_snmp_cmd_converter_test, create_snmp_cmds_by_phase_control_schedule_2)
+    {
+        // Different commandType, different phases, same start time and different end time
+        auto pcs = std::make_shared<streets_phase_control_schedule::streets_phase_control_schedule>();
+        streets_phase_control_schedule::streets_phase_control_command psc_cmd0("hold", 1, 0, 10);
+        streets_phase_control_schedule::streets_phase_control_command psc_cmd1("omit_ped", 2, 0, 12);
+        streets_phase_control_schedule::streets_phase_control_command psc_cmd2("omit_veh", 3, 0, 13);
+        streets_phase_control_schedule::streets_phase_control_command psc_cmd3("call_veh", 4, 0, 14);
+        streets_phase_control_schedule::streets_phase_control_command psc_cmd4("call_ped", 5, 0, 15);
+        streets_phase_control_schedule::streets_phase_control_command psc_cmd5("forceoff", 6, 0, 16);
+        pcs->commands.push_back(psc_cmd0);
+        pcs->commands.push_back(psc_cmd1);
+        pcs->commands.push_back(psc_cmd2);
+        pcs->commands.push_back(psc_cmd3);
+        pcs->commands.push_back(psc_cmd4);
+        pcs->commands.push_back(psc_cmd5);
+        auto cmds_result = converter.create_snmp_cmds_by_phase_control_schedule(pcs);
+        std::string expected_str = "";
+        while (!cmds_result.empty())
+        {
+            auto snmp_cmd = cmds_result.front();
+            cmds_result.pop();
+            SPDLOG_INFO("{0}", snmp_cmd.get_cmd_info());
+            if (snmp_cmd.start_time_ == 0)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::HOLD_VEH_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Hold; execution_start_time:0; value_set:1";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                case PHASE_CONTROL_TYPE::FORCEOFF_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Forceoff; execution_start_time:0; value_set:32";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                case PHASE_CONTROL_TYPE::OMIT_VEH_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Omit; execution_start_time:0; value_set:4";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                case PHASE_CONTROL_TYPE::OMIT_PED_PHASES:
+                    expected_str = "control_cmd_type:Pedestrian Omit; execution_start_time:0; value_set:2";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                case PHASE_CONTROL_TYPE::CALL_PED_PHASES:
+                    expected_str = "control_cmd_type:Pedestrian Call; execution_start_time:0; value_set:16";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                case PHASE_CONTROL_TYPE::CALL_VEH_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Call; execution_start_time:0; value_set:8";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+            else if (snmp_cmd.start_time_ == 10)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::HOLD_VEH_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Hold; execution_start_time:10; value_set:0";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+            else if (snmp_cmd.start_time_ == 12)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::OMIT_PED_PHASES:
+                    expected_str = "control_cmd_type:Pedestrian Omit; execution_start_time:12; value_set:0";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+            else if (snmp_cmd.start_time_ == 13)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::OMIT_VEH_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Omit; execution_start_time:13; value_set:0";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+            else if (snmp_cmd.start_time_ == 14)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::CALL_VEH_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Call; execution_start_time:14; value_set:0";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+            else if (snmp_cmd.start_time_ == 15)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::CALL_PED_PHASES:
+                    expected_str = "control_cmd_type:Pedestrian Call; execution_start_time:15; value_set:0";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+            else if (snmp_cmd.start_time_ == 16)
+            {
+                switch (snmp_cmd.control_type_)
+                {
+                case PHASE_CONTROL_TYPE::FORCEOFF_PHASES:
+                    expected_str = "control_cmd_type:Vehicle Forceoff; execution_start_time:16; value_set:0";
+                    ASSERT_EQ(expected_str, snmp_cmd.get_cmd_info());
+                    break;
+                }
+            }
+        }
+    }
+    
     TEST_F(streets_snmp_cmd_converter_test, to_phase_control_type)
     {
         ASSERT_EQ(PHASE_CONTROL_TYPE::CALL_PED_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::CALL_PED_PHASES));

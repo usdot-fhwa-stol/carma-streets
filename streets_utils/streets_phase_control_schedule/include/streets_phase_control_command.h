@@ -43,6 +43,6 @@ namespace streets_phase_control_schedule
         // Overload operator<< to print command
         friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_command &command);
 
-        const std::string COMMAND_TYPE_to_string(COMMAND_TYPE command_type) noexcept;
+        std::string COMMAND_TYPE_to_string(COMMAND_TYPE command_type) noexcept;
     };
 }

@@ -22,7 +22,7 @@ namespace streets_snmp_cmd
         std::queue<snmp_cmd_struct> cmds_result;
         std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> start_time_cmd_m;
         std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> end_time_cmd_m;
-        for (auto pcs_cmd : phase_control_schedule->commands)
+        for (auto& pcs_cmd : phase_control_schedule->commands)
         {
             // Start time commands
             add_phase_control_schedule_command_to_two_dimension_map(pcs_cmd.command_start_time, pcs_cmd, start_time_cmd_m);
@@ -263,7 +263,7 @@ namespace streets_snmp_cmd
         return cmds_result;
     }
 
-    uint8_t streets_snmp_cmd_converter::bitwise_or_phases(uint8_t val, std::vector<int> phases) const
+    uint8_t streets_snmp_cmd_converter::bitwise_or_phases(uint8_t val, const std::vector<int>& phases) const
     {
         for (auto phase : phases)
         {
@@ -272,7 +272,7 @@ namespace streets_snmp_cmd
         return val;
     }
 
-    uint8_t streets_snmp_cmd_converter::bitwise_xor_phases(uint8_t val, std::vector<int> phases) const
+    uint8_t streets_snmp_cmd_converter::bitwise_xor_phases(uint8_t val,const std::vector<int>& phases) const
     {
         for (auto phase : phases)
         {
@@ -289,8 +289,8 @@ namespace streets_snmp_cmd
             std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>> cmd_type_phase_m;
             std::vector<int> phases;
             phases.push_back(pcs_cmd.command_phase);
-            cmd_type_phase_m.insert(std::make_pair(pcs_cmd.command_type, phases));
-            time_cmd_m.insert(std::make_pair(start_time, cmd_type_phase_m));
+            cmd_type_phase_m.try_emplace(pcs_cmd.command_type, phases);
+            time_cmd_m.try_emplace(start_time, cmd_type_phase_m);
         }
         else
         {
@@ -306,7 +306,7 @@ namespace streets_snmp_cmd
                 std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>> cmd_type_phase_m;
                 std::vector<int> phases;
                 phases.push_back(pcs_cmd.command_phase);
-                time_cmd_m.find(start_time)->second.insert(std::make_pair(pcs_cmd.command_type, phases));
+                time_cmd_m.find(start_time)->second.try_emplace(pcs_cmd.command_type, phases);
             }
             else
             {
@@ -319,11 +319,11 @@ namespace streets_snmp_cmd
     void streets_snmp_cmd_converter::print_two_dimension_map(std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m, bool is_cmd_start) const
     {
         SPDLOG_INFO("---------------Printing Two Dimension Command Map of Phase Control Schedule Command and Phases---------");
-        for (auto cmd : time_cmd_m)
+        for (auto& cmd : time_cmd_m)
         {
             // Start/End time
             is_cmd_start ? SPDLOG_INFO("Start Timestamp: {0}", cmd.first) : SPDLOG_INFO("End Timestamp: {0}", cmd.first);
-            for (auto cmd_inner : cmd.second)
+            for (auto& cmd_inner : cmd.second)
             {
                 // Command type
                 streets_phase_control_schedule::streets_phase_control_command cmd_tmp;
@@ -331,7 +331,7 @@ namespace streets_snmp_cmd
                 SPDLOG_INFO("\tCommand Type: {0}", command_type_str);
                 // Phases
                 std::string cmd_inner_inner_str = "";
-                for (auto cmd_inner_inner : cmd_inner.second)
+                for (auto& cmd_inner_inner : cmd_inner.second)
                 {
                     cmd_inner_inner_str += std::to_string(cmd_inner_inner) + ",";
                 }

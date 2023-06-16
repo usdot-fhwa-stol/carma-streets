@@ -22,6 +22,7 @@ namespace traffic_signal_controller_service
             return;
         }
 
+        auto signal_groups_2phase_map = _tsc_state->get_signal_group_map();
         // Check if desired phase plan is valid
         // Check no repeated signal groups in adjacent events
         for(int i = 0; i < desired_phase_plan->desired_phase_plan.size() - 1; ++i){
@@ -52,13 +53,21 @@ namespace traffic_signal_controller_service
         // Assuming the first event start doesn't need to be planned for, we execute omit and hold for the next event. Resetting Hold ends the first event
         int64_t omit_execution_time = current_time + (first_event.end_time - current_time)/2;
         //Omit all others signal groups other than the second_event event signal_groups
-        tsc_command_queue.push(create_omit_command(second_event.signal_groups, omit_execution_time));
+        std::vector<int> second_event_signal_groups_to_omit;
+        for(auto& [sg, phase]: signal_groups_2phase_map)
+        {
+            //If the signal group is not in the second_event signal groups, add the signal group to the list of omit signal groups 
+            if(std::find(second_event.signal_groups.begin(), second_event.signal_groups.end(), sg) == second_event.signal_groups.end() )
+            {
+                second_event_signal_groups_to_omit.push_back(sg);
+            }
+        }
+        tsc_command_queue.push(create_snmp_command_by_signal_groups(second_event_signal_groups_to_omit, streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, omit_execution_time));
 
         int64_t hold_execution_time = first_event.end_time;
         tsc_command_queue.push(create_snmp_command_by_signal_groups(second_event.signal_groups,streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, hold_execution_time));
 
         int event_itr = 1;
-
         while(event_itr < desired_phase_plan->desired_phase_plan.size() - 1)
         {
             auto current_event  = desired_phase_plan->desired_phase_plan[event_itr];
@@ -66,7 +75,16 @@ namespace traffic_signal_controller_service
 
             omit_execution_time = current_event.start_time + (current_event.end_time - current_event.start_time)/2;
             //Omit all others signal groups other than the next_event event signal_groups
-            tsc_command_queue.push(create_omit_command(next_event.signal_groups, omit_execution_time));
+            std::vector<int> next_event_signal_groups_to_omit;
+            for(auto& [sg, phase]: signal_groups_2phase_map)
+            {
+                //If the signal group is not in the next_event signal groups, add the signal group to the list of omit signal groups 
+                if(std::find(next_event.signal_groups.begin(), next_event.signal_groups.end(), sg) == next_event.signal_groups.end() )
+                {
+                    next_event_signal_groups_to_omit.push_back(sg);
+                }
+            }
+            tsc_command_queue.push(create_snmp_command_by_signal_groups(next_event_signal_groups_to_omit, streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, omit_execution_time));
 
             hold_execution_time = current_event.end_time;
             tsc_command_queue.push(create_snmp_command_by_signal_groups(next_event.signal_groups,streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, hold_execution_time));
@@ -78,7 +96,7 @@ namespace traffic_signal_controller_service
         auto last_event = desired_phase_plan->desired_phase_plan.back();
         omit_execution_time = last_event.start_time + (last_event.end_time - last_event.start_time)/2;
         streets_snmp_cmd::streets_snmp_cmd_converter converter;
-        tsc_command_queue.push(converter.create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, hold_execution_time));
+        tsc_command_queue.push(converter.create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, omit_execution_time));
 
         hold_execution_time = last_event.end_time;
         tsc_command_queue.push(converter.create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, hold_execution_time));
@@ -112,32 +130,6 @@ namespace traffic_signal_controller_service
         SPDLOG_INFO("Updated Queue Size: {0}", tsc_command_queue.size());
     }
 
-    streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_omit_command(const std::vector<int>& signal_groups, int64_t start_time, bool is_reset) const
-    {
-        if(!is_reset)
-        {
-            uint8_t omit_val = 255; //Initialize to 11111111
-
-            for(auto signal_group : signal_groups)
-            {
-                int phase = _tsc_state->get_phase_number(signal_group);
-                // Omit all phases except the ones in the given movement group
-                // For Omit only given phase bits are 0. Subtract 1 since phases range from 1-8.
-                omit_val &= ~(1 << (phase - 1));
-                
-            }
-
-            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(omit_val));
-            return command;
-        }
-        else
-        {
-            streets_snmp_cmd::snmp_cmd_struct command(start_time, streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(0));
-            return command;
-        }
-
-    }
-
     streets_snmp_cmd::snmp_cmd_struct control_tsc_state::create_snmp_command_by_signal_groups(const std::vector<int>& signal_groups, streets_snmp_cmd::PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const
     {
         streets_snmp_cmd::streets_snmp_cmd_converter converter;
@@ -151,7 +143,7 @@ namespace traffic_signal_controller_service
         return command;
     }
 
-    bool control_tsc_state::run_snmp_cmd_set_request( streets_snmp_cmd::snmp_cmd_struct& snmp_cmd)
+    bool control_tsc_state::run_snmp_cmd_set_request(streets_snmp_cmd::snmp_cmd_struct& snmp_cmd) const
     {     
         if(!snmp_client_worker_)
         {
