@@ -121,7 +121,7 @@ namespace traffic_signal_controller_service
         }else{
             std::stringstream ss;
             ss << *phase_control_schedule_ptr;    
-            SPDLOG_INFO("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
+            SPDLOG_DEBUG("Update SNMP command queue with new phase control schedule commands: {0}", ss.str());                    
             // Update command queue with the new phase control schedule commands.
             streets_snmp_cmd::streets_snmp_cmd_converter converter;
             auto snmp_cmd_queue = converter.create_snmp_cmds_by_phase_control_schedule(phase_control_schedule_ptr);

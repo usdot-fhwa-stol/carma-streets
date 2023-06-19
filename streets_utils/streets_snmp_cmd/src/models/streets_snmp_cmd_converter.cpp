@@ -318,26 +318,26 @@ namespace streets_snmp_cmd
 
     void streets_snmp_cmd_converter::print_two_dimension_map(std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m, bool is_cmd_start) const
     {
-        SPDLOG_INFO("---------------Printing Two Dimension Command Map of Phase Control Schedule Command and Phases---------");
+        SPDLOG_DEBUG("---------------Printing Two Dimension Command Map of Phase Control Schedule Command and Phases---------");
         for (auto& cmd : time_cmd_m)
         {
             // Start/End time
-            is_cmd_start ? SPDLOG_INFO("Start Timestamp: {0}", cmd.first) : SPDLOG_INFO("End Timestamp: {0}", cmd.first);
+            is_cmd_start ? SPDLOG_DEBUG("Start Timestamp: {0}", cmd.first) : SPDLOG_DEBUG("End Timestamp: {0}", cmd.first);
             for (auto& cmd_inner : cmd.second)
             {
                 // Command type
                 streets_phase_control_schedule::streets_phase_control_command cmd_tmp;
                 std::string command_type_str = cmd_tmp.COMMAND_TYPE_to_string(cmd_inner.first);
-                SPDLOG_INFO("\tCommand Type: {0}", command_type_str);
+                SPDLOG_DEBUG("\tCommand Type: {0}", command_type_str);
                 // Phases
                 std::string cmd_inner_inner_str = "";
                 for (auto& cmd_inner_inner : cmd_inner.second)
                 {
                     cmd_inner_inner_str += std::to_string(cmd_inner_inner) + ",";
                 }
-                SPDLOG_INFO("\t\tPhases: {0}", cmd_inner_inner_str);
+                SPDLOG_DEBUG("\t\tPhases: {0}", cmd_inner_inner_str);
             }
-            SPDLOG_INFO("\n");
+            SPDLOG_DEBUG("\n");
         }
     }
 

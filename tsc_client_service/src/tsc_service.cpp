@@ -3,6 +3,7 @@
 namespace traffic_signal_controller_service {
     
     std::mutex dpp_mtx;
+    std::mutex snmp_cmd_queue_mtx;
     using namespace streets_service;
     bool tsc_service::initialize() {
         if (!streets_service::initialize()) {
@@ -260,6 +261,7 @@ namespace traffic_signal_controller_service {
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
                 
                 // update command queue
+                std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
                     control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
@@ -281,6 +283,7 @@ namespace traffic_signal_controller_service {
                 try {
                     //Update phase control schedule with the latest incoming schedule
                     phase_control_schedule_ptr->fromJson(payload);
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                     control_tsc_state_ptr_->update_tsc_control_queue(phase_control_schedule_ptr, tsc_set_command_queue_);
                 } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
                     SPDLOG_DEBUG("Failed to consume phase control schedule commands: {0}", ex.what());
@@ -311,7 +314,7 @@ namespace traffic_signal_controller_service {
     
     void tsc_service::set_tsc_hold_and_omit_forceoff_call()
     {
-
+        std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
         while(!tsc_set_command_queue_.empty())
         {
             SPDLOG_DEBUG("Checking if front command {0} is expired", tsc_set_command_queue_.front().get_cmd_info());

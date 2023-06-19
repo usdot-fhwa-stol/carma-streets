@@ -1,0 +1,131 @@
+{
+    "MsgType": "Schedule",
+    "Schedule": [
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 1,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 2,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 3,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 4,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 5,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 6,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 7,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 5000,
+            "commandPhase": 8,
+            "commandEndTime": 10000,
+            "commandType": "omit_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 1,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 2,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 3,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 4,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 5,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 6,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 7,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 15000,
+            "commandPhase": 8,
+            "commandEndTime": 20000,
+            "commandType": "call_veh"
+        },
+        {
+            "commandStartTime": 25000,
+            "commandPhase": 1,
+            "commandEndTime": 30000,
+            "commandType": "call_ped"
+        },
+        {
+            "commandStartTime": 25000,
+            "commandPhase": 4,
+            "commandEndTime": 30000,
+            "commandType": "call_ped"
+        },
+        {
+            "commandStartTime": 25000,
+            "commandPhase": 6,
+            "commandEndTime": 30000,
+            "commandType": "call_ped"
+        },
+        {
+            "commandStartTime": 25000,
+            "commandPhase": 8,
+            "commandEndTime": 45000,
+            "commandType": "call_ped"
+        },
+        {
+            "commandStartTime": 35000,
+            "commandPhase": 8,
+            "commandEndTime": 40000,
+            "commandType": "forceoff"
+        }
+    ]
+}
