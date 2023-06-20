@@ -295,22 +295,23 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::control_tsc_phases()
     {
-        SPDLOG_INFO("Starting TSC Control Phases");
-        while(true)
+        SPDLOG_INFO("Starting TSC Control Phases");        
+        try
         {
-            try{
+            while(true)
+            {
                 SPDLOG_INFO("Iterate TSC Control Phases for time {0}", streets_clock_singleton::time_in_ms());
                 set_tsc_hold_and_omit_forceoff_call();
                 streets_clock_singleton::sleep_for(control_tsc_state_sleep_dur_);
             }
-            catch(const control_tsc_state_exception &e){
-                SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
-                if(!tsc_set_command_queue_.empty())
-                {
-                    SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
-                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
-                    tsc_set_command_queue_.pop();
-                }
+        }
+        catch(const control_tsc_state_exception &e){
+            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
+            if(!tsc_set_command_queue_.empty())
+            {
+                SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
+                std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
+                tsc_set_command_queue_.pop();
             }
         }
     }
