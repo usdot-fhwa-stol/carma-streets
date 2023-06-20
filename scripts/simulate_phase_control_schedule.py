@@ -24,7 +24,9 @@ if __name__ == "__main__":
     data = read_json('phase_control_schedule_simple.json')
     i = 0
     for schedule in data["Schedule"]:
+        #update start time with the current time + start time from the json file
         data["Schedule"][i]["commandStartTime"] = curr_time + data["Schedule"][i]["commandStartTime"]
+        #update end time with the current time + end time from the json file
         data["Schedule"][i]["commandEndTime"]  = curr_time + data["Schedule"][i]["commandEndTime"]
         i+=1
     producer.send('phase_control_schedule', value=data)
@@ -39,28 +41,32 @@ if __name__ == "__main__":
     print('Sent a phase control schedule clear.')
     producer.flush()
     
-    # Send a new schedule
+    # Send a new schedule to replace the clear schedule
     print(f'Sleep 5 seconds...')
     sleep(5) # sleep seconds
     curr_time = round(time.time()*1000)
     data = read_json('phase_control_schedule_simple.json')
     i = 0
     for schedule in data["Schedule"]:
+        #update start time with the current time + start time from the json file
         data["Schedule"][i]["commandStartTime"] = curr_time + data["Schedule"][i]["commandStartTime"]
+        #update end time with the current time + end time from the json file
         data["Schedule"][i]["commandEndTime"]  = curr_time + data["Schedule"][i]["commandEndTime"]
         i+=1
     producer.send('phase_control_schedule', value=data)
     print(f'Sent a phase control schedule.{data}')
     producer.flush()
 
-    # Send a new schedule
+    # Send a new schedule to replace the old schedule
     print(f'Sleep 5 seconds...')
     sleep(5) # sleep seconds
     curr_time = round(time.time()*1000)
     data = read_json('phase_control_schedule_simple.json')
     i = 0
     for schedule in data["Schedule"]:
+        #update start time with the current time + start time from the json file
         data["Schedule"][i]["commandStartTime"] = curr_time + data["Schedule"][i]["commandStartTime"]
+        #update end time with the current time + end time from the json file
         data["Schedule"][i]["commandEndTime"]  = curr_time + data["Schedule"][i]["commandEndTime"]
         i+=1
     producer.send('phase_control_schedule', value=data)

@@ -28,7 +28,7 @@ target_link_libraries( ${PROJECT_NAME}_lib
     PUBLIC
         spdlog::spdlog
         rapidjson
-        streets_phase_control_schedule_lib
+        streets_phase_control_schedule_lib::streets_phase_control_schedule_lib
 )
 
 ########################################################

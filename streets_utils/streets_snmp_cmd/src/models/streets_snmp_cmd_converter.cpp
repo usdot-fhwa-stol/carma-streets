@@ -32,14 +32,33 @@ namespace streets_snmp_cmd
         print_two_dimension_map(start_time_cmd_m, true);
         print_two_dimension_map(end_time_cmd_m, false);
 
+        //Keep track of the SNMP command start time. It is used by the snmp_cmd_struct to create a streets defined SNMP command.
         uint64_t snmp_cmd_start_time = 0;
+        //Keep track of the previous SNMP command start time. It is used to determine whether to create a separate SNMP command based on end time.
         uint64_t prev_snmp_start_time = 0;
+        //Below values are affected by the whole phase control schedule, and it is increased or decreased by all phases in the vector of phase control schedule commands.
         uint8_t set_val_hold = 0;     // Initialize hold value to 00000000
         uint8_t set_val_forceoff = 0; // Initialize forceoff value to 00000000
         uint8_t set_val_call_veh = 0; // Initialize call vehicle value to 00000000
         uint8_t set_val_call_ped = 0; // Initialize call pedestrian value to 00000000
         uint8_t set_val_omit_veh = 0; // Initialize omit vehicle value to 00000000
         uint8_t set_val_omit_ped = 0; // Initialize omit pedestrian value to 00000000
+        /***
+         * There are two maps (start_time_cmd_m, end_time_cmd_m) to work with in the following loops. The start time commands map contains all the commands at start time. 
+         * The end time commands map contains all the commands at end time.
+         * 1. Interate through the start time commands map.
+         * ** 1.1 Iterate through the end time commands map, checking if the end time command should be executed before the current start time command, and after the previous start time command.
+         *    (Note: This usually applies to second and forward commands from the start time commands map)
+         * ** 1.2 Iterate through the nested map of command type and phases. At each start time, multiple command types are expected. Each command type has multiple phases.
+         *    It needs to create streets SNMP command for each command type. The booleans (is_forceoff, is_hold, is_call_veh, is_call_ped, is_omit_veh, is_omit_ped) are used to indicate
+         *    which types of commands should be executed at the current start time.  The set_val_hold, set_val_forceoff, set_val_call_veh, set_val_call_ped, set_val_omit_ped, set_val_omit_veh
+         *    values are used to accumulate the phases associated to each command type at the current start time.
+         *    1.3 Once finished interating the nested map of command types and phases. It will create the streets SNMP command based on the boolean indicator and values for each command type.
+         * 2. Iterate the end time commands map in case some commands ends after finishing all commands at the start time.
+         * ** Checking the snmp_cmd_start_time and the end time from the end time command maps. If there are any commands end time that is greater than snmp_cmd_start_time, create streets
+         * ** SNMP commands for that end time command. (Note: At the end of the step 1 iteration, the snmp_cmd_start_time is updated with the maximum start time.)
+         * 
+        */
         for (auto start_time_itr = start_time_cmd_m.begin(); start_time_itr != start_time_cmd_m.end(); start_time_itr++)
         {
             // Indicator to note which phase control types are received at a the start time

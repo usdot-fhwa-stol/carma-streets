@@ -14,19 +14,22 @@ namespace streets_snmp_cmd
          * @brief Private method to support the phase control schedule conversion to snmp_cmd_struct. It takes each individual streets_phase_control_command, and populate a two dimension map with start time, command type and  a vector of phases.
          * Sort the streets_phase_control_command using start time, and categorize the phases based on the phase control schedule command types.
          * @param streets_phase_control_command a structure of phase control command.
-         * @param map Two dimension map with key of snmp_start_time, and value of inner map. Inner map is with key of phase control schedule command type, and value of a vector of phases numbers.
+         * @param time_cmd_m Two dimension map with key of snmp_start_time, and value of inner map. Inner map is with key of phase control schedule command type, and value of a vector of phases numbers.
+         * @param pcs_cmd phase control command structure that has the command start and end time, command phase and type
          */
         void add_phase_control_schedule_command_to_two_dimension_map(uint64_t start_time, streets_phase_control_schedule::streets_phase_control_command pcs_cmd, std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m) const;
         /***
          * @brief Private method to print the two dimension map with command start time, command type and a vector of phases.
+         * @param time_cmd_m a map of command type and the phases the command is applied to
+         * @param is_cmd_start indicator whether the map of command type and phases is command sent at start time or end time from the phase control schedule
          */
         void print_two_dimension_map(std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m, bool is_cmd_start = true) const;
         /**
-         * @brief Private method to performe bitwise shift or operation on input value and left shift the value by the phases number of positions.
+         * @brief Private method to perform bitwise shift or operation on input value and left shift the value by the phases number of positions.
          */
         uint8_t bitwise_or_phases(uint8_t val, const std::vector<int>& phases) const;
         /**
-         * @brief Private method to performe bitwise shift xor operation on input value and left shift the value by the phases number of positions.
+         * @brief Private method to perform bitwise shift xor operation on input value and left shift the value by the phases number of positions.
          */
         uint8_t bitwise_xor_phases(uint8_t val, const std::vector<int>& phases) const;
 
@@ -52,10 +55,15 @@ namespace streets_snmp_cmd
          */
         std::queue<snmp_cmd_struct> create_snmp_cmds_by_phase_control_schedule(const std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule) const;
 
+        /**
+         * @brief Conversion between phase control schedule command type and the SNMP command phase control type in the streets SNMP command structure.
+         * @param command_type an enum of command types defined in the streets phase control schedule.
+        */
         PHASE_CONTROL_TYPE to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE command_type) const;
 
         /**
          * @brief Create a vector of SNMP command structures of all current supported phase control types: CALL_VEH_PHASES, CALL_PED_PHASES, FORCEOFF_PHASES, HOLD_VEH_PHASES, OMIT_VEH_PHASES, OMIT_PED_PHASES.
+         * All the commands phases are set to 0, and the commands are used to clear all the phases controls from the traffic signal.
          * @param execution_time when the SNMP commands are executed.
          * @return A vector of SNMP commands structures
         */
