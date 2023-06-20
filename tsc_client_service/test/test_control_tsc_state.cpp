@@ -215,6 +215,7 @@ namespace traffic_signal_controller_service
 
         streets_snmp_cmd::snmp_cmd_struct test_control_obj_6( event1.start_time,streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_VEH_PHASES, 0);
         EXPECT_TRUE(worker.run_snmp_cmd_set_request(test_control_obj_6));
+        EXPECT_NO_THROW(worker.run_clear_all_snmp_commands());
 
         // Test empty desired phase plan
         streets_desired_phase_plan::streets_desired_phase_plan desired_phase_plan_2;
@@ -244,10 +245,12 @@ namespace traffic_signal_controller_service
         // Test update queue with clear schedule
         std::queue<streets_snmp_cmd::snmp_cmd_struct> control_commands_queue;
         worker.update_tsc_control_queue(pcs_ptr, control_commands_queue);
+        ASSERT_EQ(19, control_commands_queue.size());
         input_schedule_str = "{\"MsgType\":\"Schedule\",\"Schedule\":\"Clear\"}";
         pcs_ptr->fromJson(input_schedule_str);
         worker.update_tsc_control_queue(pcs_ptr, control_commands_queue);
         std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> pcs_ptr_null;
         worker.update_tsc_control_queue(pcs_ptr_null, control_commands_queue);
+        ASSERT_EQ(0, control_commands_queue.size());
     }
 }

@@ -370,4 +370,16 @@ namespace streets_snmp_cmd
         }
         return result;
     }
+
+    std::vector<streets_snmp_cmd::snmp_cmd_struct> streets_snmp_cmd_converter::create_clear_all_snmp_commands(uint64_t execution_time) const
+    {
+        std::vector<streets_snmp_cmd::snmp_cmd_struct> snmp_cmds_result;
+        snmp_cmds_result.push_back(create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_PED_PHASES, execution_time));
+        snmp_cmds_result.push_back(create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::CALL_VEH_PHASES, execution_time));
+        snmp_cmds_result.push_back(create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_PED_PHASES, execution_time));
+        snmp_cmds_result.push_back(create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, execution_time));
+        snmp_cmds_result.push_back(create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::FORCEOFF_PHASES, execution_time));
+        snmp_cmds_result.push_back(create_snmp_reset_command(streets_snmp_cmd::PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, execution_time));
+        return snmp_cmds_result;
+    }
 } // namespace streets_snmp_cmd

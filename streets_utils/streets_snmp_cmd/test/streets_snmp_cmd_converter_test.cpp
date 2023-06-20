@@ -499,4 +499,9 @@ namespace
         ASSERT_EQ(PHASE_CONTROL_TYPE::FORCEOFF_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::FORCEOFF_PHASES));
         ASSERT_EQ(PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, converter.to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE::HOLD_VEH_PHASES));
     }
+
+    TEST_F(streets_snmp_cmd_converter_test, create_clear_all_snmp_commands)
+    {
+        ASSERT_EQ(6, converter.create_clear_all_snmp_commands(0).size());
+    }
 };

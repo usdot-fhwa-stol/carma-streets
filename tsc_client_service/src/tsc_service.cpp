@@ -261,9 +261,9 @@ namespace traffic_signal_controller_service {
                 monitor_dpp_ptr->update_desired_phase_plan(payload);
                 
                 // update command queue
-                std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                     control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
                     
                 }
@@ -283,6 +283,7 @@ namespace traffic_signal_controller_service {
                 try {
                     //Update phase control schedule with the latest incoming schedule
                     phase_control_schedule_ptr->fromJson(payload);
+                    //Update command queue
                     std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                     control_tsc_state_ptr_->update_tsc_control_queue(phase_control_schedule_ptr, tsc_set_command_queue_);
                 } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
@@ -294,59 +295,79 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::control_tsc_phases()
     {
-        try{
-            SPDLOG_INFO("Starting TSC Control Phases");
-            while(true)
-            {
+        SPDLOG_INFO("Starting TSC Control Phases");
+        while(true)
+        {
+            try{
                 SPDLOG_INFO("Iterate TSC Control Phases for time {0}", streets_clock_singleton::time_in_ms());
                 set_tsc_hold_and_omit_forceoff_call();
                 streets_clock_singleton::sleep_for(control_tsc_state_sleep_dur_);
             }
+            catch(const control_tsc_state_exception &e){
+                SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
+                if(!tsc_set_command_queue_.empty())
+                {
+                    SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
+                    tsc_set_command_queue_.pop();
+                }
+            }
         }
-        catch(const control_tsc_state_exception &e){
-            SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
-            SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
-            tsc_set_command_queue_.pop();
-
-        }
-
     }
     
     void tsc_service::set_tsc_hold_and_omit_forceoff_call()
     {
-        std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
         while(!tsc_set_command_queue_.empty())
-        {
-            SPDLOG_DEBUG("Checking if front command {0} is expired", tsc_set_command_queue_.front().get_cmd_info());
+        {   
+            auto command_to_execute = tsc_set_command_queue_.front();            
+            SPDLOG_DEBUG("Checking if front command {0} is expired", command_to_execute.get_cmd_info());
             //Check if event is expired
-            long duration = tsc_set_command_queue_.front().start_time_ - streets_clock_singleton::time_in_ms();
+            long duration = command_to_execute.start_time_ - streets_clock_singleton::time_in_ms();
             if(duration < 0){
                 throw control_tsc_state_exception("SNMP set command is expired! Start time was " 
-                    + std::to_string(tsc_set_command_queue_.front().start_time_) + " and current time is " 
+                    + std::to_string(command_to_execute.start_time_) + " and current time is " 
                     + std::to_string(streets_clock_singleton::time_in_ms() ) + ".");
-            }
+            }       
             SPDLOG_DEBUG("Sleeping for {0}ms.", duration);
             streets_clock_singleton::sleep_for(duration);
+            
+            //After sleep duration, check the snmp queue again. If empty, stop the current command execution             
+            if(tsc_set_command_queue_.empty())
+            {
+                SPDLOG_DEBUG("SNMP command queue is empty, stop the current command execution: {0}", command_to_execute.get_cmd_info());
+                break;
+            }
+            //Check if queue commands has been updated
+            else if (tsc_set_command_queue_.front().get_cmd_info() != command_to_execute.get_cmd_info())
+            {
+                SPDLOG_DEBUG("SNMP command queue is updated with new schedule, stop the current command execution: {0}", command_to_execute.get_cmd_info());
+                break;
+            }
+            //SNMP command Queue has no update nor has been cleared, pop the existing front command.
+            else
+            {
+                std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx); 
+                tsc_set_command_queue_.pop();
+            }
 
             if(!control_tsc_state_ptr_)
             {
                 throw control_tsc_state_exception("Control TSC state is not initialized.");
             }
-            if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(tsc_set_command_queue_.front()))
+             
+            if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(command_to_execute))
             {
                 throw control_tsc_state_exception("Could not set state for movement group in desired phase plan/phase control schedule.");
             }
             // Log command info sent
-            SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
+            SPDLOG_INFO(command_to_execute.get_cmd_info());
 
             
             if ( enable_snmp_cmd_logging_ ){
                 if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
-                    logger->info( tsc_set_command_queue_.front().get_cmd_info());
+                    logger->info( command_to_execute.get_cmd_info());
                 }
             }
-
-            tsc_set_command_queue_.pop();
         }
     }
 

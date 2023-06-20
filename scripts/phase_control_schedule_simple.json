@@ -5,49 +5,49 @@
             "commandStartTime": 5000,
             "commandPhase": 1,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 2,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 3,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 4,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 5,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 6,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 7,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 5000,
             "commandPhase": 8,
             "commandEndTime": 10000,
-            "commandType": "omit_veh"
+            "commandType": "omit_ped"
         },
         {
             "commandStartTime": 15000,

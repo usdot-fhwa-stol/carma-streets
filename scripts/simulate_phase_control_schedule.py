@@ -18,6 +18,8 @@ if __name__ == "__main__":
     obj = time.gmtime(0)
     epoch = time.asctime(obj)
     print("The epoch is:",epoch)
+
+    # Send a new schedule
     curr_time = round(time.time()*1000)
     data = read_json('phase_control_schedule_simple.json')
     i = 0
@@ -29,8 +31,38 @@ if __name__ == "__main__":
     print(f'Sent a phase control schedule.{data}')
     producer.flush()
 
-    sleep(10)
+    # Send a clear schedule
+    print(f'Sleep 10 seconds...')
+    sleep(10) # sleep seconds
     data = read_json('phase_control_schedule_clear.json')
     producer.send('phase_control_schedule', value=data)
     print('Sent a phase control schedule clear.')
+    producer.flush()
+    
+    # Send a new schedule
+    print(f'Sleep 5 seconds...')
+    sleep(5) # sleep seconds
+    curr_time = round(time.time()*1000)
+    data = read_json('phase_control_schedule_simple.json')
+    i = 0
+    for schedule in data["Schedule"]:
+        data["Schedule"][i]["commandStartTime"] = curr_time + data["Schedule"][i]["commandStartTime"]
+        data["Schedule"][i]["commandEndTime"]  = curr_time + data["Schedule"][i]["commandEndTime"]
+        i+=1
+    producer.send('phase_control_schedule', value=data)
+    print(f'Sent a phase control schedule.{data}')
+    producer.flush()
+
+    # Send a new schedule
+    print(f'Sleep 5 seconds...')
+    sleep(5) # sleep seconds
+    curr_time = round(time.time()*1000)
+    data = read_json('phase_control_schedule_simple.json')
+    i = 0
+    for schedule in data["Schedule"]:
+        data["Schedule"][i]["commandStartTime"] = curr_time + data["Schedule"][i]["commandStartTime"]
+        data["Schedule"][i]["commandEndTime"]  = curr_time + data["Schedule"][i]["commandEndTime"]
+        i+=1
+    producer.send('phase_control_schedule', value=data)
+    print(f'Sent a phase control schedule.{data}')
     producer.flush()

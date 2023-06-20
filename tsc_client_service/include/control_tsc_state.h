@@ -53,11 +53,16 @@ namespace traffic_signal_controller_service
              * @param start_time Time at which the snmp command needs to be sent.
              **/
             streets_snmp_cmd::snmp_cmd_struct create_snmp_command_by_signal_groups(const std::vector<int>& signal_groups, streets_snmp_cmd::PHASE_CONTROL_TYPE phase_control_type, int64_t start_time) const;
-               /**
+            /**
             * @brief Method to call the snmp command. Object type determines what SET command is sent. 
             * Types are Omit, Forceoff, Call and Hold.
             * @return True if SET commands are successful. False if command fails.
             * */
             bool run_snmp_cmd_set_request(streets_snmp_cmd::snmp_cmd_struct& snmp_cmd) const;
+            /**
+            * @brief Method to call the vector of snmp commands. Object type determines what SET command is sent. 
+            * Types are Omit, Forceoff, Call and Hold.
+            * */
+            void run_clear_all_snmp_commands() const;
     };
 }

@@ -53,6 +53,13 @@ namespace streets_snmp_cmd
         std::queue<snmp_cmd_struct> create_snmp_cmds_by_phase_control_schedule(const std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule) const;
 
         PHASE_CONTROL_TYPE to_phase_control_type(streets_phase_control_schedule::COMMAND_TYPE command_type) const;
+
+        /**
+         * @brief Create a vector of SNMP command structures of all current supported phase control types: CALL_VEH_PHASES, CALL_PED_PHASES, FORCEOFF_PHASES, HOLD_VEH_PHASES, OMIT_VEH_PHASES, OMIT_PED_PHASES.
+         * @param execution_time when the SNMP commands are executed.
+         * @return A vector of SNMP commands structures
+        */
+        std::vector<streets_snmp_cmd::snmp_cmd_struct> create_clear_all_snmp_commands(uint64_t execution_time) const;
     };
 
 } // namespace streets_snmp_cmd
