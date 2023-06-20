@@ -17,6 +17,8 @@ namespace traffic_signal_controller_service
 
     TEST(traffic_signal_controller_service, test_control_tsc_state)
     {
+        // Initialize Clock singleton in realtime
+        streets_service::streets_clock_singleton::create(false);
         std::string dummy_ip = "192.168.10.10";
         int dummy_port = 601;
 

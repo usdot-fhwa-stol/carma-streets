@@ -20,10 +20,12 @@
 
 #include <mutex>  
 #include <gtest/gtest_prod.h>  
+#include "streets_service.h"
+#include "streets_clock_singleton.h"
 
 namespace traffic_signal_controller_service {
 
-    class tsc_service {
+    class tsc_service : public streets_service::streets_service {
         private:
             /**
              * @brief Kafka producer for spat JSON
@@ -123,32 +125,7 @@ namespace traffic_signal_controller_service {
              * @return true if successful.
              * @return false if not successful.
              */
-            bool initialize();
-            /**
-             * @brief Initialize Kafka SPaT producer.
-             * 
-             * @param bootstap_server for CARMA-Streets Kafka broker.
-             * @param producer_topic name of topic to produce to.
-             * @param producer a shared pointer to the consumer to initialize.
-             * @return true if initialization is successful.
-             * @return false if initialization is not successful.
-             */
-
-            bool initialize_kafka_producer( const std::string &bootstap_server, const std::string &producer_topic, 
-                    std::shared_ptr<kafka_clients::kafka_producer_worker> &producer);
-            /**
-             * @brief Initialize Kafka Desired phase plan consumer. 
-             * @param bootstap_server for CARMA-Streets Kafka broker.
-             * @param desired_phase_plan_consumer_topic name of topic to produce to.
-             * @param consumer_group a id associated with a saved offset in the topic queue
-             * @param consumer a shared pointer to the consumer to initialize.
-             * @return true if initialization is successful.
-             * @return false if initialization is not successful.
-             */
-            bool initialize_kafka_consumer(const std::string &bootstrap_server, 
-                                            const std::string &consumer_topic, 
-                                            const std::string &consumer_group,
-                                            std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer);
+            bool initialize() override;
 
             /**
              * @brief Initialize SNMP Client to make SNMP calls to Traffic Signal Controller.
@@ -219,7 +196,7 @@ namespace traffic_signal_controller_service {
             /**
              * @brief Method to start all threads included in the tsc_service.
              */
-            void start() ;
+            void start() override;
             /**
              * @brief Method to receive UDP data from traffic signal controller and broadcast spat JSON data to 
              * the carma-streets kafka broker.
@@ -249,6 +226,15 @@ namespace traffic_signal_controller_service {
              * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
             */
             void configure_snmp_cmd_logger() const;
+            /**
+             * @brief Method to log spat latency comparing spat time stamp to current time. Calculates and average over 20
+             * messages then resets count and spat_processing_time.
+             * @param count reference passed in and incremented on each subsequent call.
+             * @param spat_processing_time cumulative spat latency from future event project. Calculated by comparing spat
+             * time stamp to current time and summing over 20 messages.
+             * @param spat_time_stamp the timestamp of the most recent processed spat message.
+             */
+            void log_spat_latency(int &count, uint64_t &spat_processing_time, uint64_t spat_time_stamp) const;
 
     };
 }

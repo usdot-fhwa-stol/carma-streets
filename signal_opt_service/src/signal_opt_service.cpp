@@ -381,6 +381,8 @@ namespace signal_opt_service
 
     void signal_opt_service::read_configuration_params() 
     {
+        // TODO: Replace initialization by extending streets_service_base and overiding initialize and start methods
+        streets_service::streets_configuration::create("../manifest.json");
         _exp_delta = streets_service::streets_configuration::get_int_config("exp_delta");
         _bootstrap_server = streets_service::streets_configuration::get_string_config("bootstrap_server");
         _spat_topic_name = streets_service::streets_configuration::get_string_config("spat_consumer_topic");

@@ -60,7 +60,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
       - mysql-datavolume:/var/lib/mysql
   php:
-    image: usdotfhwaops/php:7.5.0
+    image: usdotfhwaops/php:7.5.1
     container_name: php
     network_mode: host
     depends_on:
@@ -69,7 +69,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:7.5.0
+    image: usdotfhwaops/v2xhubamd:7.5.1
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -77,6 +77,16 @@ services:
       - db
     environment:
       - MYSQL_PASSWORD=/run/secrets/mysql_password
+      - SIMULATION_MODE=FALSE
+      - SIMULATION_IP=127.0.0.1
+      - SIMULATION_REGISTRATION_PORT=1615
+      - LOCAL_IP=127.0.0.1
+      - TIME_SYNC_TOPIC=time_sync
+      - TIME_SYNC_PORT=7575
+      - SIM_V2X_PORT=5757
+      - V2X_PORT=8686
+      - INFRASTRUCTURE_ID=carma-streets_1
+      - KAFKA_BROKER_ADDRESS=127.0.0.1:9092
     secrets:
       - mysql_password
     volumes:
@@ -85,7 +95,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
-    image: usdotfhwastol/scheduling_service:carma-system-4.4.0
+    image: usdotfhwastolcandidate/scheduling_service:carma-system-4.4.3
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -110,7 +120,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastol/message_services:carma-system-4.4.0
+    image: usdotfhwastolcandidate/message_services:carma-system-4.4.3
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -128,7 +138,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastol/intersection_model:carma-system-4.4.0
+    image: usdotfhwastolcandidate/intersection_model:carma-system-4.4.3
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -146,7 +156,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   signal_opt_service:
-    image: usdotfhwastol/signal_opt_service:carma-system-4.4.0
+    image: usdotfhwastolcandidate/signal_opt_service:carma-system-4.4.3
     command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
     build: 
       context: .
@@ -172,7 +182,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   tsc_service:
-    image: usdotfhwastol/tsc_service:carma-system-4.4.0
+    image: usdotfhwastolcandidate/tsc_service:carma-system-4.4.3
     command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
     build: 
       context: .
@@ -189,6 +199,9 @@ services:
       WAIT_HOSTS_TIMEOUT: 300
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
+      SIMULATION_MODE: TRUE
+      CONFIG_FILE_PATH: ../manifest.json
+      TIME_SYNC_TOPIC: time_sync
     volumes: 
       - ./tsc_client_service/manifest.json:/home/carma-streets/tsc_client_service/manifest.json
       - ./tsc_client_service/logs/:/home/carma-streets/tsc_client_service/logs/

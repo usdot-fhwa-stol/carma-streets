@@ -67,6 +67,7 @@ TEST_F(all_stop_scheduling_worker_test, schedule_vehicles)
 {
     // Configure CSV logger
     scheduling_service::scheduling_service ss;
+    streets_service::streets_configuration::create("../manifest.json");
     ss.configure_csv_logger();
     // End of configure CSV logger
     u_int64_t current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

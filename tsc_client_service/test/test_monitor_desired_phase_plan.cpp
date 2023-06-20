@@ -64,7 +64,8 @@ namespace traffic_signal_controller_service
     protected:
         void SetUp() override
         {
-            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+            streets_service::streets_clock_singleton::create(false);
+            std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
             std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
             epoch_timestamp = epochMs.count();
             auto hours_since_epoch = std::chrono::duration_cast<std::chrono::hours>(now.time_since_epoch()).count();
@@ -630,7 +631,7 @@ namespace traffic_signal_controller_service
         // Create Expired DPP
         auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         // DPP with all expired events
-        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t cur_time_since_epoch = streets_service::streets_clock_singleton::time_in_ms();
 
         streets_desired_phase_plan::signal_group2green_phase_timing expire1, expire2;
         expire1.signal_groups.push_back(3);
@@ -1327,7 +1328,7 @@ namespace traffic_signal_controller_service
         
         auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         // DPP with all expired events
-        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t cur_time_since_epoch = streets_service::streets_clock_singleton::time_in_ms();
 
         streets_desired_phase_plan::signal_group2green_phase_timing expire1;
         expire1.signal_groups.push_back(3);
@@ -1742,7 +1743,7 @@ namespace traffic_signal_controller_service
         // Create expired DPP
         auto dpp = std::make_shared<streets_desired_phase_plan::streets_desired_phase_plan>();
         // DPP with all expired events
-        uint64_t cur_time_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t cur_time_since_epoch = streets_service::streets_clock_singleton::time_in_ms();
 
         streets_desired_phase_plan::signal_group2green_phase_timing expire1, expire2;
         expire1.signal_groups.push_back(3);

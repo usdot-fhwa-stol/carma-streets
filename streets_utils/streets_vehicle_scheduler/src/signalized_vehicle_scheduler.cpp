@@ -36,7 +36,7 @@ namespace streets_vehicle_scheduler {
             if ( !EVs.empty() )
                 schedule_evs( EVs, schedule);
         }
-        catch ( const streets_service::streets_configuration_exception &ex ) {
+        catch ( const scheduling_exception &ex ) {
             SPDLOG_ERROR("signalized scheduler failure: {0} ", ex.what());
         }
 

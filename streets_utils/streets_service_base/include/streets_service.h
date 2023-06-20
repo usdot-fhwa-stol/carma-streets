@@ -1,0 +1,115 @@
+#pragma once 
+
+#include "streets_configuration.h"
+#include "kafka_client.h"
+#include "streets_clock_singleton.h"
+#include "time_sync_message.h"
+#include <gtest/gtest.h>
+
+
+namespace streets_service { 
+    /** 
+     * @brief Streets Service is a base class for CARMA-Streets services. It initializes the streets_clock_singleton 
+     * is a maintains a time wrapper object that allows services to configurably use system time or time sync messages
+     * as a source for time. This allows CARMA-Streets services that extend this class use CDASim as a source for time.
+     * This class also initializes the streets_configuration singleton using a file path provided by the CONFIG_FILE_PATH
+     * environment variable. 
+     * 
+     * @author Paul Bourelly
+    */
+    class streets_service {
+        public:
+            /**
+             * @brief Constructor.
+             */
+            streets_service() = default;
+            /**
+             * @brief Destructor stop time_consumer kafka producer if not null.
+            */
+            ~streets_service();
+            // Remove copy constructor 
+            streets_service(const streets_service &) = delete;
+            // Remove move constructor
+            streets_service(streets_service&& ) = delete;
+            // Remove copy assignment operator
+            streets_service& operator=(const streets_service &) = delete;
+            // Remove move assignment operator
+            streets_service& operator=(const streets_service &&) = delete;
+
+            /**
+             * @brief Method to initialize services members, singletons, kafka consumers and producers and any other 
+             * connections required for service. Classes that extend this streets_service need to override this method
+             * and call the streets_service::initialize() in the override method.
+             * 
+             * @return bool depending on whether initialize method completes successfully.
+             */
+            virtual bool initialize();
+            /**
+             * @brief Method to start all threads needed for the Streets Service. This includes but is not limited to any 
+             * threads to consume/produce message to kafka, or poll internal/external resources. Classes that extend this 
+             * streets_service need to override this method and call the streets_service::start() in the override method.
+             */
+            virtual void start();
+
+        protected:
+            /**
+             * @brief Helper method to initialize Kafka producer for a given topic.
+             * 
+             * @param producer_topic topic name.
+             * @param producer shared_ptr to kafka producer.
+             * @return true if initialization is successful and false if initialization fails.
+             */
+            bool initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const;
+            /**
+             * @brief Helper method to initialise Kafka consumer. NOTE: Will assign consumer group id as service_name.
+             * 
+             * @param consumer_topic topic name.
+             * @param consumer shared_ptr to kafka consumer.
+             * @return true if initialization is successful and false if initialization fails.
+             */
+            bool initialize_kafka_consumer( const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer ) const;
+            /**
+             * @brief Returns string value of environment variable with given name.
+             * @param config_name name of environment variable.
+             * @throws runtime_error if config_name is nullptr or environment variable is not set.
+             * @return value of environment variable.
+             */
+            std::string get_system_config(const char *config_name ) const;
+            /**
+             * @brief Method to consume continously consume time sync messages from Kafka topic and update 
+             * streets_clock_singleton with received data.
+             */
+            void consume_time_sync_message() const;
+            /**
+             * @brief Returns service name set in configuration file.
+             * @return Returns service name set in configuration file.
+             */
+            std::string get_service_name() const;
+            /**
+             * @brief Returns boolean if service is currently configured to be in simulation_mode. This corresponsds
+             * to the value of the environment variable SIMULATION_MODE. Simulation mode indicates whether the streets_clock_singleton
+             * uses simulation time for kafka or system time.
+             * @return true if in simulation mode, false if in real time more
+             */
+            bool is_simulation_mode() const;
+
+        private:
+            std::string _service_name;
+
+            bool _simulation_mode;
+
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> _time_consumer;
+
+            FRIEND_TEST(test_streets_service, test_consume_time_sync_message);
+            FRIEND_TEST(test_streets_service, test_initialize_consumer);
+            FRIEND_TEST(test_streets_service, test_initialize_producer);
+            FRIEND_TEST(test_streets_service, test_initialize_sim);
+            FRIEND_TEST(test_streets_service, test_get_system_config);
+
+            
+
+            
+
+
+    };  
+}

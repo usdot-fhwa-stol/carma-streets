@@ -1,48 +1,43 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_signal_phase_and_timing)
-                    
+########################################################
+# Find Dependent Packages and set configurations
+########################################################                        
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 set(CMAKE_CXX_STANDARD 17)
-
-find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(streets_desired_phase_plan_lib COMPONENTS streets_desired_phase_plan_lib REQUIRED)
-find_package(streets_tsc_configuration_lib COMPONENTS streets_tsc_configuration_lib REQUIRED)
+find_package(streets_desired_phase_plan_lib REQUIRED)
+find_package(streets_tsc_configuration_lib REQUIRED)
+find_package(streets_service_base_lib REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-
 find_package(RapidJSON REQUIRED)
+find_package(GTest REQUIRED)
+# carma-clock is installed under this directory
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
+find_package(carma-clock REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
-add_library(${PROJECT_NAME}_lib
-                src/models/connection_maneuver_assist.cpp
-                src/models/movement_state.cpp
-                src/models/movement_event.cpp
-                src/models/advisory_speed.cpp
-                src/models/time_change_details.cpp
-                src/models/intersection_state.cpp
-                src/models/ntcip_1202_ext.cpp
-                src/models/ntcip_1202_ext_phasetime.cpp
-                src/models/spat.cpp
-                src/exceptions/signal_phase_and_timing_exception.cpp
-                )
 
-
-target_include_directories(${PROJECT_NAME}_lib PUBLIC
-                            $<INSTALL_INTERFACE:include>
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                            PRIVATE
-                            ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries( ${PROJECT_NAME}_lib PUBLIC
-                Boost::system 
-                Boost::thread 
-                Boost::filesystem
-                spdlog::spdlog
-                rapidjson
-                streets_desired_phase_plan_lib
-                streets_tsc_configuration_lib
-                )
-
-                
+########################################################
+# Build Library
+######################################################## 
+file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp)
+add_library(${PROJECT_NAME}_lib ${SOURCES} )
+target_include_directories(${PROJECT_NAME}_lib 
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_link_libraries( ${PROJECT_NAME}_lib 
+    PUBLIC
+        streets_service_base_lib::streets_service_base_lib
+        streets_desired_phase_plan_lib::streets_desired_phase_plan_lib
+        streets_tsc_configuration_lib::streets_tsc_configuration_lib
+        spdlog::spdlog
+        rapidjson 
+)              
 
 ########################################################
 # Install streets_service_base_lib package.
@@ -74,29 +69,22 @@ install(
 )
 install(FILES ${files} DESTINATION include)
 
-
 ########################
 # googletest for unit testing
 ########################
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(BINARY ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
-
-
-add_executable(${BINARY} ${TEST_SOURCES}
-                )
-
+add_executable(${BINARY} ${TEST_SOURCES})
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY} PUBLIC 
-                Boost::system 
-                Boost::thread
-                Boost::filesystem 
-                spdlog::spdlog
-                gtest
-                rapidjson
-                ${PROJECT_NAME}_lib
-                streets_desired_phase_plan_lib
-                streets_tsc_configuration_lib
-                )
+target_link_libraries(${BINARY} 
+    PUBLIC
+        ${PROJECT_NAME}_lib
+        rapidjson
+ )
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
+    target_link_libraries( ${BINARY} PUBLIC GTest::gtest )
+else() 
+    target_link_libraries( ${BINARY} PUBLIC gtest )
+endif()

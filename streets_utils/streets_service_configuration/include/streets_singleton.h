@@ -1,6 +1,7 @@
 #pragma once
 #include <spdlog/spdlog.h>
 #include <typeinfo>
+#include "streets_singleton_exception.h"
 
 
 namespace streets_service {
@@ -12,7 +13,7 @@ namespace streets_service {
      * @author Paul Bourelly
      * @date 3/14/2022
      */
-    template <typename T>
+    template <typename T, typename... Args>
     class streets_singleton
     {
         public:
@@ -29,19 +30,31 @@ namespace streets_service {
             streets_singleton& operator=(const streets_singleton &) = delete;
             // Remove move assignment operator
             streets_singleton& operator=(const streets_singleton &&) = delete;
+            /**
+             * @brief Method to intialize streets_singleton with constructor params
+             * ...Args of templated class.
+             * 
+             * @param ...args constructor parameters of templated class.
+             * @return returns reference to singleton instance.
+             */
+            static T& create(Args...args );
 
 
         protected:
             /**
              * Protected constructor
              */ 
-            streets_singleton();
+            streets_singleton() = default;
             /**
              * Protected destructor
              */        
-            ~streets_singleton();        
+            ~streets_singleton() = default;
+              
+            static std::unique_ptr<T> instance;        
     };
 
+    template <typename T, typename ...Args>
+    std::unique_ptr<T> streets_singleton<T, Args...>::instance = nullptr;
          
 };
 

@@ -12,7 +12,6 @@ int main(int argc, char **argv)
     std::string setCustomMibsCommand = "export MIBS=ALL";
     system(setCustomMibsCommand.c_str()); 
 
-    streets_service::streets_configuration::initialize_logger();
     traffic_signal_controller_service::tsc_service service;
     try {
         if (service.initialize()){

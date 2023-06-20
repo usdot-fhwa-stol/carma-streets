@@ -67,6 +67,8 @@ class test_ntcip_to_spat : public ::testing::Test {
             // Line 7 : Yellow 8 and 4 , Flashing Red 6 and 2
             file.open("../test/test_data/ntcip_spat_data.txt");
             spat_ptr->initialize_intersection("Test Intersection", 12902, phase_to_signal_group );
+            // Initialize streets clock singleton in real time mode
+            streets_service::streets_clock_singleton::create(false);
         }
 
 
@@ -88,7 +90,7 @@ TEST_F( test_ntcip_to_spat, test_update) {
     spat_ptr->update( spat_ntcip_data, false);
     intersection =  spat_ptr->get_intersection();
     // Calculate current minute of the UTC year
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     time_t tt = std::chrono::system_clock::to_time_t(now);
     tm utc_tm = *gmtime(&tt);
     uint32_t moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
@@ -142,10 +144,6 @@ TEST_F( test_ntcip_to_spat, test_update) {
     event_cur_6 = state_6.state_time_speed.front();
     event_cur_8 = state_8.state_time_speed.front();
 
-    now = std::chrono::system_clock::now();
-    tt = std::chrono::system_clock::to_time_t(now);
-    utc_tm = *gmtime(&tt);
-    moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
     ASSERT_EQ( intersection.moy, moy );
 
     uint16_t start_time =  intersection.convert_offset(0);
@@ -182,10 +180,7 @@ TEST_F( test_ntcip_to_spat, test_update) {
     event_cur_4 = state_4.state_time_speed.front();
     event_cur_6 = state_6.state_time_speed.front();
     event_cur_8 = state_8.state_time_speed.front();
-    now = std::chrono::system_clock::now();
-    tt = std::chrono::system_clock::to_time_t(now);
-    utc_tm = *gmtime(&tt);
-    moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
+
     ASSERT_EQ( intersection.moy, moy );
 
     ASSERT_EQ( event_cur_2.event_state, movement_phase_state::stop_and_remain);
@@ -221,10 +216,7 @@ TEST_F( test_ntcip_to_spat, test_update) {
     event_cur_4 = state_4.state_time_speed.front();
     event_cur_6 = state_6.state_time_speed.front();
     event_cur_8 = state_8.state_time_speed.front();
-    now = std::chrono::system_clock::now();
-    tt = std::chrono::system_clock::to_time_t(now);
-    utc_tm = *gmtime(&tt);
-    moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;
+   
     ASSERT_EQ( intersection.moy, moy );
 
     ASSERT_EQ( event_cur_2.event_state, movement_phase_state::stop_and_remain);
@@ -332,7 +324,7 @@ TEST_F( test_ntcip_to_spat, test_update_tsc_timestamp) {
 
     read_next_line();
     spat_ptr->update( spat_ntcip_data, true);
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point now {std::chrono::milliseconds(streets_service::streets_clock_singleton::time_in_ms())};
     time_t tt = std::chrono::system_clock::to_time_t(now);
     tm utc_tm = *gmtime(&tt);
     uint32_t moy = utc_tm.tm_yday*60*24 + utc_tm.tm_hour*60 + utc_tm.tm_min;

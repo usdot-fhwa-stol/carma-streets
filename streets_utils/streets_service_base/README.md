@@ -2,52 +2,28 @@
 
 ## Introduction
 
-This is the `streets_service_base` library meant to be the base of each new CARMA-Streets service. It contains a extensible templated singleton implementation that allows for the creation of singleton scoped objects in CARMA-Streets services with static access. This means that by extending this class you can implement a class of which there can only ever be a single instance and which is statically retrievable using the `streets_singleton::get_singleton()` method. This library also includes an implemented singleton `streets_configuration` class which standardizes how CARMA-Streets services will read configuration parameters from `manifest.json` configuration files. This `streets_configuration` singleton parses the `manifest.json` configuration file and then allows for static retrieval of configuration parameters using the `get_int_config()`,`get_double_config`,`get_string_config()`, and `get_bool_config()` methods.
+This is the `streets_service_base` library meant to be the base of each new CARMA-Streets service. This library exposes two major classes. The first is `streets_clock_singleton`, which is a `streets_singleton` that manages as instance of CarmaClock (see https://github.com/usdot-fhwa-stol/carma-time-lib ). The second is `streets_service`, which is meant to be a base class for all CARMA-Streets services that offers a framework for standing up new CARMA-Streets services.  
 
-## Streets Singleton
+## streets_clock_singleton
+The streets_clock_singleton is a streets_singleton which manages and instance of CarmaClock (see https://github.com/usdot-fhwa-stol/carma-time-lib ). It offers static access to the CarmaClock time wrapper, which is meant to allow CARMA-Streets services to configurable use system time or an external source for time.
 
-Library offers access to the `streets_singleton`  class. This is a templated, extensible class that stores and offers static retrieval of a single instance of itself, which is lazily initialized (not initialized until retrieved for the first time). To ensure that new instances of this class can not be created the constructors are deleted or hidden using private or protected access.
+## streets_service
+The street_service class is a base class that sets up method to help standup new CARMA-Streets Services. This includes protected methods to initialize kafka consumers and producers, methods to start service threads and methods to intialize service members. The virtual `initialize` method initializes streets_singletons streets_clock_singleton and streets_configuration based on environment variables:
+**SIMULATION_MODE**: TRUE will initialize streets_clock_singleton in simulation mode which will allow for time updating from external source via static update() method.FALSE will initialize streets_clock_singleton in realtime mode which will make streets_clock_singleton call system time.
+**CONFIG_FILE_PATH** : String relative path from executable or absolute path to JSON configuration file. This is used to initialize streets_configuration singleton.
+The initialize() and start() methods is meant to be overriden as follows:
+protected:
+    bool initialize() override {
+        // Initializes streets_clock singleton, streets_configuration singleton and kafka consumer for simulation time
+        streets_service::initialize();
+    }
 
+    void start() override {
+        // Starts thread to use kafka time consumer to consume time sync messages and update streets_clock_singleton
+        streets_service::start();
+    }
 
-## Streets Configuration
-Library creates `streets_configuration` singleton which standardizes the `manifest.json` configuration file parsing and configuration parameter retrieval. Extending `streets_singleton` allows `streets_configuration` to be limited to singleton scope ( single instance ) and offer static methods for configuration parameter retrieval. `streets_configuration` also parses some service required configurations like **loglevel** and **service_name** to create and configure a `spdlog::async_loggerr` with a  `spdlog::sinks::daily_file_sink_mt` and a `spdlog::sinks::stdout_color_sink_mt`.
-
-Example `manifest.json` configuration file.
-```
-{
-    "service_name": "test_service",
-    "loglevel": "info",
-    "configurations": [
-        {
-            "name": "param_1",
-            "value": 1,
-            "description": "Test Parameter 1",
-            "type": "INTEGER"
-        },
-        {
-            "name": "param_2",
-            "value": "Second Parameter",
-            "description": "Test Parameter 2",
-            "type": "STRING"
-        },
-        {
-            "name": "param_3",
-            "value": 123.2,
-            "description": "Test Parameter 3",
-            "type": "DOUBLE"
-        },
-        {
-            "name": "param_4",
-            "value": true,
-            "description": "Test Parameter 3",
-            "type": "BOOL"
-        }
-    ]
-}
-```
-
-## Include streets_service_base_lib::streets_service_base_lib
-
+## Include streets_service_base_lib
 Streets Service Base `CMakeList.txt` includes an install target which will install this library as a CMake package. The library along with it's dependencies can then be included by simply using the find_package() instruction.
 
 ```

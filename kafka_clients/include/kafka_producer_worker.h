@@ -120,7 +120,7 @@ namespace kafka_clients
              * @brief Destroy the kafka producer worker object
              * 
              */
-            virtual ~kafka_producer_worker() = default;
+            virtual ~kafka_producer_worker();
         };
 }
 

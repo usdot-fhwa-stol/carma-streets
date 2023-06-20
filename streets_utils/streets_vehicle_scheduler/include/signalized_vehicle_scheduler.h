@@ -5,7 +5,6 @@
 #include <set>
 #include "vehicle.h"
 #include "vehicle_scheduler.h"
-#include "streets_configuration.h"
 #include "intersection_schedule.h"
 #include "signalized_intersection_schedule.h"
 #include "scheduling_exception.h"
