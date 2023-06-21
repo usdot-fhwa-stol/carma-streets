@@ -76,7 +76,7 @@ namespace streets_snmp_cmd
 
         /**
          * @brief Create a vector of SNMP command structures of all current supported phase control types: CALL_VEH_PHASES, CALL_PED_PHASES, FORCEOFF_PHASES, HOLD_VEH_PHASES, OMIT_VEH_PHASES, OMIT_PED_PHASES.
-         * All the commands phases are set to 0, and the commands are used to clear all the phases controls from the traffic signal.
+         * All phase control OIDs are set to 0, and the commands are used to clear all the phases controls from the traffic signal.
          * @param execution_time when the SNMP commands are executed.
          * @return A vector of SNMP commands structures.
         */
