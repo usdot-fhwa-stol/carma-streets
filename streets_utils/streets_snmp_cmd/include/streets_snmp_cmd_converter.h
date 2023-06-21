@@ -20,18 +20,31 @@ namespace streets_snmp_cmd
         void add_phase_control_schedule_command_to_two_dimension_map(uint64_t start_time, streets_phase_control_schedule::streets_phase_control_command pcs_cmd, std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m) const;
         /***
          * @brief Private method to print the two dimension map with command start time, command type and a vector of phases.
-         * @param time_cmd_m a map of command type and the phases the command is applied to
-         * @param is_cmd_start indicator whether the map of command type and phases is command sent at start time or end time from the phase control schedule
+         * @param time_cmd_m a map of command type and the phases the command is applied to.
+         * @param is_cmd_start indicator whether the map of command type and phases is command sent at start time or end time from the phase control schedule.
          */
         void print_two_dimension_map(std::map<uint64_t, std::map<streets_phase_control_schedule::COMMAND_TYPE, std::vector<int>>> &time_cmd_m, bool is_cmd_start = true) const;
         /**
          * @brief Private method to perform bitwise shift or operation on input value and left shift the value by the phases number of positions.
+         * @param val The value sent by the SNMP command to traffic signal controller.
+         * @param phases The numbers of left shift positions applied to the value.
          */
         uint8_t bitwise_or_phases(uint8_t val, const std::vector<int>& phases) const;
         /**
          * @brief Private method to perform bitwise shift xor operation on input value and left shift the value by the phases number of positions.
+         * @param val The value sent by the SNMP command to traffic signal controller.
+         * @param phases The numbers of left shift positions applied to the value.
          */
         uint8_t bitwise_xor_phases(uint8_t val, const std::vector<int>& phases) const;
+        /**
+         * @brief Private method to update the queue with the input SNMP command. 
+         * @param cmds_queue A queue of SNMP commands to be updated.
+         * @param start_time The start execution time of the command.
+         * @param command_type The type of command.
+         * @param val The value of the command to be sent to TSC.
+         * @param is_created_push_cmd A boolean indicator to determine whether to create the SNMP command and push it to the queue.
+        */
+        void push_snmp_command_to_queue(std::queue<snmp_cmd_struct>& cmds_queue, uint64_t start_time, PHASE_CONTROL_TYPE command_type, int64_t val, bool is_created_push_cmd) const;
 
     public:
         streets_snmp_cmd_converter() = default;
@@ -65,7 +78,7 @@ namespace streets_snmp_cmd
          * @brief Create a vector of SNMP command structures of all current supported phase control types: CALL_VEH_PHASES, CALL_PED_PHASES, FORCEOFF_PHASES, HOLD_VEH_PHASES, OMIT_VEH_PHASES, OMIT_PED_PHASES.
          * All the commands phases are set to 0, and the commands are used to clear all the phases controls from the traffic signal.
          * @param execution_time when the SNMP commands are executed.
-         * @return A vector of SNMP commands structures
+         * @return A vector of SNMP commands structures.
         */
         std::vector<streets_snmp_cmd::snmp_cmd_struct> create_clear_all_snmp_commands(uint64_t execution_time) const;
     };
