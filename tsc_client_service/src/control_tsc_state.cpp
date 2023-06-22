@@ -115,6 +115,10 @@ namespace traffic_signal_controller_service
 
         if (phase_control_schedule_ptr->is_clear_current_schedule)
         {
+            //Clear all phase controls from the traffic signal controller
+            SPDLOG_DEBUG("Clear all phase controls from TSC!");
+            control_tsc_state_ptr_->run_clear_all_snmp_commands();
+            
             SPDLOG_INFO("Clear SNMP command queue!");
             // Clear all commands on the update command queue.
             std::queue<streets_snmp_cmd::snmp_cmd_struct> empty_queue;
