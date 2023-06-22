@@ -318,11 +318,11 @@ namespace traffic_signal_controller_service {
     
     void tsc_service::set_tsc_hold_and_omit_forceoff_call()
     {
-        if(!tsc_set_command_queue_.empty())
+        if(control_tsc_state_ptr_ && !tsc_set_command_queue_.empty())
         {
             //Clear all phase controls from the traffic signal controller
             SPDLOG_DEBUG("Clear all phase controls from TSC!");
-            run_clear_all_snmp_commands();
+            control_tsc_state_ptr_->run_clear_all_snmp_commands();
         }
         while(!tsc_set_command_queue_.empty())
         {   
