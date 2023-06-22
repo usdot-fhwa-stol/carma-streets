@@ -30,7 +30,7 @@ namespace streets_snmp_cmd
             // End time commands
             add_phase_control_schedule_command_to_two_dimension_map(pcs_cmd.command_end_time, pcs_cmd, end_time_cmd_m);
         }
-        print_two_dimension_map(start_time_cmd_m, true);
+        print_two_dimension_map(start_time_cmd_m);
         print_two_dimension_map(end_time_cmd_m, false);
 
         // Keep track of the SNMP command start time. It is used by the snmp_cmd_struct to create a streets defined SNMP command.
@@ -91,32 +91,32 @@ namespace streets_snmp_cmd
                         if (phase_control_type == PHASE_CONTROL_TYPE::CALL_PED_PHASES)
                         {
                             set_val_call_ped = bitwise_xor_phases(set_val_call_ped, phases);
-                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped), true);
+                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
                         }
                         else if (phase_control_type == PHASE_CONTROL_TYPE::CALL_VEH_PHASES)
                         {
                             set_val_call_veh = bitwise_xor_phases(set_val_call_veh, phases);
-                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh), true);
+                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
                         }
                         else if (phase_control_type == PHASE_CONTROL_TYPE::OMIT_PED_PHASES)
                         {
                             set_val_omit_ped = bitwise_xor_phases(set_val_omit_ped, phases);
-                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped), true);
+                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped));
                         }
                         else if (phase_control_type == PHASE_CONTROL_TYPE::OMIT_VEH_PHASES)
                         {
                             set_val_omit_veh = bitwise_xor_phases(set_val_omit_veh, phases);
-                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh), true);
+                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh));
                         }
                         else if (phase_control_type == PHASE_CONTROL_TYPE::FORCEOFF_PHASES)
                         {
                             set_val_forceoff = bitwise_xor_phases(set_val_forceoff, phases);
-                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff), true);
+                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff));
                         }
                         else if (phase_control_type == PHASE_CONTROL_TYPE::HOLD_VEH_PHASES)
                         {
                             set_val_hold = bitwise_xor_phases(set_val_hold, phases);
-                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold), true);
+                            push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
                         }
                     }
                 }
@@ -195,14 +195,31 @@ namespace streets_snmp_cmd
                     }
                 }
             }
-
-            push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold), is_hold);
-            push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff), is_forceoff);
-            push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh), is_omit_veh);
-            push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped), is_omit_ped);
-            push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped), is_call_ped);
-            push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh), is_call_veh);
-
+            
+            if(is_hold)
+            {
+                push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
+            }
+            if(is_forceoff)
+            {
+                push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff));
+            }
+            if(is_omit_veh)
+            {
+                push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh));
+            }
+            if(is_omit_ped)
+            {
+                push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped));
+            }
+            if(is_call_ped)
+            {
+                push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
+            }
+            if(is_hold)
+            {
+                push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
+            }
             // Update previous start time with current start time
             prev_snmp_start_time = snmp_cmd_start_time;
         } // END Start Time commands
@@ -219,36 +236,36 @@ namespace streets_snmp_cmd
                     if (phase_control_type == PHASE_CONTROL_TYPE::CALL_PED_PHASES)
                     {
                         set_val_call_ped = bitwise_xor_phases(set_val_call_ped, inner_itr->second);
-                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped), true);
+                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
                     }
                     else if (phase_control_type == PHASE_CONTROL_TYPE::CALL_VEH_PHASES)
                     {
                         set_val_call_veh = bitwise_xor_phases(set_val_call_veh, inner_itr->second);
-                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh), true);
+                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
                     }
                     else if (phase_control_type == PHASE_CONTROL_TYPE::OMIT_PED_PHASES)
                     {
                         set_val_omit_ped = bitwise_xor_phases(set_val_omit_ped, inner_itr->second);
-                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped), true);
+                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_PED_PHASES, static_cast<int64_t>(set_val_omit_ped));
                     }
                     else if (phase_control_type == PHASE_CONTROL_TYPE::OMIT_VEH_PHASES)
                     {
                         set_val_omit_veh = bitwise_xor_phases(set_val_omit_veh, inner_itr->second);
-                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh), true);
+                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::OMIT_VEH_PHASES, static_cast<int64_t>(set_val_omit_veh));
                     }
                     else if (phase_control_type == PHASE_CONTROL_TYPE::FORCEOFF_PHASES)
                     {
                         set_val_forceoff = bitwise_xor_phases(set_val_forceoff, inner_itr->second);
-                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff), true);
+                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::FORCEOFF_PHASES, static_cast<int64_t>(set_val_forceoff));
                     }
                     else if (phase_control_type == PHASE_CONTROL_TYPE::HOLD_VEH_PHASES)
                     {
                         set_val_hold = bitwise_xor_phases(set_val_hold, inner_itr->second);
-                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold), true);
+                        push_snmp_command_to_queue(cmds_result, end_time_cmd_itr->first, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
                     }
                 }
             }
-        }
+        }//END end time commands map
 
         return cmds_result;
     }
@@ -373,12 +390,9 @@ namespace streets_snmp_cmd
         return snmp_cmds_result;
     }
 
-    void streets_snmp_cmd_converter::push_snmp_command_to_queue(std::queue<snmp_cmd_struct> &cmds_queue, uint64_t start_time, PHASE_CONTROL_TYPE command_type, int64_t val, bool is_created_push_cmd) const
+    void streets_snmp_cmd_converter::push_snmp_command_to_queue(std::queue<snmp_cmd_struct> &cmds_queue, uint64_t start_time, PHASE_CONTROL_TYPE command_type, int64_t val) const
     {
-        if (is_created_push_cmd)
-        {
-            snmp_cmd_struct command(start_time, command_type, val);
-            cmds_queue.push(command);
-        }
+        snmp_cmd_struct command(start_time, command_type, val);
+        cmds_queue.push(command);
     }
 } // namespace streets_snmp_cmd

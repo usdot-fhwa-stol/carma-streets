@@ -42,9 +42,8 @@ namespace streets_snmp_cmd
          * @param start_time The start execution time of the command.
          * @param command_type The type of command.
          * @param val The value of the command to be sent to TSC.
-         * @param is_created_push_cmd A boolean indicator to determine whether to create the SNMP command and push it to the queue.
         */
-        void push_snmp_command_to_queue(std::queue<snmp_cmd_struct>& cmds_queue, uint64_t start_time, PHASE_CONTROL_TYPE command_type, int64_t val, bool is_created_push_cmd) const;
+        void push_snmp_command_to_queue(std::queue<snmp_cmd_struct>& cmds_queue, uint64_t start_time, PHASE_CONTROL_TYPE command_type, int64_t val) const;
 
     public:
         streets_snmp_cmd_converter() = default;

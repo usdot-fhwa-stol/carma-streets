@@ -113,10 +113,6 @@ namespace traffic_signal_controller_service
             return;
         }
 
-        //Clear all phase controls from the traffic signal controller
-        SPDLOG_DEBUG("Clear all phase controls from TSC!");
-        run_clear_all_snmp_commands();
-
         if (phase_control_schedule_ptr->is_clear_current_schedule)
         {
             SPDLOG_INFO("Clear SNMP command queue!");

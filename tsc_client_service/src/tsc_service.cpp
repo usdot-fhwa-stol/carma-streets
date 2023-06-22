@@ -318,15 +318,21 @@ namespace traffic_signal_controller_service {
     
     void tsc_service::set_tsc_hold_and_omit_forceoff_call()
     {
+        if(!tsc_set_command_queue_.empty())
+        {
+            //Clear all phase controls from the traffic signal controller
+            SPDLOG_DEBUG("Clear all phase controls from TSC!");
+            run_clear_all_snmp_commands();
+        }
         while(!tsc_set_command_queue_.empty())
         {   
-            auto command_to_execute = tsc_set_command_queue_.front();            
-            SPDLOG_DEBUG("Checking if front command {0} is expired", command_to_execute.get_cmd_info());
+            auto current_command = tsc_set_command_queue_.front();            
+            SPDLOG_DEBUG("Checking if front command {0} is expired", current_command.get_cmd_info());
             //Check if event is expired
-            long duration = command_to_execute.start_time_ - streets_clock_singleton::time_in_ms();
+            long duration = current_command.start_time_ - streets_clock_singleton::time_in_ms();
             if(duration < 0){
                 throw control_tsc_state_exception("SNMP set command is expired! Start time was " 
-                    + std::to_string(command_to_execute.start_time_) + " and current time is " 
+                    + std::to_string(current_command.start_time_) + " and current time is " 
                     + std::to_string(streets_clock_singleton::time_in_ms() ) + ".");
             }       
             SPDLOG_DEBUG("Sleeping for {0}ms.", duration);
@@ -335,39 +341,42 @@ namespace traffic_signal_controller_service {
             //After sleep duration, check the snmp queue again. If empty, stop the current command execution             
             if(tsc_set_command_queue_.empty())
             {
-                SPDLOG_DEBUG("SNMP command queue is empty, stop the current command execution: {0}", command_to_execute.get_cmd_info());
+                SPDLOG_DEBUG("SNMP command queue is empty, stop the current command execution: {0}", current_command.get_cmd_info());
                 break;
             }
             //Check if queue commands has been updated
-            else if (tsc_set_command_queue_.front().get_cmd_info() != command_to_execute.get_cmd_info())
+            else if (tsc_set_command_queue_.front().get_cmd_info() != current_command.get_cmd_info())
             {
-                SPDLOG_DEBUG("SNMP command queue is updated with new schedule, stop the current command execution: {0}", command_to_execute.get_cmd_info());
+                SPDLOG_DEBUG("SNMP command queue is updated with new schedule, stop the current command execution: {0}", current_command.get_cmd_info());
                 break;
-            }
-            //SNMP command Queue has no update nor has been cleared, pop the existing front command.
-            else
-            {
-                std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx); 
-                tsc_set_command_queue_.pop();
             }
 
             if(!control_tsc_state_ptr_)
             {
                 throw control_tsc_state_exception("Control TSC state is not initialized.");
             }
-             
-            if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(command_to_execute))
-            {
-                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan/phase control schedule.");
-            }
-            // Log command info sent
-            SPDLOG_INFO(command_to_execute.get_cmd_info());
 
-            
-            if ( enable_snmp_cmd_logging_ ){
-                if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
-                    logger->info( command_to_execute.get_cmd_info());
-                }
+            //Checking all the commands from the queue. If there are any commands executed at the same time as the current_command, and execute these commands now.
+            while (!tsc_set_command_queue_.empty())
+            {   
+                auto command_to_execute = tsc_set_command_queue_.front();
+                if(command_to_execute.start_time_ == current_command.start_time_)
+                {
+                    if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(command_to_execute))
+                    {
+                        throw control_tsc_state_exception("Could not set state for movement group in desired phase plan/phase control schedule.");
+                    }
+                    // Log command info sent
+                    SPDLOG_INFO(command_to_execute.get_cmd_info());                
+                    if ( enable_snmp_cmd_logging_ ){
+                        if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
+                            logger->info( command_to_execute.get_cmd_info());
+                        }
+                    }
+                    //SNMP command Queue has no update nor has been cleared, pop the existing front command.
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx); 
+                    tsc_set_command_queue_.pop();
+                }                
             }
         }
     }
