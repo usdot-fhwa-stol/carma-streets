@@ -376,7 +376,11 @@ namespace traffic_signal_controller_service {
                     //SNMP command Queue has no update nor has been cleared, pop the existing front command.
                     std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx); 
                     tsc_set_command_queue_.pop();
-                }                
+                }
+                else
+                { 
+                    break;
+                }                                
             }
         }
     }
