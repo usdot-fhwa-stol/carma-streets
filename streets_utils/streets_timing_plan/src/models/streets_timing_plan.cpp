@@ -33,7 +33,7 @@ namespace streets_timing_plan
         auto timing_plan_value = doc.FindMember("TimingPlan")->value.GetObject();
         if (timing_plan_value.HasMember("NoOfPhase") && timing_plan_value.FindMember("NoOfPhase")->value.IsUint64())
         {
-            number_of_phase = timing_plan_value.FindMember("NoOfPhase")->value.GetUint64();
+            number_of_phase = timing_plan_value.FindMember("NoOfPhase")->value.GetUint();
         }
         else
         {
