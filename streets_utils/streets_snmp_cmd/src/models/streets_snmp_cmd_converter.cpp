@@ -65,6 +65,7 @@ namespace streets_snmp_cmd
          * ** Checking the snmp_cmd_start_time and the end time from the end time command maps. If there are any commands end time that is greater than snmp_cmd_start_time, create streets
          * ** SNMP commands for that end time command, and add the SNMP commands to the queue. (Note: At the end of the step 1 iteration, the snmp_cmd_start_time is updated with the maximum start time.)
          * */
+        //Step 1: Loop through start time commands map
         for (auto start_time_cmd_itr = start_time_cmd_m.begin(); start_time_cmd_itr != start_time_cmd_m.end(); start_time_cmd_itr++)
         {
             // Indicator to note which phase control types are received at a the start time
@@ -76,7 +77,7 @@ namespace streets_snmp_cmd
             bool is_omit_ped = false;
             snmp_cmd_start_time = start_time_cmd_itr->first;
 
-            // Checking end time for commands and make sure to reset the phases if end time is earlier than start time and is older then previous start time
+            // Step 1.1 & 1.2: Checking end time for commands and make sure to reset the phases if end time is earlier than start time and is older then previous start time
             for (auto end_time_cmd_itr = end_time_cmd_m.begin(); end_time_cmd_itr != end_time_cmd_m.end(); end_time_cmd_itr++)
             {
                 // Command end time is earlier than current command start time and the end time is older than previous start time
@@ -122,7 +123,7 @@ namespace streets_snmp_cmd
                 }
             }
 
-            // Check start time commands, loop through each control type to find the phases. Bitwise or operation on the phases for the current start time and current control type
+            // Step 2: Check start time commands, loop through each control type to find the phases. Bitwise or operation on the phases for the current start time and current control type
             for (auto inner_itr = start_time_cmd_itr->second.begin(); inner_itr != start_time_cmd_itr->second.end(); inner_itr++)
             {
                 auto phases = inner_itr->second;
@@ -159,7 +160,7 @@ namespace streets_snmp_cmd
                 }
             }
 
-            // Checking end time for commands and make sure to reset the phases if end time equals to start time
+            // Step 3: Checking end time for commands and make sure to reset the phases if end time equals to start time
             for (auto end_time_cmd_itr = end_time_cmd_m.begin(); end_time_cmd_itr != end_time_cmd_m.end(); end_time_cmd_itr++)
             {
                 // Command end time equals to current command start time
@@ -196,6 +197,7 @@ namespace streets_snmp_cmd
                 }
             }
             
+            //Step 4:
             if(is_hold)
             {
                 push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::HOLD_VEH_PHASES, static_cast<int64_t>(set_val_hold));
@@ -224,7 +226,7 @@ namespace streets_snmp_cmd
             prev_snmp_start_time = snmp_cmd_start_time;
         } // END Start Time commands
 
-        // Checking end time for commands and make sure to reset the phases if end time greater than the maximum (last) start time
+        // Step 5: Checking end time for commands and make sure to reset the phases if end time greater than the maximum (last) start time
         for (auto end_time_cmd_itr = end_time_cmd_m.begin(); end_time_cmd_itr != end_time_cmd_m.end(); end_time_cmd_itr++)
         {
             if (end_time_cmd_itr->first > snmp_cmd_start_time)
