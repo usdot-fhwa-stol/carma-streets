@@ -44,7 +44,7 @@ namespace streets_timing_plan
         {
             for (const auto &itr : timing_plan_value.FindMember("PhaseNumber")->value.GetArray())
             {
-                phase_number_v.push_back(itr.GetInt64());
+                phase_number_v.push_back(itr.GetInt());
             }
         }
         else
@@ -56,7 +56,7 @@ namespace streets_timing_plan
         {
             for (const auto &itr : timing_plan_value.FindMember("PedWalk")->value.GetArray())
             {
-                pedestrian_walk_v.push_back(itr.GetInt64());
+                pedestrian_walk_v.push_back(itr.GetInt());
             }
         }
         else
@@ -68,7 +68,7 @@ namespace streets_timing_plan
         {
             for (const auto &itr : timing_plan_value.FindMember("PedClear")->value.GetArray())
             {
-                pedestrian_clear_v.push_back(itr.GetInt64());
+                pedestrian_clear_v.push_back(itr.GetInt());
             }
         }
         else
@@ -80,7 +80,7 @@ namespace streets_timing_plan
         {
             for (const auto &itr : timing_plan_value.FindMember("MinGreen")->value.GetArray())
             {
-                min_green_v.push_back(itr.GetInt64());
+                min_green_v.push_back(itr.GetInt());
             }
         }
         else
@@ -104,7 +104,7 @@ namespace streets_timing_plan
         {
             for (const auto &itr : timing_plan_value.FindMember("MaxGreen")->value.GetArray())
             {
-                max_green_v.push_back(itr.GetInt64());
+                max_green_v.push_back(itr.GetInt());
             }
         }
         else
@@ -140,7 +140,7 @@ namespace streets_timing_plan
         {
             for (const auto &itr : timing_plan_value.FindMember("PhaseRing")->value.GetArray())
             {
-                phase_ring_v.push_back(itr.GetInt64());
+                phase_ring_v.push_back(itr.GetInt());
             }
         }
         else
