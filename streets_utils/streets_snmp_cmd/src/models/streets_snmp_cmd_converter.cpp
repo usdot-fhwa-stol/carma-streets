@@ -216,7 +216,7 @@ namespace streets_snmp_cmd
             {
                 push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_PED_PHASES, static_cast<int64_t>(set_val_call_ped));
             }
-            if(is_hold)
+            if(is_call_veh)
             {
                 push_snmp_command_to_queue(cmds_result, snmp_cmd_start_time, PHASE_CONTROL_TYPE::CALL_VEH_PHASES, static_cast<int64_t>(set_val_call_veh));
             }
