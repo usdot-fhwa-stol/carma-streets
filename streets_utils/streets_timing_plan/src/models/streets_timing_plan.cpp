@@ -19,6 +19,7 @@ namespace streets_timing_plan
             {
                 throw streets_timing_plan_exception("streets_timing_plan requires MsgType property value (= " + TIMING_PLAN_MSG_TYPE + "), but received " + value + " instead.");
             }
+            msg_type = value;
         }
         else
         {
