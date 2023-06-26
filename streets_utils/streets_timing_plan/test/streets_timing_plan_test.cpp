@@ -142,7 +142,11 @@ TEST_F(streets_timing_plan_test, fromJson)
     ASSERT_THROW(timing_plan.fromJson(invalid_json), streets_timing_plan_exception);
 
     // Missing MsgType
-    std::string input_json = "{\"MsgType\":\"Missing\"}";
+    std::string input_json = "{\"key\":\"value\"}";
+    ASSERT_THROW(timing_plan.fromJson(input_json), streets_timing_plan_exception);
+
+    // Incorrect MsgType
+    input_json = "{\"MsgType\":\"Missing\"}";
     ASSERT_THROW(timing_plan.fromJson(input_json), streets_timing_plan_exception);
 
     // Missing TimingPlan property
