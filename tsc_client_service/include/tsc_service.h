@@ -104,7 +104,7 @@ namespace traffic_signal_controller_service {
             bool use_desired_phase_plan_update_ = false;
 
             // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
-            std::queue<snmp_cmd_struct> tsc_set_command_queue_;
+            std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_;
 
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;
@@ -234,14 +234,14 @@ namespace traffic_signal_controller_service {
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
-             * follow the desired phase plan. Calls set_tsc_hold_and_omit
+             * follow the desired phase plan. Calls set_tsc_hold_and_omit_forceoff_call
              **/
             void control_tsc_phases();
 
             /**
-             * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
+             * @brief Method to set HOLD and OMIT, CALL, FORCEOFF on the Traffic signal controller accorording to the desired phase plan/phase control schedule.
              **/
-            void set_tsc_hold_and_omit();
+            void set_tsc_hold_and_omit_forceoff_call();
 
             /**
              * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.

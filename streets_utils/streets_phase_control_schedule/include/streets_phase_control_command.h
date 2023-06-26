@@ -24,10 +24,10 @@ namespace streets_phase_control_schedule
      */
     struct streets_phase_control_command
     {
-        COMMAND_TYPE command_type; // Action
-        int command_phase = 0;         // Affected phase (bitstring to integer)
-        uint64_t command_start_time = 0;  // Start time in epoch unix timestamp in millisecond
-        uint64_t command_end_time = 0;    // End time  in epoch unix timestamp in millisecond
+        COMMAND_TYPE command_type;       // Action
+        int command_phase = 0;           // Affected phase (bitstring to integer)
+        uint64_t command_start_time = 0; // Start time in epoch unix timestamp in millisecond
+        uint64_t command_end_time = 0;   // End time  in epoch unix timestamp in millisecond
         streets_phase_control_command() = default;
         /***
          * @brief Constructor with arguments to initialize the command object
@@ -41,6 +41,8 @@ namespace streets_phase_control_schedule
         ~streets_phase_control_command() = default;
 
         // Overload operator<< to print command
-        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_command& command);
+        friend std::ostream &operator<<(std::ostream &os, const streets_phase_control_command &command);
+
+        std::string COMMAND_TYPE_to_string(COMMAND_TYPE command_type) noexcept;
     };
 }

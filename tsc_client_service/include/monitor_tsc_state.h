@@ -212,10 +212,16 @@ namespace traffic_signal_controller_service
             const std::unordered_map<int,int> & get_ped_phase_map();
 
             /** 
-             * @brief Returns a map of pedestrian phases to signal group ids
-             * @return a map of pedestrian phases to signal group ids
+             * @brief Returns a map of vehicle phases to signal group ids
+             * @return a map of vehicle phases to signal group ids
             **/
             const std::unordered_map<int,int>& get_vehicle_phase_map();
+
+            /**
+             * @brief Return a map of signal group ids to phases map.
+             * @return a map of signal group ids to vehicle phases map.
+            */
+            const std::unordered_map<int, int> & get_signal_group_map();
 
             /**
              * @brief Get the phase number using signal group id.

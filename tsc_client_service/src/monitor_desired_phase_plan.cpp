@@ -142,9 +142,9 @@ namespace traffic_signal_controller_service
             }
         }
         // Once start time is determine. We must determine next phase.
-        snmp_response_obj response;
-        response.type = snmp_response_obj::response_type::INTEGER;
-        _snmp_client->process_snmp_request(ntcip_oids::PHASE_STATUS_GROUP_PHASE_NEXT,traffic_signal_controller_service::request_type::GET, response );
+        streets_snmp_cmd::snmp_response_obj response;
+        response.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        _snmp_client->process_snmp_request(ntcip_oids::PHASE_STATUS_GROUP_PHASE_NEXT, streets_snmp_cmd::REQUEST_TYPE::GET, response );
         
         // Generate Desired Phase Plan with next green fixed.
         streets_desired_phase_plan::streets_desired_phase_plan one_fixed_green;

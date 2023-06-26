@@ -3,6 +3,7 @@
 namespace traffic_signal_controller_service {
     
     std::mutex dpp_mtx;
+    std::mutex snmp_cmd_queue_mtx;
     using namespace streets_service;
     bool tsc_service::initialize() {
         if (!streets_service::initialize()) {
@@ -13,7 +14,9 @@ namespace traffic_signal_controller_service {
             // Temporary fix for bug in CarmaClock::wait_for_initialization(). No mechanism to support notifying multiple threads
             // of initialization. This fix avoids any threads waiting on initialization.
             // TODO: Remove initialization and fix issue in carma-time-lib (CarmaClock class) 
-            streets_clock_singleton::update(0);
+            if ( is_simulation_mode() ) {
+                streets_clock_singleton::update(0);
+            }
             // Intialize spat kafka producer
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
@@ -145,10 +148,10 @@ namespace traffic_signal_controller_service {
     }
     bool tsc_service::enable_spat() const{
         // Enable SPaT 
-        snmp_response_obj enable_spat;
-        enable_spat.type = snmp_response_obj::response_type::INTEGER;
+        streets_snmp_cmd::snmp_response_obj enable_spat;
+        enable_spat.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
         enable_spat.val_int = 2;
-        if (!snmp_client_ptr->process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, request_type::SET, enable_spat)){
+        if (!snmp_client_ptr->process_snmp_request(ntcip_oids::ENABLE_SPAT_OID, streets_snmp_cmd::REQUEST_TYPE::SET, enable_spat)){
             SPDLOG_ERROR("Failed to enable SPaT broadcasting on Traffic Signal Controller!");
             return false;
         }
@@ -260,6 +263,7 @@ namespace traffic_signal_controller_service {
                 // update command queue
                 if(monitor_dpp_ptr->get_desired_phase_plan_ptr()){
                     // Send desired phase plan to control_tsc_state
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                     control_tsc_state_ptr_->update_tsc_control_queue(monitor_dpp_ptr->get_desired_phase_plan_ptr(), tsc_set_command_queue_);
                     
                 }
@@ -279,6 +283,8 @@ namespace traffic_signal_controller_service {
                 try {
                     //Update phase control schedule with the latest incoming schedule
                     phase_control_schedule_ptr->fromJson(payload);
+                    //Update command queue
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
                     control_tsc_state_ptr_->update_tsc_control_queue(phase_control_schedule_ptr, tsc_set_command_queue_);
                 } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
                     SPDLOG_DEBUG("Failed to consume phase control schedule commands: {0}", ex.what());
@@ -289,55 +295,93 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::control_tsc_phases()
     {
-        try{
-            SPDLOG_INFO("Starting TSC Control Phases");
+        SPDLOG_INFO("Starting TSC Control Phases");        
+        try
+        {
             while(true)
             {
                 SPDLOG_INFO("Iterate TSC Control Phases for time {0}", streets_clock_singleton::time_in_ms());
-                set_tsc_hold_and_omit();
+                set_tsc_hold_and_omit_forceoff_call();
                 streets_clock_singleton::sleep_for(control_tsc_state_sleep_dur_);
             }
         }
         catch(const control_tsc_state_exception &e){
             SPDLOG_ERROR("Encountered exception : \n {0}", e.what());
-            SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
-            tsc_set_command_queue_.pop();
-
+            if(!tsc_set_command_queue_.empty())
+            {
+                SPDLOG_ERROR("Removing front command from queue :  {0}", tsc_set_command_queue_.front().get_cmd_info());
+                std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
+                tsc_set_command_queue_.pop();
+            }
         }
-
     }
     
-    void tsc_service::set_tsc_hold_and_omit()
+    void tsc_service::set_tsc_hold_and_omit_forceoff_call()
     {
-
-        while(!tsc_set_command_queue_.empty())
+        if(control_tsc_state_ptr_ && !tsc_set_command_queue_.empty())
         {
-            SPDLOG_DEBUG("Checking if front command {0} is expired", tsc_set_command_queue_.front().get_cmd_info());
+            //Clear all phase controls from the traffic signal controller
+            SPDLOG_DEBUG("Clear all phase controls from TSC!");
+            control_tsc_state_ptr_->run_clear_all_snmp_commands();
+        }
+        while(!tsc_set_command_queue_.empty())
+        {   
+            auto current_command = tsc_set_command_queue_.front();            
+            SPDLOG_DEBUG("Checking if front command {0} is expired", current_command.get_cmd_info());
             //Check if event is expired
-            long duration = tsc_set_command_queue_.front().start_time_ - streets_clock_singleton::time_in_ms();
+            long duration = current_command.start_time_ - streets_clock_singleton::time_in_ms();
             if(duration < 0){
                 throw control_tsc_state_exception("SNMP set command is expired! Start time was " 
-                    + std::to_string(tsc_set_command_queue_.front().start_time_) + " and current time is " 
+                    + std::to_string(current_command.start_time_) + " and current time is " 
                     + std::to_string(streets_clock_singleton::time_in_ms() ) + ".");
-            }
+            }       
             SPDLOG_DEBUG("Sleeping for {0}ms.", duration);
             streets_clock_singleton::sleep_for(duration);
-
-            if(!(tsc_set_command_queue_.front()).run())
-            {
-                throw control_tsc_state_exception("Could not set state for movement group in desired phase plan");
-            }
-            // Log command info sent
-            SPDLOG_INFO(tsc_set_command_queue_.front().get_cmd_info());
-
             
-            if ( enable_snmp_cmd_logging_ ){
-                if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
-                    logger->info( tsc_set_command_queue_.front().get_cmd_info());
-                }
+            //After sleep duration, check the snmp queue again. If empty, stop the current command execution             
+            if(tsc_set_command_queue_.empty())
+            {
+                SPDLOG_DEBUG("SNMP command queue is empty, stop the current command execution: {0}", current_command.get_cmd_info());
+                break;
+            }
+            //Check if queue commands has been updated
+            else if (tsc_set_command_queue_.front().get_cmd_info() != current_command.get_cmd_info())
+            {
+                SPDLOG_DEBUG("SNMP command queue is updated with new schedule, stop the current command execution: {0}", current_command.get_cmd_info());
+                break;
             }
 
-            tsc_set_command_queue_.pop();
+            if(!control_tsc_state_ptr_)
+            {
+                throw control_tsc_state_exception("Control TSC state is not initialized.");
+            }
+
+            //Checking all the commands from the queue. If there are any commands executed at the same time as the current_command, and execute these commands now.
+            while (!tsc_set_command_queue_.empty())
+            {   
+                auto command_to_execute = tsc_set_command_queue_.front();
+                if(command_to_execute.start_time_ == current_command.start_time_)
+                {
+                    if(control_tsc_state_ptr_ && !control_tsc_state_ptr_->run_snmp_cmd_set_request(command_to_execute))
+                    {
+                        throw control_tsc_state_exception("Could not set state for movement group in desired phase plan/phase control schedule.");
+                    }
+                    // Log command info sent
+                    SPDLOG_INFO(command_to_execute.get_cmd_info());                
+                    if ( enable_snmp_cmd_logging_ ){
+                        if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
+                            logger->info( command_to_execute.get_cmd_info());
+                        }
+                    }
+                    //SNMP command Queue has no update nor has been cleared, pop the existing front command.
+                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx); 
+                    tsc_set_command_queue_.pop();
+                }
+                else
+                { 
+                    break;
+                }                                
+            }
         }
     }
 

@@ -46,6 +46,10 @@ namespace streets_phase_control_schedule
 
                 std::string command_type_str = command_itr["commandType"].GetString();
                 toLowerCaseAndTrim(command_type_str);
+                if(command_itr["commandStartTime"].GetUint64() > command_itr["commandEndTime"].GetUint64())
+                {
+                    throw streets_phase_control_schedule_exception("streets_phase_control_schedule message commandStartTime value cannot be greater than commandEndTime value.");
+                }
                 streets_phase_control_command command(command_type_str, command_itr["commandPhase"].GetInt(), command_itr["commandStartTime"].GetUint64(), command_itr["commandEndTime"].GetUint64());
                 cmd_v.push_back(command);
             }
