@@ -104,6 +104,13 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_signal_optimization/coverage/coverage.xml -s -f streets_utils/streets_signal_optimization/ -r .
 
+cd /home/carma-streets/streets_utils/streets_snmp_cmd/build/
+./streets_snmp_cmd_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_snmp_cmd
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_snmp_cmd/coverage/coverage.xml -s -f streets_utils/streets_snmp_cmd/ -r .
+
 # cd /home/carma-streets/message_services/build/
 # # Currently only running a subset of message_services tests. TODO: Fix the remaining test cases.
 # ./message_services_test --gtest_output=xml:../../test_results/

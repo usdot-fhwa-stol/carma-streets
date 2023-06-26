@@ -20,7 +20,7 @@ namespace traffic_signal_controller_service {
              */
             mock_snmp_client(const std::string& ip = "", const int &port = 0 ) : snmp_client(ip, port){};
             ~mock_snmp_client() = default;
-            MOCK_METHOD(bool, process_snmp_request, (const std::string &input_oid, const request_type &request_type, snmp_response_obj &val), (override));
+            MOCK_METHOD(bool, process_snmp_request, (const std::string &input_oid, const streets_snmp_cmd::REQUEST_TYPE &request_type, streets_snmp_cmd::snmp_response_obj &val), (override));
 
     };
 }
