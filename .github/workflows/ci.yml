@@ -63,7 +63,7 @@ jobs:
       run: |
         cd /home/carma-streets/ext/
         apt-get install -y libperl-dev curl
-        curl -L -O http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+        curl -k -L -O http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
         tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
         cd net-snmp-5.9.1/
         ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
