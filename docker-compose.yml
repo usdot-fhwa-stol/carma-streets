@@ -95,7 +95,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
-    image: usdotfhwastolcandidate/scheduling_service:develop
+    image: usdotfhwastoldev/scheduling_service:develop
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -120,7 +120,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastolcandidate/message_services:develop
+    image: usdotfhwastoldev/message_services:develop
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -138,7 +138,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastolcandidate/intersection_model:develop
+    image: usdotfhwastoldev/intersection_model:develop
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -156,7 +156,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   signal_opt_service:
-    image: usdotfhwastolcandidate/signal_opt_service:develop
+    image: usdotfhwastoldev/signal_opt_service:develop
     command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
     build: 
       context: .
@@ -182,7 +182,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   tsc_service:
-    image: usdotfhwastolcandidate/tsc_service:develop
+    image: usdotfhwastoldev/tsc_service:develop
     command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
     build: 
       context: .
