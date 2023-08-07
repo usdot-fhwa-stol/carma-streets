@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
     QList<int> sigs({SIGQUIT, SIGINT, SIGTERM, SIGHUP});
     catchUnixSignals(sigs);
 #endif
+    // TODO Replace initialization by extending streets_service_base and overriding initialize
+    streets_service::streets_configuration::create("../manifest.json");
     streets_service::streets_configuration::initialize_logger();
 
     // Obtain the values
