@@ -103,6 +103,17 @@ namespace ntcip_oids {
      */
     static const std::string PHASE_HOLD_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.4.1";
     /**
+     * @brief Phase Vehicle Call Status Mask, when a bit =1, the Phase vehicle currently has a call for service. When a bit 
+     * = 0, the Phase vehicle currently does NOT have a call for service.
+     */
+    static const std::string PHASE_STATUS_GROUP_VEH_CALLS ="1.3.6.1.4.1.1206.4.2.1.1.4.1.8";
+    /**
+     * @brief Phase Pedestrian Call Status Mask, when a bit= 1, the Phase pedestrian currently has a call for service. When
+     * a bit = 0, the Phase pedestrian currently does NOT have a call for service.
+     */
+    static const std::string PHASE_STATUS_GROUP_PED_CALLS ="1.3.6.1.4.1.1206.4.2.1.1.4.1.9";
+
+    /**
      * @brief Phase Status Group Phase Next object is used to determine whether any vehicle phases are committed by the
      * TSC to be served next. It returns a 8 bit value that represent a state for each of the 8 vehicle phases. When a bit = 1,
      * the corresponding phase is currently commited to be next, when a bit = 0, this phase is NOT commited to be next. 
@@ -136,4 +147,5 @@ namespace ntcip_oids {
      * When a bit = 0, the device shall not place a call for ped service on that phase.
     */
     static const std::string PHASE_PEDESTRIAN_CALL_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.7.1";
+
 }

@@ -22,6 +22,7 @@
 #include <gtest/gtest_prod.h>  
 #include "streets_service.h"
 #include "streets_clock_singleton.h"
+#include "spat_projection_mode.h"
 
 namespace traffic_signal_controller_service {
 
@@ -101,7 +102,7 @@ namespace traffic_signal_controller_service {
             int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
-            bool use_desired_phase_plan_update_ = false;
+            spat_projection_mode spat_proj_mode;
 
             // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
             std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_;

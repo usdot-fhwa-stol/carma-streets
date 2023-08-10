@@ -149,6 +149,73 @@ namespace traffic_signal_controller_service
         return next_event;
     }
 
+    void tsc_state::poll_vehicle_pedestrian_calls() {
+        auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
+        std::string vehicle_call_phases_1_8 = ntcip_oids::PHASE_VEHICLE_CALL_CONTROL + ".1";
+        std::string vehicle_call_phases_9_16 = ntcip_oids::PHASE_VEHICLE_CALL_CONTROL + ".2";
+        std::string pedestrian_call_phases_1_8 = ntcip_oids::PHASE_PEDESTRIAN_CALL_CONTROL + ".1";
+        std::string pedestrian_call_phases_9_16 = ntcip_oids::PHASE_PEDESTRIAN_CALL_CONTROL + ".2";
+
+        streets_snmp_cmd::snmp_response_obj veh_call_1_8;
+        veh_call_1_8.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        streets_snmp_cmd::snmp_response_obj veh_call_9_16;
+        veh_call_9_16.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        streets_snmp_cmd::snmp_response_obj ped_call_1_8;
+        ped_call_1_8.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        streets_snmp_cmd::snmp_response_obj ped_call_9_16;
+        ped_call_9_16.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+
+        snmp_client_worker_ ->process_snmp_request(vehicle_call_phases_1_8, request_type, veh_call_1_8);
+        snmp_client_worker_ ->process_snmp_request(vehicle_call_phases_9_16, request_type, veh_call_9_16);
+        snmp_client_worker_ ->process_snmp_request(pedestrian_call_phases_1_8, request_type, ped_call_1_8);
+        snmp_client_worker_ ->process_snmp_request(pedestrian_call_phases_9_16, request_type, ped_call_9_16);
+
+        auto veh_resp_1_8 = process_bitwise_response(veh_call_1_8,0);
+        auto veh_resp_9_16 = process_bitwise_response(veh_call_9_16,8);
+        auto ped_resp_1_8 = process_bitwise_response(veh_call_1_8,0);
+        auto ped_resp_9_16 = process_bitwise_response(veh_call_9_16,8);
+
+        vehicle_calls.clear();
+        vehicle_calls.insert(vehicle_calls.end(), veh_resp_1_8.begin(), veh_resp_1_8.end());
+        vehicle_calls.insert(vehicle_calls.end(), veh_resp_9_16.begin(), veh_resp_9_16.end());
+        
+        pedestrian_calls.clear();
+        pedestrian_calls.insert(pedestrian_calls.end(), ped_resp_1_8.begin(), ped_resp_1_8.end());
+        pedestrian_calls.insert(pedestrian_calls.end(), ped_resp_9_16.begin(), ped_resp_9_16.end());
+
+        SPDLOG_DEBUG("Vehicle and Pedestriance phases ");
+        
+
+    }
+
+    std::vector<int> tsc_state::process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &response, int offset ){
+        /**
+         * Response value is 8 bit int in which each bit is interpreted individually as 1 or 0. 1 
+         * indicates that the vehicle phase for that bit is committed to be next. 0 indicates this 
+         * phase is not committed to be next.
+         * 
+         * bit 0 represent vehicle phase 1
+         * bit 1 represent vehicle phase 2
+         * bit 2 represent vehicle phase 3
+         * bit 3 represent vehicle phase 4
+         * bit 4 represent vehicle phase 5
+         * bit 5 represent vehicle phase 6
+         * bit 6 represent vehicle phase 7
+         * bit 7 represent vehicle phase 8
+         * 
+         */
+        std::vector<int> signal_groups;
+        for (uint i = 0; i < 8; ++i) {
+            if (((response.val_int >> i) & 1) == 1) {
+                // Add any signal group for phase that has bit as 1
+                auto signal_group_id = get_vehicle_signal_group_id(i+1+offset);
+                
+                signal_groups.push_back(signal_group_id);
+            }
+        }
+        return signal_groups;
+    }
+
     void tsc_state::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
     {
         // Modify spat according to phase configuration

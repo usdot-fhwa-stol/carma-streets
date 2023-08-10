@@ -59,6 +59,10 @@ namespace traffic_signal_controller_service
             /* The sequence of vehicle phases in ring 2 of TSC*/
             std::vector<int> phase_seq_ring2_;
 
+            std::vector<int> vehicle_calls;
+
+            std::vector<int> pedestrian_calls;
+
             // Number of required following movements on receiving a spat_ptr
             int required_following_movements_ = 3;
 
@@ -107,6 +111,7 @@ namespace traffic_signal_controller_service
             **/
             std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1) const;
 
+
             /** 
              * @brief Method for mapping vehicle phases and signal groups. Modifies non-const arguments by reference.
              * Signal group map is expected to be passed empty. 
@@ -119,6 +124,7 @@ namespace traffic_signal_controller_service
             void map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, 
                                                                                             std::unordered_map<int, int>& signal_group_2vehiclephase_map) const;
 
+            std::vector<int> process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &resp, int offset );
             /** 
              * @brief Method for getting maximum channels for the traffic signal controller
              * @return number of maximum channels in the traffic signal controller
@@ -222,6 +228,12 @@ namespace traffic_signal_controller_service
              * @return a map of signal group ids to vehicle phases map.
             */
             const std::unordered_map<int, int> & get_signal_group_map();
+
+            std::vector<int> get_vehicle_calls();
+
+            std::vector<int> get_pedestrian_calls();
+
+            void poll_vehicle_pedestrian_calls();
 
             /**
              * @brief Get the phase number using signal group id.

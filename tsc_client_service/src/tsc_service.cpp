@@ -11,12 +11,6 @@ namespace traffic_signal_controller_service {
         }
         try
         {
-            // Temporary fix for bug in CarmaClock::wait_for_initialization(). No mechanism to support notifying multiple threads
-            // of initialization. This fix avoids any threads waiting on initialization.
-            // TODO: Remove initialization and fix issue in carma-time-lib (CarmaClock class) 
-            if ( is_simulation_mode() ) {
-                streets_clock_singleton::update(0);
-            }
             // Intialize spat kafka producer
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
@@ -63,7 +57,13 @@ namespace traffic_signal_controller_service {
                 return false;
             }
             //Initialize TSC State
-            use_desired_phase_plan_update_ = streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
+            auto spat_projection_int = streets_configuration::get_int_config("spat_projection_mode");
+            if ( spat_projection_int >= 0 && spat_projection_int <= 2 ) {
+                spat_proj_mode = static_cast<spat_projection_mode>(spat_projection_int);
+            }
+            else {
+                spat_proj_mode = spat_projection_mode::no_projection;
+            }
             if (!initialize_tsc_state(snmp_client_ptr)){
                 SPDLOG_ERROR("Failed to initialize tsc state");
                 return false;
@@ -197,16 +197,25 @@ namespace traffic_signal_controller_service {
             while(spat_worker_ptr && tsc_state_ptr && spat_producer) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
-                    SPDLOG_DEBUG("Current SPaT : {0} ", spat_ptr->toJson());   
-                    if(!use_desired_phase_plan_update_){
-                       // throws monitor_states_exception
-                        tsc_state_ptr->add_future_movement_events(spat_ptr);
-                        
-                    }else{
-                        std::scoped_lock<std::mutex> lck{dpp_mtx};
-                         // throws desired phase plan exception when no previous green information present
-                        monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr); 
-                    }
+                    SPDLOG_DEBUG("Current SPaT : {0} ", spat_ptr->toJson());  
+                    switch (spat_proj_mode)
+                    {
+                        case spat_projection_mode::fixed_projection: {
+                            tsc_state_ptr->add_future_movement_events(spat_ptr);
+                            break;
+                        }
+                        case spat_projection_mode::dpp_projection : {
+                            std::scoped_lock<std::mutex> lck{dpp_mtx};
+                            // throws desired phase plan exception when no previous green information present
+                            monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr); 
+                            break;
+                        }
+                        default: {
+                            if ( count%10 == 0)
+                                tsc_state_ptr->poll_vehicle_pedestrian_calls();
+                            // TODO: log vehicle/pedestrian call information
+                        }
+                    } 
                     if (spat_ptr && spat_producer) {
                         spat_producer->send(spat_ptr->toJson());
                         // No utility in calculating spat latency in simulation mode
