@@ -151,10 +151,10 @@ namespace traffic_signal_controller_service
 
     void tsc_state::poll_vehicle_pedestrian_calls() {
         auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
-        std::string vehicle_call_phases_1_8 = ntcip_oids::PHASE_VEHICLE_CALL_CONTROL + ".1";
-        std::string vehicle_call_phases_9_16 = ntcip_oids::PHASE_VEHICLE_CALL_CONTROL + ".2";
-        std::string pedestrian_call_phases_1_8 = ntcip_oids::PHASE_PEDESTRIAN_CALL_CONTROL + ".1";
-        std::string pedestrian_call_phases_9_16 = ntcip_oids::PHASE_PEDESTRIAN_CALL_CONTROL + ".2";
+        std::string vehicle_call_phases_1_8 = ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".1";
+        std::string vehicle_call_phases_9_16 = ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".2";
+        std::string pedestrian_call_phases_1_8 = ntcip_oids::PHASE_STATUS_GROUP_PED_CALLS + ".1";
+        std::string pedestrian_call_phases_9_16 = ntcip_oids::PHASE_STATUS_GROUP_PED_CALLS + ".2";
 
         streets_snmp_cmd::snmp_response_obj veh_call_1_8;
         veh_call_1_8.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
@@ -214,6 +214,14 @@ namespace traffic_signal_controller_service
             }
         }
         return signal_groups;
+    }
+
+    std::vector<int> tsc_state::get_pedestrian_calls() {
+        return pedestrian_calls;
+    }
+
+    std::vector<int> tsc_state::get_vehicle_calls() {
+        return vehicle_calls;
     }
 
     void tsc_state::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)

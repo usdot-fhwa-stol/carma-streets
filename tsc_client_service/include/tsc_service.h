@@ -248,6 +248,9 @@ namespace traffic_signal_controller_service {
              * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
             */
             void configure_snmp_cmd_logger() const;
+
+            void configure_veh_ped_call_logger() const;
+
             /**
              * @brief Method to log spat latency comparing spat time stamp to current time. Calculates and average over 20
              * messages then resets count and spat_processing_time.

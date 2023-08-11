@@ -109,6 +109,7 @@ namespace traffic_signal_controller_service {
             if (enable_snmp_cmd_logging_)
             {
                 configure_snmp_cmd_logger();
+                configure_veh_ped_call_logger();
             }
             if (is_simulation_mode()) {
                 // Trigger spat broadcasting for EVC on startup.
@@ -211,8 +212,32 @@ namespace traffic_signal_controller_service {
                             break;
                         }
                         default: {
-                            if ( count%10 == 0)
+                            
+                            if ( count%10 == 0) {
                                 tsc_state_ptr->poll_vehicle_pedestrian_calls();
+                                auto veh_calls = tsc_state_ptr->get_vehicle_calls();
+                                auto ped_calls =  tsc_state_ptr->get_vehicle_calls();
+                                std::string veh_call_string = "[";
+                                for (auto signal_group: veh_calls ){
+                                    veh_call_string.append(std::to_string(signal_group));
+                                    if ( signal_group != veh_calls.back()) {
+                                        veh_call_string.append(", ");
+                                    }
+                                }
+                                veh_call_string.append("]");
+                                std::string ped_call_string = "[";
+                                for (auto signal_group: ped_calls ){
+                                    ped_call_string.append(std::to_string(signal_group));
+                                    if ( signal_group != ped_calls.back()) {
+                                        ped_call_string.append(", ");
+                                    }
+                                }
+                                ped_call_string.append("]");
+                                if(auto logger = spdlog::get("veh_ped_call_logger"); logger != nullptr ){
+                                    logger->info("{0}, {1}, {2}", streets_clock_singleton::time_in_ms(), veh_call_string, ped_call_string);
+                                }
+                            }
+                            
                             // TODO: log vehicle/pedestrian call information
                         }
                     } 
@@ -415,6 +440,27 @@ namespace traffic_signal_controller_service {
         }
     }
 
+     void tsc_service::configure_veh_ped_call_logger() const
+    {
+        try{
+            auto veh_ped_call_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                "veh_ped_call_logger",  // logger name
+                    streets_configuration::get_string_config("snmp_cmd_log_path")+
+                    "veh_ped_call" +".csv",  // log file name and path
+                    23, // hours to rotate
+                    59 // minutes to rotate
+                );
+            // Only log log statement content
+            veh_ped_call_logger->set_pattern("%v");
+            veh_ped_call_logger->set_level(spdlog::level::info);
+            veh_ped_call_logger->flush_on(spdlog::level::info);
+            veh_ped_call_logger->info("Timestamp (ms), Vehicle Calls (Signal Group ID), Pedestrian Calls (Signal Group ID)");
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
+        }
+    }
     void  tsc_service::log_spat_latency(int &count, uint64_t &spat_processing_time, uint64_t spat_time_stamp) const {
         // Calculate and average spat processing time over 20 messages sent 
         if (count <= 20 ) {
