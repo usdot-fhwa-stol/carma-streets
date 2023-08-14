@@ -14,6 +14,8 @@ void vehicle_status_intent_service_call()
 
 int main(int argc, const char **argv)
 {
+    // TODO: Replace initialization by extending streets_service_base and overiding initialize and start methods
+    streets_service::streets_configuration::create("../manifest.json");
     streets_service::streets_configuration::initialize_logger();
 
     std::thread vehicle_status_intent_service_t(vehicle_status_intent_service_call);

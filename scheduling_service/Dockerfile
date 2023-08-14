@@ -121,10 +121,10 @@ RUN mkdir build
 WORKDIR  /home/carma-streets/scheduling_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
+RUN ldconfig
 
 WORKDIR  /home/carma-streets/scheduling_service/build/
 
-# Set metadata labels
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
 LABEL org.label-schema.schema-version="1.0"

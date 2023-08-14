@@ -127,6 +127,8 @@ RUN mkdir build
 WORKDIR  /home/carma-streets/signal_opt_service/build
 RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
+RUN ldconfig
+
 
 # Set metadata labels
 RUN echo "------> Setting metadata labels..."
