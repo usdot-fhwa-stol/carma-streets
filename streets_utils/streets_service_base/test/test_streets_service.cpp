@@ -2,6 +2,8 @@
 #include "streets_service.h"
 #include "mock_kafka_consumer_worker.h"
 #include "mock_kafka_producer_worker.h"
+#include <iostream>
+#include <fstream>
 
 using testing::_;
 using testing::Return;
@@ -11,9 +13,10 @@ namespace streets_service{
     class test_streets_service : public testing::Test {
         protected:
             void SetUp() {
-                setenv("SIMULATION_MODE", "TRUE", 1);
-                setenv("TIME_SYNC_TOPIC", "time_sync", 1);
-                setenv("CONFIG_FILE_PATH", "../test/test_files/manifest.json", 1);
+                setenv(SIMULATION_MODE_ENV.c_str(), "TRUE", 1);
+                setenv(TIME_SYNC_TOPIC_ENV.c_str(), "time_sync", 1);
+                setenv(CONFIG_FILE_PATH_ENV.c_str(), "../test/test_files/manifest.json", 1);
+                setenv(LOGS_DIRECTORY_ENV.c_str(), "../logs/", 1);
             }
         public:
             streets_service serv;    
@@ -48,7 +51,23 @@ namespace streets_service{
         ASSERT_EQ(1400, streets_clock_singleton::time_in_ms());
     }
 
-
+    TEST_F(test_streets_service, test_create_daily_logger) {
+        serv.initialize();
+        auto logger = serv.create_daily_logger("Test_log", ".test", "%v", spdlog::level::critical);
+        ASSERT_EQ(spdlog::level::critical, logger->level());
+        ASSERT_EQ("Test_log", logger->name());
+        std::fstream log_file;
+        std::string content;
+        std::time_t t = std::time(nullptr);
+        std::tm* now = std::localtime(&t);
+        char buffer[128];
+        strftime(buffer, sizeof(buffer), "_%Y-%m-%d", now);        
+        std::string file_path_string = "../logs/" + logger->name()+ buffer + ".test";
+        log_file.open(file_path_string, std::ios::out);
+        ASSERT_TRUE(log_file.good());
+        log_file.close();
+        
+    }
     TEST_F(test_streets_service, test_initialize_consumer) {
         serv._service_name ="TestService";
         std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;
