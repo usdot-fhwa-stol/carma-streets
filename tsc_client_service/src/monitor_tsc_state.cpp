@@ -227,7 +227,7 @@ namespace traffic_signal_controller_service
         return vehicle_calls;
     }
     
-    std::vector<int> tsc_state::convert_ped_phases_to_signal_groups( const std::vector<int> &ped_phases ) const {
+    std::vector<int> tsc_state::convert_ped_phases_to_signal_groups( const std::vector<int> &ped_phases ) {
         std::vector<int> signal_groups;
         for (auto ped_phase : ped_phases) {
             signal_groups.push_back(get_pedestrian_signal_group_id(ped_phase));
@@ -235,10 +235,10 @@ namespace traffic_signal_controller_service
         return signal_groups;
     }
 
-    std::vector<int> tsc_state::convert_veh_phases_to_signal_groups( const std::vector<int> &veh_phases ) const {
+    std::vector<int> tsc_state::convert_veh_phases_to_signal_groups( const std::vector<int> &veh_phases ) {
         std::vector<int> signal_groups;
         for (auto veh_phase : veh_phases) {
-            signal_groups.push_back(get_vehicle_signal_group_id(ped_phase));
+            signal_groups.push_back(get_vehicle_signal_group_id(veh_phase));
         }
         return signal_groups;
     }
@@ -526,7 +526,7 @@ namespace traffic_signal_controller_service
         }
     }
 
-    int tsc_state::get_pedestrian_signal_group_id(const int phase_number) const {
+    int tsc_state::get_pedestrian_signal_group_id(const int phase_number) {
         if (phase_number >= 1) {
             if ( ped_phase_2signalgroup_map_.find(phase_number) != ped_phase_2signalgroup_map_.end() ) {
                 return ped_phase_2signalgroup_map_[phase_number];

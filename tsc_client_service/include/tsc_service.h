@@ -113,9 +113,9 @@ namespace traffic_signal_controller_service {
             // Configurable parameter that is used to enable logging of snmp commands to a log file if set to true. 
             bool enable_snmp_cmd_logging_ = false;
 
-            static const std::string SNMP_COMMAND_LOGGER_NAME = "snmp_command";
+            inline static const std::string SNMP_COMMAND_LOGGER_NAME = "snmp_command";
 
-            static const std::string VEH_PED_CALL_LOGGER_NAME = "veh_ped_call";
+            inline static const std::string VEH_PED_CALL_LOGGER_NAME = "veh_ped_call";
 
             //Add Friend Test to share private members
             friend class tsc_service_test;
