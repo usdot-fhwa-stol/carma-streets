@@ -21,7 +21,7 @@ namespace traffic_signal_controller_service
 
         // Test get max channels
         streets_snmp_cmd::snmp_response_obj vehicle_calls;
-        vehicle_calls.val_int = 4;
+        vehicle_calls.val_int = 15;
         vehicle_calls.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
         EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".1", request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
@@ -32,12 +32,12 @@ namespace traffic_signal_controller_service
          EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".2", request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(vehicle_calls), 
             Return(true)));
-        vehicle_calls.val_int = 4;
+        vehicle_calls.val_int = 0;
 
         EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::PHASE_STATUS_GROUP_PED_CALLS + ".1", request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(vehicle_calls), 
             Return(true)));
-        vehicle_calls.val_int = 0;
+        vehicle_calls.val_int = 15;
 
          EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::PHASE_STATUS_GROUP_PED_CALLS + ".2", request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(vehicle_calls), 
@@ -45,7 +45,7 @@ namespace traffic_signal_controller_service
 
         // Test get max channels
         streets_snmp_cmd::snmp_response_obj max_channels_in_tsc;
-        max_channels_in_tsc.val_int = 4;
+        max_channels_in_tsc.val_int = 12;
         max_channels_in_tsc.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
 
         EXPECT_CALL( *mock_client, process_snmp_request(ntcip_oids::MAX_CHANNELS, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
@@ -60,24 +60,26 @@ namespace traffic_signal_controller_service
             Return(true)));
         // Define Sequence Data
         streets_snmp_cmd::snmp_response_obj seq_data;
-        seq_data.val_string = {char(1),char(2)};
+        seq_data.val_string = {char(1),char(2),char(5), char(6)};
         std::string seq_data_ring1_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(1);
 
         EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring1_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(seq_data), 
             Return(true)));
 
-        seq_data.val_string = {char(3),char(4)};
+        seq_data.val_string = {char(3),char(4), char(7), char(8)};
         std::string seq_data_ring2_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(2);
         EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring2_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(seq_data), 
             Return(true)));
 
-        seq_data.val_string = {};
+        seq_data.val_string = {char(9),char(10)};
         std::string seq_data_ring3_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(3);
         EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring3_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
             SetArgReferee<2>(seq_data), 
             Return(true)));
+
+        seq_data.val_string = {char(11),char(12)};
 
         std::string seq_data_ring4_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(4);
         EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring4_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
@@ -89,7 +91,11 @@ namespace traffic_signal_controller_service
             
             // Define Control Type
             streets_snmp_cmd::snmp_response_obj channel_control_resp;
-            channel_control_resp.val_int = 2;
+            if ( i > 8)
+                channel_control_resp.val_int = 3;
+            else 
+                channel_control_resp.val_int = 2;
+
             std::string channel_control_oid = ntcip_oids::CHANNEL_CONTROL_TYPE_PARAMETER + "." + std::to_string(i);
             EXPECT_CALL(*mock_client, process_snmp_request(channel_control_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(
                 SetArgReferee<2>(channel_control_resp), 
@@ -104,7 +110,9 @@ namespace traffic_signal_controller_service
                 Return(true)));
 
             
-
+            if (i > 8) {
+                continue;
+            }
              // Define get min green
             std::string min_green_oid = ntcip_oids::MINIMUM_GREEN + "." + std::to_string(i);
             streets_snmp_cmd::snmp_response_obj min_green;
@@ -158,6 +166,9 @@ namespace traffic_signal_controller_service
         traffic_signal_controller_service::tsc_state worker(mock_client);
         worker.initialize();
         worker.poll_vehicle_pedestrian_calls();
+
+        ASSERT_EQ(4, worker.get_pedestrian_calls().size());
+        ASSERT_EQ(4 , worker.get_vehicle_calls().size());
     }
    
     TEST(test_monitor_state, test_get_tsc_state)
@@ -185,7 +196,7 @@ namespace traffic_signal_controller_service
             Return(true)));
         // Define Sequence Data
         streets_snmp_cmd::snmp_response_obj seq_data;
-        seq_data.val_string = {char(1),char(2)};
+        seq_data.val_string = {char(1),char(2),};
         std::string seq_data_ring1_oid = ntcip_oids::SEQUENCE_DATA + "." + "1" + "." + std::to_string(1);
 
         EXPECT_CALL(*mock_client, process_snmp_request(seq_data_ring1_oid, request_type , _) ).Times(1).WillRepeatedly(testing::DoAll(

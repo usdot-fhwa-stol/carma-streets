@@ -236,6 +236,8 @@ namespace traffic_signal_controller_service
             std::vector<int> get_vehicle_calls() const;
 
             std::vector<int> get_pedestrian_calls() const;
+
+            std::string vector_to_string(const std::vector<int> &v ) const;
             /**
              * @brief Poll vehicle/pedestrian calls on phases 1-16
              */
