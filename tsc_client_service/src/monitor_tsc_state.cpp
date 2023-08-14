@@ -150,6 +150,8 @@ namespace traffic_signal_controller_service
     }
 
     void tsc_state::poll_vehicle_pedestrian_calls() {
+        // Make SNMP requests to get vehicle and pedestrian calls 
+        // for phases 1-16 (.1 gets 1-8, .2 gets 9-16)
         auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
         std::string vehicle_call_phases_1_8 = ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".1";
         std::string vehicle_call_phases_9_16 = ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".2";
@@ -170,10 +172,13 @@ namespace traffic_signal_controller_service
         snmp_client_worker_ ->process_snmp_request(pedestrian_call_phases_1_8, request_type, ped_call_1_8);
         snmp_client_worker_ ->process_snmp_request(pedestrian_call_phases_9_16, request_type, ped_call_9_16);
 
-        auto veh_resp_1_8 = process_bitwise_response(veh_call_1_8,0);
-        auto veh_resp_9_16 = process_bitwise_response(veh_call_9_16,8);
-        auto ped_resp_1_8 = process_bitwise_response(veh_call_1_8,0);
-        auto ped_resp_9_16 = process_bitwise_response(veh_call_9_16,8);
+        // Process returned int bitwise to get vehicle/pedestrian call information for 8 phases and convert to signal groups
+        auto veh_resp_1_8 = convert_veh_phases_to_signal_groups( process_bitwise_response(veh_call_1_8,0));
+        auto veh_resp_9_16 = convert_veh_phases_to_signal_groups(process_bitwise_response(veh_call_9_16,8));
+        auto ped_resp_1_8 = convert_ped_phases_to_signal_groups(process_bitwise_response(veh_call_1_8,0));
+        auto ped_resp_9_16 = convert_ped_phases_to_signal_groups(process_bitwise_response(veh_call_9_16,8));
+        
+        // Clear previously saved vehicle/pedestrian information and replace with new information
 
         vehicle_calls.clear();
         vehicle_calls.insert(vehicle_calls.end(), veh_resp_1_8.begin(), veh_resp_1_8.end());
@@ -183,9 +188,7 @@ namespace traffic_signal_controller_service
         pedestrian_calls.insert(pedestrian_calls.end(), ped_resp_1_8.begin(), ped_resp_1_8.end());
         pedestrian_calls.insert(pedestrian_calls.end(), ped_resp_9_16.begin(), ped_resp_9_16.end());
 
-        SPDLOG_DEBUG("Vehicle and Pedestriance phases ");
         
-
     }
 
     std::vector<int> tsc_state::process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &response, int offset ){
@@ -204,25 +207,42 @@ namespace traffic_signal_controller_service
          * bit 7 represent vehicle phase 8
          * 
          */
-        std::vector<int> signal_groups;
+        std::vector<int> phase_numbers;
         for (uint i = 0; i < 8; ++i) {
             if (((response.val_int >> i) & 1) == 1) {
                 // Add any signal group for phase that has bit as 1
-                auto signal_group_id = get_vehicle_signal_group_id(i+1+offset);
+                auto phase_number = i+1+offset;
                 
-                signal_groups.push_back(signal_group_id);
+                phase_numbers.push_back(phase_number);
             }
+        }
+        return phase_numbers;
+    }
+
+    std::vector<int> tsc_state::get_pedestrian_calls() const {
+        return pedestrian_calls;
+    }
+
+    std::vector<int> tsc_state::get_vehicle_calls() const {
+        return vehicle_calls;
+    }
+    
+    std::vector<int> tsc_state::convert_ped_phases_to_signal_groups( const std::vector<int> &ped_phases ) const {
+        std::vector<int> signal_groups;
+        for (auto ped_phase : ped_phases) {
+            signal_groups.push_back(get_pedestrian_signal_group_id(ped_phase));
         }
         return signal_groups;
     }
 
-    std::vector<int> tsc_state::get_pedestrian_calls() {
-        return pedestrian_calls;
+    std::vector<int> tsc_state::convert_veh_phases_to_signal_groups( const std::vector<int> &veh_phases ) const {
+        std::vector<int> signal_groups;
+        for (auto veh_phase : veh_phases) {
+            signal_groups.push_back(get_vehicle_signal_group_id(ped_phase));
+        }
+        return signal_groups;
     }
 
-    std::vector<int> tsc_state::get_vehicle_calls() {
-        return vehicle_calls;
-    }
 
     void tsc_state::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
     {
@@ -496,6 +516,20 @@ namespace traffic_signal_controller_service
         if (phase_number >= 1) {
             if ( vehicle_phase_2signalgroup_map_.find(phase_number) != vehicle_phase_2signalgroup_map_.end() ) {
                 return vehicle_phase_2signalgroup_map_[phase_number];
+            } 
+            else {
+                throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
+            }
+        }
+        else {
+            throw monitor_states_exception("Phase numbers less than 1 are invalid!");
+        }
+    }
+
+    int tsc_state::get_pedestrian_signal_group_id(const int phase_number) const {
+        if (phase_number >= 1) {
+            if ( ped_phase_2signalgroup_map_.find(phase_number) != ped_phase_2signalgroup_map_.end() ) {
+                return ped_phase_2signalgroup_map_[phase_number];
             } 
             else {
                 throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
