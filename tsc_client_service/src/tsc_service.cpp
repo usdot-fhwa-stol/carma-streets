@@ -233,7 +233,7 @@ namespace traffic_signal_controller_service {
                                     }
                                 }
                                 ped_call_string.append("]");
-                                if(auto logger = spdlog::get("veh_ped_call_logger"); logger != nullptr ){
+                                if(auto logger = spdlog::get(VEH_PED_CALL_LOGGER_NAME); logger != nullptr ){
                                     logger->info("{0}, {1}, {2}", streets_clock_singleton::time_in_ms(), veh_call_string, ped_call_string);
                                 }
                             }
@@ -421,45 +421,14 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::configure_snmp_cmd_logger() const
     {
-        try{
-            auto snmp_cmd_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "snmp_cmd_logger",  // logger name
-                    streets_configuration::get_string_config("snmp_cmd_log_path")+
-                    streets_configuration::get_string_config("snmp_cmd_log_filename") +".log",  // log file name and path
-                    23, // hours to rotate
-                    59 // minutes to rotate
-                );
-            // Only log log statement content
-            snmp_cmd_logger->set_pattern("[%H:%M:%S:%e ] %v");
-            snmp_cmd_logger->set_level(spdlog::level::info);
-            snmp_cmd_logger->flush_on(spdlog::level::info);
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
-        }
+        create_daily_logger(SNMP_COMMAND_LOGGER_NAME, ".log", "[%H:%M:%S:%e ] %v", spdlog::level::info );
     }
 
      void tsc_service::configure_veh_ped_call_logger() const
     {
-        try{
-            auto veh_ped_call_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "veh_ped_call_logger",  // logger name
-                    streets_configuration::get_string_config("snmp_cmd_log_path")+
-                    "veh_ped_call" +".csv",  // log file name and path
-                    23, // hours to rotate
-                    59 // minutes to rotate
-                );
-            // Only log log statement content
-            veh_ped_call_logger->set_pattern("%v");
-            veh_ped_call_logger->set_level(spdlog::level::info);
-            veh_ped_call_logger->flush_on(spdlog::level::info);
-            veh_ped_call_logger->info("Timestamp (ms), Vehicle Calls (Signal Group ID), Pedestrian Calls (Signal Group ID)");
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
-        }
+        auto veh_ped_call_logger = create_daily_logger(VEH_PED_CALL_LOGGER_NAME, ".cvs", "%v", spdlog::level::info );
+        // TODO: Figure out how to termine if a new file was created or an existing file appended and only write column headers on new files
+        // veh_ped_call_logger->info("Timestamp (ms), Vehicle Calls (Signal Group ID), Pedestrian Calls (Signal Group ID)");
     }
     void  tsc_service::log_spat_latency(int &count, uint64_t &spat_processing_time, uint64_t spat_time_stamp) const {
         // Calculate and average spat processing time over 20 messages sent 

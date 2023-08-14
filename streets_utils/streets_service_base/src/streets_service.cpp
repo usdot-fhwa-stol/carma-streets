@@ -11,19 +11,20 @@ namespace streets_service {
 
     bool streets_service::initialize() {
         try {
-            std::string config_file_path = get_system_config("CONFIG_FILE_PATH");
+            std::string config_file_path = get_system_config(CONFIG_FILE_PATH_ENV.c_str());
             streets_configuration::create(config_file_path);
-            std::string sim_mode_string = get_system_config("SIMULATION_MODE");
+            std::string sim_mode_string = get_system_config(SIMULATION_MODE_ENV.c_str());
             _simulation_mode = sim_mode_string.compare("true") == 0 || sim_mode_string.compare("TRUE") == 0 ;
             streets_clock_singleton::create(_simulation_mode);
             _service_name = streets_configuration::get_service_name();
             SPDLOG_INFO("Initializing {0} streets service in simulation mode : {1}!", _service_name, _simulation_mode);
             if ( _simulation_mode ) {
-                std::string time_sync_topic = get_system_config("TIME_SYNC_TOPIC");
+                std::string time_sync_topic = get_system_config(TIME_SYNC_TOPIC_ENV.c_str());
                 if (!initialize_kafka_consumer(time_sync_topic, _time_consumer)){
                     return false;
                 }
             }
+            _logs_directory = get_system_config(LOGS_DIRECTORY_ENV.c_str());
         } catch( const streets_configuration_exception &e) {
             SPDLOG_ERROR("Exception occured during {0} initialization : {1}" , _service_name , e.what());
             return false;
@@ -36,6 +37,27 @@ namespace streets_service {
 
     }
 
+    std::shared_ptr<spdlog::logger> streets_service::create_daily_logger(const std::string &name, const std::string &extension, 
+                                            const std::string &pattern, const spdlog::level::level_enum &level) const
+    {
+        try{
+            auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                    name,  // logger name
+                    _logs_directory +name + extension,  // log file name and path
+                    23, // hours to rotate
+                    59 // minutes to rotate
+                );
+            // Only log log statement content
+            logger->set_pattern(pattern);
+            logger->set_level(level);
+            logger->flush_on(level);
+            return logger;
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Log initialization failed: {0}!",ex.what());
+        }
+    }
     bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const {
         
         auto client = std::make_unique<kafka_clients::kafka_client>();

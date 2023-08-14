@@ -4,6 +4,7 @@
 #include "kafka_client.h"
 #include "streets_clock_singleton.h"
 #include "time_sync_message.h"
+#include "streets_environment_variables.h"
 #include <gtest/gtest.h>
 
 
@@ -92,6 +93,17 @@ namespace streets_service {
              * @return true if in simulation mode, false if in real time more
              */
             bool is_simulation_mode() const;
+            /**
+             * @brief Method to create SPDLOG Daily rotating file logger. The logger is accessible by calling spdlog::get(name). The log
+             * files created by this logger will include data and time in name and will be stored in the LOGS_DIRECTORY set path.
+             * @param name Name of the logger 
+             * @param extension file extension for log files created
+             * @param pattern pattern for output of log statments. Please review SPDLOG documentation 
+             * (https://github.com/gabime/spdlog/wiki/3.-Custom-formatting#customizing-format-using-set_pattern).
+             * @param level log level to set for logger. Can be dynamically changed by getting logger and changing log level.
+             */
+            std::shared_ptr<spdlog::logger> create_daily_logger(const std::string &name, const std::string &extension, const std::string &pattern, 
+                                const spdlog::level::level_enum &level) const;
 
         private:
             std::string _service_name;
@@ -99,6 +111,8 @@ namespace streets_service {
             bool _simulation_mode;
 
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _time_consumer;
+
+            std::string _logs_directory;
 
             FRIEND_TEST(test_streets_service, test_consume_time_sync_message);
             FRIEND_TEST(test_streets_service, test_initialize_consumer);
