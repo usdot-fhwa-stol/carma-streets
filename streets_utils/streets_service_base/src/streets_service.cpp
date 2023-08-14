@@ -40,23 +40,17 @@ namespace streets_service {
     std::shared_ptr<spdlog::logger> streets_service::create_daily_logger(const std::string &name, const std::string &extension, 
                                             const std::string &pattern, const spdlog::level::level_enum &level) const
     {
-        try{
-            auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
-                    name,  // logger name
-                    _logs_directory +name + extension,  // log file name and path
-                    23, // hours to rotate
-                    59 // minutes to rotate
-                );
-            // Only log log statement content
-            logger->set_pattern(pattern);
-            logger->set_level(level);
-            logger->flush_on(level);
-            return logger;
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
-        }
+        auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                name,  // logger name
+                _logs_directory +name + extension,  // log file name and path
+                23, // hours to rotate
+                59 // minutes to rotate
+            );
+        // Only log log statement content
+        logger->set_pattern(pattern);
+        logger->set_level(level);
+        logger->flush_on(level);
+        return logger;
     }
     bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const {
         
