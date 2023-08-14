@@ -189,9 +189,9 @@ namespace traffic_signal_controller_service
             signal_phase_and_timing::movement_event get_following_event(const signal_phase_and_timing::movement_event& current_event,
                                                                  uint64_t current_event_end_time, const signal_group_state& phase_state) const;
 
-            std::vector<int> convert_veh_phases_to_signal_groups(const std::vector<int> &veh_phases );
+            std::vector<int> convert_veh_phases_to_signal_groups(const std::vector<int> &veh_phases ) const;
 
-            std::vector<int> convert_ped_phases_to_signal_groups(const std::vector<int> &ped_phases );
+            std::vector<int> convert_ped_phases_to_signal_groups(const std::vector<int> &ped_phases ) const;
             
             //Add Friend Test to share private members
             FRIEND_TEST(test_monitor_state, test_get_following_movement_events);
@@ -257,9 +257,9 @@ namespace traffic_signal_controller_service
              * @return int
              * @throws monitor_states_exception if phase number is less than 1. 
              */
-            int get_vehicle_signal_group_id(const int phase_number);
+            int get_vehicle_signal_group_id(const int phase_number) const;
 
-            int get_pedestrian_signal_group_id(const int phase_number);
+            int get_pedestrian_signal_group_id(const int phase_number) const;
 
             /**
              * @brief Initialize tsc_state by making SNMP calls to TSC for phase sequence and timing information.

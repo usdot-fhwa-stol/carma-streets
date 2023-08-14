@@ -421,12 +421,24 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::configure_snmp_cmd_logger() const
     {
-        create_daily_logger(SNMP_COMMAND_LOGGER_NAME, ".log", "[%H:%M:%S:%e ] %v", spdlog::level::info );
+        try {
+            create_daily_logger(SNMP_COMMAND_LOGGER_NAME, ".log", "[%H:%M:%S:%e ] %v", spdlog::level::info );
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "SNMP Command Logger initialization failed: {0}!",ex.what());
+        }
     }
 
      void tsc_service::configure_veh_ped_call_logger() const
     {
-        auto veh_ped_call_logger = create_daily_logger(VEH_PED_CALL_LOGGER_NAME, ".cvs", "%v", spdlog::level::info );
+        try {
+            auto veh_ped_call_logger = create_daily_logger(VEH_PED_CALL_LOGGER_NAME, ".cvs", "%v", spdlog::level::info );
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            spdlog::error( "Vehicle Pedestrian Call Logger initialization failed: {0}!",ex.what());
+        }
         // TODO: Figure out how to termine if a new file was created or an existing file appended and only write column headers on new files
         // veh_ped_call_logger->info("Timestamp (ms), Vehicle Calls (Signal Group ID), Pedestrian Calls (Signal Group ID)");
     }

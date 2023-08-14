@@ -227,7 +227,7 @@ namespace traffic_signal_controller_service
         return vehicle_calls;
     }
     
-    std::vector<int> tsc_state::convert_ped_phases_to_signal_groups( const std::vector<int> &ped_phases ) {
+    std::vector<int> tsc_state::convert_ped_phases_to_signal_groups( const std::vector<int> &ped_phases ) const{
         std::vector<int> signal_groups;
         for (auto ped_phase : ped_phases) {
             signal_groups.push_back(get_pedestrian_signal_group_id(ped_phase));
@@ -235,7 +235,7 @@ namespace traffic_signal_controller_service
         return signal_groups;
     }
 
-    std::vector<int> tsc_state::convert_veh_phases_to_signal_groups( const std::vector<int> &veh_phases ) {
+    std::vector<int> tsc_state::convert_veh_phases_to_signal_groups( const std::vector<int> &veh_phases )  const{
         std::vector<int> signal_groups;
         for (auto veh_phase : veh_phases) {
             signal_groups.push_back(get_vehicle_signal_group_id(veh_phase));
@@ -512,10 +512,10 @@ namespace traffic_signal_controller_service
         }
     }
 
-    int tsc_state::get_vehicle_signal_group_id(const int phase_number ) {
+    int tsc_state::get_vehicle_signal_group_id(const int phase_number ) const {
         if (phase_number >= 1) {
             if ( vehicle_phase_2signalgroup_map_.find(phase_number) != vehicle_phase_2signalgroup_map_.end() ) {
-                return vehicle_phase_2signalgroup_map_[phase_number];
+                return vehicle_phase_2signalgroup_map_.at(phase_number);
             } 
             else {
                 throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
@@ -526,10 +526,10 @@ namespace traffic_signal_controller_service
         }
     }
 
-    int tsc_state::get_pedestrian_signal_group_id(const int phase_number) {
+    int tsc_state::get_pedestrian_signal_group_id(const int phase_number) const{
         if (phase_number >= 1) {
             if ( ped_phase_2signalgroup_map_.find(phase_number) != ped_phase_2signalgroup_map_.end() ) {
-                return ped_phase_2signalgroup_map_[phase_number];
+                return ped_phase_2signalgroup_map_.at(phase_number);
             } 
             else {
                 throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
