@@ -223,7 +223,7 @@ namespace traffic_signal_controller_service
          */
         std::vector<int> phase_numbers;
         for (uint i = 0; i < 8; ++i) {
-            if (((response.val_int >> i) & 1) == 1) {
+            if ((response.val_int >> i) & 1) {
                 // Add any signal group for phase that has bit as 1
                 auto phase_number = i+1+offset;
                 SPDLOG_INFO("Adding phase {0}", phase_number);

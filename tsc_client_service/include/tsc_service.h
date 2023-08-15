@@ -102,7 +102,7 @@ namespace traffic_signal_controller_service {
             int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
-            spat_projection_mode spat_proj_mode;
+            spat_projection_mode spat_proj_mode = spat_projection_mode::no_projection;
 
             // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
             std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_;

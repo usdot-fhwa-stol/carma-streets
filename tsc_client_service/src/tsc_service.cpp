@@ -58,10 +58,9 @@ namespace traffic_signal_controller_service {
             }
             //Initialize TSC State
             auto spat_projection_int = streets_configuration::get_int_config("spat_projection_mode");
-            if ( spat_projection_int >= 0 && spat_projection_int <= 2 ) {
-                spat_proj_mode = static_cast<spat_projection_mode>(spat_projection_int);
-            }
-            else {
+            spat_proj_mode = static_cast<spat_projection_mode>(spat_projection_int);
+            // if undefined, set to default
+            if ( !spat_proj_mode) {
                 spat_proj_mode = spat_projection_mode::no_projection;
             }
             if (!initialize_tsc_state(snmp_client_ptr)){

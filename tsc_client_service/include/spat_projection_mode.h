@@ -19,7 +19,6 @@ namespace traffic_signal_controller_service{
         /**
          * @brief Append future information assuming fixed time, min vehicle recall on all vehicle phases.
          */
-        fixed_projection =2
-        
+        fixed_projection =2;        
     };
 }
