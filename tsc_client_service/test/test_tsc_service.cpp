@@ -479,28 +479,19 @@ namespace traffic_signal_controller_service
 
     TEST_F(tsc_service_test, test_configure_snmp_cmd_logger)
     {
-
         // Initialize clock singleton in realtime mode
         streets_service::streets_clock_singleton::create(false);
         service.configure_snmp_cmd_logger();
         auto logger = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
-        EXPECT_TRUE(logger != nullptr);
         ASSERT_EQ(logger->level(), spdlog::level::info);
-        // Try to create a second snmp_command_logger;
-        // service.configure_snmp_cmd_logger();
     }
 
         
     TEST_F(tsc_service_test, test_configure_veh_ped_call_logger) {
         service.configure_veh_ped_call_logger();
-        auto logger = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
+        auto logger = spdlog::get( service.VEH_PED_CALL_LOGGER_NAME);
         EXPECT_TRUE(logger != nullptr);
         ASSERT_EQ(logger->level(), spdlog::level::info);
-        // Try to create a second snmp_command_logger;
-        // service.configure_veh_ped_call_logger();
-        // auto logger_recreate = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
-        // ASSERT_EQ( logger, logger_recreate);
-
     }
     // Test tsc_service initialize without mocking snmp responses
     TEST_F(tsc_service_test, test_initialization_no_mock_response_from_snmp_client) {

@@ -212,7 +212,7 @@ namespace traffic_signal_controller_service {
                             break;
                         }
                         default: {
-                            
+                            // Poll and log vehicle and pedestrian call information every 10 spat messages or at 10 Hz
                             if ( count%10 == 0) {
                                 tsc_state_ptr->poll_vehicle_pedestrian_calls();
                                 if(auto logger = spdlog::get(VEH_PED_CALL_LOGGER_NAME); logger != nullptr ){
@@ -222,8 +222,6 @@ namespace traffic_signal_controller_service {
                                                 );
                                 }
                             }
-                            
-                            // TODO: log vehicle/pedestrian call information
                         }
                     } 
                     if (spat_ptr && spat_producer) {
@@ -232,8 +230,7 @@ namespace traffic_signal_controller_service {
                         if ( !this->is_simulation_mode() ) {
                            log_spat_latency(count, spat_processing_time, spat_ptr->get_intersection().get_epoch_timestamp()) ;
                         }
-                    }
-                    
+                    }     
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception, spat not published : \n {0}", e.what());
@@ -244,7 +241,7 @@ namespace traffic_signal_controller_service {
                 catch(const traffic_signal_controller_service::monitor_states_exception &e){
                     SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                 }   
-    } 
+            } 
             SPDLOG_WARN("Stopping produce_spat_json! Are pointers null: spat_worker {0}, spat_producer {1}, tsc_state {2}",
                 spat_worker_ptr == nullptr, spat_ptr == nullptr, tsc_state_ptr == nullptr);
         }
@@ -411,7 +408,7 @@ namespace traffic_signal_controller_service {
         }
         catch (const spdlog::spdlog_ex& ex)
         {
-            spdlog::error( "SNMP Command Logger initialization failed: {0}!",ex.what());
+            SPDLOG_ERROR( "SNMP Command Logger initialization failed: {0}!",ex.what());
         }
     }
 
@@ -422,7 +419,7 @@ namespace traffic_signal_controller_service {
         }
         catch (const spdlog::spdlog_ex& ex)
         {
-            spdlog::error( "Vehicle Pedestrian Call Logger initialization failed: {0}!",ex.what());
+            SPDLOG_ERROR( "Vehicle Pedestrian Call Logger initialization failed: {0}!",ex.what());
         }
         // TODO: Figure out how to termine if a new file was created or an existing file appended and only write column headers on new files
         // veh_ped_call_logger->info("Timestamp (ms), Vehicle Calls (Signal Group ID), Pedestrian Calls (Signal Group ID)");
