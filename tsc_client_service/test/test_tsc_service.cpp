@@ -33,6 +33,7 @@ namespace traffic_signal_controller_service
                 service.desired_phase_plan_consumer = dpp_consumer;
                 service.phase_control_schedule_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
                 service.snmp_client_ptr = mock_snmp;
+                service.tsc_state_ptr = std::make_shared<tsc_state>(mock_snmp);
                 setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "TRUE", 1);
                 setenv(streets_service::TIME_SYNC_TOPIC_ENV.c_str(), "time_sync", 1);
                 setenv(streets_service::CONFIG_FILE_PATH_ENV.c_str(), "../test/test_files/manifest.json", 1);
@@ -385,6 +386,7 @@ namespace traffic_signal_controller_service
         service.initialize_spat("test_intersection",1234,std::unordered_map<int,int>{
                     {1,8},{2,7},{3,6},{4,5},{5,4},{6,3},{7,2},{8,1}} );
         ASSERT_TRUE(service.initialize_spat_worker("127.0.0.1",3456,2,false));
+
         service.produce_spat_json();
     }
 

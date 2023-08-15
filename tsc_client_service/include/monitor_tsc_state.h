@@ -206,8 +206,17 @@ namespace traffic_signal_controller_service
             signal_phase_and_timing::movement_event get_following_event(const signal_phase_and_timing::movement_event& current_event,
                                                                  uint64_t current_event_end_time, const signal_group_state& phase_state) const;
 
+            /**
+             * @brief Helper method to convert phase numbers to signal groups ids for a vector of vehicle phases.
+             * @param veh_phases vector of vehicle phase numbers.
+             * @return vector of vehicle signal group ids.
+             */
             std::vector<int> convert_veh_phases_to_signal_groups(const std::vector<int> &veh_phases ) const;
-
+            /**
+             * @brief Helper method to convert phase numbers to signal group ids for a vector of pedestrian phases.
+             * @param ped_phases vector of pedestrian phase numbers.
+             * @return vector pedestrian signal group ids.
+             */
             std::vector<int> convert_ped_phases_to_signal_groups(const std::vector<int> &ped_phases ) const;
             
             //Add Friend Test to share private members

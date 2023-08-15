@@ -68,6 +68,24 @@ namespace streets_service{
         log_file.close();
         
     }
+
+    TEST_F(test_streets_service, test_create_daily_logger_default) {
+        serv.initialize();
+        auto logger = serv.create_daily_logger("default_daily");
+        ASSERT_EQ(spdlog::level::info, logger->level());
+        ASSERT_EQ("default_daily", logger->name());
+        std::fstream log_file;
+        std::string content;
+        std::time_t t = std::time(nullptr);
+        std::tm* now = std::localtime(&t);
+        char buffer[128];
+        strftime(buffer, sizeof(buffer), "_%Y-%m-%d", now);        
+        std::string file_path_string = "../logs/" + logger->name()+ buffer + ".log";
+        log_file.open(file_path_string, std::ios::out);
+        ASSERT_TRUE(log_file.good());
+        log_file.close();
+        
+    }
     TEST_F(test_streets_service, test_initialize_consumer) {
         serv._service_name ="TestService";
         std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;

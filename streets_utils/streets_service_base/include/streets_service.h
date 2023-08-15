@@ -102,8 +102,8 @@ namespace streets_service {
              * (https://github.com/gabime/spdlog/wiki/3.-Custom-formatting#customizing-format-using-set_pattern).
              * @param level log level to set for logger. Can be dynamically changed by getting logger and changing log level.
              */
-            std::shared_ptr<spdlog::logger> create_daily_logger(const std::string &name, const std::string &extension, const std::string &pattern, 
-                                const spdlog::level::level_enum &level) const;
+            std::shared_ptr<spdlog::logger> create_daily_logger(const std::string &name, const std::string &extension = ".log", const std::string &pattern = "[%Y-%m-%d %H:%M:%S.%e] %v", 
+                                const spdlog::level::level_enum &level = spdlog::level::info ) const;
 
         private:
             std::string _service_name;
@@ -120,6 +120,8 @@ namespace streets_service {
             FRIEND_TEST(test_streets_service, test_initialize_sim);
             FRIEND_TEST(test_streets_service, test_get_system_config);
             FRIEND_TEST(test_streets_service, test_create_daily_logger);
+            FRIEND_TEST(test_streets_service, test_create_daily_logger_default);
+
 
 
             

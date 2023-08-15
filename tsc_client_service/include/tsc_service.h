@@ -251,10 +251,14 @@ namespace traffic_signal_controller_service {
             void set_tsc_hold_and_omit_forceoff_call();
 
             /**
-             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
+             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating log file.
             */
             void configure_snmp_cmd_logger() const;
-
+            /**
+             * @brief ethod to configure spdlog::logger for logging vehicle and pedestrian calls on the traffic signal controller
+             *  into daily rotating csvlog file.
+             * 
+             */
             void configure_veh_ped_call_logger() const;
 
             /**
