@@ -122,6 +122,8 @@ namespace traffic_signal_controller_service {
             FRIEND_TEST(tsc_service_test,test_tsc_control);
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
             FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
+            FRIEND_TEST(tsc_service_test,test_configure_snmp_cmd_logger);
+            FRIEND_TEST(tsc_service_test,test_configure_veh_ped_call_logger);
 
             /***
              * Configuration parameter to control different interfaces to schedule the traffic signal controller

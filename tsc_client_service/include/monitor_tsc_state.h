@@ -124,7 +124,24 @@ namespace traffic_signal_controller_service
             void map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, 
                                                                                             std::unordered_map<int, int>& signal_group_2vehiclephase_map) const;
 
-            std::vector<int> process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &resp, int offset );
+            /**
+             * @brief Method to process bitwise response from NTCIP 1202 Phase Status Group Table. In this table phase information
+             * is returned as a single 8 bit integer and can be intepreted as follows:
+             * ```
+             * Bit 7: Phase # = (phaseStatusGroupNumber * 8)
+             * Bit 6: Phase # = (phaseStatusGroupNumber * 8) - 1
+             * Bit 5: Phase # = (phaseStatusGroupNumber * 8) - 2
+             * Bit 4: Phase # = (phaseStatusGroupNumber * 8) - 3
+             * Bit 3: Phase # = (phaseStatusGroupNumber * 8) - 4
+             * Bit 2: Phase # = (phaseStatusGroupNumber * 8) - 5
+             * Bit 1: Phase # = (phaseStatusGroupNumber * 8) - 6
+             * Bit 0: Phase # = (phaseStatusGroupNumber * 8) - 7
+             * ```
+             * @param resp 
+             * @param offset 
+             * @return 
+             */
+            std::vector<int> process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &resp, int offset ) const;
             /** 
              * @brief Method for getting maximum channels for the traffic signal controller
              * @return number of maximum channels in the traffic signal controller
@@ -178,7 +195,7 @@ namespace traffic_signal_controller_service
              * @param ring_num The phase for which the concurrent phases needs to be obtained
              * @return a vector of phases that may be concurrent with the given phase
             **/
-            std::vector<int> get_concurrent_signal_groups(int phase_num);
+            std::vector<int> get_concurrent_signal_groups(int phase_num) const;
 
             /** @brief Get predicted next movement event given a current event
              * @param current_event movement_event from the next movement needs to be predicted

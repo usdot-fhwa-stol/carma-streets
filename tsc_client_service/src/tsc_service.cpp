@@ -215,26 +215,11 @@ namespace traffic_signal_controller_service {
                             
                             if ( count%10 == 0) {
                                 tsc_state_ptr->poll_vehicle_pedestrian_calls();
-                                auto veh_calls = tsc_state_ptr->get_vehicle_calls();
-                                auto ped_calls =  tsc_state_ptr->get_vehicle_calls();
-                                std::string veh_call_string = "[";
-                                for (auto signal_group: veh_calls ){
-                                    veh_call_string.append(std::to_string(signal_group));
-                                    if ( signal_group != veh_calls.back()) {
-                                        veh_call_string.append(", ");
-                                    }
-                                }
-                                veh_call_string.append("]");
-                                std::string ped_call_string = "[";
-                                for (auto signal_group: ped_calls ){
-                                    ped_call_string.append(std::to_string(signal_group));
-                                    if ( signal_group != ped_calls.back()) {
-                                        ped_call_string.append(", ");
-                                    }
-                                }
-                                ped_call_string.append("]");
                                 if(auto logger = spdlog::get(VEH_PED_CALL_LOGGER_NAME); logger != nullptr ){
-                                    logger->info("{0}, {1}, {2}", streets_clock_singleton::time_in_ms(), veh_call_string, ped_call_string);
+                                    logger->info("{0}, {1}, {2}", streets_clock_singleton::time_in_ms(), 
+                                                    tsc_state_ptr->vector_to_string(tsc_state_ptr->get_vehicle_calls()),  
+                                                    tsc_state_ptr->vector_to_string(tsc_state_ptr->get_pedestrian_calls())
+                                                );
                                 }
                             }
                             

@@ -33,8 +33,10 @@ namespace traffic_signal_controller_service
                 service.desired_phase_plan_consumer = dpp_consumer;
                 service.phase_control_schedule_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
                 service.snmp_client_ptr = mock_snmp;
-                setenv("SIMULATION_MODE", "FALSE", 1);
-                setenv("CONFIG_FILE_PATH", "../manifest.json", 1);
+                setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "TRUE", 1);
+                setenv(streets_service::TIME_SYNC_TOPIC_ENV.c_str(), "time_sync", 1);
+                setenv(streets_service::CONFIG_FILE_PATH_ENV.c_str(), "../test/test_files/manifest.json", 1);
+                setenv(streets_service::LOGS_DIRECTORY_ENV.c_str(), "../logs/", 1);
 
 
             }
@@ -386,6 +388,7 @@ namespace traffic_signal_controller_service
         service.produce_spat_json();
     }
 
+
     TEST_F(tsc_service_test, test_tsc_control){
         
         // Initialize clock singleton in realtime mode
@@ -480,8 +483,24 @@ namespace traffic_signal_controller_service
         // Initialize clock singleton in realtime mode
         streets_service::streets_clock_singleton::create(false);
         service.configure_snmp_cmd_logger();
-        auto logger = spdlog::get("snmp_cmd_logger"); 
+        auto logger = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
         EXPECT_TRUE(logger != nullptr);
+        ASSERT_EQ(logger->level(), spdlog::level::info);
+        // Try to create a second snmp_command_logger;
+        // service.configure_snmp_cmd_logger();
+    }
+
+        
+    TEST_F(tsc_service_test, test_configure_veh_ped_call_logger) {
+        service.configure_veh_ped_call_logger();
+        auto logger = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
+        EXPECT_TRUE(logger != nullptr);
+        ASSERT_EQ(logger->level(), spdlog::level::info);
+        // Try to create a second snmp_command_logger;
+        // service.configure_veh_ped_call_logger();
+        // auto logger_recreate = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
+        // ASSERT_EQ( logger, logger_recreate);
+
     }
     // Test tsc_service initialize without mocking snmp responses
     TEST_F(tsc_service_test, test_initialization_no_mock_response_from_snmp_client) {

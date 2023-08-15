@@ -205,7 +205,7 @@ namespace traffic_signal_controller_service
         SPDLOG_INFO("Pedestrian calls {0}, Vehicle calls, {1}", vector_to_string(pedestrian_calls), vector_to_string(vehicle_calls));
     }
 
-    std::vector<int> tsc_state::process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &response, int offset ){
+    std::vector<int> tsc_state::process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &response, int offset ) const{
         /**
          * Response value is 8 bit int in which each bit is interpreted individually as 1 or 0. 1 
          * indicates that the vehicle phase for that bit is committed to be next. 0 indicates this 
@@ -635,7 +635,7 @@ namespace traffic_signal_controller_service
         return red_duration; 
     }
 
-    std::vector<int> tsc_state::get_concurrent_signal_groups(int phase_num)
+    std::vector<int> tsc_state::get_concurrent_signal_groups(int phase_num) const
     {
 
         std::vector<int> concurrent_signal_groups;
