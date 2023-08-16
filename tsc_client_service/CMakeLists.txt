@@ -42,6 +42,7 @@ add_library(${PROJECT_NAME}_lib
     src/monitor_tsc_state.cpp        
     src/monitor_desired_phase_plan.cpp
     src/control_tsc_state.cpp
+    src/spat_projection_mode.cpp
     src/exceptions/control_tsc_state_exception.cpp)
 target_link_libraries( ${PROJECT_NAME}_lib 
     PUBLIC

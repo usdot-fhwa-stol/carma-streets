@@ -149,6 +149,115 @@ namespace traffic_signal_controller_service
         return next_event;
     }
 
+    std::string tsc_state::vector_to_string(const std::vector<int> &v) const {
+        std::string v_string = "[";
+        for (auto element: v ){
+            v_string.append(std::to_string(element));
+            if ( element != v.back()) {
+                v_string.append(", ");
+            }
+        }
+        v_string.append("]");
+        return v_string;
+}
+
+    void tsc_state::poll_vehicle_pedestrian_calls() {
+        // Make SNMP requests to get vehicle and pedestrian calls 
+        // for phases 1-16 (.1 gets 1-8, .2 gets 9-16)
+        auto request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
+        std::string vehicle_call_phases_1_8 = ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".1";
+        std::string vehicle_call_phases_9_16 = ntcip_oids::PHASE_STATUS_GROUP_VEH_CALLS + ".2";
+        std::string pedestrian_call_phases_1_8 = ntcip_oids::PHASE_STATUS_GROUP_PED_CALLS + ".1";
+        std::string pedestrian_call_phases_9_16 = ntcip_oids::PHASE_STATUS_GROUP_PED_CALLS + ".2";
+
+        streets_snmp_cmd::snmp_response_obj veh_call_1_8;
+        veh_call_1_8.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        streets_snmp_cmd::snmp_response_obj veh_call_9_16;
+        veh_call_9_16.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        streets_snmp_cmd::snmp_response_obj ped_call_1_8;
+        ped_call_1_8.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+        streets_snmp_cmd::snmp_response_obj ped_call_9_16;
+        ped_call_9_16.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
+
+        snmp_client_worker_ ->process_snmp_request(vehicle_call_phases_1_8, request_type, veh_call_1_8);
+        snmp_client_worker_ ->process_snmp_request(vehicle_call_phases_9_16, request_type, veh_call_9_16);
+        snmp_client_worker_ ->process_snmp_request(pedestrian_call_phases_1_8, request_type, ped_call_1_8);
+        snmp_client_worker_ ->process_snmp_request(pedestrian_call_phases_9_16, request_type, ped_call_9_16);
+
+        SPDLOG_INFO("Response Veh {0}, {1} Response Ped {2}, {3}", veh_call_1_8.val_int, veh_call_9_16.val_int, ped_call_1_8.val_int, ped_call_9_16.val_int);
+
+        // Process returned int bitwise to get vehicle/pedestrian call information for 8 phases and convert to signal groups
+        auto veh_resp_1_8 = convert_veh_phases_to_signal_groups( process_bitwise_response(veh_call_1_8,0));
+        auto veh_resp_9_16 = convert_veh_phases_to_signal_groups(process_bitwise_response(veh_call_9_16,8));
+        auto ped_resp_1_8 = convert_ped_phases_to_signal_groups(process_bitwise_response(ped_call_1_8,0));
+        auto ped_resp_9_16 = convert_ped_phases_to_signal_groups(process_bitwise_response(ped_call_9_16,8));
+        
+        // Clear previously saved vehicle/pedestrian information and replace with new information
+
+        vehicle_calls.clear();
+        vehicle_calls.insert(vehicle_calls.end(), veh_resp_1_8.begin(), veh_resp_1_8.end());
+        vehicle_calls.insert(vehicle_calls.end(), veh_resp_9_16.begin(), veh_resp_9_16.end());
+        
+        pedestrian_calls.clear();
+        pedestrian_calls.insert(pedestrian_calls.end(), ped_resp_1_8.begin(), ped_resp_1_8.end());
+        pedestrian_calls.insert(pedestrian_calls.end(), ped_resp_9_16.begin(), ped_resp_9_16.end());
+
+        SPDLOG_INFO("Pedestrian calls {0}, Vehicle calls, {1}", vector_to_string(pedestrian_calls), vector_to_string(vehicle_calls));
+    }
+
+    std::vector<int> tsc_state::process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &response, int offset ) const{
+        /**
+         * Response value is 8 bit int in which each bit is interpreted individually as 1 or 0. 1 
+         * indicates that the vehicle phase for that bit is committed to be next. 0 indicates this 
+         * phase is not committed to be next.
+         * 
+         * bit 0 represent vehicle phase 1
+         * bit 1 represent vehicle phase 2
+         * bit 2 represent vehicle phase 3
+         * bit 3 represent vehicle phase 4
+         * bit 4 represent vehicle phase 5
+         * bit 5 represent vehicle phase 6
+         * bit 6 represent vehicle phase 7
+         * bit 7 represent vehicle phase 8
+         * 
+         */
+        std::vector<int> phase_numbers;
+        for (uint i = 0; i < 8; ++i) {
+            if ((response.val_int >> i) & 1) {
+                // Add any signal group for phase that has bit as 1
+                auto phase_number = i+1+offset;
+                SPDLOG_INFO("Adding phase {0}", phase_number);
+                phase_numbers.push_back(phase_number);
+            }
+        }
+        return phase_numbers;
+    }
+
+    std::vector<int> tsc_state::get_pedestrian_calls() const {
+        return pedestrian_calls;
+    }
+
+    std::vector<int> tsc_state::get_vehicle_calls() const {
+        return vehicle_calls;
+    }
+    
+    std::vector<int> tsc_state::convert_ped_phases_to_signal_groups( const std::vector<int> &ped_phases ) const{
+        std::vector<int> signal_groups;
+        for (auto ped_phase : ped_phases) {
+            signal_groups.push_back(get_pedestrian_signal_group_id(ped_phase));
+        }
+        return signal_groups;
+    }
+
+    std::vector<int> tsc_state::convert_veh_phases_to_signal_groups( const std::vector<int> &veh_phases )  const{
+        std::vector<int> signal_groups;
+        for (auto veh_phase : veh_phases) {
+            signal_groups.push_back(get_vehicle_signal_group_id(veh_phase));
+        }
+        return signal_groups;
+    }
+
+
     void tsc_state::add_future_movement_events(std::shared_ptr<signal_phase_and_timing::spat> spat_ptr)
     {
         // Modify spat according to phase configuration
@@ -417,13 +526,27 @@ namespace traffic_signal_controller_service
         }
     }
 
-    int tsc_state::get_vehicle_signal_group_id(const int phase_number ) {
+    int tsc_state::get_vehicle_signal_group_id(const int phase_number ) const {
         if (phase_number >= 1) {
             if ( vehicle_phase_2signalgroup_map_.find(phase_number) != vehicle_phase_2signalgroup_map_.end() ) {
-                return vehicle_phase_2signalgroup_map_[phase_number];
+                return vehicle_phase_2signalgroup_map_.at(phase_number);
             } 
             else {
-                throw monitor_states_exception("No signal group id found for phase number " + std::to_string(phase_number) + "!");
+                throw monitor_states_exception("No signal group id found for vehicle phase number " + std::to_string(phase_number) + "!");
+            }
+        }
+        else {
+            throw monitor_states_exception("Phase numbers less than 1 are invalid!");
+        }
+    }
+
+    int tsc_state::get_pedestrian_signal_group_id(const int phase_number) const{
+        if (phase_number >= 1) {
+            if ( ped_phase_2signalgroup_map_.find(phase_number) != ped_phase_2signalgroup_map_.end() ) {
+                return ped_phase_2signalgroup_map_.at(phase_number);
+            } 
+            else {
+                throw monitor_states_exception("No signal group id found for pedestrian phase number " + std::to_string(phase_number) + "!");
             }
         }
         else {
@@ -512,7 +635,7 @@ namespace traffic_signal_controller_service
         return red_duration; 
     }
 
-    std::vector<int> tsc_state::get_concurrent_signal_groups(int phase_num)
+    std::vector<int> tsc_state::get_concurrent_signal_groups(int phase_num) const
     {
 
         std::vector<int> concurrent_signal_groups;

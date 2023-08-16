@@ -11,12 +11,6 @@ namespace traffic_signal_controller_service {
         }
         try
         {
-            // Temporary fix for bug in CarmaClock::wait_for_initialization(). No mechanism to support notifying multiple threads
-            // of initialization. This fix avoids any threads waiting on initialization. Only required in SIMULATION_MODE=TRUE
-            // TODO: Remove initialization and fix issue in carma-time-lib (CarmaClock class) 
-            if ( is_simulation_mode() ) {
-                streets_clock_singleton::update(0);
-            }
             // Intialize spat kafka producer
             std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
 
@@ -63,7 +57,10 @@ namespace traffic_signal_controller_service {
                 return false;
             }
             //Initialize TSC State
-            use_desired_phase_plan_update_ = streets_configuration::get_boolean_config("use_desired_phase_plan_update");            
+            auto spat_projection_int = streets_configuration::get_int_config("spat_projection_mode");
+
+            spat_proj_mode = spat_projection_mode_from_int(spat_projection_int);
+         
             if (!initialize_tsc_state(snmp_client_ptr)){
                 SPDLOG_ERROR("Failed to initialize tsc state");
                 return false;
@@ -109,6 +106,7 @@ namespace traffic_signal_controller_service {
             if (enable_snmp_cmd_logging_)
             {
                 configure_snmp_cmd_logger();
+                configure_veh_ped_call_logger();
             }
             if (is_simulation_mode()) {
                 // Trigger spat broadcasting for EVC on startup.
@@ -197,24 +195,39 @@ namespace traffic_signal_controller_service {
             while(spat_worker_ptr && tsc_state_ptr && spat_producer) {
                 try {
                     spat_worker_ptr->receive_spat(spat_ptr);
-                    SPDLOG_DEBUG("Current SPaT : {0} ", spat_ptr->toJson());   
-                    if(!use_desired_phase_plan_update_){
-                       // throws monitor_states_exception
-                        tsc_state_ptr->add_future_movement_events(spat_ptr);
-                        
-                    }else{
-                        std::scoped_lock<std::mutex> lck{dpp_mtx};
-                         // throws desired phase plan exception when no previous green information present
-                        monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr); 
-                    }
+                    SPDLOG_DEBUG("Current SPaT : {0} ", spat_ptr->toJson());  
+                    switch (spat_proj_mode)
+                    {
+                        case spat_projection_mode::fixed_projection: {
+                            tsc_state_ptr->add_future_movement_events(spat_ptr);
+                            break;
+                        }
+                        case spat_projection_mode::dpp_projection : {
+                            std::scoped_lock<std::mutex> lck{dpp_mtx};
+                            // throws desired phase plan exception when no previous green information present
+                            monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr); 
+                            break;
+                        }
+                        default: {
+                            // Poll and log vehicle and pedestrian call information every 10 spat messages or at 10 Hz
+                            if ( count%10 == 0) {
+                                tsc_state_ptr->poll_vehicle_pedestrian_calls();
+                                if(auto logger = spdlog::get(VEH_PED_CALL_LOGGER_NAME); logger != nullptr ){
+                                    logger->info("{0}, {1}, {2}", streets_clock_singleton::time_in_ms(), 
+                                                    tsc_state_ptr->vector_to_string(tsc_state_ptr->get_vehicle_calls()),  
+                                                    tsc_state_ptr->vector_to_string(tsc_state_ptr->get_pedestrian_calls())
+                                                );
+                                }
+                            }
+                        }
+                    } 
                     if (spat_ptr && spat_producer) {
                         spat_producer->send(spat_ptr->toJson());
                         // No utility in calculating spat latency in simulation mode
                         if ( !this->is_simulation_mode() ) {
                            log_spat_latency(count, spat_processing_time, spat_ptr->get_intersection().get_epoch_timestamp()) ;
                         }
-                    }
-                    
+                    }     
                 }
                 catch( const signal_phase_and_timing::signal_phase_and_timing_exception &e ) {
                     SPDLOG_ERROR("Encountered exception, spat not published : \n {0}", e.what());
@@ -225,7 +238,7 @@ namespace traffic_signal_controller_service {
                 catch(const traffic_signal_controller_service::monitor_states_exception &e){
                     SPDLOG_ERROR("Could not update movement events, spat not published. Encountered exception : \n {0}", e.what());
                 }   
-    } 
+            } 
             SPDLOG_WARN("Stopping produce_spat_json! Are pointers null: spat_worker {0}, spat_producer {1}, tsc_state {2}",
                 spat_worker_ptr == nullptr, spat_ptr == nullptr, tsc_state_ptr == nullptr);
         }
@@ -387,25 +400,27 @@ namespace traffic_signal_controller_service {
 
     void tsc_service::configure_snmp_cmd_logger() const
     {
-        try{
-            auto snmp_cmd_logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
-                "snmp_cmd_logger",  // logger name
-                    streets_configuration::get_string_config("snmp_cmd_log_path")+
-                    streets_configuration::get_string_config("snmp_cmd_log_filename") +".log",  // log file name and path
-                    23, // hours to rotate
-                    59 // minutes to rotate
-                );
-            // Only log log statement content
-            snmp_cmd_logger->set_pattern("[%H:%M:%S:%e ] %v");
-            snmp_cmd_logger->set_level(spdlog::level::info);
-            snmp_cmd_logger->flush_on(spdlog::level::info);
+        try {
+            create_daily_logger(SNMP_COMMAND_LOGGER_NAME, ".log", "[%H:%M:%S:%e ] %v", spdlog::level::info );
         }
         catch (const spdlog::spdlog_ex& ex)
         {
-            spdlog::error( "Log initialization failed: {0}!",ex.what());
+            SPDLOG_ERROR( "SNMP Command Logger initialization failed: {0}!",ex.what());
         }
     }
 
+     void tsc_service::configure_veh_ped_call_logger() const
+    {
+        try {
+            auto veh_ped_call_logger = create_daily_logger(VEH_PED_CALL_LOGGER_NAME, ".cvs", "%v", spdlog::level::info );
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+            SPDLOG_ERROR( "Vehicle Pedestrian Call Logger initialization failed: {0}!",ex.what());
+        }
+        // TODO: Figure out how to termine if a new file was created or an existing file appended and only write column headers on new files
+        // veh_ped_call_logger->info("Timestamp (ms), Vehicle Calls (Signal Group ID), Pedestrian Calls (Signal Group ID)");
+    }
     void  tsc_service::log_spat_latency(int &count, uint64_t &spat_processing_time, uint64_t spat_time_stamp) const {
         // Calculate and average spat processing time over 20 messages sent 
         if (count <= 20 ) {

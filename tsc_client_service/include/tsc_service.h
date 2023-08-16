@@ -22,6 +22,7 @@
 #include <gtest/gtest_prod.h>  
 #include "streets_service.h"
 #include "streets_clock_singleton.h"
+#include "spat_projection_mode.h"
 
 namespace traffic_signal_controller_service {
 
@@ -101,7 +102,7 @@ namespace traffic_signal_controller_service {
             int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
-            bool use_desired_phase_plan_update_ = false;
+            spat_projection_mode spat_proj_mode = spat_projection_mode::no_projection;
 
             // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
             std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_;
@@ -112,11 +113,17 @@ namespace traffic_signal_controller_service {
             // Configurable parameter that is used to enable logging of snmp commands to a log file if set to true. 
             bool enable_snmp_cmd_logging_ = false;
 
+            inline static const std::string SNMP_COMMAND_LOGGER_NAME = "snmp_command";
+
+            inline static const std::string VEH_PED_CALL_LOGGER_NAME = "veh_ped_call";
+
             //Add Friend Test to share private members
             friend class tsc_service_test;
             FRIEND_TEST(tsc_service_test,test_tsc_control);
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
             FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
+            FRIEND_TEST(tsc_service_test,test_configure_snmp_cmd_logger);
+            FRIEND_TEST(tsc_service_test,test_configure_veh_ped_call_logger);
 
             /***
              * Configuration parameter to control different interfaces to schedule the traffic signal controller
@@ -244,9 +251,16 @@ namespace traffic_signal_controller_service {
             void set_tsc_hold_and_omit_forceoff_call();
 
             /**
-             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
+             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating log file.
             */
             void configure_snmp_cmd_logger() const;
+            /**
+             * @brief ethod to configure spdlog::logger for logging vehicle and pedestrian calls on the traffic signal controller
+             *  into daily rotating csvlog file.
+             * 
+             */
+            void configure_veh_ped_call_logger() const;
+
             /**
              * @brief Method to log spat latency comparing spat time stamp to current time. Calculates and average over 20
              * messages then resets count and spat_processing_time.

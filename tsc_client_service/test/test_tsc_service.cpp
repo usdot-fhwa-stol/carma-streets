@@ -33,8 +33,11 @@ namespace traffic_signal_controller_service
                 service.desired_phase_plan_consumer = dpp_consumer;
                 service.phase_control_schedule_consumer = std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
                 service.snmp_client_ptr = mock_snmp;
-                setenv("SIMULATION_MODE", "FALSE", 1);
-                setenv("CONFIG_FILE_PATH", "../manifest.json", 1);
+                service.tsc_state_ptr = std::make_shared<tsc_state>(mock_snmp);
+                setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "TRUE", 1);
+                setenv(streets_service::TIME_SYNC_TOPIC_ENV.c_str(), "time_sync", 1);
+                setenv(streets_service::CONFIG_FILE_PATH_ENV.c_str(), "../test/test_files/manifest.json", 1);
+                setenv(streets_service::LOGS_DIRECTORY_ENV.c_str(), "../logs/", 1);
 
 
             }
@@ -383,8 +386,10 @@ namespace traffic_signal_controller_service
         service.initialize_spat("test_intersection",1234,std::unordered_map<int,int>{
                     {1,8},{2,7},{3,6},{4,5},{5,4},{6,3},{7,2},{8,1}} );
         ASSERT_TRUE(service.initialize_spat_worker("127.0.0.1",3456,2,false));
+
         service.produce_spat_json();
     }
+
 
     TEST_F(tsc_service_test, test_tsc_control){
         
@@ -476,12 +481,19 @@ namespace traffic_signal_controller_service
 
     TEST_F(tsc_service_test, test_configure_snmp_cmd_logger)
     {
-
         // Initialize clock singleton in realtime mode
         streets_service::streets_clock_singleton::create(false);
         service.configure_snmp_cmd_logger();
-        auto logger = spdlog::get("snmp_cmd_logger"); 
+        auto logger = spdlog::get( service.SNMP_COMMAND_LOGGER_NAME);
+        ASSERT_EQ(logger->level(), spdlog::level::info);
+    }
+
+        
+    TEST_F(tsc_service_test, test_configure_veh_ped_call_logger) {
+        service.configure_veh_ped_call_logger();
+        auto logger = spdlog::get( service.VEH_PED_CALL_LOGGER_NAME);
         EXPECT_TRUE(logger != nullptr);
+        ASSERT_EQ(logger->level(), spdlog::level::info);
     }
     // Test tsc_service initialize without mocking snmp responses
     TEST_F(tsc_service_test, test_initialization_no_mock_response_from_snmp_client) {

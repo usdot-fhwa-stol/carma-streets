@@ -91,10 +91,10 @@
             "type": "BOOL"
         },
         {
-            "name": "use_desired_phase_plan_update",
-            "value": true,
-            "description": "If true will enable monitor_desired_phase_plan to update incoming spat with calculated future movement events, using desired phase plan information from signal optimization service. If false will use TSC Configuration to predict future phases and append those to the spat based on default phase sequence.",
-            "type": "BOOL"
+            "name": "spat_projection_mode",
+            "value": 0,
+            "description": "Enumeration configuring SPat projection. 1 == DPP projection. 2 == Fixed Timing projection. Any other value will result in no projection of future",
+            "type": "INTEGER"
         },
         {
             "name": "tsc_config_producer_topic",

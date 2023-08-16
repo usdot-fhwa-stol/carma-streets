@@ -199,9 +199,10 @@ services:
       WAIT_HOSTS_TIMEOUT: 300
       WAIT_SLEEP_INTERVAL: 30
       WAIT_HOST_CONNECT_TIMEOUT: 30
-      SIMULATION_MODE: TRUE
+      SIMULATION_MODE: FALSE
       CONFIG_FILE_PATH: ../manifest.json
       TIME_SYNC_TOPIC: time_sync
+      LOGS_DIRECTORY: /home/carma-streets/tsc_client_service/logs/
     volumes: 
       - ./tsc_client_service/manifest.json:/home/carma-streets/tsc_client_service/manifest.json
       - ./tsc_client_service/logs/:/home/carma-streets/tsc_client_service/logs/

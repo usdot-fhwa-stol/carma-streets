@@ -53,7 +53,9 @@ jobs:
     - name: Install rapidjson
       run: |
         cd /home/carma-streets/ext/
-        git clone --depth 1 https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson
+        git clone https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson
+        cd /home/carma-streets/ext/rapidjson
+        git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
         mkdir -p /home/carma-streets/ext/rapidjson/build
         cd /home/carma-streets/ext/rapidjson/build
         cmake ..
