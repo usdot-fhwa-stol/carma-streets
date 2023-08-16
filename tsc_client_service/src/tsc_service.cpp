@@ -58,11 +58,9 @@ namespace traffic_signal_controller_service {
             }
             //Initialize TSC State
             auto spat_projection_int = streets_configuration::get_int_config("spat_projection_mode");
-            spat_proj_mode = static_cast<spat_projection_mode>(spat_projection_int);
-            // if undefined, set to default
-            if ( !spat_proj_mode) {
-                spat_proj_mode = spat_projection_mode::no_projection;
-            }
+
+            spat_proj_mode = spat_projection_mode_from_int(spat_projection_int);
+         
             if (!initialize_tsc_state(snmp_client_ptr)){
                 SPDLOG_ERROR("Failed to initialize tsc state");
                 return false;
