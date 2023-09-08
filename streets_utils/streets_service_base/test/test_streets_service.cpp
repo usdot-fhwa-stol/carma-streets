@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "streets_service.h"
+#include "streets_environment_variables.h"
 #include "mock_kafka_consumer_worker.h"
 #include "mock_kafka_producer_worker.h"
 #include <iostream>
@@ -101,20 +102,25 @@ namespace streets_service{
     };
 
     TEST_F(test_streets_service, test_get_system_config) {
-        std::string simulation_mode = serv.get_system_config("SIMULATION_MODE");
+        std::string simulation_mode = serv.get_system_config("SIMULATION_MODE", "DEFAULT");
         ASSERT_EQ(simulation_mode, "TRUE");
 
-        ASSERT_THROW(serv.get_system_config("NON_EXISTANT"), std::runtime_error);
-        ASSERT_THROW(serv.get_system_config(nullptr), std::runtime_error);
+        ASSERT_EQ(serv.get_system_config("NON_EXISTANT", "DEFAULT"), "DEFAULT");
+        ASSERT_THROW(serv.get_system_config(nullptr, "DEFAULT"), std::runtime_error);
     };
     TEST_F(test_streets_service, test_start) {
         ASSERT_TRUE(serv.initialize());
         serv.start();
     }
 
-    TEST_F(test_streets_service, test_initialize_exception) {
-        unsetenv("CONFIG_FILE_PATH");
-        ASSERT_FALSE(serv.initialize());
+    TEST_F(test_streets_service, test_initialize_defaults) {
+        unsetenv(SIMULATION_MODE_ENV.c_str());
+        unsetenv(TIME_SYNC_TOPIC_ENV.c_str());
+        // Default Config file path does not work here since there is not configuration 
+        // file in the package directory.
+        // unsetenv(CONFIG_FILE_PATH_ENV.c_str());
+        unsetenv(LOGS_DIRECTORY_ENV.c_str());
+        ASSERT_TRUE(serv.initialize());
     }
 
     TEST_F(test_streets_service, test_initialize_exception_config ) {

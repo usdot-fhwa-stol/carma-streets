@@ -75,7 +75,7 @@ namespace streets_service {
              * @throws runtime_error if config_name is nullptr or environment variable is not set.
              * @return value of environment variable.
              */
-            std::string get_system_config(const char *config_name ) const;
+            std::string get_system_config(const char *config_name , const std::string &default_val) const;
             /**
              * @brief Method to consume continously consume time sync messages from Kafka topic and update 
              * streets_clock_singleton with received data.
