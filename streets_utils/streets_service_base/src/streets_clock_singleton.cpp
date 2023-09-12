@@ -10,9 +10,9 @@ namespace streets_service {
 
     uint64_t streets_clock_singleton::time_in_ms() {
         auto &inst = get_singleton();
-        SPDLOG_TRACE("Calling thread is waiting on streets clock.");
+        SPDLOG_TRACE("Calling thread is waiting on streets clock initialization.");
         inst.wait_for_initialization();
-        SPDLOG_TRACE("Thread is released after initializeation.");
+        SPDLOG_TRACE("Thread is released after initialization.");
         return inst.nowInMilliseconds();
     }
 

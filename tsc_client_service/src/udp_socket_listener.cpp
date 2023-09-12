@@ -61,6 +61,7 @@ namespace traffic_signal_controller_service
             // see recv documentation https://man7.org/linux/man-pages/man2/recv.2.html#RETURN_VALUE
             if (bytes_received > 0)
             {
+                SPDLOG_TRACE("Received SPaT UDP Packet.");
                 spat_buf.resize(bytes_received);
             }
             else if (bytes_received == -1){

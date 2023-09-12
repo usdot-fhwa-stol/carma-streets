@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "streets_clock_singleton.h"
+#include <thread>
 
 using namespace streets_service;
 using namespace std::chrono;
@@ -25,20 +26,34 @@ namespace streets_service{
         // Get a random number
         int random = rand();
         int old_val = random;
+        spdlog::set_level(spdlog::level::trace);
         //Initialize time at zero to avoid wait_for_initialization hang
-        streets_clock_singleton::update(0);
-
+        std::thread t1([]() {
+            SPDLOG_INFO("Waiting on update 0 ... ");
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+            streets_clock_singleton::update(0);
+        });
         ASSERT_EQ(streets_clock_singleton::time_in_ms(), 0);
+        SPDLOG_INFO("Assertion Successful!");
 
-        streets_clock_singleton::update(random);
-
+        
+        std::thread t2([random]() {
+            SPDLOG_INFO("Waiting on update {0} ... ", random);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+            streets_clock_singleton::update(random);
+        });
+        streets_clock_singleton::sleep_until(random);
         ASSERT_EQ(streets_clock_singleton::time_in_ms(), random);
+        SPDLOG_INFO("Assertion Successful!");
+
         // Simulate random size timestep
         random += rand();
         streets_clock_singleton::update(random);
 
         ASSERT_EQ(streets_clock_singleton::time_in_ms(), random);
         ASSERT_NE(old_val, random);
+        t1.join();
+        t2.join();
 
     };
 
