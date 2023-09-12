@@ -4,8 +4,7 @@
 set -e
 
 # add the STOL APT repository
-. /etc/lsb-release
-echo "deb [trusted=yes] http://s3.amazonaws.com/stol-apt-repository ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/stol-apt-repository.list
+echo "deb [trusted=yes] http://s3.amazonaws.com/stol-apt-repository develop main" > /etc/apt/sources.list.d/stol-apt-repository.list
 
 apt-get update
 
