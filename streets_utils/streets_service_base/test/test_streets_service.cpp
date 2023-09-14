@@ -24,9 +24,9 @@ namespace streets_service{
     };
 
     TEST_F(test_streets_service, test_initialize_sim) {
-        ASSERT_TRUE(serv.initialize());
-        ASSERT_EQ( serv.get_service_name(), "test_service");
-        ASSERT_TRUE(serv.is_simulation_mode());
+        EXPECT_TRUE(serv.initialize());
+        EXPECT_EQ( serv.get_service_name(), "test_service");
+        EXPECT_TRUE(serv.is_simulation_mode());
     };
 
     TEST_F(test_streets_service, test_consume_time_sync_message) {
@@ -49,14 +49,14 @@ namespace streets_service{
                                             // consumer is_running returns false and returns control
 
 
-        ASSERT_EQ(1400, streets_clock_singleton::time_in_ms());
+        EXPECT_EQ(1400, streets_clock_singleton::time_in_ms());
     }
 
     TEST_F(test_streets_service, test_create_daily_logger) {
         serv.initialize();
         auto logger = serv.create_daily_logger("Test_log", ".test", "%v", spdlog::level::critical);
-        ASSERT_EQ(spdlog::level::critical, logger->level());
-        ASSERT_EQ("Test_log", logger->name());
+        EXPECT_EQ(spdlog::level::critical, logger->level());
+        EXPECT_EQ("Test_log", logger->name());
         std::fstream log_file;
         std::string content;
         std::time_t t = std::time(nullptr);
@@ -65,7 +65,7 @@ namespace streets_service{
         strftime(buffer, sizeof(buffer), "_%Y-%m-%d", now);        
         std::string file_path_string = "../logs/" + logger->name()+ buffer + ".test";
         log_file.open(file_path_string, std::ios::out);
-        ASSERT_TRUE(log_file.good());
+        EXPECT_TRUE(log_file.good());
         log_file.close();
         
     }
@@ -73,8 +73,8 @@ namespace streets_service{
     TEST_F(test_streets_service, test_create_daily_logger_default) {
         serv.initialize();
         auto logger = serv.create_daily_logger("default_daily");
-        ASSERT_EQ(spdlog::level::info, logger->level());
-        ASSERT_EQ("default_daily", logger->name());
+        EXPECT_EQ(spdlog::level::info, logger->level());
+        EXPECT_EQ("default_daily", logger->name());
         std::fstream log_file;
         std::string content;
         std::time_t t = std::time(nullptr);
@@ -83,33 +83,33 @@ namespace streets_service{
         strftime(buffer, sizeof(buffer), "_%Y-%m-%d", now);        
         std::string file_path_string = "../logs/" + logger->name()+ buffer + ".log";
         log_file.open(file_path_string, std::ios::out);
-        ASSERT_TRUE(log_file.good());
+        EXPECT_TRUE(log_file.good());
         log_file.close();
         
     }
     TEST_F(test_streets_service, test_initialize_consumer) {
         serv._service_name ="TestService";
         std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;
-        ASSERT_TRUE(serv.initialize_kafka_consumer("test_topic", consumer));
+        EXPECT_TRUE(serv.initialize_kafka_consumer("test_topic", consumer));
         consumer->stop();
     };
 
     TEST_F(test_streets_service, test_initialize_producer) {
         serv._service_name ="TestService";
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer;
-        ASSERT_TRUE(serv.initialize_kafka_producer("test_topic", producer));
+        EXPECT_TRUE(serv.initialize_kafka_producer("test_topic", producer));
         producer->stop();
     };
 
     TEST_F(test_streets_service, test_get_system_config) {
         std::string simulation_mode = serv.get_system_config("SIMULATION_MODE", "DEFAULT");
-        ASSERT_EQ(simulation_mode, "TRUE");
+        EXPECT_EQ(simulation_mode, "TRUE");
 
-        ASSERT_EQ(serv.get_system_config("NON_EXISTANT", "DEFAULT"), "DEFAULT");
-        ASSERT_THROW(serv.get_system_config(nullptr, "DEFAULT"), std::runtime_error);
+        EXPECT_EQ(serv.get_system_config("NON_EXISTANT", "DEFAULT"), "DEFAULT");
+        EXPECT_EQ(serv.get_system_config(nullptr, "DEFAULT"), "DEFAULT");
     };
     TEST_F(test_streets_service, test_start) {
-        ASSERT_TRUE(serv.initialize());
+        EXPECT_TRUE(serv.initialize());
         serv.start();
     }
 
@@ -120,12 +120,12 @@ namespace streets_service{
         // file in the package directory.
         // unsetenv(CONFIG_FILE_PATH_ENV.c_str());
         unsetenv(LOGS_DIRECTORY_ENV.c_str());
-        ASSERT_TRUE(serv.initialize());
+        EXPECT_TRUE(serv.initialize());
     }
 
     TEST_F(test_streets_service, test_initialize_exception_config ) {
         setenv("CONFIG_FILE_PATH", "../test/test_files/invalid.json", 1);
-        ASSERT_FALSE(serv.initialize());
+        EXPECT_FALSE(serv.initialize());
 
     }
 

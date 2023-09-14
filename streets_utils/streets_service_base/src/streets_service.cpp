@@ -111,20 +111,21 @@ namespace streets_service {
     }
 
     std::string streets_service::get_system_config(const char *config_name, const std::string &default_val) const {
-        if (config_name) {
-            try {
-                std::string config =  std::getenv(config_name);
-                SPDLOG_DEBUG("Reading system config {0} as : {1}!", config_name, config);
-                return config;
-            }
-            catch(const std::logic_error &e) {
-                SPDLOG_WARN("System config {0} was not set! Using default value {1}!" ,config_name, default_val);
-                return default_val;
-            }
-        } else {
-            throw std::runtime_error(" Systme config param name is null pointer!");
+        // Check for config_name nullptr and use default value
+        if (config_name == nullptr ) {
+            SPDLOG_WARN("System config_name was nullptr! Using default value {0}!" , default_val);
+            return default_val;
         }
-        return "";
+        // If std::getenv(config_name) returns value, use this value
+        if (const auto config = std::getenv(config_name)) {
+            SPDLOG_DEBUG("Reading system config {0} as : {1}!", config_name, config);
+            return config;
+        }
+        // If std::getenv(config_name) returns nullptr, environment variable was not set so use default
+        else {
+            SPDLOG_WARN("System config {0} was not set! Using default value {1}!" ,config_name, default_val);
+            return default_val;
+        }
     }
 
     std::string streets_service::get_service_name() const {
