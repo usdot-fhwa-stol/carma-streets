@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "streets_service.h"
-#include "streets_environment_variables.h"
-#include "mock_kafka_consumer_worker.h"
-#include "mock_kafka_producer_worker.h"
+#include <streets_service.h>
+#include <streets_environment_variables.h>
+#include <mock_kafka_consumer_worker.h>
+#include <mock_kafka_producer_worker.h>
 #include <iostream>
 #include <fstream>
 
@@ -85,8 +85,8 @@ namespace streets_service{
         log_file.open(file_path_string, std::ios::out);
         EXPECT_TRUE(log_file.good());
         log_file.close();
-        
     }
+    
     TEST_F(test_streets_service, test_initialize_consumer) {
         serv._service_name ="TestService";
         std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;

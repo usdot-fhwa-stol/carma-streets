@@ -110,7 +110,7 @@ namespace streets_service {
         }
     }
 
-    std::string streets_service::get_system_config(const char *config_name, const std::string &default_val) const {
+    std::string streets_service::get_system_config(const char *config_name, const std::string &default_val) const noexcept{
         // Check for config_name nullptr and use default value
         if (config_name == nullptr ) {
             SPDLOG_WARN("System config_name was nullptr! Using default value {0}!" , default_val);
