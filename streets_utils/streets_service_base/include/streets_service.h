@@ -70,12 +70,13 @@ namespace streets_service {
              */
             bool initialize_kafka_consumer( const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer ) const;
             /**
-             * @brief Returns string value of environment variable with given name.
+             * @brief Returns string value of environment variable with given name. If no value is found, returns default.
              * @param config_name name of environment variable.
+             * @param default_val string default value for environment variable if no value is found.
              * @throws runtime_error if config_name is nullptr or environment variable is not set.
              * @return value of environment variable.
              */
-            std::string get_system_config(const char *config_name ) const;
+            std::string get_system_config(const char *config_name , const std::string &default_val) const noexcept;
             /**
              * @brief Method to consume continously consume time sync messages from Kafka topic and update 
              * streets_clock_singleton with received data.

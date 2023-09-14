@@ -11,20 +11,20 @@ namespace streets_service {
 
     bool streets_service::initialize() {
         try {
-            std::string config_file_path = get_system_config(CONFIG_FILE_PATH_ENV.c_str());
+            std::string config_file_path = get_system_config(CONFIG_FILE_PATH_ENV.c_str(), DEFAULT_CONFIG_FILE_PATH);
             streets_configuration::create(config_file_path);
-            std::string sim_mode_string = get_system_config(SIMULATION_MODE_ENV.c_str());
+            std::string sim_mode_string = get_system_config(SIMULATION_MODE_ENV.c_str(),DEFAULT_SIMULATION_MODE);
             _simulation_mode = sim_mode_string.compare("true") == 0 || sim_mode_string.compare("TRUE") == 0 ;
             streets_clock_singleton::create(_simulation_mode);
             _service_name = streets_configuration::get_service_name();
             SPDLOG_INFO("Initializing {0} streets service in simulation mode : {1}!", _service_name, _simulation_mode);
             if ( _simulation_mode ) {
-                std::string time_sync_topic = get_system_config(TIME_SYNC_TOPIC_ENV.c_str());
+                std::string time_sync_topic = get_system_config(TIME_SYNC_TOPIC_ENV.c_str(), DEFAULT_TIME_SYNC_TOPIC);
                 if (!initialize_kafka_consumer(time_sync_topic, _time_consumer)){
                     return false;
                 }
             }
-            _logs_directory = get_system_config(LOGS_DIRECTORY_ENV.c_str());
+            _logs_directory = get_system_config(LOGS_DIRECTORY_ENV.c_str(), DEFAULT_LOGS_DIRECTORY);
         } catch( const streets_configuration_exception &e) {
             SPDLOG_ERROR("Exception occured during {0} initialization : {1}" , _service_name , e.what());
             return false;
@@ -110,21 +110,22 @@ namespace streets_service {
         }
     }
 
-    std::string streets_service::get_system_config(const char *config_name) const {
-        if (config_name) {
-            try {
-                std::string config =  std::getenv(config_name);
-                SPDLOG_DEBUG("Reading system config {0} as : {1}!", config_name, config);
-                return config;
-            }
-            catch(const std::logic_error &e) {
-                std::string config_name_str = config_name;
-                throw std::runtime_error("System config " + config_name_str + " not set!");
-            }
-        } else {
-            throw std::runtime_error(" Systme config param name is null pointer!");
+    std::string streets_service::get_system_config(const char *config_name, const std::string &default_val) const noexcept{
+        // Check for config_name nullptr and use default value
+        if (config_name == nullptr ) {
+            SPDLOG_WARN("System config_name was nullptr! Using default value {0}!" , default_val);
+            return default_val;
         }
-        return "";
+        // If std::getenv(config_name) returns value, use this value
+        if (const auto config = std::getenv(config_name)) {
+            SPDLOG_DEBUG("Reading system config {0} as : {1}!", config_name, config);
+            return config;
+        }
+        // If std::getenv(config_name) returns nullptr, environment variable was not set so use default
+        else {
+            SPDLOG_WARN("System config {0} was not set! Using default value {1}!" ,config_name, default_val);
+            return default_val;
+        }
     }
 
     std::string streets_service::get_service_name() const {

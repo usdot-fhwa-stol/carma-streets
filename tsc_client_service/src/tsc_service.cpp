@@ -412,7 +412,7 @@ namespace traffic_signal_controller_service {
      void tsc_service::configure_veh_ped_call_logger() const
     {
         try {
-            auto veh_ped_call_logger = create_daily_logger(VEH_PED_CALL_LOGGER_NAME, ".cvs", "%v", spdlog::level::info );
+            auto veh_ped_call_logger = create_daily_logger(VEH_PED_CALL_LOGGER_NAME, ".csv", "%v", spdlog::level::info );
         }
         catch (const spdlog::spdlog_ex& ex)
         {
