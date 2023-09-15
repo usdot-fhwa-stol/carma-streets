@@ -11,33 +11,6 @@ namespace traffic_signal_controller_service {
         }
         try
         {
-            // Intialize spat kafka producer
-            std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
-
-            std::string dpp_consumer_topic = streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
-
-            //Phase control schedule(PCS) consumer topic
-            std::string pcs_consumer_topic = streets_configuration::get_string_config("phase_control_schedule_consumer_topic");
-            
-            if (!spat_producer && !initialize_kafka_producer( spat_topic_name, spat_producer)) {
-                
-                SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
-                return false;
-                
-            }
-
-            if (!desired_phase_plan_consumer && !initialize_kafka_consumer( dpp_consumer_topic, desired_phase_plan_consumer)) {
-                
-                SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
-                return false;
-                
-            }      
-
-            if(!phase_control_schedule_consumer && !initialize_kafka_consumer(pcs_consumer_topic, phase_control_schedule_consumer)){
-                SPDLOG_ERROR("Failed to initialize kafka phase_control_schedule_consumer!");
-                return false;
-            }
-
             // Initialize SNMP Client
             std::string target_ip = streets_configuration::get_string_config("target_ip");
             int target_port = streets_configuration::get_int_config("target_port");
@@ -56,29 +29,73 @@ namespace traffic_signal_controller_service {
                 SPDLOG_ERROR("Failed to initialize kafka tsc_config_producer!");
                 return false;
             }
-            //Initialize TSC State
-            auto spat_projection_int = streets_configuration::get_int_config("spat_projection_mode");
 
-            spat_proj_mode = spat_projection_mode_from_int(spat_projection_int);
-         
+            //Initialize TSC State
             if (!initialize_tsc_state(snmp_client_ptr)){
                 SPDLOG_ERROR("Failed to initialize tsc state");
                 return false;
             }
             tsc_config_state_ptr = tsc_state_ptr->get_tsc_config_state();
+
+            // Intialize spat kafka producer
+            std::string spat_topic_name = streets_configuration::get_string_config("spat_producer_topic");
+            if ( !spat_producer && !initialize_kafka_producer( spat_topic_name, spat_producer) ) {
+                
+                SPDLOG_ERROR("Failed to initialize kafka spat_producer!");
+                return false;
+                
+            }
+
+            std::string dpp_consumer_topic = streets_configuration::get_string_config("desired_phase_plan_consumer_topic");
+            // TODO: Remove if no longer necessary for TM/TSP MMITSS Integration
+            // use_mmitss_mrp = streets_configuration::get_boolean_config("use_mmitss_mrp"); 
+            // -----------------------------------------------------------------------------
+            auto spat_projection_int = streets_configuration::get_int_config("spat_projection_mode");
+            spat_proj_mode = spat_projection_mode_from_int(spat_projection_int);
+            // TODO: Remove if no longer necessary for TM/TSP MMITSS Integration
+            // Phase control schedule(PCS) consumer topic
+            // std::string pcs_consumer_topic = streets_configuration::get_string_config("phase_control_schedule_consumer_topic");
+            // -----------------------------------------------------------------------------
+
+            // Initialize DPP consumer and monitor
+            if ( spat_proj_mode == SPAT_PROJECTION_MODE::DPP_PROJECTION ) {
+                if (!desired_phase_plan_consumer && !initialize_kafka_consumer( dpp_consumer_topic, desired_phase_plan_consumer)) {
+                    SPDLOG_ERROR("Failed to initialize kafka desired_phase_plan_consumer!");
+                    return false;
+                }
+                monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
+                control_tsc_state_sleep_dur_ = streets_configuration::get_int_config("control_tsc_state_sleep_duration");
+                // Initialize control_tsc_state ptr
+                control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);
+
+            }
+           
+            // TODO: Remove if no longer necessary for TM/TSP MMITSS Integration
+            // if( SPAT_PROJECTION_MODE::MMITSS_PHASE_SCHEDULE)
+            //     if ( !phase_control_schedule_consumer && !initialize_kafka_consumer(pcs_consumer_topic, phase_control_schedule_consumer)){
+            //         SPDLOG_ERROR("Failed to initialize kafka phase_control_schedule_consumer!");
+            //         return false;
+            //     }
+            //      //Initialize phase control schedule
+            //     phase_control_schedule_ptr = std::make_shared<streets_phase_control_schedule::streets_phase_control_schedule>();
+            //     // Initialize control_tsc_state ptr
+            //     control_tsc_state_sleep_dur_ = streets_configuration::get_int_config("control_tsc_state_sleep_duration");
+            //     control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);      
+            // }
+            // ------------------------------------------------------------------------------------------------------------------
+            
             // Initialize spat_worker
             std::string socket_ip = streets_configuration::get_string_config("udp_socket_ip");
             int socket_port = streets_configuration::get_int_config("udp_socket_port");
             int socket_timeout = streets_configuration::get_int_config("socket_timeout");
             bool use_msg_timestamp =  streets_configuration::get_boolean_config("use_tsc_timestamp");         
             enable_snmp_cmd_logging_ = streets_configuration::get_boolean_config("enable_snmp_cmd_logging");
-            use_mmitss_mrp = streets_configuration::get_boolean_config("use_mmitss_mrp"); 
-
             if (!initialize_spat_worker(socket_ip, socket_port, socket_timeout, use_msg_timestamp)) {
                 SPDLOG_ERROR("Failed to initialize SPaT Worker");
                 return false;
             }
 
+            // Initialize intersection_client
             if (!initialize_intersection_client()) {
                 SPDLOG_ERROR("Failed to initialize intersection client");
                 return false;
@@ -92,17 +109,6 @@ namespace traffic_signal_controller_service {
             initialize_spat(intersection_client_ptr->get_intersection_name(), intersection_client_ptr->get_intersection_id(), 
                                 all_phases);
             
-            control_tsc_state_sleep_dur_ = streets_configuration::get_int_config("control_tsc_state_sleep_duration");
-            
-            // Initialize monitor desired phase plan
-            monitor_dpp_ptr = std::make_shared<monitor_desired_phase_plan>( snmp_client_ptr );
-
-            //Initialize phase control schedule
-            phase_control_schedule_ptr = std::make_shared<streets_phase_control_schedule::streets_phase_control_schedule>();
-
-            // Initialize control_tsc_state ptr
-            control_tsc_state_ptr_ = std::make_shared<control_tsc_state>(snmp_client_ptr, tsc_state_ptr);
-
             if (enable_snmp_cmd_logging_)
             {
                 configure_snmp_cmd_logger();
@@ -198,11 +204,11 @@ namespace traffic_signal_controller_service {
                     SPDLOG_DEBUG("Current SPaT : {0} ", spat_ptr->toJson());  
                     switch (spat_proj_mode)
                     {
-                        case spat_projection_mode::fixed_projection: {
+                        case SPAT_PROJECTION_MODE::FIXED_TIMING_PROJECTION: {
                             tsc_state_ptr->add_future_movement_events(spat_ptr);
                             break;
                         }
-                        case spat_projection_mode::dpp_projection : {
+                        case SPAT_PROJECTION_MODE::DPP_PROJECTION : {
                             std::scoped_lock<std::mutex> lck{dpp_mtx};
                             // throws desired phase plan exception when no previous green information present
                             monitor_dpp_ptr->update_spat_future_movement_events(spat_ptr, tsc_state_ptr); 
@@ -284,27 +290,28 @@ namespace traffic_signal_controller_service {
 
         }        
     }
-
-    void tsc_service::consume_phase_control_schedule(){
-        phase_control_schedule_consumer->subscribe();
-        while (phase_control_schedule_consumer->is_running())
-        {
-            const std::string payload = phase_control_schedule_consumer->consume(1000);
-            if (payload.length() != 0)
-            {
-                SPDLOG_DEBUG("Consumed: {0}", payload);
-                try {
-                    //Update phase control schedule with the latest incoming schedule
-                    phase_control_schedule_ptr->fromJson(payload);
-                    //Update command queue
-                    std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
-                    control_tsc_state_ptr_->update_tsc_control_queue(phase_control_schedule_ptr, tsc_set_command_queue_);
-                } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
-                    SPDLOG_DEBUG("Failed to consume phase control schedule commands: {0}", ex.what());
-                }                
-            }
-        }  
-    }
+    // TODO: Remove if no longer necessary for TM/TSP MMITSS Integration
+    // void tsc_service::consume_phase_control_schedule(){
+    //     phase_control_schedule_consumer->subscribe();
+    //     while (phase_control_schedule_consumer->is_running())
+    //     {
+    //         const std::string payload = phase_control_schedule_consumer->consume(1000);
+    //         if (payload.length() != 0)
+    //         {
+    //             SPDLOG_DEBUG("Consumed: {0}", payload);
+    //             try {
+    //                 //Update phase control schedule with the latest incoming schedule
+    //                 phase_control_schedule_ptr->fromJson(payload);
+    //                 //Update command queue
+    //                 std::scoped_lock<std::mutex> snmp_cmd_lck(snmp_cmd_queue_mtx);
+    //                 control_tsc_state_ptr_->update_tsc_control_queue(phase_control_schedule_ptr, tsc_set_command_queue_);
+    //             } catch(streets_phase_control_schedule::streets_phase_control_schedule_exception &ex){
+    //                 SPDLOG_DEBUG("Failed to consume phase control schedule commands: {0}", ex.what());
+    //             }                
+    //         }
+    //     }  
+    // }
+    // --------------------------------------------------------------------------------------------
 
     void tsc_service::control_tsc_phases()
     {
@@ -445,28 +452,31 @@ namespace traffic_signal_controller_service {
 
         std::thread spat_t(&tsc_service::produce_spat_json, this);
 
-        std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
-
-        std::thread consume_phase_control_schedule_t(&tsc_service::consume_phase_control_schedule, this);
-
-        std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
+        if ( spat_proj_mode == SPAT_PROJECTION_MODE::DPP_PROJECTION ) {
+            std::thread desired_phase_plan_t(&tsc_service::consume_desired_phase_plan, this);
+            SPDLOG_DEBUG("Thread joined to consume desired phase plan generated by carma-streets SO service.");
+            desired_phase_plan_t.join();
+            // Run tsc control phases
+            std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
+            control_phases_t.join();
+        }
+        // TODO: Remove if no longer necessary for TM/TSP MMITSS Integration
+        // An indicator to control whether launching a thread to consume carma-streets internal desired phase plan generated by singal optimization (SO) service 
+        // or a thread to consume MMITSS external phase control schedule generated by MRP (https://github.com/mmitss/mmitss-az)
+        // if ( spat_proj_mode == SPAT_PROJECTION_MODE::MMITSS_PHASE_SCHEDULE ) {
+        //     std::thread consume_phase_control_schedule_t(&tsc_service::consume_phase_control_schedule, this);
+        //     SPDLOG_DEBUG("Thread joined to consume phase control schedule generated by MRP.");
+        //     consume_phase_control_schedule_t.join();
+        //     // Run tsc control phases
+        //     std::thread control_phases_t(&tsc_service::control_tsc_phases, this);
+        //     control_phases_t.join();
+        // }
+        // ---------------------------------------------------------------------------------------------------------------
         
         // Run threads as joint so that they dont overlap execution 
         tsc_config_thread.join();
         spat_t.join();
         
-        // An indicator to control whether launching a thread to consume carma-streets internal desired phase plan generated by singal optimization (SO) service 
-        // or a thread to consume MMITSS external phase control schedule generated by MRP (https://github.com/mmitss/mmitss-az)
-        if (use_mmitss_mrp)
-        {
-            SPDLOG_DEBUG("Thread joined to consume phase control schedule generated by MRP.");
-            consume_phase_control_schedule_t.join();
-        }else{
-            SPDLOG_DEBUG("Thread joined to consume desired phase plan generated by carma-streets SO service.");
-            desired_phase_plan_t.join();
-        }
-        
-        control_phases_t.join();
     }
     
 

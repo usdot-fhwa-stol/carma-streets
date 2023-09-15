@@ -1,20 +1,20 @@
 #include "spat_projection_mode.h"
 
 namespace traffic_signal_controller_service{
-    spat_projection_mode spat_projection_mode_from_int( const int i ) {
+    SPAT_PROJECTION_MODE spat_projection_mode_from_int( const int i ) {
         switch (i)
         {
         case 0:
-            return spat_projection_mode::no_projection;
+            return SPAT_PROJECTION_MODE::NO_PROJECTION;
             break;
         case 1:
-            return spat_projection_mode::dpp_projection;
+            return SPAT_PROJECTION_MODE::DPP_PROJECTION;
             break;
         case 2:
-            return spat_projection_mode::fixed_projection;
+            return SPAT_PROJECTION_MODE::FIXED_TIMING_PROJECTION;
             break;
         default:
-            return spat_projection_mode::no_projection;
+            return SPAT_PROJECTION_MODE::NO_PROJECTION;
         }
     }
 }
