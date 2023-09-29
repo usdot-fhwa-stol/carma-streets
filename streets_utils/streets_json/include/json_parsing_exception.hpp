@@ -15,7 +15,7 @@ namespace streets_utils::json_utils {
             /**
              * @brief Destructor.
              */ 
-            ~json_parsing_exception() override;
+            ~json_parsing_exception() = default;
             /**
              * @brief Constructor. 
              * @param msg String exception message.
