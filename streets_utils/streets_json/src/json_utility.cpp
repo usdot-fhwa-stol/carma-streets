@@ -76,7 +76,7 @@ namespace streets_utils::json_utils {
         return property;
     };
 
-    const rapidjson::Value::ConstObject get_json_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
+    rapidjson::Value::ConstObject get_json_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsObject())
         {
             return doc[prop_name.c_str()].GetObject();
@@ -87,7 +87,7 @@ namespace streets_utils::json_utils {
         }
     }
 
-    const rapidjson::Value::ConstArray get_json_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
+    rapidjson::Value::ConstArray get_json_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsArray())
         {
             return doc[prop_name.c_str()].GetArray();

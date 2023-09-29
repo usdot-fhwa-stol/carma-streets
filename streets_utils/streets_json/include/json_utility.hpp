@@ -21,8 +21,13 @@ namespace streets_utils::json_utils {
 
     std::optional<double> get_json_double_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
 
-    const rapidjson::Value::ConstObject get_json_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required );
+    rapidjson::Value::ConstObject get_json_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required );
 
-    const rapidjson::Value::ConstArray get_json_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
+    rapidjson::Value::ConstArray get_json_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
+
+    void write_int_property(const std::string &prop_name, rapidjson::Value &doc);
+
+    void write_uint_propert(const std::string &prop_name, rapidjson::Value &doc);
+
     
 }
