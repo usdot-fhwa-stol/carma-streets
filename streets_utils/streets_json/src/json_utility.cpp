@@ -11,7 +11,7 @@ namespace streets_utils::json_utils {
         }
         return doc;
     }
-    std::optional<int64_t> get_json_int_property(const std::string &prop_name, const rapidjson::Value &doc, bool required ){
+    std::optional<int64_t> parse_int_property(const std::string &prop_name, const rapidjson::Value &doc, bool required ){
         std::optional<int64_t> property;
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsInt64())
         {
@@ -24,7 +24,7 @@ namespace streets_utils::json_utils {
         return property;
     }
 
-    std::optional<uint64_t> get_json_uint_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required ) {
+    std::optional<uint64_t> parse_uint_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required ) {
         std::optional<u_int64_t> property;
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsUint64())
         {
@@ -37,7 +37,7 @@ namespace streets_utils::json_utils {
         return property;
     };
 
-    std::optional<bool> get_json_bool_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required ) {
+    std::optional<bool> parse_bool_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required ) {
         std::optional<bool> property;
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsBool())
         {
@@ -50,7 +50,7 @@ namespace streets_utils::json_utils {
         return property;
     };
 
-    std::optional<std::string> get_json_string_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required ){
+    std::optional<std::string> parse_string_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required ){
         std::optional<std::string> property;
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsString())
         {
@@ -63,7 +63,7 @@ namespace streets_utils::json_utils {
         return property;
     };
 
-    std::optional<double> get_json_double_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
+    std::optional<double> parse_double_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
         std::optional<double> property;
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsDouble())
         {
@@ -76,7 +76,7 @@ namespace streets_utils::json_utils {
         return property;
     };
 
-    rapidjson::Value::ConstObject get_json_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
+    std::optional<rapidjson::Value::ConstObject> parse_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsObject())
         {
             return doc[prop_name.c_str()].GetObject();
@@ -85,9 +85,10 @@ namespace streets_utils::json_utils {
         {
             throw json_parsing_exception("Missing or incorrect type for required property " + prop_name + "!");
         }
+        return std::nullopt;
     }
 
-    rapidjson::Value::ConstArray get_json_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
+    std::optional<rapidjson::Value::ConstArray> parse_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required) {
         if (doc.HasMember(prop_name.c_str()) && doc.FindMember(prop_name.c_str())->value.IsArray())
         {
             return doc[prop_name.c_str()].GetArray();
@@ -96,6 +97,7 @@ namespace streets_utils::json_utils {
         {
             throw json_parsing_exception("Missing or incorrect type for required property " + prop_name + "!");
         }
+        return std::nullopt;
     }
 
 

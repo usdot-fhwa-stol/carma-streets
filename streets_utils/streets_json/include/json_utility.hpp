@@ -5,29 +5,46 @@
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <optional>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #include "json_parsing_exception.hpp"
 
 namespace streets_utils::json_utils {
 
     rapidjson::Document validate_json( const std::string &json );
 
-    std::optional<int64_t> get_json_int_property(const std::string &prop_name, const rapidjson::Value &doc, bool required );
+    std::optional<int64_t> parse_int_property(const std::string &prop_name, const rapidjson::Value &doc, bool required );
 
-    std::optional<uint64_t> get_json_uint_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required );
+    std::optional<uint64_t> parse_uint_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required );
 
-    std::optional<bool> get_json_bool_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required );
+    std::optional<bool> parse_bool_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required );
 
-    std::optional<std::string> get_json_string_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required );
+    std::optional<std::string> parse_string_property(const std::string &prop_name,  const rapidjson::Value &doc, bool required );
 
-    std::optional<double> get_json_double_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
+    std::optional<double> parse_double_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
 
-    rapidjson::Value::ConstObject get_json_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required );
+    std::optional<rapidjson::Value::ConstObject> parse_object_property(const std::string &prop_name, const rapidjson::Value &doc, bool required );
 
-    rapidjson::Value::ConstArray get_json_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
+    std::optional<rapidjson::Value::ConstArray> parse_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
 
-    void write_int_property(const std::string &prop_name, rapidjson::Value &doc);
+    template<typename T>
+    inline void write_optional_property(std::string &prop_name, std::optional<T> value, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator)
+    {
+        if (doc.IsObject() && value->has_value()) {
+            // Add Member
+            doc.AddMember(prop_name, value, allocator);
+        }
+    };
 
-    void write_uint_propert(const std::string &prop_name, rapidjson::Value &doc);
+    void write_uint_property(const std::string &prop_name, const uint val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
+
+    void write_bool_property(const std::string &prop_name, const bool val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
+
+    void write_string_property(const std::string &prop_name, const std::string &val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
+
+    void write_double_property(const std::string &prop_name, const double &val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
+
+    // void write_object_property(const std::string &prop_name, )
 
     
 }
