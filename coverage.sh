@@ -20,8 +20,8 @@ cd /home/carma-streets
 mkdir test_results
 
 cd /home/carma-streets/streets_utils/streets_json/build/
-./streets_json_test --gtest_output=xml:../../../test_results/
-cd /home/carma-streets/streets_utils/streets_json
+./streets_json_utils_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_util/streets_json
 mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_json/coverage/coverage.xml -s -f streets_utils/streets_json/ -r .
