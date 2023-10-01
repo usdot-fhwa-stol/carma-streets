@@ -28,23 +28,18 @@ namespace streets_utils::json_utils {
     std::optional<rapidjson::Value::ConstArray> parse_array_property(const std::string &prop_name, const rapidjson::Value &doc, bool required);
 
     template<typename T>
-    inline void write_optional_property(std::string &prop_name, std::optional<T> value, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator)
+    inline void write_optional_property(const std::string &prop_name, std::optional<T> value, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator)
     {
         if (doc.IsObject() && value->has_value()) {
             // Add Member
             doc.AddMember(prop_name, value, allocator);
         }
     };
-
-    void write_uint_property(const std::string &prop_name, const uint val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
-
-    void write_bool_property(const std::string &prop_name, const bool val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
-
-    void write_string_property(const std::string &prop_name, const std::string &val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
-
-    void write_double_property(const std::string &prop_name, const double &val, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator);
-
-    // void write_object_property(const std::string &prop_name, )
+    
+    template<typename T>
+    inline void write_required_property(const std::string &prop_name, T value, rapidjson::Value &doc, rapidjson::Document::AllocatorType &allocator){
+        doc.AddMember(prop_name, value, allocator);
+    };
 
     
 }
