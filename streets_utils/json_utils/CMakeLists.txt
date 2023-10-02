@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(streets_json_utils)
+project(json_utils)
 # Set Flags
 set(CMAKE_CXX_STANDARD 20)
-
+# GNU standard installation directories
+include(GNUInstallDirs)
 # Find Packages 
 find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
@@ -10,18 +11,18 @@ find_package(spdlog REQUIRED)
 
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
-set(LIBRARY_NAME json_utils)
+set(LIBRARY_NAME ${PROJECT_NAME}_lib)
 ########################################################
 # Build Library
 ######################################################## 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-add_library(${LIBRARY_NAME}_lib ${SOURCES} )
-target_include_directories(${LIBRARY_NAME}_lib  
+add_library(${LIBRARY_NAME} ${SOURCES} )
+target_include_directories(${LIBRARY_NAME} 
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
-target_link_libraries( ${LIBRARY_NAME}_lib 
+target_link_libraries( ${LIBRARY_NAME}
     PUBLIC
         rapidjson
         spdlog::spdlog
@@ -33,46 +34,42 @@ target_link_libraries( ${LIBRARY_NAME}_lib
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 
 install(
-    TARGETS ${LIBRARY_NAME}_lib
-    EXPORT ${LIBRARY_NAME}_libTargets
-    LIBRARY DESTINATION lib/streets_utils/
-    INCLUDES DESTINATION include/streets_utils/${LIBRARY_NAME}
-    ARCHIVE DESTINATION lib/streets_utils/
+    TARGETS ${LIBRARY_NAME}
+    EXPORT ${LIBRARY_NAME}Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/streets_utils/
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/streets_utils/${LIBRARY_NAME}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/streets_utils/
 )
 install(
-    EXPORT ${LIBRARY_NAME}_libTargets 
-    FILE ${LIBRARY_NAME}_libTargets.cmake
-    DESTINATION lib/cmake/${LIBRARY_NAME}_lib
+    EXPORT ${LIBRARY_NAME}Targets 
+    FILE ${LIBRARY_NAME}Targets.cmake
+    DESTINATION lib/cmake/${LIBRARY_NAME}
     NAMESPACE streets_utils::
 )
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-    cmake/${LIBRARY_NAME}_libConfig.cmake.in 
-    ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_libConfig.cmake
-    INSTALL_DESTINATION  lib/cmake/${LIBRARY_NAME}_lib)
+    cmake/${LIBRARY_NAME}Config.cmake.in 
+    ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
+    INSTALL_DESTINATION  lib/cmake/${LIBRARY_NAME})
 install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_libConfig.cmake
-    DESTINATION  lib/cmake/${LIBRARY_NAME}_lib
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
+    DESTINATION  lib/cmake/${LIBRARY_NAME}
 )
 install(FILES ${files} DESTINATION include/streets_utils/${LIBRARY_NAME})
 
 ########################
 # googletest for unit testing
 ########################
-set(BINARY ${LIBRARY_NAME}_test)
+set(TEST_NAME ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.hpp test/*.cpp)
-set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
-add_executable(${BINARY} ${TEST_SOURCES})
-add_test(NAME ${BINARY} COMMAND ${BINARY})
-target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BINARY} 
-    PUBLIC
-        ${LIBRARY_NAME}_lib
-        rapidjson
-        spdlog::spdlog
+add_executable(${TEST_NAME} ${TEST_SOURCES})
+gtest_discover_tests(${TEST_NAME})
+target_link_libraries(${TEST_NAME} 
+    PRIVATE
+        ${LIBRARY_NAME}       
 )
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
-    target_link_libraries( ${BINARY} PUBLIC GTest::gtest_main )
+    target_link_libraries( ${TEST_NAME} PUBLIC GTest::gtest_main )
 else() 
-    target_link_libraries( ${BINARY} PUBLIC gtest_main )
+    target_link_libraries( ${TEST_NAME} PUBLIC gtest_main )
 endif()
