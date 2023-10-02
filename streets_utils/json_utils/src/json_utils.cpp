@@ -7,7 +7,7 @@ namespace streets_utils::json_utils {
         obj.Parse(json);
         if (obj.HasParseError())
         {
-            throw json_utils_exception("Message JSON is misformatted. JSON parsing failed!");
+            throw json_parse_exception("Message JSON is misformatted. JSON parsing failed!");
         }
         return obj;
     }
@@ -19,7 +19,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return member;
     }
@@ -32,7 +32,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return member;
     };
@@ -45,7 +45,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return member;
     };
@@ -58,7 +58,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return member;
     };
@@ -71,7 +71,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return member;
     };
@@ -83,7 +83,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return std::nullopt;
     }
@@ -95,7 +95,7 @@ namespace streets_utils::json_utils {
         }
         else if (required)
         {
-            throw json_utils_exception("Missing or incorrect type for required member " + member_name + "!");
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
         }
         return std::nullopt;
     }

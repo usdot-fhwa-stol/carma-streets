@@ -8,11 +8,11 @@ using namespace streets_utils::json_utils;
 TEST(JsonUtilsTest, testParseJsonInvalidJson) {
     // Empty String
     std::string invalid_json = "";
-    EXPECT_THROW( parse_json(invalid_json), json_utils_exception);
+    EXPECT_THROW( parse_json(invalid_json), json_parse_exception);
 
     // Property missing quotations
     invalid_json = "{ some_propert: \"some_value\"}";
-    EXPECT_THROW( parse_json(invalid_json), json_utils_exception);
+    EXPECT_THROW( parse_json(invalid_json), json_parse_exception);
 
 }
 
@@ -34,14 +34,14 @@ TEST(JsonUtilsTest, testGetJsonUintRequiredPropertyNotPresent){
     // Test with required property no present
     std::string valid_json = "{ \"some_property_other\": 12345}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_uint_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_uint_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonUintRequiredPropertyWrongType){
     // Test with required property present with wrong type
     std::string valid_json = "{ \"some_property\": -12345}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_uint_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_uint_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonUintOptionalPropertyMissing) {
@@ -64,14 +64,14 @@ TEST(JsonUtilsTest, testGetJsonIntRequiredPropertyNotPresent){
     // Test with required property no present
     std::string valid_json = "{ \"some_property_other\": 12345}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_int_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_int_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonIntRequiredPropertyWrongType){
     // Test with required property present with wrong type
     std::string valid_json = "{ \"some_property\": true}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_int_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_int_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonIntOptionalPropertyMissing) {
@@ -94,14 +94,14 @@ TEST(JsonUtilsTest, testGetJsonBoolRequiredPropertyNotPresent){
     // Test with required property no present
     std::string valid_json = "{ \"some_property_other\": true}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_bool_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_bool_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonBoolRequiredPropertyWrongType){
     // Test with required property present with wrong type
     std::string valid_json = "{ \"some_property\": 1234}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_bool_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_bool_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonBoolOptionalPropertyMissing) {
@@ -125,14 +125,14 @@ TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyNotPresent){
     // Test with required property no present
     std::string valid_json = "{ \"some_property_other\": 12.3}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyWrongType){
     // Test with required property present with wrong type
     std::string valid_json = "{ \"some_property\": 1234}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonDoubleOptionalPropertyMissing) {
@@ -155,14 +155,14 @@ TEST(JsonUtilsTest, testGetJsonStringRequiredPropertyNotPresent){
     // Test with required property no present
     std::string valid_json = "{ \"some_property_other\": 12.3}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_string_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_string_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonStringRequiredPropertyWrongType){
     // Test with required property present with wrong type
     std::string valid_json = "{ \"some_property\": 1234}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_string_member("some_property", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_string_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonStringOptionalPropertyMissing) {
@@ -199,7 +199,7 @@ TEST(JsonUtilsTest, testGetJsonObjectRequiredPropertyNotPresent){
                 "}" 
             "}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_object_member("some_object", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_object_member("some_object", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonObjectRequiredPropertyWrongType){
@@ -211,7 +211,7 @@ TEST(JsonUtilsTest, testGetJsonObjectRequiredPropertyWrongType){
                 "}]" 
             "}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_object_member("some_object", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_object_member("some_object", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonObjectOptionalPropertyMissing) {
@@ -246,7 +246,7 @@ TEST(JsonUtilsTest, testGetJsonArrayRequiredPropertyNotPresent){
                     "[456, 2452, -1232, 2345]" 
                 "}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_array_member("some_array", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_array_member("some_array", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonArrayRequiredPropertyWrongType){
@@ -258,7 +258,7 @@ TEST(JsonUtilsTest, testGetJsonArrayRequiredPropertyWrongType){
                 "}]" 
             "}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_array_member("some_object", parsed_doc, true), json_utils_exception);
+    EXPECT_THROW( parse_array_member("some_object", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonArrayOptionalPropertyMissing) {

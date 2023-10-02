@@ -6,21 +6,14 @@
 
 namespace streets_utils::json_utils {
     /**
-     * @brief Runtime error related to processing signal_phase_and_timing JSON updates.
+     * @brief Runtime exception related to json_utils functions. Thrown when :
+     *  - Passing Invalid JSON
+     *  - Missing Required member
+     *  - Passing rapidjson::Value that is not an object into parse functions
      * 
      * @author Paul Bourelly 
      */ 
-    class json_utils_exception : public std::runtime_error{
-        public:
-            /**
-             * @brief Destructor.
-             */ 
-            ~json_utils_exception() = default;
-            /**
-             * @brief Constructor. 
-             * @param msg String exception message.
-             */  
-            explicit json_utils_exception(const std::string &msg ) : std::runtime_error(msg){};
-
+    class json_parse_exception : public std::runtime_error{
+        using std::runtime_error::runtime_error;
     };
 }
