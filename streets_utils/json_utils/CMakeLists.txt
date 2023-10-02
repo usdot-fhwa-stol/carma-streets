@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(streets_json_util)
+project(streets_json_utils)
 # Set Flags
 set(CMAKE_CXX_STANDARD 20)
 # Find Packages 
 find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
+find_package(spdlog REQUIRED)
+
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
-
-set(LIBRARY_NAME streets_json_util)
+set(LIBRARY_NAME json_utils)
 ########################################################
 # Build Library
 ######################################################## 
@@ -21,7 +22,9 @@ target_include_directories(${LIBRARY_NAME}_lib
 )
 target_link_libraries( ${LIBRARY_NAME}_lib 
     PUBLIC
-        rapidjson 
+        rapidjson
+        spdlog::spdlog
+
 )  
 
 message( STATUS "Target INCLUDE DIR : " ${INCLUDE_DIRECTORIES})
@@ -68,6 +71,8 @@ target_link_libraries(${BINARY}
     PUBLIC
         ${LIBRARY_NAME}_lib
         rapidjson
+        spdlog::spdlog
+
  )
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
     target_link_libraries( ${BINARY} PUBLIC GTest::gtest_main )

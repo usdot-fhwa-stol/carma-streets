@@ -10,17 +10,17 @@ namespace streets_utils::json_utils {
      * 
      * @author Paul Bourelly 
      */ 
-    class json_parsing_exception : public std::runtime_error{
+    class json_utils_exception : public std::runtime_error{
         public:
             /**
              * @brief Destructor.
              */ 
-            ~json_parsing_exception() = default;
+            ~json_utils_exception() = default;
             /**
              * @brief Constructor. 
              * @param msg String exception message.
              */  
-            explicit json_parsing_exception(const std::string &msg ) : std::runtime_error(msg){};
+            explicit json_utils_exception(const std::string &msg ) : std::runtime_error(msg){};
 
     };
 }
