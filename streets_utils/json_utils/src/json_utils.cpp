@@ -2,7 +2,7 @@
 
 namespace streets_utils::json_utils {
 
-    rapidjson::Document validate_json(const std::string &json) {
+    rapidjson::Document parse_json(const std::string &json) {
         rapidjson::Document obj;
         obj.Parse(json);
         if (obj.HasParseError())

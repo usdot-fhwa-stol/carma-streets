@@ -5,7 +5,7 @@
 This CARMA-Streets library contains utility functions for parsing JSON strings with [RapidJSON](https://miloyip.github.io/rapidjson/index.html). The functions exposed by this library are described below
 
 ## Functions
-`rapidjson::Document validate_json( const std::string &json )`
+`rapidjson::Document parse_json( const std::string &json )`
 
 Function to parse `std::string` JSON with [RapidJSON](https://miloyip.github.io/rapidjson/index.html) with [DOM  parsing](https://miloyip.github.io/rapidjson/md_doc_dom.html). Throws `json_utils_exception` if string is not valid json. Otherwise returns `rapidjson::Document``
 

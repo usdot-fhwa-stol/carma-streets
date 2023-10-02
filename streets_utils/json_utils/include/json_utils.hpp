@@ -19,7 +19,7 @@ namespace streets_utils::json_utils {
      * @throws json_utils_exception if passed string is not valid json.
      * @return resulting `rapidjson::Document`
      */
-    rapidjson::Document validate_json( const std::string &json );
+    rapidjson::Document parse_json( const std::string &json );
     /**
      * @brief Functions to retrieve int member values from JSON object [RapidJSON](https://miloyip.github.io/rapidjson/index.html)
      * with [DOM  parsing](https://miloyip.github.io/rapidjson/md_doc_dom.html). Functions will return unintialized
