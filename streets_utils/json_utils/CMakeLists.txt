@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10.2)
 project(streets_json_utils)
 # Set Flags
 set(CMAKE_CXX_STANDARD 20)
+
 # Find Packages 
 find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
@@ -24,39 +25,36 @@ target_link_libraries( ${LIBRARY_NAME}_lib
     PUBLIC
         rapidjson
         spdlog::spdlog
-
 )  
 
-message( STATUS "Target INCLUDE DIR : " ${INCLUDE_DIRECTORIES})
-
 ########################################################
-# Install sensor_data_sharing_package package.
+# Install streets_utils::json_utils_lib library.
 ########################################################
 file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 
 install(
     TARGETS ${LIBRARY_NAME}_lib
     EXPORT ${LIBRARY_NAME}_libTargets
-    LIBRARY DESTINATION lib
-    INCLUDES DESTINATION include
-    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib/streets_utils/
+    INCLUDES DESTINATION include/streets_utils/${LIBRARY_NAME}
+    ARCHIVE DESTINATION lib/streets_utils/
 )
 install(
     EXPORT ${LIBRARY_NAME}_libTargets 
     FILE ${LIBRARY_NAME}_libTargets.cmake
-    DESTINATION lib/cmake/${LIBRARY_NAME}_lib/
-    NAMESPACE ${LIBRARY_NAME}_lib::
+    DESTINATION lib/cmake/${LIBRARY_NAME}_lib
+    NAMESPACE streets_utils::
 )
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/${LIBRARY_NAME}_libConfig.cmake.in 
     ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_libConfig.cmake
-    INSTALL_DESTINATION  lib/${LIBRARY_NAME}_lib/ )
+    INSTALL_DESTINATION  lib/cmake/${LIBRARY_NAME}_lib)
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}_libConfig.cmake
-    DESTINATION  lib/cmake/${LIBRARY_NAME}_lib/
+    DESTINATION  lib/cmake/${LIBRARY_NAME}_lib
 )
-install(FILES ${files} DESTINATION include)
+install(FILES ${files} DESTINATION include/streets_utils/${LIBRARY_NAME})
 
 ########################
 # googletest for unit testing
@@ -72,8 +70,7 @@ target_link_libraries(${BINARY}
         ${LIBRARY_NAME}_lib
         rapidjson
         spdlog::spdlog
-
- )
+)
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
     target_link_libraries( ${BINARY} PUBLIC GTest::gtest_main )
 else() 

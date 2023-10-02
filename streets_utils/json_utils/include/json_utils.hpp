@@ -104,46 +104,7 @@ namespace streets_utils::json_utils {
      * @return std::optional<rapidjson::Value::ConstArray> 
      */
     std::optional<rapidjson::Value::ConstArray> parse_array_member(const std::string &member_name, const rapidjson::Value &obj, bool required);
-    // TODO: Commented out because I can not get this to work for string values. Before closing PR make a decision on keeping/fixing this or removing
-    // it. Works for all other types other 
-    // template<typename T>
-    // inline void write_optional_member(const std::string &member_name, const std::optional<T> _value, rapidjson::Value &obj, rapidjson::Document::AllocatorType &allocator)
-    // {
-    //     if (obj.IsObject() && _value.has_value()) {
-    //         // In an attempt to improve performance and since many json objects have constant
-    //         // key names the StringRef constructor avoids copying the member name and "requires 
-    //         // that the referenced string pointers have a sufficient lifetime, which exceeds the 
-    //         // lifetime of the associated GenericValue"(https://rapidjson.org/structrapidjson_1_1_generic_string_ref.html). 
-
-    //         // To explicitly force a copy we instead create a new String Value with the content of 
-    //         // the passed in parameter. Follow link to get more information from Documentation 
-    //         // (RapidJSON Documentation)[https://miloyip.github.io/rapidjson/md_obj_tutorial.html#ModifyObject]
-
-    //         // Alternatively we could pass in the string reference using StringRef(member_name). Doing so
-    //         // we would be explicitly guaranteeing the lifetime of the passed in string reference. If we then
-    //         // pass in a string literal from the caller of this function the AddMember method would silently fail
-    //         // since the lifetime of the reference string is not sufficient. 
-    //         rapidjson::Value member_name_copy(member_name, allocator);
-    //         obj.AddMember(member_name_copy, _value.value(), allocator);
-    //   
-    //     }
-    //     else {
-    //         SPDLOG_TRACE("Skipping member {0}! std::optional has_value() check failed or parameter is not writable object type value!", 
-    //                         member_name);
-
-    //     }
-    // };
-
-    // template<typename T>
-    // inline void write_required_member(const std::string &member_name, const T &value, rapidjson::Value &obj, rapidjson::Document::AllocatorType &allocator){
-    //     if ( obj.IsObject() && value != NULL ) {
-    //         rapidjson::Value member_name_copy(member_name, allocator);
-    //         obj.AddMember(member_name_copy, value, allocator);
-    //     }
-    //     else {
-    //         throw json_utils_exception("");
-    //     }
-    // };
+    
 
     
 }

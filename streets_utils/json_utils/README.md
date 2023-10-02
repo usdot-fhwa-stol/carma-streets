@@ -22,7 +22,7 @@ Functions to retrieve member values from JSON object [RapidJSON](https://miloyip
 ## Include Library
 To include after installing with `make install` simply add find_package call to `CMakeLists.txt` and link the library as follows. Installed CMake configuration files should handle finding and linking depedencies `RapidJSON` and `spdlog`. The library along with it's dependencies can then be included by simply using the find_package() instruction.
 ```
-find_package(streets_utils COMPONENT json_utils)
+find_package(json_utils_lib)
 ...
 target_link_library( target PUBLIC streets_utils::json_utils)
 ```

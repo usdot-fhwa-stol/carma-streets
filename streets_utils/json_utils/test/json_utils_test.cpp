@@ -268,22 +268,5 @@ TEST(json_utils_test, test_get_json_array_optional_property_missing) {
     auto property = parse_array_member("some_property", parsed_doc, false);
     EXPECT_FALSE( property.has_value());
 }
-//---------------------test write optional property---------------------
-// TODO: Functionality not working yet,
-// TEST(json_utils_test, test_write_option_property){
-//     rapidjson::Value obj(rapidjson::kObjectType);
-//     rapidjson::Document doc;
-//     // Write optional present value
-//     std::optional<double> double_optional;
-//     double_optional = 43.2;
-//     write_optional_member("some_double_property", double_optional, obj,  doc.GetAllocator());
-//     EXPECT_TRUE(obj.HasMember("some_double_property"));
-//     EXPECT_TRUE(obj.FindMember("some_double_property")->value.IsNumber());
-//     EXPECT_NEAR(43.2, obj.FindMember("some_double_property")->value.GetDouble(),  0.01 );
 
-//     std::optional<std::string> string_optional_not_present;
-//     // write_optional_member("some_string_property", string_optional_not_present, obj,  doc.GetAllocator());
-
-//     // EXPECT_FALSE( obj.HasMember("some_string_property"));
-// }
 
