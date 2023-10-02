@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(json_utils)
 # Set Flags
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 # GNU standard installation directories
 include(GNUInstallDirs)
 # Find Packages 
@@ -19,9 +19,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_library(${LIBRARY_NAME} ${SOURCES} )
 target_include_directories(${LIBRARY_NAME} 
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries( ${LIBRARY_NAME}
     PUBLIC
         rapidjson
