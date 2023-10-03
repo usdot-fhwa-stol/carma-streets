@@ -15,8 +15,8 @@ set(LIBRARY_NAME ${PROJECT_NAME}_lib)
 ########################################################
 # Build Library
 ######################################################## 
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-add_library(${LIBRARY_NAME} ${SOURCES} )
+file(GLOB JSON_UTILS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+add_library(${LIBRARY_NAME} ${JSON_UTILS_SOURCES} )
 target_include_directories(${LIBRARY_NAME} 
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
@@ -29,7 +29,7 @@ target_link_libraries( ${LIBRARY_NAME}
 ########################################################
 # Install streets_utils::json_utils_lib library.
 ########################################################
-file(GLOB files ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
+file(GLOB JSON_UTILS_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 
 install(
     TARGETS ${LIBRARY_NAME}
@@ -53,14 +53,14 @@ install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
     DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME}
 )
-install(FILES ${files} DESTINATION include/streets_utils/${LIBRARY_NAME})
+install(FILES ${JSON_UTILS_HEADERS} DESTINATION include/streets_utils/${LIBRARY_NAME})
 
 ########################
 # googletest for unit testing
 ########################
 set(TEST_NAME ${PROJECT_NAME}_test)
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.hpp test/*.cpp)
-add_executable(${TEST_NAME} ${TEST_SOURCES})
+file(GLOB_RECURSE JSON_UTILS_TEST_SOURCES LIST_DIRECTORIES false test/*.hpp test/*.cpp)
+add_executable(${TEST_NAME} ${JSON_UTILS_TEST_SOURCES})
 gtest_discover_tests(${TEST_NAME})
 target_link_libraries(${TEST_NAME} 
     PRIVATE
