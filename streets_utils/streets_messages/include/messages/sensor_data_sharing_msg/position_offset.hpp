@@ -6,15 +6,15 @@ namespace streets_utils::messages{
         /**
          * @brief Cartesian offset in X axis from reference point in 0.1 m [-32767, 32767]
          */
-        int16_t _offset_x;
+       std::int16_t _offset_x;
         /**
          * @brief Cartesian offset in Y axis from reference point in 0.1 m [-32767, 32767]
          */
-        int16_t _offset_y;
+       std::int16_t _offset_y;
         /**
          * @brief Cartesian offset in Z axis from reference point in 0.1 m [-32767, 32767]
          */
-        int16_t _offset_z;
+        std::int16_t _offset_z;
 
     };
 }

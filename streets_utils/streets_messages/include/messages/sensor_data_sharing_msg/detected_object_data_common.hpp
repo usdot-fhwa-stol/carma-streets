@@ -20,15 +20,15 @@ namespace streets_utils::messages {
         /**
          * @brief Confidence in object type classification [0,101]
          */
-        u_int8_t _classification_confidence;
+        std::uint8_t _classification_confidence;
         /**
          * @brief Object ID [0, 65535] 
          */
-        u_int16_t _object_id;
+        std::uint16_t _object_id;
         /**
          * @brief Time relative to SDSM timestamp assoicated with detection [-1500, 1500]
          */
-        int16_t _time_measurement_offset;
+        std::int16_t _time_measurement_offset;
         /**
          * @brief Time Confidence enumeration for time offset.
          */
@@ -44,7 +44,7 @@ namespace streets_utils::messages {
         /**
          * @brief Object speed in unit (0.02 m/s) [0, 8191]
          */
-        u_int16_t _speed;
+        std::uint16_t _speed;
         /**
          * @brief Confidence in reported speed 
          */
@@ -52,7 +52,7 @@ namespace streets_utils::messages {
         /**
          * @brief Object speed along Z axis unit (0.02 m/s) [0, 8191]
          */
-        u_int16_t _speed_z;
+        std::uint16_t _speed_z;
         /**
          * @brief Confidence in reported speed z 
          */
@@ -60,7 +60,7 @@ namespace streets_utils::messages {
         /**
          * @brief Heading in 0.0125 degrees [0, 28800]
          */
-        u_int16_t _heading;
+        std::uint16_t _heading;
         /**
          * @brief Confidence in reported heading
          */

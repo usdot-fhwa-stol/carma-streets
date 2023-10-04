@@ -17,7 +17,7 @@ namespace streets_utils::messages{
         if ( msg._ref_position_elavation_confidence.has_value() )
             sdsm_json.AddMember("ref_pos_el_conf", msg._ref_position_elavation_confidence.value(), doc.GetAllocator());
         // Construct object list
-
+        sdsm_json.AddMember("objects", create_detected_object_list(msg._objects, doc.GetAllocator()), doc.GetAllocator());
 
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);

@@ -5,10 +5,10 @@ namespace streets_utils::messages{
         /**
          * @brief Angular velocity for pitch axis in 0.01 degrees per second [-32767, 32767]
          */
-        int16_t _pitch_rate;
+        std::int16_t _pitch_rate;
         /**
          * @brief Angular velocity for roll axis in 0.01 degrees per second [-32767, 32767]
          */
-        int16_t _roll_rate;
+        std::int16_t _roll_rate;
     };
 }

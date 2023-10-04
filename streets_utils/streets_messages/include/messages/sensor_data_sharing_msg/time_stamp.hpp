@@ -4,12 +4,12 @@
 
 namespace streets_utils::messages {
     struct time_stamp {
-        u_int8_t second;
-        u_int8_t minute;
-        u_int8_t hour;
-        u_int8_t day;
-        u_int8_t month;
-        u_int16_t year;
-        u_int8_t offset; // Time zone
+        std::uint8_t second;
+        std::uint8_t minute;
+        std::uint8_t hour;
+        std::uint8_t day;
+        std::uint8_t month;
+        std::uint16_t year;
+        std::uint8_t offset; // Time zone
     };
 }

@@ -29,8 +29,6 @@ target_link_libraries( ${LIBRARY_NAME}
 ########################################################
 # Install streets_messages package.
 ########################################################
-file(GLOB_RECURSE STREETS_MESSAGES_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
-
 install(
     TARGETS ${LIBRARY_NAME}
     EXPORT ${LIBRARY_NAME}Targets
@@ -54,9 +52,9 @@ install(
     DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME}
 )
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
-        DESTINATION include/streets_utils/${LIBRARY_NAME}
-        FILES_MATCHING PATTERN "*.hpp" # select header files
-        )
+    DESTINATION include/streets_utils/${LIBRARY_NAME}
+    FILES_MATCHING PATTERN "*.hpp" # select header files
+    )
 
 ########################
 # googletest for unit testing

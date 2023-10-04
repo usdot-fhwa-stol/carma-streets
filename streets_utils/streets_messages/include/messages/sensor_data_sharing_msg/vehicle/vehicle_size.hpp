@@ -7,11 +7,11 @@ namespace streets_utils::messages{
         /**
          * @brief Vehicle width in centimeters [0, 1023]
          */
-        u_int16_t _width;
+        std::uint16_t _width;
         /**
          * @brief Vehicle length in centimeters [0, 4095]
          */
-        u_int16_t _length; 
+        std::uint16_t _length; 
         
     };
 }

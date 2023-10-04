@@ -7,11 +7,11 @@ namespace streets_utils::messages{
         /**
          * @brief Longitudinal acceleration in 0.01 m/s^s [-2000, 2001]
          */
-        int16_t _longitudinal_accel;
+        std::int16_t _longitudinal_accel;
         /**
          * @brief Lateral acceleration in 0.01 m/s^s [-2000, 2001]
          */
-        int16_t _lateral_accel;
+        std::int16_t _lateral_accel;
         /**
          * @brief Vertical acceleration in 0.02 G [-127, 127]
          */
@@ -19,6 +19,6 @@ namespace streets_utils::messages{
         /**
          * @brief Angular velocity in 0.01 degrees [-32767, 32767]
          */
-        int16_t _yaw_rate;
+        std::int16_t _yaw_rate;
     };
 }

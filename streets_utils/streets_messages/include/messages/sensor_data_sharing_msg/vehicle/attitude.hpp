@@ -7,14 +7,14 @@ namespace streets_utils::messages{
         /**
          * @brief Pitch in 0.0125 degrees [-7200, 72000].
          */
-        int16_t _pitch;
+        std::int16_t _pitch;
         /**
          * @brief Roll in 0.0125 degrees [-14400, 14400] 
          */
-        int16_t _roll;
+        std::int16_t _roll;
         /**
          * @brief Yaw in 0.0125 degrees [-14400, 14400] 
          */
-        int16_t _yaw;
+        std::int16_t _yaw;
     };
 }
