@@ -29,7 +29,6 @@ target_link_libraries( ${LIBRARY_NAME}
 ########################################################
 # Install streets_utils::json_utils_lib library.
 ########################################################
-file(GLOB JSON_UTILS_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 
 install(
     TARGETS ${LIBRARY_NAME}
@@ -48,13 +47,16 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/${LIBRARY_NAME}Config.cmake.in 
     ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
-    INSTALL_DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME})
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME})
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
-    DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME}
+    DESTINATION  ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME}
 )
-install(FILES ${JSON_UTILS_HEADERS} DESTINATION include/streets_utils/${LIBRARY_NAME})
 
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+    DESTINATION include/streets_utils/${LIBRARY_NAME}
+    FILES_MATCHING PATTERN "*.hpp" # select header files
+    )
 ########################
 # googletest for unit testing
 ########################
@@ -66,6 +68,7 @@ target_link_libraries(${TEST_NAME}
     PRIVATE
         ${LIBRARY_NAME}       
 )
+
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
     target_link_libraries( ${TEST_NAME} PUBLIC GTest::gtest_main )
 else() 

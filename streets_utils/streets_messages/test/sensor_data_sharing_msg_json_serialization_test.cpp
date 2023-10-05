@@ -44,9 +44,10 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    EXPECT_TRUE(result.HasMember("sdsm_time_stamp"));
-    EXPECT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
-
+    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // not available the other calls will fail
+    ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
+    ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
     EXPECT_EQ( msg._time_stamp.second, result["sdsm_time_stamp"]["second"].GetInt());
     EXPECT_EQ( msg._time_stamp.minute, result["sdsm_time_stamp"]["minute"].GetInt());
     EXPECT_EQ( msg._time_stamp.hour, result["sdsm_time_stamp"]["hour"].GetInt());
@@ -54,5 +55,6 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     EXPECT_EQ( msg._time_stamp.month, result["sdsm_time_stamp"]["month"].GetInt());
     EXPECT_EQ( msg._time_stamp.year, result["sdsm_time_stamp"]["year"].GetInt());
 
-
+    EXPECT_EQ( msg._msg_count, result["msg_count"]);
+    // EXPECT_EQ( );
 }
