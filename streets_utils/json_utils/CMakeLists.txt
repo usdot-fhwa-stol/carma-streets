@@ -40,7 +40,7 @@ install(
 install(
     EXPORT ${LIBRARY_NAME}Targets 
     FILE ${LIBRARY_NAME}Targets.cmake
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME}
     NAMESPACE streets_utils::
 )
 include(CMakePackageConfigHelpers)
