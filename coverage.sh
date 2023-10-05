@@ -26,6 +26,13 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/json_utils/coverage/coverage.xml -s -f streets_utils/json_utils/ -r .
 
+cd /home/carma-streets/streets_utils/streets_messages/build/
+./json_utils_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_messages
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_messages/coverage/coverage.xml -s -f streets_utils/streets_messages/
+
 cd /home/carma-streets/streets_utils/streets_service_configuration/build/
 ./streets_service_configuration_test --gtest_output=xml:../../../test_results/
 cd /home/carma-streets/streets_utils/streets_service_configuration

@@ -88,7 +88,8 @@ namespace streets_utils::messages{
         detected_object_data_common_json.AddMember("pos_confidence", create_position_confidence_set(val._pos_confidence, allocator), allocator );
         detected_object_data_common_json.AddMember("speed", val._speed, allocator);
         detected_object_data_common_json.AddMember("speed_confidence", static_cast<uint>(val._speed_confidence), allocator);
-        detected_object_data_common_json.AddMember("speed_z", val._speed_z, allocator);
+        if ( val._speed_z.has_value())
+            detected_object_data_common_json.AddMember("speed_z", val._speed_z.value(), allocator);
         if ( val._speed_z_confidence.has_value())
             detected_object_data_common_json.AddMember(
                     "speed_confidence_z", 

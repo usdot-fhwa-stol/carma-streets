@@ -52,7 +52,7 @@ namespace streets_utils::messages {
         /**
          * @brief Object speed along Z axis unit (0.02 m/s) [0, 8191]
          */
-        std::uint16_t _speed_z;
+        std::optional<std::uint16_t> _speed_z;
         /**
          * @brief Confidence in reported speed z 
          */
