@@ -7,7 +7,7 @@ namespace streets_utils::messages{
         rapidjson::Value sdsm_json(rapidjson::kObjectType);
         sdsm_json.AddMember("msg_cnt", msg._msg_count, doc.GetAllocator());
         sdsm_json.AddMember("source_id", msg._source_id, doc.GetAllocator());
-        sdsm_json.AddMember("equipement_type", static_cast<int>(msg._equipment_type), doc.GetAllocator());
+        sdsm_json.AddMember("equipment_type", static_cast<int>(msg._equipment_type), doc.GetAllocator());
         // Construct SDSM Time Stamp JSON Object
         auto time_stamp_json = create_timestamp(msg._time_stamp, doc.GetAllocator());
         sdsm_json.AddMember("sdsm_time_stamp", time_stamp_json, doc.GetAllocator());

@@ -10,8 +10,8 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     msg._equipment_type = equipment_type::RSU;
     msg._msg_count = 1;
     msg._source_id = "00000001";
-    msg._ref_positon._latitude=0;
-    msg._ref_positon._longitude=0;
+    msg._ref_positon._latitude=900000001;
+    msg._ref_positon._longitude=1800000001;
     msg._time_stamp.second = 65535;
     msg._time_stamp.minute = 60;
     msg._time_stamp.hour= 31;
@@ -57,12 +57,26 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
 
     EXPECT_EQ( msg._msg_count, result["msg_cnt"].GetUint());
     EXPECT_EQ( msg._source_id, result["source_id"].GetString());
-
+    EXPECT_EQ( static_cast<int>(msg._equipment_type), result["equipment_type"].GetInt());
+    // Confirm ref position confidence
     ASSERT_TRUE(result.HasMember("ref_pos_xy_conf"));
     ASSERT_TRUE(result.FindMember("ref_pos_xy_conf")->value.IsObject());
-
     EXPECT_EQ(msg._ref_position_confidence._semi_major_axis_accuracy, result["ref_pos_xy_conf"]["semi_major"].GetUint());
     EXPECT_EQ(msg._ref_position_confidence._semi_minor_axis_accuracy, result["ref_pos_xy_conf"]["semi_minor"].GetUint());
     EXPECT_EQ(msg._ref_position_confidence._semi_major_axis_orientation, result["ref_pos_xy_conf"]["orientation"].GetInt());
+    // Confirm optional elevation parameter is not present
+    EXPECT_FALSE( result.HasMember("ref_pos_el_conf"));
+    // Confirm ref position
+    ASSERT_TRUE(result.HasMember("ref_pos"));
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
+    EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
+    // Optional parameter is not present
+    EXPECT_FALSE(result["ref_pos"].HasMember("elevation"));
+
+    // Confirm List of detected object exists
+    ASSERT_TRUE(result.HasMember("objects"));
+    ASSERT_TRUE(result.FindMember("objects")->value.IsArray());
+ 
 
 }

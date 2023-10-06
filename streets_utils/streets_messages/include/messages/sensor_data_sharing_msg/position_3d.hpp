@@ -5,9 +5,21 @@
 
 namespace streets_utils::messages{
     struct position_3d{
+        /**
+         * @brief LSB = 1/10 micro degree Providing a range of 
+         * plus-minus 180 degrees[-1799999999, 1800000001]
+         */
         int64_t _longitude;
+        /**
+         * @brief LSB = 1/10 micro degree Providing a range of 
+         * plus-minus 90 degrees[-900000000, 900000001]
+         */
         int64_t _latitude;
-        std::optional<int32_t> _elavation;
+        /**
+         * @brief Signed units of 0.1m (10cm), in 2 octets the value 
+         * 32767 (0x7FFF) shall indicate an invalid value [-32768,32767]
+         */
+        std::optional<int16_t> _elavation;
 
     };
 }
