@@ -14,6 +14,7 @@ namespace streets_utils::messages{
         // Construct reference position JSON Object
         auto position_3d_json = create_position_3d( msg._ref_positon, doc.GetAllocator() );
         sdsm_json.AddMember("ref_pos", position_3d_json, doc.GetAllocator());
+        sdsm_json.AddMember("ref_pos_xy_conf", rapidjson::Value(rapidjson::kObjectType), doc.GetAllocator());
         if ( msg._ref_position_elavation_confidence.has_value() )
             sdsm_json.AddMember("ref_pos_el_conf", msg._ref_position_elavation_confidence.value(), doc.GetAllocator());
         // Construct object list

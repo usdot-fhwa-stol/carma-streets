@@ -53,7 +53,7 @@ install(
     DESTINATION  ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME}
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION include/streets_utils/${LIBRARY_NAME}
     FILES_MATCHING PATTERN "*.hpp" # select header files
     )

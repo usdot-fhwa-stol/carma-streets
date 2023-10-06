@@ -9,7 +9,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     sensor_data_sharing_msg msg;
     msg._equipment_type = equipment_type::RSU;
     msg._msg_count = 1;
-    msg._source_id = "rsu_1";
+    msg._source_id = "00000001";
     msg._ref_positon._latitude=0;
     msg._ref_positon._longitude=0;
     msg._time_stamp.second = 65535;
@@ -55,6 +55,14 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     EXPECT_EQ( msg._time_stamp.month, result["sdsm_time_stamp"]["month"].GetInt());
     EXPECT_EQ( msg._time_stamp.year, result["sdsm_time_stamp"]["year"].GetInt());
 
-    EXPECT_EQ( msg._msg_count, result["msg_count"]);
-    // EXPECT_EQ( );
+    EXPECT_EQ( msg._msg_count, result["msg_cnt"].GetUint());
+    EXPECT_EQ( msg._source_id, result["source_id"].GetString());
+
+    ASSERT_TRUE(result.HasMember("ref_pos_xy_conf"));
+    ASSERT_TRUE(result.FindMember("ref_pos_xy_conf")->value.IsObject());
+
+    EXPECT_EQ(msg._ref_position_confidence._semi_major_axis_accuracy, result["ref_pos_xy_conf"]["semi_major"].GetUint());
+    EXPECT_EQ(msg._ref_position_confidence._semi_minor_axis_accuracy, result["ref_pos_xy_conf"]["semi_minor"].GetUint());
+    EXPECT_EQ(msg._ref_position_confidence._semi_major_axis_orientation, result["ref_pos_xy_conf"]["orientation"].GetInt());
+
 }

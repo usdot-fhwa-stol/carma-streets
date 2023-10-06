@@ -39,19 +39,19 @@ install(
 install(
     EXPORT ${LIBRARY_NAME}Targets 
     FILE ${LIBRARY_NAME}Targets.cmake
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME}
     NAMESPACE streets_utils::
 )
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/${LIBRARY_NAME}Config.cmake.in 
     ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
-    INSTALL_DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME})
+    INSTALL_DESTINATION  ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME})
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}Config.cmake
-    DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR}/cmake/${LIBRARY_NAME}
+    DESTINATION  ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_NAME}
 )
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION include/streets_utils/${LIBRARY_NAME}
     FILES_MATCHING PATTERN "*.hpp" # select header files
     )

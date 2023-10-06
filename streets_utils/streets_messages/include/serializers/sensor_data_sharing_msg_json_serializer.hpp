@@ -15,6 +15,8 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_position_3d(const position_3d &val, rapidjson::Document::AllocatorType &allocator);
 
+    rapidjson::Value create_positional_accuracy(const positional_accuracy &val, rapidjson::Document::AllocatorType &allocator);
+    
     rapidjson::Value create_detected_object_list(const std::vector<detected_object_data> &val, rapidjson::Document::AllocatorType &allocator );
 
     rapidjson::Value create_detected_object_data(const detected_object_data &val, rapidjson::Document::AllocatorType &allocator);
