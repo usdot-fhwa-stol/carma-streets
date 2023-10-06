@@ -78,9 +78,23 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     ASSERT_TRUE(result.HasMember("objects"));
     ASSERT_TRUE(result.FindMember("objects")->value.IsArray());
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
-    // auto _object = result["objects"].GetArray().[1];
+    ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
+    // Confirm object properties
+    auto object = result["objects"].GetArray()[0].GetObject();
+    // Assert Object has common data
+    ASSERT_TRUE(object.HasMember("detected_object_common_data"));
+    ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
+    ASSERT_FALSE(object.HasMember("detected_object_optional_data"));
 
- 
+    auto object_common_data = object["detected_object_common_data"].GetObject();
+
+    auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
+
+    EXPECT_EQ(static_cast<uint>(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
+    EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
+    EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
+
+
  
 
 }

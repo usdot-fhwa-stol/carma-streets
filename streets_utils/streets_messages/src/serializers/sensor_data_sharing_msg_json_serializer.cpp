@@ -73,7 +73,7 @@ namespace streets_utils::messages{
         // Create Optional Data
         if ( val._detected_object_optional_data.has_value() )
             detected_object_data_json.AddMember(
-                    "detected_object_data_optional", 
+                    "detected_object_optional_data", 
                     create_detected_object_data_optional(val._detected_object_optional_data.value(), allocator), 
                     allocator);
         return detected_object_data_json;
@@ -82,7 +82,7 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_detected_object_data_common(const detected_object_data_common &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value detected_object_data_common_json(rapidjson::kObjectType);
-        detected_object_data_common_json.AddMember("object_type", static_cast<uint>(val._object_type), allocator);
+        detected_object_data_common_json.AddMember("obj_type", static_cast<uint>(val._object_type), allocator);
         detected_object_data_common_json.AddMember("object_id", val._object_id, allocator);
         detected_object_data_common_json.AddMember("obj_type_cfd", val._classification_confidence, allocator);
         detected_object_data_common_json.AddMember("measurement_time", val._time_measurement_offset, allocator);
