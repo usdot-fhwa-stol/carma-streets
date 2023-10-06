@@ -77,6 +77,10 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_component
     // Confirm List of detected object exists
     ASSERT_TRUE(result.HasMember("objects"));
     ASSERT_TRUE(result.FindMember("objects")->value.IsArray());
+    ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
+    // auto _object = result["objects"].GetArray().[1];
+
+ 
  
 
 }
