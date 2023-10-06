@@ -14,7 +14,7 @@ namespace streets_utils::messages{
         // Construct reference position JSON Object
         auto position_3d_json = create_position_3d( msg._ref_positon, doc.GetAllocator() );
         sdsm_json.AddMember("ref_pos", position_3d_json, doc.GetAllocator());
-        sdsm_json.AddMember("ref_pos_xy_conf", rapidjson::Value(rapidjson::kObjectType), doc.GetAllocator());
+        sdsm_json.AddMember("ref_pos_xy_conf", create_positional_accuracy( msg._ref_position_confidence, doc.GetAllocator()), doc.GetAllocator());
         if ( msg._ref_position_elavation_confidence.has_value() )
             sdsm_json.AddMember("ref_pos_el_conf", msg._ref_position_elavation_confidence.value(), doc.GetAllocator());
         // Construct object list
@@ -49,9 +49,16 @@ namespace streets_utils::messages{
         return position_3d_json;
     }
 
+    rapidjson::Value create_positional_accuracy(const positional_accuracy &val, rapidjson::Document::AllocatorType &allocator) {
+        rapidjson::Value positional_accuracy_json(rapidjson::kObjectType);
+        positional_accuracy_json.AddMember("semi_major", val._semi_major_axis_accuracy, allocator);
+        positional_accuracy_json.AddMember("semi_minor", val._semi_minor_axis_accuracy, allocator);
+        positional_accuracy_json.AddMember("orientation", val._semi_major_axis_orientation, allocator);
+        return positional_accuracy_json;
+    }
     rapidjson::Value create_detected_object_list(const std::vector<detected_object_data> &val, rapidjson::Document::AllocatorType &allocator ){
         rapidjson::Value detected_object_list_json(rapidjson::kArrayType);
-        for (const auto detected_obect : val) {
+        for (const auto &detected_obect : val) {
             // Create and push detected object data
             detected_object_list_json.PushBack(create_detected_object_data(detected_obect, allocator), allocator);
             
