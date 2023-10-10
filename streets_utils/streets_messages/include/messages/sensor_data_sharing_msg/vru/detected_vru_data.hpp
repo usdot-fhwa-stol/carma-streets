@@ -21,6 +21,6 @@ namespace streets_utils::messages{
         /**
          * @brief Attachment radius in decimeters [0,200]
          */
-        std::uint8_t _attachment_radious;
+        uint _attachment_radious;
     };
 }

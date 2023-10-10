@@ -22,7 +22,7 @@ namespace streets_utils::messages {
          *  the next value after 255 shall be one value 
          *  0 (0x00) shall indicate that MsgCount is not available.
          */
-        std::uint8_t _msg_count;
+        uint _msg_count;
         equipment_type _equipment_type;
         position_3d _ref_positon;
         std::optional<double> _ref_position_elavation_confidence;

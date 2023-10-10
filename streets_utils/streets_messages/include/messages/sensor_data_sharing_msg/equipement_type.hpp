@@ -14,7 +14,7 @@ namespace streets_utils::messages{
      * @param i integer value of enum.
      * @return corresponding equipement type.
      */
-    inline equipment_type equipment_type_from_int( const int i ) {
+    inline equipment_type equipment_type_from_int( const uint i ) {
         switch (i)
         {
         case 0:

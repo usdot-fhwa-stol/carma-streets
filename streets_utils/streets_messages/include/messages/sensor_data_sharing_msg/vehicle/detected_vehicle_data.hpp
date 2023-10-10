@@ -48,7 +48,7 @@ namespace streets_utils::messages{
         /**
          * @brief Vehicle height in unit of 5 cm [0, 127]
          */
-        uint8_t _vehicle_height;
+        uint _vehicle_height;
         /**
          * @brief Confidence in reported size.
          */
@@ -56,11 +56,11 @@ namespace streets_utils::messages{
         /**
          * @brief See BasicVehicleClass in J2735
          */
-        uint8_t _vehicle_class;
+        uint _vehicle_class;
         /**
          * @brief Confidence in vehicle classification [0,101]
          */
-        uint8_t _classification_confidence;
+        uint _classification_confidence;
 
     };
 }

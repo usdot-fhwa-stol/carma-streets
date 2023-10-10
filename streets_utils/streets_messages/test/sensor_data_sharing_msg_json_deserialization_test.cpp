@@ -6,8 +6,8 @@ using namespace streets_utils::messages;
 TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
     
     std::string json = "{"
-        "\"equipment_type\": 1,"
-        "\"msg_cnt\": 1,"
+        "\"equipment_type\": 0,"
+        "\"msg_cnt\": 255,"
         "\"ref_pos\": {"
         "    \"long\": 600000000,"
         "    \"elevation\": 30,"
@@ -28,7 +28,7 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
         "    \"second\": 5000,"
         "    \"year\": 2007"
         "},"
-        "\"source_id\": \"01020304\","
+        "\"source_id\": \"0102C304\","
         "\"objects\": ["
         "    {"
         "    \"detected_object_data\": {"
@@ -68,5 +68,16 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
         "    }"
         "    ]"
         "}";
-    EXPECT_NO_THROW(from_json(json ));
+    auto msg = from_json(json );
+
+    EXPECT_EQ(255, msg._msg_count);
+    EXPECT_EQ("0102C304", msg._source_id);
+    EXPECT_EQ(equipment_type::UNKNOWN, msg._equipment_type);
+    EXPECT_EQ(400, msg._time_stamp.offset);
+    EXPECT_EQ(5000, msg._time_stamp.second);
+    EXPECT_EQ(15, msg._time_stamp.minute);
+    EXPECT_EQ(19, msg._time_stamp.hour);
+    EXPECT_EQ(4, msg._time_stamp.day);
+    EXPECT_EQ(7, msg._time_stamp.month);
+    EXPECT_EQ(2007, msg._time_stamp.year);
 }

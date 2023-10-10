@@ -9,4 +9,6 @@
 
 namespace streets_utils::messages {
     sensor_data_sharing_msg from_json( const std::string &val);
+
+    time_stamp parse_time_stamp(const rapidjson::Value &val);
 }

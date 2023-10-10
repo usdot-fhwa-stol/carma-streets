@@ -28,5 +28,6 @@ namespace streets_utils::messages{
     rapidjson::Value create_accelaration_set_4_way(const acceleration_set_4_way &val, rapidjson::Document::AllocatorType &allocator);
 
     rapidjson::Value create_position_3d(const position_offset &val, rapidjson::Document::AllocatorType &allocator);
+    
     rapidjson::Value create_position_confidence_set(const position_confidence_set &val, rapidjson::Document::AllocatorType &allocator);
 }

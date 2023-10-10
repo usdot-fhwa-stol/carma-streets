@@ -7,14 +7,14 @@ namespace streets_utils::messages {
         /**
          * @brief Object width in 10 cm units [0, 1023].
          */
-        std::uint16_t _width;
+        uint _width;
         /**
          * @brief Object length in 10 cm units [0, 1023]
          */
-        std::uint16_t _length;
+        uint _length;
         /**
          * @brief Object height in 10 cm units [0, 1023]
          */
-        std::uint16_t _height;
+        uint _height;
     };
 }
