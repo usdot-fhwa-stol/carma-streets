@@ -16,7 +16,7 @@ namespace streets_utils::messages{
         sdsm_json.AddMember("ref_pos", position_3d_json, doc.GetAllocator());
         sdsm_json.AddMember("ref_pos_xy_conf", create_positional_accuracy( msg._ref_position_confidence, doc.GetAllocator()), doc.GetAllocator());
         if ( msg._ref_position_elavation_confidence.has_value() )
-            sdsm_json.AddMember("ref_pos_el_conf", msg._ref_position_elavation_confidence.value(), doc.GetAllocator());
+            sdsm_json.AddMember("ref_pos_el_conf", static_cast<uint>(msg._ref_position_elavation_confidence.value()), doc.GetAllocator());
         // Construct object list
         sdsm_json.AddMember("objects", create_detected_object_list(msg._objects, doc.GetAllocator()), doc.GetAllocator());
 

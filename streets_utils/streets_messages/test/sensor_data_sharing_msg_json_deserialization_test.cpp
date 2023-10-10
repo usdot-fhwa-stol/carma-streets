@@ -9,9 +9,9 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
         "\"equipment_type\": 0,"
         "\"msg_cnt\": 255,"
         "\"ref_pos\": {"
-        "    \"long\": 600000000,"
+        "    \"long\": 1800000001,"
         "    \"elevation\": 30,"
-        "    \"lat\": 400000000"
+        "    \"lat\": 900000001"
         "},"
         "\"ref_pos_el_conf\": 10,"
         "\"ref_pos_xy_conf\": {"
@@ -73,6 +73,7 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
     EXPECT_EQ(255, msg._msg_count);
     EXPECT_EQ("0102C304", msg._source_id);
     EXPECT_EQ(equipment_type::UNKNOWN, msg._equipment_type);
+    // Confirm timestamp
     EXPECT_EQ(400, msg._time_stamp.offset);
     EXPECT_EQ(5000, msg._time_stamp.second);
     EXPECT_EQ(15, msg._time_stamp.minute);
@@ -80,4 +81,16 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
     EXPECT_EQ(4, msg._time_stamp.day);
     EXPECT_EQ(7, msg._time_stamp.month);
     EXPECT_EQ(2007, msg._time_stamp.year);
+    // Confirm reference position
+    EXPECT_EQ(1800000001,msg._ref_positon._longitude);
+    EXPECT_EQ(900000001, msg._ref_positon._latitude );
+    // Confirm optional elevation is present
+    EXPECT_TRUE(msg._ref_positon._elavation.has_value());
+    EXPECT_EQ(30, msg._ref_positon._elavation);
+    // Confirm positional accuracy
+    EXPECT_EQ(235, msg._ref_position_confidence._semi_major_axis_accuracy);
+    EXPECT_EQ(200, msg._ref_position_confidence._semi_minor_axis_accuracy);
+    EXPECT_EQ(25000, msg._ref_position_confidence._semi_major_axis_orientation);
+
+
 }

@@ -11,4 +11,12 @@ namespace streets_utils::messages {
     sensor_data_sharing_msg from_json( const std::string &val);
 
     time_stamp parse_time_stamp(const rapidjson::Value &val);
+
+    position_3d parse_position_3d(const rapidjson::Value &val);
+
+    positional_accuracy parse_positional_accuracy(const rapidjson::Value &val);
+
+    std::optional<position_confidence> parse_elevation_confidence(const rapidjson::Value &val);
+
+    
 }
