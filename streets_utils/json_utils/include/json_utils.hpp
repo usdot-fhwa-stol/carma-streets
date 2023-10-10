@@ -31,7 +31,7 @@ namespace streets_utils::json_utils {
      * @throws json_parse_exception if member is required but not found.
      * @return std::optional<int64_t> 
      */
-    std::optional<int64_t> parse_int_member(const std::string &member_name, const rapidjson::Value &obj, bool required );
+    std::optional<int> parse_int_member(const std::string &member_name, const rapidjson::Value &obj, bool required );
     /**
      * @brief Functions to retrieve uint member values from JSON object [RapidJSON](https://miloyip.github.io/rapidjson/index.html)
      * with [DOM  parsing](https://miloyip.github.io/rapidjson/md_doc_dom.html). Functions will return unintialized
@@ -43,7 +43,7 @@ namespace streets_utils::json_utils {
      * @throws json_parse_exception if member is required but not found.
      * @return std::optional<uint64_t> 
      */
-    std::optional<uint64_t> parse_uint_member(const std::string &member_name,  const rapidjson::Value &obj, bool required );
+    std::optional<uint> parse_uint_member(const std::string &member_name,  const rapidjson::Value &obj, bool required );
      /**
      * @brief Functions to retrieve bool member values from JSON object [RapidJSON](https://miloyip.github.io/rapidjson/index.html)
      * with [DOM  parsing](https://miloyip.github.io/rapidjson/md_doc_dom.html). Functions will return unintialized
