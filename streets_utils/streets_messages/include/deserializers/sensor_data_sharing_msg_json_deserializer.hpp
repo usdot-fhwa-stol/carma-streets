@@ -18,5 +18,9 @@ namespace streets_utils::messages {
 
     std::optional<position_confidence> parse_elevation_confidence(const rapidjson::Value &val);
 
-    
+    std::vector<detected_object_data> parse_detected_object_list(const rapidjson::Value &val);
+
+    detected_object_data_common parse_detected_object_data_common(const rapidjson::Value &val);
+
+    std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>>  parse_detected_object_data_optional(const rapidjson::Value &val);
 }

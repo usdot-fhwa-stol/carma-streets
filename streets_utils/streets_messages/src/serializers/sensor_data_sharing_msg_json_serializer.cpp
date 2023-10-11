@@ -158,8 +158,37 @@ namespace streets_utils::messages{
     }
     rapidjson::Value create_detected_object_data_optional(const std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data> &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value detected_object_data_optional_json(rapidjson::kObjectType);
-        return detected_object_data_optional_json;
+        if (std::holds_alternative<detected_obstacle_data>(val)) {
+            detected_object_data_optional_json.AddMember("detected_obstacle_data",create_detected_obstacle_data(std::get<detected_obstacle_data>(val),allocator), allocator);
+            return detected_object_data_optional_json;
+        }
+        else if (std::holds_alternative<detected_vehicle_data>(val)) {
+            detected_object_data_optional_json.AddMember("detected_vehicle_data",create_detected_vehicle_data(std::get<detected_vehicle_data>(val),allocator), allocator);
+            return detected_object_data_optional_json;
+        }
+        else if (std::holds_alternative<detected_vru_data>(val)) {
+            detected_object_data_optional_json.AddMember("detected_vru_data",create_detected_vru_data(std::get<detected_vru_data>(val),allocator), allocator);
+            return detected_object_data_optional_json;
+        }
+        else {
+            throw std::runtime_error("If present, detected optional data must include one of the following objects : detected obstacle data, detected vehicle data, detected vru data"); 
+        }
     }
 
 
+    rapidjson::Value create_detected_obstacle_data(const detected_obstacle_data &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        
+        return data;
+    }
+
+    rapidjson::Value create_detected_vru_data(const detected_vru_data &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        return data;
+    }
+
+    rapidjson::Value create_detected_vehicle_data(const detected_vehicle_data &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        return data;
+    }
 }

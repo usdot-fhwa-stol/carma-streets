@@ -44,6 +44,93 @@ namespace streets_utils::messages{
         TIME_000_000_000_000_01 = 39  // Better than 0.00000000001 Seconds    
     };
 
-    time_confidence time_confidence_from_int( const int i );
+    inline time_confidence time_confidence_from_int( const int i ) {
+        switch (i)
+        {
+        case 0:
+            return time_confidence::UNAVAILABLE;
+            break;
+        case 1:
+            return time_confidence::TIME_100_000;
+        case 2:           
+            return time_confidence::TIME_050_000 ;
+        case 3:
+            return time_confidence::TIME_020_000 ;
+        case 4:
+            return time_confidence::TIME_010_000 ;
+        case 5:
+            return time_confidence::TIME_002_000 ;
+        case 6:
+            return time_confidence::TIME_001_000 ;
+        case 7:
+            return time_confidence::TIME_000_500 ;
+        case 8:
+            return time_confidence::TIME_000_200 ;
+        case 9:
+            return time_confidence::TIME_000_100 ;
+        case 10:
+            return time_confidence::TIME_000_050 ;
+        case 11:
+            return time_confidence::TIME_000_020 ;
+        case 12:
+            return time_confidence::TIME_000_010 ;
+        case 13:
+            return time_confidence::TIME_000_005 ;
+        case 14:
+            return time_confidence::TIME_000_002 ;
+        case 15:
+            return time_confidence::TIME_000_001 ;
+        case 16:
+            return time_confidence::TIME_000_000_5;
+        case 17:
+            return time_confidence::TIME_000_000_2;
+        case 18:
+            return time_confidence::TIME_000_000_1;
+        case 19:
+            return time_confidence::TIME_000_000_05;
+        case 20:
+            return time_confidence::TIME_000_000_02;
+        case 21:
+            return time_confidence::TIME_000_000_01;
+        case 22:
+            return time_confidence::TIME_000_000_005;
+        case 23:
+            return time_confidence::TIME_000_000_002;
+        case 24:
+            return time_confidence::TIME_000_000_001;
+        case 25:
+            return time_confidence::TIME_000_000_000_5;
+        case 26:
+            return time_confidence::TIME_000_000_000_2;
+        case 27:
+            return time_confidence::TIME_000_000_000_1;
+        case 28:
+            return time_confidence::TIME_000_000_000_05;
+        case 29:
+            return time_confidence::TIME_000_000_000_02;
+        case 30:
+            return time_confidence::TIME_000_000_000_01;
+        case 31:
+            return time_confidence::TIME_000_000_000_005;
+        case 32:
+            return time_confidence::TIME_000_000_000_002;
+        case 33:
+            return time_confidence::TIME_000_000_000_001; 
+        case 34:
+            return time_confidence::TIME_000_000_000_000_5;
+        case 35:
+            return time_confidence::TIME_000_000_000_000_2;
+        case 36:
+            return time_confidence::TIME_000_000_000_000_1;
+        case 37:
+            return time_confidence::TIME_000_000_000_000_05;
+        case 38:
+            return time_confidence::TIME_000_000_000_000_02;
+        case 39:
+            return time_confidence::TIME_000_000_000_000_01;
+        default:
+            return time_confidence::UNAVAILABLE; 
+        }
+    };
 
 }

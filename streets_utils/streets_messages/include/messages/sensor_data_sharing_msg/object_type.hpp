@@ -9,5 +9,23 @@ namespace streets_utils::messages{
         ANIMAL= 3        
     };
 
-    object_type object_type_from_int( const int i );
+    inline object_type object_type_from_int( const int i ) {
+        switch (i)
+        {
+        case 0:
+            return object_type::UNKNOWN;
+            break;
+        case 1:
+            return object_type::VEHICLE;
+            break;
+        case 2:
+            return object_type::VRU;
+            break;
+        case 3:
+            return object_type::ANIMAL;
+            break;
+        default:
+            return object_type::UNKNOWN;
+        }
+    };
 }
