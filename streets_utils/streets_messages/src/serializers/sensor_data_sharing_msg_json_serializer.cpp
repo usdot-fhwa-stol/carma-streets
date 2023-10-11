@@ -16,7 +16,7 @@ namespace streets_utils::messages{
         sdsm_json.AddMember("ref_pos", position_3d_json, doc.GetAllocator());
         sdsm_json.AddMember("ref_pos_xy_conf", create_positional_accuracy( msg._ref_position_confidence, doc.GetAllocator()), doc.GetAllocator());
         if ( msg._ref_position_elavation_confidence.has_value() )
-            sdsm_json.AddMember("ref_pos_el_conf", static_cast<uint>(msg._ref_position_elavation_confidence.value()), doc.GetAllocator());
+            sdsm_json.AddMember("ref_pos_el_conf", static_cast<unsigned int >(msg._ref_position_elavation_confidence.value()), doc.GetAllocator());
         // Construct object list
         sdsm_json.AddMember("objects", create_detected_object_list(msg._objects, doc.GetAllocator()), doc.GetAllocator());
 
@@ -82,11 +82,11 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_detected_object_data_common(const detected_object_data_common &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value detected_object_data_common_json(rapidjson::kObjectType);
-        detected_object_data_common_json.AddMember("obj_type", static_cast<uint>(val._object_type), allocator);
+        detected_object_data_common_json.AddMember("obj_type", static_cast<unsigned int >(val._object_type), allocator);
         detected_object_data_common_json.AddMember("object_id", val._object_id, allocator);
         detected_object_data_common_json.AddMember("obj_type_cfd", val._classification_confidence, allocator);
         detected_object_data_common_json.AddMember("measurement_time", val._time_measurement_offset, allocator);
-        detected_object_data_common_json.AddMember("time_confidence", static_cast<uint>(val._time_confidence), allocator);
+        detected_object_data_common_json.AddMember("time_confidence", static_cast<unsigned int >(val._time_confidence), allocator);
         // Create Position 
         detected_object_data_common_json.AddMember(
                     "pos", 
@@ -95,32 +95,32 @@ namespace streets_utils::messages{
         // Create Position Confidence
         detected_object_data_common_json.AddMember("pos_confidence", create_position_confidence_set(val._pos_confidence, allocator), allocator );
         detected_object_data_common_json.AddMember("speed", val._speed, allocator);
-        detected_object_data_common_json.AddMember("speed_confidence", static_cast<uint>(val._speed_confidence), allocator);
+        detected_object_data_common_json.AddMember("speed_confidence", static_cast<unsigned int >(val._speed_confidence), allocator);
         if ( val._speed_z.has_value())
             detected_object_data_common_json.AddMember("speed_z", val._speed_z.value(), allocator);
         if ( val._speed_z_confidence.has_value())
             detected_object_data_common_json.AddMember(
                     "speed_confidence_z", 
-                    static_cast<uint>(val._speed_z_confidence.value()),
+                    static_cast<unsigned int >(val._speed_z_confidence.value()),
                     allocator);
         detected_object_data_common_json.AddMember("heading", val._heading, allocator);
-        detected_object_data_common_json.AddMember("heading_conf", static_cast<uint>(val._heading_confidence), allocator);
+        detected_object_data_common_json.AddMember("heading_conf", static_cast<unsigned int >(val._heading_confidence), allocator);
         if (val._acceleration_confidence.has_value() ) {
             detected_object_data_common_json.AddMember(
                     "acc_cfd_x", 
-                    static_cast<uint>(val._acceleration_confidence.value()._lateral_confidence),
+                    static_cast<unsigned int >(val._acceleration_confidence.value()._lateral_confidence),
                     allocator);
             detected_object_data_common_json.AddMember(
                     "acc_cfd_y", 
-                    static_cast<uint>(val._acceleration_confidence.value()._longitudinal_confidence),
+                    static_cast<unsigned int >(val._acceleration_confidence.value()._longitudinal_confidence),
                     allocator);
             detected_object_data_common_json.AddMember(
                     "acc_cfd_z", 
-                    static_cast<uint>(val._acceleration_confidence.value()._vertical_confidence),
+                    static_cast<unsigned int >(val._acceleration_confidence.value()._vertical_confidence),
                     allocator);
             detected_object_data_common_json.AddMember(
                     "acc_cfd_yaw", 
-                    static_cast<uint>(val._acceleration_confidence.value()._yaw_rate_confidence),
+                    static_cast<unsigned int >(val._acceleration_confidence.value()._yaw_rate_confidence),
                     allocator);
         }
         if (val._acceleration_4_way.has_value()) {
@@ -152,8 +152,8 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_position_confidence_set(const position_confidence_set &val, rapidjson::Document::AllocatorType &allocator) {
         rapidjson::Value position_confidence_json(rapidjson::kObjectType);
-        position_confidence_json.AddMember("pos",static_cast<uint>(val._position_confidence), allocator);
-        position_confidence_json.AddMember("elavation", static_cast<uint>(val._elavation_confidence), allocator);
+        position_confidence_json.AddMember("pos",static_cast<unsigned int >(val._position_confidence), allocator);
+        position_confidence_json.AddMember("elavation", static_cast<unsigned int >(val._elavation_confidence), allocator);
         return position_confidence_json;
     }
     rapidjson::Value create_detected_object_data_optional(const std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data> &val, rapidjson::Document::AllocatorType &allocator){
@@ -178,17 +178,158 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_detected_obstacle_data(const detected_obstacle_data &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value data(rapidjson::kObjectType);
-        
+        data.AddMember("obst_size", create_obstacle_size(val._size, allocator), allocator);
+        data.AddMember("obst_size_confidence", create_obstacle_size_confidence(val._size_confidence, allocator), allocator);
+        return data;
+    }
+
+    rapidjson::Value create_obstacle_size(const obstable_size &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("width", val._width, allocator);
+        data.AddMember("length", val._length, allocator);
+        // Optional Height
+        if (val._height.has_value() ) {
+            data.AddMember("height", val._height.value(), allocator);
+        }
+
+        return data;
+    }
+
+    rapidjson::Value create_obstacle_size_confidence(const obstacle_size_confidence &val, rapidjson::Document::AllocatorType &allocator) {
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("width_confidence", static_cast<unsigned int>(val._width_confidence), allocator);
+        data.AddMember("length_confidence", static_cast<unsigned int>(val._length_confidence), allocator);
+        // Optional height
+        if ( val._height_confidence.has_value()) {
+            data.AddMember("height_confidence", static_cast<unsigned int>(val._height_confidence.value()), allocator);
+        }
         return data;
     }
 
     rapidjson::Value create_detected_vru_data(const detected_vru_data &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value data(rapidjson::kObjectType);
+        if (val._personal_device_user_type.has_value() ) {
+            data.AddMember("basic_type", static_cast<unsigned int>(val._personal_device_user_type.value()), allocator);
+        }
+        if (val._attachment.has_value() ) {
+            data.AddMember("attachment", static_cast<unsigned int>(val._attachment.value()), allocator);
+        }
+        if (val._propulsion.has_value() ) {
+            data.AddMember("propulsion", create_propelled_information(val._propulsion.value(), allocator), allocator);
+        }
+        if (val._attachment_radious.has_value() ) {
+            data.AddMember("radius", static_cast<unsigned int>(val._attachment_radious.value()), allocator);
+        }
         return data;
     }
 
     rapidjson::Value create_detected_vehicle_data(const detected_vehicle_data &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value data(rapidjson::kObjectType);
+        if ( val.exterior_lights.has_value() ) {
+            data.AddMember("lights", val.exterior_lights.value(), allocator);
+        }
+        if ( val._veh_attitude.has_value() ) {
+            data.AddMember("veh_attitude", create_vehicle_attitude(val._veh_attitude.value(), allocator), allocator);
+        }
+        if ( val._attitude_confidence.has_value() ) {
+            data.AddMember("veh_attitude_confidence", create_vehicle_attitude_confidence(val._attitude_confidence.value(), allocator), allocator);
+        }
+        if ( val._angular_velocity.has_value() ) {
+            data.AddMember("veh_ang_vel", create_angular_velocity(val._angular_velocity.value(), allocator), allocator);
+        }
+        if ( val._angular_velocity_confidence.has_value() ){
+            data.AddMember("veh_ang_vel_conf", create_angular_velocity_confidence(val._angular_velocity_confidence.value(),allocator), allocator);
+        }
+        if ( val._size.has_value() ) {
+            data.AddMember("size", create_vehicle_size(val._size.value(), allocator), allocator);
+        }
+        if ( val._size_confidence.has_value() ) {
+            data.AddMember("vehicle_size_confidence", create_vehicle_size_confidence(val._size_confidence.value(), allocator), allocator);
+        }
+        if (val._vehicle_height.has_value() ) {
+            data.AddMember("height", val._vehicle_height.value(), allocator);
+        }
+        if (val._vehicle_class.has_value() ) {
+            data.AddMember("vehicle_class", val._vehicle_class.value(), allocator);
+        }
+        if ( val._classification_confidence.has_value() ) {
+            data.AddMember("class_conf", val._classification_confidence.value(), allocator);
+        }
         return data;
     }
+
+
+
+    rapidjson::Value create_propelled_information(const std::variant<human_propelled_type, motorized_propelled_type,animal_propelled_type> &val, rapidjson::Document::AllocatorType &allocator) {
+        rapidjson::Value data(rapidjson::kObjectType);
+        if ( std::holds_alternative<human_propelled_type>(val) ) {
+            data.AddMember("human", static_cast<unsigned int>( std::get<human_propelled_type>(val)), allocator);
+            return data;
+        }
+        else if ( std::holds_alternative<animal_propelled_type>(val) ) {
+            data.AddMember("animal", static_cast<unsigned int>( std::get<animal_propelled_type>(val)), allocator);
+            return data;
+        }
+        else if ( std::holds_alternative<motorized_propelled_type>(val) ) {
+            data.AddMember("motor", static_cast<unsigned int>( std::get<motorized_propelled_type>(val)), allocator);
+            return data;
+        }
+        else {
+            throw std::runtime_error("If present, propelled infromation must include one of the following objects : animal propelled type, motorized propelled type, human propelled type"); 
+        }
+    }
+
+
+    rapidjson::Value create_vehicle_attitude(const attitude &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("pitch", val._pitch, allocator);
+        data.AddMember("roll", val._roll, allocator);
+        data.AddMember("yaw", val._yaw, allocator);
+        return data;
+    }
+
+    rapidjson::Value create_vehicle_attitude_confidence(const attitude_confidence &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("pitch_confidence", static_cast<unsigned int>(val._pitch_confidence), allocator);
+        data.AddMember("roll_confidence", static_cast<unsigned int>(val._roll_confidence), allocator);
+        data.AddMember("yaw_confidence", static_cast<unsigned int>(val._yaw_confidence), allocator);
+        return data;
+    }
+
+    rapidjson::Value create_angular_velocity(const angular_velocity_set &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("pitch_rate", static_cast<unsigned int>(val._pitch_rate), allocator);
+        data.AddMember("roll_rate", static_cast<unsigned int>(val._roll_rate), allocator);
+        return data;
+    }
+
+    rapidjson::Value create_angular_velocity_confidence(const angular_velocity_confidence_set &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        if ( val._pitch_rate_confidence.has_value() ) {
+            data.AddMember("pitch_rate_confidence", static_cast<unsigned int>(val._pitch_rate_confidence.value()), allocator);
+        }
+        if ( val._roll_rate_confidence.has_value() ) {
+            data.AddMember("pitch_rate_confidence", static_cast<unsigned int>(val._roll_rate_confidence.value()), allocator);
+        }
+        return data;
+    }
+
+    rapidjson::Value create_vehicle_size(const vehicle_size &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("width", val._width, allocator);
+        data.AddMember("length", val._length, allocator);
+        return data;
+    }
+
+    rapidjson::Value create_vehicle_size_confidence(const vehicle_size_confidence &val, rapidjson::Document::AllocatorType &allocator){
+        rapidjson::Value data(rapidjson::kObjectType);
+        data.AddMember("vehicle_width_confidence", static_cast<unsigned int>(val._width_confidence), allocator);
+        data.AddMember("vehicle_length_confidence", static_cast<unsigned int>(val._length_confidence), allocator);
+        if ( val._height_confidence.has_value() ) {
+            data.AddMember("vehicle_height_confidence", static_cast<unsigned int>(val._height_confidence.value()), allocator);
+        }
+        return data;
+    }
+
+
 }

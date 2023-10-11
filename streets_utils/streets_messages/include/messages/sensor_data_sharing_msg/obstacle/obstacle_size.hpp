@@ -1,20 +1,20 @@
 #pragma once
 
-#include "stdlib.h"
+#include "optional"
 
 namespace streets_utils::messages {
     struct obstable_size {
         /**
          * @brief Object width in 10 cm units [0, 1023].
          */
-        uint _width;
+        unsigned int  _width;
         /**
          * @brief Object length in 10 cm units [0, 1023]
          */
-        uint _length;
+        unsigned int  _length;
         /**
-         * @brief Object height in 10 cm units [0, 1023]
+         * @brief **Optional** Object height in 10 cm units [0, 1023]
          */
-        uint _height;
+        std::optional<unsigned int>  _height;
     };
 }

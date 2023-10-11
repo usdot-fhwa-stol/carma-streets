@@ -27,10 +27,27 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_detected_obstacle_data(const detected_obstacle_data &val, rapidjson::Document::AllocatorType &allocator);
 
+    rapidjson::Value create_obstacle_size(const obstable_size &val, rapidjson::Document::AllocatorType &allocator);
+
+    rapidjson::Value create_obstacle_size_confidence(const obstacle_size_confidence &val, rapidjson::Document::AllocatorType &allocator);
+
     rapidjson::Value create_detected_vru_data(const detected_vru_data &val, rapidjson::Document::AllocatorType &allocator);
 
+    rapidjson::Value create_propelled_information(const std::variant<human_propelled_type, motorized_propelled_type, animal_propelled_type> &val, rapidjson::Document::AllocatorType &allocator);
+    
     rapidjson::Value create_detected_vehicle_data(const detected_vehicle_data &val, rapidjson::Document::AllocatorType &allocator);
 
+    rapidjson::Value create_vehicle_attitude(const attitude &val, rapidjson::Document::AllocatorType &allocator);
+
+    rapidjson::Value create_vehicle_attitude_confidence(const attitude_confidence &val, rapidjson::Document::AllocatorType &allocator);
+
+    rapidjson::Value create_angular_velocity(const angular_velocity_set &val, rapidjson::Document::AllocatorType &allocator);
+
+    rapidjson::Value create_angular_velocity_confidence(const angular_velocity_confidence_set &val, rapidjson::Document::AllocatorType &allocator);
+
+    rapidjson::Value create_vehicle_size(const vehicle_size &val, rapidjson::Document::AllocatorType &allocator);
+
+    rapidjson::Value create_vehicle_size_confidence(const vehicle_size_confidence &val, rapidjson::Document::AllocatorType &allocator);
 
     rapidjson::Value create_accelaration_set_4_way(const acceleration_set_4_way &val, rapidjson::Document::AllocatorType &allocator);
 

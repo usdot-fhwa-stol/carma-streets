@@ -49,7 +49,6 @@ namespace streets_utils::messages{
         {
         case 0:
             return time_confidence::UNAVAILABLE;
-            break;
         case 1:
             return time_confidence::TIME_100_000;
         case 2:           

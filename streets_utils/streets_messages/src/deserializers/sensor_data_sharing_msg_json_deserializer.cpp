@@ -84,7 +84,6 @@ namespace streets_utils::messages {
         std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>> detected_optional_data;
         if (val.HasMember("detected_vehicle_data")){
             detected_vehicle_data data;
-            detected_optional_data = data;
         }
         else if (val.HasMember("detected_vru_data")) {
 

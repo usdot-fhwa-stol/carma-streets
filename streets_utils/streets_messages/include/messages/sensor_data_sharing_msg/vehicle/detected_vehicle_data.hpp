@@ -24,43 +24,43 @@ namespace streets_utils::messages{
          *  parkingLightsOn           (8) 
          * 
          */
-        std::string exterior_lights;
+        std::optional<std::string> exterior_lights;
         /**
          * @brief Vehicle Attitude.
          */
-        attitude _veh_attitude;
+        std::optional<attitude> _veh_attitude;
         /**
          * @brief Confidence in reported vehicle attitude.
          */
-        attitude_confidence _attitude_confidence;
+        std::optional<attitude_confidence> _attitude_confidence;
         /**
          * @brief Angular velocity set in pitch and roll axis.
          */
-        angular_velocity_set _angular_velocity;
+        std::optional<angular_velocity_set> _angular_velocity;
         /**
          * @brief Confidence in reported angular velocity set.
          */
-        angular_velocity_confidence_set _angular_velocity_confidence;
+        std::optional<angular_velocity_confidence_set> _angular_velocity_confidence;
         /**
          * @brief Vehicle two dimensional size.
          */
-        vehicle_size _size;
+        std::optional<vehicle_size> _size;
         /**
          * @brief Vehicle height in unit of 5 cm [0, 127]
          */
-        uint _vehicle_height;
+        std::optional<unsigned int>  _vehicle_height;
         /**
          * @brief Confidence in reported size.
          */
-        vehicle_size_confidence _size_confidence; 
+        std::optional<vehicle_size_confidence> _size_confidence; 
         /**
          * @brief See BasicVehicleClass in J2735
          */
-        uint _vehicle_class;
+        std::optional<unsigned int>  _vehicle_class;
         /**
          * @brief Confidence in vehicle classification [0,101]
          */
-        uint _classification_confidence;
+        std::optional<unsigned int>  _classification_confidence;
 
     };
 }

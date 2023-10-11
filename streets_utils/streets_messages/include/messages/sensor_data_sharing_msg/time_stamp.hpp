@@ -7,27 +7,27 @@ namespace streets_utils::messages {
         /**
          * @brief in milliseconds [0,65535].
          */
-        uint second;
+        unsigned int  second;
         /**
          * @brief in minutes [0,60].
          */
-        uint minute;
+        unsigned int  minute;
         /**
          * @brief in hours [0,31].
          */
-        uint hour;
+        unsigned int  hour;
         /**
          * @brief in days [0,31].
          */
-        uint day;
+        unsigned int  day;
         /**
          * @brief in months [0,12].
          */
-        uint month;
+        unsigned int  month;
         /**
          * @brief in year [0,4095]
          */
-        uint year;
+        unsigned int  year;
         /**
          * @brief Minutes from UTC time (Time Zone) [-840, 840]
          */

@@ -90,14 +90,14 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     // Retreive Object common data from 
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
     // Confirm Object common data properties    
-    EXPECT_EQ(static_cast<uint>(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
+    EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
     EXPECT_EQ(msg_object_common_data._time_measurement_offset, object_common_data["measurement_time"].GetInt());
-    EXPECT_EQ(static_cast<uint>(msg_object_common_data._time_confidence), object_common_data["time_confidence"].GetUint());
+    EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._time_confidence), object_common_data["time_confidence"].GetUint());
     EXPECT_EQ(msg_object_common_data._speed, object_common_data["speed"].GetUint());
     EXPECT_EQ(msg_object_common_data._heading, object_common_data["heading"].GetUint());
-    EXPECT_EQ(static_cast<uint>(msg_object_common_data._heading_confidence), object_common_data["heading_conf"].GetUint());
+    EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._heading_confidence), object_common_data["heading_conf"].GetUint());
     // Test Optional properties not present
     EXPECT_FALSE(object_common_data.HasMember("speed_z"));
     EXPECT_FALSE(object_common_data.HasMember("speed_confidence_z"));
@@ -194,14 +194,14 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     // Retreive Object common data from 
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
     // Confirm Object common data properties    
-    EXPECT_EQ(static_cast<uint>(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
+    EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
     EXPECT_EQ(msg_object_common_data._time_measurement_offset, object_common_data["measurement_time"].GetInt());
-    EXPECT_EQ(static_cast<uint>(msg_object_common_data._time_confidence), object_common_data["time_confidence"].GetUint());
+    EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._time_confidence), object_common_data["time_confidence"].GetUint());
     EXPECT_EQ(msg_object_common_data._speed, object_common_data["speed"].GetUint());
     EXPECT_EQ(msg_object_common_data._heading, object_common_data["heading"].GetUint());
-    EXPECT_EQ(static_cast<uint>(msg_object_common_data._heading_confidence), object_common_data["heading_conf"].GetUint());
+    EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._heading_confidence), object_common_data["heading_conf"].GetUint());
     // Test Optional properties not present
     EXPECT_FALSE(object_common_data.HasMember("speed_z"));
     EXPECT_FALSE(object_common_data.HasMember("speed_confidence_z"));

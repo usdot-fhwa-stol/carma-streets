@@ -1,5 +1,6 @@
 #pragma once
 #include "../size_value_confidence.hpp"
+#include <optional>
 namespace streets_utils::messages{
     struct obstacle_size_confidence{
         /**
@@ -13,6 +14,6 @@ namespace streets_utils::messages{
         /**
          * @brief Confidence in reported height
          */
-        size_value_confidence _height_confidence;
+        std::optional<size_value_confidence> _height_confidence;
     };
 }
