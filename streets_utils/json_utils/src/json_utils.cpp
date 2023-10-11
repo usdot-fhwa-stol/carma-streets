@@ -24,7 +24,7 @@ namespace streets_utils::json_utils {
         return member;
     }
 
-    std::optional<uint> parse_uint_member(const std::string &member_name,  const rapidjson::Value &obj, bool required ) {
+    std::optional<unsigned int> parse_uint_member(const std::string &member_name,  const rapidjson::Value &obj, bool required ) {
         std::optional<u_int64_t> member;
         if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsUint64())
         {
