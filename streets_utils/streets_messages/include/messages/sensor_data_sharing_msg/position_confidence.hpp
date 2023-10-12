@@ -1,3 +1,16 @@
+// Copyright 2023 Leidos
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #pragma once
 
 namespace streets_utils::messages {
@@ -26,52 +39,36 @@ namespace streets_utils::messages {
         {
         case 0:
             return position_confidence::UNAVAILABLE;
-            break;
         case 1:
             return position_confidence::A_500M;
-            break;
         case 2:
             return position_confidence::A_200M;
-            break;
         case 3:
             return position_confidence::A_100M;
-            break;
         case 4:
             return position_confidence::A_50M;
-            break;
         case 5:
             return position_confidence::A_20M;
-            break;
         case 6:
             return position_confidence::A_10M;
-            break;
         case 7:
             return position_confidence::A_5M;
-            break;
         case 8:
             return position_confidence::A_2M;
-            break;
         case 9:
             return position_confidence::A_1M;
-            break;
         case 10:
             return position_confidence::A_50CM;
-            break;
         case 11:
             return position_confidence::A_20CM;
-            break;
         case 12:
             return position_confidence::A_10CM;
-            break;
         case 13:
             return position_confidence::A_5CM;
-            break;
         case 14:
             return position_confidence::A_2CM;
-            break;
         case 15:
             return position_confidence::A_1CM;
-            break;
         default:
             return position_confidence::UNAVAILABLE;
         }

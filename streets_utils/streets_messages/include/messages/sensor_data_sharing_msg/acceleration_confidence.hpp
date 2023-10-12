@@ -1,3 +1,16 @@
+// Copyright 2023 Leidos
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #pragma once
 
 namespace streets_utils::messages{
@@ -17,28 +30,20 @@ namespace streets_utils::messages{
         {
         case 0:
             return acceleration_confidence::UNAVAILABLE;
-            break;
         case 1:
             return acceleration_confidence::ACCL_100;
-            break;
         case 2:
             return acceleration_confidence::ACCL_10;
-            break;
         case 3:
             return acceleration_confidence::ACCL_5;
-            break;
         case 4:
             return acceleration_confidence::ACCL_1;
-            break;
         case 5:
             return acceleration_confidence::ACCL_0_1;
-            break;
         case 6:
             return acceleration_confidence::ACCL_0_05;
-            break;
         case 7:
             return acceleration_confidence::ACCL_0_01;
-            break;
         default:
             return acceleration_confidence::UNAVAILABLE;
         }
