@@ -27,7 +27,7 @@ namespace streets_utils::messages{
 
     rapidjson::Value create_detected_obstacle_data(const detected_obstacle_data &val, rapidjson::Document::AllocatorType &allocator);
 
-    rapidjson::Value create_obstacle_size(const obstable_size &val, rapidjson::Document::AllocatorType &allocator);
+    rapidjson::Value create_obstacle_size(const obstacle_size &val, rapidjson::Document::AllocatorType &allocator);
 
     rapidjson::Value create_obstacle_size_confidence(const obstacle_size_confidence &val, rapidjson::Document::AllocatorType &allocator);
 

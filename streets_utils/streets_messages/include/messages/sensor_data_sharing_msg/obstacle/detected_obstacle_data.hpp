@@ -7,7 +7,7 @@ namespace streets_utils::messages{
         /**
          * @brief Size of obstacle.
          */
-        obstable_size _size;
+        obstacle_size _size;
         /**
          * @brief Confidence of reported size.
          */

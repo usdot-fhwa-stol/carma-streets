@@ -27,4 +27,24 @@ namespace streets_utils::messages {
     detected_obstacle_data parse_detected_obstacle_data(const rapidjson::Value &val);
 
     detected_vehicle_data parse_detected_vehicle_data(const rapidjson::Value &val);
+
+    detected_vru_data parse_detected_vru_data(const rapidjson::Value &val);
+
+    obstacle_size parse_obstacle_size(const rapidjson::Value &val);
+
+    obstacle_size_confidence parse_obstacle_size_confidence(const rapidjson::Value &val);
+
+    std::optional<std::variant<human_propelled_type, motorized_propelled_type, animal_propelled_type>> parse_propelled_information( const rapidjson::Value &val); 
+
+    attitude parse_vehicle_attitude(const rapidjson::Value &val);
+
+    attitude_confidence parse_vehicle_attitude_confidence(const rapidjson::Value &val);
+
+    angular_velocity_set parse_vehicle_angular_velocity_set(const rapidjson::Value &val);
+
+    angular_velocity_confidence_set parse_vehicle_angular_velocity_confidence_set(const rapidjson::Value &val);
+
+    vehicle_size parse_vehicle_size(const rapidjson::Value &val);
+
+    vehicle_size_confidence parse_vehicle_size_confidence(const rapidjson::Value &val);
 }

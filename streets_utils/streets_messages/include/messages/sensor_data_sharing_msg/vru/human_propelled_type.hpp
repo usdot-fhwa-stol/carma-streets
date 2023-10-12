@@ -11,6 +11,24 @@ namespace streets_utils::messages {
         WHEELCHAIR = 5
     };
 
-    human_propelled_type human_propelled_type_from_int( const int i );
+    inline human_propelled_type human_propelled_type_from_int( const int i ){
+        switch (i)
+        {
+        case 0:
+            return human_propelled_type::UNAVAILABLE;
+        case 1:
+            return human_propelled_type::OTHER_TYPES;
+        case 2:           
+            return human_propelled_type::ON_FOOT;
+        case 3:
+            return human_propelled_type::SKATEBOARD;
+        case 4:
+            return human_propelled_type::PUSH_OR_KICK_SCOOTER;
+        case 5:
+            return human_propelled_type::WHEELCHAIR;
+        default:           
+            return human_propelled_type::UNAVAILABLE;
+        }
+    };
 
 }

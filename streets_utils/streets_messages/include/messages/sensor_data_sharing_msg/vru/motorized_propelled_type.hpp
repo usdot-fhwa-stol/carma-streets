@@ -10,6 +10,24 @@ namespace streets_utils::messages {
         SELF_BALANCING_DEVICE = 5
     };
     
-    motorized_propelled_type motorized_propelled_type_from_int( const int i );
+    inline motorized_propelled_type motorized_propelled_type_from_int( const unsigned int i ){
+        switch (i)
+        {
+        case 0:
+            return motorized_propelled_type::UNAVAILABLE;
+        case 1:
+            return motorized_propelled_type::OTHER_TYPES;
+        case 2:           
+            return motorized_propelled_type::WHEEL_CHAIR;
+        case 3:
+            return motorized_propelled_type::BICYCLE;
+        case 4:
+            return motorized_propelled_type::SCOOTER;
+        case 5:
+            return motorized_propelled_type::SELF_BALANCING_DEVICE;
+        default:           
+            return motorized_propelled_type::UNAVAILABLE;
+        }
+    };
 
 }

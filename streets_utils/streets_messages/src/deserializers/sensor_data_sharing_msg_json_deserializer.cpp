@@ -83,14 +83,152 @@ namespace streets_utils::messages {
     std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>>  parse_detected_object_data_optional(const rapidjson::Value &val){
         std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>> detected_optional_data;
         if (val.HasMember("detected_vehicle_data")){
-            detected_vehicle_data data;
+            detected_optional_data = parse_detected_vehicle_data(parse_object_member("detected_vehicle_data", val, true).value());
         }
         else if (val.HasMember("detected_vru_data")) {
+            detected_optional_data = parse_detected_vru_data(parse_object_member("detected_vru_data", val, true).value());
 
         }
         else if (val.HasMember("detected_obstacle_data") ) {
-
+            detected_optional_data = parse_detected_obstacle_data(parse_object_member("detected_obstacle_data", val, true).value());
         }
         return detected_optional_data;
+    }
+
+    detected_obstacle_data parse_detected_obstacle_data(const rapidjson::Value &val){
+        detected_obstacle_data data;
+        data._size = parse_obstacle_size(parse_object_member("obst_size", val, true).value());
+        data._size_confidence = parse_obstacle_size_confidence(parse_object_member("obst_size_confidence", val, true).value());
+        return data;
+    }
+
+    detected_vehicle_data parse_detected_vehicle_data(const rapidjson::Value &val){
+        detected_vehicle_data data;
+        data.exterior_lights = parse_string_member("lights", val, false);
+        // TODO parse vehicle attitude
+        if ( val.HasMember("veh_attitude"))
+            data._veh_attitude = parse_vehicle_attitude(parse_object_member("veh_attitude", val, false).value());
+        // TODO parse vehicle attitude confidence
+        if ( val.HasMember("veh_attitude_confidence"))
+            data._attitude_confidence = parse_vehicle_attitude_confidence(parse_object_member("veh_attitude_confidence", val, false).value());
+        // TODO parse vehicle angular velocity
+        if ( val.HasMember("veh_ang_vel"))
+            data._angular_velocity = parse_vehicle_angular_velocity_set(parse_object_member("veh_ang_vel", val, false).value());
+        // TOTO parse vehicle angular velocity confidence
+        if ( val.HasMember("veh_ang_vel_confidence"))
+            data._angular_velocity_confidence = parse_vehicle_angular_velocity_confidence_set(parse_object_member("veh_ang_vel_confidence", val, false).value());
+        // TODO parse vehicle size
+        if ( val.HasMember("size"))
+            data._size = parse_vehicle_size(parse_object_member("size", val, false).value());
+        // TODO parse vehicle size confidence
+        if ( val.HasMember("vehicle_size_confidence"))
+            data._size_confidence = parse_vehicle_size_confidence(parse_object_member("vehicle_size_confidence", val, false).value());
+        data._vehicle_height = parse_uint_member("height", val, false);
+        data._vehicle_class = parse_uint_member("vehicle_class", val, false);
+        data._classification_confidence =  parse_uint_member("class_conf", val, false);
+        return data;
+    }
+
+
+    attitude_confidence parse_vehicle_attitude_confidence(const rapidjson::Value &val){
+        attitude_confidence data;
+        data._pitch_confidence = heading_confidence_from_int(parse_uint_member("pitch_confidence", val, true).value());
+        data._roll_confidence = heading_confidence_from_int(parse_uint_member("roll_confidence", val, true).value());
+        data._yaw_confidence = heading_confidence_from_int(parse_uint_member("yaw_confidence", val, true).value());
+        return data;
+
+    }
+
+    angular_velocity_set parse_vehicle_angular_velocity_set(const rapidjson::Value &val){
+        angular_velocity_set data;
+        data._pitch_rate = parse_int_member("pitch_rate", val, true).value();
+        data._roll_rate = parse_int_member("roll_rate", val, true).value();
+        return data;
+
+    }
+
+    angular_velocity_confidence_set parse_vehicle_angular_velocity_confidence_set(const rapidjson::Value &val){
+        angular_velocity_confidence_set data;
+        data._pitch_rate_confidence = angular_velocity_confidence_from_int( parse_uint_member("pitch_rate_confidence", val, true).value());
+        data._roll_rate_confidence = angular_velocity_confidence_from_int( parse_uint_member("roll_rate_confidence", val, true).value());
+        return data;
+    }
+
+    vehicle_size parse_vehicle_size(const rapidjson::Value &val){
+        vehicle_size data;
+        data._length = parse_uint_member("length", val, true).value();
+        data._width = parse_uint_member("width", val, true).value();
+        return data;
+    }
+
+    vehicle_size_confidence parse_vehicle_size_confidence(const rapidjson::Value &val){
+        vehicle_size_confidence data;
+        data._width_confidence = size_value_confidence_from_int(parse_uint_member("width_confidence", val, true).value());
+        data._length_confidence = size_value_confidence_from_int(parse_uint_member("length_confidence", val, true).value());
+        if (auto height_confidence_val = parse_uint_member("height_confidence", val, false); height_confidence_val.has_value()) {
+            data._height_confidence = size_value_confidence(height_confidence_val.value());
+        }
+        return data;
+    }
+
+    attitude parse_vehicle_attitude(const rapidjson::Value &val) {
+        attitude data;
+        data._pitch = parse_int_member("pitch", val, true).value();
+        data._roll = parse_int_member("roll", val, true).value();
+        data._yaw = parse_int_member("yaw", val, true).value();
+        return data;
+    }
+
+    detected_vru_data parse_detected_vru_data(const rapidjson::Value &val){
+        detected_vru_data data;
+        if ( auto basic_type_value = parse_uint_member("basic_type", val, false); basic_type_value.has_value() ) {
+            data._personal_device_user_type = personal_device_user_type_from_int( basic_type_value.value());
+        }
+        if ( val.HasMember("propulsion") ) {
+            data._propulsion = parse_propelled_information(parse_object_member("propulsion", val, true).value());
+        }
+        if (auto attachment_value = parse_uint_member("attachment", val, false); attachment_value.has_value()  ){
+            data._attachment = attachment_from_int( attachment_value.value());
+        }
+        data._attachment_radious = parse_uint_member("radius", val, false);
+        return data;
+    }
+
+    std::optional<std::variant<human_propelled_type, motorized_propelled_type, animal_propelled_type>> parse_propelled_information( const rapidjson::Value &val){
+        std::optional<std::variant<human_propelled_type, motorized_propelled_type, animal_propelled_type>> data;
+        if (val.HasMember("human")) {
+            data = human_propelled_type_from_int(parse_uint_member("human", val, true).value());
+        }
+        else if (val.HasMember("animal")) {
+            data = animal_propelled_type_from_int(parse_uint_member("animal", val, true).value());        
+        }
+        else if (val.HasMember("motor")) {
+            data = motorized_propelled_type_from_int(parse_uint_member("motor", val, true).value());
+        }
+        else {
+            throw std::runtime_error("Something went wrong");
+        }
+        return data;
+    } 
+
+
+    obstacle_size parse_obstacle_size(const rapidjson::Value &val) {
+        obstacle_size data;
+        data._length = parse_uint_member("length", val, true).value();
+        data._width = parse_uint_member("with_width", val, true).value();
+        // Optional height
+        data._height = parse_uint_member("height", val, true);
+        return data;
+    }
+
+    obstacle_size_confidence parse_obstacle_size_confidence(const rapidjson::Value &val) {
+        obstacle_size_confidence data;
+        data._length_confidence = size_value_confidence_from_int( parse_uint_member("length_confidence", val, true).value());
+        data._width_confidence = size_value_confidence_from_int( parse_uint_member("width_confidence", val, true).value());
+        // Optional height value
+        if ( auto height_confidence_value = parse_uint_member("height_confidence", val, false); height_confidence_value.has_value() ){
+            data._height_confidence = size_value_confidence_from_int( parse_uint_member("height_confidence", val, true).value());
+        }
+        return data;
     }
 }
