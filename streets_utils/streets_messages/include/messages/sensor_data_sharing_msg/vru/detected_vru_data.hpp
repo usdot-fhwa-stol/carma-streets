@@ -22,7 +22,7 @@ namespace streets_utils::messages{
         /**
          * @brief Attachment radius in decimeters [0,200]
          */
-        std::optional<unsigned int>  _attachment_radious;
+        std::optional<unsigned int>  _attachment_radius;
         /**
          * @brief Personal device user type
          */

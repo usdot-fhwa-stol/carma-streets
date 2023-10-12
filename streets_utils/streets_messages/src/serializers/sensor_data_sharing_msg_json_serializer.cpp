@@ -217,8 +217,8 @@ namespace streets_utils::messages{
         if (val._propulsion.has_value() ) {
             data.AddMember("propulsion", create_propelled_information(val._propulsion.value(), allocator), allocator);
         }
-        if (val._attachment_radious.has_value() ) {
-            data.AddMember("radius", val._attachment_radious.value(), allocator);
+        if (val._attachment_radius.has_value() ) {
+            data.AddMember("radius", val._attachment_radius.value(), allocator);
         }
         return data;
     }

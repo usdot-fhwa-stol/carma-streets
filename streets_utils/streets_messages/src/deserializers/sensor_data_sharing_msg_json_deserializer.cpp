@@ -190,7 +190,7 @@ namespace streets_utils::messages {
         if (auto attachment_value = parse_uint_member("attachment", val, false); attachment_value.has_value()  ){
             data._attachment = attachment_from_int( attachment_value.value());
         }
-        data._attachment_radious = parse_uint_member("radius", val, false);
+        data._attachment_radius = parse_uint_member("radius", val, false);
         return data;
     }
 
