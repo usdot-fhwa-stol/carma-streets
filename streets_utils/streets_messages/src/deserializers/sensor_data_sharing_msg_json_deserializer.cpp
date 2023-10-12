@@ -61,8 +61,8 @@ namespace streets_utils::messages {
         auto json_detected_object_list = parse_array_member("objects",val, true).value();
         for (const auto &object: json_detected_object_list){
             detected_object_data data;
-            data._detected_object_common_data = parse_detected_object_data_common(parse_object_member("detected_object_common_data", val, true).value());
-            if ( auto data_optional = parse_object_member("detected_object_optional_data", val, false); data_optional.has_value()) {
+            data._detected_object_common_data = parse_detected_object_data_common(parse_object_member("detected_object_common_data", object, true).value());
+            if ( auto data_optional = parse_object_member("detected_object_optional_data", object, false); data_optional.has_value()) {
                 data._detected_object_optional_data = parse_detected_object_data_optional( data_optional.value() );
             }
             detected_object_list.push_back(data);
@@ -206,7 +206,7 @@ namespace streets_utils::messages {
             data = motorized_propelled_type_from_int(parse_uint_member("motor", val, true).value());
         }
         else {
-            throw std::runtime_error("Something went wrong");
+            throw json_parse_exception("Propelled information requires one of the following to be define: human propelled type, animal propelled type, motorized propelled type.");
         }
         return data;
     } 

@@ -171,7 +171,7 @@ namespace streets_utils::messages{
             return detected_object_data_optional_json;
         }
         else {
-            throw std::runtime_error("If present, detected optional data must include one of the following objects : detected obstacle data, detected vehicle data, detected vru data"); 
+            throw json_utils::json_parse_exception("If present, detected optional data must include one of the following objects : detected obstacle data, detected vehicle data, detected vru data"); 
         }
     }
 
@@ -218,7 +218,7 @@ namespace streets_utils::messages{
             data.AddMember("propulsion", create_propelled_information(val._propulsion.value(), allocator), allocator);
         }
         if (val._attachment_radious.has_value() ) {
-            data.AddMember("radius", static_cast<unsigned int>(val._attachment_radious.value()), allocator);
+            data.AddMember("radius", val._attachment_radious.value(), allocator);
         }
         return data;
     }
@@ -275,7 +275,7 @@ namespace streets_utils::messages{
             return data;
         }
         else {
-            throw std::runtime_error("If present, propelled infromation must include one of the following objects : animal propelled type, motorized propelled type, human propelled type"); 
+            throw json_utils::json_parse_exception("If present, propelled infromation must include one of the following objects : animal propelled type, motorized propelled type, human propelled type"); 
         }
     }
 

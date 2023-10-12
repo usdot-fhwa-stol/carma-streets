@@ -6,6 +6,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include "messages/sensor_data_sharing_msg/sensor_data_sharing_msg.hpp"
+#include <streets_utils/json_utils_lib/json_utils_exception.hpp>
 
 
 namespace streets_utils::messages{
