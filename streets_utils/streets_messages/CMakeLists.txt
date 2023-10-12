@@ -68,9 +68,5 @@ target_link_libraries(${TEST_NAME}
     PRIVATE
         ${LIBRARY_NAME}
         rapidjson
+        GTest::Main
  )
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
-    target_link_libraries( ${TEST_NAME} PUBLIC GTest::gtest_main )
-else() 
-    target_link_libraries( ${TEST_NAME} PUBLIC gtest_main )
-endif()
