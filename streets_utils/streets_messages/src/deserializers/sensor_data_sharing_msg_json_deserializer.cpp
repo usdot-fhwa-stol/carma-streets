@@ -117,25 +117,25 @@ namespace streets_utils::messages {
 
     detected_vehicle_data parse_detected_vehicle_data(const rapidjson::Value &val){
         detected_vehicle_data data;
-        data.exterior_lights = parse_string_member("lights", val, false);
-        // TODO parse vehicle attitude
+        data.exterior_lights = parse_string_member("lights", val, false); {
         if ( val.HasMember("veh_attitude"))
             data._veh_attitude = parse_vehicle_attitude(parse_object_member("veh_attitude", val, false).value());
-        // TODO parse vehicle attitude confidence
-        if ( val.HasMember("veh_attitude_confidence"))
+        }
+        if ( val.HasMember("veh_attitude_confidence")) {
             data._attitude_confidence = parse_vehicle_attitude_confidence(parse_object_member("veh_attitude_confidence", val, false).value());
-        // TODO parse vehicle angular velocity
-        if ( val.HasMember("veh_ang_vel"))
+        }
+        if ( val.HasMember("veh_ang_vel")) {
             data._angular_velocity = parse_vehicle_angular_velocity_set(parse_object_member("veh_ang_vel", val, false).value());
-        // TOTO parse vehicle angular velocity confidence
-        if ( val.HasMember("veh_ang_vel_confidence"))
+        }
+        if ( val.HasMember("veh_ang_vel_confidence")) {
             data._angular_velocity_confidence = parse_vehicle_angular_velocity_confidence_set(parse_object_member("veh_ang_vel_confidence", val, false).value());
-        // TODO parse vehicle size
-        if ( val.HasMember("size"))
+        }
+        if ( val.HasMember("size")) {
             data._size = parse_vehicle_size(parse_object_member("size", val, false).value());
-        // TODO parse vehicle size confidence
-        if ( val.HasMember("vehicle_size_confidence"))
+        }
+        if ( val.HasMember("vehicle_size_confidence")) {
             data._size_confidence = parse_vehicle_size_confidence(parse_object_member("vehicle_size_confidence", val, false).value());
+        }
         data._vehicle_height = parse_uint_member("height", val, false);
         data._vehicle_class = parse_uint_member("vehicle_class", val, false);
         data._classification_confidence =  parse_uint_member("class_conf", val, false);
