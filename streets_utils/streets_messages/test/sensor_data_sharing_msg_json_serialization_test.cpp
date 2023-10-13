@@ -233,6 +233,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     msg._source_id = "00000001";
     msg._ref_positon._latitude=-90000000;
     msg._ref_positon._longitude=-1800000000;
+    msg._ref_positon._elavation = -32768;
     msg._time_stamp.second = 0;
     msg._time_stamp.minute = 0;
     msg._time_stamp.hour= 0;
@@ -242,6 +243,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
+    msg._ref_position_elavation_confidence = position_confidence::A_10M;
     // Add Detected Object
     detected_object_data detected_object;
     detected_object._detected_object_common_data._object_id = 0;
@@ -255,6 +257,24 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
     detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
+    detected_object._detected_object_common_data._speed_z = 8191;
+    detected_object._detected_object_common_data._speed_confidence = speed_confidence::UNAVAILABLE;
+    detected_object._detected_object_common_data._speed_z_confidence = speed_confidence::PREC_100ms;
+    // Create acceleration 4 way
+    acceleration_set_4_way accel_set;
+    accel_set._lateral_accel = 2001;
+    accel_set._longitudinal_accel =2001;
+    accel_set._vertical_accel = 127;
+    accel_set._yaw_rate = 32767;
+    detected_object._detected_object_common_data._acceleration_4_way= accel_set;
+    // Create acceleration confidence set
+    acceleration_confidence_set_4_way accel_set_confidence;
+    accel_set_confidence._lateral_confidence = acceleration_confidence::ACCL_0_1;
+    accel_set_confidence._longitudinal_confidence = acceleration_confidence::ACCL_100;
+    accel_set_confidence._vertical_confidence = acceleration_confidence::ACCL_0_01;
+    accel_set_confidence._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
+    detected_object._detected_object_common_data._acceleration_confidence = accel_set_confidence;
+    
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
     // Add Detected VRU Optional data
@@ -293,15 +313,15 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     EXPECT_EQ(msg._ref_position_confidence._semi_major_axis_accuracy, result["ref_pos_xy_conf"]["semi_major"].GetUint());
     EXPECT_EQ(msg._ref_position_confidence._semi_minor_axis_accuracy, result["ref_pos_xy_conf"]["semi_minor"].GetUint());
     EXPECT_EQ(msg._ref_position_confidence._semi_major_axis_orientation, result["ref_pos_xy_conf"]["orientation"].GetInt());
-    // Confirm optional elevation parameter is not present
-    EXPECT_FALSE( result.HasMember("ref_pos_el_conf"));
+    // Confirm optional elevation parameter is present
+    EXPECT_TRUE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
     ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
-    // Optional parameter is not present
-    EXPECT_FALSE(result["ref_pos"].HasMember("elevation"));
+    // Optional parameter is present
+    EXPECT_TRUE(result["ref_pos"].HasMember("elevation"));
 
     // Confirm List of detected object exists
     ASSERT_TRUE(result.HasMember("objects"));
@@ -324,16 +344,17 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     EXPECT_EQ(msg_object_common_data._time_measurement_offset, object_common_data["measurement_time"].GetInt());
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._time_confidence), object_common_data["time_confidence"].GetUint());
     EXPECT_EQ(msg_object_common_data._speed, object_common_data["speed"].GetUint());
+    EXPECT_EQ(msg_object_common_data._speed_confidence, speed_confidence_from_int (object_common_data["speed_confidence"].GetUint()));
     EXPECT_EQ(msg_object_common_data._heading, object_common_data["heading"].GetUint());
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._heading_confidence), object_common_data["heading_conf"].GetUint());
     // Test Optional properties not present
-    EXPECT_FALSE(object_common_data.HasMember("speed_z"));
-    EXPECT_FALSE(object_common_data.HasMember("speed_confidence_z"));
-    EXPECT_FALSE(object_common_data.HasMember("accel_4_way"));
-    EXPECT_FALSE(object_common_data.HasMember("acc_cfd_x"));
-    EXPECT_FALSE(object_common_data.HasMember("acc_cfd_y"));
-    EXPECT_FALSE(object_common_data.HasMember("acc_cfd_yaw"));
-    EXPECT_FALSE(object_common_data.HasMember("acc_cfd_z"));
+    EXPECT_EQ(msg_object_common_data._speed_z, object_common_data["speed_z"].GetUint());
+    EXPECT_EQ(msg_object_common_data._speed_z_confidence, speed_confidence_from_int(object_common_data["speed_confidence_z"].GetUint()) );
+    EXPECT_TRUE(object_common_data.HasMember("accel_4_way"));
+    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_x"));
+    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_y"));
+    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_yaw"));
+    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_z"));
     // TODO: expect vru optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
 

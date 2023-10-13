@@ -25,6 +25,28 @@ namespace streets_utils::messages{
         PREC_0_01ms = 7     // 0.01 m/s
     };
 
-    speed_confidence speed_confidence_from_int( const int i );
+    inline speed_confidence speed_confidence_from_int( const unsigned int i ) {
+        switch (i)
+        {
+        case 0:
+            return speed_confidence::UNAVAILABLE;
+        case 1:
+            return speed_confidence::PREC_100ms;
+        case 2:
+            return speed_confidence::PREC_10ms;
+        case 3:
+            return speed_confidence::PREC_5ms;
+        case 4:
+            return speed_confidence::PREC_1ms;
+        case 5:
+            return speed_confidence::PREC_0_1ms;
+        case 6:
+            return speed_confidence::PREC_0_05ms;
+        case 7:
+            return speed_confidence::PREC_0_01ms;
+        default:
+            return speed_confidence::UNAVAILABLE;
+        }
+    };
 
 }
