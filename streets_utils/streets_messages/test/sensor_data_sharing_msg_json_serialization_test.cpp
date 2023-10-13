@@ -320,8 +320,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
-    // Optional parameter is present
-    EXPECT_TRUE(result["ref_pos"].HasMember("elevation"));
+    // Confirm optional elevation parameter is present
+    EXPECT_EQ( msg._ref_positon._elavation, result["ref_pos"]["elevation"].GetInt());
+    EXPECT_EQ( msg._ref_position_elavation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
 
     // Confirm List of detected object exists
     ASSERT_TRUE(result.HasMember("objects"));
@@ -347,14 +348,20 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_prope
     EXPECT_EQ(msg_object_common_data._speed_confidence, speed_confidence_from_int (object_common_data["speed_confidence"].GetUint()));
     EXPECT_EQ(msg_object_common_data._heading, object_common_data["heading"].GetUint());
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._heading_confidence), object_common_data["heading_conf"].GetUint());
-    // Test Optional properties not present
+    // Test Optional properties present
     EXPECT_EQ(msg_object_common_data._speed_z, object_common_data["speed_z"].GetUint());
     EXPECT_EQ(msg_object_common_data._speed_z_confidence, speed_confidence_from_int(object_common_data["speed_confidence_z"].GetUint()) );
+    // Confirm accel 4 way values
     EXPECT_TRUE(object_common_data.HasMember("accel_4_way"));
-    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_x"));
-    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_y"));
-    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_yaw"));
-    EXPECT_TRUE(object_common_data.HasMember("acc_cfd_z"));
+    EXPECT_EQ( msg_object_common_data._acceleration_4_way->_lateral_accel, object_common_data["accel_4_way"]["lat"].GetInt());
+    EXPECT_EQ( msg_object_common_data._acceleration_4_way->_longitudinal_accel, object_common_data["accel_4_way"]["long"].GetInt());
+    EXPECT_EQ( msg_object_common_data._acceleration_4_way->_vertical_accel, object_common_data["accel_4_way"]["vert"].GetInt());
+    EXPECT_EQ( msg_object_common_data._acceleration_4_way->_yaw_rate, object_common_data["accel_4_way"]["yaw"].GetInt());
+    // Confirm acceleration confidence
+    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_lateral_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_longitudinal_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_vertical_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_yaw_rate_confidence,angular_velocity_confidence( object_common_data["acc_cfd_yaw"].GetUint()));
     // TODO: expect vru optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
 
