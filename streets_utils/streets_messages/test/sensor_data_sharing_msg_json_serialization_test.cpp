@@ -518,29 +518,43 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
     // Add detected vehicle optional data
     detected_vehicle_data detected_vehicle;
-    detected_vehicle._size->_width = 4095;
-    detected_vehicle._size->_length = 4095;
+    vehicle_size _vehicle_size;
+    _vehicle_size._width = 4095;
+    _vehicle_size._length = 4095;
+    detected_vehicle._size = _vehicle_size;
     detected_vehicle._vehicle_height = 127;
 
-    detected_vehicle._size_confidence->_height_confidence = size_value_confidence::SIZE_0_01;
-    detected_vehicle._size_confidence->_width_confidence = size_value_confidence::SIZE_0_01;
-    detected_vehicle._size_confidence->_length_confidence = size_value_confidence::SIZE_0_01;
+    vehicle_size_confidence _vehicle_size_confidence;
+    
+    _vehicle_size_confidence._height_confidence = size_value_confidence::SIZE_0_01;
+    _vehicle_size_confidence._width_confidence = size_value_confidence::SIZE_0_01;
+    _vehicle_size_confidence._length_confidence = size_value_confidence::SIZE_0_01;
+    detected_vehicle._size_confidence = _vehicle_size_confidence;
 
     detected_vehicle.exterior_lights = "11110000";
     
-    detected_vehicle._angular_velocity->_pitch_rate = 32767;
-    detected_vehicle._angular_velocity->_roll_rate = 32767;
+    angular_velocity_set _angular_velocity_set;
+    _angular_velocity_set._pitch_rate = 32767;
+    _angular_velocity_set._roll_rate = 32767;
+    detected_vehicle._angular_velocity = _angular_velocity_set;
     
-    detected_vehicle._angular_velocity_confidence->_pitch_rate_confidence = angular_velocity_confidence::DEGSEC_01;
-    detected_vehicle._angular_velocity_confidence->_roll_rate_confidence = angular_velocity_confidence::DEGSEC_01;
-    
-    detected_vehicle._veh_attitude->_pitch = 72000;
-    detected_vehicle._veh_attitude->_roll = 14400;
-    detected_vehicle._veh_attitude->_yaw = 14400;
+    angular_velocity_confidence_set _angular_velocity_confidence_set;
 
-    detected_vehicle._attitude_confidence->_pitch_confidence = heading_confidence::PREC_0_05_deg;
-    detected_vehicle._attitude_confidence->_roll_confidence = heading_confidence::PREC_10_deg;
-    detected_vehicle._attitude_confidence->_yaw_confidence = heading_confidence::PREC_01_deg;
+    _angular_velocity_confidence_set._pitch_rate_confidence = angular_velocity_confidence::DEGSEC_01;
+    _angular_velocity_confidence_set._roll_rate_confidence = angular_velocity_confidence::DEGSEC_01;
+    detected_vehicle._angular_velocity_confidence = _angular_velocity_confidence_set;
+
+    attitude veh_attitude;
+    veh_attitude._pitch = 72000;
+    veh_attitude._roll = 14400;
+    veh_attitude._yaw = 14400;
+    detected_vehicle._veh_attitude = veh_attitude;
+
+    attitude_confidence veh_attitude_confidence;
+    veh_attitude_confidence._pitch_confidence = heading_confidence::PREC_0_05_deg;
+    veh_attitude_confidence._roll_confidence = heading_confidence::PREC_10_deg;
+    veh_attitude_confidence._yaw_confidence = heading_confidence::PREC_01_deg;
+    detected_vehicle._attitude_confidence = veh_attitude_confidence;
 
     detected_vehicle._vehicle_class = 23;
     detected_vehicle._classification_confidence = 101;
