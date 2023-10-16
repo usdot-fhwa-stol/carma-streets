@@ -61,7 +61,7 @@ namespace streets_utils::messages{
         case 12:           
             return size_value_confidence::SIZE_0_02;
         case 13:
-            return size_value_confidence::SIZE_0_05;
+            return size_value_confidence::SIZE_0_01;
         default:
             return size_value_confidence::UNAVAILABLE;
         }

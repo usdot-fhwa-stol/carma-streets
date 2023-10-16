@@ -705,6 +705,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     detected_obstacle._size._width = 1023;
     detected_obstacle._size._length = 1023;
     
+    obstacle_size_confidence _size_confidence;
     detected_obstacle._size_confidence._height_confidence = size_value_confidence::SIZE_0_01;
     detected_obstacle._size_confidence._width_confidence = size_value_confidence::SIZE_0_01;
     detected_obstacle._size_confidence._length_confidence = size_value_confidence::SIZE_0_01;
@@ -780,8 +781,21 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     EXPECT_FALSE(object_common_data.HasMember("acc_cfd_y"));
     EXPECT_FALSE(object_common_data.HasMember("acc_cfd_yaw"));
     EXPECT_FALSE(object_common_data.HasMember("acc_cfd_z"));
-    // TODO: expect vru optional fields information
+    // Expect obstacle optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
+    ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_obstacle_data") );
+    auto msg_object_optional_data = std::get<detected_obstacle_data>(msg._objects[0]._detected_object_optional_data.value());
+    auto option_obstacle_json_data = object["detected_object_optional_data"]["detected_obstacle_data"].GetObject();
+    // Confirm Size  
+    EXPECT_EQ( msg_object_optional_data._size._length, option_obstacle_json_data["obst_size"]["length"].GetUint());
+    EXPECT_EQ( msg_object_optional_data._size._width, option_obstacle_json_data["obst_size"]["width"].GetUint());
+    EXPECT_EQ( msg_object_optional_data._size._height, option_obstacle_json_data["obst_size"]["height"].GetUint());
+    // Confirm Size confidence
+    EXPECT_EQ( msg_object_optional_data._size_confidence._length_confidence, size_value_confidence_from_int(option_obstacle_json_data["obst_size_confidence"]["length_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._size_confidence._width_confidence, size_value_confidence_from_int(option_obstacle_json_data["obst_size_confidence"]["width_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._size_confidence._height_confidence.value(), size_value_confidence_from_int(option_obstacle_json_data["obst_size_confidence"]["height_confidence"].GetUint()));
+   
+
 
 }
 
@@ -929,8 +943,39 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     EXPECT_FALSE(object_common_data.HasMember("acc_cfd_y"));
     EXPECT_FALSE(object_common_data.HasMember("acc_cfd_yaw"));
     EXPECT_FALSE(object_common_data.HasMember("acc_cfd_z"));
-    // TODO: expect vru optional fields information
+    // Expect vehicle optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
+    ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vehicle_data") );
+    auto msg_object_optional_data = std::get<detected_vehicle_data>(msg._objects[0]._detected_object_optional_data.value());
+    auto option_vehicle_json_data = object["detected_object_optional_data"]["detected_vehicle_data"].GetObject();
 
+    EXPECT_EQ( msg_object_optional_data.exterior_lights, option_vehicle_json_data["lights"].GetString());
+    // Confirm angular velocity
+    EXPECT_EQ( msg_object_optional_data._angular_velocity.value()._pitch_rate, option_vehicle_json_data["veh_ang_vel"]["pitch_rate"].GetInt());
+    EXPECT_EQ( msg_object_optional_data._angular_velocity.value()._roll_rate, option_vehicle_json_data["veh_ang_vel"]["roll_rate"].GetInt());
+    // Confirm attitude
+    EXPECT_EQ( msg_object_optional_data._veh_attitude.value()._pitch, option_vehicle_json_data["veh_attitude"]["pitch"].GetInt());
+    EXPECT_EQ( msg_object_optional_data._veh_attitude.value()._roll, option_vehicle_json_data["veh_attitude"]["roll"].GetInt());
+    EXPECT_EQ( msg_object_optional_data._veh_attitude.value()._yaw, option_vehicle_json_data["veh_attitude"]["yaw"].GetInt());
+    // Confirm size
+    EXPECT_EQ( msg_object_optional_data._size.value()._length, option_vehicle_json_data["size"]["length"].GetUint());
+    EXPECT_EQ( msg_object_optional_data._size.value()._width, option_vehicle_json_data["size"]["width"].GetUint());
+    EXPECT_EQ( msg_object_optional_data._vehicle_height, option_vehicle_json_data["height"].GetUint());
+    // Confirm angular velocity confidence
+    EXPECT_EQ( msg_object_optional_data._angular_velocity_confidence.value()._pitch_rate_confidence, angular_velocity_confidence_from_int(option_vehicle_json_data["veh_ang_vel_confidence"]["pitch_rate_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._angular_velocity_confidence.value()._roll_rate_confidence, angular_velocity_confidence_from_int(option_vehicle_json_data["veh_ang_vel_confidence"]["roll_rate_confidence"].GetUint()));
+    // Confirm attitude confidence
+    EXPECT_EQ( msg_object_optional_data._attitude_confidence.value()._pitch_confidence, heading_confidence_from_int(option_vehicle_json_data["veh_attitude_confidence"]["pitch_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._attitude_confidence.value()._roll_confidence, heading_confidence_from_int(option_vehicle_json_data["veh_attitude_confidence"]["roll_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._attitude_confidence.value()._yaw_confidence, heading_confidence_from_int(option_vehicle_json_data["veh_attitude_confidence"]["yaw_confidence"].GetUint()));
+    // Confirm size confidence
+    EXPECT_EQ( msg_object_optional_data._size_confidence.value()._length_confidence, size_value_confidence_from_int(option_vehicle_json_data["vehicle_size_confidence"]["vehicle_length_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._size_confidence.value()._width_confidence, size_value_confidence_from_int(option_vehicle_json_data["vehicle_size_confidence"]["vehicle_width_confidence"].GetUint()));
+    EXPECT_EQ( msg_object_optional_data._size_confidence.value()._height_confidence, size_value_confidence_from_int(option_vehicle_json_data["vehicle_size_confidence"]["vehicle_height_confidence"].GetUint()));
+    // Confirm vehicle class
+    EXPECT_EQ( msg_object_optional_data._vehicle_class, option_vehicle_json_data["vehicle_class"].GetUint());
+    // Confirm classification confidence
+    EXPECT_EQ( msg_object_optional_data._classification_confidence, option_vehicle_json_data["vehicle_class_conf"].GetUint());
+  
 }
 

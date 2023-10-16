@@ -251,7 +251,7 @@ namespace streets_utils::messages{
             data.AddMember("veh_ang_vel", create_angular_velocity(val._angular_velocity.value(), allocator), allocator);
         }
         if ( val._angular_velocity_confidence.has_value() ){
-            data.AddMember("veh_ang_vel_conf", create_angular_velocity_confidence(val._angular_velocity_confidence.value(),allocator), allocator);
+            data.AddMember("veh_ang_vel_confidence", create_angular_velocity_confidence(val._angular_velocity_confidence.value(),allocator), allocator);
         }
         if ( val._size.has_value() ) {
             data.AddMember("size", create_vehicle_size(val._size.value(), allocator), allocator);
@@ -266,7 +266,7 @@ namespace streets_utils::messages{
             data.AddMember("vehicle_class", val._vehicle_class.value(), allocator);
         }
         if ( val._classification_confidence.has_value() ) {
-            data.AddMember("class_conf", val._classification_confidence.value(), allocator);
+            data.AddMember("vehicle_class_conf", val._classification_confidence.value(), allocator);
         }
         return data;
     }
@@ -322,7 +322,7 @@ namespace streets_utils::messages{
             data.AddMember("pitch_rate_confidence", static_cast<unsigned int>(val._pitch_rate_confidence.value()), allocator);
         }
         if ( val._roll_rate_confidence.has_value() ) {
-            data.AddMember("pitch_rate_confidence", static_cast<unsigned int>(val._roll_rate_confidence.value()), allocator);
+            data.AddMember("roll_rate_confidence", static_cast<unsigned int>(val._roll_rate_confidence.value()), allocator);
         }
         return data;
     }
