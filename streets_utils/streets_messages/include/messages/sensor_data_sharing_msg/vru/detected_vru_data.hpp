@@ -14,7 +14,7 @@
 #pragma once
 
 #include "human_propelled_type.hpp"
-#include "animal_proppelled_type.hpp"
+#include "animal_propelled_type.hpp"
 #include "motorized_propelled_type.hpp"
 #include "attachment.hpp"
 #include "personal_device_user_type.hpp"
