@@ -106,6 +106,23 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
     EXPECT_EQ(25000, msg._ref_position_confidence._semi_major_axis_orientation);
     // Get Detection
     ASSERT_EQ(1, msg._objects.size());
+    auto detection = msg._objects[0];
+    // Confirm Common Data
+    EXPECT_EQ(12200 ,detection._detected_object_common_data._object_id);
+    EXPECT_EQ(object_type_from_int(1) ,detection._detected_object_common_data._object_type);
+    EXPECT_EQ(65,detection._detected_object_common_data._classification_confidence);
+    // Confirm 4 way accel
+    EXPECT_EQ( -500, detection._detected_object_common_data._acceleration_4_way->_lateral_accel);
+    EXPECT_EQ( 200, detection._detected_object_common_data._acceleration_4_way->_longitudinal_accel);
+    EXPECT_EQ( 1, detection._detected_object_common_data._acceleration_4_way->_vertical_accel);
+    EXPECT_EQ( 400, detection._detected_object_common_data._acceleration_4_way->_yaw_rate);
+    // Confirm acceleration confidence
+    EXPECT_EQ( acceleration_confidence_from_int(4), detection._detected_object_common_data._lateral_acceleration_confidence);
+    EXPECT_EQ( acceleration_confidence_from_int(5), detection._detected_object_common_data._longitudinal_acceleration_confidence);
+    EXPECT_EQ( acceleration_confidence_from_int(6), detection._detected_object_common_data._vertical_accelaration_confidence);
+    EXPECT_EQ( angular_velocity_confidence_from_int(3), detection._detected_object_common_data._yaw_rate_confidence);
+    // Confirm position
+
 
 
 }

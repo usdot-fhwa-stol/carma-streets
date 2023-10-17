@@ -36,6 +36,8 @@ namespace streets_utils::messages {
 
     detected_object_data_common parse_detected_object_data_common(const rapidjson::Value &val);
 
+    acceleration_set_4_way parse_acceleration_4_way(const rapidjson::Value &val);
+
     std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>>  parse_detected_object_data_optional(const rapidjson::Value &val);
 
     detected_obstacle_data parse_detected_obstacle_data(const rapidjson::Value &val);

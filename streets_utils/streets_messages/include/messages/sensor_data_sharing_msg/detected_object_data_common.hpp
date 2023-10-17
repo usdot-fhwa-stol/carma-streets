@@ -82,11 +82,14 @@ namespace streets_utils::messages {
          * @brief Acceleration in longitudinal, lateral, vertical and angular velocity.
          */
         std::optional<acceleration_set_4_way> _acceleration_4_way;
-        /**
-         * @brief Confidence in reported 4 way acceleration.
-         */
-        std::optional<acceleration_confidence_set_4_way> _acceleration_confidence;
+        
+        std::optional<acceleration_confidence> _longitudinal_acceleration_confidence;
 
+        std::optional<acceleration_confidence> _lateral_acceleration_confidence;
+
+        std::optional<acceleration_confidence> _vertical_accelaration_confidence;
+
+        std::optional<angular_velocity_confidence> _yaw_rate_confidence;
 
     };
 }

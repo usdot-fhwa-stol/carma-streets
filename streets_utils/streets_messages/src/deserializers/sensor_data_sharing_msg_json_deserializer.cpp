@@ -92,6 +92,19 @@ namespace streets_utils::messages {
         _detected_object_common_data._object_id = parse_uint_member("object_id", val, true).value();
         _detected_object_common_data._time_measurement_offset = parse_int_member("measurement_time", val, true).value();
         _detected_object_common_data._time_confidence = time_confidence_from_int(parse_uint_member("time_confidence", val, true).value());
+        _detected_object_common_data._acceleration_4_way = parse_acceleration_4_way(parse_object_member("accel_4_way", val, true ).value());
+        if ( val.HasMember("acc_cfd_x")) {
+            _detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_x", val, true).value()); 
+        }
+        if ( val.HasMember("acc_cfd_y")) {
+            _detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_y", val, true).value()); 
+        }
+        if ( val.HasMember("acc_cfd_z")) {
+            _detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_z", val, true).value()); 
+        }
+        if ( val.HasMember("acc_cfd_yaw")) {
+            _detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence_from_int(parse_uint_member("acc_cfd_yaw", val, true).value()); 
+        }
         return _detected_object_common_data;
     }
 
@@ -108,6 +121,15 @@ namespace streets_utils::messages {
             detected_optional_data = parse_detected_obstacle_data(parse_object_member("detected_obstacle_data", val, true).value());
         }
         return detected_optional_data;
+    }
+
+    acceleration_set_4_way parse_acceleration_4_way(const rapidjson::Value &val) {
+        acceleration_set_4_way data;
+        data._lateral_accel = parse_int_member("lat", val, true).value();
+        data._longitudinal_accel = parse_int_member("long", val, true).value();
+        data._vertical_accel = parse_int_member("vert", val, true).value();
+        data._yaw_rate = parse_int_member("yaw", val, true).value();
+        return data;
     }
 
     detected_obstacle_data parse_detected_obstacle_data(const rapidjson::Value &val){

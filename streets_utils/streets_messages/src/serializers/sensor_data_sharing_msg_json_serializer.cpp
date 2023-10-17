@@ -118,22 +118,25 @@ namespace streets_utils::messages{
                     allocator);
         detected_object_data_common_json.AddMember("heading", val._heading, allocator);
         detected_object_data_common_json.AddMember("heading_conf", static_cast<unsigned int >(val._heading_confidence), allocator);
-        if (val._acceleration_confidence.has_value() ) {
+        if (val._lateral_acceleration_confidence.has_value() ) {
             detected_object_data_common_json.AddMember(
                     "acc_cfd_x", 
-                    static_cast<unsigned int >(val._acceleration_confidence.value()._lateral_confidence),
+                    static_cast<unsigned int >(val._lateral_acceleration_confidence.value()),
                     allocator);
+        if (val._longitudinal_acceleration_confidence.has_value() )
             detected_object_data_common_json.AddMember(
                     "acc_cfd_y", 
-                    static_cast<unsigned int >(val._acceleration_confidence.value()._longitudinal_confidence),
+                    static_cast<unsigned int >(val._longitudinal_acceleration_confidence.value()),
                     allocator);
+        if (val._vertical_accelaration_confidence.has_value())
             detected_object_data_common_json.AddMember(
                     "acc_cfd_z", 
-                    static_cast<unsigned int >(val._acceleration_confidence.value()._vertical_confidence),
+                    static_cast<unsigned int >(val._vertical_accelaration_confidence.value()),
                     allocator);
+        if (val._yaw_rate_confidence.has_value())
             detected_object_data_common_json.AddMember(
                     "acc_cfd_yaw", 
-                    static_cast<unsigned int >(val._acceleration_confidence.value()._yaw_rate_confidence),
+                    static_cast<unsigned int >(val._yaw_rate_confidence.value()),
                     allocator);
         }
         if (val._acceleration_4_way.has_value()) {

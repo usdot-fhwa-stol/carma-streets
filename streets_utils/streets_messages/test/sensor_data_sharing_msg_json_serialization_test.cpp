@@ -268,13 +268,11 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     accel_set._yaw_rate = 32767;
     detected_object._detected_object_common_data._acceleration_4_way= accel_set;
     // Create acceleration confidence set
-    acceleration_confidence_set_4_way accel_set_confidence;
-    accel_set_confidence._lateral_confidence = acceleration_confidence::ACCL_0_1;
-    accel_set_confidence._longitudinal_confidence = acceleration_confidence::ACCL_100;
-    accel_set_confidence._vertical_confidence = acceleration_confidence::ACCL_0_01;
-    accel_set_confidence._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
-    detected_object._detected_object_common_data._acceleration_confidence = accel_set_confidence;
-    
+    detected_object._detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence::ACCL_0_1;
+    detected_object._detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence::ACCL_100;
+    detected_object._detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence::ACCL_0_01;
+    detected_object._detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
+
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
     // Add Detected VRU Optional data
@@ -358,10 +356,10 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_vertical_accel, object_common_data["accel_4_way"]["vert"].GetInt());
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_yaw_rate, object_common_data["accel_4_way"]["yaw"].GetInt());
     // Confirm acceleration confidence
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_lateral_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_longitudinal_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_vertical_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_yaw_rate_confidence,angular_velocity_confidence( object_common_data["acc_cfd_yaw"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._lateral_acceleration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._longitudinal_acceleration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._vertical_accelaration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._yaw_rate_confidence,angular_velocity_confidence_from_int( object_common_data["acc_cfd_yaw"].GetUint()));
     // Expect vru optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vru_data") );
@@ -414,13 +412,12 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     accel_set._yaw_rate = 32767;
     detected_object._detected_object_common_data._acceleration_4_way= accel_set;
     // Create acceleration confidence set
-    acceleration_confidence_set_4_way accel_set_confidence;
-    accel_set_confidence._lateral_confidence = acceleration_confidence::ACCL_0_1;
-    accel_set_confidence._longitudinal_confidence = acceleration_confidence::ACCL_100;
-    accel_set_confidence._vertical_confidence = acceleration_confidence::ACCL_0_01;
-    accel_set_confidence._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
-    detected_object._detected_object_common_data._acceleration_confidence = accel_set_confidence;
-    
+    detected_object._detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence::ACCL_0_1;
+    detected_object._detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence::ACCL_100;
+    detected_object._detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence::ACCL_0_01;
+    detected_object._detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
+
+
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
     // Add Detected VRU Optional data
@@ -503,11 +500,11 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_longitudinal_accel, object_common_data["accel_4_way"]["long"].GetInt());
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_vertical_accel, object_common_data["accel_4_way"]["vert"].GetInt());
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_yaw_rate, object_common_data["accel_4_way"]["yaw"].GetInt());
-    // Confirm acceleration confidence
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_lateral_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_longitudinal_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_vertical_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_yaw_rate_confidence,angular_velocity_confidence( object_common_data["acc_cfd_yaw"].GetUint()));
+     // Confirm acceleration confidence
+    EXPECT_EQ(msg_object_common_data._lateral_acceleration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._longitudinal_acceleration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._vertical_accelaration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._yaw_rate_confidence,angular_velocity_confidence_from_int( object_common_data["acc_cfd_yaw"].GetUint()));
     // Expect vru optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vru_data") );
@@ -562,13 +559,11 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     accel_set._yaw_rate = 32767;
     detected_object._detected_object_common_data._acceleration_4_way= accel_set;
     // Create acceleration confidence set
-    acceleration_confidence_set_4_way accel_set_confidence;
-    accel_set_confidence._lateral_confidence = acceleration_confidence::ACCL_0_1;
-    accel_set_confidence._longitudinal_confidence = acceleration_confidence::ACCL_100;
-    accel_set_confidence._vertical_confidence = acceleration_confidence::ACCL_0_01;
-    accel_set_confidence._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
-    detected_object._detected_object_common_data._acceleration_confidence = accel_set_confidence;
-    
+    detected_object._detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence::ACCL_0_1;
+    detected_object._detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence::ACCL_100;
+    detected_object._detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence::ACCL_0_01;
+    detected_object._detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence::UNAVAILABLE;
+
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
     // Add Detected VRU Optional data
@@ -652,10 +647,10 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_vertical_accel, object_common_data["accel_4_way"]["vert"].GetInt());
     EXPECT_EQ( msg_object_common_data._acceleration_4_way->_yaw_rate, object_common_data["accel_4_way"]["yaw"].GetInt());
     // Confirm acceleration confidence
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_lateral_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_longitudinal_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_vertical_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
-    EXPECT_EQ(msg_object_common_data._acceleration_confidence->_yaw_rate_confidence,angular_velocity_confidence( object_common_data["acc_cfd_yaw"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._lateral_acceleration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_x"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._longitudinal_acceleration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_y"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._vertical_accelaration_confidence,acceleration_confidence_from_int( object_common_data["acc_cfd_z"].GetUint()));
+    EXPECT_EQ(msg_object_common_data._yaw_rate_confidence,angular_velocity_confidence_from_int( object_common_data["acc_cfd_yaw"].GetUint()));
     // Expect vru optional fields information
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vru_data") );
