@@ -1,7 +1,9 @@
 name: CI
 on:
-  push:
   pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [develop, master]
 jobs:
   build:
     defaults:
