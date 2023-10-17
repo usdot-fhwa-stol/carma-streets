@@ -26,6 +26,7 @@ namespace streets_utils::messages {
         msg._ref_positon = parse_position_3d(parse_object_member("ref_pos", document, true).value());
         msg._ref_position_confidence = parse_positional_accuracy(parse_object_member("ref_pos_xy_conf", document, true).value());
         msg._ref_position_elavation_confidence = parse_elevation_confidence( document);
+        msg._objects = parse_detected_object_list(document);
         return msg;
     }  
 
@@ -74,8 +75,9 @@ namespace streets_utils::messages {
         auto json_detected_object_list = parse_array_member("objects",val, true).value();
         for (const auto &object: json_detected_object_list){
             detected_object_data data;
-            data._detected_object_common_data = parse_detected_object_data_common(parse_object_member("detected_object_common_data", object, true).value());
-            if ( auto data_optional = parse_object_member("detected_object_optional_data", object, false); data_optional.has_value()) {
+            auto detected_object = parse_object_member("detected_object_data",object, true);
+            data._detected_object_common_data = parse_detected_object_data_common(parse_object_member("detected_object_common_data", detected_object.value(), true).value());
+            if ( auto data_optional = parse_object_member("detected_object_optional_data", detected_object.value(), false); data_optional.has_value()) {
                 data._detected_object_optional_data = parse_detected_object_data_optional( data_optional.value() );
             }
             detected_object_list.push_back(data);
@@ -176,9 +178,9 @@ namespace streets_utils::messages {
 
     vehicle_size_confidence parse_vehicle_size_confidence(const rapidjson::Value &val){
         vehicle_size_confidence data;
-        data._width_confidence = size_value_confidence_from_int(parse_uint_member("width_confidence", val, true).value());
-        data._length_confidence = size_value_confidence_from_int(parse_uint_member("length_confidence", val, true).value());
-        if (auto height_confidence_val = parse_uint_member("height_confidence", val, false); height_confidence_val.has_value()) {
+        data._width_confidence = size_value_confidence_from_int(parse_uint_member("vehicle_width_confidence", val, true).value());
+        data._length_confidence = size_value_confidence_from_int(parse_uint_member("vehicle_length_confidence", val, true).value());
+        if (auto height_confidence_val = parse_uint_member("vehicle_height_confidence", val, false); height_confidence_val.has_value()) {
             data._height_confidence = size_value_confidence(height_confidence_val.value());
         }
         return data;
@@ -228,7 +230,7 @@ namespace streets_utils::messages {
     obstacle_size parse_obstacle_size(const rapidjson::Value &val) {
         obstacle_size data;
         data._length = parse_uint_member("length", val, true).value();
-        data._width = parse_uint_member("with_width", val, true).value();
+        data._width = parse_uint_member("width", val, true).value();
         // Optional height
         data._height = parse_uint_member("height", val, true);
         return data;

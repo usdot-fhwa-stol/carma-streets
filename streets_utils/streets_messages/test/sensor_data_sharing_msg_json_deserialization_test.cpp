@@ -104,6 +104,8 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
     EXPECT_EQ(235, msg._ref_position_confidence._semi_major_axis_accuracy);
     EXPECT_EQ(200, msg._ref_position_confidence._semi_minor_axis_accuracy);
     EXPECT_EQ(25000, msg._ref_position_confidence._semi_major_axis_orientation);
+    // Get Detection
+    ASSERT_EQ(1, msg._objects.size());
 
 
 }
