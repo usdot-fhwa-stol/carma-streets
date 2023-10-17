@@ -32,16 +32,12 @@ namespace streets_utils::messages{
         {
         case 0:
             return equipment_type::UNKNOWN;
-            break;
         case 1:
             return equipment_type::RSU;
-            break;
         case 2:
             return equipment_type::OBU;
-            break;
         case 3:
             return equipment_type::VRU;
-            break;
         default:
             return equipment_type::UNKNOWN;
         }

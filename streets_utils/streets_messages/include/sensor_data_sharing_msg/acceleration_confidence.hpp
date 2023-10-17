@@ -25,7 +25,7 @@ namespace streets_utils::messages{
         ACCL_0_01 = 7     // 0.01 m/s^2
     };
 
-    inline acceleration_confidence acceleration_confidence_from_int( const int i ) {
+    inline acceleration_confidence acceleration_confidence_from_int( const unsigned int i ) {
         switch (i)
         {
         case 0:
