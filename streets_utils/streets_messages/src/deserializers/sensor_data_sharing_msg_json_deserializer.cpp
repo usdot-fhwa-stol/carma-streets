@@ -92,6 +92,19 @@ namespace streets_utils::messages {
         _detected_object_common_data._object_id = parse_uint_member("object_id", val, true).value();
         _detected_object_common_data._time_measurement_offset = parse_int_member("measurement_time", val, true).value();
         _detected_object_common_data._time_confidence = time_confidence_from_int(parse_uint_member("time_confidence", val, true).value());
+        _detected_object_common_data._position_offset = parse_position_offset(parse_object_member("pos" ,val, true).value());
+        _detected_object_common_data._pos_confidence = parse_position_confidence_set(parse_object_member("pos_confidence", val, true).value());
+        _detected_object_common_data._speed = parse_uint_member("speed", val, true).value();
+        _detected_object_common_data._speed_confidence = speed_confidence_from_int(parse_uint_member("speed_confidence", val, true).value());
+        // Optional
+        _detected_object_common_data._speed_z = parse_uint_member("speed_z", val, false);
+        // Optional enumeration
+        if ( val.HasMember("speed_z_confidence")) {
+            _detected_object_common_data._speed_z_confidence = speed_confidence_from_int( parse_uint_member("speed_z_confidence", val, true).value());
+        }
+        _detected_object_common_data._heading = parse_uint_member("heading", val, true).value();
+        _detected_object_common_data._heading_confidence = heading_confidence_from_int(parse_uint_member("heading_conf", val, true).value());
+        
         _detected_object_common_data._acceleration_4_way = parse_acceleration_4_way(parse_object_member("accel_4_way", val, true ).value());
         if ( val.HasMember("acc_cfd_x")) {
             _detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_x", val, true).value()); 
@@ -121,6 +134,22 @@ namespace streets_utils::messages {
             detected_optional_data = parse_detected_obstacle_data(parse_object_member("detected_obstacle_data", val, true).value());
         }
         return detected_optional_data;
+    }
+
+    position_offset parse_position_offset(const rapidjson::Value &val) {
+        position_offset data;
+        data._offset_x = parse_int_member("offset_x", val, true).value();
+        data._offset_y = parse_int_member("offset_y", val, true).value();
+        data._offset_y = parse_int_member("offset_y", val, true).value();
+        return data;
+    
+    }
+
+    position_confidence_set parse_position_confidence_set(const rapidjson::Value &val) {
+        position_confidence_set data;
+        data._position_confidence = position_confidence_from_int( parse_uint_member("pos", val, true).value());
+        data._elavation_confidence = position_confidence_from_int( parse_uint_member("elevation", val, true).value());
+        return data;
     }
 
     acceleration_set_4_way parse_acceleration_4_way(const rapidjson::Value &val) {

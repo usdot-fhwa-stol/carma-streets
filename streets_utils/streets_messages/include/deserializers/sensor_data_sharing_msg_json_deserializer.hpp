@@ -40,6 +40,10 @@ namespace streets_utils::messages {
 
     std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>>  parse_detected_object_data_optional(const rapidjson::Value &val);
 
+    position_offset parse_position_offset(const rapidjson::Value &val);
+
+    position_confidence_set parse_position_confidence_set(const rapidjson::Value &val);
+
     detected_obstacle_data parse_detected_obstacle_data(const rapidjson::Value &val);
 
     detected_vehicle_data parse_detected_vehicle_data(const rapidjson::Value &val);
