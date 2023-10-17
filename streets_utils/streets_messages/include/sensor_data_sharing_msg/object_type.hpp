@@ -27,16 +27,12 @@ namespace streets_utils::messages{
         {
         case 0:
             return object_type::UNKNOWN;
-            break;
         case 1:
             return object_type::VEHICLE;
-            break;
         case 2:
             return object_type::VRU;
-            break;
         case 3:
             return object_type::ANIMAL;
-            break;
         default:
             return object_type::UNKNOWN;
         }
