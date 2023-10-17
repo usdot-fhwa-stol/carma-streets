@@ -11,22 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #pragma once
-#include "../size_value_confidence.hpp"
-#include <optional>
 namespace streets_utils::messages{
-    struct obstacle_size_confidence{
+    struct angular_velocity_set{
         /**
-         * @brief Confidence in reported width
+         * @brief Angular velocity for pitch axis in 0.01 degrees per second [-32767, 32767]
          */
-        size_value_confidence _width_confidence;
+        int _pitch_rate;
         /**
-         * @brief Confidence in reported length
+         * @brief Angular velocity for roll axis in 0.01 degrees per second [-32767, 32767]
          */
-        size_value_confidence _length_confidence;
-        /**
-         * @brief Confidence in reported height
-         */
-        std::optional<size_value_confidence> _height_confidence;
+        int _roll_rate;
     };
 }

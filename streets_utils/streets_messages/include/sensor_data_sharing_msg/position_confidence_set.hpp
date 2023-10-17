@@ -13,17 +13,12 @@
 // limitations under the License.
 #pragma once
 
-#include "messages/sensor_data_sharing_msg/obstacle/obstacle_size.hpp"
-#include "messages/sensor_data_sharing_msg/obstacle/obstacle_size_confidence.hpp"
-namespace streets_utils::messages{
-    struct detected_obstacle_data{
-        /**
-         * @brief Size of obstacle.
-         */
-        obstacle_size _size;
-        /**
-         * @brief Confidence of reported size.
-         */
-        obstacle_size_confidence _size_confidence;
+#include "sensor_data_sharing_msg/position_confidence.hpp"
+
+namespace streets_utils::messages {
+    struct position_confidence_set{
+        position_confidence _position_confidence;
+        position_confidence _elavation_confidence;
+
     };
 }

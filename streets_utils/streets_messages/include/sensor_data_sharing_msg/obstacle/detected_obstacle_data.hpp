@@ -13,21 +13,17 @@
 // limitations under the License.
 #pragma once
 
-#include "detected_object_data_common.hpp"
-#include "obstacle/detected_obstacle_data.hpp"
-#include "vehicle/detected_vehicle_data.hpp"
-#include "vru/detected_vru_data.hpp"
-#include <variant>
-
+#include "sensor_data_sharing_msg/obstacle/obstacle_size.hpp"
+#include "sensor_data_sharing_msg/obstacle/obstacle_size_confidence.hpp"
 namespace streets_utils::messages{
-    struct detected_object_data {
+    struct detected_obstacle_data{
         /**
-         * @brief Common data for detected object.
+         * @brief Size of obstacle.
          */
-        detected_object_data_common _detected_object_common_data;
+        obstacle_size _size;
         /**
-         * @brief Detected object optional data associated with object type classification.
+         * @brief Confidence of reported size.
          */
-        std::optional<std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data>> _detected_object_optional_data;
+        obstacle_size_confidence _size_confidence;
     };
 }

@@ -13,25 +13,21 @@
 // limitations under the License.
 #pragma once
 
-#include <stdlib.h>
+#include <optional>
 
-namespace streets_utils::messages{
-    struct acceleration_set_4_way{
+namespace streets_utils::messages {
+    struct obstacle_size {
         /**
-         * @brief Longitudinal acceleration in 0.01 m/s^s [-2000, 2001]
+         * @brief Object width in 10 cm units [0, 1023].
          */
-        int _longitudinal_accel;
+        unsigned int  _width;
         /**
-         * @brief Lateral acceleration in 0.01 m/s^s [-2000, 2001]
+         * @brief Object length in 10 cm units [0, 1023]
          */
-        int _lateral_accel;
+        unsigned int  _length;
         /**
-         * @brief Vertical acceleration in 0.02 G [-127, 127]
+         * @brief **Optional** Object height in 10 cm units [0, 1023]
          */
-        int _vertical_accel;   
-        /**
-         * @brief Angular velocity in 0.01 degrees [-32767, 32767]
-         */
-        int _yaw_rate;
+        std::optional<unsigned int>  _height;
     };
 }

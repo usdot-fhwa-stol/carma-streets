@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-
-#include "optional"
-
-namespace streets_utils::messages {
-    struct obstacle_size {
+#include "sensor_data_sharing_msg/size_value_confidence.hpp"
+#include <optional>
+namespace streets_utils::messages{
+    struct obstacle_size_confidence{
         /**
-         * @brief Object width in 10 cm units [0, 1023].
+         * @brief Confidence in reported width
          */
-        unsigned int  _width;
+        size_value_confidence _width_confidence;
         /**
-         * @brief Object length in 10 cm units [0, 1023]
+         * @brief Confidence in reported length
          */
-        unsigned int  _length;
+        size_value_confidence _length_confidence;
         /**
-         * @brief **Optional** Object height in 10 cm units [0, 1023]
+         * @brief Confidence in reported height
          */
-        std::optional<unsigned int>  _height;
+        std::optional<size_value_confidence> _height_confidence;
     };
 }

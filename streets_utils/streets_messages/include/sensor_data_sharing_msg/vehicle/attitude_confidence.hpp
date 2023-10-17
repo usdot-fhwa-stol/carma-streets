@@ -13,18 +13,21 @@
 // limitations under the License.
 #pragma once
 
-#include "../angular_velocity_confidence.hpp"
-#include <optional>
+#include "sensor_data_sharing_msg/heading_confidence.hpp"
 
 namespace streets_utils::messages{
-    struct angular_velocity_confidence_set{
+    struct attitude_confidence {
         /**
-         * @brief Confidence in reported pitch rate.
+         * @brief Confidence in reported pitch.
          */
-        std::optional<angular_velocity_confidence> _pitch_rate_confidence;
+        heading_confidence _pitch_confidence;
         /**
-         * @brief Confidence in reported roll rate.
+         * @brief Confidence in reported roll.
          */
-        std::optional<angular_velocity_confidence> _roll_rate_confidence;
+        heading_confidence _roll_confidence;
+        /**
+         * @brief Confidence in reported yaw.
+         */
+        heading_confidence _yaw_confidence;
     };
 }

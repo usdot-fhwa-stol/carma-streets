@@ -13,12 +13,16 @@
 // limitations under the License.
 #pragma once
 
-#include "position_confidence.hpp"
-
-namespace streets_utils::messages {
-    struct position_confidence_set{
-        position_confidence _position_confidence;
-        position_confidence _elavation_confidence;
-
+namespace streets_utils::messages{
+    struct vehicle_size {
+        /**
+         * @brief Vehicle width in centimeters [0, 1023]
+         */
+        unsigned int  _width;
+        /**
+         * @brief Vehicle length in centimeters [0, 4095]
+         */
+        unsigned int  _length; 
+        
     };
 }

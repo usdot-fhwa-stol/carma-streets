@@ -14,12 +14,12 @@
 #pragma once
 
 #include <string>
-#include "attitude.hpp"
-#include "attitude_confidence.hpp"
-#include "angular_velocity_set.hpp"
-#include "angular_velocity_confidence_set.hpp"
-#include "vehicle_size.hpp"
-#include "vehicle_size_confidence.hpp"
+#include "sensor_data_sharing_msg/vehicle/attitude.hpp"
+#include "sensor_data_sharing_msg/vehicle/attitude_confidence.hpp"
+#include "sensor_data_sharing_msg/vehicle/angular_velocity_set.hpp"
+#include "sensor_data_sharing_msg/vehicle/angular_velocity_confidence_set.hpp"
+#include "sensor_data_sharing_msg/vehicle/vehicle_size.hpp"
+#include "sensor_data_sharing_msg/vehicle/vehicle_size_confidence.hpp"
 
 namespace streets_utils::messages{
     struct detected_vehicle_data{

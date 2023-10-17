@@ -13,7 +13,6 @@
 // limitations under the License.
 #pragma once
 
-#include <stdlib.h>
 
 namespace streets_utils::messages{
     struct attitude{

@@ -19,7 +19,7 @@
 #include <string>
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 #include <streets_utils/json_utils_lib/json_utils_exception.hpp>
-#include "messages/sensor_data_sharing_msg/sensor_data_sharing_msg.hpp"
+#include "sensor_data_sharing_msg/sensor_data_sharing_msg.hpp"
 
 namespace streets_utils::messages {
     sensor_data_sharing_msg from_json( const std::string &val);

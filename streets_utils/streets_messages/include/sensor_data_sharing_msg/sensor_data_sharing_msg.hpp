@@ -13,11 +13,11 @@
 // limitations under the License.
 #pragma once
 
-#include "equipement_type.hpp"
-#include "time_stamp.hpp"
-#include "detected_object_data.hpp"
-#include "position_3d.hpp"
-#include "positional_accuracy.hpp"
+#include "sensor_data_sharing_msg/equipement_type.hpp"
+#include "sensor_data_sharing_msg/time_stamp.hpp"
+#include "sensor_data_sharing_msg/detected_object_data.hpp"
+#include "sensor_data_sharing_msg/position_3d.hpp"
+#include "sensor_data_sharing_msg/positional_accuracy.hpp"
 
 #include <vector>
 #include <string>

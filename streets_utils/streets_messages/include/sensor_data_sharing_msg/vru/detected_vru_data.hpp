@@ -13,11 +13,11 @@
 // limitations under the License.
 #pragma once
 
-#include "human_propelled_type.hpp"
-#include "animal_propelled_type.hpp"
-#include "motorized_propelled_type.hpp"
-#include "attachment.hpp"
-#include "personal_device_user_type.hpp"
+#include "sensor_data_sharing_msg/vru/human_propelled_type.hpp"
+#include "sensor_data_sharing_msg/vru/animal_propelled_type.hpp"
+#include "sensor_data_sharing_msg/vru/motorized_propelled_type.hpp"
+#include "sensor_data_sharing_msg/vru/attachment.hpp"
+#include "sensor_data_sharing_msg/vru/personal_device_user_type.hpp"
 
 #include <variant>
 #include <optional>

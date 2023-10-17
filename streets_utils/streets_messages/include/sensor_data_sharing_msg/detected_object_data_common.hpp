@@ -13,14 +13,15 @@
 // limitations under the License.
 #pragma once
 
-#include "object_type.hpp"
-#include "time_confidence.hpp"
-#include "position_offset.hpp"
-#include "position_confidence_set.hpp"
-#include "speed_confidence.hpp"
-#include "heading_confidence.hpp"
-#include "acceleration_set_4_way.hpp"
-#include "acceleration_confidence_set_4_way.hpp"
+#include "sensor_data_sharing_msg/object_type.hpp"
+#include "sensor_data_sharing_msg/time_confidence.hpp"
+#include "sensor_data_sharing_msg/position_offset.hpp"
+#include "sensor_data_sharing_msg/position_confidence_set.hpp"
+#include "sensor_data_sharing_msg/speed_confidence.hpp"
+#include "sensor_data_sharing_msg/heading_confidence.hpp"
+#include "sensor_data_sharing_msg/acceleration_set_4_way.hpp"
+#include "sensor_data_sharing_msg/acceleration_confidence.hpp"
+#include "sensor_data_sharing_msg/angular_velocity_confidence.hpp"
 #include <stdlib.h>
 #include <optional>
 

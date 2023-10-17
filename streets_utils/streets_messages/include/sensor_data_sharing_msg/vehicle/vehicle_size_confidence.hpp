@@ -12,28 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-
-#include "acceleration_confidence.hpp"
-#include "angular_velocity_confidence.hpp"
-
-
+#include "sensor_data_sharing_msg/size_value_confidence.hpp"
+#include <optional>
 namespace streets_utils::messages{
-    struct acceleration_confidence_set_4_way{
+    struct vehicle_size_confidence{
         /**
-         * @brief Confidence in acceleration reported along longitudinal axis.
+         * @brief Confidence in reported width
          */
-        acceleration_confidence _longitudinal_confidence;
+        size_value_confidence _width_confidence;
         /**
-         * @brief Confidence in acceleration reported along lateral axis.
+         * @brief Confidence in reported length
          */
-        acceleration_confidence _lateral_confidence;
+        size_value_confidence _length_confidence;
         /**
-         * @brief Confidence in acceleration reported along vertical access.
+         * @brief Confidence in reported height
          */
-        acceleration_confidence _vertical_confidence;
-        /**
-         * @brief Confidence in turning angular velocity reported.
-         */
-        angular_velocity_confidence _yaw_rate_confidence;
+        std::optional<size_value_confidence> _height_confidence;
     };
 }

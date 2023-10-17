@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <messages/sensor_data_sharing_msg/vru/animal_propelled_type.hpp>
+#include <sensor_data_sharing_msg/vru/animal_propelled_type.hpp>
 
 using namespace streets_utils::messages;
 

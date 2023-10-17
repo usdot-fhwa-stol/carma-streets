@@ -11,18 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #pragma once
-#include <stdlib.h>
+
+#include "sensor_data_sharing_msg/angular_velocity_confidence.hpp"
+#include <optional>
+
 namespace streets_utils::messages{
-    struct angular_velocity_set{
+    struct angular_velocity_confidence_set{
         /**
-         * @brief Angular velocity for pitch axis in 0.01 degrees per second [-32767, 32767]
+         * @brief Confidence in reported pitch rate.
          */
-        int _pitch_rate;
+        std::optional<angular_velocity_confidence> _pitch_rate_confidence;
         /**
-         * @brief Angular velocity for roll axis in 0.01 degrees per second [-32767, 32767]
+         * @brief Confidence in reported roll rate.
          */
-        int _roll_rate;
+        std::optional<angular_velocity_confidence> _roll_rate_confidence;
     };
 }

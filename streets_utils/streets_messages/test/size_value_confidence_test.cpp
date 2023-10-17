@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <messages/sensor_data_sharing_msg/size_value_confidence.hpp>
+#include <sensor_data_sharing_msg/size_value_confidence.hpp>
 
 using namespace streets_utils::messages;
 
