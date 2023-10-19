@@ -30,23 +30,23 @@ namespace streets_utils::messages {
         /**
          * @brief Object type enumeration 
          */
-        object_type _object_type;
+        object_type _object_type = object_type::UNKNOWN;
         /**
          * @brief Confidence in object type classification [0,101]
          */
-        unsigned int  _classification_confidence;
+        unsigned int  _classification_confidence = 0;
         /**
          * @brief Object ID [0, 65535] 
          */
-        unsigned int  _object_id;
+        unsigned int  _object_id = 0;
         /**
          * @brief Time relative to SDSM timestamp assoicated with detection [-1500, 1500]
          */
-        int _time_measurement_offset;
+        int _time_measurement_offset = 0;
         /**
          * @brief Time Confidence enumeration for time offset.
          */
-        time_confidence _time_confidence;
+        time_confidence _time_confidence = time_confidence::UNAVAILABLE;
         /**
          * @brief Cartesian offset from SDSM reporter reference location to represent detected object location
          */
@@ -58,11 +58,11 @@ namespace streets_utils::messages {
         /**
          * @brief Object speed in unit (0.02 m/s) [0, 8191]
          */
-        unsigned int  _speed;
+        unsigned int  _speed = 0;
         /**
          * @brief Confidence in reported speed 
          */
-        speed_confidence _speed_confidence;
+        speed_confidence _speed_confidence = speed_confidence::UNAVAILABLE;
         /**
          * @brief Object speed along Z axis unit (0.02 m/s) [0, 8191]
          */
@@ -74,11 +74,11 @@ namespace streets_utils::messages {
         /**
          * @brief Heading in 0.0125 degrees [0, 28800]
          */
-        unsigned int  _heading;
+        unsigned int  _heading = 0;
         /**
          * @brief Confidence in reported heading
          */
-        heading_confidence _heading_confidence;
+        heading_confidence _heading_confidence = heading_confidence::UNAVAILABLE;
         /**
          * @brief Acceleration in longitudinal, lateral, vertical and angular velocity.
          */

@@ -20,11 +20,11 @@ namespace streets_utils::messages {
         /**
          * @brief Object width in 10 cm units [0, 1023].
          */
-        unsigned int  _width;
+        unsigned int  _width = 0;
         /**
          * @brief Object length in 10 cm units [0, 1023]
          */
-        unsigned int  _length;
+        unsigned int  _length = 0;
         /**
          * @brief **Optional** Object height in 10 cm units [0, 1023]
          */

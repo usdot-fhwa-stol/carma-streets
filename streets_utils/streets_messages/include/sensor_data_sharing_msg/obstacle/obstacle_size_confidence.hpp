@@ -19,11 +19,11 @@ namespace streets_utils::messages{
         /**
          * @brief Confidence in reported width
          */
-        size_value_confidence _width_confidence;
+        size_value_confidence _width_confidence = size_value_confidence::UNAVAILABLE;
         /**
          * @brief Confidence in reported length
          */
-        size_value_confidence _length_confidence;
+        size_value_confidence _length_confidence = size_value_confidence::UNAVAILABLE;
         /**
          * @brief Confidence in reported height
          */

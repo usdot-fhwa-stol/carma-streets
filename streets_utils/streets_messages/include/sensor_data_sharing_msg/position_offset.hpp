@@ -20,11 +20,11 @@ namespace streets_utils::messages{
       /**
        * @brief Cartesian offset in X axis from reference point in 0.1 m [-32767, 32767]
        */
-      int _offset_x;
+      int _offset_x = 0;
       /**
        * @brief Cartesian offset in Y axis from reference point in 0.1 m [-32767, 32767]
        */
-      int _offset_y;
+      int _offset_y = 0;
       /**
        * @brief Cartesian offset in Z axis from reference point in 0.1 m [-32767, 32767]
        */

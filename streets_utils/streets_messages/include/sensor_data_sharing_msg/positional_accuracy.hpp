@@ -22,14 +22,14 @@ namespace streets_utils::messages {
          * 254 = any value equal or greater than 12.70 meter
          * 255 = unavailable semi-major axis value
          */
-        unsigned int  _semi_major_axis_accuracy;
+        unsigned int  _semi_major_axis_accuracy = 0;
         /**
          * @brief semi-minor axis accuracy at one standard dev 
          * range 0-12.7 meter, LSB = .05m [0, 255]
          * 254 = any value equal or greater than 12.70 meter
          * 255 = unavailable semi-minor axis value
          */
-        unsigned int  _semi_minor_axis_accuracy;
+        unsigned int  _semi_minor_axis_accuracy = 0;
         /**
          * @brief -- orientation of semi-major axis 
          * relative to true north (0~359.9945078786 degrees)
@@ -39,6 +39,6 @@ namespace streets_utils::messages {
          * a value of 65534 shall be 359.9945078786 deg
          * a value of 65535 shall be used for orientation unavailable
          */
-        unsigned int  _semi_major_axis_orientation;
+        unsigned int  _semi_major_axis_orientation = 0;
     };
 }

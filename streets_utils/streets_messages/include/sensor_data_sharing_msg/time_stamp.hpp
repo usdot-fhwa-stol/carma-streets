@@ -18,30 +18,30 @@ namespace streets_utils::messages {
         /**
          * @brief in milliseconds [0,65535].
          */
-        unsigned int  second;
+        unsigned int  second = 0;
         /**
          * @brief in minutes [0,60].
          */
-        unsigned int  minute;
+        unsigned int  minute = 0;
         /**
          * @brief in hours [0,31].
          */
-        unsigned int  hour;
+        unsigned int  hour = 0;
         /**
          * @brief in days [0,31].
          */
-        unsigned int  day;
+        unsigned int  day = 0;
         /**
          * @brief in months [0,12].
          */
-        unsigned int  month;
+        unsigned int  month = 0;
         /**
          * @brief in year [0,4095]
          */
-        unsigned int  year;
+        unsigned int  year = 0;
         /**
          * @brief Minutes from UTC time (Time Zone) [-840, 840]
          */
-        int offset; // Time zone
+        int offset = 0; // Time zone
     };
 }

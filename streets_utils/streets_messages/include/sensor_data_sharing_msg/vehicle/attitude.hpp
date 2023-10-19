@@ -19,14 +19,14 @@ namespace streets_utils::messages{
         /**
          * @brief Pitch in 0.0125 degrees [-7200, 72000].
          */
-        int _pitch;
+        int _pitch = 0;
         /**
          * @brief Roll in 0.0125 degrees [-14400, 14400] 
          */
-        int _roll;
+        int _roll = 0;
         /**
          * @brief Yaw in 0.0125 degrees [-14400, 14400] 
          */
-        int _yaw;
+        int _yaw = 0;
     };
 }

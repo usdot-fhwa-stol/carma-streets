@@ -20,14 +20,14 @@ namespace streets_utils::messages{
         /**
          * @brief Confidence in reported pitch.
          */
-        heading_confidence _pitch_confidence;
+        heading_confidence _pitch_confidence = heading_confidence::UNAVAILABLE;
         /**
          * @brief Confidence in reported roll.
          */
-        heading_confidence _roll_confidence;
+        heading_confidence _roll_confidence = heading_confidence::UNAVAILABLE;
         /**
          * @brief Confidence in reported yaw.
          */
-        heading_confidence _yaw_confidence;
+        heading_confidence _yaw_confidence = heading_confidence::UNAVAILABLE;
     };
 }
