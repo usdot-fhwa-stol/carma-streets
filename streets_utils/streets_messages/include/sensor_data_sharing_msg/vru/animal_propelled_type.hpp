@@ -33,8 +33,8 @@ namespace streets_utils::messages{
             return animal_propelled_type::ANIMAL_MOUNTED;
         case 3:
             return animal_propelled_type::ANIMAL_DRAWN_CARRIAGE;
-        default:           
-            return animal_propelled_type::UNAVAILABLE;
+        default:
+            throw std::invalid_argument("Incompatible animal propelled type value. Valid values : [0,3]");
         }
     };
 

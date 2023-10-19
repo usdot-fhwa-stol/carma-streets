@@ -45,7 +45,7 @@ namespace streets_utils::messages{
         case 7:
             return angular_velocity_confidence::DEGSEC_0_01;
         default:
-            return angular_velocity_confidence::UNAVAILABLE;
+            throw std::invalid_argument("Incompatible angular velocity confidence value. Valid values : [0,7]");
         }
     };
 

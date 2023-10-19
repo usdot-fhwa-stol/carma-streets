@@ -39,7 +39,7 @@ namespace streets_utils::messages{
         case 3:
             return equipment_type::VRU;
         default:
-            return equipment_type::UNKNOWN;
+            throw std::invalid_argument("Incompatible equipment type value. Valid values : [0,3]");
         }
     };
 }

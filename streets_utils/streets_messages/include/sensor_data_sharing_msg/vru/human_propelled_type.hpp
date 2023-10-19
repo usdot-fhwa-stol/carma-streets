@@ -39,8 +39,8 @@ namespace streets_utils::messages {
             return human_propelled_type::PUSH_OR_KICK_SCOOTER;
         case 5:
             return human_propelled_type::WHEELCHAIR;
-        default:           
-            return human_propelled_type::UNAVAILABLE;
+        default:
+            throw std::invalid_argument("Incompatible human propelled type value. Valid values : [0,5]");
         }
     };
 

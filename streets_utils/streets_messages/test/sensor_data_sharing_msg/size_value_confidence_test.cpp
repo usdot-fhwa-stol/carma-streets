@@ -31,7 +31,6 @@ TEST(size_value_confidence_test, test_from_int){
     EXPECT_EQ(size_value_confidence::SIZE_0_05, size_value_confidence_from_int(11));
     EXPECT_EQ(size_value_confidence::SIZE_0_02, size_value_confidence_from_int(12));
     EXPECT_EQ(size_value_confidence::SIZE_0_01, size_value_confidence_from_int(13));
-    // Value outside of range set to unavailable
-    EXPECT_EQ(size_value_confidence::UNAVAILABLE, size_value_confidence_from_int(14));
+    EXPECT_THROW( size_value_confidence_from_int(14), std::invalid_argument);
 
 }

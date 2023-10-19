@@ -23,7 +23,6 @@ TEST(motorized_propelled_type_test, test_from_int){
     EXPECT_EQ(motorized_propelled_type::BICYCLE, motorized_propelled_type_from_int(3));
     EXPECT_EQ(motorized_propelled_type::SCOOTER, motorized_propelled_type_from_int(4));
     EXPECT_EQ(motorized_propelled_type::SELF_BALANCING_DEVICE, motorized_propelled_type_from_int(5));
-    // Value outside of range set to unavailable
-    EXPECT_EQ(motorized_propelled_type::UNAVAILABLE, motorized_propelled_type_from_int(7));
+    EXPECT_THROW( motorized_propelled_type_from_int(6), std::invalid_argument);
 
 }

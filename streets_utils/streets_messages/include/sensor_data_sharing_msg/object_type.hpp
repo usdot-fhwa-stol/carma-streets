@@ -34,7 +34,7 @@ namespace streets_utils::messages{
         case 3:
             return object_type::ANIMAL;
         default:
-            return object_type::UNKNOWN;
+            throw std::invalid_argument("Incompatible object type value. Valid values : [0,3]");
         }
     };
 }

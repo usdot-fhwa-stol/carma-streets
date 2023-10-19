@@ -45,7 +45,7 @@ namespace streets_utils::messages{
         case 7:
             return speed_confidence::PREC_0_01ms;
         default:
-            return speed_confidence::UNAVAILABLE;
+            throw std::invalid_argument("Incompatible speed confidence value. Valid values : [0,7]");
         }
     };
 

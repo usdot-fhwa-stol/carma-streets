@@ -25,7 +25,6 @@ TEST(speed_confidence, test_from_int){
     EXPECT_EQ(speed_confidence::PREC_0_1ms, speed_confidence_from_int(5));
     EXPECT_EQ(speed_confidence::PREC_0_05ms, speed_confidence_from_int(6));
     EXPECT_EQ(speed_confidence::PREC_0_01ms, speed_confidence_from_int(7));
-    // Value outside of range set to unavailable
-    EXPECT_EQ(speed_confidence::UNAVAILABLE, speed_confidence_from_int(8));
+    EXPECT_THROW( speed_confidence_from_int(8), std::invalid_argument);
 
 }

@@ -141,7 +141,7 @@ namespace streets_utils::messages{
         case 39:
             return time_confidence::TIME_000_000_000_000_01;
         default:
-            return time_confidence::UNAVAILABLE; 
+            throw std::invalid_argument("Incompatible time confidence value. Valid values : [0,39]");
         }
     };
 

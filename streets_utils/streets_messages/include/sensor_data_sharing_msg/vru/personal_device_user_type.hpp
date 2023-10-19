@@ -36,8 +36,8 @@ namespace streets_utils::messages {
             return personal_device_user_type::PUBLIC_SAFETY_WORKER;
         case 4:
             return personal_device_user_type::ANIMAL;
-        default:           
-            return personal_device_user_type::UNAVAILABLE;
+        default:
+            throw std::invalid_argument("Incompatible personal devvice user type value. Valid values : [0,4]");
         }
     };
 

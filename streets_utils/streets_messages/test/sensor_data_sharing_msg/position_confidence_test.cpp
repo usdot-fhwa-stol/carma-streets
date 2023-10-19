@@ -33,7 +33,6 @@ TEST(position_confidence_test, test_from_int){
     EXPECT_EQ(position_confidence::A_5CM, position_confidence_from_int(13));
     EXPECT_EQ(position_confidence::A_2CM, position_confidence_from_int(14));
     EXPECT_EQ(position_confidence::A_1CM, position_confidence_from_int(15));
-    // Value outside of range set to unavailable
-    EXPECT_EQ(position_confidence::UNAVAILABLE, position_confidence_from_int(50));
+    EXPECT_THROW( position_confidence_from_int(16), std::invalid_argument);
 
 }

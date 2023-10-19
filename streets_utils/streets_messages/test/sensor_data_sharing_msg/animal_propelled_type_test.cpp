@@ -22,6 +22,7 @@ TEST(animal_propelled_type_test, test_from_int){
     EXPECT_EQ(animal_propelled_type::ANIMAL_MOUNTED, animal_propelled_type_from_int(2));
     EXPECT_EQ(animal_propelled_type::ANIMAL_DRAWN_CARRIAGE, animal_propelled_type_from_int(3));
     // Value outside of range set to unavailable
-    EXPECT_EQ(animal_propelled_type::UNAVAILABLE, animal_propelled_type_from_int(4));
+    EXPECT_THROW( animal_propelled_type_from_int(4), std::invalid_argument);
+
 
 }

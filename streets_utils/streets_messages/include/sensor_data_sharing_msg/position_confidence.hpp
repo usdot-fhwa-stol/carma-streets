@@ -70,7 +70,7 @@ namespace streets_utils::messages {
         case 15:
             return position_confidence::A_1CM;
         default:
-            return position_confidence::UNAVAILABLE;
+            throw std::invalid_argument("Incompatible position confidence value. Valid values : [0,15]");
         }
     };
 

@@ -63,7 +63,7 @@ namespace streets_utils::messages{
         case 13:
             return size_value_confidence::SIZE_0_01;
         default:
-            return size_value_confidence::UNAVAILABLE;
+            throw std::invalid_argument("Incompatible size confidence value. Valid values : [0,13]");
         }
     } 
 }

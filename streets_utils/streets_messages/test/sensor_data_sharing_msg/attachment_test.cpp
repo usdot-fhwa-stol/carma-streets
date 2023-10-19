@@ -24,8 +24,6 @@ TEST(attachment_test, test_from_int){
     EXPECT_EQ(attachment::WHEEL_CHAIR, attachment_from_int(4));
     EXPECT_EQ(attachment::OTHER_WALK_ASSIST_ATTACHMENTS, attachment_from_int(5));
     EXPECT_EQ(attachment::PET, attachment_from_int(6));
-
-    // Value outside of range set to unavailable
-    EXPECT_EQ(attachment::UNAVAILABLE, attachment_from_int(7));
+    EXPECT_THROW( attachment_from_int(7), std::invalid_argument);
 
 }

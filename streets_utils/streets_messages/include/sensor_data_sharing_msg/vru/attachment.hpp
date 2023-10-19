@@ -41,8 +41,8 @@ namespace streets_utils::messages {
             return attachment::OTHER_WALK_ASSIST_ATTACHMENTS;
         case 6:
             return attachment::PET;
-        default:           
-            return attachment::UNAVAILABLE;
+        default:
+            throw std::invalid_argument("Incompatible attachment value. Valid values : [0,6]");
         }
     }
 

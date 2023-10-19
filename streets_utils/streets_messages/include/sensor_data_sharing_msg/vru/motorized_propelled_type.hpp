@@ -38,8 +38,8 @@ namespace streets_utils::messages {
             return motorized_propelled_type::SCOOTER;
         case 5:
             return motorized_propelled_type::SELF_BALANCING_DEVICE;
-        default:           
-            return motorized_propelled_type::UNAVAILABLE;
+        default:
+            throw std::invalid_argument("Incompatible motorized propelled type value. Valid values : [0,5]");
         }
     };
 

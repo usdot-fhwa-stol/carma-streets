@@ -45,7 +45,7 @@ namespace streets_utils::messages{
         case 7:
             return heading_confidence::PREC_0_0125_deg;
         default:
-            return heading_confidence::UNAVAILABLE;
+            throw std::invalid_argument("Incompatible heading confidence value. Valid values : [0,7]");
         }
     };
 

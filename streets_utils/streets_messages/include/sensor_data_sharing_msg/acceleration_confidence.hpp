@@ -45,7 +45,7 @@ namespace streets_utils::messages{
         case 7:
             return acceleration_confidence::ACCL_0_01;
         default:
-            throw std::runtime_error("Incompatible acceleration confidence value");
+            throw std::invalid_argument("Incompatible acceleration confidence value. Valid values : [0,7]");
         }
     };
 
