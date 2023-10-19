@@ -68,6 +68,5 @@ add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 target_link_libraries(${TEST_NAME} 
     PRIVATE
         ${LIBRARY_NAME}
-        rapidjson
         GTest::Main
  )

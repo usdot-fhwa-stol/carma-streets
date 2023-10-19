@@ -54,7 +54,7 @@ install(
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    DESTINATION include/streets_utils/${LIBRARY_NAME}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/streets_utils/${LIBRARY_NAME}
     FILES_MATCHING PATTERN "*.hpp" # select header files
     )
 ########################
@@ -66,11 +66,6 @@ add_executable(${TEST_NAME} ${JSON_UTILS_TEST_SOURCES})
 gtest_discover_tests(${TEST_NAME})
 target_link_libraries(${TEST_NAME} 
     PRIVATE
-        ${LIBRARY_NAME}       
-)
-
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.20") 
-    target_link_libraries( ${TEST_NAME} PUBLIC GTest::gtest_main )
-else() 
-    target_link_libraries( ${TEST_NAME} PUBLIC gtest_main )
-endif()
+        ${LIBRARY_NAME}
+        GTest::Main
+ )
