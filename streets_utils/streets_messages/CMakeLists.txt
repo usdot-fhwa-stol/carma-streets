@@ -2,11 +2,12 @@ cmake_minimum_required(VERSION 3.10.2)
 project(streets_messages)
 # Set Flags
 set(CMAKE_CXX_STANDARD 17)
+# GNU standard installation directories
+include(GNUInstallDirs)
 # Find Packages 
 find_package(spdlog REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
-
 find_package(json_utils_lib REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
@@ -27,7 +28,7 @@ target_link_libraries( ${LIBRARY_NAME}
         streets_utils::json_utils_lib
 )  
 ########################################################
-# Install streets_messages package.
+# Install streets_utils::streets_messages package.
 ########################################################
 install(
     TARGETS ${LIBRARY_NAME}
@@ -53,14 +54,14 @@ install(
 )
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     DESTINATION include/streets_utils/${LIBRARY_NAME}
-    FILES_MATCHING PATTERN "*.hpp" # select header files
+    FILES_MATCHING PATTERN "*.hpp" # install header files including package path
     )
 
 ########################
-# googletest for unit testing
+# Setup Test executable
 ########################
 set(TEST_NAME ${LIBRARY_NAME}_test)
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.hpp test/*.cpp)
+file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/**/*.hpp test/**/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${TEST_NAME} ${TEST_SOURCES})
 add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
