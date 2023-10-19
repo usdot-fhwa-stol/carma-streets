@@ -162,7 +162,9 @@ namespace streets_utils::messages{
         rapidjson::Value position_3d_json(rapidjson::kObjectType);
         position_3d_json.AddMember("offset_x", val._offset_x, allocator);
         position_3d_json.AddMember("offset_y", val._offset_y, allocator);
-        position_3d_json.AddMember("offset_z", val._offset_z, allocator);
+        if ( val._offset_z.has_value()) {
+            position_3d_json.AddMember("offset_z", val._offset_z.value(), allocator);
+        }
         return position_3d_json;
     }
 
