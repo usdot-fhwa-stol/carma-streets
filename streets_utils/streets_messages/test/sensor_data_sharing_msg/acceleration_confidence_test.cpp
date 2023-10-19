@@ -26,6 +26,6 @@ TEST(acceleration_confidence_test, test_from_int){
     EXPECT_EQ(acceleration_confidence::ACCL_0_05, acceleration_confidence_from_int(6));
     EXPECT_EQ(acceleration_confidence::ACCL_0_01, acceleration_confidence_from_int(7));
     // Value outside of range set to unavailable
-    EXPECT_EQ(acceleration_confidence::UNAVAILABLE, acceleration_confidence_from_int(8));
+    EXPECT_THROW( acceleration_confidence_from_int(8), std::runtime_error);
 
 }
