@@ -45,7 +45,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     detected_object._detected_object_common_data._position_offset._offset_y = 32767;
     detected_object._detected_object_common_data._position_offset._offset_z = 32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_10CM;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1M;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1M;
     detected_object._detected_object_common_data._speed = 8191;
     detected_object._detected_object_common_data._time_measurement_offset = 1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_002;
@@ -149,7 +149,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     detected_object._detected_object_common_data._position_offset._offset_y = -32767;
     detected_object._detected_object_common_data._position_offset._offset_z = -32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
@@ -233,7 +233,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     msg._source_id = "00000001";
     msg._ref_positon._latitude=-90000000;
     msg._ref_positon._longitude=-1800000000;
-    msg._ref_positon._elavation = -32768;
+    msg._ref_positon._elevation = -32768;
     msg._time_stamp.second = 0;
     msg._time_stamp.minute = 0;
     msg._time_stamp.hour= 0;
@@ -243,7 +243,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
-    msg._ref_position_elavation_confidence = position_confidence::A_10M;
+    msg._ref_position_elevation_confidence = position_confidence::A_10M;
     // Add Detected Object
     detected_object_data detected_object;
     detected_object._detected_object_common_data._object_id = 0;
@@ -255,7 +255,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     detected_object._detected_object_common_data._position_offset._offset_y = -32767;
     detected_object._detected_object_common_data._position_offset._offset_z = -32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
     detected_object._detected_object_common_data._speed_z = 8191;
     detected_object._detected_object_common_data._speed_confidence = speed_confidence::UNAVAILABLE;
@@ -319,8 +319,8 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Confirm optional elevation parameter is present
-    EXPECT_EQ( msg._ref_positon._elavation, result["ref_pos"]["elevation"].GetInt());
-    EXPECT_EQ( msg._ref_position_elavation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
+    EXPECT_EQ( msg._ref_positon._elevation, result["ref_pos"]["elevation"].GetInt());
+    EXPECT_EQ( msg._ref_position_elevation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
 
     // Confirm List of detected object exists
     ASSERT_TRUE(result.HasMember("objects"));
@@ -377,7 +377,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     msg._source_id = "00000001";
     msg._ref_positon._latitude=-90000000;
     msg._ref_positon._longitude=-1800000000;
-    msg._ref_positon._elavation = -32768;
+    msg._ref_positon._elevation = -32768;
     msg._time_stamp.second = 0;
     msg._time_stamp.minute = 0;
     msg._time_stamp.hour= 0;
@@ -387,7 +387,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
-    msg._ref_position_elavation_confidence = position_confidence::A_10M;
+    msg._ref_position_elevation_confidence = position_confidence::A_10M;
     // Add Detected Object
     detected_object_data detected_object;
     detected_object._detected_object_common_data._object_id = 0;
@@ -399,7 +399,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     detected_object._detected_object_common_data._position_offset._offset_y = -32767;
     detected_object._detected_object_common_data._position_offset._offset_z = -32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
     detected_object._detected_object_common_data._speed_z = 8191;
     detected_object._detected_object_common_data._speed_confidence = speed_confidence::UNAVAILABLE;
@@ -464,8 +464,8 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Confirm optional elevation parameter is present
-    EXPECT_EQ( msg._ref_positon._elavation, result["ref_pos"]["elevation"].GetInt());
-    EXPECT_EQ( msg._ref_position_elavation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
+    EXPECT_EQ( msg._ref_positon._elevation, result["ref_pos"]["elevation"].GetInt());
+    EXPECT_EQ( msg._ref_position_elevation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
 
     // Confirm List of detected object exists
     ASSERT_TRUE(result.HasMember("objects"));
@@ -524,7 +524,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     msg._source_id = "00000001";
     msg._ref_positon._latitude=-90000000;
     msg._ref_positon._longitude=-1800000000;
-    msg._ref_positon._elavation = -32768;
+    msg._ref_positon._elevation = -32768;
     msg._time_stamp.second = 0;
     msg._time_stamp.minute = 0;
     msg._time_stamp.hour= 0;
@@ -534,7 +534,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
-    msg._ref_position_elavation_confidence = position_confidence::A_10M;
+    msg._ref_position_elevation_confidence = position_confidence::A_10M;
     // Add Detected Object
     detected_object_data detected_object;
     detected_object._detected_object_common_data._object_id = 0;
@@ -546,7 +546,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     detected_object._detected_object_common_data._position_offset._offset_y = -32767;
     detected_object._detected_object_common_data._position_offset._offset_z = -32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
     detected_object._detected_object_common_data._speed_z = 8191;
     detected_object._detected_object_common_data._speed_confidence = speed_confidence::UNAVAILABLE;
@@ -610,8 +610,8 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Confirm optional elevation parameter is present
-    EXPECT_EQ( msg._ref_positon._elavation, result["ref_pos"]["elevation"].GetInt());
-    EXPECT_EQ( msg._ref_position_elavation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
+    EXPECT_EQ( msg._ref_positon._elevation, result["ref_pos"]["elevation"].GetInt());
+    EXPECT_EQ( msg._ref_position_elevation_confidence, position_confidence_from_int( result["ref_pos_el_conf"].GetUint()));
 
     // Confirm List of detected object exists
     ASSERT_TRUE(result.HasMember("objects"));
@@ -690,7 +690,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     detected_object._detected_object_common_data._position_offset._offset_y = -32767;
     detected_object._detected_object_common_data._position_offset._offset_z = -32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;
@@ -821,7 +821,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     detected_object._detected_object_common_data._position_offset._offset_y = -32767;
     detected_object._detected_object_common_data._position_offset._offset_z = -32767;
     detected_object._detected_object_common_data._pos_confidence._position_confidence = position_confidence::A_500M;
-    detected_object._detected_object_common_data._pos_confidence._elavation_confidence =  position_confidence::A_1CM;
+    detected_object._detected_object_common_data._pos_confidence._elevation_confidence =  position_confidence::A_1CM;
     detected_object._detected_object_common_data._speed = 0;
     detected_object._detected_object_common_data._time_measurement_offset = -1500;
     detected_object._detected_object_common_data._time_confidence = time_confidence::TIME_000_000_000_000_01;

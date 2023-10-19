@@ -44,7 +44,7 @@ This CARMA-Streets library contains the Sensor Data Sharing Object as well as th
         },
         "pos_confidence": {
           "pos": 1,
-          "elavation": 15
+          "elevation": 15
         },
         "speed": 0,
         "speed_confidence": 21845,

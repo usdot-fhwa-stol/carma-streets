@@ -98,8 +98,8 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
     EXPECT_EQ(1800000001,msg._ref_positon._longitude);
     EXPECT_EQ(900000001, msg._ref_positon._latitude );
     // Confirm optional elevation is present
-    EXPECT_TRUE(msg._ref_positon._elavation.has_value());
-    EXPECT_EQ(30, msg._ref_positon._elavation);
+    EXPECT_TRUE(msg._ref_positon._elevation.has_value());
+    EXPECT_EQ(30, msg._ref_positon._elevation);
     // Confirm positional accuracy
     EXPECT_EQ(235, msg._ref_position_confidence._semi_major_axis_accuracy);
     EXPECT_EQ(200, msg._ref_position_confidence._semi_minor_axis_accuracy);
@@ -223,8 +223,8 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_obs
     EXPECT_EQ(600000000,msg._ref_positon._longitude);
     EXPECT_EQ(400000000, msg._ref_positon._latitude );
     // Confirm optional elevation is present
-    EXPECT_TRUE(msg._ref_positon._elavation.has_value());
-    EXPECT_EQ(30, msg._ref_positon._elavation);
+    EXPECT_TRUE(msg._ref_positon._elevation.has_value());
+    EXPECT_EQ(30, msg._ref_positon._elevation);
     // Confirm positional accuracy
     EXPECT_EQ(235, msg._ref_position_confidence._semi_major_axis_accuracy);
     EXPECT_EQ(200, msg._ref_position_confidence._semi_minor_axis_accuracy);
@@ -325,8 +325,8 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_vru
     EXPECT_EQ(600000000,msg._ref_positon._longitude);
     EXPECT_EQ(400000000, msg._ref_positon._latitude );
     // Confirm optional elevation is present
-    EXPECT_TRUE(msg._ref_positon._elavation.has_value());
-    EXPECT_EQ(30, msg._ref_positon._elavation);
+    EXPECT_TRUE(msg._ref_positon._elevation.has_value());
+    EXPECT_EQ(30, msg._ref_positon._elevation);
     // Confirm positional accuracy
     EXPECT_EQ(235, msg._ref_position_confidence._semi_major_axis_accuracy);
     EXPECT_EQ(200, msg._ref_position_confidence._semi_minor_axis_accuracy);
@@ -452,8 +452,8 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_veh
     EXPECT_EQ(600000000,msg._ref_positon._longitude);
     EXPECT_EQ(400000000, msg._ref_positon._latitude );
     // Confirm optional elevation is present
-    EXPECT_TRUE(msg._ref_positon._elavation.has_value());
-    EXPECT_EQ(30, msg._ref_positon._elavation);
+    EXPECT_TRUE(msg._ref_positon._elevation.has_value());
+    EXPECT_EQ(30, msg._ref_positon._elevation);
     // Confirm positional accuracy
     EXPECT_EQ(235, msg._ref_position_confidence._semi_major_axis_accuracy);
     EXPECT_EQ(200, msg._ref_position_confidence._semi_minor_axis_accuracy);

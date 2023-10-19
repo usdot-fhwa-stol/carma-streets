@@ -38,7 +38,7 @@ namespace streets_utils::messages {
         unsigned int  _msg_count;
         equipment_type _equipment_type;
         position_3d _ref_positon;
-        std::optional<position_confidence> _ref_position_elavation_confidence;
+        std::optional<position_confidence> _ref_position_elevation_confidence;
         positional_accuracy _ref_position_confidence;
         time_stamp _time_stamp;
         std::string _source_id;

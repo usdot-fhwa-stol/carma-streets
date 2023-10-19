@@ -25,7 +25,7 @@ namespace streets_utils::messages {
         msg._time_stamp = parse_time_stamp(parse_object_member("sdsm_time_stamp", document, true).value());
         msg._ref_positon = parse_position_3d(parse_object_member("ref_pos", document, true).value());
         msg._ref_position_confidence = parse_positional_accuracy(parse_object_member("ref_pos_xy_conf", document, true).value());
-        msg._ref_position_elavation_confidence = parse_elevation_confidence( document);
+        msg._ref_position_elevation_confidence = parse_elevation_confidence( document);
         msg._objects = parse_detected_object_list(document);
         return msg;
     }  
@@ -48,7 +48,7 @@ namespace streets_utils::messages {
         _position_3d._longitude = parse_int_member("long", val, true).value();
         _position_3d._latitude = parse_int_member("lat", val, true).value();
         // parse optional elevation 
-        _position_3d._elavation = parse_int_member("elevation", val, false);
+        _position_3d._elevation = parse_int_member("elevation", val, false);
         return _position_3d;
 
     }
@@ -148,7 +148,7 @@ namespace streets_utils::messages {
     position_confidence_set parse_position_confidence_set(const rapidjson::Value &val) {
         position_confidence_set data;
         data._position_confidence = position_confidence_from_int( parse_uint_member("pos", val, true).value());
-        data._elavation_confidence = position_confidence_from_int( parse_uint_member("elevation", val, true).value());
+        data._elevation_confidence = position_confidence_from_int( parse_uint_member("elevation", val, true).value());
         return data;
     }
 

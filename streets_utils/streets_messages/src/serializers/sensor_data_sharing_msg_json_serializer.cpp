@@ -28,8 +28,8 @@ namespace streets_utils::messages{
         auto position_3d_json = create_position_3d( msg._ref_positon, doc.GetAllocator() );
         sdsm_json.AddMember("ref_pos", position_3d_json, doc.GetAllocator());
         sdsm_json.AddMember("ref_pos_xy_conf", create_positional_accuracy( msg._ref_position_confidence, doc.GetAllocator()), doc.GetAllocator());
-        if ( msg._ref_position_elavation_confidence.has_value() )
-            sdsm_json.AddMember("ref_pos_el_conf", static_cast<unsigned int >(msg._ref_position_elavation_confidence.value()), doc.GetAllocator());
+        if ( msg._ref_position_elevation_confidence.has_value() )
+            sdsm_json.AddMember("ref_pos_el_conf", static_cast<unsigned int >(msg._ref_position_elevation_confidence.value()), doc.GetAllocator());
         // Construct object list
         sdsm_json.AddMember("objects", create_detected_object_list(msg._objects, doc.GetAllocator()), doc.GetAllocator());
 
@@ -56,8 +56,8 @@ namespace streets_utils::messages{
         rapidjson::Value position_3d_json(rapidjson::kObjectType);
         position_3d_json.AddMember("long", val._longitude, allocator);
         position_3d_json.AddMember("lat", val._latitude, allocator);
-        if ( val._elavation.has_value() ) {
-            position_3d_json.AddMember("elevation", val._elavation.value(), allocator);
+        if ( val._elevation.has_value() ) {
+            position_3d_json.AddMember("elevation", val._elevation.value(), allocator);
         }
         return position_3d_json;
     }
@@ -169,7 +169,7 @@ namespace streets_utils::messages{
     rapidjson::Value create_position_confidence_set(const position_confidence_set &val, rapidjson::Document::AllocatorType &allocator) {
         rapidjson::Value position_confidence_json(rapidjson::kObjectType);
         position_confidence_json.AddMember("pos",static_cast<unsigned int >(val._position_confidence), allocator);
-        position_confidence_json.AddMember("elavation", static_cast<unsigned int >(val._elavation_confidence), allocator);
+        position_confidence_json.AddMember("elevation", static_cast<unsigned int >(val._elevation_confidence), allocator);
         return position_confidence_json;
     }
     rapidjson::Value create_detected_object_data_optional(const std::variant<detected_obstacle_data, detected_vehicle_data, detected_vru_data> &val, rapidjson::Document::AllocatorType &allocator){

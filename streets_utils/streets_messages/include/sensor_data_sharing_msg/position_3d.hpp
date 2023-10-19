@@ -32,7 +32,7 @@ namespace streets_utils::messages{
          * @brief Signed units of 0.1m (10cm), in 2 octets the value 
          * 32767 (0x7FFF) shall indicate an invalid value [-32768,32767]
          */
-        std::optional<int> _elavation;
+        std::optional<int> _elevation;
 
     };
 }
