@@ -15,7 +15,7 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
         INIT_ENV: "/home/carma-streets/.base-image/init-env.sh"
-        SONAR_SCANNER_VERSION: "4.6.2.2472"
+        SONAR_SCANNER_VERSION: "5.0.1.3006"
         TERM: xterm
       options: "--user root"
     steps:
