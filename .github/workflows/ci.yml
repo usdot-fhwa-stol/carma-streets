@@ -125,17 +125,26 @@ jobs:
         mkdir $SONAR_DIR
         curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
         curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-        curl -sL https://deb.nodesource.com/setup_16.x |bash -
+        curl -sL https://deb.nodesource.com/setup_16.x | bash -
         apt-get install -y nodejs unzip
+        # Set the JAVA_HOME to a compatible version of Java, e.g., Java 17
+        export JAVA_HOME=$GITHUB_WORKSPACE/java-17
         cd $SONAR_DIR
         for ZIP in *.zip; do
           unzip "$ZIP" -d .
           rm "$ZIP"
         done
-        mv $(ls $SONAR_DIR |grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
-        mv $(ls $SONAR_DIR |grep "build-wrapper-") $SONAR_DIR/build-wrapper/
+        mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
+        mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
         echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
         echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
+      env:
+        JAVA_HOME: $GITHUB_WORKSPACE/java-17
+
+    - name: Check Java Version
+      run: |
+        java -version
+        echo $JAVA_HOME         
     - name: Build
       run: |
         source ${INIT_ENV}
