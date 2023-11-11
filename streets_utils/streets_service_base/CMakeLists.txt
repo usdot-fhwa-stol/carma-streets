@@ -80,7 +80,7 @@ add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_link_libraries(${BINARY} 
     PUBLIC
         ${PROJECT_NAME}_lib                                   
-        GTest::gtest
+        GTest::GTest
 )
 target_include_directories(${BINARY} 
     PUBLIC 
