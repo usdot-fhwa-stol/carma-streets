@@ -39,8 +39,8 @@ jobs:
         mkdir /home/carma-streets/.base-image
         touch /home/carma-streets/.base-image/init-env.sh
         cd /home/carma-streets/build_scripts
-        ./install_streets_service_base_dependencies.sh
         mkdir -p /home/carma-streets/ext
+        ./install_streets_service_base_dependencies.sh
         ./install_rest_server_dependencies.sh
         ./install_lanelet2_dependencies.sh
         ./install_test_dependencies.sh
