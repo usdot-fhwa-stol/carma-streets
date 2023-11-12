@@ -43,6 +43,7 @@ jobs:
         mkdir -p /home/carma-streets/ext
         ./install_rest_server_dependencies.sh
         ./install_lanelet2_dependencies.sh
+        ./install_test_dependencies.sh
     - name: Install net-snmp
       run: |
         cd /home/carma-streets/ext/
