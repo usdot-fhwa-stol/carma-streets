@@ -2,7 +2,8 @@
 # Script assumes base image of carma-builds-64x
 set -e
 # Get ubuntu distribution code name. All STOL APT debian packages are pushed to S3 bucket based on distribution codename.
-. /etc/lsb-release
+# shellcheck source=/dev/null
+source /etc/lsb-release
 # add the STOL APT repository
 echo "deb [trusted=yes] http://s3.amazonaws.com/stol-apt-repository ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/stol-apt-repository.list
 echo "deb http://packages.ros.org/ros/ubuntu ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/ros-latest.list
@@ -14,7 +15,6 @@ DEPENDENCIES=(
     automake 
     sqlite3 
     libsqlite3-dev 
-    curl 
     libpugixml-dev 
     libgeographic-dev
     ros-melodic-catkin
@@ -47,11 +47,14 @@ cd src
 git init 
 echo "temp" 
 git remote add origin -f https://github.com/usdot-fhwa-stol/autoware.ai.git 
-git config core.sparsecheckout true	&& \
-echo "common/hardcoded_params/*" >> .git/info/sparse-checkout 
-echo "common/lanelet2_extension/*" >> .git/info/sparse-checkout 
-echo "lanelet2/*" >> .git/info/sparse-checkout 
-echo "mrt_cmake_modules/*" >> .git/info/sparse-checkout 
+git config core.sparsecheckout true
+# See https://www.shellcheck.net/wiki/SC2129 for reference on syntax
+{
+echo "common/hardcoded_params/*" 
+echo "common/lanelet2_extension/*"  
+echo "lanelet2/*"  
+echo "mrt_cmake_modules/*"
+ } >> .git/info/sparse-checkout 
 git pull --depth 1 origin refactor_lanelet2_extension 
 git checkout refactor_lanelet2_extension 
 rm -r lanelet2/lanelet2_python
@@ -60,6 +63,7 @@ cd ..
 
 # In order to trick lanelet2 into building the ROS_VERSION environment variable must be set
 # In order to fully decouple lanelet2_extension from ros the LANELET2_EXTENSION_LOGGER_TYPE environment variable must be set
+# shellcheck source=/dev/null
 source /opt/ros/melodic/setup.bash  
 ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install
 cd ..

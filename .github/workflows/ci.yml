@@ -39,31 +39,10 @@ jobs:
         mkdir /home/carma-streets/.base-image
         touch /home/carma-streets/.base-image/init-env.sh
         cd /home/carma-streets/build_scripts
-        ./install_dependencies.sh
-        ./install_test_dependencies.sh
+        ./install_streets_service_base_dependencies.sh
         mkdir -p /home/carma-streets/ext
         ./install_rest_server_dependencies.sh
         ./install_lanelet2_dependencies.sh
-
-    - name: Install librdkafka
-      run: |
-        cd /home/carma-streets/ext/
-        git clone --depth 1 https://github.com/confluentinc/librdkafka.git /home/carma-streets/ext/librdkafka
-        cd /home/carma-streets/ext/librdkafka/
-        cmake -H. -B_cmake_build
-        cmake --build _cmake_build
-        cmake --build _cmake_build --target install
-    - name: Install rapidjson
-      run: |
-        cd /home/carma-streets/ext/
-        git clone https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson
-        cd /home/carma-streets/ext/rapidjson
-        git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
-        mkdir -p /home/carma-streets/ext/rapidjson/build
-        cd /home/carma-streets/ext/rapidjson/build
-        cmake ..
-        make -j
-        make install
     - name: Install net-snmp
       run: |
         cd /home/carma-streets/ext/
