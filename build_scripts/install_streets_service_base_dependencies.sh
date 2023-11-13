@@ -5,7 +5,7 @@ set -e
 source /etc/lsb-release
 # add the STOL APT repository
 echo "deb [trusted=yes] http://s3.amazonaws.com/stol-apt-repository ${DISTRIB_CODENAME} main" > /etc/apt/sources.list.d/stol-apt-repository.list
-apt-get update
+apt update
 DEPENDENCIES=(
     libboost-all-dev 
     carma-clock-1
@@ -13,7 +13,7 @@ DEPENDENCIES=(
 
 DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends --yes --quiet "${DEPENDENCIES[@]}"
 
-# Install librdkafka
+# Install librdkafka from instructions provided here https://github.com/confluentinc/librdkafka/tree/master/packaging/cmake
 echo " ------> Install librdkafka..."
 cd /tmp
 git clone https://github.com/confluentinc/librdkafka.git -b v2.2.0
@@ -24,7 +24,8 @@ cmake --build _cmake_build --target install
 cd ../
 rm -r librdkafka
 
-# Install rapidjson
+# Install rapidjson commit instead of release since there has been no new release since August 2016
+# but repo is still under active development
 echo " ------> Install rapidjson..."
 cd /tmp
 git clone https://github.com/Tencent/rapidjson
