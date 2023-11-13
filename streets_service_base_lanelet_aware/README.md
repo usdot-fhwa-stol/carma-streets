@@ -7,7 +7,7 @@ This base image is intented for **CARMA Streets** services that require [lanelet
 ## Usage
 Simply use the following to extend this image
 ```
-FROM usdotfhwastoldev/message_services:<tag>
+FROM usdotfhwastoldev/streets_service_base_lanelet_aware:<tag>
 ```
 The image also contains the environment variable **LANELET2_MAP**, which is assigned a default value of `/home/carma-streets/MAP/Intersection.osm`, but can be overwritten using the docker-compose environment variable section of the service description. An example is shown belo
 ```
