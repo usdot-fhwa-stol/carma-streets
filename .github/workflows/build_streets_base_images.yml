@@ -9,8 +9,9 @@ jobs:
         strategy:
             matrix:
                 include:
-                - architecture: x64
-                  ubuntu-codename: bionic
+                 - ubuntu-codename: bionic
+                 - ubuntu-codename: focal
+                 - ubuntu-codename: jammy
         runs-on: ubuntu-latest
         steps:
           - name: Log in to the Container registry
@@ -18,12 +19,18 @@ jobs:
             with:
                 username: ${{ secrets.DOCKERHUB_USERNAME }}
                 password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: Docker Push
+          - name: Docker Build Streets Service Base
             uses: docker/build-push-action@v3
             with:
                 push: true
                 build-args: |
-                    BUILD_ARCHITECTURE=${{ matrix.architecture }}
                     UBUNTU_CODENAME=${{ matrix.ubuntu-codename }}
                 tags: usdotfhwastoldev/streets_service_base:${{ matrix.ubuntu-codename }}
                 file: ./streets_service_base/Dockerfile
+          - name: Docker Build Streets Service Base Lanelet Aware
+            uses: docker/build-push-action@v3
+            with:
+              push: true
+              tags: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+              file: ./streets_service_base_lanelet_aware/Dockerfile          
+ 
