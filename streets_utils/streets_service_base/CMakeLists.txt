@@ -78,9 +78,9 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
 add_executable(${BINARY} ${TEST_SOURCES} )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_link_libraries(${BINARY} 
-    PUBLIC
+    PRIVATE
         ${PROJECT_NAME}_lib                                   
-        GTest::gtest
+        GTest::GTest
 )
 target_include_directories(${BINARY} 
     PUBLIC 
