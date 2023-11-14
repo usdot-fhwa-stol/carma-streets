@@ -1,0 +1,31 @@
+name: Build and Push Base Images
+on:
+    pull_request:
+      types: [opened, synchronize, reopened]
+    push:
+      branches: [develop, master]
+jobs:   
+    docker-build:
+        strategy:
+            matrix:
+                include:
+                - architecture: x64
+                ubuntu-codename: bionic
+                target: x64-version
+        runs-on: ubuntu-latest
+        steps:
+            - name: Log in to the Container registry
+            uses: docker/login-action@v2
+            with:
+                username: ${{ secrets.DOCKERHUB_USERNAME }}
+                password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - name: Docker Push
+            uses: docker/build-push-action@v3
+            with:
+                push: true
+                build-args: |
+                    BUILD_ARCHITECTURE=${{ matrix.architecture }}
+                    UBUNTU_CODENAME=${{ matrix.ubuntu-codename }}
+                target: ${{ matrix.target }}
+                tags: ${{ matrix.ubuntu-codename }}
+                file: {context}/streets_service_base/Dockerfile
