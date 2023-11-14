@@ -1,0 +1,1 @@
+FROM usdotfhwastoldev/streets_service_base_lanelet_aware

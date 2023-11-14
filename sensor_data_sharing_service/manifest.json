@@ -1,0 +1,18 @@
+{
+    "service_name": "sensor_data_sharing_service",
+    "loglevel": "debug",
+    "configurations": [
+        {
+            "name": "sdsm_producer_topic",
+            "value": "sdsm",
+            "description": "Kafka topic to which the sensor data sharing service will produce SDSMs.",
+            "type": "STRING"
+        },
+        {
+            "name": "detection_consumer_topic",
+            "value": "detections",
+            "description":"Kafka topic from which the sensor data sharing service will consume Detected Objects.",
+            "type": "STRING"
+        }
+    ]
+}
