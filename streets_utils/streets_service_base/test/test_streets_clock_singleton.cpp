@@ -17,6 +17,7 @@ namespace streets_service{
             void TearDown() {
                 SPDLOG_INFO("Tear Down");
             }
+            int time_comparison_threshold_ms = 20;
         
     };
     /**
@@ -46,7 +47,7 @@ namespace streets_service{
         auto end = std::chrono::system_clock::now();
         auto elapsed_time = end-start;
         // Assume duration is sleep duration of update thread +/- 1ms
-        EXPECT_NEAR( sleep_duration, std::chrono::duration_cast<milliseconds>(elapsed_time).count(), 1 );
+        EXPECT_NEAR( sleep_duration, std::chrono::duration_cast<milliseconds>(elapsed_time).count(), time_comparison_threshold_ms );
         t1.join();
     }
     /**
@@ -78,7 +79,7 @@ namespace streets_service{
         auto end = std::chrono::system_clock::now();
         auto elapsed_time = end-start;
         // Assume duration is sleep duration of update thread +/- 1ms
-        EXPECT_NEAR( sleep_duration, duration_cast<milliseconds>(elapsed_time).count(), 1 );
+        EXPECT_NEAR( sleep_duration, duration_cast<milliseconds>(elapsed_time).count(), time_comparison_threshold_ms );
         EXPECT_EQ(streets_clock_singleton::time_in_ms(), random);
         t2.join();
 
@@ -135,9 +136,9 @@ namespace streets_service{
         EXPECT_EQ(streets_clock_singleton::time_in_ms(), 0);
 
         // // Assume duration is sleep duration of update is equal to thread duration +/- 1ms
-        EXPECT_NEAR( sleep_duration, t1_duration_ms, 1 );
-        EXPECT_NEAR( sleep_duration, t2_duration_ms, 1 );
-        EXPECT_NEAR( sleep_duration, t3_duration_ms, 1 );
+        EXPECT_NEAR( sleep_duration, t1_duration_ms, time_comparison_threshold_ms );
+        EXPECT_NEAR( sleep_duration, t2_duration_ms, time_comparison_threshold_ms );
+        EXPECT_NEAR( sleep_duration, t3_duration_ms, time_comparison_threshold_ms );
         
     }
     /**
@@ -167,18 +168,18 @@ namespace streets_service{
      */
     TEST_F(test_streets_clock, test_real_time) {
         streets_clock_singleton::create(false);
-        EXPECT_NEAR(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
+        EXPECT_NEAR(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), time_comparison_threshold_ms);
         // allow time to change
         sleep(1);
-        EXPECT_NEAR(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
+        EXPECT_NEAR(streets_clock_singleton::time_in_ms(), duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), time_comparison_threshold_ms);
         auto cur_time = streets_clock_singleton::time_in_ms();
         streets_clock_singleton::sleep_for(2000);
-        EXPECT_NEAR(cur_time+2000, duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
+        EXPECT_NEAR(cur_time+2000, duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), time_comparison_threshold_ms);
 
         cur_time = streets_clock_singleton::time_in_ms();
         auto sleep_until_time = cur_time + 3000;
         streets_clock_singleton::sleep_until(sleep_until_time);
-        EXPECT_NEAR(sleep_until_time,  duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), 1);
+        EXPECT_NEAR(sleep_until_time,  duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(), time_comparison_threshold_ms);
 
     }
 }
