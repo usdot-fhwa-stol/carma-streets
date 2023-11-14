@@ -10,8 +10,11 @@ jobs:
             matrix:
                 include:
                  - ubuntu-codename: bionic
+                   build_lanelet_aware: true
                  - ubuntu-codename: focal
+                   build_lanelet_aware: false
                  - ubuntu-codename: jammy
+                   build_lanelet_aware: false
         runs-on: ubuntu-latest
         steps:
           - name: Log in to the Container registry
@@ -28,6 +31,7 @@ jobs:
                 tags: usdotfhwastoldev/streets_service_base:${{ matrix.ubuntu-codename }}
                 file: ./streets_service_base/Dockerfile
           - name: Docker Build Streets Service Base Lanelet Aware
+            if: ${{ matrix.build_lanelet_aware }} 
             uses: docker/build-push-action@v3
             with:
               push: true
