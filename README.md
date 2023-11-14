@@ -13,6 +13,8 @@
 | Scheduling Service | Message Services | Intersection Model | Signal Opt Service | Tsc Service |
 |-----|-----|-----|-----|-----|
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastoldev/scheduling_service?label=scheduling%20service)](https://hub.docker.com/repository/docker/usdotfhwastoldev/scheduling_service) | [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastoldev/message_services?label=message%20services)](https://hub.docker.com/repository/docker/usdotfhwastoldev/message_services)   	|  [ ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastoldev/intersection_model?label=intersection%20model)](https://hub.docker.com/repository/docker/usdotfhwastoldev/intersection_model)	| [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastoldev/signal_opt_service?label=signal%20opt%20service)](https://hub.docker.com/repository/docker/usdotfhwastoldev/signal_opt_service)  	| [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/usdotfhwastoldev/tsc_service?label=tsc%20service&logoColor=%232496ED)](https://hub.docker.com/repository/docker/usdotfhwastoldev/tsc_service) | 
+# CARMA Streets Base Image Builds
+[![Build and Push Base Images](https://github.com/usdot-fhwa-stol/carma-streets/actions/workflows/build_streets_base_images.yml/badge.svg)](https://github.com/usdot-fhwa-stol/carma-streets/actions/workflows/build_streets_base_images.yml)
 
 CARMA Streets is a component of CARMA ecosystem, which enables such a coordination among different transportation users. This component provides an interface for CDA participants to interact with the road infrastructure. CARMA Streets is also an edge-computing unit that improves the efficiency and performance of the Transportation Systems Management and Operations (TSMO) strategies.
 
@@ -21,6 +23,9 @@ CARMA Streets architecture is based on a scalable services and layered architect
 
 ## Deployment
 Docker is the primary deployment mechanism to containerize one or more services. The CARMA Streets application and other major frameworks such as Kafka will run in their own separate containers. This document will be updated with a detailed Docker deployment strategy during later design phases. 
+
+## Base Images
+To make creating new CARMA Streets services easier and to make our CI/CD more efficient, we have introduced new CARMA Streets base images. These images can be used as a starting point and common build/runtime environment for CARMA Streets services. There are currently two CARMA Streets base images , for which documentation and Dockerfiles can be found [Streets Service Base](streets_service_base/README.md) and [Streets Service Base Lanelet Aware](streets_service_base_lanelet_aware/README.md).
 
 # CARMAStreets
 The primary carma-streets repository can be found [here](https://github.com/usdot-fhwa-stol/carma-streets) and is part of the [USDOT FHWA STOL](https://github.com/usdot-fhwa-stol/)
