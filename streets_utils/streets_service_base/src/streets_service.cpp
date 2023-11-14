@@ -52,12 +52,14 @@ namespace streets_service {
         logger->flush_on(level);
         return logger;
     }
-    bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const {
+    bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) {
         
-        auto client = std::make_unique<kafka_clients::kafka_client>();
+        if ( !_kafka_client ) {
+            _kafka_client = std::make_unique<kafka_clients::kafka_client>();
+        }
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
 
-        producer = client->create_producer(bootstrap_server, producer_topic);
+        producer = _kafka_client->create_producer(bootstrap_server, producer_topic);
         if (!producer->init())
         {
             SPDLOG_CRITICAL("Kafka producer initialize error on topic {0}", producer_topic);
@@ -67,10 +69,12 @@ namespace streets_service {
         return true;
     }
  
-    bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer ) const{
-        auto client = std::make_unique<kafka_clients::kafka_client>();
+    bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer ){
+        if ( !_kafka_client ) {
+            _kafka_client = std::make_unique<kafka_clients::kafka_client>();
+        }        
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
-        kafka_consumer = client->create_consumer(bootstrap_server, consumer_topic, _service_name);
+        kafka_consumer = _kafka_client->create_consumer(bootstrap_server, consumer_topic, _service_name);
         if (!kafka_consumer->init())
         {
             SPDLOG_CRITICAL("Kafka initialize error");

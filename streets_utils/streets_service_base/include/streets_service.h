@@ -60,7 +60,7 @@ namespace streets_service {
              * @param producer shared_ptr to kafka producer.
              * @return true if initialization is successful and false if initialization fails.
              */
-            bool initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) const;
+            bool initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer );
             /**
              * @brief Helper method to initialise Kafka consumer. NOTE: Will assign consumer group id as service_name.
              * 
@@ -68,7 +68,7 @@ namespace streets_service {
              * @param consumer shared_ptr to kafka consumer.
              * @return true if initialization is successful and false if initialization fails.
              */
-            bool initialize_kafka_consumer( const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer ) const;
+            bool initialize_kafka_consumer( const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &consumer );
             /**
              * @brief Returns string value of environment variable with given name. If no value is found, returns default.
              * @param config_name name of environment variable.
@@ -110,6 +110,8 @@ namespace streets_service {
             std::string _service_name;
 
             bool _simulation_mode;
+
+            std::unique_ptr<kafka_clients::kafka_client> _kafka_client;
 
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _time_consumer;
 
