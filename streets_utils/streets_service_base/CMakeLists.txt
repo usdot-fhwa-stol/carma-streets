@@ -80,6 +80,7 @@ set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
 add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES} )
 include(GoogleTest)
 gtest_discover_tests(${TEST_EXECUTABLE}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
     DISCOVERY_MODE PRE_TEST
 )
 target_link_libraries(${TEST_EXECUTABLE} 

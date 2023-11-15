@@ -135,6 +135,7 @@ namespace streets_service {
             FRIEND_TEST(test_streets_service, test_get_system_config);
             FRIEND_TEST(test_streets_service, test_create_daily_logger);
             FRIEND_TEST(test_streets_service, test_create_daily_logger_default);
+            FRIEND_TEST(test_streets_service, test_start);
 
 
 

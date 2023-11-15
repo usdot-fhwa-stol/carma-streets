@@ -190,7 +190,24 @@ TEST_F(test_streets_service, test_initialize_consumer_fail) {
         EXPECT_EQ(serv.get_system_config(nullptr, "DEFAULT"), "DEFAULT");
     };
     TEST_F(test_streets_service, test_start) {
+        std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;
+        mock_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
+        mock_client = std::make_shared<kafka_clients::mock_kafka_client>();
+
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_client, create_consumer("127.0.0.1:9092", "time_sync" , "test_service") ).Times(1).WillRepeatedly(Return(mock_consumer));
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_consumer, init() ).Times(1).WillRepeatedly(Return(true));
+        EXPECT_CALL(*mock_consumer, subscribe() ).Times(1);
+        EXPECT_CALL(*mock_consumer, is_running() ).Times(2).WillOnce(Return(true)).WillRepeatedly(Return(false));
+
+        EXPECT_CALL(*mock_consumer, consume(1000) ).Times(1).WillRepeatedly(Return(""));
+
+
+        serv.set_kafka_client(mock_client);
+
         EXPECT_TRUE(serv.initialize());
+    
         serv.start();
     }
 
