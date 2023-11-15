@@ -73,17 +73,21 @@ install(FILES ${templates} DESTINATION include/internal)
 # googletest for unit testing
 ########################
 enable_testing()
-set(BINARY ${PROJECT_NAME}_test)
+set(TEST_EXECUTABLE ${PROJECT_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/test)
-add_executable(${BINARY} ${TEST_SOURCES} )
-add_test(NAME ${BINARY} COMMAND ${BINARY})
-target_link_libraries(${BINARY} 
+
+add_executable(${TEST_EXECUTABLE} ${TEST_SOURCES} )
+include(GoogleTest)
+gtest_discover_tests(${TEST_EXECUTABLE}
+    # WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test    
+)
+target_link_libraries(${TEST_EXECUTABLE} 
     PRIVATE
         ${PROJECT_NAME}_lib                                   
         GTest::Main
 )
-target_include_directories(${BINARY} 
+target_include_directories(${TEST_EXECUTABLE} 
     PUBLIC 
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

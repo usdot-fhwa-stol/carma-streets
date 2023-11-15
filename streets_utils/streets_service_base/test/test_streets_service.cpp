@@ -73,6 +73,8 @@ namespace streets_service{
                                                                     "\"seq\":123"
                                                                 "}"
                                                             ));
+        // Create Carma Clock Singleton
+        streets_clock_singleton::create(true);
 
         serv.consume_time_sync_message();   // Skip empty message and skip incorrect message and consume real message then 
                                             // consumer is_running returns false and returns control
@@ -117,17 +119,67 @@ namespace streets_service{
     }
     
     TEST_F(test_streets_service, test_initialize_consumer) {
-        serv._service_name ="TestService";
+        serv._service_name ="test_service";
         std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;
+        mock_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
+        mock_client = std::make_shared<kafka_clients::mock_kafka_client>();
+
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_client, create_consumer("127.0.0.1:9092", "test_topic" , "test_service") ).Times(1).WillRepeatedly(Return(mock_consumer));
+        serv.set_kafka_client(mock_client);
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_consumer, init() ).Times(1).WillRepeatedly(Return(true));
+        // Create streets configuration singleton
+        streets_configuration::create("../test/test_files/manifest.json");
         EXPECT_TRUE(serv.initialize_kafka_consumer("test_topic", consumer));
-        consumer->stop();
+    };
+
+TEST_F(test_streets_service, test_initialize_consumer_fail) {
+        serv._service_name ="test_service";
+        std::shared_ptr<kafka_clients::kafka_consumer_worker> consumer;
+        mock_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
+        mock_client = std::make_shared<kafka_clients::mock_kafka_client>();
+
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_client, create_consumer("127.0.0.1:9092", "test_topic" , "test_service") ).Times(1).WillRepeatedly(Return(mock_consumer));
+        serv.set_kafka_client(mock_client);
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_consumer, init() ).Times(1).WillRepeatedly(Return(false));
+        // Create streets configuration singleton
+        streets_configuration::create("../test/test_files/manifest.json");
+        EXPECT_FALSE(serv.initialize_kafka_consumer("test_topic", consumer));
     };
 
     TEST_F(test_streets_service, test_initialize_producer) {
-        serv._service_name ="TestService";
+        serv._service_name ="test_service";
         std::shared_ptr<kafka_clients::kafka_producer_worker> producer;
+        mock_producer =  std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        mock_client = std::make_shared<kafka_clients::mock_kafka_client>();
+
+        // Set mock client to return mock producer and producer respectively on calls to create_producer and create_producer
+        EXPECT_CALL(*mock_client, create_producer("127.0.0.1:9092", "test_topic") ).Times(1).WillRepeatedly(Return(mock_producer));
+        serv.set_kafka_client(mock_client);
+        // Set mock client to return mock producer and producer respectively on calls to create_producer and create_producer
+        EXPECT_CALL(*mock_producer, init() ).Times(1).WillRepeatedly(Return(true));
+        // Create streets configuration singleton
+        streets_configuration::create("../test/test_files/manifest.json");
         EXPECT_TRUE(serv.initialize_kafka_producer("test_topic", producer));
-        producer->stop();
+    };
+
+    TEST_F(test_streets_service, test_initialize_producer_fail) {
+        serv._service_name ="test_service";
+        std::shared_ptr<kafka_clients::kafka_producer_worker> producer;
+        mock_producer =  std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        mock_client = std::make_shared<kafka_clients::mock_kafka_client>();
+
+        // Set mock client to return mock producer and producer respectively on calls to create_producer and create_producer
+        EXPECT_CALL(*mock_client, create_producer("127.0.0.1:9092", "test_topic" ) ).Times(1).WillRepeatedly(Return(mock_producer));
+        serv.set_kafka_client(mock_client);
+        // Set mock client to return mock producer and producer respectively on calls to create_producer and create_producer
+        EXPECT_CALL(*mock_producer, init() ).Times(1).WillRepeatedly(Return(false));
+        // Create streets configuration singleton
+        streets_configuration::create("../test/test_files/manifest.json");
+        EXPECT_FALSE(serv.initialize_kafka_producer("test_topic", producer));
     };
 
     TEST_F(test_streets_service, test_get_system_config) {
