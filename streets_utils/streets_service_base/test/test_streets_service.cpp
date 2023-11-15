@@ -15,12 +15,12 @@ using testing::AnyNumber;
 namespace streets_service{
 
     class test_streets_service : public testing::Test {
-        protected:
+        public:
             std::shared_ptr<kafka_clients::mock_kafka_client> mock_client;
             std::shared_ptr<kafka_clients::mock_kafka_consumer_worker> mock_consumer;
             std::shared_ptr<kafka_clients::mock_kafka_producer_worker> mock_producer;
 
-            void SetUp() {
+            void SetUp() override {
                 
 
                 setenv(SIMULATION_MODE_ENV.c_str(), "TRUE", 1);
@@ -41,6 +41,19 @@ namespace streets_service{
         serv.set_kafka_client(mock_client);
         EXPECT_CALL(*mock_consumer, init() ).Times(1).WillRepeatedly(Return(true));
         EXPECT_TRUE(serv.initialize());
+        EXPECT_EQ( serv.get_service_name(), "test_service");
+        EXPECT_TRUE(serv.is_simulation_mode());
+    };
+    
+    TEST_F(test_streets_service, test_initialize_sim_fail) {
+        mock_client = std::make_shared<kafka_clients::mock_kafka_client>();
+        mock_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
+
+        // Set mock client to return mock producer and consumer respectively on calls to create_producer and create_consumer
+        EXPECT_CALL(*mock_client, create_consumer("127.0.0.1:9092", "time_sync" , "test_service") ).Times(1).WillRepeatedly(Return(mock_consumer));
+        serv.set_kafka_client(mock_client);
+        EXPECT_CALL(*mock_consumer, init() ).Times(1).WillRepeatedly(Return(false));
+        EXPECT_FALSE(serv.initialize());
         EXPECT_EQ( serv.get_service_name(), "test_service");
         EXPECT_TRUE(serv.is_simulation_mode());
     };

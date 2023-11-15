@@ -129,10 +129,10 @@ namespace streets_service {
             FRIEND_TEST(test_streets_service, test_initialize_consumer);
             FRIEND_TEST(test_streets_service, test_initialize_producer);
             FRIEND_TEST(test_streets_service, test_initialize_sim);
+            FRIEND_TEST(test_streets_service, test_initialize_sim_fail);
             FRIEND_TEST(test_streets_service, test_get_system_config);
             FRIEND_TEST(test_streets_service, test_create_daily_logger);
             FRIEND_TEST(test_streets_service, test_create_daily_logger_default);
-            friend class test_streets_service;
 
 
 
