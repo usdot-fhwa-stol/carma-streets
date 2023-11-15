@@ -105,13 +105,21 @@ namespace streets_service {
              */
             std::shared_ptr<spdlog::logger> create_daily_logger(const std::string &name, const std::string &extension = ".log", const std::string &pattern = "[%Y-%m-%d %H:%M:%S.%e] %v", 
                                 const spdlog::level::level_enum &level = spdlog::level::info ) const;
+            
+            /**
+             * @brief Metho used to set kafka_client member used to create kafka producers and consumers. For unit testing purposes can
+             * allow injection of mocks by setting a kafka_client mock and telling it to return mock producers/consumers on calls to
+             * create_consumer() create_producer.
+             * @param kafka_client 
+             */
+            void set_kafka_client(const std::shared_ptr<kafka_clients::kafka_client> kafka_client);
 
         private:
             std::string _service_name;
 
             bool _simulation_mode;
 
-            std::unique_ptr<kafka_clients::kafka_client> _kafka_client;
+            std::shared_ptr<kafka_clients::kafka_client> _kafka_client;
 
             std::shared_ptr<kafka_clients::kafka_consumer_worker> _time_consumer;
 
@@ -124,6 +132,7 @@ namespace streets_service {
             FRIEND_TEST(test_streets_service, test_get_system_config);
             FRIEND_TEST(test_streets_service, test_create_daily_logger);
             FRIEND_TEST(test_streets_service, test_create_daily_logger_default);
+            friend class test_streets_service;
 
 
 
