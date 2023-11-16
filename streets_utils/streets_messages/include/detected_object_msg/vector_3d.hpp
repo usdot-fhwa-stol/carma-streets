@@ -25,9 +25,9 @@ namespace streets_utils::messages {
          * @brief 3 dimensional vector struct.
          */
         struct vector_3d{
-            double x;
-            double y;
-            double z;
+            double _x;
+            double _y;
+            double _z;
         };
     }
 }

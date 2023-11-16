@@ -17,7 +17,6 @@
 #include <string>
 #include <optional>
 
-#include <detection_type.hpp>
 
 namespace streets_utils::messages {
 
@@ -27,9 +26,9 @@ namespace streets_utils::messages {
          * @brief Struct for world frame coordinates.
          */
         struct cartesian_point{
-            double x;
-            double y;
-            double z;
+            double _x;
+            double _y;
+            double _z;
         };
 
     }

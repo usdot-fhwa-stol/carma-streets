@@ -26,9 +26,9 @@ namespace streets_utils::messages {
          */
         struct size{
 
-            double length; /**length in meters */
-            double height; /**height in meters */
-            double width;  /**width in meters */
+            double _length; /**length in meters */
+            double _height; /**height in meters */
+            double _width;  /**width in meters */
         };
     }
 }

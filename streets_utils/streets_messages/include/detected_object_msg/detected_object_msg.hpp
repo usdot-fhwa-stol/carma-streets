@@ -30,17 +30,17 @@ namespace streets_utils::messages {
          */
         struct detected_object_msg {
 
-            std::string type;
-            double confidence;
-            std::string projString;
-            std::string objectID;
-            cartesian_point position;
-            double positionCovariance[3][3];
-            vector_3d velocity;
-            double velocityCovariance[3][3];
-            vector_3d angularVelocity;
-            double angularVelocityCovariance[3][3];
-            size size;
+            std::string _type;
+            double _confidence;
+            std::string _proj_string;
+            std::string _object_id;
+            cartesian_point _position;
+            double _position_covariance[3][3];
+            vector_3d _velocity;
+            double _velocity_covariance[3][3];
+            vector_3d _angular_velocity;
+            double _angular_velocity_covariance[3][3];
+            size _size;
 
         };
     }
