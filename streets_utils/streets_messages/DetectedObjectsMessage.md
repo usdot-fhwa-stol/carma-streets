@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This CARMA-Streets library contains the Detected Objects Message as well as the logic for deserializing this object from JSON. Below is an example JSON payload. This message will be produced by an external Sensor capable of detecting objects. The data in it will represent the incoming **Sensor Detected Object** detection. This message will be generated inline with the SAE J3224 document.
+This CARMA-Streets library contains the Detected Objects Message as well as the logic for deserializing this object from JSON. Below is an example JSON payload. This message will be produced by an external Sensor capable of detecting objects. The data in it will represent the incoming **Sensor Detected Object** detection. This is a custom message definition for the detected objects.
 
 ## Example JSON payload
 ```
