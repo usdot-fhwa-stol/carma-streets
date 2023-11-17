@@ -2,12 +2,13 @@
 
 ## Introduction
 
-This CARMA-Streets library will be the new location for storing both CARMA Streets message data types as well as the logic to serialize and deserialize these messages. Message data types will be stored in directories with the message name as the directory name similar to the current `sensor_data_sharing_msg`. Then functions will hold the JSON serialization and deserialization logic for each message to seperate concerns betweening message serialization and message data.
+This CARMA-Streets library will be the new location for storing both CARMA Streets message data types as well as the logic to serialize and deserialize these messages. Message data types will be stored in directories with the message name as the directory name similar to the current `sensor_data_sharing_msg`. Then functions will hold the JSON serialization and deserialization logic for each message to seperate concerns between message serialization and message data.
 > [!IMPORTANT]\
-> Currently this library only contains the sensor_data sharing message and its JSON serialization logic. Will attempt to part existing and future messages into this library.
+> Currently this library only contains the sensor_data sharing message and the detected objects message, with their JSON serialization logic. Will attempt to part existing and future messages into this library.
 
 ## Messages
 **[Sensor Data Sharing Message](SensorDataSharingMessage.md)** : J3224 Message used for sharing detection level data between vehicles and infrastructure.
+**[Detected Objects Message](DetectedObjectsMessage.md)** : Custom Message used for sharing object detection information between sensors and ITS actors
 ## Serialization and Deserialization
 
 CARMA Streets messages are currently all using JSON for serialization for sending via a Apache Kafka broker. To parse or write the JSON we are currently using the [rapidjson library](https://github.com/Tencent/rapidjson). In addition, we have implemented some helper functions to parse optional fields from JSON using the [std::optional](https://en.cppreference.com/w/cpp/utility/optional) class template implemented in our [json_utils library](https://github.com/usdot-fhwa-stol/carma-streets/tree/develop/streets_utils/json_utils).
@@ -24,7 +25,7 @@ This library includes a CMake install target that will attempt to install this l
 
 `streets_utils\streets_messages_lib`
 
-Header files will be installed in the CMake default include directory 
+Header files will be installed in the CMake default include directory
 
 `include\streets_utils\streets_messages_lib\`
 
