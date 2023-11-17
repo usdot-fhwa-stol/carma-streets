@@ -30,14 +30,15 @@ namespace streets_utils::messages::detected_objects_msg {
 
         std::string _type;
         double _confidence;
+        std::string _sensor_id;
         std::string _proj_string;
         std::string _object_id;
         cartesian_point _position;
-        double _position_covariance[3][3];
+        std::vector<std::vector<double>> _position_covariance;
         vector_3d _velocity;
-        double _velocity_covariance[3][3];
+        std::vector<std::vector<double>> _velocity_covariance;
         vector_3d _angular_velocity;
-        double _angular_velocity_covariance[3][3];
+        std::vector<std::vector<double>> _angular_velocity_covariance;
         size _size;
 
     };
