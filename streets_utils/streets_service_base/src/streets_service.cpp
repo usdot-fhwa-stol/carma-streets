@@ -55,7 +55,7 @@ namespace streets_service {
     bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) {
         
         if ( !_kafka_client ) {
-            _kafka_client = std::make_shared<kafka_clients::kafka_client>();
+            _kafka_client = std::make_unique<kafka_clients::kafka_client>();
         }
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
 
@@ -71,7 +71,7 @@ namespace streets_service {
  
     bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer ){
         if ( !_kafka_client ) {
-            _kafka_client = std::make_shared<kafka_clients::kafka_client>();
+            _kafka_client = std::make_unique<kafka_clients::kafka_client>();
         }        
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
         kafka_consumer = _kafka_client->create_consumer(bootstrap_server, consumer_topic, _service_name);
@@ -140,7 +140,4 @@ namespace streets_service {
         return _simulation_mode;
     }
 
-    void streets_service::set_kafka_client(const std::shared_ptr<kafka_clients::kafka_client> kafka_client) {
-        this->_kafka_client = kafka_client;
-    }
 }
