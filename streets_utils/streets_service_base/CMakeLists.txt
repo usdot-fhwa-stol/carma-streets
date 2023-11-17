@@ -85,5 +85,6 @@ target_link_libraries(${TEST_EXECUTABLE}
 )
 include(GoogleTest)
 gtest_discover_tests(${TEST_EXECUTABLE}
+    DISCOVERY_MODE PRE_TEST
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
 )
