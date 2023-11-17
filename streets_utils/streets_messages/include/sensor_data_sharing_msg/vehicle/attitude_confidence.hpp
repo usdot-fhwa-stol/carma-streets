@@ -15,7 +15,7 @@
 
 #include "sensor_data_sharing_msg/heading_confidence.hpp"
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct attitude_confidence {
         /**
          * @brief Confidence in reported pitch.

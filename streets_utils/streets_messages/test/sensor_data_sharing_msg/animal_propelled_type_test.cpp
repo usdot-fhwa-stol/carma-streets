@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/vru/animal_propelled_type.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(animal_propelled_type_test, test_from_int){
     EXPECT_EQ(animal_propelled_type::UNAVAILABLE, animal_propelled_type_from_int(0));

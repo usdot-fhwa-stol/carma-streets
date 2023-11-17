@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/acceleration_confidence.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(acceleration_confidence_test, test_from_int){
     EXPECT_EQ(acceleration_confidence::UNAVAILABLE, acceleration_confidence_from_int(0));

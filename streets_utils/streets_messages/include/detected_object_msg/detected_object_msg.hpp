@@ -22,27 +22,26 @@
 #include <vector_3d.hpp>
 #include <size.hpp>
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm::detected_object_msg {
 
-    namespace detected_object_msg {
-        /**
-         * @brief Sensor Detected Object information
-         */
-        struct detected_object_msg {
+    /**
+        * @brief Sensor Detected Object information
+        */
+    struct detected_object_msg {
 
-            std::string _type;
-            double _confidence;
-            std::string _proj_string;
-            std::string _object_id;
-            cartesian_point _position;
-            double _position_covariance[3][3];
-            vector_3d _velocity;
-            double _velocity_covariance[3][3];
-            vector_3d _angular_velocity;
-            double _angular_velocity_covariance[3][3];
-            size _size;
+        std::string _type;
+        double _confidence;
+        std::string _proj_string;
+        std::string _object_id;
+        cartesian_point _position;
+        double _position_covariance[3][3];
+        vector_3d _velocity;
+        double _velocity_covariance[3][3];
+        vector_3d _angular_velocity;
+        double _angular_velocity_covariance[3][3];
+        size _size;
 
-        };
-    }
+    };
+
 
 }

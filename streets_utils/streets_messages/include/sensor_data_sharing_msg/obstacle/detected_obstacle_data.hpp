@@ -15,7 +15,7 @@
 
 #include "sensor_data_sharing_msg/obstacle/obstacle_size.hpp"
 #include "sensor_data_sharing_msg/obstacle/obstacle_size_confidence.hpp"
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct detected_obstacle_data{
         /**
          * @brief Size of obstacle.

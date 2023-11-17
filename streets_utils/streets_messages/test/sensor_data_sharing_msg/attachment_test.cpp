@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/vru/attachment.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(attachment_test, test_from_int){
     EXPECT_EQ(attachment::UNAVAILABLE, attachment_from_int(0));

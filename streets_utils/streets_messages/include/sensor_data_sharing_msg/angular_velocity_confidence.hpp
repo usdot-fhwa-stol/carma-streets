@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     enum class angular_velocity_confidence{
         UNAVAILABLE = 0,
         DEGSEC_100 = 1,         // 100 degrees

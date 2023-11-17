@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once 
+#pragma once
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <spdlog/spdlog.h>
@@ -21,7 +21,7 @@
 #include <streets_utils/json_utils_lib/json_utils_exception.hpp>
 #include "sensor_data_sharing_msg/sensor_data_sharing_msg.hpp"
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     sensor_data_sharing_msg from_json( const std::string &val);
 
     time_stamp parse_time_stamp(const rapidjson::Value &val);
@@ -54,7 +54,7 @@ namespace streets_utils::messages {
 
     obstacle_size_confidence parse_obstacle_size_confidence(const rapidjson::Value &val);
 
-    std::optional<std::variant<human_propelled_type, motorized_propelled_type, animal_propelled_type>> parse_propelled_information( const rapidjson::Value &val); 
+    std::optional<std::variant<human_propelled_type, motorized_propelled_type, animal_propelled_type>> parse_propelled_information( const rapidjson::Value &val);
 
     attitude parse_vehicle_attitude(const rapidjson::Value &val);
 

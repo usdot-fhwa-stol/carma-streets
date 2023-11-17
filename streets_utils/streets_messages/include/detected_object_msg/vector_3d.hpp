@@ -18,16 +18,15 @@
 #include <optional>
 
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm::detected_object_msg {
 
-    namespace detected_object_msg {
-        /**
-         * @brief 3 dimensional vector struct.
-         */
-        struct vector_3d{
-            double _x;
-            double _y;
-            double _z;
-        };
-    }
+    /**
+    * @brief 3 dimensional vector struct.
+    */
+    struct vector_3d{
+        double _x;
+        double _y;
+        double _z;
+    };
+
 }

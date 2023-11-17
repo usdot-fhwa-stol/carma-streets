@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/angular_velocity_confidence.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(angular_velocity_confidence_test, test_from_int){
     EXPECT_EQ(angular_velocity_confidence::UNAVAILABLE, angular_velocity_confidence_from_int(0));

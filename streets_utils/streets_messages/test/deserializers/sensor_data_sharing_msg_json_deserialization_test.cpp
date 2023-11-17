@@ -14,10 +14,10 @@
 #include <gtest/gtest.h>
 #include <deserializers/sensor_data_sharing_msg_json_deserializer.hpp>
 #include <string>
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
-    
+
     std::string json = "{"
         "\"equipment_type\": 0,"
         "\"msg_cnt\": 255,"
@@ -128,7 +128,7 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize) {
 }
 
 TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_obstacle_data) {
-    
+
     std::string json = "{"
     "    \"equipment_type\": 1,"
     "    \"msg_cnt\": 1,"
@@ -234,7 +234,7 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_obs
 }
 
 TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_vru_data) {
-    
+
     std::string json = "{"
     "    \"equipment_type\": 1,"
     "    \"msg_cnt\": 1,"
@@ -336,7 +336,7 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_vru
 }
 
 TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_vehicle_data) {
-    
+
     std::string json = "{"
     "    \"equipment_type\": 1,"
     "    \"msg_cnt\": 1,"
@@ -461,4 +461,3 @@ TEST(sensor_dara_sharing_msg_json_deserialization_test, deserialize_optional_veh
 
 
 }
-

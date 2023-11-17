@@ -16,7 +16,7 @@
 #include "sensor_data_sharing_msg/angular_velocity_confidence.hpp"
 #include <optional>
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct angular_velocity_confidence_set{
         /**
          * @brief Confidence in reported pitch rate.

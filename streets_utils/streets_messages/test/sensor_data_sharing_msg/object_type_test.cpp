@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/object_type.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(object_type_test, test_from_int){
     EXPECT_EQ(object_type::UNKNOWN, object_type_from_int(0));

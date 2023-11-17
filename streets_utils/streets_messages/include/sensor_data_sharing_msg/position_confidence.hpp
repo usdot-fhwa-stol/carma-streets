@@ -13,10 +13,10 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     enum class position_confidence{
         UNAVAILABLE = 0,
-        A_500M = 1, 
+        A_500M = 1,
         A_200M = 2,
         A_100M = 3,
         A_50M = 4,
@@ -31,7 +31,7 @@ namespace streets_utils::messages {
         A_5CM = 13,
         A_2CM = 14,
         A_1CM = 15
-        
+
     };
 
     inline position_confidence position_confidence_from_int( const int i ) {

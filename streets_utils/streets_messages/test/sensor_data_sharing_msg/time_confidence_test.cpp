@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/time_confidence.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(time_confidence_test, test_from_int){
     EXPECT_EQ(time_confidence::UNAVAILABLE, time_confidence_from_int(0));
@@ -55,7 +55,7 @@ TEST(time_confidence_test, test_from_int){
     EXPECT_EQ(time_confidence::TIME_000_000_000_000_2, time_confidence_from_int(35));
     EXPECT_EQ(time_confidence::TIME_000_000_000_000_1, time_confidence_from_int(36));
     EXPECT_EQ(time_confidence::TIME_000_000_000_000_05, time_confidence_from_int(37));
-    EXPECT_EQ(time_confidence::TIME_000_000_000_000_02, time_confidence_from_int(38)); 
+    EXPECT_EQ(time_confidence::TIME_000_000_000_000_02, time_confidence_from_int(38));
     EXPECT_EQ(time_confidence::TIME_000_000_000_000_01, time_confidence_from_int(39));
     EXPECT_THROW( time_confidence_from_int(40), std::invalid_argument);
 

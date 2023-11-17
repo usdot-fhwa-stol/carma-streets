@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/heading_confidence.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(heading_confidence_test, test_from_int){
     EXPECT_EQ(heading_confidence::UNAVAILABLE, heading_confidence_from_int(0));

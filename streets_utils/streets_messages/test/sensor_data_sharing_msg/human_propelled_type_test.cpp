@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/vru/human_propelled_type.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(human_propelled_type_test, test_from_int){
     EXPECT_EQ(human_propelled_type::UNAVAILABLE, human_propelled_type_from_int(0));

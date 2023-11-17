@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/position_confidence.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(position_confidence_test, test_from_int){
     EXPECT_EQ(position_confidence::UNAVAILABLE, position_confidence_from_int(0));

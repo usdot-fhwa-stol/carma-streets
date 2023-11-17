@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     enum class motorized_propelled_type{
         UNAVAILABLE = 0,
         OTHER_TYPES = 1,
@@ -22,7 +22,7 @@ namespace streets_utils::messages {
         SCOOTER = 4,
         SELF_BALANCING_DEVICE = 5
     };
-    
+
     inline motorized_propelled_type motorized_propelled_type_from_int( const unsigned int i ){
         switch (i)
         {
@@ -30,7 +30,7 @@ namespace streets_utils::messages {
             return motorized_propelled_type::UNAVAILABLE;
         case 1:
             return motorized_propelled_type::OTHER_TYPES;
-        case 2:           
+        case 2:
             return motorized_propelled_type::WHEEL_CHAIR;
         case 3:
             return motorized_propelled_type::BICYCLE;

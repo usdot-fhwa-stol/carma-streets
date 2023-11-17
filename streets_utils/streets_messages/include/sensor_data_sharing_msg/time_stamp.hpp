@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     struct time_stamp {
         /**
          * @brief in milliseconds [0,65535].

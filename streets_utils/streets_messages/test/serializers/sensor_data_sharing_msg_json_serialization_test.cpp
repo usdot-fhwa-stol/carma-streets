@@ -15,7 +15,7 @@
 #include <serializers/sensor_data_sharing_msg_json_serializer.hpp>
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 using namespace streets_utils::json_utils;
 
 TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_properties_max_value) {
@@ -57,7 +57,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -81,7 +81,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     EXPECT_FALSE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Optional parameter is not present
@@ -100,9 +100,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     ASSERT_FALSE(object.HasMember("detected_object_optional_data"));
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -134,7 +134,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     msg._time_stamp.hour= 0;
     msg._time_stamp.day = 0;
     msg._time_stamp.month = 0;
-    msg._time_stamp.year = 0; 
+    msg._time_stamp.year = 0;
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
@@ -161,7 +161,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -185,7 +185,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     EXPECT_FALSE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Optional parameter is not present
@@ -204,9 +204,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     ASSERT_FALSE(object.HasMember("detected_object_optional_data"));
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -239,7 +239,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     msg._time_stamp.hour= 0;
     msg._time_stamp.day = 0;
     msg._time_stamp.month = 0;
-    msg._time_stamp.year = 0; 
+    msg._time_stamp.year = 0;
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
@@ -291,7 +291,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -315,7 +315,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     EXPECT_TRUE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Confirm optional elevation parameter is present
@@ -334,9 +334,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -364,7 +364,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vru_data") );
     auto msg_object_optional_data = std::get<detected_vru_data>(msg._objects[0]._detected_object_optional_data.value());
-    auto option_vru_json_data = object["detected_object_optional_data"]["detected_vru_data"].GetObject();  
+    auto option_vru_json_data = object["detected_object_optional_data"]["detected_vru_data"].GetObject();
     EXPECT_EQ( msg_object_optional_data._attachment.value(), attachment_from_int( option_vru_json_data["attachment"].GetUint()));
     EXPECT_EQ( msg_object_optional_data._attachment_radius.value(), option_vru_json_data["radius"].GetUint());
     EXPECT_EQ( msg_object_optional_data._personal_device_user_type.value(), personal_device_user_type_from_int(option_vru_json_data["basic_type"].GetUint()));
@@ -383,7 +383,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     msg._time_stamp.hour= 0;
     msg._time_stamp.day = 0;
     msg._time_stamp.month = 0;
-    msg._time_stamp.year = 0; 
+    msg._time_stamp.year = 0;
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
@@ -436,7 +436,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -460,7 +460,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     EXPECT_TRUE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Confirm optional elevation parameter is present
@@ -479,9 +479,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -509,7 +509,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vru_data") );
     auto msg_object_optional_data = std::get<detected_vru_data>(msg._objects[0]._detected_object_optional_data.value());
-    auto option_vru_json_data = object["detected_object_optional_data"]["detected_vru_data"].GetObject();  
+    auto option_vru_json_data = object["detected_object_optional_data"]["detected_vru_data"].GetObject();
     EXPECT_EQ( msg_object_optional_data._attachment.value(), attachment_from_int( option_vru_json_data["attachment"].GetUint()));
     EXPECT_EQ( msg_object_optional_data._attachment_radius.value(), option_vru_json_data["radius"].GetUint());
     EXPECT_EQ( msg_object_optional_data._personal_device_user_type.value(), personal_device_user_type_from_int(option_vru_json_data["basic_type"].GetUint()));
@@ -530,7 +530,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     msg._time_stamp.hour= 0;
     msg._time_stamp.day = 0;
     msg._time_stamp.month = 0;
-    msg._time_stamp.year = 0; 
+    msg._time_stamp.year = 0;
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
@@ -582,7 +582,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -606,7 +606,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     EXPECT_TRUE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Confirm optional elevation parameter is present
@@ -625,9 +625,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -655,7 +655,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     ASSERT_TRUE(object.HasMember("detected_object_optional_data"));
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_vru_data") );
     auto msg_object_optional_data = std::get<detected_vru_data>(msg._objects[0]._detected_object_optional_data.value());
-    auto option_vru_json_data = object["detected_object_optional_data"]["detected_vru_data"].GetObject();  
+    auto option_vru_json_data = object["detected_object_optional_data"]["detected_vru_data"].GetObject();
     EXPECT_EQ( msg_object_optional_data._attachment.value(), attachment_from_int( option_vru_json_data["attachment"].GetUint()));
     EXPECT_EQ( msg_object_optional_data._attachment_radius.value(), option_vru_json_data["radius"].GetUint());
     EXPECT_EQ( msg_object_optional_data._personal_device_user_type.value(), personal_device_user_type_from_int(option_vru_json_data["basic_type"].GetUint()));
@@ -675,7 +675,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     msg._time_stamp.hour= 0;
     msg._time_stamp.day = 0;
     msg._time_stamp.month = 0;
-    msg._time_stamp.year = 0; 
+    msg._time_stamp.year = 0;
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
@@ -699,7 +699,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     detected_obstacle._size._height = 1023;
     detected_obstacle._size._width = 1023;
     detected_obstacle._size._length = 1023;
-    
+
     obstacle_size_confidence _size_confidence;
     detected_obstacle._size_confidence._height_confidence = size_value_confidence::SIZE_0_01;
     detected_obstacle._size_confidence._width_confidence = size_value_confidence::SIZE_0_01;
@@ -715,7 +715,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -739,7 +739,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     EXPECT_FALSE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Optional parameter is not present
@@ -757,9 +757,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -781,7 +781,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     ASSERT_TRUE(object["detected_object_optional_data"].HasMember("detected_obstacle_data") );
     auto msg_object_optional_data = std::get<detected_obstacle_data>(msg._objects[0]._detected_object_optional_data.value());
     auto option_obstacle_json_data = object["detected_object_optional_data"]["detected_obstacle_data"].GetObject();
-    // Confirm Size  
+    // Confirm Size
     EXPECT_EQ( msg_object_optional_data._size._length, option_obstacle_json_data["obst_size"]["length"].GetUint());
     EXPECT_EQ( msg_object_optional_data._size._width, option_obstacle_json_data["obst_size"]["width"].GetUint());
     EXPECT_EQ( msg_object_optional_data._size._height, option_obstacle_json_data["obst_size"]["height"].GetUint());
@@ -789,7 +789,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     EXPECT_EQ( msg_object_optional_data._size_confidence._length_confidence, size_value_confidence_from_int(option_obstacle_json_data["obst_size_confidence"]["length_confidence"].GetUint()));
     EXPECT_EQ( msg_object_optional_data._size_confidence._width_confidence, size_value_confidence_from_int(option_obstacle_json_data["obst_size_confidence"]["width_confidence"].GetUint()));
     EXPECT_EQ( msg_object_optional_data._size_confidence._height_confidence.value(), size_value_confidence_from_int(option_obstacle_json_data["obst_size_confidence"]["height_confidence"].GetUint()));
-   
+
 
 
 }
@@ -806,7 +806,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     msg._time_stamp.hour= 0;
     msg._time_stamp.day = 0;
     msg._time_stamp.month = 0;
-    msg._time_stamp.year = 0; 
+    msg._time_stamp.year = 0;
     msg._ref_position_confidence._semi_major_axis_accuracy = 0;
     msg._ref_position_confidence._semi_minor_axis_accuracy = 0;
     msg._ref_position_confidence._semi_major_axis_orientation = 0;
@@ -834,19 +834,19 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     detected_vehicle._vehicle_height = 127;
 
     vehicle_size_confidence _vehicle_size_confidence;
-    
+
     _vehicle_size_confidence._height_confidence = size_value_confidence::SIZE_0_01;
     _vehicle_size_confidence._width_confidence = size_value_confidence::SIZE_0_01;
     _vehicle_size_confidence._length_confidence = size_value_confidence::SIZE_0_01;
     detected_vehicle._size_confidence = _vehicle_size_confidence;
 
     detected_vehicle.exterior_lights = "11110000";
-    
+
     angular_velocity_set _angular_velocity_set;
     _angular_velocity_set._pitch_rate = 32767;
     _angular_velocity_set._roll_rate = 32767;
     detected_vehicle._angular_velocity = _angular_velocity_set;
-    
+
     angular_velocity_confidence_set _angular_velocity_confidence_set;
 
     _angular_velocity_confidence_set._pitch_rate_confidence = angular_velocity_confidence::DEGSEC_01;
@@ -877,7 +877,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     // Confirm result has msg information in desired structure
     auto result = parse_json(json);
 
-    // Confirm timestamp data, Should fail at assert statements since if this require property is 
+    // Confirm timestamp data, Should fail at assert statements since if this require property is
     // not available the other calls will fail
     ASSERT_TRUE(result.HasMember("sdsm_time_stamp"));
     ASSERT_TRUE(result.FindMember("sdsm_time_stamp")->value.IsObject());
@@ -901,7 +901,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     EXPECT_FALSE( result.HasMember("ref_pos_el_conf"));
     // Confirm ref position
     ASSERT_TRUE(result.HasMember("ref_pos"));
-    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());   
+    ASSERT_TRUE(result.FindMember("ref_pos")->value.IsObject());
     EXPECT_EQ( msg._ref_positon._longitude, result["ref_pos"]["long"].GetInt64());
     EXPECT_EQ( msg._ref_positon._latitude, result["ref_pos"]["lat"].GetInt64());
     // Optional parameter is not present
@@ -919,9 +919,9 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
     // Retreive Object common data
     auto object_common_data = object["detected_object_common_data"].GetObject();
-    // Retreive Object common data from 
+    // Retreive Object common data from
     auto msg_object_common_data = msg._objects[0]._detected_object_common_data;
-    // Confirm Object common data properties    
+    // Confirm Object common data properties
     EXPECT_EQ(static_cast<unsigned int >(msg_object_common_data._object_type), object_common_data["obj_type"].GetUint());
     EXPECT_EQ(msg_object_common_data._classification_confidence, object_common_data["obj_type_cfd"].GetUint());
     EXPECT_EQ(msg_object_common_data._object_id, object_common_data["object_id"].GetUint());
@@ -971,6 +971,5 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     EXPECT_EQ( msg_object_optional_data._vehicle_class, option_vehicle_json_data["vehicle_class"].GetUint());
     // Confirm classification confidence
     EXPECT_EQ( msg_object_optional_data._classification_confidence, option_vehicle_json_data["vehicle_class_conf"].GetUint());
-  
-}
 
+}

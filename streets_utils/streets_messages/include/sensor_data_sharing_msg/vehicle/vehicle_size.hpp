@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct vehicle_size {
         /**
          * @brief Vehicle width in centimeters [0, 1023]
@@ -22,7 +22,7 @@ namespace streets_utils::messages{
         /**
          * @brief Vehicle length in centimeters [0, 4095]
          */
-        unsigned int  _length = 0; 
-        
+        unsigned int  _length = 0;
+
     };
 }

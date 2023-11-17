@@ -14,13 +14,13 @@
 #pragma once
 
 
-namespace streets_utils::messages{
-    
+namespace streets_utils::messages::sdsm{
+
     enum class equipment_type {
         UNKNOWN = 0,
         RSU = 1,
         OBU= 2,
-        VRU= 3        
+        VRU= 3
     };
     /**
      * @brief Function to convert integers to equiment type. Default to UNKNOWN.

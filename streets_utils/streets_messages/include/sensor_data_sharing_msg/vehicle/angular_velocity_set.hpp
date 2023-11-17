@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #pragma once
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct angular_velocity_set{
         /**
          * @brief Angular velocity for pitch axis in 0.01 degrees per second [-32767, 32767]

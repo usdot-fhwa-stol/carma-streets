@@ -18,17 +18,16 @@
 #include <optional>
 
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm::detected_object_msg {
 
-    namespace detected_object_msg {
-         /**
-         * @brief Struct for size dimensions.
-         */
-        struct size{
+    /**
+    * @brief Struct for size dimensions.
+    */
+    struct size{
 
-            double _length; /**length in meters */
-            double _height; /**height in meters */
-            double _width;  /**width in meters */
-        };
-    }
+        double _length; /**length in meters */
+        double _height; /**height in meters */
+        double _width;  /**width in meters */
+    };
+
 }
