@@ -107,7 +107,7 @@ namespace streets_service {
                                 const spdlog::level::level_enum &level = spdlog::level::info ) const;
             
             /**
-             * @brief Metho used to set kafka_client member used to create kafka producers and consumers. For unit testing purposes can
+             * @brief Method used to set kafka_client member used to create kafka producers and consumers. For unit testing purposes can
              * allow injection of mocks by setting a kafka_client mock and telling it to return mock producers/consumers on calls to
              * create_consumer() create_producer.
              * @param kafka_client 
