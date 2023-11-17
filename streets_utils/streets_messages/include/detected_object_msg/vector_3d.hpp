@@ -18,7 +18,7 @@
 #include <optional>
 
 
-namespace streets_utils::messages::sdsm::detected_object_msg {
+namespace streets_utils::messages::detected_objects_msg {
 
     /**
     * @brief 3 dimensional vector struct.

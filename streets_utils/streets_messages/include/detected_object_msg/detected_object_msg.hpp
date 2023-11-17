@@ -17,17 +17,16 @@
 #include <string>
 #include <optional>
 
-#include <detection_type.hpp>
-#include <cartesian_point.hpp>
-#include <vector_3d.hpp>
-#include <size.hpp>
+#include <detected_object_msg/cartesian_point.hpp>
+#include <detected_object_msg/vector_3d.hpp>
+#include <detected_object_msg/size.hpp>
 
-namespace streets_utils::messages::sdsm::detected_object_msg {
+namespace streets_utils::messages::detected_objects_msg {
 
     /**
         * @brief Sensor Detected Object information
         */
-    struct detected_object_msg {
+    struct detected_objects_msg {
 
         std::string _type;
         double _confidence;

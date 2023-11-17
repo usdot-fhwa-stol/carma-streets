@@ -18,12 +18,12 @@
 #include <optional>
 
 
-namespace streets_utils::messages::sdsm::detected_object_msg {
+namespace streets_utils::messages::detected_objects_msg {
 
 
     /**
-        * @brief Struct for world frame coordinates.
-        */
+    * @brief Struct for world frame coordinates.
+    */
     struct cartesian_point{
         double _x;
         double _y;
