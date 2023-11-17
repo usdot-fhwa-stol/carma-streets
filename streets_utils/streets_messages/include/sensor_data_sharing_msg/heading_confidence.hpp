@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     enum class heading_confidence{
         UNAVAILABLE = 0,
         PREC_10_deg = 1,        // 10 degrees

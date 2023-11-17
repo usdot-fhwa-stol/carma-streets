@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     enum class attachment {
         UNAVAILABLE = 0 ,
         STROLLER = 1,
@@ -31,7 +31,7 @@ namespace streets_utils::messages {
             return attachment::UNAVAILABLE;
         case 1:
             return attachment::STROLLER;
-        case 2:           
+        case 2:
             return attachment::BICYLE_TRAILER;
         case 3:
             return attachment::CART;

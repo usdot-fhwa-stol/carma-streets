@@ -14,18 +14,18 @@
 #pragma once
 
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct attitude{
         /**
          * @brief Pitch in 0.0125 degrees [-7200, 72000].
          */
         int _pitch = 0;
         /**
-         * @brief Roll in 0.0125 degrees [-14400, 14400] 
+         * @brief Roll in 0.0125 degrees [-14400, 14400]
          */
         int _roll = 0;
         /**
-         * @brief Yaw in 0.0125 degrees [-14400, 14400] 
+         * @brief Yaw in 0.0125 degrees [-14400, 14400]
          */
         int _yaw = 0;
     };

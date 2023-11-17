@@ -21,21 +21,21 @@
 #include "sensor_data_sharing_msg/vehicle/vehicle_size.hpp"
 #include "sensor_data_sharing_msg/vehicle/vehicle_size_confidence.hpp"
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct detected_vehicle_data{
         /**
-         * @brief BIT String representing the state of each of the following vehicle 
+         * @brief BIT String representing the state of each of the following vehicle
          * exterior lights:
-         *  lowBeamHeadlightsOn       (0), 
-         *  highBeamHeadlightsOn      (1), 
-         *  leftTurnSignalOn          (2), 
-         *  rightTurnSignalOn         (3), 
-         *  hazardSignalOn            (4), 
+         *  lowBeamHeadlightsOn       (0),
+         *  highBeamHeadlightsOn      (1),
+         *  leftTurnSignalOn          (2),
+         *  rightTurnSignalOn         (3),
+         *  hazardSignalOn            (4),
          *  automaticLightControlOn   (5),
-         *  daytimeRunningLightsOn    (6), 
-         *  fogLightOn                (7), 
-         *  parkingLightsOn           (8) 
-         * 
+         *  daytimeRunningLightsOn    (6),
+         *  fogLightOn                (7),
+         *  parkingLightsOn           (8)
+         *
          */
         std::optional<std::string> exterior_lights;
         /**
@@ -65,7 +65,7 @@ namespace streets_utils::messages{
         /**
          * @brief Confidence in reported size.
          */
-        std::optional<vehicle_size_confidence> _size_confidence; 
+        std::optional<vehicle_size_confidence> _size_confidence;
         /**
          * @brief See BasicVehicleClass in J2735
          */

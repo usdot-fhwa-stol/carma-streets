@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     enum class time_confidence{
         UNAVAILABLE = 0,            // unvailable
         TIME_100_000 = 1,           // Better than 100 seconds
@@ -48,13 +48,13 @@ namespace streets_utils::messages{
         TIME_000_000_000_01 = 30,   // Better than 0.00000001 seconds
         TIME_000_000_000_005 = 31,  // Better than 0.000000005 seconds
         TIME_000_000_000_002 = 32,  // Better than 0.000000002 seconds
-        TIME_000_000_000_001 = 33,  // Better than 0.000000001 seconds (Better than  one nano second) 
+        TIME_000_000_000_001 = 33,  // Better than 0.000000001 seconds (Better than  one nano second)
         TIME_000_000_000_000_5 = 34,// Better than 0.0000000005 seconds
         TIME_000_000_000_000_2 = 35,// Better than 0.0000000002 seconds
         TIME_000_000_000_000_1 = 36,// Better than 0.0000000001 seconds
         TIME_000_000_000_000_05 = 37, // Better than 0.00000000005 seconds
         TIME_000_000_000_000_02 = 38, // Better than 0.00000000002 seconds
-        TIME_000_000_000_000_01 = 39  // Better than 0.00000000001 Seconds    
+        TIME_000_000_000_000_01 = 39  // Better than 0.00000000001 Seconds
     };
 
     inline time_confidence time_confidence_from_int( const int i ) {
@@ -64,7 +64,7 @@ namespace streets_utils::messages{
             return time_confidence::UNAVAILABLE;
         case 1:
             return time_confidence::TIME_100_000;
-        case 2:           
+        case 2:
             return time_confidence::TIME_050_000 ;
         case 3:
             return time_confidence::TIME_020_000 ;
@@ -127,7 +127,7 @@ namespace streets_utils::messages{
         case 32:
             return time_confidence::TIME_000_000_000_002;
         case 33:
-            return time_confidence::TIME_000_000_000_001; 
+            return time_confidence::TIME_000_000_000_001;
         case 34:
             return time_confidence::TIME_000_000_000_000_5;
         case 35:

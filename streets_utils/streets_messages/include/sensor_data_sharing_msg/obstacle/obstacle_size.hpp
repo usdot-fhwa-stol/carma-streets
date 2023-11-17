@@ -15,7 +15,7 @@
 
 #include <optional>
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     struct obstacle_size {
         /**
          * @brief Object width in 10 cm units [0, 1023].

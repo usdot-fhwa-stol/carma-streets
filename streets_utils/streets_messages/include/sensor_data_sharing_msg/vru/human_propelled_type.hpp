@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
 
     enum class human_propelled_type{
         UNAVAILABLE = 0,
@@ -31,7 +31,7 @@ namespace streets_utils::messages {
             return human_propelled_type::UNAVAILABLE;
         case 1:
             return human_propelled_type::OTHER_TYPES;
-        case 2:           
+        case 2:
             return human_propelled_type::ON_FOOT;
         case 3:
             return human_propelled_type::SKATEBOARD;

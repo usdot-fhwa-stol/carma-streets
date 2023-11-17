@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     enum class speed_confidence {
         UNAVAILABLE = 0,    // Not available
         PREC_100ms = 1,     // 100 m/s

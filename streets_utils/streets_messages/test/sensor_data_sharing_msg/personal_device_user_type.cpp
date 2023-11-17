@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/vru/personal_device_user_type.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(personal_device_user_type_test, test_from_int){
     EXPECT_EQ(personal_device_user_type::UNAVAILABLE, personal_device_user_type_from_int(0));

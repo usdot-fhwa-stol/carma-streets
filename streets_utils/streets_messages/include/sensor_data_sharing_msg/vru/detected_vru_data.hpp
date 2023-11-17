@@ -22,7 +22,7 @@
 #include <variant>
 #include <optional>
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct detected_vru_data{
         /**
          * @brief Propulsion type.

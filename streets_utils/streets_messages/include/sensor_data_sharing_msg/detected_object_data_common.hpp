@@ -25,10 +25,10 @@
 #include <stdlib.h>
 #include <optional>
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     struct detected_object_data_common{
         /**
-         * @brief Object type enumeration 
+         * @brief Object type enumeration
          */
         object_type _object_type = object_type::UNKNOWN;
         /**
@@ -36,7 +36,7 @@ namespace streets_utils::messages {
          */
         unsigned int  _classification_confidence = 0;
         /**
-         * @brief Object ID [0, 65535] 
+         * @brief Object ID [0, 65535]
          */
         unsigned int  _object_id = 0;
         /**
@@ -60,7 +60,7 @@ namespace streets_utils::messages {
          */
         unsigned int  _speed = 0;
         /**
-         * @brief Confidence in reported speed 
+         * @brief Confidence in reported speed
          */
         speed_confidence _speed_confidence = speed_confidence::UNAVAILABLE;
         /**
@@ -68,7 +68,7 @@ namespace streets_utils::messages {
          */
         std::optional<unsigned int > _speed_z;
         /**
-         * @brief Confidence in reported speed z 
+         * @brief Confidence in reported speed z
          */
         std::optional<speed_confidence> _speed_z_confidence;
         /**
@@ -83,7 +83,7 @@ namespace streets_utils::messages {
          * @brief Acceleration in longitudinal, lateral, vertical and angular velocity.
          */
         std::optional<acceleration_set_4_way> _acceleration_4_way;
-        
+
         std::optional<acceleration_confidence> _longitudinal_acceleration_confidence;
 
         std::optional<acceleration_confidence> _lateral_acceleration_confidence;

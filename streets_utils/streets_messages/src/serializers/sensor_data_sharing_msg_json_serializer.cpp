@@ -14,7 +14,7 @@
 #include "serializers/sensor_data_sharing_msg_json_serializer.hpp"
 
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     std::string to_json(const sensor_data_sharing_msg &msg) {
         rapidjson::Document doc;
         rapidjson::Value sdsm_json(rapidjson::kObjectType);
@@ -36,7 +36,7 @@ namespace streets_utils::messages{
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         sdsm_json.Accept(writer);
-    
+
         return buffer.GetString();
     }
 
@@ -74,7 +74,7 @@ namespace streets_utils::messages{
         for (const auto &detected_obect : val) {
             // Create and push detected object data
             detected_object_list_json.PushBack(create_detected_object_data(detected_obect, allocator), allocator);
-            
+
         }
         return detected_object_list_json;
     }
@@ -86,8 +86,8 @@ namespace streets_utils::messages{
         // Create Optional Data
         if ( val._detected_object_optional_data.has_value() )
             detected_object_data_json.AddMember(
-                    "detected_object_optional_data", 
-                    create_detected_object_data_optional(val._detected_object_optional_data.value(), allocator), 
+                    "detected_object_optional_data",
+                    create_detected_object_data_optional(val._detected_object_optional_data.value(), allocator),
                     allocator);
         return detected_object_data_json;
     }
@@ -100,10 +100,10 @@ namespace streets_utils::messages{
         detected_object_data_common_json.AddMember("obj_type_cfd", val._classification_confidence, allocator);
         detected_object_data_common_json.AddMember("measurement_time", val._time_measurement_offset, allocator);
         detected_object_data_common_json.AddMember("time_confidence", static_cast<unsigned int >(val._time_confidence), allocator);
-        // Create Position 
+        // Create Position
         detected_object_data_common_json.AddMember(
-                    "pos", 
-                    create_position_3d( val._position_offset, allocator), 
+                    "pos",
+                    create_position_3d( val._position_offset, allocator),
                     allocator);
         // Create Position Confidence
         detected_object_data_common_json.AddMember("pos_confidence", create_position_confidence_set(val._pos_confidence, allocator), allocator );
@@ -113,37 +113,37 @@ namespace streets_utils::messages{
             detected_object_data_common_json.AddMember("speed_z", val._speed_z.value(), allocator);
         if ( val._speed_z_confidence.has_value())
             detected_object_data_common_json.AddMember(
-                    "speed_confidence_z", 
+                    "speed_confidence_z",
                     static_cast<unsigned int >(val._speed_z_confidence.value()),
                     allocator);
         detected_object_data_common_json.AddMember("heading", val._heading, allocator);
         detected_object_data_common_json.AddMember("heading_conf", static_cast<unsigned int >(val._heading_confidence), allocator);
         if (val._lateral_acceleration_confidence.has_value() ) {
             detected_object_data_common_json.AddMember(
-                    "acc_cfd_x", 
+                    "acc_cfd_x",
                     static_cast<unsigned int >(val._lateral_acceleration_confidence.value()),
                     allocator);
         if (val._longitudinal_acceleration_confidence.has_value() )
             detected_object_data_common_json.AddMember(
-                    "acc_cfd_y", 
+                    "acc_cfd_y",
                     static_cast<unsigned int >(val._longitudinal_acceleration_confidence.value()),
                     allocator);
         if (val._vertical_accelaration_confidence.has_value())
             detected_object_data_common_json.AddMember(
-                    "acc_cfd_z", 
+                    "acc_cfd_z",
                     static_cast<unsigned int >(val._vertical_accelaration_confidence.value()),
                     allocator);
         if (val._yaw_rate_confidence.has_value())
             detected_object_data_common_json.AddMember(
-                    "acc_cfd_yaw", 
+                    "acc_cfd_yaw",
                     static_cast<unsigned int >(val._yaw_rate_confidence.value()),
                     allocator);
         }
         if (val._acceleration_4_way.has_value()) {
             // Create accel_4_way
             detected_object_data_common_json.AddMember(
-                    "accel_4_way", 
-                    create_accelaration_set_4_way(val._acceleration_4_way.value(), allocator), 
+                    "accel_4_way",
+                    create_accelaration_set_4_way(val._acceleration_4_way.value(), allocator),
                     allocator);
         }
         return detected_object_data_common_json;
@@ -189,7 +189,7 @@ namespace streets_utils::messages{
             return detected_object_data_optional_json;
         }
         else {
-            throw json_utils::json_parse_exception("If present, detected optional data must include one of the following objects : detected obstacle data, detected vehicle data, detected vru data"); 
+            throw json_utils::json_parse_exception("If present, detected optional data must include one of the following objects : detected obstacle data, detected vehicle data, detected vru data");
         }
     }
 
@@ -293,7 +293,7 @@ namespace streets_utils::messages{
             return data;
         }
         else {
-            throw json_utils::json_parse_exception("If present, propelled infromation must include one of the following objects : animal propelled type, motorized propelled type, human propelled type"); 
+            throw json_utils::json_parse_exception("If present, propelled infromation must include one of the following objects : animal propelled type, motorized propelled type, human propelled type");
         }
     }
 

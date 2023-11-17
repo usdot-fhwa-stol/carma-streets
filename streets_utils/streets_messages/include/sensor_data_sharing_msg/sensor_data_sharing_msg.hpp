@@ -23,16 +23,16 @@
 #include <string>
 #include <optional>
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
 
 
     /**
-     * @brief 
+     * @brief
      */
     struct sensor_data_sharing_msg {
         /**
          * @brief -- a count value which is incremented with each use [0,255]
-         *  the next value after 255 shall be one value 
+         *  the next value after 255 shall be one value
          *  0 (0x00) shall indicate that MsgCount is not available.
          */
         std::size_t  _msg_count = 0;
@@ -43,7 +43,7 @@ namespace streets_utils::messages {
         time_stamp _time_stamp;
         std::string _source_id;
         std::vector<detected_object_data> _objects;
-                
+
     };
 
 }

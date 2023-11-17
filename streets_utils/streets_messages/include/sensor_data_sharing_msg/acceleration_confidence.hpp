@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     enum class acceleration_confidence {
         UNAVAILABLE = 0,    // Not available
         ACCL_100 = 1,     // 100 m/s^2

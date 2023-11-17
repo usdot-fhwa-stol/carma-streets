@@ -13,13 +13,13 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
-    
+namespace streets_utils::messages::sdsm{
+
     enum class object_type {
         UNKNOWN = 0,
         VEHICLE = 1,
         VRU= 2,
-        ANIMAL= 3        
+        ANIMAL= 3
     };
 
     inline object_type object_type_from_int( const int i ) {

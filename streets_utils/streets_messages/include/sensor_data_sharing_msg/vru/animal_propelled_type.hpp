@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
 
     enum class animal_propelled_type{
         UNAVAILABLE = 0,
@@ -29,7 +29,7 @@ namespace streets_utils::messages{
             return animal_propelled_type::UNAVAILABLE;
         case 1:
             return animal_propelled_type::OTHER_TYPES;
-        case 2:           
+        case 2:
             return animal_propelled_type::ANIMAL_MOUNTED;
         case 3:
             return animal_propelled_type::ANIMAL_DRAWN_CARRIAGE;

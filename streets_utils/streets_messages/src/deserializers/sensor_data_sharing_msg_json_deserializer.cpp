@@ -14,7 +14,7 @@
 #include "deserializers/sensor_data_sharing_msg_json_deserializer.hpp"
 
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     using namespace streets_utils::json_utils;
     sensor_data_sharing_msg from_json( const std::string &json ){
         rapidjson::Document document = streets_utils::json_utils::parse_json(json);
@@ -28,7 +28,7 @@ namespace streets_utils::messages {
         msg._ref_position_elevation_confidence = parse_elevation_confidence( document);
         msg._objects = parse_detected_object_list(document);
         return msg;
-    }  
+    }
 
     time_stamp parse_time_stamp(const rapidjson::Value &val){
         time_stamp _time_stamp;
@@ -40,14 +40,14 @@ namespace streets_utils::messages {
         _time_stamp.month = parse_uint_member("month", val, true).value();
         _time_stamp.year = parse_uint_member("year", val, true).value();
         return _time_stamp;
-        
+
     }
 
     position_3d parse_position_3d(const rapidjson::Value &val) {
         position_3d _position_3d;
         _position_3d._longitude = parse_int_member("long", val, true).value();
         _position_3d._latitude = parse_int_member("lat", val, true).value();
-        // parse optional elevation 
+        // parse optional elevation
         _position_3d._elevation = parse_int_member("elevation", val, false);
         return _position_3d;
 
@@ -59,7 +59,7 @@ namespace streets_utils::messages {
         _positional_accuracy._semi_minor_axis_accuracy = parse_uint_member("semi_minor", val, true).value();
         _positional_accuracy._semi_major_axis_orientation = parse_uint_member("orientation",val, true).value();
         return _positional_accuracy;
-    
+
     }
 
     std::optional<position_confidence> parse_elevation_confidence(const rapidjson::Value &val) {
@@ -67,7 +67,7 @@ namespace streets_utils::messages {
         if (auto _position_confidence_value = parse_uint_member("ref_pos_el_conf", val, false); _position_confidence_value.has_value() ) {
             _position_confidence = position_confidence_from_int(_position_confidence_value.value());
         }
-        return _position_confidence;   
+        return _position_confidence;
     }
 
     std::vector<detected_object_data> parse_detected_object_list(const rapidjson::Value &val){
@@ -104,19 +104,19 @@ namespace streets_utils::messages {
         }
         _detected_object_common_data._heading = parse_uint_member("heading", val, true).value();
         _detected_object_common_data._heading_confidence = heading_confidence_from_int(parse_uint_member("heading_conf", val, true).value());
-        
+
         _detected_object_common_data._acceleration_4_way = parse_acceleration_4_way(parse_object_member("accel_4_way", val, true ).value());
         if ( val.HasMember("acc_cfd_x")) {
-            _detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_x", val, true).value()); 
+            _detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_x", val, true).value());
         }
         if ( val.HasMember("acc_cfd_y")) {
-            _detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_y", val, true).value()); 
+            _detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_y", val, true).value());
         }
         if ( val.HasMember("acc_cfd_z")) {
-            _detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_z", val, true).value()); 
+            _detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_z", val, true).value());
         }
         if ( val.HasMember("acc_cfd_yaw")) {
-            _detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence_from_int(parse_uint_member("acc_cfd_yaw", val, true).value()); 
+            _detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence_from_int(parse_uint_member("acc_cfd_yaw", val, true).value());
         }
         return _detected_object_common_data;
     }
@@ -142,7 +142,7 @@ namespace streets_utils::messages {
         data._offset_y = parse_int_member("offset_y", val, true).value();
         data._offset_y = parse_int_member("offset_y", val, true).value();
         return data;
-    
+
     }
 
     position_confidence_set parse_position_confidence_set(const rapidjson::Value &val) {
@@ -266,7 +266,7 @@ namespace streets_utils::messages {
             data = human_propelled_type_from_int(parse_uint_member("human", val, true).value());
         }
         else if (val.HasMember("animal")) {
-            data = animal_propelled_type_from_int(parse_uint_member("animal", val, true).value());        
+            data = animal_propelled_type_from_int(parse_uint_member("animal", val, true).value());
         }
         else if (val.HasMember("motor")) {
             data = motorized_propelled_type_from_int(parse_uint_member("motor", val, true).value());
@@ -275,7 +275,7 @@ namespace streets_utils::messages {
             throw json_parse_exception("Propelled information requires one of the following to be define: human propelled type, animal propelled type, motorized propelled type.");
         }
         return data;
-    } 
+    }
 
 
     obstacle_size parse_obstacle_size(const rapidjson::Value &val) {

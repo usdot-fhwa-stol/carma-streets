@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 #include <sensor_data_sharing_msg/size_value_confidence.hpp>
 
-using namespace streets_utils::messages;
+using namespace streets_utils::messages::sdsm;
 
 TEST(size_value_confidence_test, test_from_int){
     EXPECT_EQ(size_value_confidence::UNAVAILABLE, size_value_confidence_from_int(0));

@@ -15,7 +15,7 @@
 
 #include<optional>
 
-namespace streets_utils::messages{
+namespace streets_utils::messages::sdsm{
     struct position_offset{
       /**
        * @brief Cartesian offset in X axis from reference point in 0.1 m [-32767, 32767]

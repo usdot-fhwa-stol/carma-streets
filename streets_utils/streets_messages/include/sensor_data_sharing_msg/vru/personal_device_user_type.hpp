@@ -13,7 +13,7 @@
 // limitations under the License.
 #pragma once
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
 
     enum class personal_device_user_type{
         UNAVAILABLE= 0,
@@ -30,7 +30,7 @@ namespace streets_utils::messages {
             return personal_device_user_type::UNAVAILABLE;
         case 1:
             return personal_device_user_type::PEDESTRIAN;
-        case 2:           
+        case 2:
             return personal_device_user_type::PEDALCYCLIST;
         case 3:
             return personal_device_user_type::PUBLIC_SAFETY_WORKER;

@@ -15,7 +15,7 @@
 
 #include "sensor_data_sharing_msg/position_confidence.hpp"
 
-namespace streets_utils::messages {
+namespace streets_utils::messages::sdsm {
     struct position_confidence_set{
         position_confidence _position_confidence;
         position_confidence _elevation_confidence;

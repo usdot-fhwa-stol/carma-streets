@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-#include "sensor_data_sharing_msg/size_value_confidence.hpp"
+
+#include <vector>
+#include <string>
 #include <optional>
-namespace streets_utils::messages::sdsm{
-    struct vehicle_size_confidence{
-        /**
-         * @brief Confidence in reported width
-         */
-        size_value_confidence _width_confidence = size_value_confidence::UNAVAILABLE;
-        /**
-         * @brief Confidence in reported length
-         */
-        size_value_confidence _length_confidence = size_value_confidence::UNAVAILABLE;
-        /**
-         * @brief Confidence in reported height
-         */
-        std::optional<size_value_confidence> _height_confidence;
+
+
+namespace streets_utils::messages::detected_objects_msg {
+
+    /**
+    * @brief 3 dimensional vector struct.
+    */
+    struct vector_3d{
+        double _x;
+        double _y;
+        double _z;
     };
+
 }
