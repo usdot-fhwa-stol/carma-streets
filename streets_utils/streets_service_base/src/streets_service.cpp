@@ -139,4 +139,5 @@ namespace streets_service {
     bool streets_service::is_simulation_mode() const {
         return _simulation_mode;
     }
+
 }
