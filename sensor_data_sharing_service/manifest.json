@@ -13,6 +13,12 @@
             "value": "detections",
             "description":"Kafka topic from which the sensor data sharing service will consume Detected Objects.",
             "type": "STRING"
+        },
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
         }
     ]
 }

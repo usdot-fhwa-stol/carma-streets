@@ -6,6 +6,8 @@
 #include <streets_service.h>
 #include <streets_clock_singleton.h>
 #include <string>
+#include <streets_utils/streets_messages_lib/sensor_data_sharing_msg/sensor_data_sharing_msg.hpp>
+#include <streets_utils/streets_messages_lib/serializers/sensor_data_sharing_msg_json_serializer.hpp>
 
 namespace sensor_data_sharing_service {
 
@@ -19,6 +21,13 @@ namespace sensor_data_sharing_service {
              * @brief Kafka consumer for consuming Detected Object JSON
              */
             std::shared_ptr<kafka_clients::kafka_consumer_worker> detection_consumer;
+
+            bool initialize_kafka_consumers_producers( );
+
+            void consume_detections();
+
+            void produce_sdsms();
+
 
 
         public:
@@ -39,13 +48,13 @@ namespace sensor_data_sharing_service {
              */
             bool initialize() override;
 
-            bool initialize_kafka_consumers_producers( )
 
-            
             /**
              * @brief Method to start all threads included in the tsc_service.
              */
             void start() override;
+
+
         
 
 

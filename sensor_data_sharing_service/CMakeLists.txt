@@ -28,6 +28,8 @@ list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
 find_package(carma-clock REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
+add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+
 set(SERVICE_NAME ${PROJECT_NAME})
 ########################################################
 # Build Library
