@@ -23,62 +23,52 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
     std::string json_prediction = "{\"type\":\"CAR\",\"confidence\":0.7,\"sensorId\":\"sensor1\",\"projString\":\"projectionString2\",\"objectId\":\"Object7\",\"position\":{\"x\":-1.1,\"y\":-2.0,\"z\":-3.2},\"positionCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"velocity\":{\"x\":1.0,\"y\":1.0,\"z\":1.0},\"velocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"angularVelocity\":{\"x\":0.1,\"y\":0.2,\"z\":0.3},\"angularVelocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"size\":{\"length\":2.0,\"height\":1.0,\"width\":0.5}}";
 
     auto msg = streets_utils::messages::detected_objects_msg::from_json(json_prediction);
-    std::cout<<"Test log 1"<<std::endl;
-    // EXPECT_EQ(msg._type, "BUS");
-    std::cout<<"Test log 2"<<std::endl;
+    EXPECT_EQ(msg._type, "CAR");
     EXPECT_NEAR(0.7,msg._confidence, 0.01);
+    EXPECT_EQ(msg._sensor_id, "sensor1");
+    EXPECT_EQ(msg._object_id, "Object7");
+    EXPECT_NEAR(msg._position._x, -1.1, 0.001);
+    EXPECT_NEAR(msg._position._y, -2.0, 0.001);
+    EXPECT_NEAR(msg._position._z, -3.2, 0.001);
+    // Position Covariance
+    std::vector<std::vector<double>> pose_cov = {{1,0,0},{1,0,0},{1,0,0}};
+    for (size_t i = 0 ; i < msg._position_covariance.size();i++)
+    {
+        for (size_t j=0; j< msg._position_covariance[i].size();j++)
+        {
+            EXPECT_NEAR(msg._position_covariance[i][j], pose_cov[i][j], 0.001);
+        }
 
+    }
 
+    EXPECT_NEAR(msg._velocity._x, 1.0, 0.001);
+    EXPECT_NEAR(msg._velocity._y, 1.0, 0.001);
+    EXPECT_NEAR(msg._velocity._z,1.0, 0.001);
+    // Velocity Covariance
+    std::vector<std::vector<double>> vel_cov = {{1,0,0},{1,0,0},{1,0,0}};
+        for (size_t i = 0 ; i < msg._velocity_covariance.size();i++)
+    {
+        for (size_t j=0; j< msg._velocity_covariance[i].size();j++)
+        {
+            EXPECT_NEAR(msg._velocity_covariance[i][j], vel_cov[i][j], 0.001);
+        }
 
+    }
+    EXPECT_NEAR(msg._angular_velocity._x,0.1, 0.001);
+    EXPECT_NEAR(msg._angular_velocity._y,0.2, 0.001);
+    EXPECT_NEAR(msg._angular_velocity._z,0.3, 0.001);
+    // AngularVelocity Covariance
+    std::vector<std::vector<double>> ang_vel_cov = {{1,0,0},{1,0,0},{1,0,0}};
+        for (size_t i = 0 ; i < msg._angular_velocity_covariance.size();i++)
+    {
+        for (size_t j=0; j< msg._angular_velocity_covariance[i].size();j++)
+        {
+            EXPECT_NEAR(msg._angular_velocity_covariance[i][j], ang_vel_cov[i][j], 0.001);
+        }
 
-    // std::cout<<"Test log 3"<<std::endl;
-    // // EXPECT_EQ(msg._sensor_id, "sensor1");
-    // std::cout<<"Test log 4"<<std::endl;
-    // // EXPECT_EQ(msg._object_id, "Object7");
-    // std::cout<<"Test log 5"<<std::endl;
-    // EXPECT_NEAR(msg._position._x, -1.1, 0.001);
-    // EXPECT_NEAR(msg._position._y, -2.0, 0.001);
-    // EXPECT_NEAR(msg._position._z, -3.2, 0.001);
-    // // Position Covariance
-    // std::cout<<"Starting pose cov test"<<std::endl;
-    // std::vector<std::vector<double>> pose_cov = {{1,0,0},{1,0,0},{1,0,0}};
-    // for (size_t i = 0 ; i < msg._position_covariance.size();i++)
-    // {
-    //     for (size_t j=0; j< msg._position_covariance[i].size();j++)
-    //     {
-    //         EXPECT_NEAR(msg._position_covariance[i][j], pose_cov[i][j], 0.001);
-    //     }
-
-    // }
-    // std::cout<<"Ending pose cov test"<<std::endl;
-    // EXPECT_NEAR(msg._velocity._x, 1.0, 0.001);
-    // EXPECT_NEAR(msg._velocity._y, 1.0, 0.001);
-    // EXPECT_NEAR(msg._velocity._z,1.0, 0.001);
-    // // Velocity Covariance
-    // std::vector<std::vector<double>> vel_cov = {{1,0,0},{1,0,0},{1,0,0}};
-    //     for (size_t i = 0 ; i < msg._velocity_covariance.size();i++)
-    // {
-    //     for (size_t j=0; j< msg._velocity_covariance[i].size();j++)
-    //     {
-    //         EXPECT_NEAR(msg._velocity_covariance[i][j], vel_cov[i][j], 0.001);
-    //     }
-
-    // }
-    // EXPECT_NEAR(msg._angular_velocity._x,0.1, 0.001);
-    // EXPECT_NEAR(msg._angular_velocity._y,0.2, 0.001);
-    // EXPECT_NEAR(msg._angular_velocity._z,0.3, 0.001);
-    // // AngularVelocity Covariance
-    // std::vector<std::vector<double>> ang_vel_cov = {{1,0,0},{1,0,0},{1,0,0}};
-    //     for (size_t i = 0 ; i < msg._angular_velocity_covariance.size();i++)
-    // {
-    //     for (size_t j=0; j< msg._angular_velocity_covariance[i].size();j++)
-    //     {
-    //         EXPECT_NEAR(msg._angular_velocity_covariance[i][j], ang_vel_cov[i][j], 0.001);
-    //     }
-
-    // }
-    // EXPECT_NEAR(msg._size._length,2.0, 0.001);
-    // EXPECT_NEAR(msg._size._height,1.0, 0.001);
-    // EXPECT_NEAR(msg._size._width,0.5, 0.001);
+    }
+    EXPECT_NEAR(msg._size._length,2.0, 0.001);
+    EXPECT_NEAR(msg._size._height,1.0, 0.001);
+    EXPECT_NEAR(msg._size._width,0.5, 0.001);
 
 }

@@ -28,16 +28,15 @@ namespace streets_utils::messages::detected_objects_msg {
         msg._sensor_id = streets_utils::json_utils::parse_string_member("sensorId", document, true).value();
         msg._proj_string = streets_utils::json_utils::parse_string_member("projString", document, true).value();
         msg._object_id = streets_utils::json_utils::parse_string_member("objectId", document, true).value();
-        std::cout<<"Reaching line 31"<<std::endl;
+
         auto position_obj = streets_utils::json_utils::parse_object_member("position", document, true).value();
         msg._position = parse_cartesian_3d(position_obj);
-        std::cout<<"Reaching line 34"<<std::endl;
+
         auto position_cov_obj = streets_utils::json_utils::parse_array_member("positionCovariance", document, true).value();
         msg._position_covariance = parse_covariance(position_cov_obj);
-        std::cout<<"Reaching line 37"<<std::endl;
+
         auto velocity_obj = streets_utils::json_utils::parse_object_member("velocity", document, true).value();
         msg._velocity = parse_vector3d(velocity_obj);
-        std::cout<<"Reaching line 40"<<std::endl;
 
         auto velocity_cov_obj = streets_utils::json_utils::parse_array_member("velocityCovariance", document, true).value();
         msg._velocity_covariance = parse_covariance(velocity_cov_obj);
@@ -47,31 +46,30 @@ namespace streets_utils::messages::detected_objects_msg {
 
         auto angular_velocity_cov_obj = streets_utils::json_utils::parse_array_member("angularVelocityCovariance", document, true).value();
         msg._angular_velocity_covariance = parse_covariance(angular_velocity_cov_obj);
-        std::cout<<"Reaching line 50"<<std::endl;
+
         auto size_obj = streets_utils::json_utils::parse_object_member("size", document, true).value();
         msg._size = parse_size(size_obj);
-        std::cout<<"Reaching line 53"<<std::endl;
+
+
+        return msg;
     }
 
     cartesian_point parse_cartesian_3d(const rapidjson::Value &val)
     {
-        std::cout<<"Entering parse_cartesian_3d"<<std::endl;
         cartesian_point point;
         point._x = streets_utils::json_utils::parse_double_member("x", val, true).value();
         point._y = streets_utils::json_utils::parse_double_member("y", val, true).value();
         point._z = streets_utils::json_utils::parse_double_member("z", val, true).value();
-        std::cout<<"Exiting parse_cartesian_3d"<<std::endl;
         return point;
     }
 
     vector_3d parse_vector3d(const rapidjson::Value &val)
     {
-        std::cout<<"Entering parse_vector_3d"<<std::endl;
         vector_3d vector;
         vector._x = streets_utils::json_utils::parse_double_member("x", val, true).value();
         vector._y = streets_utils::json_utils::parse_double_member("y", val, true).value();
         vector._z = streets_utils::json_utils::parse_double_member("z", val, true).value();
-        std::cout<<"Exiting parse_vector_3d"<<std::endl;
+
         return vector;
 
     }
