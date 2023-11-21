@@ -79,12 +79,12 @@ namespace streets_utils::messages::detected_objects_msg {
         // Initialize 3x3 covariance matrix
         std::vector<std::vector<double>> covariance;
 
-        for (size_t i = 0; i < val.Size(); i++)
+        for (rapidjson::SizeType i = 0; i < val.Size(); i++)
         {
             const rapidjson::Value& row = val[i];
             std::vector<double> val_row;
 
-            for (size_t j = 0; j < row.Size(); j++)
+            for (rapidjson::SizeType  j = 0; j < row.Size(); j++)
             {
                 val_row.push_back(val[i][j].GetDouble());
             }
