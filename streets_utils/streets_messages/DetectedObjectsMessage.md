@@ -19,41 +19,41 @@ This CARMA-Streets library contains the Detected Objects Message as well as the 
   },
   "positionCovariance": [
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ],
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ],
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ]
   ],
   "velocity": {
-    "x": 1,
-    "y": 1,
-    "z": 1
+    "x": 1.0,
+    "y": 1.0,
+    "z": 1.0
   },
   "velocityCovariance": [
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ],
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ],
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ]
   ],
   "angularVelocity": {
@@ -63,24 +63,24 @@ This CARMA-Streets library contains the Detected Objects Message as well as the 
   },
   "angularVelocityCovariance": [
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ],
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ],
     [
-      1,
-      0,
-      0
+      1.0,
+      0.0,
+      0.0
     ]
   ],
   "size": {
-    "length": 2,
-    "height": 1,
+    "length": 2.0,
+    "height": 1.0,
     "width": 0.5
   }
 }
