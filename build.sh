@@ -42,8 +42,8 @@ MAKE_INSTALL_DIRS=(
 # only make for these subdirectories
 MAKE_ONLY_DIRS=(
     "scheduling_service"
-    # "intersection_model"
-    # "message_services"
+    "intersection_model"
+    "message_services"
     "signal_opt_service"
     "tsc_client_service"
 )

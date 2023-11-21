@@ -11,10 +11,9 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: ubuntu:jammy-20230126
+      image: usdotfhwastoldev/street_service_base_lanelet_aware:bionic
       env:
         DEBIAN_FRONTEND: noninteractive
-        INIT_ENV: "/home/carma-streets/.base-image/init-env.sh"
         SONAR_SCANNER_VERSION: "5.0.1.3006"
         TERM: xterm
       options: "--user root"
@@ -36,33 +35,33 @@ jobs:
       run: mv $GITHUB_WORKSPACE/${{ github.event.repository.name }} /home/carma-streets
     - name: Install dependencies
       run: |
-        mkdir /home/carma-streets/.base-image
-        touch /home/carma-streets/.base-image/init-env.sh
+        # mkdir /home/carma-streets/.base-image
+        # touch /home/carma-streets/.base-image/init-env.sh
         cd /home/carma-streets/build_scripts
-        ./install_dependencies.sh
+        # ./install_dependencies.sh
         ./install_test_dependencies.sh
         mkdir -p /home/carma-streets/ext
         ./install_rest_server_dependencies.sh
 
-    - name: Install librdkafka
-      run: |
-        cd /home/carma-streets/ext/
-        git clone --depth 1 https://github.com/confluentinc/librdkafka.git /home/carma-streets/ext/librdkafka
-        cd /home/carma-streets/ext/librdkafka/
-        cmake -H. -B_cmake_build
-        cmake --build _cmake_build
-        cmake --build _cmake_build --target install
-    - name: Install rapidjson
-      run: |
-        cd /home/carma-streets/ext/
-        git clone https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson
-        cd /home/carma-streets/ext/rapidjson
-        git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
-        mkdir -p /home/carma-streets/ext/rapidjson/build
-        cd /home/carma-streets/ext/rapidjson/build
-        cmake ..
-        make -j
-        make install
+    # - name: Install librdkafka
+    #   run: |
+    #     cd /home/carma-streets/ext/
+    #     git clone --depth 1 https://github.com/confluentinc/librdkafka.git /home/carma-streets/ext/librdkafka
+    #     cd /home/carma-streets/ext/librdkafka/
+    #     cmake -H. -B_cmake_build
+    #     cmake --build _cmake_build
+    #     cmake --build _cmake_build --target install
+    # - name: Install rapidjson
+    #   run: |
+    #     cd /home/carma-streets/ext/
+    #     git clone https://github.com/Tencent/rapidjson /home/carma-streets/ext/rapidjson
+    #     cd /home/carma-streets/ext/rapidjson
+    #     git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
+    #     mkdir -p /home/carma-streets/ext/rapidjson/build
+    #     cd /home/carma-streets/ext/rapidjson/build
+    #     cmake ..
+    #     make -j
+    #     make install
     - name: Install net-snmp
       run: |
         cd /home/carma-streets/ext/
