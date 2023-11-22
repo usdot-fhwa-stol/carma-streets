@@ -1,0 +1,42 @@
+{
+	"name": "Existing Docker Compose (Extend)",
+	// First "../docker-compose.yml launches all of CARMA Street including Kafka, V2X-Hub and existing CARMA Streets service
+	// Second "docker-compose-devcontainer.yml" lauches dev container for developing and integration testing new and existing
+	// CARMA Streets services 
+	"dockerComposeFile": [
+		"../docker-compose.yml",
+		"docker-compose-devcontainer.yml"
+	],
+
+	// Uncomment for Streets Service Base dev environment
+	"service": "streets_service_base",
+	// Uncomment for Streets Service Base Lanelet aware dev environment
+	// "service": "streets_service_base_lanelet_aware",
+
+	// The optional 'workspaceFolder' property is the path VS Code should open by default when
+	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
+	"workspaceFolder": "/home/${localWorkspaceFolderBasename}",
+
+	// Uncomment for Sensor Data Sharing Service  .
+	// "postCreateCommand": "/home/carma-streets/sensor_data_sharing_service/build.sh",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-extension-pack",
+				"github.vscode-github-actions",
+				"yzhang.markdown-all-in-one",
+				"ms-python.python",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"streetsidesoftware.code-spell-checker",
+				"sonarsource.sonarlint-vscode",
+				"esbenp.prettier-vscode"
+			]
+		}
+	},
+	
+	"shutdownAction": "stopCompose"
+
+}
