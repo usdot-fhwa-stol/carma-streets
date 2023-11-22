@@ -1,7 +1,5 @@
 name: Build and Push Base Images
 on:
-    pull_request:
-      types: [opened, synchronize, reopened]
     push:
       branches: [develop, master]
 jobs:   
