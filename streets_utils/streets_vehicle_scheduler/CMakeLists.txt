@@ -4,6 +4,7 @@ project(streets_vehicle_scheduler)
 # Find Dependent Packages and set configurations
 ########################################################                     
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC ")
+# std::shared_mutex and std::map::try_emplace
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(spdlog REQUIRED)

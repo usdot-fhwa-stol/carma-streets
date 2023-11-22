@@ -4,6 +4,8 @@ project(streets_signal_optimization)
 # Find Dependent Packages and set configurations
 ########################################################                        
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC ")
+# std::shared_mutex and std::map::try_emplace
+set(CMAKE_CXX_STANDARD 17)
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
