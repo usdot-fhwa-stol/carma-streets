@@ -14,7 +14,7 @@ DEPENDENCIES=(
 )
     
 # install all things needed for deployment, always done
-apt-get install -y $DEPENDENCIES 
+apt-get install -y "${DEPENDENCIES[@]}" 
 
 cd /home/carma-streets/ext
 git clone https://github.com/etherealjoy/qhttpengine.git
