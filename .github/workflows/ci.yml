@@ -151,7 +151,6 @@ jobs:
         echo $JAVA_HOME         
     - name: Build
       run: |
-        source ${INIT_ENV}
         cd /home/carma-streets/
         build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output ./build.sh
     - name: Tests

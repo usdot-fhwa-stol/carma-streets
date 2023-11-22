@@ -21,6 +21,6 @@ git clone https://github.com/etherealjoy/qhttpengine.git
 cd /home/carma-streets/ext/qhttpengine/
 mkdir /home/carma-streets/ext/qhttpengine/build
 cd /home/carma-streets/ext/qhttpengine/build
-cmake .. -DMAKE_PREFIX_PATH=/usr/include/x86_64-linux-gnu/qt5
+cmake .. 
 make -j
 make install
