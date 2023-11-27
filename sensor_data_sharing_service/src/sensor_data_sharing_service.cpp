@@ -2,7 +2,7 @@
 
 namespace sensor_data_sharing_service {
     using namespace streets_service;
-    using namespace streets_utils::messages;
+    using namespace streets_utils::messages::sdsm;
     sds_service::~sds_service() {
 
         if (sdsm_producer)

@@ -23,8 +23,13 @@ find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
 find_package(streets_messages_lib REQUIRED)
 find_package(streets_service_base_lib REQUIRED)
-list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/")
-
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/" "/opt/carma_lanelet2/")
+find_package(PROJ4)
+find_package(Eigen3 3.3 NO_MODULE)
+find_package(catkin COMPONENTS 
+                lanelet2_core 
+                lanelet2_projection 
+                lanelet2_io REQUIRED)
 find_package(carma-clock REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
@@ -39,6 +44,8 @@ add_executable(${SERVICE_NAME} ${SENSOR_DATA_SHARING_SOURCES} )
 target_include_directories(${SERVICE_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        ${catkin_INCLUDE_DIRS}
+        ${catkin_LIBRARY_DIRS}
 )
 target_link_libraries( ${SERVICE_NAME}
     PUBLIC
@@ -46,6 +53,9 @@ target_link_libraries( ${SERVICE_NAME}
         rapidjson 
         streets_service_base_lib::streets_service_base_lib
         streets_utils::streets_messages_lib
+        ${catkin_LIBRARIES}
+        Eigen3::Eigen
+
 )  
 
 ########################
