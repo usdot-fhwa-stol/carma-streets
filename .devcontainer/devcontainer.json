@@ -9,9 +9,9 @@
 	],
 
 	// Uncomment for Streets Service Base dev environment
-	// "service": "streets_service_base",
+	"service": "streets_service_base",
 	// Uncomment for Streets Service Base Lanelet aware dev environment
-	"service": "streets_service_base_lanelet_aware",
+	// "service": "streets_service_base_lanelet_aware",
 
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml

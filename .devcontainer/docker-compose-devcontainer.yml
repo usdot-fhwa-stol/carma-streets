@@ -1,25 +1,25 @@
 version: '3.7'
 services:
   # Uncomment for streets service base dev environment
-  # streets_service_base:
-  #   # Replace bionic with distro of choice
-  #   image: usdotfhwastoldev/streets_service_base:bionic
-  #   # Remove build parameter to force pull from dockerhub
-  #   build:
-  #     context: .
-  #     dockerfile: ./streets_service_base/Dockerfile
-  #     args:
-  #       UBUNTU_CODENAME: bionic
-  #   network_mode: host
-
-  # Uncomment for streets service base lanelet aware dev environment
-  streets_service_base_lanelet_aware:
-    image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+  streets_service_base:
+    # Replace bionic with distro of choice
+    image: usdotfhwastoldev/streets_service_base:bionic
     # Remove build parameter to force pull from dockerhub
     build:
       context: .
-      dockerfile: ./streets_service_base_lanelet_aware/Dockerfile
+      dockerfile: ./streets_service_base/Dockerfile
+      args:
+        UBUNTU_CODENAME: bionic
     network_mode: host
+
+  # Uncomment for streets service base lanelet aware dev environment
+  # streets_service_base_lanelet_aware:
+  #   image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+  #   # Remove build parameter to force pull from dockerhub
+  #   build:
+  #     context: .
+  #     dockerfile: ./streets_service_base_lanelet_aware/Dockerfile
+  #   network_mode: host
 
 
     volumes:
