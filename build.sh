@@ -17,6 +17,8 @@
 # wrapped by the sonarcloud build-wrapper
 set -e
 source /root/.bashrc
+source /opt/ros/melodic/setup.bash
+source /opt/carma_lanelet2/setup.bash
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
 # make install for these subdirectories
