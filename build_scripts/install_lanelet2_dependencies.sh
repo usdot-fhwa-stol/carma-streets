@@ -62,7 +62,7 @@ rm -r lanelet2/lanelet2_examples
 cd /tmp/carma_lanelet2/
 source /opt/ros/melodic/setup.bash
 ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/carma_lanelet2 -DCATKIN_DEVEL_PREFIX=/tmp/carma_lanelet2/src
-rm -r carma_lanelet2
+rm -r /tmp/carma_lanelet2
 echo 'source /opt/ros/melodic/setup.bash' >> ~/.bashrc 
 echo 'source /opt/carma_lanelet2/setup.bash' >> ~/.bashrc 
 
