@@ -16,9 +16,10 @@
 # script executes all kafka_clients and scheduling service build and coverage steps so that they can be singularly
 # wrapped by the sonarcloud build-wrapper
 set -e
-source /root/.bashrc
+# For lanelet aware streets services like message_services and intersection_model
 source /opt/ros/melodic/setup.bash
 source /opt/carma_lanelet2/setup.bash
+
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
 
 # make install for these subdirectories
@@ -51,13 +52,12 @@ MAKE_ONLY_DIRS=(
 )
 
 for DIR in "${MAKE_INSTALL_DIRS[@]}" "${MAKE_ONLY_DIRS[@]}"; do
-    mkdir /home/carma-streets/"$DIR"/build
-    cd /home/carma-streets/"$DIR"/build
-    cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
-    make -j
+
+    cmake -Bbuild -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug"
+    cmake --build build
     for MAKE_INSTALL_DIR in "${MAKE_INSTALL_DIRS[@]}"; do
         if [ "$DIR" == "$MAKE_INSTALL_DIR" ]; then
-            make -j install
+            cmake --install build 
         fi
     done
 done
