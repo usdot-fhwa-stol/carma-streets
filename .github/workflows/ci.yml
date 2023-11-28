@@ -5,7 +5,42 @@ on:
   push:
     branches: [develop, master]
 jobs:
+  docker-build:
+    strategy:
+        matrix:
+            include:
+             - ubuntu-codename: bionic
+               build_lanelet_aware: true
+            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
+             - ubuntu-codename: focal
+               build_lanelet_aware: false
+            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
+             - ubuntu-codename: jammy
+               build_lanelet_aware: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker Build Streets Service Base
+        uses: docker/build-push-action@v3
+        with:
+            push: true
+            build-args: |
+                UBUNTU_CODENAME=${{ matrix.ubuntu-codename }}
+            tags: usdotfhwastoldev/streets_service_base:${{ matrix.ubuntu-codename }}
+            file: ./streets_service_base/Dockerfile
+      - name: Docker Build Streets Service Base Lanelet Aware
+        if: ${{ matrix.build_lanelet_aware }} 
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+          file: ./streets_service_base_lanelet_aware/Dockerfile          
   build:
+    needs: docker-build
     defaults:
       run:
         shell: bash
