@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(intersection_model)
-link_directories(
-                "/usr/lib"  
-                "/usr/local/lib" 
-                ${catkin_LIBRARY_DIRS}
-                ${catkin_INCLUDE_DIRS})
+
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/" "/opt/carma_lanelet2/" "/opt/ros/melodic/share/catkin/cmake")
 
 find_package(PROJ4)
 find_package(Eigen3 3.3 NO_MODULE)

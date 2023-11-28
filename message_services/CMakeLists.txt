@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-link_directories(${catkin_LIBRARY_DIRS} ${catkin_INCLUDE_DIRS})
+list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/" "/opt/carma_lanelet2/")
 find_package(PROJ4)
 find_package(Eigen3 3.3 NO_MODULE)
 find_package(catkin COMPONENTS 
