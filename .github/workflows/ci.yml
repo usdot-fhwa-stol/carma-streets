@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+          tags: usdotfhwastoldev/streets_service_base_lanelet_aware:${{ matrix.ubuntu-codename }}
           file: ./streets_service_base_lanelet_aware/Dockerfile          
   build:
     needs: docker-build
@@ -70,10 +70,7 @@ jobs:
       run: mv $GITHUB_WORKSPACE/${{ github.event.repository.name }} /home/carma-streets
     - name: Install dependencies
       run: |
-        # mkdir /home/carma-streets/.base-image
-        # touch /home/carma-streets/.base-image/init-env.sh
         cd /home/carma-streets/build_scripts
-        # ./install_dependencies.sh
         ./install_test_dependencies.sh
         mkdir -p /home/carma-streets/ext
         ./install_rest_server_dependencies.sh
