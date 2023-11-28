@@ -14,6 +14,6 @@
 #include <gtest/gtest.h>
 #include <spdlog/spdlog.h>
 
-TEST(sensor_data_sharing_service_test, test_initialize) {
+TEST(sensorDataSharingServiceTest, testInitialize) {
     SPDLOG_ERROR("Test failed");
 }
