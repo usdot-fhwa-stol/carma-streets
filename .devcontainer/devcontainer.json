@@ -15,7 +15,7 @@
 
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/home/${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/home/carma-streets/",
 
 	// Uncomment for Sensor Data Sharing Service  .
 	// "postCreateCommand": "/home/carma-streets/sensor_data_sharing_service/build.sh",
