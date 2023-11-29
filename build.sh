@@ -49,7 +49,7 @@ MAKE_ONLY_DIRS=(
     "message_services"
     "signal_opt_service"
     "tsc_client_service"
-    #"sensor_data_sharing_service"
+    "sensor_data_sharing_service"
 )
 
 for DIR in "${MAKE_INSTALL_DIRS[@]}" "${MAKE_ONLY_DIRS[@]}"; do
