@@ -4,6 +4,8 @@ project(streets_snmp_cmd)
 # Find Dependent Packages and set configurations
 ########################################################                      
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+# std::map::try_emplace
+set(CMAKE_CXX_STANDARD 17)
 find_package(spdlog REQUIRED)
 find_package(GTest REQUIRED CONFIG)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
