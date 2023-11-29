@@ -8,6 +8,8 @@
 #include <string>
 #include <streets_utils/streets_messages_lib/sensor_data_sharing_msg/sensor_data_sharing_msg.hpp>
 #include <streets_utils/streets_messages_lib/serializers/sensor_data_sharing_msg_json_serializer.hpp>
+#include <streets_utils/streets_messages_lib/detected_object_msg/detected_object_msg.hpp>
+#include <streets_utils/streets_messages_lib/deserializers/detected_obj_msg_deserializer.hpp>
 
 namespace sensor_data_sharing_service {
 
@@ -22,11 +24,13 @@ namespace sensor_data_sharing_service {
              */
             std::shared_ptr<kafka_clients::kafka_consumer_worker> detection_consumer;
 
+            std::unique_ptr<streets_utils::messages::detected_objects_msg::detected_objects_msg> detected_objects;
+
             bool initialize_kafka_consumers_producers( );
 
             void consume_detections();
 
-            void produce_sdsms();
+            void produce_sdsms() const;
 
 
 
