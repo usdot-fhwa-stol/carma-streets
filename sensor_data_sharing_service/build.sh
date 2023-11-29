@@ -13,9 +13,11 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-# script executes all kafka_clients and scheduling service build and coverage steps so that they can be singularly
-# wrapped by the sonarcloud build-wrapper
+# Build script to build Sensor Data Sharing Service
 set -e
+# Source ros and lanelet2 for lanelet aware services
+source /opt/ros/melodic/setup.bash
+source /opt/carma_lanelet2/setup.bash
 
 COVERAGE_FLAGS=""
 
@@ -23,7 +25,7 @@ COVERAGE_FLAGS=""
 MAKE_INSTALL_DIRS=(
     "streets_utils/json_utils"
     "streets_utils/streets_messages"
-    "streets_utils/streets_service_configuration"
+    "streets_utils/streets_service_configuration"\
     "kafka_clients"
     "streets_utils/streets_service_base"
 )
@@ -34,16 +36,12 @@ MAKE_ONLY_DIRS=(
 )
 
 for DIR in "${MAKE_INSTALL_DIRS[@]}" "${MAKE_ONLY_DIRS[@]}"; do
-    if [ -d  /home/carma-streets/"$DIR"/build ]; then
-        rm -r /home/carma-streets/"$DIR"/build
-    fi
-    mkdir /home/carma-streets/"$DIR"/build
-    cd /home/carma-streets/"$DIR"/build
-    cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" ..
-    make -j
+    cd /home/carma-streets/"$DIR"
+    cmake -Bbuild -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" 
+    cmake --build build
     for MAKE_INSTALL_DIR in "${MAKE_INSTALL_DIRS[@]}"; do
         if [ "$DIR" == "$MAKE_INSTALL_DIR" ]; then
-            make -j install
+            cmake --install build
         fi
     done
 done

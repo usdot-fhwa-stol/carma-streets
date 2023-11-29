@@ -156,3 +156,9 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube tsc_client_service/coverage/coverage.xml -s -f tsc_client_service/ -r .
 
+cd /home/carma-streets/sensor_data_sharing_service/build/
+./sensor_data_sharing_service_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/sensor_data_sharing_service_test/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube sensor_data_sharing_service_test/coverage/coverage.xml -s -f sensor_data_sharing_service_test/ -r .
