@@ -2,8 +2,9 @@
 
 namespace sensor_data_sharing_service {
     
-    using namespace streets_service;
-    using namespace streets_utils::messages;
+    namespace ss = streets_service;
+    namespace sdsm = streets_utils::messages::sdsm;
+    namespace detected_objects_message = streets_utils::messages::detected_objects_msg;
     sds_service::~sds_service() {
 
         if (sdsm_producer)
@@ -26,8 +27,8 @@ namespace sensor_data_sharing_service {
         SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
 
         // Initialize SDSM Kafka producer
-        std::string sdsm_topic = streets_configuration::get_string_config("sdsm_producer_topic");
-        std::string detection_topic = streets_configuration::get_string_config("detection_consumer_topic");
+        std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
+        std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
 
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
     }
@@ -37,15 +38,17 @@ namespace sensor_data_sharing_service {
             throw std::runtime_error("Detection consumer is null!");
         }
         SPDLOG_DEBUG("Attempting to consume detections ...");
-        // TODO: Move into intialize_kafka_consumer method
         detection_consumer->subscribe();
         while ( detection_consumer->is_running() ) {
             try{
                 const std::string payload = detection_consumer->consume(1000);
                 if (payload.length() != 0)
                 {
-                    detected_objects = std::make_unique<streets_utils::messages::detected_objects_msg::detected_objects_msg>(streets_utils::messages::detected_objects_msg::from_json(payload));
-                    SPDLOG_DEBUG("Consumed: {0}", payload);
+                    auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
+                    std::unique_lock lock(detected_objects_lock);
+                    detected_objects[detected_object._object_id] = detected_object;
+                    SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
+                    
                 }
             }
             catch (const streets_utils::json_utils::json_parse_exception &e) {
@@ -56,20 +59,28 @@ namespace sensor_data_sharing_service {
 
     }
 
-    void sds_service::produce_sdsms() const{
-       
+    void sds_service::produce_sdsms() {
+        if ( !sdsm_producer )  {
+            throw std::runtime_error("SDSM consumer is null!");
+        }
         SPDLOG_INFO("Starting SDSM Producer!");
-        while ( sdsm_producer && sdsm_producer->is_running() ) {
+        while ( sdsm_producer->is_running() ) {
             try{
-                streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
-                const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
-                SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
-                sdsm_producer->send(json_msg);  
+                if ( detected_objects.size() > 0 ) {
+                    std::unique_lock lock(detected_objects_lock);
+                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
+                    // TODO: Populate SDSM with detected objects
+                    const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
+                    SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
+                    sdsm_producer->send(json_msg);
+                    // Clear detected object
+                    detected_objects.clear();
+                }
             }
             catch( const streets_utils::json_utils::json_parse_exception &e) {
                 SPDLOG_ERROR("Exception occurred producing SDSM : {0}", e.what());
             }         
-            streets_clock_singleton::sleep_for(1000); // Sleep for 10 second between publish  
+            ss::streets_clock_singleton::sleep_for(1000); // Sleep for 10 second between publish  
         }
        
     }

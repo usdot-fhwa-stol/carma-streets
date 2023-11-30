@@ -13,7 +13,7 @@
 #  limitations under the License.
 cmake_minimum_required(VERSION  3.10.2)
 project(sensor_data_sharing_service LANGUAGES CXX)
-
+# shared_mutex
 set(CMAKE_CXX_STANDARD 17)
 # GNU standard installation directories
 include(GNUInstallDirs)
