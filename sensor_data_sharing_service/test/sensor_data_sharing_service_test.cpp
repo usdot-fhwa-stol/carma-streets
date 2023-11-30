@@ -31,6 +31,9 @@ namespace sensor_data_sharing_service {
     TEST(sensorDataSharingServiceTest, consumeDetections) {
         
         sds_service serv;
+        // If consumer null expect runtime error
+        EXPECT_THROW(serv.consume_detections(), std::runtime_error);
+
         serv.detection_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),subscribe()).Times(1);
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),is_running()).Times(4).WillOnce(Return(true))
@@ -51,6 +54,9 @@ namespace sensor_data_sharing_service {
         sds_service serv;
         // Initialize streets_clock in non simulation mode
         streets_service::streets_clock_singleton::create(false);
+        // If producer null expect runtime error
+
+        EXPECT_THROW(serv.produce_sdsms(), std::runtime_error);
         const std::string detected_object_json ="{\"type\":\"CAR\",\"confidence\":0.7,\"sensorId\":\"sensor1\",\"projString\":\"projectionString2\",\"objectId\":\"Object7\",\"position\":{\"x\":-1.1,\"y\":-2.0,\"z\":-3.2},\"positionCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"velocity\":{\"x\":1.0,\"y\":1.0,\"z\":1.0},\"velocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"angularVelocity\":{\"x\":0.1,\"y\":0.2,\"z\":0.3},\"angularVelocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"size\":{\"length\":2.0,\"height\":1.0,\"width\":0.5}}";
         auto detected_object = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
         serv.detected_objects[detected_object._object_id] =detected_object;

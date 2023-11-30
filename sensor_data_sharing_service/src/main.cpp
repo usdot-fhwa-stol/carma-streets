@@ -29,7 +29,7 @@ int main(int argc, char **argv)
             SPDLOG_ERROR("TSC Service Initialization failed!");
         }
     }
-    catch ( const std::runtime_error &e) {
+    catch ( const std::exception &e) {
         SPDLOG_ERROR("Exception Encountered : {0}" , e.what());
         exit(1);
     }
