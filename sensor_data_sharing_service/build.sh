@@ -25,7 +25,7 @@ COVERAGE_FLAGS=""
 MAKE_INSTALL_DIRS=(
     "streets_utils/json_utils"
     "streets_utils/streets_messages"
-    "streets_utils/streets_service_configuration"\
+    "streets_utils/streets_service_configuration"
     "kafka_clients"
     "streets_utils/streets_service_base"
 )
