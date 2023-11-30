@@ -1,7 +1,5 @@
 name: develop_master
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
   push:
     branches: [develop, master]
 jobs:
