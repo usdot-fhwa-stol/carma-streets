@@ -16,7 +16,7 @@ project(sensor_data_sharing_service LANGUAGES CXX)
 # shared_mutex
 set(CMAKE_CXX_STANDARD 17)
 # Avoid catkin rebuilding gtest/gmock executables
-set(CATKIN_ENABLE_TESTING 0)
+set(CATKIN_ENABLE_TESTING OFF)
 # GNU standard installation directories
 include(GNUInstallDirs)
 # Find Packages 
