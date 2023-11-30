@@ -1,6 +1,7 @@
-FROM usdotfhwastoldev/streets_service_base_lanelet_aware
-WORKDIR /home/carma-streets/
+FROM usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
 COPY ./sensor_data_sharing_service/ /home/carma-streets/sensor_data_sharing_service
+COPY ./streets_utils/ /home/carma-streets/streets_utils
+COPY ./kafka_clients/ /home/carma-streets/kafka_clients
 RUN /home/carma-streets/sensor_data_sharing_service/build.sh
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.name="sensor_data_sharing_service"

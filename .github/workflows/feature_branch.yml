@@ -1,0 +1,99 @@
+name: CI
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:       
+  build:
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest-8-cores
+    container:
+      image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        SONAR_SCANNER_VERSION: "5.0.1.3006"
+        TERM: xterm
+      options: "--user root"
+    steps:
+    # Bionic's git version is not sufficient for actions/checkout 0 fetch-depth,
+    # remove this step after rebasing carma-streets to newer Ubuntu release
+    - name: Install newer git for checkout
+      run: |
+        apt-get update
+        apt-get install -y software-properties-common
+        add-apt-repository -u ppa:git-core/ppa
+        apt-get install -y git
+    - name: Checkout ${{ github.event.repository.name }}
+      uses: actions/checkout@v3.3.0
+      with:
+        path: ${{ github.event.repository.name }}
+        fetch-depth: 0
+    - name: Move source code
+      run: mv $GITHUB_WORKSPACE/${{ github.event.repository.name }} /home/carma-streets
+    - name: Install dependencies
+      run: |
+        cd /home/carma-streets/build_scripts
+        ./install_test_dependencies.sh
+        mkdir -p /home/carma-streets/ext
+        ./install_rest_server_dependencies.sh
+    - name: Install net-snmp
+      run: |
+        cd /home/carma-streets/ext/
+        apt-get install -y libperl-dev curl
+        curl -k -L -O http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+        tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
+        cd net-snmp-5.9.1/
+        ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
+        make -j
+        make install
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
+      with:
+        java-version: 17
+        distribution: "temurin"        
+    - name: Install Sonar
+      run: |
+        SONAR_DIR=/opt/sonarqube
+        mkdir $SONAR_DIR
+        curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
+        curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+        curl -sL https://deb.nodesource.com/setup_16.x | bash -
+        apt-get install -y nodejs unzip
+        # Set the JAVA_HOME to a compatible version of Java, e.g., Java 17
+        export JAVA_HOME=$GITHUB_WORKSPACE/java-17
+        cd $SONAR_DIR
+        for ZIP in *.zip; do
+          unzip "$ZIP" -d .
+          rm "$ZIP"
+        done
+        mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
+        mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
+        echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
+        echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
+      env:
+        JAVA_HOME: $GITHUB_WORKSPACE/java-17
+
+    - name: Check Java Version
+      run: |
+        java -version
+        echo $JAVA_HOME         
+    - name: Build
+      run: |
+        cd /home/carma-streets/
+        build-wrapper-linux-x86-64 --out-dir /home/carma-streets/bw-output ./build.sh
+    - name: Tests
+      run: |
+        cd /home/carma-streets/
+        ldconfig
+        ./coverage.sh
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: Test Results
+        path: /home/carma-streets/test_results
+    - name: Run SonarScanner
+      uses: usdot-fhwa-stol/actions/sonar-scanner@main
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        working-dir: /home/carma-streets
