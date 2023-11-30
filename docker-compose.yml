@@ -208,6 +208,28 @@ services:
       - ./tsc_client_service/logs/:/home/carma-streets/tsc_client_service/logs/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+  sensor_data_sharing_service:
+    image: usdotfhwastoldev/sensor_data_sharing_service:develop
+    build: 
+      context: .
+      dockerfile: sensor_data_sharing_service/Dockerfile
+    container_name: sensor_data_sharing_service
+    restart: always
+    network_mode: host
+    depends_on:
+      - kafka
+    environment:
+      SIMULATION_MODE: FALSE
+      CONFIG_FILE_PATH: ../manifest.json
+      TIME_SYNC_TOPIC: time_sync
+      LOGS_DIRECTORY: /home/carma-streets/sensor_data_sharing_service/logs/
+      LANELET2_MAP: /home/carma-streets/MAP/Intersection.osm
+    volumes: 
+      - ./sensor_data_sharing_service/manifest.json:/home/carma-streets/sensor_data_sharing_service/manifest.json
+      - ./sensor_data_sharing_service/logs/:/home/carma-streets/sensor_data_sharing_service/logs/
+      - ./MAP/:/home/carma-streets/intersection_model/MAP/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 secrets:
     mysql_password:
         file: ./secrets/mysql_password.txt
