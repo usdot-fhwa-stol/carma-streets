@@ -68,6 +68,8 @@ namespace sensor_data_sharing_service {
              */
             void produce_sdsms();
 
+            
+
 
         public:
             sds_service() = default;
@@ -87,5 +89,7 @@ namespace sensor_data_sharing_service {
              */
             void start() override;
 
+            FRIEND_TEST(sensorDataSharingServiceTest, consumeDetections);
+            FRIEND_TEST(sensorDataSharingServiceTest, produceSdsms);
     };
 }

@@ -15,6 +15,8 @@ cmake_minimum_required(VERSION  3.10.2)
 project(sensor_data_sharing_service LANGUAGES CXX)
 # shared_mutex
 set(CMAKE_CXX_STANDARD 17)
+# Avoid catkin rebuilding gtest/gmock executables
+set(CATKIN_ENABLE_TESTING 0)
 # GNU standard installation directories
 include(GNUInstallDirs)
 # Find Packages 
@@ -23,7 +25,6 @@ find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
 find_package(streets_messages_lib REQUIRED)
 find_package(streets_service_base_lib REQUIRED)
-list(APPEND CMAKE_PREFIX_PATH "/opt/carma/cmake/" "/opt/carma_lanelet2/")
 find_package(PROJ4)
 find_package(Eigen3 3.3 NO_MODULE)
 find_package(catkin COMPONENTS 
@@ -36,18 +37,19 @@ add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 
 set(SERVICE_NAME ${PROJECT_NAME})
+set(LIBRARY_NAME ${PROJECT_NAME}_lib)
+
 ########################################################
 # Build Library
 ######################################################## 
-file(GLOB SENSOR_DATA_SHARING_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-add_executable(${SERVICE_NAME} ${SENSOR_DATA_SHARING_SOURCES} )
-target_include_directories(${SERVICE_NAME}
+add_library(${LIBRARY_NAME} src/sensor_data_sharing_service.cpp )
+target_include_directories(${LIBRARY_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         ${catkin_INCLUDE_DIRS}
         ${catkin_LIBRARY_DIRS}
 )
-target_link_libraries( ${SERVICE_NAME}
+target_link_libraries( ${LIBRARY_NAME}
     PUBLIC
         spdlog::spdlog
         rapidjson 
@@ -55,19 +57,28 @@ target_link_libraries( ${SERVICE_NAME}
         streets_utils::streets_messages_lib
         ${catkin_LIBRARIES}
         Eigen3::Eigen
-
+        lanelet2_core
 )  
+
+add_executable(${SERVICE_NAME} src/main.cpp)
+
+target_link_libraries( ${SERVICE_NAME}
+    PUBLIC
+        ${LIBRARY_NAME}
+)  
+
 
 ########################
 # Setup Test executable
 ########################
+enable_testing()
 set(TEST_NAME ${SERVICE_NAME}_test)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.hpp test/*.cpp)
 set(SOURCES ${SERVICE_NAME} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${TEST_NAME} ${TEST_SOURCES})
-add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 target_link_libraries(${TEST_NAME} 
     PRIVATE
         ${LIBRARY_NAME}
         GTest::Main
  )
+
