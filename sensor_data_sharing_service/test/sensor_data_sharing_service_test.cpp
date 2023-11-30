@@ -21,6 +21,8 @@
 #include <mock_kafka_client.h>
 #include <streets_utils/streets_messages_lib/deserializers/detected_obj_msg_deserializer.hpp>
 #include<streets_clock_singleton.h>
+
+
 using testing::_;
 using testing::Return;
 using testing::AnyNumber;
@@ -30,6 +32,7 @@ namespace sensor_data_sharing_service {
         
         sds_service serv;
         serv.detection_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
+        EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),subscribe()).Times(1);
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),is_running()).Times(4).WillOnce(Return(true))
                                                         .WillOnce(Return(true))
                                                         .WillOnce(Return(true))

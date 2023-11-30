@@ -79,7 +79,7 @@ namespace sensor_data_sharing_service {
         SPDLOG_INFO("Starting SDSM Producer!");
         while ( sdsm_producer->is_running() ) {
             try{
-                if ( detected_objects.size() > 0 ) {
+                if ( !detected_objects.empty() ) {
                     std::unique_lock lock(detected_objects_lock);
                     streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
                     // TODO: Populate SDSM with detected objects
