@@ -54,7 +54,9 @@ MAKE_ONLY_DIRS=(
 
 for DIR in "${MAKE_INSTALL_DIRS[@]}" "${MAKE_ONLY_DIRS[@]}"; do
     cd /home/carma-streets/"$DIR"
-    cmake -Bbuild -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_PREFIX_PATH="/opt/carma/cmake/;/opt/carma_lanelet2/" 
+    # Avoid catkin rebuilding gtest/gmock executables
+    # Build on libraries position independent
+    cmake -Bbuild -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_POSITION_INDEPENDENT_CODE=ON  -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_PREFIX_PATH="/opt/carma/cmake/;/opt/carma_lanelet2/" 
     cmake --build build
     for MAKE_INSTALL_DIR in "${MAKE_INSTALL_DIRS[@]}"; do
         if [ "$DIR" == "$MAKE_INSTALL_DIR" ]; then

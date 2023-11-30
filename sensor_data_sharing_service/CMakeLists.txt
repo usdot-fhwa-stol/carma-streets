@@ -15,8 +15,6 @@ cmake_minimum_required(VERSION  3.10.2)
 project(sensor_data_sharing_service LANGUAGES CXX)
 # shared_mutex
 set(CMAKE_CXX_STANDARD 17)
-# Avoid catkin rebuilding gtest/gmock executables
-set(CATKIN_ENABLE_TESTING OFF)
 # GNU standard installation directories
 include(GNUInstallDirs)
 # Find Packages 
