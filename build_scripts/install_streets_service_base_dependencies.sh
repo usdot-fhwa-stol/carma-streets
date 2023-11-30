@@ -31,7 +31,7 @@ cd /tmp
 git clone https://github.com/Tencent/rapidjson
 cd rapidjson/
 git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
-cmake -Bbuild 
+cmake -Bbuild -DCMAKE_POSITION_INDEPENDENT_CODE=ON 
 cmake --build build
 cmake --install build
 cd .. 
@@ -42,7 +42,7 @@ echo " ------> Install spdlog... "
 cd /tmp
 git clone https://github.com/gabime/spdlog.git -b v1.12.0
 cd spdlog 
-cmake -Bbuild 
+cmake -Bbuild -DCMAKE_POSITION_INDEPENDENT_CODE=ON 
 cmake --build build
 cmake --install build
 cd .. 

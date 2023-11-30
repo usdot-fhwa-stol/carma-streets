@@ -1,0 +1,30 @@
+{
+    "service_name": "sensor_data_sharing_service",
+    "loglevel": "debug",
+    "configurations": [
+        {
+            "name": "sdsm_producer_topic",
+            "value": "sdsm",
+            "description": "Kafka topic to which the sensor data sharing service will produce SDSMs.",
+            "type": "STRING"
+        },
+        {
+            "name": "detection_consumer_topic",
+            "value": "detections",
+            "description":"Kafka topic from which the sensor data sharing service will consume Detected Objects.",
+            "type": "STRING"
+        },
+        {
+            "name": "sensor_configuration_file_path",
+            "value": "/home/carma-streets/sensor_configurations/sensors.json",
+            "description": "Path to sensor configuration information that includes sensor location and orientation.",
+            "type": "STRING"
+        },
+        {
+            "name": "bootstrap_server",
+            "value": "127.0.0.1:9092",
+            "description": "Kafka Broker Server Address.",
+            "type": "STRING"
+        }
+    ]
+}

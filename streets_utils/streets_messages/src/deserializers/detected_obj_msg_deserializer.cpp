@@ -55,21 +55,30 @@ namespace streets_utils::messages::detected_objects_msg {
     }
 
     cartesian_point parse_cartesian_3d(const rapidjson::Value &val)
-    {
+    {   
         cartesian_point point;
-        point._x = streets_utils::json_utils::parse_double_member("x", val, true).value();
-        point._y = streets_utils::json_utils::parse_double_member("y", val, true).value();
-        point._z = streets_utils::json_utils::parse_double_member("z", val, true).value();
-        return point;
+        try {
+            point._x = streets_utils::json_utils::parse_double_member("x", val, true).value();
+            point._y = streets_utils::json_utils::parse_double_member("y", val, true).value();
+            point._z = streets_utils::json_utils::parse_double_member("z", val, true).value();
+            return point;
+        }
+        catch (const streets_utils::json_utils::json_parse_exception &e) {
+            throw streets_utils::json_utils::json_parse_exception("Parsing error occured during parsing of cartesian_3d: " + std::string(e.what()));
+        }
     }
 
     vector_3d parse_vector3d(const rapidjson::Value &val)
     {
         vector_3d vector;
-        vector._x = streets_utils::json_utils::parse_double_member("x", val, true).value();
-        vector._y = streets_utils::json_utils::parse_double_member("y", val, true).value();
-        vector._z = streets_utils::json_utils::parse_double_member("z", val, true).value();
-
+        try {
+            vector._x = streets_utils::json_utils::parse_double_member("x", val, true).value();
+            vector._y = streets_utils::json_utils::parse_double_member("y", val, true).value();
+            vector._z = streets_utils::json_utils::parse_double_member("z", val, true).value();
+        }
+        catch (const streets_utils::json_utils::json_parse_exception &e) {
+            throw streets_utils::json_utils::json_parse_exception("Parsing error occured during parsing of vector3d: " + std::string(e.what()) );
+        }
         return vector;
 
     }
@@ -94,12 +103,16 @@ namespace streets_utils::messages::detected_objects_msg {
     }
 
     size parse_size(const rapidjson::Value &val)
-    {
+    {   
         size size_obj;
-        size_obj._length = streets_utils::json_utils::parse_double_member("length", val, true).value();
-        size_obj._height = streets_utils::json_utils::parse_double_member("height", val, true).value();
-        size_obj._width = streets_utils::json_utils::parse_double_member("width", val, true).value();
-
+        try {
+            size_obj._length = streets_utils::json_utils::parse_double_member("length", val, true).value();
+            size_obj._height = streets_utils::json_utils::parse_double_member("height", val, true).value();
+            size_obj._width = streets_utils::json_utils::parse_double_member("width", val, true).value();
+        }
+        catch (const streets_utils::json_utils::json_parse_exception &e) {
+            throw streets_utils::json_utils::json_parse_exception("Parsing error occured during parsing of size: " + std::string(e.what()));
+        }
         return size_obj;
     }
 
