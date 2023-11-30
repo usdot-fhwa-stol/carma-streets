@@ -1,4 +1,4 @@
-name: CI
+name: feature_branch
 on:
   pull_request:
     types: [opened, synchronize, reopened]
