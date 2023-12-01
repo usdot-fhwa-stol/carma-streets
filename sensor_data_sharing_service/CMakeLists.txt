@@ -45,7 +45,6 @@ target_include_directories(${LIBRARY_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         ${catkin_INCLUDE_DIRS}
-        ${catkin_LIBRARY_DIRS}
 )
 target_link_libraries( ${LIBRARY_NAME}
     PUBLIC
@@ -55,7 +54,6 @@ target_link_libraries( ${LIBRARY_NAME}
         streets_utils::streets_messages_lib
         ${catkin_LIBRARIES}
         Eigen3::Eigen
-        lanelet2_core
 )  
 
 add_executable(${SERVICE_NAME} src/main.cpp)
