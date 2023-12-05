@@ -34,9 +34,13 @@ namespace sensor_data_sharing_service {
     }
 
     bool sds_service::initialize() {
-        if (!streets_service::initialize()) {
+        if (!streets_service::initialize() ) {
             return false;
         }
+        if (!read_lanelet_map()){
+            return false;
+        }
+
         SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
 
         // Initialize SDSM Kafka producer
@@ -44,7 +48,7 @@ namespace sensor_data_sharing_service {
         const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
         const std::string sdsm_geo_reference = ss::streets_configuration::get_string_config("sdsm_geo_reference");
         // Create sdsm projector
-        this->sdsm_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(sdsm_geo_reference.c_str());
+     
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
     }
 
@@ -61,6 +65,9 @@ namespace sensor_data_sharing_service {
             lanelet::io_handlers::AutowareOsmParser::parseMapParams(filename, &projector_type, &target_frame);
             this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(target_frame.c_str());
             this->map_ptr = lanelet::load(filename, *map_projector.get(), &errors);
+            // 
+            auto pose = parse_sensor_location( streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json"), ss::streets_configuration::get_string_config("sensor_id"));
+            this->sdsm_reference_point =  this->map_projector->reverse(pose);
             if (!this->map_ptr->empty())
             {
                 return true;
@@ -85,6 +92,7 @@ namespace sensor_data_sharing_service {
                 if (payload.length() != 0)
                 {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
+                    // Write Lock
                     std::unique_lock lock(detected_objects_lock);
                     detected_objects[detected_object._object_id] = detected_object;
                     SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
@@ -126,7 +134,21 @@ namespace sensor_data_sharing_service {
 
     streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
         streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
-        
+        // Read lock
+        std::shared_lock lock(detected_objects_lock);
+        for (auto detected_object : detected_objects){
+            // Note: Assuming we receive absolute cartesian position data from SensorLib
+            // TODO Populate with sdsm time stamp
+            msg._time_stamp;
+            // TODO Populate with rolling counter
+            msg._msg_count = 0;
+            // TODO Populate with infrastructure id
+            msg._source_id ;
+            msg._equipment_type = sdsm::equipment_type::RSU;
+            msg._ref_positon._latitude;
+
+        }
+        return msg;
     }
 
     

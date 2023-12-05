@@ -42,6 +42,8 @@
 #include <map>
 #include <shared_mutex>
 
+#include "sensor_configuration_parser.hpp"
+
 
 namespace sensor_data_sharing_service {
 
@@ -68,7 +70,7 @@ namespace sensor_data_sharing_service {
 
             std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
 
-            std::unique_ptr<lanelet::projection::LocalFrameProjector> sdsm_projector;
+            lanelet::GPSPoint sdsm_reference_point;
 
 
             /**

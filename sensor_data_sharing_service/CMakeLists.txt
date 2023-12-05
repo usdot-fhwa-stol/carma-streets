@@ -42,7 +42,9 @@ set(SERVICE_NAME ${PROJECT_NAME})
 # Build Library and Service Executable
 ######################################################## 
 
-add_library(${LIBRARY_NAME} src/sensor_data_sharing_service.cpp )
+add_library(${LIBRARY_NAME} 
+    src/sensor_data_sharing_service.cpp 
+    src/sensor_configuration_parser.cpp )
 
 target_include_directories(${LIBRARY_NAME}
     PUBLIC
