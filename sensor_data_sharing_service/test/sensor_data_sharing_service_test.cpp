@@ -69,4 +69,12 @@ namespace sensor_data_sharing_service {
         serv.produce_sdsms();
         EXPECT_EQ(serv.detected_objects.size(), 0);
     }
+
+    TEST(sensorDataSharingServiceTest,readLanelet2Map) {
+        setenv("LANELET2_MAP", "/home/carma-streets/sample_map/town01_vector_map_test.osm", 1);
+        sds_service serv;
+        EXPECT_TRUE(serv.read_lanelet_map());
+        EXPECT_NE(nullptr, serv.map_ptr);
+
+    }
 }

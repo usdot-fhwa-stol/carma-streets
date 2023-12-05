@@ -40,10 +40,37 @@ namespace sensor_data_sharing_service {
         SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
 
         // Initialize SDSM Kafka producer
-        std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
-        std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
-
+        const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
+        const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
+        const std::string sdsm_geo_reference = ss::streets_configuration::get_string_config("sdsm_geo_reference");
+        // Create sdsm projector
+        this->sdsm_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(sdsm_geo_reference.c_str());
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
+    }
+
+    bool sds_service::read_lanelet_map() {
+        const auto filename = streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+
+        try
+        {
+            int projector_type = 1;
+            std::string target_frame;
+            lanelet::ErrorMessages errors;
+
+            // Parse geo reference info from the lanelet map (.osm)
+            lanelet::io_handlers::AutowareOsmParser::parseMapParams(filename, &projector_type, &target_frame);
+            this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(target_frame.c_str());
+            this->map_ptr = lanelet::load(filename, *map_projector.get(), &errors);
+            if (!this->map_ptr->empty())
+            {
+                return true;
+            }
+        }
+        catch (const std::exception &ex)
+        {
+            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
+        }
+        return false;
     }
 
     void sds_service::consume_detections(){
@@ -80,9 +107,8 @@ namespace sensor_data_sharing_service {
         while ( sdsm_producer->is_running() ) {
             try{
                 if ( !detected_objects.empty() ) {
-                    std::unique_lock lock(detected_objects_lock);
-                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
-                    // TODO: Populate SDSM with detected objects
+                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm();
+                    
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
@@ -98,6 +124,11 @@ namespace sensor_data_sharing_service {
        
     }
 
+    streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
+        streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
+        
+    }
+
     
     void sds_service::start() {
         SPDLOG_DEBUG("Starting Sensor Data Sharing Service");
@@ -107,4 +138,6 @@ namespace sensor_data_sharing_service {
         detection_thread.join();
         sdsm_thread.join();
     }
+
+
 }

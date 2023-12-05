@@ -23,6 +23,22 @@
 #include <streets_utils/streets_messages_lib/serializers/sensor_data_sharing_msg_json_serializer.hpp>
 #include <streets_utils/streets_messages_lib/detected_object_msg/detected_object_msg.hpp>
 #include <streets_utils/streets_messages_lib/deserializers/detected_obj_msg_deserializer.hpp>
+// Lanelet2 libraries
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_io/Io.h>
+#include <lanelet2_core/primitives/LineString.h>
+#include <lanelet2_core/primitives/Point.h>
+#include <lanelet2_core/primitives/Polygon.h>
+#include <lanelet2_core/utility/Units.h>
+#include <lanelet2_core/geometry/BoundingBox.h>
+#include <lanelet2_core/primitives/BoundingBox.h>
+#include <lanelet2_extension/projection/mgrs_projector.h>
+#include <lanelet2_extension/projection/local_frame_projector.h>
+#include <lanelet2_extension/io/autoware_osm_parser.h>
+#include <lanelet2_io/Io.h>
+#include <lanelet2_io/io_handlers/Factory.h>
+#include <lanelet2_core/geometry/Point.h>
+#include <lanelet2_projection/UTM.h>
 #include <map>
 #include <shared_mutex>
 
@@ -47,6 +63,14 @@ namespace sensor_data_sharing_service {
              * @brief Mutex for thread safe operations on detected objects map.
              */
             std::shared_mutex detected_objects_lock;
+
+            lanelet::LaneletMapPtr map_ptr;
+
+            std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
+
+            std::unique_ptr<lanelet::projection::LocalFrameProjector> sdsm_projector;
+
+
             /**
              * @brief Initialize Kafka consumers and producers for sensor data sharing service.
              * @return true if successful and false if unsuccessful.
@@ -67,8 +91,15 @@ namespace sensor_data_sharing_service {
              * @throws std::runtime exception if sdsm_producer == nullptr
              */
             void produce_sdsms();
+            /**
+             * @brief Method to read lanelet2 map.
+             * @return true if successful.
+             */
+            bool read_lanelet_map();
 
-            
+            bool read_sensor_configuration();
+
+            streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm();
 
 
         public:
@@ -91,5 +122,6 @@ namespace sensor_data_sharing_service {
 
             FRIEND_TEST(sensorDataSharingServiceTest, consumeDetections);
             FRIEND_TEST(sensorDataSharingServiceTest, produceSdsms);
+            FRIEND_TEST(sensorDataSharingServiceTest, readLanelet2Map);
     };
 }
