@@ -15,9 +15,7 @@
 
 # Build script to build Sensor Data Sharing Service
 set -e
-# Source ros and lanelet2 for lanelet aware services
-# source /opt/ros/melodic/setup.bash
-# source /opt/carma_lanelet2/setup.bash
+
 
 COVERAGE_FLAGS=""
 
