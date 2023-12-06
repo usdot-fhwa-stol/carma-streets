@@ -47,8 +47,8 @@ namespace sensor_data_sharing_service {
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
         const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
         const std::string sdsm_geo_reference = ss::streets_configuration::get_string_config("sdsm_geo_reference");
-        // Create sdsm projector
-     
+        // Get Infrastructure ID for SDSM messages
+        this->_infrastructure_id =  streets_service::get_system_config("INFRASTRUCTURE_ID", "");
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
     }
 
@@ -116,10 +116,10 @@ namespace sensor_data_sharing_service {
             try{
                 if ( !detected_objects.empty() ) {
                     streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm();
-                    
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
+                    this->_message_count++;
                     // Clear detected object
                     detected_objects.clear();
                 }
@@ -135,18 +135,19 @@ namespace sensor_data_sharing_service {
     streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
         streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
         // Read lock
+        uint64_t timestamp = ss::streets_clock_singleton::time_in_ms();
+        msg._time_stamp = to_sdsm_timestamp(timestamp);
+        // Populate with rolling counter
+        msg._msg_count = this->_message_count;
+        // Populate with infrastructure id
+        msg._source_id = this->_infrastructure_id;
+        msg._equipment_type = sdsm::equipment_type::RSU;
         std::shared_lock lock(detected_objects_lock);
-        for (auto detected_object : detected_objects){
-            // Note: Assuming we receive absolute cartesian position data from SensorLib
-            // TODO Populate with sdsm time stamp
-            msg._time_stamp;
-            // TODO Populate with rolling counter
-            msg._msg_count = 0;
-            // TODO Populate with infrastructure id
-            msg._source_id ;
-            msg._equipment_type = sdsm::equipment_type::RSU;
-            msg._ref_positon._latitude;
-
+        for (const auto detected_object_entry : detected_objects){
+            auto detected_object_data = to_detected_object_data(detected_object_entry.second);
+            // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
+            // This is a bug and needs to be addressed.
+            msg._objects.push_back(detected_object_data);
         }
         return msg;
     }

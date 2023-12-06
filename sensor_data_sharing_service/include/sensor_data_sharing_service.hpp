@@ -42,7 +42,9 @@
 #include <map>
 #include <shared_mutex>
 
+
 #include "sensor_configuration_parser.hpp"
+#include "detected_object_to_sdsm_converter.hpp"
 
 
 namespace sensor_data_sharing_service {
@@ -71,6 +73,10 @@ namespace sensor_data_sharing_service {
             std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
 
             lanelet::GPSPoint sdsm_reference_point;
+
+            std::string _infrastructure_id;
+
+            uint8_t _message_count = 0;
 
 
             /**
