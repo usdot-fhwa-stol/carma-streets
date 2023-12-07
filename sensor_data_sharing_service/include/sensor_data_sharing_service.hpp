@@ -67,17 +67,30 @@ namespace sensor_data_sharing_service {
              * @brief Mutex for thread safe operations on detected objects map.
              */
             std::shared_mutex detected_objects_lock;
-
+            /**
+             * @brief Lanelet2 Map pointer
+             */
             lanelet::LaneletMapPtr map_ptr;
 
+            /**
+             * @brief WSG84 Map projection
+             */
             std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
 
+            /**
+             * @brief Location of sensor. All offsets are interpreted relative to this location.
+             */
             lanelet::GPSPoint sdsm_reference_point;
-
+            
+            /**
+             * @brief Infrastructure ID used as source ID for SDSM broadcast
+             */
             std::string _infrastructure_id;
 
+            /**
+             * @brief Message count for SDSM
+             */
             uint8_t _message_count = 0;
-
 
             /**
              * @brief Initialize Kafka consumers and producers for sensor data sharing service.
@@ -104,9 +117,17 @@ namespace sensor_data_sharing_service {
              * @return true if successful.
              */
             bool read_lanelet_map();
-
+            /**
+             * @brief Method to read sensor configuration file. Uses file path specified in environment variable
+             * SENSOR_JSON_FILE_PATH.
+             * @return true if successful
+             */
             bool read_sensor_configuration();
-
+            
+            /**
+             * @brief Method to create SDSM from detected objects.
+             * @return SDSM.
+             */
             streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm();
 
 

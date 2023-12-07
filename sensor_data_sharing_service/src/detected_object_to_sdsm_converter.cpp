@@ -8,7 +8,6 @@ namespace sensor_data_sharing_service{
         // From millisecond time stamp
         boost::posix_time::ptime posix_time = boost::posix_time::from_time_t(_epoch_time_ms/1000) +
                                         boost::posix_time::millisec(_epoch_time_ms % 1000);
-        SPDLOG_INFO("Epoch time {0} corresponds to date time {1}", _epoch_time_ms, boost::posix_time::to_simple_string(posix_time));
         rtn.year = posix_time.date().year();
         rtn.month = posix_time.date().month();
         rtn.day = posix_time.date().day();
@@ -22,8 +21,8 @@ namespace sensor_data_sharing_service{
 
     streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg) {
         streets_utils::messages::sdsm::detected_object_data rtn;
-        if (msg._type == "CAR" || msg._type == "TRUCK" || msg._type == "VAN") {
-            rtn._detected_object_common_data._object_type = streets_utils::messages::sdsm::object_type::VEHICLE;
+        rtn._detected_object_common_data._object_type = to_object_type(msg._type);
+        if (rtn._detected_object_common_data._object_type == streets_utils::messages::sdsm::object_type::VEHICLE ) {
             streets_utils::messages::sdsm::detected_vehicle_data optional_data;
             // Size in cm
             streets_utils::messages::sdsm::vehicle_size veh_size;
@@ -36,14 +35,12 @@ namespace sensor_data_sharing_service{
 
             rtn._detected_object_optional_data = optional_data;
         }
-        else if ( msg._type == "PEDESTRIAN" || msg._type == "MOTORCYCLE" || msg._type == "CYCLIST") {
-            rtn._detected_object_common_data._object_type = streets_utils::messages::sdsm::object_type::VRU;
+        else if ( rtn._detected_object_common_data._object_type == streets_utils::messages::sdsm::object_type::VRU ) {
             streets_utils::messages::sdsm::detected_vru_data optional_data;
             // Populate Optional VRU data
             rtn._detected_object_optional_data = optional_data;
         }
-        else {
-            rtn._detected_object_common_data._object_type = streets_utils::messages::sdsm::object_type::UNKNOWN;
+        else if (rtn._detected_object_common_data._object_type == streets_utils::messages::sdsm::object_type::UNKNOWN ){
             streets_utils::messages::sdsm::detected_obstacle_data optional_data;
             // size dimensions in units of 0.1 m
             streets_utils::messages::sdsm::obstacle_size obs_size;
@@ -67,4 +64,21 @@ namespace sensor_data_sharing_service{
         rtn._detected_object_common_data._speed_z =  msg._velocity._z* 50;
         return rtn;
     }
+
+    streets_utils::messages::sdsm::object_type to_object_type(const std::string &detection_type){
+        // Get set of vehicle detection types.
+        auto vehicles = sdsm_object_types.find(streets_utils::messages::sdsm::object_type::VEHICLE)->second;
+        // Get set of vru detection types.
+        auto vrus = sdsm_object_types.find(streets_utils::messages::sdsm::object_type::VRU)->second;
+        if(vehicles.find(detection_type) != vehicles.end()) {
+            return streets_utils::messages::sdsm::object_type::VEHICLE;
+        }
+        else if ( vrus.find(detection_type) != vrus.end() ) {
+            return streets_utils::messages::sdsm::object_type::VRU;
+        }
+        else {
+            return streets_utils::messages::sdsm::object_type::UNKNOWN;
+        }
+    }
+
 }

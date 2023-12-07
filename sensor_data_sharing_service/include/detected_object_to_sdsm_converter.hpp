@@ -17,10 +17,29 @@
 #include <streets_utils/streets_messages_lib/sensor_data_sharing_msg/sensor_data_sharing_msg.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp> //include all types plus i/o
 #include <spdlog/spdlog.h>
+#include <map>
+#include <set>
 
 namespace sensor_data_sharing_service {
 
+    static const std::map<streets_utils::messages::sdsm::object_type, std::set<std::string, std::less<>>, std::less<>> sdsm_object_types = {
+        {streets_utils::messages::sdsm::object_type::VEHICLE, {"CAR", "VAN", "TRUCK"}},
+        {streets_utils::messages::sdsm::object_type::VRU, {"PEDESTRIAN", "CYCLIST", "MOTORCYLE"}}
+    };
+    /**
+     * @brief convert epoch millisecond timestamp to sdsm timestamp object
+     * @return streets_utils::messages::sdsm::time_stamp.
+     */
     streets_utils::messages::sdsm::time_stamp to_sdsm_timestamp(const uint64_t _epoch_time_ms);
-
+    /**
+     * @brief convert detected_object_msg to sdsm detection_object_data. 
+     * @return streets_utils::messages::sdsm::detected_object_data.
+     */
     streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg);
+    /**
+     * @brief convert string detection type to sdsm object_type.
+     * @param detection_type string detection classification for detection message. 
+     * @return streets_utils::messages::sdsm::object_type
+     */
+    streets_utils::messages::sdsm::object_type to_object_type(const std::string &detection_type);
 }
