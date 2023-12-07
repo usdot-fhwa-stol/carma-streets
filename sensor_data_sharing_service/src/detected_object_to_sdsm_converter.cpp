@@ -26,15 +26,17 @@ namespace sensor_data_sharing_service{
             rtn._detected_object_common_data._object_type = streets_utils::messages::sdsm::object_type::VEHICLE;
             streets_utils::messages::sdsm::detected_vehicle_data optional_data;
             // Size in cm
-            optional_data._size->_length= msg._size._length*(0.01);
-            optional_data._size->_width= msg._size._width*(0.01);
+            streets_utils::messages::sdsm::vehicle_size veh_size;
+            veh_size._length= msg._size._length*100;
+            veh_size._width= msg._size._width*100;
+            optional_data._size = veh_size;
             // Height in 5 cm
-            optional_data._vehicle_height = msg._size._height *(0.05);
+            optional_data._vehicle_height = msg._size._height * 20;
 
 
             rtn._detected_object_optional_data = optional_data;
         }
-        else if ( msg._type == "PEDESTRIAN" || msg._type == "MOTORCYCLE") {
+        else if ( msg._type == "PEDESTRIAN" || msg._type == "MOTORCYCLE" || msg._type == "CYCLIST") {
             rtn._detected_object_common_data._object_type = streets_utils::messages::sdsm::object_type::VRU;
             streets_utils::messages::sdsm::detected_vru_data optional_data;
             // Populate Optional VRU data
@@ -44,9 +46,11 @@ namespace sensor_data_sharing_service{
             rtn._detected_object_common_data._object_type = streets_utils::messages::sdsm::object_type::UNKNOWN;
             streets_utils::messages::sdsm::detected_obstacle_data optional_data;
             // size dimensions in units of 0.1 m
-            optional_data._size._length = msg._size._length*(0.1);
-            optional_data._size._width = msg._size._width*(0.1);
-            optional_data._size._height = msg._size._height*(0.1);
+            streets_utils::messages::sdsm::obstacle_size obs_size;
+            obs_size._length = msg._size._length*10;
+            obs_size._width = msg._size._width*10;
+            obs_size._height = msg._size._height*10;
+            optional_data._size = obs_size;
 
             rtn._detected_object_optional_data = optional_data;
 
@@ -55,13 +59,12 @@ namespace sensor_data_sharing_service{
         // TODO: Change Detected Object ID to int
         rtn._detected_object_common_data._object_id = std::stoi(msg._object_id);
         // Units are 0.1 m
-        rtn._detected_object_common_data._position_offset._offset_x = msg._position._x/10;
-        rtn._detected_object_common_data._position_offset._offset_y = msg._position._y/10;
-        rtn._detected_object_common_data._position_offset._offset_z = msg._position._z/10;
+        rtn._detected_object_common_data._position_offset._offset_x = msg._position._x*10;
+        rtn._detected_object_common_data._position_offset._offset_y = msg._position._y*10;
+        rtn._detected_object_common_data._position_offset._offset_z = msg._position._z*10;
         // Units are 0.02 m/s
-        rtn._detected_object_common_data._speed = std::hypot( msg._velocity._x* (0.02),  msg._velocity._y* (0.02));
-        rtn._detected_object_common_data._speed_z =  msg._velocity._z* (0.02);
-
+        rtn._detected_object_common_data._speed = std::hypot( msg._velocity._x* 50,  msg._velocity._y* 50);
+        rtn._detected_object_common_data._speed_z =  msg._velocity._z* 50;
         return rtn;
     }
 }
