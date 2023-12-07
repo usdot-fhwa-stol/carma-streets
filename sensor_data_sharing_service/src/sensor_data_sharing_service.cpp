@@ -143,8 +143,8 @@ namespace sensor_data_sharing_service {
         msg._source_id = this->_infrastructure_id;
         msg._equipment_type = sdsm::equipment_type::RSU;
         std::shared_lock lock(detected_objects_lock);
-        for (const auto detected_object_entry : detected_objects){
-            auto detected_object_data = to_detected_object_data(detected_object_entry.second);
+        for (const auto &[object_id, object] : detected_objects){
+            auto detected_object_data = to_detected_object_data(object);
             // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
             // This is a bug and needs to be addressed.
             msg._objects.push_back(detected_object_data);

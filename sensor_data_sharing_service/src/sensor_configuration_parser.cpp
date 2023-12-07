@@ -23,9 +23,7 @@ namespace sensor_data_sharing_service {
         else {
             bool found = false;
             lanelet::BasicPoint3d sensor_location;
-            // Iterate over the array of objects
-            rapidjson::Value::ConstValueIterator itr;
-            for (itr = doc.Begin(); itr != doc.End(); ++itr) {
+            for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
                 // Access the data in the object
                 auto _sensor_id = streets_utils::json_utils::parse_string_member("sensorId",  itr->GetObject(), true ).value();
                 if ( _sensor_id == sensor_id ) {
