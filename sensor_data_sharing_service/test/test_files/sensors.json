@@ -1,6 +1,6 @@
 [
   {
-    "sensorId": "Sensor1",
+    "sensorId": "sensor_1",
     "type": "SemanticLidar",
     "location": {
       "x": 0.0,

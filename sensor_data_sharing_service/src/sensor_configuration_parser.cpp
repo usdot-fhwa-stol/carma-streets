@@ -14,24 +14,34 @@ namespace sensor_data_sharing_service {
         doc.ParseStream(isw);
         if (doc.HasParseError()){
             SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
-            throw std::runtime_error("Document parse error!");
+            throw std::runtime_error("Encounter document parse error while attempting to parse sensor configuration file " + filepath + "!");
         }
         file.close();
-        if (doc.IsArray()) {
+        if (!doc.IsArray()) {
+            throw std::runtime_error("Invadid format for sensor configuration file "  + filepath + ".");
+        }
+        else {
+            bool found = false;
+            lanelet::BasicPoint3d sensor_location;
             // Iterate over the array of objects
             rapidjson::Value::ConstValueIterator itr;
             for (itr = doc.Begin(); itr != doc.End(); ++itr) {
                 // Access the data in the object
                 auto _sensor_id = streets_utils::json_utils::parse_string_member("sensorId",  itr->GetObject(), true ).value();
                 if ( _sensor_id == sensor_id ) {
+                    found = true;
                     auto location = streets_utils::json_utils::parse_object_member("location",  itr->GetObject(), true ).value();
-                    return lanelet::BasicPoint3d{
+                    sensor_location = lanelet::BasicPoint3d{
                         streets_utils::json_utils::parse_double_member("x",  location, true ).value(),
                         streets_utils::json_utils::parse_double_member("y",  location, true ).value(),
                         streets_utils::json_utils::parse_double_member("z",  location, true ).value()
                         };
                 }
             }
+            if (!found) {
+                throw std::runtime_error("Did not find sensor with id " + sensor_id + " in sensor configuration file " + filepath + "!");
+            }
+            return sensor_location;
         }
        
     }
