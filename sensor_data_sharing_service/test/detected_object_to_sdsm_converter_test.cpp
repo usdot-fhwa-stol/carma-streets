@@ -46,6 +46,10 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(std::stoi(msg._object_id), data._detected_object_common_data._object_id);
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, data._detected_object_common_data._object_type);
         EXPECT_EQ(90, data._detected_object_common_data._classification_confidence);
+        EXPECT_EQ((unsigned int)(msg._position._x*10), data._detected_object_common_data._position_offset._offset_x);
+        EXPECT_EQ((unsigned int)(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
+        EXPECT_EQ((unsigned int)(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
+
         EXPECT_EQ((unsigned int)(std::hypot(msg._velocity._x*50, msg._velocity._y*50)), data._detected_object_common_data._speed);
         EXPECT_EQ((unsigned int)(msg._velocity._z*50), data._detected_object_common_data._speed_z);
         EXPECT_EQ((unsigned int) (msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
