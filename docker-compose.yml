@@ -19,7 +19,7 @@ services:
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
-      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,modified_spat:1:1,desired_phase_plan:1:1, tsc_config_state:1:1,phase_control_schedule:1:1,detections:1:1"
+      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,modified_spat:1:1,desired_phase_plan:1:1, tsc_config_state:1:1,phase_control_schedule:1:1,detections:1:1,sdsm_out:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LOG_DIRS: "/kafka/kafka-logs"
     volumes:
@@ -85,7 +85,7 @@ services:
       - TIME_SYNC_PORT=7575
       - SIM_V2X_PORT=5757
       - V2X_PORT=8686
-      - INFRASTRUCTURE_ID=carma-streets_1
+      - INFRASTRUCTURE_ID=rsu_123
       - KAFKA_BROKER_ADDRESS=127.0.0.1:9092
     secrets:
       - mysql_password
@@ -220,14 +220,18 @@ services:
       - kafka
     environment:
       SIMULATION_MODE: FALSE
-      CONFIG_FILE_PATH: ../manifest.json
+      CONFIG_FILE_PATH: /home/carma-streets/sensor_data_sharing_service/manifest.json
       TIME_SYNC_TOPIC: time_sync
       LOGS_DIRECTORY: /home/carma-streets/sensor_data_sharing_service/logs/
       LANELET2_MAP: /home/carma-streets/MAP/Intersection.osm
+      INFRASTRUCTURE_ID: "rsu_123"
+      SENSOR_JSON_FILE_PATH: /home/carma-streets/sensor_configurations/sensors.json
+
     volumes: 
       - ./sensor_data_sharing_service/manifest.json:/home/carma-streets/sensor_data_sharing_service/manifest.json
       - ./sensor_data_sharing_service/logs/:/home/carma-streets/sensor_data_sharing_service/logs/
       - ./MAP/:/home/carma-streets/intersection_model/MAP/
+      - ./sensor_configurations/:/home/carma-streets/sensor_configurations/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 secrets:
