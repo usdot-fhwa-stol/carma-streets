@@ -19,7 +19,7 @@ namespace sensor_data_sharing_service {
         // Parse JSON configuration file
         std::ifstream file(filepath);
         if (!file.is_open()) {
-            throw std::runtime_error("Unable to open Streets configuration file " + filepath + " !"); 
+            throw std::invalid_argument("Unable to open Streets configuration file " + filepath + " !"); 
         }
         // Add file contents to stream and parse stream into Document
         rapidjson::IStreamWrapper isw(file);
@@ -27,11 +27,12 @@ namespace sensor_data_sharing_service {
         doc.ParseStream(isw);
         if (doc.HasParseError()){
             SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
-            throw std::runtime_error("Encounter document parse error while attempting to parse sensor configuration file " + filepath + "!");
+            throw streets_utils::json_utils::json_parse_exception("Encounter document parse error while attempting to parse sensor configuration file " + filepath + "!");
         }
         file.close();
         if (!doc.IsArray()) {
-            throw std::runtime_error("Invadid format for sensor configuration file "  + filepath + ".");
+            throw streets_utils::json_utils::json_parse_exception("Invadid format for sensor configuration file "  + filepath 
+                + ". Sensor configuration file should contain an array of json sensor configurations!");
         }
         else {
             bool found = false;
@@ -50,7 +51,7 @@ namespace sensor_data_sharing_service {
                 }
             }
             if (!found) {
-                throw std::runtime_error("Did not find sensor with id " + sensor_id + " in sensor configuration file " + filepath + "!");
+                throw streets_utils::json_utils::json_parse_exception("Did not find sensor with id " + sensor_id + " in sensor configuration file " + filepath + "!");
             }
             return sensor_location;
         }

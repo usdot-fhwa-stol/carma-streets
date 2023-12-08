@@ -31,6 +31,7 @@
 #include <lanelet2_core/geometry/Point.h>
 #include <lanelet2_projection/UTM.h>
 #include <map>
+#include <stdexcept>
 #include <shared_mutex>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -38,6 +39,11 @@
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 
 namespace sensor_data_sharing_service{
-
+    /**
+     * @brief Method to parse sensor configuration json file.
+     * @param filepath absolute or relative file path.
+     * @param sensor_id ID of sensor to get location from.
+     * @return cartesian location of sensor described in json configuration file.
+     */
     lanelet::BasicPoint3d parse_sensor_location( const std::string &filepath, const std::string &sensor_id );
 }

@@ -27,7 +27,7 @@ namespace sensor_data_sharing_service{
 
         rtn.hour = (unsigned int) posix_time.time_of_day().hours();
         rtn.minute = (unsigned int) posix_time.time_of_day().minutes();
-        // Milliseconds of the current minute.
+        // Milliseconds of the current minute. The SDMS field is named seconds but is in the unit of milliseconds (see DDateTime from J2735).
         rtn.second = (unsigned int) (posix_time.time_of_day().seconds()*1000 + posix_time.time_of_day().fractional_seconds());
         return rtn;
     }
