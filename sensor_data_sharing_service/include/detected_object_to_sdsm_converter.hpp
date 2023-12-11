@@ -32,6 +32,18 @@ namespace sensor_data_sharing_service {
         {"CYCLIST",streets_utils::messages::sdsm::object_type::VRU },
         {"MOTORCYCLE",streets_utils::messages::sdsm::object_type::VRU },
     };
+
+    inline const int MILLISECONDS_TO_MICROSECONDS = 1000;
+
+    inline const int SECONDS_TO_MILLISECONDS = 1000;
+
+    inline const int METERS_TO_CM = 100;
+
+    inline const int METERS_TO_5_CM = 20;
+
+    inline const int METERS_TO_10_CM = 10;
+
+    inline const int METERS_PER_SECOND_TO_2_CM_PER_SECOND = 50;
     /**
      * @brief convert epoch millisecond timestamp to sdsm timestamp object
      * @return streets_utils::messages::sdsm::time_stamp.
