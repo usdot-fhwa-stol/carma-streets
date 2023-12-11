@@ -21,8 +21,10 @@
 #include <set>
 
 namespace sensor_data_sharing_service {
-
-    inline const std::map<std::string, streets_utils::messages::sdsm::object_type> sdsm_object_types = {
+    /**
+     * @brief Map of detection types to SDSM object types.
+     */
+    inline const std::map<std::string, streets_utils::messages::sdsm::object_type, std::less<>> sdsm_object_types = {
         {"CAR",streets_utils::messages::sdsm::object_type::VEHICLE },
         {"VAN",streets_utils::messages::sdsm::object_type::VEHICLE },
         {"TRUCK",streets_utils::messages::sdsm::object_type::VEHICLE },

@@ -77,9 +77,9 @@ namespace sensor_data_sharing_service {
                 return true;
             }
         }
-        catch (const std::exception &ex)
+        catch (const lanelet::ParseError &ex)
         {
-            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filepath, ex.what());
+            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} .", filepath, ex.what());
         }
         return false;
     }
