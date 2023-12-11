@@ -7,7 +7,10 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include <spdlog/spdlog.h>
+#include <rapidjson/istreamwrapper.h>
+#include <fstream>
 #include "json_utils_exception.hpp"
+#include "json_document_parse_error.hpp"
 
 namespace streets_utils::json_utils {
 
@@ -20,6 +23,15 @@ namespace streets_utils::json_utils {
      * @return resulting `rapidjson::Document`
      */
     rapidjson::Document parse_json( const std::string &json );
+/**
+     * @brief Function to parse file containing JSON with [RapidJSON](https://miloyip.github.io/rapidjson/index.html) with 
+     * [DOM  parsing](https://miloyip.github.io/rapidjson/md_obj_dom.html). Throws `json_parse_exception` if string is 
+     * not valid json. Otherwise returns `rapidjson::Document`
+     * @param json std::string JSON to parse
+     * @throws json_parse_exception if passed string is not valid json.
+     * @return resulting `rapidjson::Document`
+     */
+    rapidjson::Document parse_json_file(const std::string &filepath);
     /**
      * @brief Functions to retrieve int member values from JSON object [RapidJSON](https://miloyip.github.io/rapidjson/index.html)
      * with [DOM  parsing](https://miloyip.github.io/rapidjson/md_doc_dom.html). Functions will return unintialized

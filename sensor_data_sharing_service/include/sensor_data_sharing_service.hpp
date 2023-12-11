@@ -23,8 +23,28 @@
 #include <streets_utils/streets_messages_lib/serializers/sensor_data_sharing_msg_json_serializer.hpp>
 #include <streets_utils/streets_messages_lib/detected_object_msg/detected_object_msg.hpp>
 #include <streets_utils/streets_messages_lib/deserializers/detected_obj_msg_deserializer.hpp>
+// Lanelet2 libraries
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_io/Io.h>
+#include <lanelet2_core/primitives/LineString.h>
+#include <lanelet2_core/primitives/Point.h>
+#include <lanelet2_core/primitives/Polygon.h>
+#include <lanelet2_core/utility/Units.h>
+#include <lanelet2_core/geometry/BoundingBox.h>
+#include <lanelet2_core/primitives/BoundingBox.h>
+#include <lanelet2_extension/projection/mgrs_projector.h>
+#include <lanelet2_extension/projection/local_frame_projector.h>
+#include <lanelet2_extension/io/autoware_osm_parser.h>
+#include <lanelet2_io/Io.h>
+#include <lanelet2_io/io_handlers/Factory.h>
+#include <lanelet2_core/geometry/Point.h>
+#include <lanelet2_projection/UTM.h>
 #include <map>
 #include <shared_mutex>
+
+
+#include "sensor_configuration_parser.hpp"
+#include "detected_object_to_sdsm_converter.hpp"
 
 
 namespace sensor_data_sharing_service {
@@ -48,6 +68,32 @@ namespace sensor_data_sharing_service {
              */
             std::shared_mutex detected_objects_lock;
             /**
+             * @brief Lanelet2 Map pointer
+             */
+            lanelet::LaneletMapPtr map_ptr;
+
+            /**
+             * @brief WSG84 Map projection
+             */
+            std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
+
+            /**
+             * @brief Location of sensor.This is also the sensor's coordinate frame orignin meaning all offsets 
+             * are interpreted relative to this location.
+             */
+            lanelet::GPSPoint sdsm_reference_point;
+            
+            /**
+             * @brief Infrastructure ID used as source ID for SDSM broadcast
+             */
+            std::string _infrastructure_id;
+
+            /**
+             * @brief Message count for SDSM
+             */
+            uint8_t _message_count = 0;
+
+            /**
              * @brief Initialize Kafka consumers and producers for sensor data sharing service.
              * @return true if successful and false if unsuccessful.
              */
@@ -67,8 +113,18 @@ namespace sensor_data_sharing_service {
              * @throws std::runtime exception if sdsm_producer == nullptr
              */
             void produce_sdsms();
-
+            /**
+             * @brief Method to read lanelet2 map.
+             * @param filepath to lanelet2 osm file.
+             * @return true if successful.
+             */
+            bool read_lanelet_map(const std::string &filepath);
             
+            /**
+             * @brief Method to create SDSM from detected objects.
+             * @return sensor_data_sharing_msg created from detected objects.
+             */
+            streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm();
 
 
         public:
@@ -91,5 +147,6 @@ namespace sensor_data_sharing_service {
 
             FRIEND_TEST(sensorDataSharingServiceTest, consumeDetections);
             FRIEND_TEST(sensorDataSharingServiceTest, produceSdsms);
+            FRIEND_TEST(sensorDataSharingServiceTest, readLanelet2Map);
     };
 }

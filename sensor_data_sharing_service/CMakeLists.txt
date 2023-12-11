@@ -23,37 +23,52 @@ find_package(RapidJSON REQUIRED)
 find_package(GTest REQUIRED)
 find_package(streets_messages_lib REQUIRED)
 find_package(streets_service_base_lib REQUIRED)
-find_package(PROJ4)
+find_package(PROJ4 REQUIRED) 
 find_package(Eigen3 3.3 NO_MODULE)
-find_package(catkin COMPONENTS 
-                lanelet2_core 
-                lanelet2_projection 
-                lanelet2_io REQUIRED)
+find_package(lanelet2_core REQUIRED)
+find_package(lanelet2_projection REQUIRED)
+find_package(lanelet2_io REQUIRED)
+find_package(lanelet2_extension REQUIRED)
 find_package(carma-clock REQUIRED)
 # Add definition for rapidjson to include std::string
 add_definitions(-DRAPIDJSON_HAS_STDSTRING=1)
+# Add to make trace level logging available 
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
-
-set(SERVICE_NAME ${PROJECT_NAME})
+# Service Library
 set(LIBRARY_NAME ${PROJECT_NAME}_lib)
-
+# Service Executable
+set(SERVICE_NAME ${PROJECT_NAME})
 ########################################################
-# Build Library
+# Build Library and Service Executable
 ######################################################## 
-add_library(${LIBRARY_NAME} src/sensor_data_sharing_service.cpp )
+
+add_library(${LIBRARY_NAME} 
+    src/sensor_data_sharing_service.cpp 
+    src/sensor_configuration_parser.cpp 
+    src/detected_object_to_sdsm_converter.cpp)
+
 target_include_directories(${LIBRARY_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        ${catkin_INCLUDE_DIRS}
+        ${lanelet2_core_INCLUDE_DIRS}
+        ${lanelet2_io_INCLUDE_DIRS}
+        ${lanelet2_projection_INCLUDE_DIRS}
+        ${lanelet2_extension_lib_INCLUDE_DIRS}
 )
+
+
 target_link_libraries( ${LIBRARY_NAME}
     PUBLIC
         spdlog::spdlog
         rapidjson 
         streets_service_base_lib::streets_service_base_lib
         streets_utils::streets_messages_lib
-        ${catkin_LIBRARIES}
         Eigen3::Eigen
+        ${PROJ4_LIBRARIES}
+        ${lanelet2_core_LIBRARIES}
+        ${lanelet2_io_LIBRARIES}
+        ${lanelet2_projection_LIBRARIES}
+        ${lanelet2_extension_LIBRARIES}
 )  
 
 add_executable(${SERVICE_NAME} src/main.cpp)
@@ -77,4 +92,9 @@ target_link_libraries(${TEST_NAME}
         ${LIBRARY_NAME}
         GTest::Main
  )
+include(GoogleTest)
+gtest_discover_tests( ${TEST_NAME} 
+    DISCOVERY_MODE PRE_TEST
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
+)
 

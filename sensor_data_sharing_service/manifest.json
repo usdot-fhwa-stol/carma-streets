@@ -25,6 +25,18 @@
             "value": "127.0.0.1:9092",
             "description": "Kafka Broker Server Address.",
             "type": "STRING"
+        },
+        {
+            "name": "sensor_id",
+            "value": "sensor_1",
+            "description": "Unique id of sensor for which to publish SDSMS",
+            "type": "STRING"
+        },
+        {
+            "name": "sdsm_geo_reference",
+            "value": "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +vunits=m +no_defs",
+            "description": "Geo reference used for reference frame for Sensor Data Sharing messges broadcast",
+            "type": "STRING"
         }
     ]
 }

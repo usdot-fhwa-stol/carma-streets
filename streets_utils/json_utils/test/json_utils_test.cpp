@@ -22,6 +22,27 @@ TEST(JsonUtilsTest, testParseJsonValidJson) {
     auto parsed_doc = parse_json(valid_json);
     EXPECT_FALSE(parsed_doc.HasParseError());
 }
+
+TEST(JsonUtilsTest, testParseJsonValidJsonFile) {
+    // Correct JSON
+    std::string file_path = "/home/carma-streets/streets_utils/json_utils/test/test_files/valid.json";
+    auto parsed_doc = parse_json_file(file_path);
+    EXPECT_FALSE(parsed_doc.HasParseError());
+
+}
+
+TEST(JsonUtilsTest, testParseJsonInvalidJsonFilePath) {
+    // Correct JSON
+    std::string file_path = "/home/invalid/filepath.json";
+    EXPECT_THROW(parse_json_file(file_path), std::invalid_argument);
+}
+
+TEST(JsonUtilsTest, testParseJsonInvalidJsonFile) {
+    // Correct JSON
+    std::string file_path = "/home/carma-streets/streets_utils/json_utils/test/test_files/invalid.json";
+    EXPECT_THROW(parse_json_file(file_path), json_document_parse_error);
+}
+
 //---------------------test parse_uint_member---------------------
 TEST(JsonUtilsTest, testGetJsonUintRequiredPropertyPresent){
     // Test with required property present

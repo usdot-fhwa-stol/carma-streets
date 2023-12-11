@@ -7,9 +7,27 @@ namespace streets_utils::json_utils {
         obj.Parse(json);
         if (obj.HasParseError())
         {
+            // TODO: Change to json_document_parse_exception. Requires changes to services and unit tests
             throw json_parse_exception("Message JSON is misformatted. JSON parsing failed!");
         }
         return obj;
+    }
+
+    rapidjson::Document parse_json_file(const std::string &filepath) {
+         // Parse JSON configuration file
+        std::ifstream file(filepath);
+        if (!file.is_open()) {
+            throw std::invalid_argument("Unable to open Streets configuration file " + filepath + " due to : " + strerror(errno) + "."); 
+        }
+        // Add file contents to stream and parse stream into Document
+        rapidjson::IStreamWrapper isw(file);
+        rapidjson::Document doc;
+        doc.ParseStream(isw);
+        if (doc.HasParseError()){
+            throw json_document_parse_error("Encounter document parse error while attempting to parse sensor configuration file " + filepath + "!", doc);
+        }
+        file.close();
+        return doc;
     }
     std::optional<int> parse_int_member(const std::string &member_name, const rapidjson::Value &obj, bool required ){
         std::optional<int64_t> member;

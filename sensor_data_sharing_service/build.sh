@@ -15,9 +15,7 @@
 
 # Build script to build Sensor Data Sharing Service
 set -e
-# Source ros and lanelet2 for lanelet aware services
-source /opt/ros/melodic/setup.bash
-source /opt/carma_lanelet2/setup.bash
+
 
 COVERAGE_FLAGS=""
 
@@ -37,7 +35,7 @@ MAKE_ONLY_DIRS=(
 
 for DIR in "${MAKE_INSTALL_DIRS[@]}" "${MAKE_ONLY_DIRS[@]}"; do
     cd /home/carma-streets/"$DIR"
-    cmake -Bbuild -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_PREFIX_PATH="/opt/carma/cmake/;/opt/carma_lanelet2/" 
+    cmake -Bbuild -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_PREFIX_PATH="/opt/carma/cmake/;/opt/carma_lanelet2/" 
     cmake --build build
     for MAKE_INSTALL_DIR in "${MAKE_INSTALL_DIRS[@]}"; do
         if [ "$DIR" == "$MAKE_INSTALL_DIR" ]; then

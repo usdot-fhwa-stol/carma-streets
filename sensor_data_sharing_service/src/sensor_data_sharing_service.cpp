@@ -34,16 +34,54 @@ namespace sensor_data_sharing_service {
     }
 
     bool sds_service::initialize() {
-        if (!streets_service::initialize()) {
+        if (!streets_service::initialize() ) {
+            SPDLOG_ERROR("Failed to initialize streets service base!");
             return false;
         }
         SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
+        const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+        if (!read_lanelet_map(lanlet2_map)){
+            SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);
+            return false;
+        }
+        // Read sensor configuration file and get WSG84 location/origin reference frame.
+        const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
+        const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
+        const lanelet::BasicPoint3d pose = parse_sensor_location(sensor_config_file, sensor_id);
+        this->sdsm_reference_point =  this->map_projector->reverse(pose);
 
         // Initialize SDSM Kafka producer
-        std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
-        std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
-
+        const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
+        const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
+        const std::string sdsm_geo_reference = ss::streets_configuration::get_string_config("sdsm_geo_reference");
+        // Get Infrastructure ID for SDSM messages
+        this->_infrastructure_id =  streets_service::get_system_config("INFRASTRUCTURE_ID", "");
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
+    }
+
+    bool sds_service::read_lanelet_map(const std::string &filepath) {
+
+        try
+        {
+            int projector_type = 1;
+            std::string target_frame;
+            lanelet::ErrorMessages errors;
+            // Parse geo reference info from the lanelet map (.osm)
+            lanelet::io_handlers::AutowareOsmParser::parseMapParams(filepath, &projector_type, &target_frame);
+            this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(target_frame.c_str());
+            this->map_ptr = lanelet::load(filepath, *map_projector.get(), &errors);
+            // 
+            
+            if (!this->map_ptr->empty())
+            {
+                return true;
+            }
+        }
+        catch (const lanelet::ParseError &ex)
+        {
+            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} .", filepath, ex.what());
+        }
+        return false;
     }
 
     void sds_service::consume_detections(){
@@ -58,6 +96,7 @@ namespace sensor_data_sharing_service {
                 if (payload.length() != 0)
                 {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
+                    // Write Lock
                     std::unique_lock lock(detected_objects_lock);
                     detected_objects[detected_object._object_id] = detected_object;
                     SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
@@ -80,12 +119,11 @@ namespace sensor_data_sharing_service {
         while ( sdsm_producer->is_running() ) {
             try{
                 if ( !detected_objects.empty() ) {
-                    std::unique_lock lock(detected_objects_lock);
-                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
-                    // TODO: Populate SDSM with detected objects
+                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm();
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
+                    this->_message_count++;
                     // Clear detected object
                     detected_objects.clear();
                 }
@@ -98,6 +136,26 @@ namespace sensor_data_sharing_service {
        
     }
 
+    streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
+        streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
+        // Read lock
+        uint64_t timestamp = ss::streets_clock_singleton::time_in_ms();
+        msg._time_stamp = to_sdsm_timestamp(timestamp);
+        // Populate with rolling counter
+        msg._msg_count = this->_message_count;
+        // Populate with infrastructure id
+        msg._source_id = this->_infrastructure_id;
+        msg._equipment_type = sdsm::equipment_type::RSU;
+        std::shared_lock lock(detected_objects_lock);
+        for (const auto &[object_id, object] : detected_objects){
+            auto detected_object_data = to_detected_object_data(object);
+            // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
+            // This is a bug and needs to be addressed.
+            msg._objects.push_back(detected_object_data);
+        }
+        return msg;
+    }
+
     
     void sds_service::start() {
         SPDLOG_DEBUG("Starting Sensor Data Sharing Service");
@@ -107,4 +165,6 @@ namespace sensor_data_sharing_service {
         detection_thread.join();
         sdsm_thread.join();
     }
+
+
 }

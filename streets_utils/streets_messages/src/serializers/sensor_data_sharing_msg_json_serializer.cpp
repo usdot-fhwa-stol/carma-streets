@@ -81,14 +81,16 @@ namespace streets_utils::messages::sdsm{
 
     rapidjson::Value create_detected_object_data(const detected_object_data &val, rapidjson::Document::AllocatorType &allocator){
         rapidjson::Value detected_object_data_json(rapidjson::kObjectType);
+        rapidjson::Value object_data_json(rapidjson::kObjectType);
         // Create Common Data
-        detected_object_data_json.AddMember("detected_object_common_data",create_detected_object_data_common(val._detected_object_common_data,allocator), allocator );
+        object_data_json.AddMember("detected_object_common_data",create_detected_object_data_common(val._detected_object_common_data,allocator), allocator );
         // Create Optional Data
         if ( val._detected_object_optional_data.has_value() )
-            detected_object_data_json.AddMember(
+            object_data_json.AddMember(
                     "detected_object_optional_data",
                     create_detected_object_data_optional(val._detected_object_optional_data.value(), allocator),
                     allocator);
+        detected_object_data_json.AddMember("detected_object_data", object_data_json , allocator);
         return detected_object_data_json;
     }
 
