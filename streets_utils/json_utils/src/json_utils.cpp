@@ -17,7 +17,7 @@ namespace streets_utils::json_utils {
          // Parse JSON configuration file
         std::ifstream file(filepath);
         if (!file.is_open()) {
-            throw std::invalid_argument("Unable to open Streets configuration file " + filepath + " !"); 
+            throw std::invalid_argument("Unable to open Streets configuration file " + filepath + " due to : " + strerror(errno) + "."); 
         }
         // Add file contents to stream and parse stream into Document
         rapidjson::IStreamWrapper isw(file);

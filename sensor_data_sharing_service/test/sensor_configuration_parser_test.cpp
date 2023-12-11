@@ -17,6 +17,10 @@
 
 namespace sensor_data_sharing_service {
     TEST(sensor_configuration_parser_test, parse_sensor_location_test) {
-       parse_sensor_location("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors.json", "sensor_1"); 
+        auto pose = parse_sensor_location("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors.json", "sensor_1"); 
+        EXPECT_NEAR(pose.x(), 1.0 , 0.01 );
+        EXPECT_NEAR(pose.y(), 2.0 , 0.01 );
+        EXPECT_NEAR(pose.z(), -3.2 , 0.01 );
+
     }
 }
