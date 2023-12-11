@@ -20,7 +20,7 @@ namespace sensor_data_sharing_service{
 
         // From millisecond time stamp
         boost::posix_time::ptime posix_time = boost::posix_time::from_time_t(_epoch_time_ms/SECONDS_TO_MILLISECONDS) +
-                                        boost::posix_time::millisec(SECONDS_TO_MILLISECONDS % 1000);
+                                        boost::posix_time::millisec( _epoch_time_ms % SECONDS_TO_MILLISECONDS);
         sdsm_timestamp.year = posix_time.date().year();
         sdsm_timestamp.month = posix_time.date().month();
         sdsm_timestamp.day = posix_time.date().day();
