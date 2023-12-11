@@ -83,9 +83,7 @@ namespace sensor_data_sharing_service{
         if ( sdsm_object_types.find(detection_type) != sdsm_object_types.end()) {
             return sdsm_object_types.at(detection_type);
         }
-        else {
-            return streets_utils::messages::sdsm::object_type::UNKNOWN;
-        }
+        return streets_utils::messages::sdsm::object_type::UNKNOWN;
     }
 
 }
