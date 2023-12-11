@@ -78,7 +78,8 @@ namespace sensor_data_sharing_service {
             std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
 
             /**
-             * @brief Location of sensor. All offsets are interpreted relative to this location.
+             * @brief Location of sensor.This is also the sensor's coordinate frame orignin meaning all offsets 
+             * are interpreted relative to this location.
              */
             lanelet::GPSPoint sdsm_reference_point;
             
@@ -116,13 +117,7 @@ namespace sensor_data_sharing_service {
              * @brief Method to read lanelet2 map.
              * @return true if successful.
              */
-            bool read_lanelet_map();
-            /**
-             * @brief Method to read sensor configuration file. Uses file path specified in environment variable
-             * SENSOR_JSON_FILE_PATH.
-             * @return true if successful
-             */
-            bool read_sensor_configuration();
+            bool read_lanelet_map(const std::string &filepath);
             
             /**
              * @brief Method to create SDSM from detected objects.

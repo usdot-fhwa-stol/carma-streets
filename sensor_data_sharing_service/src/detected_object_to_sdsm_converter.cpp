@@ -39,11 +39,11 @@ namespace sensor_data_sharing_service{
             streets_utils::messages::sdsm::detected_vehicle_data optional_data;
             // Size in cm
             streets_utils::messages::sdsm::vehicle_size veh_size;
-            veh_size._length= (unsigned int) (msg._size._length*100);
-            veh_size._width= (unsigned int) (msg._size._width*100);
+            veh_size._length= static_cast<unsigned int>(msg._size._length*100);
+            veh_size._width= static_cast<unsigned int>(msg._size._width*100);
             optional_data._size = veh_size;
             // Height in 5 cm
-            optional_data._vehicle_height = (unsigned int) (msg._size._height * 20);
+            optional_data._vehicle_height = static_cast<unsigned int>(msg._size._height * 20);
 
 
             rtn._detected_object_optional_data = optional_data;
@@ -57,37 +57,30 @@ namespace sensor_data_sharing_service{
             streets_utils::messages::sdsm::detected_obstacle_data optional_data;
             // size dimensions in units of 0.1 m
             streets_utils::messages::sdsm::obstacle_size obs_size;
-            obs_size._length = (unsigned int) (msg._size._length*10);
-            obs_size._width = (unsigned int) (msg._size._width*10);
-            obs_size._height = (unsigned int) (msg._size._height*10);
+            obs_size._length = static_cast<unsigned int>(msg._size._length*10);
+            obs_size._width = static_cast<unsigned int>(msg._size._width*10);
+            obs_size._height = static_cast<unsigned int>(msg._size._height*10);
             optional_data._size = obs_size;
 
             rtn._detected_object_optional_data = optional_data;
 
         }
-        rtn._detected_object_common_data._classification_confidence = (unsigned int) (msg._confidence*100);
+        rtn._detected_object_common_data._classification_confidence = static_cast<unsigned int>(msg._confidence*100);
         // TODO: Change Detected Object ID to int
         rtn._detected_object_common_data._object_id = std::stoi(msg._object_id);
         // Units are 0.1 m
-        rtn._detected_object_common_data._position_offset._offset_x = (unsigned int) msg._position._x*10;
-        rtn._detected_object_common_data._position_offset._offset_y = (unsigned int) msg._position._y*10;
-        rtn._detected_object_common_data._position_offset._offset_z = (unsigned int) msg._position._z*10;
+        rtn._detected_object_common_data._position_offset._offset_x = static_cast<unsigned int>(msg._position._x*10);
+        rtn._detected_object_common_data._position_offset._offset_y = static_cast<unsigned int>(msg._position._y*10);
+        rtn._detected_object_common_data._position_offset._offset_z = static_cast<unsigned int>(msg._position._z*10);
         // Units are 0.02 m/s
-        rtn._detected_object_common_data._speed = (unsigned int) std::hypot( msg._velocity._x* 50,  msg._velocity._y* 50);
-        rtn._detected_object_common_data._speed_z = (unsigned int) (msg._velocity._z* 50);
+        rtn._detected_object_common_data._speed = static_cast<unsigned int>(std::hypot( msg._velocity._x* 50,  msg._velocity._y* 50));
+        rtn._detected_object_common_data._speed_z = static_cast<unsigned int>(msg._velocity._z* 50);
         return rtn;
     }
 
     streets_utils::messages::sdsm::object_type to_object_type(const std::string &detection_type){
-        // Get set of vehicle detection types.
-        auto vehicles = sdsm_object_types.find(streets_utils::messages::sdsm::object_type::VEHICLE)->second;
-        // Get set of vru detection types.
-        auto vrus = sdsm_object_types.find(streets_utils::messages::sdsm::object_type::VRU)->second;
-        if(vehicles.find(detection_type) != vehicles.end()) {
-            return streets_utils::messages::sdsm::object_type::VEHICLE;
-        }
-        else if ( vrus.find(detection_type) != vrus.end() ) {
-            return streets_utils::messages::sdsm::object_type::VRU;
+        if ( sdsm_object_types.find(detection_type) != sdsm_object_types.end()) {
+            return sdsm_object_types.at(detection_type);
         }
         else {
             return streets_utils::messages::sdsm::object_type::UNKNOWN;

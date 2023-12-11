@@ -22,9 +22,13 @@
 
 namespace sensor_data_sharing_service {
 
-    static const std::map<streets_utils::messages::sdsm::object_type, std::set<std::string, std::less<>>, std::less<>> sdsm_object_types = {
-        {streets_utils::messages::sdsm::object_type::VEHICLE, {"CAR", "VAN", "TRUCK"}},
-        {streets_utils::messages::sdsm::object_type::VRU, {"PEDESTRIAN", "CYCLIST", "MOTORCYLE"}}
+    inline const std::map<std::string, streets_utils::messages::sdsm::object_type> sdsm_object_types = {
+        {"CAR",streets_utils::messages::sdsm::object_type::VEHICLE },
+        {"VAN",streets_utils::messages::sdsm::object_type::VEHICLE },
+        {"TRUCK",streets_utils::messages::sdsm::object_type::VEHICLE },
+        {"PEDESTRIAN",streets_utils::messages::sdsm::object_type::VRU },
+        {"CYCLIST",streets_utils::messages::sdsm::object_type::VRU },
+        {"MOTORCYCLE",streets_utils::messages::sdsm::object_type::VRU },
     };
     /**
      * @brief convert epoch millisecond timestamp to sdsm timestamp object

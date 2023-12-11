@@ -17,19 +17,7 @@ namespace sensor_data_sharing_service {
 
     lanelet::BasicPoint3d parse_sensor_location( const std::string &filepath , const std::string &sensor_id ){
         // Parse JSON configuration file
-        std::ifstream file(filepath);
-        if (!file.is_open()) {
-            throw std::invalid_argument("Unable to open Streets configuration file " + filepath + " !"); 
-        }
-        // Add file contents to stream and parse stream into Document
-        rapidjson::IStreamWrapper isw(file);
-        rapidjson::Document doc;
-        doc.ParseStream(isw);
-        if (doc.HasParseError()){
-            SPDLOG_ERROR("Error  : {0} Offset: {1} ", doc.GetParseError(), doc.GetErrorOffset());
-            throw streets_utils::json_utils::json_parse_exception("Encounter document parse error while attempting to parse sensor configuration file " + filepath + "!");
-        }
-        file.close();
+        auto doc = streets_utils::json_utils::parse_json_file(filepath);
         if (!doc.IsArray()) {
             throw streets_utils::json_utils::json_parse_exception("Invadid format for sensor configuration file "  + filepath 
                 + ". Sensor configuration file should contain an array of json sensor configurations!");
@@ -39,8 +27,8 @@ namespace sensor_data_sharing_service {
             lanelet::BasicPoint3d sensor_location;
             for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
                 // Access the data in the object
-                auto _sensor_id = streets_utils::json_utils::parse_string_member("sensorId",  itr->GetObject(), true ).value();
-                if ( _sensor_id == sensor_id ) {
+                auto sensor_config_id = streets_utils::json_utils::parse_string_member("sensorId",  itr->GetObject(), true ).value();
+                if ( sensor_config_id == sensor_id ) {
                     found = true;
                     auto location = streets_utils::json_utils::parse_object_member("location",  itr->GetObject(), true ).value();
                     sensor_location = lanelet::BasicPoint3d{

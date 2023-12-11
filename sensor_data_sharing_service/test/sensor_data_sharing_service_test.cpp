@@ -96,12 +96,9 @@ namespace sensor_data_sharing_service {
     }
 
     TEST(sensorDataSharingServiceTest,readLanelet2Map) {
-        setenv("LANELET2_MAP", "/home/carma-streets/sample_map/town01_vector_map_test.osm", 1);
-        setenv("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors.json", 1);
         sds_service serv;
-        streets_service::streets_configuration::create("/home/carma-streets/sensor_data_sharing_service/manifest.json");
-        EXPECT_TRUE(serv.read_lanelet_map());
+        EXPECT_TRUE(serv.read_lanelet_map("/home/carma-streets/sample_map/town01_vector_map_test.osm"));
         EXPECT_NE(nullptr, serv.map_ptr);
-
     }
+
 }

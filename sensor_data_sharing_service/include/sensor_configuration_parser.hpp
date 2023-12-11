@@ -33,9 +33,7 @@
 #include <map>
 #include <stdexcept>
 #include <shared_mutex>
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
-#include <fstream>
+
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 
 namespace sensor_data_sharing_service{

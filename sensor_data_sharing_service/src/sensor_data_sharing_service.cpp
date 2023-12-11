@@ -35,13 +35,20 @@ namespace sensor_data_sharing_service {
 
     bool sds_service::initialize() {
         if (!streets_service::initialize() ) {
+            SPDLOG_ERROR("Failed to initialize streets service base!");
             return false;
         }
-        if (!read_lanelet_map()){
-            return false;
-        }
-
         SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
+        const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+        if (!read_lanelet_map(lanlet2_map)){
+            SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);
+            return false;
+        }
+        // Read sensor configuration file and get WSG84 location/origin reference frame.
+        const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
+        const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
+        const lanelet::BasicPoint3d pose = parse_sensor_location(sensor_config_file, sensor_id);
+        this->sdsm_reference_point =  this->map_projector->reverse(pose);
 
         // Initialize SDSM Kafka producer
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
@@ -52,22 +59,19 @@ namespace sensor_data_sharing_service {
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
     }
 
-    bool sds_service::read_lanelet_map() {
-        const auto filename = streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+    bool sds_service::read_lanelet_map(const std::string &filepath) {
 
         try
         {
             int projector_type = 1;
             std::string target_frame;
             lanelet::ErrorMessages errors;
-
             // Parse geo reference info from the lanelet map (.osm)
-            lanelet::io_handlers::AutowareOsmParser::parseMapParams(filename, &projector_type, &target_frame);
+            lanelet::io_handlers::AutowareOsmParser::parseMapParams(filepath, &projector_type, &target_frame);
             this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(target_frame.c_str());
-            this->map_ptr = lanelet::load(filename, *map_projector.get(), &errors);
+            this->map_ptr = lanelet::load(filepath, *map_projector.get(), &errors);
             // 
-            auto pose = parse_sensor_location( streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json"), ss::streets_configuration::get_string_config("sensor_id"));
-            this->sdsm_reference_point =  this->map_projector->reverse(pose);
+            
             if (!this->map_ptr->empty())
             {
                 return true;
@@ -75,7 +79,7 @@ namespace sensor_data_sharing_service {
         }
         catch (const std::exception &ex)
         {
-            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filename, ex.what());
+            SPDLOG_ERROR("Cannot read osm file {0}. Error message: {1} ", filepath, ex.what());
         }
         return false;
     }
