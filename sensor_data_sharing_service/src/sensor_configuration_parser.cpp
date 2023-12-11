@@ -41,7 +41,5 @@ namespace sensor_data_sharing_service {
             throw streets_utils::json_utils::json_parse_exception("Did not find sensor with id " + sensor_id + " in sensor configuration file " + filepath + "!");
         }
         return sensor_location;
-        
-       
     }
 }
