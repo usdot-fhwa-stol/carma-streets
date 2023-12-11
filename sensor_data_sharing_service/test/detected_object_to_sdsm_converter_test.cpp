@@ -46,14 +46,26 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(std::stoi(msg._object_id), data._detected_object_common_data._object_id);
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, data._detected_object_common_data._object_type);
         EXPECT_EQ(90, data._detected_object_common_data._classification_confidence);
-        EXPECT_EQ((unsigned int)(msg._position._x*10), data._detected_object_common_data._position_offset._offset_x);
-        EXPECT_EQ((unsigned int)(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
-        EXPECT_EQ((unsigned int)(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
+        EXPECT_EQ(static_cast<unsigned int>(msg._position._x*10), data._detected_object_common_data._position_offset._offset_x);
+        EXPECT_EQ(static_cast<unsigned int>(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
+        EXPECT_EQ(static_cast<unsigned int>(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
 
-        EXPECT_EQ((unsigned int)(std::hypot(msg._velocity._x*50, msg._velocity._y*50)), data._detected_object_common_data._speed);
-        EXPECT_EQ((unsigned int)(msg._velocity._z*50), data._detected_object_common_data._speed_z);
-        EXPECT_EQ((unsigned int) (msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
+        EXPECT_EQ(static_cast<unsigned int>(std::hypot(msg._velocity._x*50, msg._velocity._y*50)), data._detected_object_common_data._speed);
+        EXPECT_EQ(static_cast<unsigned int>(msg._velocity._z*50), data._detected_object_common_data._speed_z);
+        EXPECT_EQ(static_cast<unsigned int>(msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
 
 
+    }
+
+    TEST(detected_object_to_sdsm_converter_test, to_sdsm_timestamp_test) {
+        // Time 2023-12-11T19:07:44.075Z
+        uint64_t epoch_timestamp = 1702321664075;
+        auto sdsm_timestamp = to_sdsm_timestamp(epoch_timestamp);
+        EXPECT_EQ(2023, sdsm_timestamp.year);
+        EXPECT_EQ(12, sdsm_timestamp.month);
+        EXPECT_EQ(11, sdsm_timestamp.day);
+        EXPECT_EQ(19, sdsm_timestamp.hour);
+        EXPECT_EQ(7, sdsm_timestamp.minute);
+        EXPECT_EQ(44075, sdsm_timestamp.second);     
     }
 }

@@ -62,7 +62,39 @@ namespace sensor_data_sharing_service {
         // If producer null expect runtime error
 
         EXPECT_THROW(serv.produce_sdsms(), std::runtime_error);
-        const std::string detected_object_json ="{\"type\":\"CAR\",\"confidence\":0.7,\"sensorId\":\"sensor1\",\"projString\":\"projectionString2\",\"objectId\":\"1\",\"position\":{\"x\":-1.1,\"y\":-2.0,\"z\":-3.2},\"positionCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"velocity\":{\"x\":1.0,\"y\":1.0,\"z\":1.0},\"velocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"angularVelocity\":{\"x\":0.1,\"y\":0.2,\"z\":0.3},\"angularVelocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"size\":{\"length\":2.0,\"height\":1.0,\"width\":0.5}}";
+        const std::string detected_object_json =
+            R"(
+                {
+                    "type":"CAR",
+                    "confidence":0.7,
+                    "sensorId":"sensor1",
+                    "projString":"projectionString2",
+                    "objectId":"1",
+                    "position":{
+                        "x":-1.1,
+                        "y":-2.0,
+                        "z":-3.2
+                    },
+                    "positionCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+                    "velocity":{
+                        "x":1.0,
+                        "y":1.0,
+                        "z":1.0
+                    },
+                    "velocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+                    "angularVelocity":{
+                        "x":0.1,
+                        "y":0.2,
+                        "z":0.3
+                    },
+                    "angularVelocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+                    "size":{
+                        "length":2.0,
+                        "height":1.0,
+                        "width":0.5
+                    }
+                }
+            )";
         auto detected_object = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
         serv.detected_objects[detected_object._object_id] =detected_object;
         serv.sdsm_producer =  std::make_shared<kafka_clients::mock_kafka_producer_worker>();

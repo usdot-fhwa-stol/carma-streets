@@ -115,13 +115,14 @@ namespace sensor_data_sharing_service {
             void produce_sdsms();
             /**
              * @brief Method to read lanelet2 map.
+             * @param filepath to lanelet2 osm file.
              * @return true if successful.
              */
             bool read_lanelet_map(const std::string &filepath);
             
             /**
              * @brief Method to create SDSM from detected objects.
-             * @return SDSM.
+             * @return sensor_data_sharing_msg created from detected objects.
              */
             streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm();
 
