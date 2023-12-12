@@ -93,9 +93,10 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
+
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
     ASSERT_FALSE(object.HasMember("detected_object_optional_data"));
     // Retreive Object common data
@@ -197,7 +198,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_required_propertie
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
@@ -328,7 +329,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_human
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
@@ -473,7 +474,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_anima
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
@@ -619,7 +620,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vru_motor
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
@@ -751,7 +752,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_obstacle_
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
@@ -913,7 +914,7 @@ TEST(sensor_data_sharing_msg_json_serialization_test, confirm_optional_vehicle_p
     ASSERT_EQ(1,result.FindMember("objects")->value.GetArray().Size());
     ASSERT_TRUE(result["objects"].GetArray()[0].IsObject());
     // Confirm object properties
-    auto object = result["objects"].GetArray()[0].GetObject();
+    auto object = result["objects"].GetArray()[0].GetObject()["detected_object_data"].GetObject();
     // Assert Object has common data
     ASSERT_TRUE(object.HasMember("detected_object_common_data"));
     ASSERT_TRUE(object.FindMember("detected_object_common_data")->value.IsObject());
