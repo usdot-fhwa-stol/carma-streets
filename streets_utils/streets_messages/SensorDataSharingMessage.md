@@ -6,7 +6,7 @@ This CARMA-Streets library contains the Sensor Data Sharing Object as well as th
 > [!IMPORTANT]\
 > The first implementation of the SDSM generator will not include functionality to filter out detections that are likely self reporting actors publishing BSMs like described in the J3224 202208 document.
 ## Example JSON payload
-```
+```json
 {
   "msg_cnt": 1,
   "source_id": "00000001",
