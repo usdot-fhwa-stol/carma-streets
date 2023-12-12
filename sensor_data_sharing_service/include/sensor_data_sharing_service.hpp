@@ -62,7 +62,7 @@ namespace sensor_data_sharing_service {
             /**
              * @brief Map of detected objects. New detections of existing objects will replace old detections.
              */
-            std::map<std::string,streets_utils::messages::detected_objects_msg::detected_objects_msg, std::less<>> detected_objects;
+            std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg, std::less<>> detected_objects;
             /**
              * @brief Mutex for thread safe operations on detected objects map.
              */

@@ -27,7 +27,7 @@ namespace sensor_data_sharing_service {
     TEST(detected_object_to_sdsm_converter_test, test_to_detected_object_data) {
         // Create detected object
         streets_utils::messages::detected_objects_msg::detected_objects_msg msg;
-        msg._object_id = "123";
+        msg._object_id = 123;
         msg._type = "TREE";
         msg._sensor_id = "sensor_1";
         msg._proj_string = "some string";
@@ -43,7 +43,7 @@ namespace sensor_data_sharing_service {
         msg._size._height = 10;
 
         auto data = to_detected_object_data(msg);
-        EXPECT_EQ(std::stoi(msg._object_id), data._detected_object_common_data._object_id);
+        EXPECT_EQ(msg._object_id, data._detected_object_common_data._object_id);
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, data._detected_object_common_data._object_type);
         EXPECT_EQ(90, data._detected_object_common_data._classification_confidence);
         EXPECT_EQ(static_cast<unsigned int>(msg._position._x*10), data._detected_object_common_data._position_offset._offset_x);

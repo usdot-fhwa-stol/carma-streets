@@ -68,7 +68,7 @@ namespace sensor_data_sharing_service{
         }
         detected_object._detected_object_common_data._classification_confidence = static_cast<unsigned int>(msg._confidence*100);
         // TODO: Change Detected Object ID to int
-        detected_object._detected_object_common_data._object_id = std::stoi(msg._object_id);
+        detected_object._detected_object_common_data._object_id = msg._object_id;
         // Units are 0.1 m
         detected_object._detected_object_common_data._position_offset._offset_x = static_cast<unsigned int>(msg._position._x*METERS_TO_10_CM);
         detected_object._detected_object_common_data._position_offset._offset_y = static_cast<unsigned int>(msg._position._y*METERS_TO_10_CM);

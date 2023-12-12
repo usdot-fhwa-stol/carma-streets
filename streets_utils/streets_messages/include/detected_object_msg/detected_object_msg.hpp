@@ -32,7 +32,7 @@ namespace streets_utils::messages::detected_objects_msg {
         double _confidence;
         std::string _sensor_id;
         std::string _proj_string;
-        std::string _object_id;
+        unsigned int _object_id;
         cartesian_point _position;
         std::vector<std::vector<double>> _position_covariance;
         vector_3d _velocity;
@@ -40,6 +40,7 @@ namespace streets_utils::messages::detected_objects_msg {
         vector_3d _angular_velocity;
         std::vector<std::vector<double>> _angular_velocity_covariance;
         size _size;
+        uint64_t _timestamp;
 
     };
 
