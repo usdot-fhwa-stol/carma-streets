@@ -20,13 +20,45 @@
 
 TEST(detected_obj_msg_deserializer_test, deserialize)
 {
-    std::string json_prediction = "{\"type\":\"CAR\",\"confidence\":0.7,\"sensorId\":\"sensor1\",\"projString\":\"projectionString2\",\"objectId\":\"Object7\",\"position\":{\"x\":-1.1,\"y\":-2.0,\"z\":-3.2},\"positionCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"velocity\":{\"x\":1.0,\"y\":1.0,\"z\":1.0},\"velocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"angularVelocity\":{\"x\":0.1,\"y\":0.2,\"z\":0.3},\"angularVelocityCovariance\":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],\"size\":{\"length\":2.0,\"height\":1.0,\"width\":0.5}}";
+    std::string json_prediction = R"(
+        {
+            "type":"CAR",
+            "confidence":0.7,
+            "sensorId":"sensor1",
+            "projString":"projectionString2",
+            "objectId":27,
+            "position":{
+                "x":-1.1,
+                "y":-2.0,
+                "z":-3.2
+            },
+            "positionCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "velocity":{
+                "x":1.0,
+                "y":1.0,
+                "z":1.0
+            },
+            "velocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "angularVelocity":{
+                "x":0.1,
+                "y":0.2,
+                "z":0.3
+            },
+            "angularVelocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "size":{
+                "length":2.0,
+                "height":1.0,
+                "width":0.5
+            },
+            "timestamp":1702335309
+        }
+        )";
 
     auto msg = streets_utils::messages::detected_objects_msg::from_json(json_prediction);
     EXPECT_EQ(msg._type, "CAR");
     EXPECT_NEAR(0.7,msg._confidence, 0.01);
     EXPECT_EQ(msg._sensor_id, "sensor1");
-    EXPECT_EQ(msg._object_id, "Object7");
+    EXPECT_EQ(msg._object_id, 27);
     EXPECT_NEAR(msg._position._x, -1.1, 0.001);
     EXPECT_NEAR(msg._position._y, -2.0, 0.001);
     EXPECT_NEAR(msg._position._z, -3.2, 0.001);
@@ -70,5 +102,6 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
     EXPECT_NEAR(msg._size._length,2.0, 0.001);
     EXPECT_NEAR(msg._size._height,1.0, 0.001);
     EXPECT_NEAR(msg._size._width,0.5, 0.001);
+    EXPECT_EQ(msg._timestamp, 1702335309);
 
 }

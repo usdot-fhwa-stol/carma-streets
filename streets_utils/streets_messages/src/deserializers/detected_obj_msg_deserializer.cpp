@@ -27,7 +27,7 @@ namespace streets_utils::messages::detected_objects_msg {
         msg._confidence = streets_utils::json_utils::parse_double_member("confidence", document, true).value();
         msg._sensor_id = streets_utils::json_utils::parse_string_member("sensorId", document, true).value();
         msg._proj_string = streets_utils::json_utils::parse_string_member("projString", document, true).value();
-        msg._object_id = streets_utils::json_utils::parse_string_member("objectId", document, true).value();
+        msg._object_id = streets_utils::json_utils::parse_uint_member("objectId", document, true).value();
 
         auto position_obj = streets_utils::json_utils::parse_object_member("position", document, true).value();
         msg._position = parse_cartesian_3d(position_obj);
@@ -49,6 +49,7 @@ namespace streets_utils::messages::detected_objects_msg {
 
         auto size_obj = streets_utils::json_utils::parse_object_member("size", document, true).value();
         msg._size = parse_size(size_obj);
+        msg._timestamp = streets_utils::json_utils::parse_uint_member("timestamp", document, true).value();
 
 
         return msg;

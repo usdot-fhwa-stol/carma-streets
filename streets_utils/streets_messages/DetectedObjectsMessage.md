@@ -11,7 +11,7 @@ This CARMA-Streets library contains the Detected Objects Message as well as the 
   "confidence": 0.7,
   "sensorId": "sensor1",
   "projString": "projection String2",
-  "objectId": "Object7",
+  "objectId": 123,
   "position": {
     "x": -1.1,
     "y": -2,
@@ -82,6 +82,7 @@ This CARMA-Streets library contains the Detected Objects Message as well as the 
     "length": 2.0,
     "height": 1.0,
     "width": 0.5
-  }
+  },
+  "timestamp":1200
 }
 ```
