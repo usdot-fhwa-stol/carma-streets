@@ -15,7 +15,7 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
-
+set -e
 # For lanelet aware streets services like message_services and intersection_model
 source /opt/ros/melodic/setup.bash
 source /opt/carma_lanelet2/setup.bash

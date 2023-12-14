@@ -69,6 +69,7 @@ TEST(test_streets_desired_phase_plan_generator, test_set_configuration) {
  * red-clearance for 2 seconds.
  */
 TEST(test_streets_desired_phase_plan_generator, test_convert_spat_to_dpp) {
+    streets_service::streets_clock_singleton::create(false);
 
     /**
      * spat:
@@ -276,6 +277,7 @@ TEST(test_streets_desired_phase_plan_generator, test_signal_group_entry_lane_map
 namespace streets_signal_optimization {
 
 TEST(test_streets_desired_phase_plan_generator, test_generate_desired_phase_plan_list) {
+    streets_service::streets_clock_singleton::create(false);
 
     streets_desired_phase_plan_generator generator;
 
