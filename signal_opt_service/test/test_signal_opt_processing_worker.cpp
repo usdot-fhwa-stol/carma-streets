@@ -19,6 +19,8 @@ namespace signal_opt_service
     protected:
         void SetUp() override
         {
+            streets_service::streets_configuration::create("/home/carma-streets/message_services/manifest.json");
+
             tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
             std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
             std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
