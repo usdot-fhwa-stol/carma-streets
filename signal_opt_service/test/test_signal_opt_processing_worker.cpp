@@ -19,6 +19,8 @@ namespace signal_opt_service
     protected:
         void SetUp() override
         {
+            streets_service::streets_configuration::create("/home/carma-streets/message_services/manifest.json");
+            streets_service::streets_clock_singleton::create(false);
             tsc_state = std::make_shared<streets_tsc_configuration::tsc_configuration_state>();
             std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
             std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
@@ -247,6 +249,7 @@ namespace signal_opt_service
 
     TEST_F(test_signal_opt_processing_worker, select_optimal_dpp)
     {
+
         auto so_processing_worker = std::make_shared<signal_opt_processing_worker>();
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         std::chrono::milliseconds epochMs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());

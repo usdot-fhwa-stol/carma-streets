@@ -31,6 +31,7 @@ namespace {
          */
         void SetUp() override {
             
+            streets_service::streets_clock_singleton::create(false);
             schedule = std::make_shared<signalized_intersection_schedule>();
             // the schedule timestamp is set to 10000 tenths of seconds from the current hour.
             uint64_t hour_tenth_secs = 10000;
