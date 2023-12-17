@@ -54,7 +54,7 @@ namespace streets_utils::messages::sdsm {
         /**
          * @brief Confidence in reported position
          */
-        position_confidence_set _pos_confidence;
+        position_confidence_set _pos_confidence = position_confidence_set();
         /**
          * @brief Object speed in unit (0.02 m/s) [0, 8191]
          */
