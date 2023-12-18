@@ -21,10 +21,19 @@ if __name__ == "__main__":
 
     # Send a new schedule
     curr_time = round(time.time()*1000)
-    data = read_json('detected_object.json')
-    producer.send('detections', value=data)
-    print(f'Sent a detection.{data}')
-    producer.flush()
+    while True :
+        data = read_json('detected_pedestrian.json')
+        producer.send('detections', value=data)
+        print(f'Sent a detection.{data}')
+        producer.flush()
+        data = read_json('detected_cyclist.json')
+        producer.send('detections', value=data)
+        print(f'Sent a detection.{data}')
+        data = read_json('detected_truck.json')
+        producer.send('detections', value=data)
+        print(f'Sent a detection.{data}')
+        producer.flush()
+        time.sleep(0.1)
 
 
     

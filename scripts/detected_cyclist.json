@@ -1,0 +1,79 @@
+{
+    "type": "CYCLIST",
+    "confidence": 0.7,
+    "sensorId": "sensor1",
+    "projString": "projection String2",
+    "objectId": 1,
+    "position": {
+      "x": -1.1,
+      "y": -2.0,
+      "z": -3.2
+    },
+    "positionCovariance": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "velocity": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "velocityCovariance": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "angularVelocity": {
+      "x": 0.1,
+      "y": 0.2,
+      "z": 0.3
+    },
+    "angularVelocityCovariance": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "size": {
+      "length": 2.0,
+      "height": 1.0,
+      "width": 0.5
+    },
+    "timestamp": 1230
+  }
