@@ -123,7 +123,12 @@ namespace sensor_data_sharing_service {
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
-                    this->_message_count++;
+                    // Message Count max is 127, reset after max value
+                    if ( this->_message_count <= 127) {
+                        this->_message_count++;
+                    }else {
+                        this->_message_count = 0;
+                    }
                     // Clear detected object
                     detected_objects.clear();
                 }
@@ -131,7 +136,7 @@ namespace sensor_data_sharing_service {
             catch( const streets_utils::json_utils::json_parse_exception &e) {
                 SPDLOG_ERROR("Exception occurred producing SDSM : {0}", e.what());
             }         
-            ss::streets_clock_singleton::sleep_for(1000); // Sleep for 10 second between publish  
+            ss::streets_clock_singleton::sleep_for(100); // Sleep for 100 ms between publish  
         }
        
     }

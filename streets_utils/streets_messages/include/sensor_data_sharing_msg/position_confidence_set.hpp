@@ -17,8 +17,8 @@
 
 namespace streets_utils::messages::sdsm {
     struct position_confidence_set{
-        position_confidence _position_confidence;
-        position_confidence _elevation_confidence;
+        position_confidence _position_confidence = position_confidence::UNAVAILABLE;
+        position_confidence _elevation_confidence = position_confidence::UNAVAILABLE;
 
     };
 }
