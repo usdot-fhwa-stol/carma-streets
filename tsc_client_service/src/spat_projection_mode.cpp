@@ -6,13 +6,10 @@ namespace traffic_signal_controller_service{
         {
         case 0:
             return SPAT_PROJECTION_MODE::NO_PROJECTION;
-            break;
         case 1:
             return SPAT_PROJECTION_MODE::DPP_PROJECTION;
-            break;
         case 2:
             return SPAT_PROJECTION_MODE::FIXED_TIMING_PROJECTION;
-            break;
         default:
             return SPAT_PROJECTION_MODE::NO_PROJECTION;
         }

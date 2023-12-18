@@ -375,7 +375,6 @@ namespace streets_snmp_cmd
             break;
         default:
             throw streets_snmp_cmd_exception("Phase control schedule command type does not have a mapping SNMP phase control type.");
-            break;
         }
         return result;
     }
