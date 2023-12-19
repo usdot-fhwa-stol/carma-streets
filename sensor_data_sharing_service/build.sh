@@ -15,6 +15,7 @@
 
 # Build script to build Sensor Data Sharing Service
 set -e
+source /opt/carma_lanelet2/setup.bash
 
 
 COVERAGE_FLAGS=""
@@ -43,3 +44,4 @@ for DIR in "${MAKE_INSTALL_DIRS[@]}" "${MAKE_ONLY_DIRS[@]}"; do
         fi
     done
 done
+ldconfig
