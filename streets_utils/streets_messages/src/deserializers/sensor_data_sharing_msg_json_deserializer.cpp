@@ -171,8 +171,8 @@ namespace streets_utils::messages::sdsm {
 
     detected_vehicle_data parse_detected_vehicle_data(const rapidjson::Value &val){
         detected_vehicle_data data;
-        data.exterior_lights = parse_string_member("lights", val, false); {
-        if ( val.HasMember("veh_attitude"))
+        data.exterior_lights = parse_string_member("lights", val, false); 
+        if ( val.HasMember("veh_attitude")) {
             data._veh_attitude = parse_vehicle_attitude(parse_object_member("veh_attitude", val, false).value());
         }
         if ( val.HasMember("veh_attitude_confidence")) {
