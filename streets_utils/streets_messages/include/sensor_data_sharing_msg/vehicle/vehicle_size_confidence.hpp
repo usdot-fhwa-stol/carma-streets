@@ -15,7 +15,7 @@
 #include "sensor_data_sharing_msg/size_value_confidence.hpp"
 #include <optional>
 namespace streets_utils::messages::sdsm{
-    struct vehicle_size_confidence{
+    struct vehicle_size_confidenc {
         /**
          * @brief Confidence in reported width
          */
