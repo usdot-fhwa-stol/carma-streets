@@ -19,6 +19,7 @@
 #include <spdlog/spdlog.h>
 #include <map>
 #include <set>
+#include <math.h>
 
 namespace sensor_data_sharing_service {
     /**
@@ -60,4 +61,25 @@ namespace sensor_data_sharing_service {
      * @return streets_utils::messages::sdsm::object_type
      */
     streets_utils::messages::sdsm::object_type to_object_type(const std::string &detection_type);
+
+    // unsigned int to_heading(const streets_utils::messages::detected_objects_msg::vector_3d &velocity);
+
+    streets_utils::messages::sdsm::position_confidence_set to_position_confidence_set( const std::vector<std::vector<double>> &_position_covariance);
+
+    // streets_utils::messages::sdsm::speed_confidence to_xy_speed_confidence(const std::vector<std::vector<double>> &velocity_covariance);
+
+    // streets_utils::messages::sdsm::speed_confidence to_z_speed_confidence(const std::vector<std::vector<double>> &velocity_covariance);
+
+    // streets_utils::messages::sdsm::angular_velocity_confidence to_yaw_rate_confidence( const std::vector<std::vector<double>> &angular_velocity_covariance );
+
+    // streets_utils::messages::sdsm::heading_confidence to_heading_confidence(const std::vector<std::vector<double>> &angular_velocity_covariance);
+
+    streets_utils::messages::sdsm::position_confidence to_position_confidence(const double accuracy);
+
+
+
+
+
+
+
 }

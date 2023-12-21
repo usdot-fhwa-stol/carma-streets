@@ -18,13 +18,13 @@
 #include <streets_utils/streets_messages_lib/sensor_data_sharing_msg/object_type.hpp>
 
 namespace sensor_data_sharing_service {
-    TEST(detected_object_to_sdsm_converter_test, test_to_object_type){
+    TEST(detectedObjectToSdsmConverterTest, testToObjectType){
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::VEHICLE, to_object_type("CAR"));
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::VRU, to_object_type("CYCLIST"));
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, to_object_type("TREE"));
     }
 
-    TEST(detected_object_to_sdsm_converter_test, test_to_detected_object_data) {
+    TEST(detectedObjectToSdsmConverterTest, testToDetectedObjectData) {
         // Create detected object
         streets_utils::messages::detected_objects_msg::detected_objects_msg msg;
         msg._object_id = 123;
@@ -57,7 +57,7 @@ namespace sensor_data_sharing_service {
 
     }
 
-    TEST(detected_object_to_sdsm_converter_test, to_sdsm_timestamp_test) {
+    TEST(detectedObjectToSdsmConverterTest, toSdsmTimestampTest) {
         // Time 2023-12-11T19:07:44.075Z
         uint64_t epoch_timestamp = 1702321664075;
         auto sdsm_timestamp = to_sdsm_timestamp(epoch_timestamp);
@@ -68,4 +68,48 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(7, sdsm_timestamp.minute);
         EXPECT_EQ(44075, sdsm_timestamp.second);     
     }
+
+    TEST(detectedObjectToSdsmConverterTest, toPositionConfidenceSet) {
+        // Covariance matrix x variance 0.4m variance =0.4m and z variance 0.4m (diagonal)
+        std::vector<std::vector<double>> position_covariance = {{0.2, 2.3, 5.2},{0.1, 0.2, 5.2},{0.1, 2.3, 0.2}};
+        auto position_confidence_set = to_position_confidence_set(position_covariance);
+        // 0.4m * 2 for 95 % confidence interval is closer to 1 m than to 50 cm
+        EXPECT_EQ( streets_utils::messages::sdsm::position_confidence::A_1M ,position_confidence_set._position_confidence );
+        EXPECT_EQ( streets_utils::messages::sdsm::position_confidence::A_1M ,position_confidence_set._elevation_confidence );
+
+    }
+
+    TEST(detectedObjectToSdsmConvertTest, toPositionConfidence) {
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_500M, to_position_confidence(550));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_500M, to_position_confidence(375));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_500M, to_position_confidence(350));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_200M, to_position_confidence(349));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_200M, to_position_confidence(150));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_100M, to_position_confidence(149));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_100M, to_position_confidence(75));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_50M, to_position_confidence(74));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_50M, to_position_confidence(35));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_20M, to_position_confidence(34));
+
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_500M, to_position_confidence(500));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_200M, to_position_confidence(200));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_100M, to_position_confidence(100));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_50M, to_position_confidence(50));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_20M, to_position_confidence(20));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_10M, to_position_confidence(10));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_5M, to_position_confidence(5));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_2M, to_position_confidence(2));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_1M, to_position_confidence(1));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_50CM, to_position_confidence(.50));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_20CM, to_position_confidence(.20));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_10CM, to_position_confidence(.10));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_5CM, to_position_confidence(.05));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_2CM, to_position_confidence(.02));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_1CM, to_position_confidence(.01));
+        EXPECT_EQ(streets_utils::messages::sdsm::position_confidence::A_1CM, to_position_confidence(.001));
+
+    }
+
+
+    
 }
