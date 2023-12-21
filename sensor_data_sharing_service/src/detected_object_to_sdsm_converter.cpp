@@ -84,7 +84,7 @@ namespace sensor_data_sharing_service{
         // Speed Z confidence
         // detected_object._detected_object_common_data._speed_z_confidence = to_z_speed_confidence(msg._velocity_covariance);
         // Heading
-        // detected_object._detected_object_common_data._heading = to_heading(msg._velocity);
+        detected_object._detected_object_common_data._heading = to_heading(msg._velocity);
         // TODO: how to calculate heading confidence without orientation covariance
         // Possible approximation is velocity covariance since we are using that currently
         // Yaw rate
@@ -170,6 +170,19 @@ namespace sensor_data_sharing_service{
         }
         
     }
+
+    unsigned int to_heading(const streets_utils::messages::detected_objects_msg::vector_3d &velocity){
+        auto heading_radians = std::atan2(velocity._y,velocity._x);
+        auto heading_degrees = heading_radians*(180/M_PI);
+        // If angle is negative 360 + (-negative angle)
+        if ( heading_degrees < 0 ) {
+            heading_degrees = 360 + heading_degrees;
+        }
+        // in units (x)  = 0.0125 degrees
+        // 28800 x = 360 degrees
+        return static_cast<unsigned int>(heading_degrees * (28800/360));
+    }
+
 
 
 

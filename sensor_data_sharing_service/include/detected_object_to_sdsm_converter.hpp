@@ -62,7 +62,7 @@ namespace sensor_data_sharing_service {
      */
     streets_utils::messages::sdsm::object_type to_object_type(const std::string &detection_type);
 
-    // unsigned int to_heading(const streets_utils::messages::detected_objects_msg::vector_3d &velocity);
+    unsigned int to_heading(const streets_utils::messages::detected_objects_msg::vector_3d &velocity);
 
     streets_utils::messages::sdsm::position_confidence_set to_position_confidence_set( const std::vector<std::vector<double>> &_position_covariance);
 

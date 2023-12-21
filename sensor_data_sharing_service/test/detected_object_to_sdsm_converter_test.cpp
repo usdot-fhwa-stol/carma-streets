@@ -111,5 +111,35 @@ namespace sensor_data_sharing_service {
     }
 
 
-    
+    TEST(detectedObjectToSdsmConvertTest, toHeading) {
+        streets_utils::messages::detected_objects_msg::vector_3d velocity;
+        velocity._x = 1;
+        velocity._y= 0;
+        EXPECT_EQ(0, to_heading(velocity));
+        velocity._x = 1;
+        velocity._y = 1;
+        EXPECT_EQ(3600, to_heading(velocity));
+        velocity._x = 0;
+        velocity._y = 1;
+        EXPECT_EQ(7200, to_heading(velocity));
+        velocity._x = -1;
+        velocity._y = 1;
+        EXPECT_EQ(10800, to_heading(velocity));
+        velocity._x = -1;
+        velocity._y = 0;
+        EXPECT_EQ(14400, to_heading(velocity));
+        velocity._x = -1;
+        velocity._y = -1;
+        EXPECT_EQ(18000, to_heading(velocity));
+        velocity._x = 0;
+        velocity._y = -1;
+        EXPECT_EQ(21600, to_heading(velocity));
+        velocity._x = 1;
+        velocity._y = -1;
+        EXPECT_EQ(25200, to_heading(velocity));
+        
+
+    }
+
+
 }
