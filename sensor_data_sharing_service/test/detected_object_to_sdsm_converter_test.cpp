@@ -163,5 +163,24 @@ namespace sensor_data_sharing_service {
 
     }
 
+    TEST(detectedObjectToSdsmConvertTest, toYawRateConfidence) {
+        std::vector<std::vector<double>> angular_velocity_covariance = {{4, 2.3, 5.2},{0.1, 4, 5.2},{0.1, 2.3, 9}};
+        auto speed_confidence =  to_yaw_rate_confidence(angular_velocity_covariance);
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_05,speed_confidence);
+
+    }
+
+    TEST(detectedObjectToSdsmConvertTest, toAngularVelocityConfidence) {
+        
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_100,to_angular_velocity_confidence(100));
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_10,to_angular_velocity_confidence(10));
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_05,to_angular_velocity_confidence(5));
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_01,to_angular_velocity_confidence(1));
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_1,to_angular_velocity_confidence(0.1));
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_05,to_angular_velocity_confidence(0.05));
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_01,to_angular_velocity_confidence(0.01));
+
+    }
+
 
 }

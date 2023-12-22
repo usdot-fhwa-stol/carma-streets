@@ -87,10 +87,12 @@ namespace sensor_data_sharing_service{
         detected_object._detected_object_common_data._heading = to_heading(msg._velocity);
         // TODO: how to calculate heading confidence without orientation covariance
         // Possible approximation is velocity covariance since we are using that currently
+        // Currently hard coding value
+        detected_object._detected_object_common_data._heading_confidence = streets_utils::messages::sdsm::heading_confidence::PREC_10_deg;
         // Yaw rate
         detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = msg._angular_velocity._z;
         // Yaw rate confidence
-        // detected_object._detected_object_common_data._yaw_rate_confidence = to_yaw_rate_confidence(msg._angular_velocity_covariance);
+        detected_object._detected_object_common_data._yaw_rate_confidence = to_yaw_rate_confidence(msg._angular_velocity_covariance);
 
 
         return detected_object;
@@ -231,6 +233,38 @@ namespace sensor_data_sharing_service{
         }
     }
 
+
+    streets_utils::messages::sdsm::angular_velocity_confidence to_yaw_rate_confidence( const std::vector<std::vector<double>> &angular_velocity_covariance ){
+        auto z_variance = angular_velocity_covariance[2][2];
+        auto z_accuracy = sqrt(z_variance) * 2 ; 
+        return to_angular_velocity_confidence(z_accuracy);
+    }
+    
+
+    streets_utils::messages::sdsm::angular_velocity_confidence to_angular_velocity_confidence(const double accuracy) {
+         if ( accuracy >= 55) {
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_100;
+        }
+        else if (accuracy >= 7.5) {
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_10;
+        }
+        else if (accuracy >= 3) {
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_05;
+        }
+        else if (accuracy >= .55) {
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_01;
+        }
+        else if (accuracy >= .075) {
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_1;
+        }
+        else if (accuracy >= .03) {
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_05;
+        }
+        else {
+            // This is the lowest speed confidence the SDSM can reflect
+            return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_01;
+        }
+    }
 
 
 }

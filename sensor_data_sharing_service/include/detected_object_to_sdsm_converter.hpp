@@ -72,17 +72,11 @@ namespace sensor_data_sharing_service {
 
     streets_utils::messages::sdsm::speed_confidence to_speed_confidence(const double accuracy);
 
-    // streets_utils::messages::sdsm::speed_confidence to_z_speed_confidence(const std::vector<std::vector<double>> &velocity_covariance);
-
-    // streets_utils::messages::sdsm::angular_velocity_confidence to_yaw_rate_confidence( const std::vector<std::vector<double>> &angular_velocity_covariance );
-
-    // streets_utils::messages::sdsm::heading_confidence to_heading_confidence(const std::vector<std::vector<double>> &angular_velocity_covariance);
+    streets_utils::messages::sdsm::angular_velocity_confidence to_yaw_rate_confidence( const std::vector<std::vector<double>> &angular_velocity_covariance );
 
     streets_utils::messages::sdsm::position_confidence to_position_confidence(const double accuracy);
 
-
-
-
+    streets_utils::messages::sdsm::angular_velocity_confidence to_angular_velocity_confidence(const double accuracy);
 
 
 
