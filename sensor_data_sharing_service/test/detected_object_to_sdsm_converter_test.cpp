@@ -36,8 +36,8 @@ namespace sensor_data_sharing_service {
         msg._angular_velocity = {0.1, 2.3, 5.2};
         msg._position = {0.1, 2.3, 5.2};
         msg._position_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
+        msg._velocity_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
         msg._angular_velocity_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
-        msg._position_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
         msg._size._length =1.1;
         msg._size._width =1.1;
         msg._size._height = 10;
@@ -138,6 +138,28 @@ namespace sensor_data_sharing_service {
         velocity._y = -1;
         EXPECT_EQ(25200, to_heading(velocity));
         
+
+    }
+
+    TEST(detectedObjectToSdsmConvertTest, toSpeed_XYZ_Confidence) {
+        std::vector<std::vector<double>> velocity_covariance = {{4, 2.3, 5.2},{0.1, 4, 5.2},{0.1, 2.3, 9}};
+        auto speed_confidence =  to_xy_speed_confidence(velocity_covariance);
+        auto speed_z_confidence = to_z_speed_confidence(velocity_covariance);
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_5ms,speed_z_confidence);
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_5ms,speed_confidence);
+
+    }
+
+    TEST(detectedObjectToSdsmConvertTest, toSpeedConfidence) {
+        
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_100ms,to_speed_confidence(100));
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_10ms,to_speed_confidence(10));
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_5ms,to_speed_confidence(5));
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_1ms,to_speed_confidence(1));
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_0_1ms,to_speed_confidence(0.1));
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_0_05ms,to_speed_confidence(0.05));
+        EXPECT_EQ(streets_utils::messages::sdsm::speed_confidence::PREC_0_01ms,to_speed_confidence(0.01));
+
 
     }
 
