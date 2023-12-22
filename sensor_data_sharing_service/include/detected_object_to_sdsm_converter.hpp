@@ -61,23 +61,64 @@ namespace sensor_data_sharing_service {
      * @return streets_utils::messages::sdsm::object_type
      */
     streets_utils::messages::sdsm::object_type to_object_type(const std::string &detection_type);
-
+    /**
+     * @brief Convert XY velocity into 2 dimensional heading measured in 0.0125 degree units
+     * @param velocity vector of velocity
+     * @return 2 dimensional heading in units of 0.0125 degrees
+     */
     unsigned int to_heading(const streets_utils::messages::detected_objects_msg::vector_3d &velocity);
-
+    /**
+     * @brief Convert position covariance to position confidence set which includes positionXY confidence
+     * and position z confidence.
+     * @param _position_covariance 
+     * @return position confidence set.
+     */
     streets_utils::messages::sdsm::position_confidence_set to_position_confidence_set( const std::vector<std::vector<double>> &_position_covariance);
-
+    /**
+     * @brief Convert velocity covariance to xy speed confidence.
+     * @param velocity_covariance 
+     * @return xy speed confidence
+     */
     streets_utils::messages::sdsm::speed_confidence to_xy_speed_confidence(const std::vector<std::vector<double>> &velocity_covariance);
-    
+     /**
+     * @brief Convert velocity covariance to z speed confidence.
+     * @param velocity_covariance 
+     * @return z speed confidence
+     */
     streets_utils::messages::sdsm::speed_confidence to_z_speed_confidence(const std::vector<std::vector<double>> &velocity_covariance);
-
+    /**
+     * @brief Convert accuracy value to speed confidence enumeration. To minimize error in conversion, method 
+     * rounds up/down to the nearest enum value
+     * @param accuracy 
+     * @return speed confidence enumeration
+     */
     streets_utils::messages::sdsm::speed_confidence to_speed_confidence(const double accuracy);
-
+    /**
+     * @brief Convert angular velocity covariance to angular velocity confidence.
+     * @param angular_velocity_covariance 
+     * @return angular velocity confidence
+     */
     streets_utils::messages::sdsm::angular_velocity_confidence to_yaw_rate_confidence( const std::vector<std::vector<double>> &angular_velocity_covariance );
-
+    /**
+     * @brief Convert accuracy value to position confidence enumeration. To minimize error in conversion, method 
+     * rounds up/down to the nearest enum value
+     * @param accuracy 
+     * @return position confidence enumeration
+     */
     streets_utils::messages::sdsm::position_confidence to_position_confidence(const double accuracy);
-
+    /**
+     * @brief Convert accuracy value to angular velocity confidence enumeration. To minimize error in conversion, method 
+     * rounds up/down to the nearest enum value
+     * @param accuracy 
+     * @return angular velocity confidence
+     */
     streets_utils::messages::sdsm::angular_velocity_confidence to_angular_velocity_confidence(const double accuracy);
 
+    /**
+     * @brief Convert yaw rate in radians per second to 100ths of a degree per second 
+     * @param yaw_rate_radians_per_second 
+     * @return yaw rate in 0.01 degrees/second.
+     */
     int to_yaw_rate( const double yaw_rate_radians_per_second );
 
 

@@ -115,7 +115,7 @@ namespace sensor_data_sharing_service{
         // X
         // Multiply variance by 2 get 95% confidence interval for normal distribution
         auto xy_accuracy = sqrt(x_variance) * 2 ; 
-        auto z_accuracy = sqrt(x_variance) * 2;
+        auto z_accuracy = sqrt(z_variance) * 2;
         streets_utils::messages::sdsm::position_confidence_set position_confidence_set;
         position_confidence_set._position_confidence =  to_position_confidence(xy_accuracy);
         position_confidence_set._elevation_confidence = to_position_confidence(z_accuracy);
