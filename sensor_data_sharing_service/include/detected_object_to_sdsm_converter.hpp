@@ -78,6 +78,8 @@ namespace sensor_data_sharing_service {
 
     streets_utils::messages::sdsm::angular_velocity_confidence to_angular_velocity_confidence(const double accuracy);
 
+    int to_yaw_rate( const double yaw_rate_radians_per_second );
+
 
 
 }

@@ -182,5 +182,12 @@ namespace sensor_data_sharing_service {
 
     }
 
+    TEST(detectedObjectToSdsmConvertTest, toYawRate) {
+        EXPECT_NEAR(2939, to_yaw_rate(0.513), 1);
+        EXPECT_NEAR(-2939, to_yaw_rate(-0.513), 1);
+
+    }
+
+
 
 }

@@ -90,7 +90,7 @@ namespace sensor_data_sharing_service{
         // Currently hard coding value
         detected_object._detected_object_common_data._heading_confidence = streets_utils::messages::sdsm::heading_confidence::PREC_10_deg;
         // Yaw rate
-        detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = msg._angular_velocity._z;
+        detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = to_yaw_rate(msg._angular_velocity._z);
         // Yaw rate confidence
         detected_object._detected_object_common_data._yaw_rate_confidence = to_yaw_rate_confidence(msg._angular_velocity_covariance);
 
@@ -265,6 +265,12 @@ namespace sensor_data_sharing_service{
             return streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_01;
         }
     }
+
+    int to_yaw_rate( const double yaw_rate_radians_per_second ) {
+        // Return in units of 0.01 degrees per second;
+        return static_cast<int>( yaw_rate_radians_per_second * (180/(M_PI)) * 100);
+    }
+
 
 
 }
