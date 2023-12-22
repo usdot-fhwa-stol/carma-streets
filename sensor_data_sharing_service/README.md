@@ -10,3 +10,7 @@ This is the **CARMA Streets** service responsible for consuming [detected_object
 
 For covariance to confidence/accuracy translation assumed the following. All confidence/accuracy measurements in SDSM assume 95% confidence interval ( from J3224 documentation). Assuming normal distribution of measurements. Diagonal in covariance matrix is variance for each component. SD (Standard deviation) is square root of variance. 2 standard deviations covers 95 % of sample in normal distribution
 ![image](https://github.com/usdot-fhwa-stol/carma-streets/assets/77466294/4a6e9875-2f87-4a8f-b1a0-33a6769439ac)
+
+## Sensor Data Sharing speed and heading
+For heading and speed we use following coordinate frame as described in the J3224 specifications.
+![Alt text](docs/image.png)
