@@ -80,7 +80,7 @@ namespace sensor_data_sharing_service{
         // Speed confidence
         detected_object._detected_object_common_data._speed_confidence = to_xy_speed_confidence(msg._velocity_covariance);
         // Speed Z
-        detected_object._detected_object_common_data._speed_z = static_cast<unsigned int>(msg._velocity._z* METERS_PER_SECOND_TO_2_CM_PER_SECOND);
+        detected_object._detected_object_common_data._speed_z = static_cast<unsigned int>(fabs(msg._velocity._z)* METERS_PER_SECOND_TO_2_CM_PER_SECOND);
         // Speed Z confidence
         detected_object._detected_object_common_data._speed_z_confidence = to_z_speed_confidence(msg._velocity_covariance);
         // Heading
