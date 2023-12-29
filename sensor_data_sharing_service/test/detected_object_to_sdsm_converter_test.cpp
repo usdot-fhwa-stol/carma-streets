@@ -50,8 +50,40 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(static_cast<unsigned int>(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
         EXPECT_EQ(static_cast<unsigned int>(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
 
-        EXPECT_EQ(static_cast<unsigned int>(std::hypot(msg._velocity._x*50, msg._velocity._y*50)), data._detected_object_common_data._speed);
-        EXPECT_EQ(static_cast<unsigned int>(msg._velocity._z*50), data._detected_object_common_data._speed_z);
+        EXPECT_EQ(115, data._detected_object_common_data._speed);
+        EXPECT_EQ(260, data._detected_object_common_data._speed_z);
+        EXPECT_EQ(static_cast<unsigned int>(msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
+
+
+    }
+
+     TEST(detectedObjectToSdsmConverterTest, testToDetectedObjectDataWithNegativeVelocity) {
+        // Create detected object
+        streets_utils::messages::detected_objects_msg::detected_objects_msg msg;
+        msg._object_id = 123;
+        msg._type = "TREE";
+        msg._sensor_id = "sensor_1";
+        msg._proj_string = "some string";
+        msg._confidence = 0.9;
+        msg._velocity = {-0.1, -2.3, -5.2};
+        msg._angular_velocity = {0.1, 2.3, 5.2};
+        msg._position = {0.1, 2.3, 5.2};
+        msg._position_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
+        msg._velocity_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
+        msg._angular_velocity_covariance = {{0.1, 2.3, 5.2},{0.1, 2.3, 5.2},{0.1, 2.3, 5.2}};
+        msg._size._length =1.1;
+        msg._size._width =1.1;
+        msg._size._height = 10;
+
+        auto data = to_detected_object_data(msg);
+        EXPECT_EQ(msg._object_id, data._detected_object_common_data._object_id);
+        EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, data._detected_object_common_data._object_type);
+        EXPECT_EQ(90, data._detected_object_common_data._classification_confidence);
+        EXPECT_EQ(static_cast<unsigned int>(msg._position._x*10), data._detected_object_common_data._position_offset._offset_x);
+        EXPECT_EQ(static_cast<unsigned int>(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
+        EXPECT_EQ(static_cast<unsigned int>(msg._position._y*10), data._detected_object_common_data._position_offset._offset_y);
+        EXPECT_EQ(115, data._detected_object_common_data._speed);
+        EXPECT_EQ(260, data._detected_object_common_data._speed_z);
         EXPECT_EQ(static_cast<unsigned int>(msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
 
 
