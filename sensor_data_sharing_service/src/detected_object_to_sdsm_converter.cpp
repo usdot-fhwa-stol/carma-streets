@@ -271,6 +271,7 @@ namespace sensor_data_sharing_service{
         return static_cast<int>( yaw_rate_radians_per_second * (180/(M_PI)) * 100);
     }
 
+    
 
 
 }
