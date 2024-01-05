@@ -167,4 +167,12 @@ namespace sensor_data_sharing_service {
         EXPECT_NE(nullptr, serv.map_ptr);
     }
 
+    TEST(sensorDataSharingServiceTest, toPosition3d) {
+        lanelet::GPSPoint point{38.9551605829,-77.14701567,1};
+        streets_utils::messages::sdsm::position_3d position = to_position_3d(point);
+        EXPECT_EQ(389551605, position._latitude );
+        EXPECT_EQ(-771470156, position._longitude);
+        EXPECT_EQ(10, position._elevation);
+    }
+
 }

@@ -150,7 +150,10 @@ namespace sensor_data_sharing_service {
         msg._msg_count = this->_message_count;
         // Populate with infrastructure id
         msg._source_id = this->_infrastructure_id;
+        // Populate equipement type
         msg._equipment_type = sdsm::equipment_type::RSU;
+        // Polulate ref position
+        msg._ref_positon = to_position_3d(this->sdsm_reference_point);
         std::shared_lock lock(detected_objects_lock);
         for (const auto &[object_id, object] : detected_objects){
             auto detected_object_data = to_detected_object_data(object);
@@ -171,5 +174,14 @@ namespace sensor_data_sharing_service {
         sdsm_thread.join();
     }
 
+    streets_utils::messages::sdsm::position_3d to_position_3d(const lanelet::GPSPoint &ref_position) {
+        streets_utils::messages::sdsm::position_3d position;
+        // Convert to 1/10 of microdegrees
+        position._longitude = static_cast<int>(ref_position.lon * 1e7);
+        position._latitude = static_cast<int>(ref_position.lat *1e7);
+        // Convert 0.1 meters
+        position._elevation = static_cast<int>(ref_position.ele * 10);
+        return position;
 
+    }
 }
