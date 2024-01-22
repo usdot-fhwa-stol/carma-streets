@@ -106,18 +106,18 @@ namespace streets_utils::messages::sdsm {
         _detected_object_common_data._heading_confidence = heading_confidence_from_int(parse_uint_member("heading_conf", val, true).value());
         if ( val.HasMember("accel_4_way") )  {
             _detected_object_common_data._acceleration_4_way = parse_acceleration_4_way(parse_object_member("accel_4_way", val, false ).value());
-            if ( val.HasMember("acc_cfd_x")) {
+        }
+         if ( val.HasMember("acc_cfd_x")) {
                 _detected_object_common_data._lateral_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_x", val, true).value());
-            }
-            if ( val.HasMember("acc_cfd_y")) {
-                _detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_y", val, true).value());
-            }
-            if ( val.HasMember("acc_cfd_z")) {
-                _detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_z", val, true).value());
-            }
-            if ( val.HasMember("acc_cfd_yaw")) {
-                _detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence_from_int(parse_uint_member("acc_cfd_yaw", val, true).value());
-            }
+        }
+        if ( val.HasMember("acc_cfd_y")) {
+            _detected_object_common_data._longitudinal_acceleration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_y", val, true).value());
+        }
+        if ( val.HasMember("acc_cfd_z")) {
+            _detected_object_common_data._vertical_accelaration_confidence = acceleration_confidence_from_int(parse_uint_member("acc_cfd_z", val, true).value());
+        }
+        if ( val.HasMember("acc_cfd_yaw")) {
+            _detected_object_common_data._yaw_rate_confidence = angular_velocity_confidence_from_int(parse_uint_member("acc_cfd_yaw", val, true).value());
         }
         return _detected_object_common_data;
     }

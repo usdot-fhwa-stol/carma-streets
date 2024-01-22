@@ -97,36 +97,35 @@ namespace sensor_data_sharing_service {
         const std::string detected_object_json =
             R"(
                 {
-                    "type":"CAR",
-                    "confidence":0.7,
-                    "sensorId":"sensor1",
-                    "projString":"projectionString2",
-                    "objectId":1,
+                    "type":"TRUCK",
+                    "confidence":1.0,
+                    "sensorId":"IntersectionLidar",
+                    "projString":"+proj=tmerc +lat_0=0 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs",
+                    "objectId":222,
                     "position":{
-                        "x":-1.1,
-                        "y":-2.0,
-                        "z":-3.2
+                        "x":-23.70157158620998,
+                        "y":-4.561758806718842,
+                        "z":-9.991932254782586
                     },
-                    "positionCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+                    "positionCovariance":[[0.04000000000000001,0.0,0.0],[0.0,0.04000000000000001,0.0],[0.0,0.0,0.04000000000000001]],
                     "velocity":{
-                        "x":1.0,
-                        "y":1.0,
-                        "z":1.0
+                        "x":0.0,
+                        "y":0.0,
+                        "z":0.0
                     },
-                    "velocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+                    "velocityCovariance":[[0.04000000000000001,0.0,0.0],[0.0,0.04000000000000001,0.0],[0.0,0.0,0.04000000000000001]],
                     "angularVelocity":{
-                        "x":0.1,
-                        "y":0.2,
-                        "z":0.3
+                        "x":0.0,
+                        "y":0.0,
+                        "z":0.0
                     },
-                    "angularVelocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+                    "angularVelocityCovariance":[[0.010000000000000002,0.0,0.0],[0.0,0.010000000000000002,0.0],[0.0,0.0,0.010000000000000002]],
                     "size":{
-                        "length":2.0,
-                        "height":1.0,
-                        "width":0.5
+                        "length":2.601919174194336,
+                        "height":1.3072861433029175,
+                        "width":1.2337223291397095
                     },
-                    "timestamp":1000
-
+                    "timestamp":41343
                 }
             )";
         auto detected_object = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
@@ -158,6 +157,8 @@ namespace sensor_data_sharing_service {
         EXPECT_NEAR(calendar_time.tm_min, msg._time_stamp.minute, 1);
         EXPECT_EQ(1 , msg._objects.size());
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::VEHICLE, msg._objects[0]._detected_object_common_data._object_type);
+        EXPECT_TRUE(msg._objects[0]._detected_object_common_data._yaw_rate_confidence.has_value());
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_1 , msg._objects[0]._detected_object_common_data._yaw_rate_confidence);
         EXPECT_EQ(serv.detected_objects.size(), 0);
     }
 
@@ -174,5 +175,6 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(-771470156, position._longitude);
         EXPECT_EQ(10, position._elevation);
     }
+
 
 }

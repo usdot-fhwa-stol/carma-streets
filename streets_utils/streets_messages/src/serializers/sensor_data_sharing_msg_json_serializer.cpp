@@ -111,13 +111,15 @@ namespace streets_utils::messages::sdsm{
         detected_object_data_common_json.AddMember("pos_confidence", create_position_confidence_set(val._pos_confidence, allocator), allocator );
         detected_object_data_common_json.AddMember("speed", val._speed, allocator);
         detected_object_data_common_json.AddMember("speed_confidence", static_cast<unsigned int >(val._speed_confidence), allocator);
-        if ( val._speed_z.has_value())
+        if ( val._speed_z.has_value()) {
             detected_object_data_common_json.AddMember("speed_z", val._speed_z.value(), allocator);
-        if ( val._speed_z_confidence.has_value())
+        }
+        if ( val._speed_z_confidence.has_value()) {
             detected_object_data_common_json.AddMember(
                     "speed_confidence_z",
                     static_cast<unsigned int >(val._speed_z_confidence.value()),
                     allocator);
+        }
         detected_object_data_common_json.AddMember("heading", val._heading, allocator);
         detected_object_data_common_json.AddMember("heading_conf", static_cast<unsigned int >(val._heading_confidence), allocator);
         if (val._lateral_acceleration_confidence.has_value() ) {
@@ -125,17 +127,20 @@ namespace streets_utils::messages::sdsm{
                     "acc_cfd_x",
                     static_cast<unsigned int >(val._lateral_acceleration_confidence.value()),
                     allocator);
-        if (val._longitudinal_acceleration_confidence.has_value() )
+        }
+        if (val._longitudinal_acceleration_confidence.has_value() ) {
             detected_object_data_common_json.AddMember(
                     "acc_cfd_y",
                     static_cast<unsigned int >(val._longitudinal_acceleration_confidence.value()),
                     allocator);
-        if (val._vertical_accelaration_confidence.has_value())
+        }
+        if (val._vertical_accelaration_confidence.has_value()){
             detected_object_data_common_json.AddMember(
                     "acc_cfd_z",
                     static_cast<unsigned int >(val._vertical_accelaration_confidence.value()),
                     allocator);
-        if (val._yaw_rate_confidence.has_value())
+        }
+        if (val._yaw_rate_confidence.has_value()) {
             detected_object_data_common_json.AddMember(
                     "acc_cfd_yaw",
                     static_cast<unsigned int >(val._yaw_rate_confidence.value()),
