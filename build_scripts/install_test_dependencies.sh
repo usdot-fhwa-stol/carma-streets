@@ -16,5 +16,5 @@ DEPENDENCIES=(
     
 
 # install all things needed for deployment, always done
-apt-get install -y $DEPENDENCIES 
+DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends "${DEPENDENCIES[@]}"
 python3 -m pip install gcovr
