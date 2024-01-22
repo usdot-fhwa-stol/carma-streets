@@ -7,10 +7,16 @@ set -e
 
 apt-get update
 
-# NOTE: libwebsockets-dev from Ubuntu 20 on is sufficient
-DEPENDENCIES="python3-pip "
+# NOTE: libxml2 and libxslt are requirements for pip
+
+DEPENDENCIES="\
+    libxml2
+    libxslt
+    python3-pip
+    
+"
     
 
 # install all things needed for deployment, always done
 apt-get install -y $DEPENDENCIES 
-pip3 install gcovr
+python3 -m pip install gcovr
