@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # exit on errors
 set -e
@@ -7,10 +7,14 @@ set -e
 
 apt-get update
 
-# NOTE: libwebsockets-dev from Ubuntu 20 on is sufficient
-DEPENDENCIES="python3-pip "
+# NOTE: lxml python library dependes on libxml2 and libxslt1-dev. lxml is a dependency of gcovr
+
+DEPENDENCIES=(
+    python3-pip 
+    python3-lxml 
+)
     
 
 # install all things needed for deployment, always done
-apt-get install -y $DEPENDENCIES 
-pip3 install gcovr
+DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends "${DEPENDENCIES[@]}"
+python3 -m pip install gcovr
