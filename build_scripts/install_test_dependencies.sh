@@ -7,13 +7,11 @@ set -e
 
 apt-get update
 
-# NOTE: libxml2 and libxslt1-dev are requirements for pip
+# NOTE: lxml python library dependes on libxml2 and libxslt1-dev. lxml is a dependency of gcovr
 
 DEPENDENCIES="\
-    libxml2
-    libxslt1-dev
-    python3-pip
-    
+    python3-pip 
+    python3-lxml 
 "
     
 
