@@ -7,11 +7,11 @@ set -e
 
 apt-get update
 
-# NOTE: libxml2 and libxslt are requirements for pip
+# NOTE: libxml2 and libxslt1-dev are requirements for pip
 
 DEPENDENCIES="\
     libxml2
-    libxslt
+    libxslt1-dev
     python3-pip
     
 "
