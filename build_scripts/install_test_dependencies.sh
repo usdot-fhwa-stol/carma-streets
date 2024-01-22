@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # exit on errors
 set -e
@@ -9,10 +9,10 @@ apt-get update
 
 # NOTE: lxml python library dependes on libxml2 and libxslt1-dev. lxml is a dependency of gcovr
 
-DEPENDENCIES="\
+DEPENDENCIES=(
     python3-pip 
     python3-lxml 
-"
+)
     
 
 # install all things needed for deployment, always done
