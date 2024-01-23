@@ -199,6 +199,9 @@ namespace sensor_data_sharing_service {
         std::vector<std::vector<double>> angular_velocity_covariance = {{4, 2.3, 5.2},{0.1, 4, 5.2},{0.1, 2.3, 9}};
         auto speed_confidence =  to_yaw_rate_confidence(angular_velocity_covariance);
         EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_05,speed_confidence);
+        angular_velocity_covariance = {{0.01, 0.0, 0.0},{0.0, 0.01, 0.0},{0.0, 0.0, 0.01}};
+        speed_confidence =  to_yaw_rate_confidence(angular_velocity_covariance);
+        EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_1,speed_confidence);
 
     }
 
@@ -219,7 +222,6 @@ namespace sensor_data_sharing_service {
         EXPECT_NEAR(-2939, to_yaw_rate(-0.513), 1);
 
     }
-
 
 
 }
