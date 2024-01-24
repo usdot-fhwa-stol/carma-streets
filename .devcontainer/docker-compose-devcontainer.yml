@@ -11,15 +11,17 @@ services:
       args:
         UBUNTU_CODENAME: bionic
     network_mode: host
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
 
   # Uncomment for streets service base lanelet aware dev environment
-  # streets_service_base_lanelet_aware:
-  #   image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
-  #   # Remove build parameter to force pull from dockerhub
-  #   build:
-  #     context: .
-  #     dockerfile: ./streets_service_base_lanelet_aware/Dockerfile
-  #   network_mode: host
+  streets_service_base_lanelet_aware:
+    image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+    # Remove build parameter to force pull from dockerhub
+    build:
+      context: .
+      dockerfile: ./streets_service_base_lanelet_aware/Dockerfile
+    network_mode: host
 
 
     volumes:

@@ -12,7 +12,8 @@
 	"service": "streets_service_base",
 	// Uncomment for Streets Service Base Lanelet aware dev environment
 	// "service": "streets_service_base_lanelet_aware",
-
+	// Specify the services you want to run
+	"runServices": ["php", "v2xhub", "db", "zookeeper", "kafka", "kowl"],
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
 	"workspaceFolder": "/home/carma-streets/",
@@ -36,7 +37,6 @@
 			]
 		}
 	},
-	
 	"shutdownAction": "stopCompose"
 
 }
