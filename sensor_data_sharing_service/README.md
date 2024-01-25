@@ -12,5 +12,11 @@ For covariance to confidence/accuracy translation assumed the following. All con
 ![image](https://github.com/usdot-fhwa-stol/carma-streets/assets/77466294/4a6e9875-2f87-4a8f-b1a0-33a6769439ac)
 
 ## Sensor Data Sharing speed and heading
-For heading and speed we use following coordinate frame as described in the J3224 specifications.
+For heading and speed we use following coordinate frame (NED) as described in the J3224 specifications. 
+
 ![Alt text](docs/image.png)
+
+We assume incoming detections are in the ENU cordinate frame. The `detected_object_enu_to_ned_converter` handles conversion of position and velocity in detection to NED coordinate frame.
+
+![Alt text](docs/ned_enu.png)
+
