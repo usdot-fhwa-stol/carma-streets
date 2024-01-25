@@ -109,7 +109,7 @@ namespace sensor_data_sharing_service {
                     },
                     "positionCovariance":[[0.04000000000000001,0.0,0.0],[0.0,0.04000000000000001,0.0],[0.0,0.0,0.04000000000000001]],
                     "velocity":{
-                        "x":0.0,
+                        "x":1.0,
                         "y":0.0,
                         "z":0.0
                     },
@@ -143,7 +143,7 @@ namespace sensor_data_sharing_service {
         streets_utils::messages::sdsm::sensor_data_sharing_msg msg = streets_utils::messages::sdsm::from_json(sdsm_json);
         EXPECT_EQ( msg._equipment_type, streets_utils::messages::sdsm::equipment_type::RSU);
         EXPECT_EQ( msg._source_id, serv._infrastructure_id );
-         // http://en.cppreference.com/w/cpp/chrono/c/time
+        // http://en.cppreference.com/w/cpp/chrono/c/time
         const std::time_t now = std::time(nullptr) ; // get the current time point
 
         // convert it to (local) calendar time
@@ -160,6 +160,8 @@ namespace sensor_data_sharing_service {
         EXPECT_TRUE(msg._objects[0]._detected_object_common_data._yaw_rate_confidence.has_value());
         EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_1 , msg._objects[0]._detected_object_common_data._yaw_rate_confidence);
         EXPECT_EQ(serv.detected_objects.size(), 0);
+        // SDSM assumes NED coordinate frame. Incoming detection is ENU. 1,0 in ENU is 0,1 in NED and is a 90 degree heading (heading is calculated from velocity)
+        EXPECT_EQ( msg._objects[0]._detected_object_common_data._heading, 7200);
     }
 
     TEST(sensorDataSharingServiceTest,readLanelet2Map) {

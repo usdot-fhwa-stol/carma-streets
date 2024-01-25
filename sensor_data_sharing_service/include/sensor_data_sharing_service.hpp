@@ -45,6 +45,7 @@
 
 #include "sensor_configuration_parser.hpp"
 #include "detected_object_to_sdsm_converter.hpp"
+#include "detected_object_enu_to_ned_converter.hpp"
 
 
 namespace sensor_data_sharing_service {

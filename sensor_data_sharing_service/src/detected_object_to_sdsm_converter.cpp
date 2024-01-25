@@ -69,7 +69,7 @@ namespace sensor_data_sharing_service{
         detected_object._detected_object_common_data._classification_confidence = static_cast<unsigned int>(msg._confidence*100);
         // TODO: Change Detected Object ID to int
         detected_object._detected_object_common_data._object_id = msg._object_id;
-        // Units are 0.1 m
+        // Units are 0.1 m 
         detected_object._detected_object_common_data._position_offset._offset_x = static_cast<unsigned int>(msg._position._x*METERS_TO_10_CM);
         detected_object._detected_object_common_data._position_offset._offset_y = static_cast<unsigned int>(msg._position._y*METERS_TO_10_CM);
         detected_object._detected_object_common_data._position_offset._offset_z = static_cast<unsigned int>(msg._position._z*METERS_TO_10_CM);
@@ -88,7 +88,7 @@ namespace sensor_data_sharing_service{
         // TODO: how to calculate heading confidence without orientation covariance
         // Possible approximation is velocity covariance since we are using that currently
         // Currently hard coding value
-        detected_object._detected_object_common_data._heading_confidence = streets_utils::messages::sdsm::heading_confidence::PREC_10_deg;
+        detected_object._detected_object_common_data._heading_confidence = streets_utils::messages::sdsm::heading_confidence::PREC_0_1_deg;
         // Yaw rate
         detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = to_yaw_rate(msg._angular_velocity._z);
         // Yaw rate confidence
@@ -174,12 +174,15 @@ namespace sensor_data_sharing_service{
     }
 
     unsigned int to_heading(const streets_utils::messages::detected_objects_msg::vector_3d &velocity){
+        if ( std::abs(velocity._x) < 0.01 && std::abs(velocity._y) < 0.01) {
+            return 0;
+        }
         auto heading_radians = std::atan2(velocity._y,velocity._x);
         auto heading_degrees = heading_radians*(180/M_PI);
         // If angle is negative 360 + (-negative angle)
         if ( heading_degrees < 0 ) {
             heading_degrees = 360 + heading_degrees;
-        }
+        }     
         // in units (x)  = 0.0125 degrees
         // 28800 x = 360 degrees
         return static_cast<unsigned int>(heading_degrees * (28800/360));
