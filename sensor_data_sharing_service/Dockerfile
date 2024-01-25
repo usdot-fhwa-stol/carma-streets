@@ -4,6 +4,9 @@ COPY ./streets_utils/ /home/carma-streets/streets_utils
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
 RUN /home/carma-streets/sensor_data_sharing_service/build.sh
 RUN chmod u+x /opt/carma_lanelet2/setup.bash
+# Required due to log file hardcoded relative path "../logs" 
+# (see https://github.com/usdot-fhwa-stol/carma-streets/issues/391 & 
+# https://github.com/usdot-fhwa-stol/carma-streets/issues/342)
 WORKDIR /home/carma-streets/sensor_data_sharing_service/build
 
 LABEL org.label-schema.schema-version="1.0"
