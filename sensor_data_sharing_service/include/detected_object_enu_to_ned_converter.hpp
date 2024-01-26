@@ -16,5 +16,10 @@
 #include <streets_utils/streets_messages_lib/detected_object_msg/detected_object_msg.hpp>
 
 namespace sensor_data_sharing_service { 
+    /**
+     * @brief Converts detected_objects_msg from ENU coordinate frame to NED.
+     * @param msg 
+     * @return Returns detected_objects_msg in NED coordinate frame.
+     */
     streets_utils::messages::detected_objects_msg::detected_objects_msg detected_object_enu_to_ned(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg );
 }

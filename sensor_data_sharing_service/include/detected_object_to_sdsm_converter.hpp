@@ -51,7 +51,8 @@ namespace sensor_data_sharing_service {
      */
     streets_utils::messages::sdsm::time_stamp to_sdsm_timestamp(const uint64_t _epoch_time_ms);
     /**
-     * @brief convert detected_object_msg to sdsm detection_object_data. 
+     * @brief convert detected_object_msg to sdsm detection_object_data.
+     * @note method assumes detected_object_msg is in NED coordinate frame (NED is required for SDSm) 
      * @return streets_utils::messages::sdsm::detected_object_data.
      */
     streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg);
