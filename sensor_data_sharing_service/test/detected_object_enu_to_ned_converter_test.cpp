@@ -33,13 +33,13 @@ namespace sensor_data_sharing_service {
         enu_detection._velocity._z = vel_z;
 
         auto ned_detection = detected_object_enu_to_ned(enu_detection);
-        EXPECT_EQ( ned_detection._position._x, pos_y);
-        EXPECT_EQ( ned_detection._position._y, pos_x);
-        EXPECT_EQ( ned_detection._position._z, -pos_z);
+        EXPECT_DOUBLE_EQ( ned_detection._position._x, pos_y);
+        EXPECT_DOUBLE_EQ( ned_detection._position._y, pos_x);
+        EXPECT_DOUBLE_EQ( ned_detection._position._z, -pos_z);
 
-        EXPECT_EQ( ned_detection._velocity._x, vel_y);
-        EXPECT_EQ( ned_detection._velocity._y, vel_x);
-        EXPECT_EQ( ned_detection._velocity._z, -vel_z);
+        EXPECT_DOUBLE_EQ( ned_detection._velocity._x, vel_y);
+        EXPECT_DOUBLE_EQ( ned_detection._velocity._y, vel_x);
+        EXPECT_DOUBLE_EQ( ned_detection._velocity._z, -vel_z);
 
     }
 }

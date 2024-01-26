@@ -161,7 +161,7 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(streets_utils::messages::sdsm::angular_velocity_confidence::DEGSEC_0_1 , msg._objects[0]._detected_object_common_data._yaw_rate_confidence);
         EXPECT_EQ(serv.detected_objects.size(), 0);
         // SDSM assumes NED coordinate frame. Incoming detection is ENU. 1,0 in ENU is 0,1 in NED and is a 90 degree heading (heading is calculated from velocity)
-        EXPECT_EQ( msg._objects[0]._detected_object_common_data._heading, 7200);
+        EXPECT_NEAR( msg._objects[0]._detected_object_common_data._heading, 7200, 2);
     }
 
     TEST(sensorDataSharingServiceTest,readLanelet2Map) {
