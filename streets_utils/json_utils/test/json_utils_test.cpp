@@ -81,6 +81,12 @@ TEST(JsonUtilsTest, testGetJsonIntRequiredPropertyPresent){
     EXPECT_EQ( -12345, parse_int_member("some_property", parsed_doc, true));
 }
 
+TEST(JsonUtilsTest, testGetJsonIntRequiredPropertyPresentString){
+    // Test with required property present
+    std::string valid_json = "{ \"some_property\": \"-12345\"}";
+    auto parsed_doc = parse_json(valid_json);
+    EXPECT_EQ( -12345, parse_int_member("some_property", parsed_doc, true));
+}
 TEST(JsonUtilsTest, testGetJsonIntRequiredPropertyNotPresent){
     // Test with required property no present
     std::string valid_json = "{ \"some_property_other\": 12345}";
@@ -134,6 +140,13 @@ TEST(JsonUtilsTest, testGetJsonBoolOptionalPropertyMissing) {
 }
 
 //---------------------test get_json_double_property---------------------
+TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyPresentString){
+    // Test with required property present
+    std::string valid_json = "{ \"some_property\": \"12.3\"}";
+    auto parsed_doc = parse_json(valid_json);
+    EXPECT_NEAR( 12.3, parse_double_member("some_property", parsed_doc, true).value(), 0.01);
+}
+
 
 TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyPresent){
     // Test with required property present

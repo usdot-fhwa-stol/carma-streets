@@ -22,7 +22,9 @@ namespace streets_utils::json_utils {
         // Add file contents to stream and parse stream into Document
         rapidjson::IStreamWrapper isw(file);
         rapidjson::Document doc;
-        doc.ParseStream(isw);
+        doc.ParseStream<rapidjson::ParseFlag::kParseNumbersAsStringsFlag>(isw);
+
+        // doc.ParseStream<rapidjson::ParseFlag::kParseNumbersAsStringsFlag>(isw);
         if (doc.HasParseError()){
             throw json_document_parse_error("Encounter document parse error while attempting to parse sensor configuration file " + filepath + "!", doc);
         }
@@ -34,6 +36,15 @@ namespace streets_utils::json_utils {
         if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsInt64())
         {
             member = obj[member_name.c_str()].GetInt64();
+        }
+        else if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsString()) {
+            auto string_int = obj[member_name.c_str()].GetString();
+            try {
+                member = std::stoi(string_int);
+            }
+            catch(const std::invalid_argument &e) {
+                throw json_parse_exception("Incorrect type for required int member " + member_name + ": " + e.what());
+            }
         }
         else if (required)
         {
@@ -47,6 +58,15 @@ namespace streets_utils::json_utils {
         if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsUint64())
         {
             member = obj[member_name.c_str()].GetUint64();
+        }
+        else if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsString()) {
+            auto string_int = obj[member_name.c_str()].GetString();
+            try {
+                member = std::stoi(string_int);
+            }
+            catch(const std::invalid_argument &e) {
+                throw json_parse_exception("Incorrect type for required uint member " + member_name + ": " + e.what());
+            }
         }
         else if (required)
         {
@@ -86,6 +106,15 @@ namespace streets_utils::json_utils {
         if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsDouble())
         {
             member = obj[member_name.c_str()].GetDouble();
+        }
+        else if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsString()) {
+            auto string_double = obj[member_name.c_str()].GetString();
+            try {
+                member = std::stod(string_double);
+            }
+            catch(const std::invalid_argument &e) {
+                throw json_parse_exception("Incorrect type for required double member " + member_name + ": " + e.what());
+            }
         }
         else if (required)
         {

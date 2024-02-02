@@ -8,6 +8,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <spdlog/spdlog.h>
 #include <rapidjson/istreamwrapper.h>
+#include <rapidjson/reader.h>
 #include <fstream>
 #include "json_utils_exception.hpp"
 #include "json_document_parse_error.hpp"
