@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     }
     catch ( ... ) {
         SPDLOG_CRITICAL("Unknown error occured.");
-        exit(1)
+        exit(1);
     }
     
     return 0;

@@ -142,6 +142,8 @@ namespace sensor_data_sharing_service {
                     }else {
                         this->_message_count = 0;
                     }
+                    // Write Lock 
+                    std::unique_lock lock(detected_objects_lock);
                     // Clear detected object
                     detected_objects.clear();
                 }
