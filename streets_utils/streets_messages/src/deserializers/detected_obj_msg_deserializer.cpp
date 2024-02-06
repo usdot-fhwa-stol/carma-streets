@@ -96,7 +96,21 @@ namespace streets_utils::messages::detected_objects_msg {
 
             for (rapidjson::SizeType  j = 0; j < row.Size(); j++)
             {
-                val_row.push_back(val[i][j].GetDouble());
+                double member;
+                if (val[i][j].IsDouble())
+                {
+                    member = val[i][j].GetDouble();
+                }
+                else if (val[i][j].IsString()) {
+                    auto string_double = val[i][j].GetString();
+                    try {
+                        member = std::stod(string_double);
+                    }
+                    catch(const std::invalid_argument &e) {
+                        throw std::runtime_error(e.what());
+                    }
+                }
+                val_row.push_back(member);
             }
             covariance.push_back(val_row);
         }

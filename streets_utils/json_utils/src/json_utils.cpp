@@ -146,6 +146,38 @@ namespace streets_utils::json_utils {
         }
         return std::nullopt;
     }
+    // std::vector<std::vector<double>> parse_matrix_double(const rapidjson::Value::ConstArray &val)
+    // {
+    //     // Initialize 3x3 covariance matrix
+    //     std::vector<std::vector<double>> covariance;
+
+    //     for (rapidjson::SizeType i = 0; i < val.Size(); i++)
+    //     {
+    //         const rapidjson::Value& row = val[i];
+    //         std::vector<double> val_row;
+
+    //         for (rapidjson::SizeType  j = 0; j < row.Size(); j++)
+    //         {
+    //             double member;
+    //             if (val[i][j].IsDouble())
+    //             {
+    //                 member = val[i][j].GetDouble();
+    //             }
+    //             else if (val[i][j].IsString()) {
+    //                 auto string_double = val[i][j].GetString();
+    //                 try {
+    //                     member = std::stod(string_double);
+    //                 }
+    //                 catch(const std::invalid_argument &e) {
+    //                     throw std::runtime_error(e.what());
+    //                 }
+    //             }
+    //             val_row.push_back(member);
+    //         }
+    //         covariance.push_back(val_row);
+    //     }
+    //     return covariance;
+    // }
 
 
 

@@ -21,6 +21,8 @@
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 #include <streets_utils/json_utils_lib/json_utils_exception.hpp>
 #include <detected_object_msg/detected_object_msg.hpp>
+#include <stdexcept>
+
 
 
 namespace streets_utils::messages::detected_objects_msg {

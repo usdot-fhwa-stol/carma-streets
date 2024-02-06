@@ -97,10 +97,15 @@ namespace sensor_data_sharing_service {
                 {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
                     // Get delay of detected object
-                    auto delay = ss::streets_clock_singleton::time_in_ms() - detected_object._timestamp;
-                    if ( delay >= 500 || delay < 0 ) {
-                        SPDLOG_WARN("Detection Delay : {0}ms! Skipping incoming detection at {0}ms is not current or has invalid timestamp of {1}ms!" ,ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
+                    auto delay = static_cast<int>(ss::streets_clock_singleton::time_in_ms()) - static_cast<int>(detected_object._timestamp);
+                    
+                    if ( delay >= 500 ) {
+                        SPDLOG_WARN("Detection Delay : {0}ms! Skipping incoming detection at {1}ms is not current or has invalid timestamp of {2}ms!" ,delay, ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
                         continue;
+                    }
+                    else if ( delay < 0 ) {
+                        SPDLOG_WARN("Current sim time {0} waiting for sim time {1}ms from detection ...",ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
+                        ss::streets_clock_singleton::sleep_until(detected_object._timestamp);
                     }
                     // Write Lock
                     std::unique_lock lock(detected_objects_lock);

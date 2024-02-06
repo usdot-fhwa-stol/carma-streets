@@ -32,7 +32,7 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
                 "y":-2.0,
                 "z":-3.2
             },
-            "positionCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "positionCovariance":[[1.0,"0.0",0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
             "velocity":{
                 "x":1.0,
                 "y":1.0,
