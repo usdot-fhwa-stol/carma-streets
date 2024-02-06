@@ -33,6 +33,10 @@ int main(int argc, char **argv)
         SPDLOG_ERROR("Exception Encountered : {0}" , e.what());
         exit(1);
     }
+    catch ( ... ) {
+        SPDLOG_CRITICAL("Unknown error occured.");
+        exit(1)
+    }
     
     return 0;
 }
