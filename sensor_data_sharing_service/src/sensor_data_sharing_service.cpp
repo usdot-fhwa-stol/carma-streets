@@ -96,6 +96,19 @@ namespace sensor_data_sharing_service {
                 if (payload.length() != 0)
                 {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
+                    // Get delay of detected object
+                    auto delay = static_cast<int>(ss::streets_clock_singleton::time_in_ms()) - static_cast<int>(detected_object._timestamp);
+                    SPDLOG_DEBUG("Detection Delay : {0}ms!", delay);
+                    // if delay is greater than 500 ms skip detection to get more recent data
+                    if ( delay >= 500 ) {
+                        SPDLOG_WARN("Skipping incoming detection at {0}ms is not current or has invalid timestamp of {1}ms!" , ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
+                        continue;
+                    }
+                    // if delay is negative, detection message was processed before time sync message. Wait on time sync message
+                    else if ( delay < 0 ) {
+                        SPDLOG_WARN("Current sim time {0} waiting for sim time {1}ms from detection ...",ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
+                        ss::streets_clock_singleton::sleep_for(abs(delay));
+                    }
                     // Write Lock
                     std::unique_lock lock(detected_objects_lock);
                     detected_objects[detected_object._object_id] = detected_object;
@@ -129,6 +142,8 @@ namespace sensor_data_sharing_service {
                     }else {
                         this->_message_count = 0;
                     }
+                    // Write Lock 
+                    std::unique_lock lock(detected_objects_lock);
                     // Clear detected object
                     detected_objects.clear();
                 }
@@ -138,6 +153,7 @@ namespace sensor_data_sharing_service {
             }         
             ss::streets_clock_singleton::sleep_for(100); // Sleep for 100 ms between publish  
         }
+        SPDLOG_CRITICAL("SDSM Producers no longer running.");
        
     }
 
