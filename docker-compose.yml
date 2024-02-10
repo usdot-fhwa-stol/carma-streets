@@ -60,7 +60,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
       - mysql-datavolume:/var/lib/mysql
   php:
-    image: usdotfhwaops/php:latest
+    image: usdotfhwaops/php:lavida
     container_name: php
     network_mode: host
     depends_on:
@@ -69,7 +69,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:latest
+    image: usdotfhwaops/v2xhubamd:lavida
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -95,7 +95,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
-    image: usdotfhwastoldev/scheduling_service:develop
+    image: usdotfhwastolcandidate/scheduling_service:lavida
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -120,7 +120,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastoldev/message_services:develop
+    image: usdotfhwastolcandidate/message_services:lavida
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -138,7 +138,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastoldev/intersection_model:develop
+    image: usdotfhwastolcandidate/intersection_model:lavida
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -156,7 +156,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   signal_opt_service:
-    image: usdotfhwastoldev/signal_opt_service:develop
+    image: usdotfhwastolcandidate/signal_opt_service:lavida
     command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
     build: 
       context: .
@@ -182,7 +182,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   tsc_service:
-    image: usdotfhwastoldev/tsc_service:develop
+    image: usdotfhwastolcandidate/tsc_service:lavida
     command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
     build: 
       context: .
@@ -209,7 +209,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   sensor_data_sharing_service:
-    image: usdotfhwastoldev/sensor_data_sharing_service:develop
+    image: usdotfhwastolcandidate/sensor_data_sharing_service:lavida
     build: 
       context: .
       dockerfile: sensor_data_sharing_service/Dockerfile
