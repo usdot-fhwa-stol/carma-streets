@@ -1,3 +1,16 @@
+#  Copyright (C) 2018-2020 LEIDOS.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+#  use this file except in compliance with the License. You may obtain a copy of
+#  the License at
+# 
+#  http://www.apache.org/licenses/LICENSE-2.0
+# 
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations under
+#  the License.
 import os
 import time
 import re
@@ -71,24 +84,24 @@ def store_kafka_topic(topic, dir, timeout, start_time, end_time):
 def main():
 
     # Default list of topics, aka all topics from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
-    # topic desire_phase_plan is in the list from confluence, but doesn't exist in kafka as of 2022/12/05
     topics = ['v2xhub_scheduling_plan_sub' ,'v2xhub_bsm_in', 'v2xhub_mobility_operation_in', 'v2xhub_mobility_path_in',
               'vehicle_status_intent_output', 'v2xhub_map_msg_in', 'modified_spat', 'tsc_config_state', 'desired_phase_plan',
-              'v2xhub_sdsm_sub', 'v2xhub_sim_sensor_detected_object', 'v2xhub_sdsm_tra']
+              'v2xhub_sdsm_sub', 'v2xhub_sim_sensor_detected_object', 'v2xhub_sdsm_tra', 'desire_phase_plan']
     timeout = 5
 
     # Get arguments
     # The idea here was to give the user the bare minimum options, and make the default condition the most used.
     parser = argparse.ArgumentParser(description='Script to grab data from kafka')
-    parser.add_argument('outfile', help='Filename for the resulting zip file', type=str)  # Required argument
+    parser.add_argument('outfile', help='Folder name for the resulting folder logs are placed in', type=str)  # Required argument
     start_group = parser.add_mutually_exclusive_group()
     end_group = parser.add_mutually_exclusive_group()
     start_group.add_argument('--start_timestamp', help='Unix timestamp (seconds) for the first message to grab. Exclusive with start_hours_ago. ', type=int)
     end_group.add_argument('--end_timestamp', help='Unix timestamp (seconds) for the last message to grab. Exclusive with end_hours_ago. ', type=int)
     start_group.add_argument('--start_hours_ago', help='float hours before current time to grab first message. Exclusive with start_timestamp. ', type=float)
     end_group.add_argument('--end_hours_ago', help='float hours before current time to grab last message. Exclusive with start_timestamp. ', type=float)
-    parser.add_argument('--topics', type=str, nargs='+', help=f'list of topics to grab data from')
-    parser.add_argument('--timeout', type=float, help=f'timeout for receiving messages on a topic, default is 5 seconds')
+    parser.add_argument('--topics', type=str, nargs='+', help='list of topics to grab data from')
+    parser.add_argument('--timeout', type=float, help='timeout for receiving messages on a topic, default is 5 seconds')
+    parser.add_argument('--zip', type=bool,help='bool flag. When set to true, folder is compressed into a zip file.', default=False)
 
     args = parser.parse_args()
 
@@ -129,12 +142,13 @@ def main():
     for topic in topics:
         ret = store_kafka_topic(topic, outfile, timeout, start_time, end_time)
         if ret != 0:
-            print('received error, stopping execution')
-            return
+            print(f'received error on topic {topic}, going to next topic')
 
-    print('Available logs collected, zipping and removing the temporary folder')
-    os.system(f'zip -r {outfile}.zip {outfile}')
-    os.system(f'rm -r {outfile}')
+    print('Available logs collected')
+    if args.zip:
+        print('Zipping and removing the temporary folder')
+        os.system(f'zip -r {outfile}.zip {outfile}')
+        os.system(f'rm -r {outfile}')
 
 
 if __name__ == "__main__":
