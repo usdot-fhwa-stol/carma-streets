@@ -65,7 +65,16 @@ options:
   --zip ZIP             bool flag. When set to true, folder is compressed into a zip file.
 ```
 ### Collection Service Logs
-This script collects all **CARMA Streets** service log files, adds them to a zip file and deletes the original files after.
+This script collects all **CARMA Streets** service log files, adds them to a zip file.
+```
+usage: collect_service_logs.sh [-h | --help] [--output <zip_file_name>.zip]
+                                     [-c | --clear]
+
+options:
+-h, --help                Show usage
+--output, -o              Name of the resulting zip file container CARMA Streets Service logs
+--clear, -c               Adding this flag will delete log directories after creating zip.
+```
 ## Contribution
 Welcome to the CARMA contributing guide. Please read this guide to learn about our development process, how to propose pull requests and improvements, and how to build and test your changes to this project. [CARMA Contributing Guide](https://github.com/usdot-fhwa-stol/carma-platform/blob/develop/Contributing.md) 
 

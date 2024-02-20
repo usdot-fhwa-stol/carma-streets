@@ -12,7 +12,6 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations under
 #  the License.
-# script collects all service logs files and zips them into an archive and then removes the source files.
 #######################################
 # Prints the script's argument descriptions
 # Globals:
@@ -59,6 +58,15 @@ usage: collect_service_logs.sh [-h | --help] [--output <zip_file_name>.zip]
                                      [-c | --clear]
 USAGE
 }
+#######################################
+# Collects all service logs files and zips them into an archive and then configurable removes the source files.
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   0
+#######################################
 function main() {
  while :; do
     case "$1" in
