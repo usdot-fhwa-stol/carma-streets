@@ -19,7 +19,7 @@ services:
     # Health check to confirm kafka server is healthy (script is a client) and all topics 
     # have been created (time_sync is last topic).
     healthcheck:
-      test: ["CMD", "kafka-topics.sh", "--describe", "--bootstrap-server", "172.4.0.3:9092", "--topic", "time_sync"]
+      test: ["CMD", "kafka-topics.sh", "--describe", "--bootstrap-server", "127.0.0.1:9092", "--topic", "time_sync"]
       interval: 2s
       timeout: 10s
       retries: 10

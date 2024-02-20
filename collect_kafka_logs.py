@@ -107,16 +107,16 @@ def main():
     args = parser.parse_args()
 
     # Correct and validate outfile name
-    if args.outfile[-4:] == '.zip':
-        outfile = args.outfile[:-4]
+    if args.outdir[-4:] == '.zip':
+        outdir = args.outdir[:-4]
     else:
-        outfile = args.outfile
+        outdir = args.outdir
 
-    if os.path.isdir(f'{os.getcwd()}/{outfile}'):
-        print(f'folder {outfile} exists, please remove or rename')
+    if os.path.isdir(f'{os.getcwd()}/{outdir}'):
+        print(f'folder {outdir} exists, please remove or rename')
         return
-    elif os.path.isfile(f'{os.getcwd()}/{outfile}.zip'):
-        print(f'zip file {outfile}.zip exists, please remove or rename')
+    elif os.path.isfile(f'{os.getcwd()}/{outdir}.zip'):
+        print(f'zip file {outdir}.zip exists, please remove or rename')
         return
 
     # Convert given time to unix timestamp (in ms)
@@ -139,17 +139,17 @@ def main():
     if args.timeout:
         timeout = args.timeout
 
-    os.system(f'mkdir {outfile}')
+    os.system(f'mkdir {outdir}')
     for topic in topics:
-        ret = store_kafka_topic(topic, outfile, timeout, start_time, end_time)
+        ret = store_kafka_topic(topic, outdir, timeout, start_time, end_time)
         if ret != 0:
             print(f'received error on topic {topic}, going to next topic')
 
     print('Available logs collected')
     if args.zip:
         print('Zipping and removing the temporary folder')
-        os.system(f'zip -r {outfile}.zip {outfile}')
-        os.system(f'rm -r {outfile}')
+        os.system(f'zip -r {outdir}.zip {outdir}')
+        os.system(f'rm -r {outdir}')
 
 
 if __name__ == "__main__":
