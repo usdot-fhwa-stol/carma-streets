@@ -102,11 +102,11 @@ function main() {
   if [ "$output" ]; 
   then
     echo "Writing zip file ${output}.zip"
-    zip -rq ./${output}.zip ./scheduling_service/logs ./intersection_model/logs ./tsc_client_service/logs ./message_services/logs ./signal_opt_service/logs ./sensor_data_sharing_service/logs
+    zip -rq ./"${output}".zip ./scheduling_service/logs ./intersection_model/logs ./tsc_client_service/logs ./message_services/logs ./signal_opt_service/logs ./sensor_data_sharing_service/logs
   else
     filename=$(date "+%FT%H%M%S")
     echo "Writing zip file ${filename}.zip"
-    zip -rq ./${filename}.zip ./scheduling_service/logs ./intersection_model/logs ./tsc_client_service/logs ./message_services/logs ./signal_opt_service/logs ./sensor_data_sharing_service/logs
+    zip -rq ./"${filename}".zip ./scheduling_service/logs ./intersection_model/logs ./tsc_client_service/logs ./message_services/logs ./signal_opt_service/logs ./sensor_data_sharing_service/logs
   fi
   if [ "$clear" = true ]; 
   then
