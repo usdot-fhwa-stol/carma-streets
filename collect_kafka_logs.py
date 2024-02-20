@@ -1,4 +1,5 @@
-#  Copyright (C) 2018-2020 LEIDOS.
+#!/usr/bin/python3
+#  Copyright (C) 2024 LEIDOS.
 # 
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -92,7 +93,7 @@ def main():
     # Get arguments
     # The idea here was to give the user the bare minimum options, and make the default condition the most used.
     parser = argparse.ArgumentParser(description='Script to grab data from kafka')
-    parser.add_argument('outfile', help='Folder name for the resulting folder logs are placed in', type=str)  # Required argument
+    parser.add_argument('outdir', help='Folder name for the resulting folder logs are placed in', type=str)  # Required argument
     start_group = parser.add_mutually_exclusive_group()
     end_group = parser.add_mutually_exclusive_group()
     start_group.add_argument('--start_timestamp', help='Unix timestamp (seconds) for the first message to grab. Exclusive with start_hours_ago. ', type=int)
