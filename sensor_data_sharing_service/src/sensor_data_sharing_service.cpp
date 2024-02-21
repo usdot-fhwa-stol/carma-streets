@@ -106,8 +106,10 @@ namespace sensor_data_sharing_service {
                     }
                     // if delay is negative, detection message was processed before time sync message. Wait on time sync message
                     else if ( delay < 0 ) {
-                        SPDLOG_WARN("Current sim time {0} waiting for sim time {1}ms from detection ...",ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
-                        ss::streets_clock_singleton::sleep_for(abs(delay));
+                        if ( is_simulation_mode()) {
+                            SPDLOG_WARN("Current sim time {0} waiting for sim time {1}ms from detection ...",ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
+                            ss::streets_clock_singleton::sleep_for(abs(delay));
+                        }
                     }
                     // Write Lock
                     std::unique_lock lock(detected_objects_lock);
