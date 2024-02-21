@@ -34,6 +34,47 @@ To make creating new CARMA Streets services easier and to make our CI/CD more ef
 The primary carma-streets repository can be found [here](https://github.com/usdot-fhwa-stol/carma-streets) and is part of the [USDOT FHWA STOL](https://github.com/usdot-fhwa-stol/)
 github organization. Documentation on how the carma-streets  functions, how it will evolve over time, and how you can contribute can be found at the above links, as well as on the [Doxygen Source Code Documentation](https://usdot-fhwa-stol.github.io/documentation/carma-streets/).
 
+## Data Collection
+**CARMA Streets** services have several source from which data about usecase performance can be pulled. **Kafka Message Topics** can be pulled using the `collect_kafka_logs.py` script and includes message traffic on a configurable list of topics. Service log files can be found in a given **CARMA Streets** service `logs/` directory. The `collect_service_logs.sh` adds all log files in this directory to a zip file and then deletes the originals. Some **CARMA Streets** services can configurable log performance in `.csv` file in the `logs/` directory.
+
+### Collect Kafka Logs
+This script uses `docker exec` to ssh into a running kafka container. Then using kafka container scripts to read all kafka data from a list of provided topics. 
+```
+usage: collect_kafka_logs.py [-h] [--start_timestamp START_TIMESTAMP] [--end_timestamp END_TIMESTAMP] [--start_hours_ago START_HOURS_AGO] [--end_hours_ago END_HOURS_AGO]
+                             [--topics TOPICS [TOPICS ...]] [--timeout TIMEOUT] [--zip ZIP]
+                             outdir
+
+Script to grab data from kafka
+
+positional arguments:
+  outdir                Folder name for the resulting folder logs are placed in
+
+options:
+  -h, --help            show this help message and exit
+  --start_timestamp START_TIMESTAMP
+                        Unix timestamp (seconds) for the first message to grab. Exclusive with start_hours_ago.
+  --end_timestamp END_TIMESTAMP
+                        Unix timestamp (seconds) for the last message to grab. Exclusive with end_hours_ago.
+  --start_hours_ago START_HOURS_AGO
+                        float hours before current time to grab first message. Exclusive with start_timestamp.
+  --end_hours_ago END_HOURS_AGO
+                        float hours before current time to grab last message. Exclusive with start_timestamp.
+  --topics TOPICS [TOPICS ...]
+                        list of topics to grab data from
+  --timeout TIMEOUT     timeout for receiving messages on a topic, default is 5 seconds
+  --zip ZIP             bool flag. When set to true, folder is compressed into a zip file.
+```
+### Collection Service Logs
+This script collects all **CARMA Streets** service log files, adds them to a zip file.
+```
+usage: collect_service_logs.sh [-h | --help] [--output <zip_file_name>.zip]
+                                     [-c | --clear]
+
+options:
+-h, --help                Show usage
+--output, -o              Name of the resulting zip file container CARMA Streets Service logs
+--clear, -c               Adding this flag will delete log directories after creating zip.
+```
 ## Contribution
 Welcome to the CARMA contributing guide. Please read this guide to learn about our development process, how to propose pull requests and improvements, and how to build and test your changes to this project. [CARMA Contributing Guide](https://github.com/usdot-fhwa-stol/carma-platform/blob/develop/Contributing.md) 
 
