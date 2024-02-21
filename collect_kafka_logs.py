@@ -113,11 +113,10 @@ def main():
         outdir = args.outdir[:-4]
     else:
         outdir = args.outdir
-
-    if os.path.isdir(f'{os.getcwd()}/{outdir}'):
+    if Path(Path.cwd()/outdir).is_dir():
         print(f'folder {outdir} exists, please remove or rename')
         return
-    elif os.path.isfile(f'{os.getcwd()}/{outdir}.zip'):
+    elif Path(Path.cwd()/f'{outdir}.zip').is_dir():
         print(f'zip file {outdir}.zip exists, please remove or rename')
         return
 
@@ -140,8 +139,7 @@ def main():
         topics = args.topics
     if args.timeout:
         timeout = args.timeout
-
-    os.system(f'mkdir {outdir}')
+    Path(outdir).mkdir(exist_ok=False)
     for topic in topics:
         ret = store_kafka_topic(topic, outdir, timeout, start_time, end_time)
         if ret != 0:
@@ -150,7 +148,7 @@ def main():
     print('Available logs collected')
     if args.zip:
         print('Zipping and removing the temporary folder')
-        shutil.make_archive(base_name=f'./{outdir}', format='zip', root_dir=f'./{outdir}')
+        shutil.make_archive(base_name=outdir, format='zip', root_dir=outdir)
         shutil.rmtree(path=outdir)
 
 
