@@ -113,10 +113,12 @@ def main():
         outdir = args.outdir[:-4]
     else:
         outdir = args.outdir
+    # Check if output directory already exists
     if Path(Path.cwd()/outdir).is_dir():
         print(f'folder {outdir} exists, please remove or rename')
         return
-    elif Path(Path.cwd()/f'{outdir}.zip').is_dir():
+    # Check if zip file already exists
+    elif Path(Path.cwd()/f'{outdir}.zip').is_file():
         print(f'zip file {outdir}.zip exists, please remove or rename')
         return
 
