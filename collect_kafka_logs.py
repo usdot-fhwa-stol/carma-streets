@@ -18,6 +18,8 @@ import re
 import signal
 import subprocess
 import argparse
+from pathlib import Path
+import shutil
 
 
 ## Python script to download and store kafka logs
@@ -148,8 +150,8 @@ def main():
     print('Available logs collected')
     if args.zip:
         print('Zipping and removing the temporary folder')
-        os.system(f'zip -r {outdir}.zip {outdir}')
-        os.system(f'rm -r {outdir}')
+        shutil.make_archive(base_name=f'./{outdir}', format='zip', root_dir=f'./{outdir}')
+        shutil.rmtree(path=outdir)
 
 
 if __name__ == "__main__":
