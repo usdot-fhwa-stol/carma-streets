@@ -33,7 +33,7 @@ namespace sensor_data_sharing_service{
         return sdsm_timestamp;
     }
 
-    streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg) {
+    streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg, const uint64_t sdsm_message_timestamp ) {
         streets_utils::messages::sdsm::detected_object_data detected_object;
         detected_object._detected_object_common_data._object_type = to_object_type(msg._type);
         if (detected_object._detected_object_common_data._object_type == streets_utils::messages::sdsm::object_type::VEHICLE ) {
@@ -66,6 +66,9 @@ namespace sensor_data_sharing_service{
             detected_object._detected_object_optional_data = optional_data;
 
         }
+        // Used to convey an offset in time relative to the sDSMTimeStamp associated with the reference position. Negative values indicate 
+        // the provided detected object characteristics refer to a point in time after the sDSMTimeStamp
+        detected_object._detected_object_common_data._time_measurement_offset = static_cast<int64_t>(sdsm_message_timestamp) - static_cast<int64_t> (msg._epoch_time_ms);
         detected_object._detected_object_common_data._classification_confidence = static_cast<unsigned int>(msg._confidence*100);
         // TODO: Change Detected Object ID to int
         detected_object._detected_object_common_data._object_id = msg._object_id;
