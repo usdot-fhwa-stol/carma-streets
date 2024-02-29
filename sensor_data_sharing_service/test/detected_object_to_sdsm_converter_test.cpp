@@ -41,7 +41,7 @@ namespace sensor_data_sharing_service {
         msg._size._length =1.1;
         msg._size._width =1.1;
         msg._size._height = 10;
-        msg._timestamp = 100
+        msg._timestamp = 100;
 
         auto data = to_detected_object_data(msg, 200);
         EXPECT_EQ(msg._object_id, data._detected_object_common_data._object_id);
@@ -75,7 +75,7 @@ namespace sensor_data_sharing_service {
         msg._size._length =1.1;
         msg._size._width =1.1;
         msg._size._height = 10;
-        msg._timestamp = 200
+        msg._timestamp = 200;
 
         auto data = to_detected_object_data(msg, 100);
         EXPECT_EQ(msg._object_id, data._detected_object_common_data._object_id);
