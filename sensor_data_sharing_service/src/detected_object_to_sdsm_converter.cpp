@@ -68,7 +68,7 @@ namespace sensor_data_sharing_service{
         }
         // Used to convey an offset in time relative to the sDSMTimeStamp associated with the reference position. Negative values indicate 
         // the provided detected object characteristics refer to a point in time after the sDSMTimeStamp
-        detected_object._detected_object_common_data._time_measurement_offset = static_cast<int64_t>(sdsm_message_timestamp) - static_cast<int64_t> (msg._epoch_time_ms);
+        detected_object._detected_object_common_data._time_measurement_offset = static_cast<int64_t>(sdsm_message_timestamp) - static_cast<int64_t> (msg._timestamp);
         detected_object._detected_object_common_data._classification_confidence = static_cast<unsigned int>(msg._confidence*100);
         // TODO: Change Detected Object ID to int
         detected_object._detected_object_common_data._object_id = msg._object_id;
