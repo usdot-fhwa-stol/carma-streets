@@ -55,7 +55,7 @@ namespace sensor_data_sharing_service {
      * @note method assumes detected_object_msg is in NED coordinate frame (NED is required for SDSM based on J3223 specification) 
      * @return streets_utils::messages::sdsm::detected_object_data.
      */
-    streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg);
+    streets_utils::messages::sdsm::detected_object_data to_detected_object_data(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg, uint64_t sdsm_message_timestamp);
     /**
      * @brief convert string detection type to sdsm object_type.
      * @param detection_type string detection classification for detection message. 

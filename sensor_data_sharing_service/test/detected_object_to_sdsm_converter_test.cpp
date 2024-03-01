@@ -41,8 +41,9 @@ namespace sensor_data_sharing_service {
         msg._size._length =1.1;
         msg._size._width =1.1;
         msg._size._height = 10;
+        msg._timestamp = 100;
 
-        auto data = to_detected_object_data(msg);
+        auto data = to_detected_object_data(msg, 200);
         EXPECT_EQ(msg._object_id, data._detected_object_common_data._object_id);
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, data._detected_object_common_data._object_type);
         EXPECT_EQ(90, data._detected_object_common_data._classification_confidence);
@@ -53,7 +54,7 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(115, data._detected_object_common_data._speed);
         EXPECT_EQ(260, data._detected_object_common_data._speed_z);
         EXPECT_EQ(static_cast<unsigned int>(msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
-
+        EXPECT_EQ(100, data._detected_object_common_data._time_measurement_offset);
 
     }
 
@@ -74,8 +75,9 @@ namespace sensor_data_sharing_service {
         msg._size._length =1.1;
         msg._size._width =1.1;
         msg._size._height = 10;
+        msg._timestamp = 200;
 
-        auto data = to_detected_object_data(msg);
+        auto data = to_detected_object_data(msg, 100);
         EXPECT_EQ(msg._object_id, data._detected_object_common_data._object_id);
         EXPECT_EQ(streets_utils::messages::sdsm::object_type::UNKNOWN, data._detected_object_common_data._object_type);
         EXPECT_EQ(90, data._detected_object_common_data._classification_confidence);
@@ -86,6 +88,7 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(260, data._detected_object_common_data._speed_z);
         EXPECT_EQ(static_cast<unsigned int>(msg._size._length*10), std::get<streets_utils::messages::sdsm::detected_obstacle_data>(data._detected_object_optional_data.value())._size._length);
 
+        EXPECT_EQ(-100, data._detected_object_common_data._time_measurement_offset);
 
     }
 
