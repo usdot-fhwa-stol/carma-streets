@@ -87,7 +87,7 @@ namespace sensor_data_sharing_service {
                                                             ));
         
         serv.consume_detections();
-        // Consumed detection timestamp is more than 500 ms older that current real wall time. 
+        // Consumed detection timestamp is more than 500 ms older than current real wall time. 
         // TODO: Create test case that covers condition for consuming up to date detection data.
         EXPECT_EQ(serv.detected_objects.size(), 0);
     }
