@@ -97,10 +97,13 @@ namespace streets_service {
                     simulation::time_sync_message msg;
                     msg.fromJson(payload);
                     streets_clock_singleton::update(msg.timestep);
-                    auto time_now = std::chrono::system_clock::now();
-                    auto epoch = time_now.time_since_epoch();
-                    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
-                    SPDLOG_INFO("Simulation Time: {0} where current system time is: {1}", msg.timestep, milliseconds.count());
+                    if (spdlog::get_level() == spdlog::level::debug)
+                    {
+                        auto time_now = std::chrono::system_clock::now();
+                        auto epoch = time_now.time_since_epoch();
+                        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+                        SPDLOG_DEBUG("Simulation Time: {0} where current system time is: {1}", msg.timestep, milliseconds.count());
+                    }
                 }
                 catch( const std::runtime_error &e) {
                     SPDLOG_WARN( "{0} exception occured will consuming {1} msg! Skipping message!", e.what(), payload);
