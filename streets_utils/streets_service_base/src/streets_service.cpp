@@ -97,6 +97,9 @@ namespace streets_service {
                     simulation::time_sync_message msg;
                     msg.fromJson(payload);
                     streets_clock_singleton::update(msg.timestep);
+                    // A script to validate time synchronization of tools in CDASim currently relies on the following
+                    // log line. TODO: This line is meant to be removed in the future upon completion of this work:
+                    // https://github.com/usdot-fhwa-stol/carma-analytics-fotda/pull/43
                     if (spdlog::get_level() == spdlog::level::debug)
                     {
                         auto time_now = std::chrono::system_clock::now();
