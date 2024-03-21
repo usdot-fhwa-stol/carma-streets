@@ -37,7 +37,7 @@ namespace streets_service {
 
     }
 
-    std::shared_ptr<spdlog::logger> streets_service::create_daily_logger(const std::string &name, const std::string &extension, 
+    std::shared_ptr<spdlog::logger> streets_service::create_daily_logger(const std::string &name, const std::string &extension,
                                             const std::string &pattern, const spdlog::level::level_enum &level) const
     {
         auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
@@ -53,7 +53,7 @@ namespace streets_service {
         return logger;
     }
     bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) {
-        
+
         if ( !_kafka_client ) {
             _kafka_client = std::make_unique<kafka_clients::kafka_client>();
         }
@@ -68,11 +68,11 @@ namespace streets_service {
         SPDLOG_DEBUG("Initialized Kafka producer on topic {0}!", producer_topic);
         return true;
     }
- 
+
     bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer ){
         if ( !_kafka_client ) {
             _kafka_client = std::make_unique<kafka_clients::kafka_client>();
-        }        
+        }
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
         kafka_consumer = _kafka_client->create_consumer(bootstrap_server, consumer_topic, _service_name);
         if (!kafka_consumer->init())
@@ -87,7 +87,7 @@ namespace streets_service {
     void streets_service::consume_time_sync_message() const  {
         _time_consumer->subscribe();
         while (_time_consumer->is_running())
-        {   
+        {
             const std::string payload = _time_consumer->consume(1000);
             if (payload.length() != 0)
             {
@@ -95,15 +95,16 @@ namespace streets_service {
                     SPDLOG_DEBUG("Consumed: {0}", payload);
                     simulation::time_sync_message msg;
                     msg.fromJson(payload);
+                    // DEBUG LOG HERE
                     streets_clock_singleton::update(msg.timestep);
                 }
                 catch( const std::runtime_error &e) {
                     SPDLOG_WARN( "{0} exception occured will consuming {1} msg! Skipping message!", e.what(), payload);
                 }
-                
+
             }
 
-        }        
+        }
     }
 
 
