@@ -1,4 +1,5 @@
 #include "streets_service.h"
+#include <chrono>
 
 namespace streets_service {
 
@@ -37,7 +38,7 @@ namespace streets_service {
 
     }
 
-    std::shared_ptr<spdlog::logger> streets_service::create_daily_logger(const std::string &name, const std::string &extension, 
+    std::shared_ptr<spdlog::logger> streets_service::create_daily_logger(const std::string &name, const std::string &extension,
                                             const std::string &pattern, const spdlog::level::level_enum &level) const
     {
         auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
@@ -53,7 +54,7 @@ namespace streets_service {
         return logger;
     }
     bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) {
-        
+
         if ( !_kafka_client ) {
             _kafka_client = std::make_unique<kafka_clients::kafka_client>();
         }
@@ -68,11 +69,11 @@ namespace streets_service {
         SPDLOG_DEBUG("Initialized Kafka producer on topic {0}!", producer_topic);
         return true;
     }
- 
+
     bool streets_service::initialize_kafka_consumer(const std::string &consumer_topic, std::shared_ptr<kafka_clients::kafka_consumer_worker> &kafka_consumer ){
         if ( !_kafka_client ) {
             _kafka_client = std::make_unique<kafka_clients::kafka_client>();
-        }        
+        }
         std::string bootstrap_server = streets_configuration::get_string_config("bootstrap_server");
         kafka_consumer = _kafka_client->create_consumer(bootstrap_server, consumer_topic, _service_name);
         if (!kafka_consumer->init())
@@ -87,7 +88,7 @@ namespace streets_service {
     void streets_service::consume_time_sync_message() const  {
         _time_consumer->subscribe();
         while (_time_consumer->is_running())
-        {   
+        {
             const std::string payload = _time_consumer->consume(1000);
             if (payload.length() != 0)
             {
@@ -96,14 +97,24 @@ namespace streets_service {
                     simulation::time_sync_message msg;
                     msg.fromJson(payload);
                     streets_clock_singleton::update(msg.timestep);
+                    // A script to validate time synchronization of tools in CDASim currently relies on the following
+                    // log line. TODO: This line is meant to be removed in the future upon completion of this work:
+                    // https://github.com/usdot-fhwa-stol/carma-analytics-fotda/pull/43
+                    if (spdlog::get_level() == spdlog::level::debug)
+                    {
+                        auto time_now = std::chrono::system_clock::now();
+                        auto epoch = time_now.time_since_epoch();
+                        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+                        SPDLOG_DEBUG("Simulation Time: {0} where current system time is: {1}", msg.timestep, milliseconds.count());
+                    }
                 }
                 catch( const std::runtime_error &e) {
                     SPDLOG_WARN( "{0} exception occured will consuming {1} msg! Skipping message!", e.what(), payload);
                 }
-                
+
             }
 
-        }        
+        }
     }
 
 
