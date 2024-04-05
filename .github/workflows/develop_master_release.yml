@@ -59,36 +59,15 @@ jobs:
     with:
       file: ./sensor_data_sharing_service/Dockerfile          
       repository: sensor_data_sharing_service
-  determine_organization:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Determine Docker Hub org and tag from git branch
-        run: |
-          if [[ "$GITHUB_REF_NAME" =~ release/(.*) ]]; then
-              echo DOCKERHUB_ORG="usdotfhwastolcandidate" >> $GITHUB_ENV
-              echo DOCKERHUB_TAG="${BASH_REMATCH[1]}" >> $GITHUB_ENV
-          elif [ "$GITHUB_REF_NAME" == "carma-master" ] || [ "$GITHUB_REF_NAME" == "master" ]; then
-              echo DOCKERHUB_ORG="usdotfhwastol" >> $GITHUB_ENV
-              echo DOCKERHUB_TAG="$GIT_TAG" >> $GITHUB_ENV
-          else
-              echo DOCKERHUB_ORG="usdotfhwastoldev" >> $GITHUB_ENV
-              if [ "$GITHUB_REF_NAME" == "carma-develop" ]; then
-                  echo DOCKERHUB_TAG="develop" >> $GITHUB_ENV
-              else
-                  # Replace / with - in branch name
-                  echo DOCKERHUB_TAG=${GITHUB_REF_NAME/\//-} >> $GITHUB_ENV
-              fi
-          fi
   build:
     needs: 
       - docker-build-streets-services-base-lanelet-aware
-      - determine_organization
     defaults:
       run:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: ${{ env.DOCKERHUB_ORG }}/streets_service_base_lanelet_aware:${{ env.DOCKERHUB_TAG}}
+      image: ${{ needs.docker-build-streets-services-base-lanelet-aware.outputs.DOCKERHUB_ORG }}/streets_service_base_lanelet_aware:${{ needs.docker-build-streets-services-base-lanelet-aware.outputs.DOCKERHUB_TAG}}
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
