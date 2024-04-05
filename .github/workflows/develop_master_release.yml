@@ -5,6 +5,7 @@ on:
       - develop
       - master
       - "release/*"
+      - fix/automated_release
     tags:
       -"carma-system*"
 jobs:
