@@ -1,3 +1,3 @@
-FROM usdotfhwastoldev/streets_service_base:bionic
+FROM usdotfhwastolcandidate/streets_service_base:lavida
 ENV LANELET2_MAP="/home/carma-streets/MAP/Intersection.osm"
 RUN /opt/carma-streets/build_scripts/install_lanelet2_dependencies.sh

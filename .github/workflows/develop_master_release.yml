@@ -5,11 +5,19 @@ on:
       - develop
       - master
       - "release/*"
-      - fix/automated_release
     tags:
       -"carma-system*"
 jobs:
+  docker-build-streets-services-base:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action      
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./streets_service_base/Dockerfile          
+      repository: streets_service_base
   docker-build-streets-services-base-lanelet-aware:
+    needs: docker-build-streets-services-base
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -67,7 +75,7 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: ${{ needs.docker-build-streets-services-base-lanelet-aware.outputs.DOCKERHUB_ORG }}/streets_service_base_lanelet_aware:${{ needs.docker-build-streets-services-base-lanelet-aware.outputs.DOCKERHUB_TAG}}
+      image: usdotfhwastolcandidate/streets_service_base_lanelet_aware:test_release
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
