@@ -1,50 +1,93 @@
-name: develop_master
+name: develop_master_release
 on:
   push:
-    branches: [develop, master]
+    branches: 
+      - develop
+      - master
+      - "release/*"
+    tags:
+      -"carma-system*"
 jobs:
-  docker-build:
-    strategy:
-        matrix:
-            include:
-             - ubuntu-codename: bionic
-               build_lanelet_aware: true
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
-             - ubuntu-codename: focal
-               build_lanelet_aware: false
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
-             - ubuntu-codename: jammy
-               build_lanelet_aware: false
+  docker-build-streets-services-base-lanelet-aware:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./streets_service_base_lanelet_aware/Dockerfile          
+      repository: streets_service_base_lanelet_aware
+    
+  docker-build-scheduling-service:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./scheduling_service/Dockerfile          
+      repository: scheduling_service
+  docker-build-message-services:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./message_services/Dockerfile          
+      repository: message_services
+  docker-build-tsc-service:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./tsc_service/Dockerfile          
+      repository: tsc_service
+  docker-build-signal-opt-service:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./signal_opt_service/Dockerfile          
+      repository: signal_opt_service
+  docker-build-sensor-data-sharing-service:
+    needs: docker-build-streets-services-base-lanelet-aware
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      file: ./sensor_data_sharing_service/Dockerfile          
+      repository: sensor_data_sharing_service
+  determine_organization:
     runs-on: ubuntu-latest
     steps:
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Docker Build Streets Service Base
-        uses: docker/build-push-action@v3
-        with:
-            push: true
-            build-args: |
-                UBUNTU_CODENAME=${{ matrix.ubuntu-codename }}
-            tags: usdotfhwastoldev/streets_service_base:${{ matrix.ubuntu-codename }}
-            file: ./streets_service_base/Dockerfile
-      - name: Docker Build Streets Service Base Lanelet Aware
-        if: ${{ matrix.build_lanelet_aware }} 
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: usdotfhwastoldev/streets_service_base_lanelet_aware:${{ matrix.ubuntu-codename }}
-          file: ./streets_service_base_lanelet_aware/Dockerfile          
+      - name: Determine Docker Hub org and tag from git branch
+        run: |
+          if [[ "$GITHUB_REF_NAME" =~ release/(.*) ]]; then
+              echo DOCKERHUB_ORG="usdotfhwastolcandidate" >> $GITHUB_ENV
+              echo DOCKERHUB_TAG="${BASH_REMATCH[1]}" >> $GITHUB_ENV
+          elif [ "$GITHUB_REF_NAME" == "carma-master" ] || [ "$GITHUB_REF_NAME" == "master" ]; then
+              echo DOCKERHUB_ORG="usdotfhwastol" >> $GITHUB_ENV
+              echo DOCKERHUB_TAG="$GIT_TAG" >> $GITHUB_ENV
+          else
+              echo DOCKERHUB_ORG="usdotfhwastoldev" >> $GITHUB_ENV
+              if [ "$GITHUB_REF_NAME" == "carma-develop" ]; then
+                  echo DOCKERHUB_TAG="develop" >> $GITHUB_ENV
+              else
+                  # Replace / with - in branch name
+                  echo DOCKERHUB_TAG=${GITHUB_REF_NAME/\//-} >> $GITHUB_ENV
+              fi
+          fi
   build:
-    needs: docker-build
+    needs: 
+      - docker-build-streets-services-base-lanelet-aware
+      - determine_organization
     defaults:
       run:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+      image: ${{ env.DOCKERHUB_ORG }}/streets_service_base_lanelet_aware:${{ env.DOCKERHUB_TAG}}
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
