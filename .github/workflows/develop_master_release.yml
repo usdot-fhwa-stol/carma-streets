@@ -34,14 +34,14 @@ jobs:
     with:
       file: ./message_services/Dockerfile          
       repository: message_services
-  docker-build-tsc-service:
+  docker-build-tsc-client-service:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     with:
-      file: ./tsc_service/Dockerfile          
-      repository: tsc_service
+      file: ./tsc_client_service/Dockerfile          
+      repository: tsc_client_service
   docker-build-signal-opt-service:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-add-repository-dockerhub-action
     secrets:
