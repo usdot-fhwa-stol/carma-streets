@@ -108,7 +108,7 @@ namespace sensor_data_sharing_service {
                     // the detection message was processed before time sync message. Wait on time sync message
                     else if (is_simulation_mode() && delay < 0 ) {
                         SPDLOG_WARN("Current sim time {0} waiting for sim time {1}ms from detection ...",ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
-                        ss::streets_clock_singleton::sleep_for(delay);
+                        ss::streets_clock_singleton::sleep_for(abs(delay));
                     }
                     // If delay is negative and service is not in simulation mode
                     // indicates sensor and service are not time sychronized.
