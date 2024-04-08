@@ -243,7 +243,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   sensor_data_sharing_service:
-    image: usdotfhwastolcandidate/sensor_data_sharing_service:lavida
+    image: usdotfhwastol/sensor_data_sharing_service:carma-system-4.5.0
     build: 
       context: .
       dockerfile: sensor_data_sharing_service/Dockerfile
