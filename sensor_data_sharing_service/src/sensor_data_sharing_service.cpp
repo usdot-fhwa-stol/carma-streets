@@ -97,7 +97,7 @@ namespace sensor_data_sharing_service {
                 {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
                     // Get delay of detected object
-                    auto delay = static_cast<uint64_t>(ss::streets_clock_singleton::time_in_ms()) - static_cast<uint64_t>(detected_object._timestamp);
+                    auto delay = static_cast<int64_t>(ss::streets_clock_singleton::time_in_ms()) - static_cast<int64_t>(detected_object._timestamp);
                     SPDLOG_DEBUG("Detection Delay : {0}ms!", delay);
                     // if delay is greater than 500 ms skip detection to get more recent data
                     if ( delay >= 500 ) {
