@@ -1,7 +1,7 @@
 name: develop_master
 on:
   push:
-    branches: [develop, master, fix_ci_master]
+    branches: [develop, master]
 jobs:
   docker-build:
     strategy:
