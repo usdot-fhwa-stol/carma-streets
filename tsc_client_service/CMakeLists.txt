@@ -13,6 +13,8 @@ find_package(streets_service_base_lib REQUIRED)
 find_package(streets_signal_phase_and_timing_lib REQUIRED)
 find_package(streets_tsc_configuration_lib  REQUIRED)
 find_package(streets_desired_phase_plan_lib REQUIRED)
+find_package(streets_phase_control_schedule_lib REQUIRED)
+find_package(streets_snmp_cmd_lib REQUIRED)
 find_library(NETSNMPAGENT "netsnmpagent")
 find_library(NETSNMPMIBS "netsnmpmibs")
 find_library(NETSNMP "netsnmp")
@@ -40,6 +42,7 @@ add_library(${PROJECT_NAME}_lib
     src/monitor_tsc_state.cpp        
     src/monitor_desired_phase_plan.cpp
     src/control_tsc_state.cpp
+    src/spat_projection_mode.cpp
     src/exceptions/control_tsc_state_exception.cpp)
 target_link_libraries( ${PROJECT_NAME}_lib 
     PUBLIC
@@ -49,6 +52,8 @@ target_link_libraries( ${PROJECT_NAME}_lib
         streets_signal_phase_and_timing_lib
         streets_tsc_configuration_lib
         streets_desired_phase_plan_lib
+        streets_phase_control_schedule_lib::streets_phase_control_schedule_lib
+        streets_snmp_cmd_lib::streets_snmp_cmd_lib
         intersection_client_api_lib
         spdlog::spdlog
         Qt5::Core

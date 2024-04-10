@@ -81,12 +81,9 @@ namespace intersection_model
             lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany,
                                                         lanelet::Participants::Vehicle,
                                                         lanelet::traffic_rules::TrafficRules::Configuration())};
-        lanelet::routing::RoutingCostPtrs costPtrs{
-            std::make_shared<lanelet::routing::RoutingCostDistance>(this->laneChangeCost, this->minLaneChangeLength),
-            std::make_shared<lanelet::routing::RoutingCostTravelTime>(this->laneChangeCost)};
-        lanelet::routing::RoutingGraph::Configuration configuration;
-        configuration.insert(std::make_pair(lanelet::routing::RoutingGraph::ParticipantHeight, this->participantHeight));
-        this->vehicleGraph_ptr = lanelet::routing::RoutingGraph::build(*this->map, *trafficRules, costPtrs, configuration);
+
+        this->vehicleGraph_ptr = lanelet::routing::RoutingGraph::build(*this->map, *trafficRules);
+
         if ( !this->vehicleGraph_ptr )
         {
             return false;

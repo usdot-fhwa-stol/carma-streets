@@ -4,6 +4,8 @@ project(streets_signal_optimization)
 # Find Dependent Packages and set configurations
 ########################################################                        
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC ")
+# std::shared_mutex and std::map::try_emplace
+set(CMAKE_CXX_STANDARD 17)
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
@@ -21,7 +23,7 @@ find_package(carma-clock REQUIRED)
 ########################################################
 # Build Library
 ######################################################## 
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ *.cpp)
+file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_library(${PROJECT_NAME}_lib ${SOURCES} )
 target_include_directories(${PROJECT_NAME}_lib 
     PUBLIC
@@ -81,9 +83,10 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false test/*.h test/*.cpp)
 set(SOURCES ${TEST_SOURCES} WORKING_DIRECTORY  ${PROJECT_SOURCE_DIR}/test)
 add_executable(${BINARY} ${TEST_SOURCES} )
 add_test(NAME ${BINARY} COMMAND ${BINARY})
+message(status "Test sources  ${TEST_SOURCES}")
 target_include_directories(${BINARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(${BINARY} 
-    PUBLIC  
+    PRIVATE  
         ${PROJECT_NAME}_lib
         rapidjson
 )

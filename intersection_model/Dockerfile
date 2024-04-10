@@ -13,16 +13,18 @@ RUN echo " ------> Install googletest..."
 WORKDIR /home/carma-streets/
 RUN mkdir -p /home/carma-streets/ext
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/google/googletest/
+RUN git clone https://github.com/google/googletest.git -b v1.13.0
 WORKDIR /home/carma-streets/ext/googletest/
-RUN cmake .
+RUN mkdir build
+WORKDIR /home/carma-streets/ext/googletest/build
+RUN cmake ..
 RUN make
 RUN make install
 
 # Install spdlog
 RUN echo " ------> Install spdlog... "
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/gabime/spdlog.git
+RUN git clone https://github.com/gabime/spdlog.git -b v1.12.0
 WORKDIR /home/carma-streets/ext/spdlog/
 RUN mkdir build 
 WORKDIR /home/carma-streets/ext/spdlog/build
@@ -32,7 +34,7 @@ RUN make install
 # Install librdkafka
 RUN echo " ------> Install librdkafka..."
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/confluentinc/librdkafka.git 
+RUN git clone https://github.com/confluentinc/librdkafka.git -b v2.2.0
 WORKDIR /home/carma-streets/ext/librdkafka/
 RUN cmake -H. -B_cmake_build
 RUN cmake --build _cmake_build
@@ -43,6 +45,7 @@ RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
 RUN git clone  https://github.com/Tencent/rapidjson
 WORKDIR /home/carma-streets/ext/rapidjson/
+RUN git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j

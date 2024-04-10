@@ -77,7 +77,7 @@ namespace ntcip_oids {
     static const std::string PHASE_CONCURRENCY =  "1.3.6.1.4.1.1206.4.2.1.1.2.1.23";
 
     /**
-     * @brief Phase Omit Control object is used to allow omission of pedestrian phases from being serviced in the device.
+     * @brief Phase Omit Control object is used to allow omission of vehicle phases from being serviced in the device.
      * It takes in a 8 bit argument, one for each phase. When a bit=1 the Traffic Signal Controller will omit 
      * that phase and keep omitting till the bit is set to 0.
      * Values range from 0-255.
@@ -86,13 +86,33 @@ namespace ntcip_oids {
     static const std::string PHASE_OMIT_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.2.1";
 
     /**
-     * @brief Phase Hold Control object is used to Hold pedestrian phases.
+     * @brief Phase Omit Control object is used to allow omission of pedestrian phases from being serviced in the device.
+     * It takes in a 8 bit argument, one for each phase. When a bit=1 the Traffic Signal Controller will omit 
+     * that phase and keep omitting till the bit is set to 0.
+     * Values range from 0-255.
+     * .1 is needed at the end to set the phase control. NTCIP documentation is unclear about why its required or what it represents
+     */
+    static const std::string PHASE_PEDESTRIAN_OMIT_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.3.1";
+
+    /**
+     * @brief Phase Hold Control object is used to Hold Vehicle phases.
      * It takes in a 8 bit argument, one for each phase. When a bit=1 the Traffic Signal Controller will hold 
      * that phase when it turns green and keep holding till the bit is set to 0.
      * Values range from 0-255.
      * .1 is needed at the end to set the phase control. NTCIP documentation is unclear about why its required or what it represents
      */
     static const std::string PHASE_HOLD_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.4.1";
+    /**
+     * @brief Phase Vehicle Call Status Mask, when a bit =1, the Phase vehicle currently has a call for service. When a bit 
+     * = 0, the Phase vehicle currently does NOT have a call for service.
+     */
+    static const std::string PHASE_STATUS_GROUP_VEH_CALLS ="1.3.6.1.4.1.1206.4.2.1.1.4.1.8";
+    /**
+     * @brief Phase Pedestrian Call Status Mask, when a bit= 1, the Phase pedestrian currently has a call for service. When
+     * a bit = 0, the Phase pedestrian currently does NOT have a call for service.
+     */
+    static const std::string PHASE_STATUS_GROUP_PED_CALLS ="1.3.6.1.4.1.1206.4.2.1.1.4.1.9";
+
     /**
      * @brief Phase Status Group Phase Next object is used to determine whether any vehicle phases are committed by the
      * TSC to be served next. It returns a 8 bit value that represent a state for each of the 8 vehicle phases. When a bit = 1,
@@ -103,5 +123,29 @@ namespace ntcip_oids {
      * 
      */
     static const std::string PHASE_STATUS_GROUP_PHASE_NEXT = "1.3.6.1.4.1.1206.4.2.1.1.4.1.11.1";
+
+    /**
+     * @brief Phase FORCEOFF Control object is used to allow apply force offs on a per phase basis.
+     * It takes in a 8 bit argument, one for each phase. When a bit=1 the Traffic Signal Controller will force off 
+     * that phase, and should not activate the system phase force off control for that phase when the bit is set to 0.
+     * Values range from 0-255. When the phase green terminates, the associated bit shall be reset to 0.
+     * .1 is needed at the end to set the phase control. NTCIP documentation is unclear about why its required or what it represents
+     */
+    static const std::string PHASE_FORCEOFF_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.5.1";
+
+    /**
+     * @brief Phase vehicle call control object is used to allow a remote entity to place calls for vehicle service in the service.
+     * When a bit = 1, the device shall place a call for vehicle service on that phase.
+     * When a bit = 0, the device shall not place a call for vehicle service on that phase.
+     * .1 is needed at the end to set the phase control. NTCIP documentation is unclear about why its required or what it represents
+    */
+    static const std::string PHASE_VEHICLE_CALL_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.6.1";
+
+    /**
+     * @brief The phase pedestrian call control is used to allow a remote entity to place calls for ped service in the device. 
+     * When a bit = 1, the device shall place a call for ped service on that phase.
+     * When a bit = 0, the device shall not place a call for ped service on that phase.
+    */
+    static const std::string PHASE_PEDESTRIAN_CALL_CONTROL = "1.3.6.1.4.1.1206.4.2.1.1.5.1.7.1";
 
 }

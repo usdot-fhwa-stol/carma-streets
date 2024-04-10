@@ -13,9 +13,9 @@ TEST(test_snmp_client, test_process_snmp_request)
     snmp_client worker(dummy_ip, dummy_port);
 
     // Test GET
-    request_type request_type = request_type::GET;
-    snmp_response_obj int_response;
-    int_response.type = snmp_response_obj::response_type::INTEGER;
+    auto request_type= streets_snmp_cmd::REQUEST_TYPE::GET;
+    streets_snmp_cmd::snmp_response_obj int_response;
+    int_response.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
     int_response.val_int = 0;
     // Expect get call to fail since we're communicating with invalid host
     EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, int_response));
@@ -26,7 +26,7 @@ TEST(test_snmp_client, test_process_snmp_request)
     EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, int_response));
 
     // Test log_error
-    request_type = request_type::GET;
+    request_type = streets_snmp_cmd::REQUEST_TYPE::GET;
     snmp_pdu *response = nullptr;
     int status = STAT_TIMEOUT;
     worker.log_error(status, request_type, response);
@@ -35,22 +35,22 @@ TEST(test_snmp_client, test_process_snmp_request)
     worker.log_error(status, request_type, response);
 
     // Test SET
-    request_type = request_type::SET;
-    snmp_response_obj set_value;
-    int_response.type = snmp_response_obj::response_type::INTEGER;
+    request_type = streets_snmp_cmd::REQUEST_TYPE::SET;
+    streets_snmp_cmd::snmp_response_obj set_value;
+    int_response.type = streets_snmp_cmd::RESPONSE_TYPE::INTEGER;
     int_response.val_int = 10;
     // Expect set call to fail since we're communicating with invalid host
     EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
 
     // Test log_error
     status = STAT_TIMEOUT;
-    request_type = request_type::SET;
+    request_type = streets_snmp_cmd::REQUEST_TYPE::SET;
     
     status = -7; //Random error value
     worker.log_error(status, request_type,response);
 
     // Invalid Request type
-    request_type = request_type::OTHER;
+    request_type = streets_snmp_cmd::REQUEST_TYPE::OTHER;
     EXPECT_FALSE(worker.process_snmp_request(test_oid, request_type, set_value));
     
 }

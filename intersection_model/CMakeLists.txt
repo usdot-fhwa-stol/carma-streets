@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(intersection_model)
-link_directories(
-                "/usr/lib"  
-                "/usr/local/lib" 
-                ${catkin_LIBRARY_DIRS}
-                ${catkin_INCLUDE_DIRS})
+
 find_package(Boost COMPONENTS thread filesystem system REQUIRED)
 find_package(spdlog REQUIRED)
 add_definitions(-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)

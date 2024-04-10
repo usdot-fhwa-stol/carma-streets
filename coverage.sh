@@ -15,9 +15,27 @@
 
 # script to run tests, generate test-coverage, and store coverage reports in a place
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
+set -e
+# For lanelet aware streets services like message_services and intersection_model
+source /opt/ros/melodic/setup.bash
+source /opt/carma_lanelet2/setup.bash
 
 cd /home/carma-streets
 mkdir test_results
+
+cd /home/carma-streets/streets_utils/json_utils/build/
+./json_utils_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/json_utils
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/json_utils/coverage/coverage.xml -s -f streets_utils/json_utils/ -r .
+
+cd /home/carma-streets/streets_utils/streets_messages/build/
+./streets_messages_lib_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_messages
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_messages/coverage/coverage.xml -s -f streets_utils/streets_messages/
 
 cd /home/carma-streets/streets_utils/streets_service_configuration/build/
 ./streets_service_configuration_test --gtest_output=xml:../../../test_results/
@@ -83,6 +101,20 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_desired_phase_plan/coverage/coverage.xml -s -f streets_utils/streets_desired_phase_plan/ -r .
 
+cd /home/carma-streets/streets_utils/streets_phase_control_schedule/build/
+./streets_phase_control_schedule_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_phase_control_schedule
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_phase_control_schedule/coverage/coverage.xml -s -f streets_utils/streets_phase_control_schedule/ -r .
+
+cd /home/carma-streets/streets_utils/streets_timing_plan/build/
+./streets_timing_plan_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_timing_plan
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_timing_plan/coverage/coverage.xml -s -f streets_utils/streets_timing_plan/ -r .
+
 cd /home/carma-streets/streets_utils/streets_signal_optimization/build/
 ./streets_signal_optimization_test --gtest_output=xml:../../../test_results/
 cd /home/carma-streets/streets_utils/streets_signal_optimization
@@ -90,21 +122,28 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube streets_utils/streets_signal_optimization/coverage/coverage.xml -s -f streets_utils/streets_signal_optimization/ -r .
 
-# cd /home/carma-streets/message_services/build/
-# # Currently only running a subset of message_services tests. TODO: Fix the remaining test cases.
-# ./message_services_test --gtest_output=xml:../../test_results/
-# cd /home/carma-streets/message_services/
-# mkdir coverage
-# cd /home/carma-streets/
-# gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
+cd /home/carma-streets/streets_utils/streets_snmp_cmd/build/
+./streets_snmp_cmd_test --gtest_output=xml:../../../test_results/
+cd /home/carma-streets/streets_utils/streets_snmp_cmd
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube streets_utils/streets_snmp_cmd/coverage/coverage.xml -s -f streets_utils/streets_snmp_cmd/ -r .
+
+cd /home/carma-streets/message_services/build/
+# Currently only running a subset of message_services tests. TODO: Fix the remaining test cases.
+./message_services_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/message_services/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube message_services/coverage/coverage.xml -s -f message_services/ -r .
 
 
-# cd /home/carma-streets/intersection_model/build/
-# ./intersection_model_test ---gtest_output=xml:../../test_results/
-# cd /home/carma-streets/intersection_model/
-# mkdir coverage
-# cd /home/carma-streets/
-# gcovr --exclude=intersection_model/src/server/ --exclude=intersection_model/test/ --exclude=intersection_model/build/src/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
+cd /home/carma-streets/intersection_model/build/
+./intersection_model_test ---gtest_output=xml:../../test_results/
+cd /home/carma-streets/intersection_model/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --exclude=intersection_model/src/server/ --exclude=intersection_model/test/ --exclude=intersection_model/build/src/ --sonarqube intersection_model/coverage/coverage.xml -s -f intersection_model/ -r .
 
 
 cd /home/carma-streets/signal_opt_service/build/
@@ -121,3 +160,9 @@ mkdir coverage
 cd /home/carma-streets/
 gcovr --sonarqube tsc_client_service/coverage/coverage.xml -s -f tsc_client_service/ -r .
 
+cd /home/carma-streets/sensor_data_sharing_service/build/
+./sensor_data_sharing_service_test --gtest_output=xml:../../test_results/
+cd /home/carma-streets/sensor_data_sharing_service/
+mkdir coverage
+cd /home/carma-streets/
+gcovr --sonarqube sensor_data_sharing_service/coverage/coverage.xml -s -f sensor_data_sharing_service/ -r .

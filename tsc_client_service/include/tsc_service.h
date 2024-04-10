@@ -22,6 +22,7 @@
 #include <gtest/gtest_prod.h>  
 #include "streets_service.h"
 #include "streets_clock_singleton.h"
+#include "spat_projection_mode.h"
 
 namespace traffic_signal_controller_service {
 
@@ -39,6 +40,11 @@ namespace traffic_signal_controller_service {
              * @brief Kafka consumer for consuming desired phase plan JSON
              */
             std::shared_ptr<kafka_clients::kafka_consumer_worker> desired_phase_plan_consumer;
+
+            /*
+             * @brief Kafka consumer for consuming Phase Control Schedule JSON
+             */
+            std::shared_ptr<kafka_clients::kafka_consumer_worker> phase_control_schedule_consumer;
 
             /**
              * @brief spat_worker contains udp_socket_listener and consumes UDP data 
@@ -66,6 +72,11 @@ namespace traffic_signal_controller_service {
              * JSON message.
              */
             std::shared_ptr<signal_phase_and_timing::spat> spat_ptr;
+
+            /**
+             * @brief Point to phase control schedule object which is updated based on the received JSON message from MMITSS Road side processor.
+            */
+            std::shared_ptr<streets_phase_control_schedule::streets_phase_control_schedule> phase_control_schedule_ptr;
             /**
              * @brief Pointer to tsc_configuration_state object which is traffic signal controller
              * configuration information obtained from the tsc_state worker
@@ -91,10 +102,10 @@ namespace traffic_signal_controller_service {
             int tsc_config_send_attempts = 1;
 
             // desired phase plan information consumed from desire_phase_plan Kafka topic
-            bool use_desired_phase_plan_update_ = false;
+            SPAT_PROJECTION_MODE spat_proj_mode = SPAT_PROJECTION_MODE::NO_PROJECTION;
 
             // Queue to store snmp_cmd_structs which are objects used to run snmp HOLD and OMIT commands
-            std::queue<snmp_cmd_struct> tsc_set_command_queue_;
+            std::queue<streets_snmp_cmd::snmp_cmd_struct> tsc_set_command_queue_;
 
             // Configurable sleep duration for control_tsc_state thread in milliseconds. This sleep is required to allow some time between checking queue for control commands
             int control_tsc_state_sleep_dur_ = 0;
@@ -102,11 +113,24 @@ namespace traffic_signal_controller_service {
             // Configurable parameter that is used to enable logging of snmp commands to a log file if set to true. 
             bool enable_snmp_cmd_logging_ = false;
 
+            inline static const std::string SNMP_COMMAND_LOGGER_NAME = "snmp_command";
+
+            inline static const std::string VEH_PED_CALL_LOGGER_NAME = "veh_ped_call";
+
             //Add Friend Test to share private members
             friend class tsc_service_test;
             FRIEND_TEST(tsc_service_test,test_tsc_control);
             FRIEND_TEST(tsc_service_test,test_produce_tsc_config_json_timeout);
             FRIEND_TEST(tsc_service_test,test_init_kafka_consumer_producer);
+            FRIEND_TEST(tsc_service_test,test_configure_snmp_cmd_logger);
+            FRIEND_TEST(tsc_service_test,test_configure_veh_ped_call_logger);
+
+            /***
+             * Configuration parameter to control different interfaces to schedule the traffic signal controller
+             * If false, it will use carma-streets internal signal optimization service and its generated desired phase plan to schedule traffic signal controller. 
+             * If true, it will use external MRP (MMITSS Roadside Processor, link: https://github.com/mmitss/mmitss-az) and its generated phase control schedule to schedule the traffic sginal controller.
+             * **/
+            bool use_mmitss_mrp = false;
 
 
         public:
@@ -151,6 +175,7 @@ namespace traffic_signal_controller_service {
              * @return false if initialization is not successful.
              */
             bool initialize_tsc_state( const std::shared_ptr<snmp_client> _snmp_client_ptr);
+
             /**
              * @brief Method to enable spat using the TSC Service SNMP Client. 
              * 
@@ -210,22 +235,33 @@ namespace traffic_signal_controller_service {
             void produce_tsc_config_json() const;
 
             void consume_desired_phase_plan();
+            /**
+             * @brief Thread callback function to run the phase control schedule Kafka consumer to consume phase control schedule JSON message
+            */
+            void consume_phase_control_schedule();
             
             /**
              * @brief Method to control phases on the Traffic Signal Controller by sending OMIT and HOLD commands constructed to 
-             * follow the desired phase plan. Calls set_tsc_hold_and_omit
+             * follow the desired phase plan. Calls set_tsc_hold_and_omit_forceoff_call
              **/
             void control_tsc_phases();
 
             /**
-             * @brief Method to set HOLD and OMIT on the Traffic signal controller accorording to the desired phase plan.
+             * @brief Method to set HOLD and OMIT, CALL, FORCEOFF on the Traffic signal controller accorording to the desired phase plan/phase control schedule.
              **/
-            void set_tsc_hold_and_omit();
+            void set_tsc_hold_and_omit_forceoff_call();
 
             /**
-             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating csv file.
+             * @brief Method to configure spdlog::logger for logging snmp control commands into daily rotating log file.
             */
             void configure_snmp_cmd_logger() const;
+            /**
+             * @brief ethod to configure spdlog::logger for logging vehicle and pedestrian calls on the traffic signal controller
+             *  into daily rotating csvlog file.
+             * 
+             */
+            void configure_veh_ped_call_logger() const;
+
             /**
              * @brief Method to log spat latency comparing spat time stamp to current time. Calculates and average over 20
              * messages then resets count and spat_processing_time.

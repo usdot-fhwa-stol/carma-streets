@@ -59,6 +59,10 @@ namespace traffic_signal_controller_service
             /* The sequence of vehicle phases in ring 2 of TSC*/
             std::vector<int> phase_seq_ring2_;
 
+            std::vector<int> vehicle_calls;
+
+            std::vector<int> pedestrian_calls;
+
             // Number of required following movements on receiving a spat_ptr
             int required_following_movements_ = 3;
 
@@ -107,6 +111,7 @@ namespace traffic_signal_controller_service
             **/
             std::vector<std::vector<int>> get_active_ring_sequences(int max_rings, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, int sequence = 1) const;
 
+
             /** 
              * @brief Method for mapping vehicle phases and signal groups. Modifies non-const arguments by reference.
              * Signal group map is expected to be passed empty. 
@@ -119,6 +124,24 @@ namespace traffic_signal_controller_service
             void map_phase_and_signalgroup(const std::vector<std::vector<int>>& active_ring_sequences, std::unordered_map<int,int>& vehicle_phase_2signalgroup_map, 
                                                                                             std::unordered_map<int, int>& signal_group_2vehiclephase_map) const;
 
+            /**
+             * @brief Method to process bitwise response from NTCIP 1202 Phase Status Group Table. In this table phase information
+             * is returned as a single 8 bit integer and can be intepreted as follows:
+             * ```
+             * Bit 7: Phase # = (phaseStatusGroupNumber * 8)
+             * Bit 6: Phase # = (phaseStatusGroupNumber * 8) - 1
+             * Bit 5: Phase # = (phaseStatusGroupNumber * 8) - 2
+             * Bit 4: Phase # = (phaseStatusGroupNumber * 8) - 3
+             * Bit 3: Phase # = (phaseStatusGroupNumber * 8) - 4
+             * Bit 2: Phase # = (phaseStatusGroupNumber * 8) - 5
+             * Bit 1: Phase # = (phaseStatusGroupNumber * 8) - 6
+             * Bit 0: Phase # = (phaseStatusGroupNumber * 8) - 7
+             * ```
+             * @param resp 
+             * @param offset 
+             * @return 
+             */
+            std::vector<int> process_bitwise_response( const streets_snmp_cmd::snmp_response_obj &resp, int offset ) const;
             /** 
              * @brief Method for getting maximum channels for the traffic signal controller
              * @return number of maximum channels in the traffic signal controller
@@ -172,7 +195,7 @@ namespace traffic_signal_controller_service
              * @param ring_num The phase for which the concurrent phases needs to be obtained
              * @return a vector of phases that may be concurrent with the given phase
             **/
-            std::vector<int> get_concurrent_signal_groups(int phase_num);
+            std::vector<int> get_concurrent_signal_groups(int phase_num) const;
 
             /** @brief Get predicted next movement event given a current event
              * @param current_event movement_event from the next movement needs to be predicted
@@ -182,6 +205,19 @@ namespace traffic_signal_controller_service
             **/
             signal_phase_and_timing::movement_event get_following_event(const signal_phase_and_timing::movement_event& current_event,
                                                                  uint64_t current_event_end_time, const signal_group_state& phase_state) const;
+
+            /**
+             * @brief Helper method to convert phase numbers to signal groups ids for a vector of vehicle phases.
+             * @param veh_phases vector of vehicle phase numbers.
+             * @return vector of vehicle signal group ids.
+             */
+            std::vector<int> convert_veh_phases_to_signal_groups(const std::vector<int> &veh_phases ) const;
+            /**
+             * @brief Helper method to convert phase numbers to signal group ids for a vector of pedestrian phases.
+             * @param ped_phases vector of pedestrian phase numbers.
+             * @return vector pedestrian signal group ids.
+             */
+            std::vector<int> convert_ped_phases_to_signal_groups(const std::vector<int> &ped_phases ) const;
             
             //Add Friend Test to share private members
             FRIEND_TEST(test_monitor_state, test_get_following_movement_events);
@@ -212,10 +248,26 @@ namespace traffic_signal_controller_service
             const std::unordered_map<int,int> & get_ped_phase_map();
 
             /** 
-             * @brief Returns a map of pedestrian phases to signal group ids
-             * @return a map of pedestrian phases to signal group ids
+             * @brief Returns a map of vehicle phases to signal group ids
+             * @return a map of vehicle phases to signal group ids
             **/
             const std::unordered_map<int,int>& get_vehicle_phase_map();
+
+            /**
+             * @brief Return a map of signal group ids to phases map.
+             * @return a map of signal group ids to vehicle phases map.
+            */
+            const std::unordered_map<int, int> & get_signal_group_map();
+
+            std::vector<int> get_vehicle_calls() const;
+
+            std::vector<int> get_pedestrian_calls() const;
+
+            std::string vector_to_string(const std::vector<int> &v ) const;
+            /**
+             * @brief Poll vehicle/pedestrian calls on phases 1-16
+             */
+            void poll_vehicle_pedestrian_calls();
 
             /**
              * @brief Get the phase number using signal group id.
@@ -233,7 +285,9 @@ namespace traffic_signal_controller_service
              * @return int
              * @throws monitor_states_exception if phase number is less than 1. 
              */
-            int get_vehicle_signal_group_id(const int phase_number);
+            int get_vehicle_signal_group_id(const int phase_number) const;
+
+            int get_pedestrian_signal_group_id(const int phase_number) const;
 
             /**
              * @brief Initialize tsc_state by making SNMP calls to TSC for phase sequence and timing information.

@@ -11,7 +11,7 @@ RUN mkdir -p /home/carma-streets/
 # Install librdkafka
 RUN echo " ------> Install librdkafka..."
 WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/confluentinc/librdkafka.git 
+RUN git clone https://github.com/confluentinc/librdkafka.git -b v2.2.0
 WORKDIR /home/carma-streets/ext/librdkafka/
 RUN cmake -H. -B_cmake_build
 RUN cmake --build _cmake_build
@@ -20,8 +20,9 @@ RUN cmake --build _cmake_build --target install
 # Install rapidjson
 RUN echo " ------> Install rapidjson..."
 WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
+RUN git clone https://github.com/Tencent/rapidjson
 WORKDIR /home/carma-streets/ext/rapidjson/
+RUN git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
 RUN mkdir build
 WORKDIR /home/carma-streets/ext/rapidjson/build
 RUN cmake .. && make -j
@@ -84,6 +85,15 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install streets_phase_control_schedule
+RUN echo " ------> Install streets phase control schedule from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_phase_control_schedule
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_phase_control_schedule/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
+
 # Install streets_signal_phase_and_timing
 RUN echo " ------> Install streets service base library from streets_utils..."
 WORKDIR /home/carma-streets/streets_utils/streets_signal_phase_and_timing
@@ -93,6 +103,14 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
+# Install streets_snmp_cmd
+RUN echo " ------> Install streets snmp command from streets_utils..."
+WORKDIR /home/carma-streets/streets_utils/streets_snmp_cmd
+RUN mkdir build
+WORKDIR /home/carma-streets/streets_utils/streets_snmp_cmd/build
+RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
+RUN make
+RUN make install
 
 # Install net-snmp
 WORKDIR /home/carma-streets/ext/
