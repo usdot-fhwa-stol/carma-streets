@@ -16,10 +16,31 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+    # Health check to confirm kafka server is healthy (script is a client) and all topics 
+    # have been created (time_sync is last topic).
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--describe", "--bootstrap-server", "127.0.0.1:9092", "--topic", "time_sync"]
+      interval: 2s
+      timeout: 10s
+      retries: 10
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
-      KAFKA_CREATE_TOPICS: "v2xhub_scheduling_plan_sub:1:1,v2xhub_bsm_in:1:1,v2xhub_mobility_operation_in:1:1,v2xhub_mobility_path_in:1:1,vehicle_status_intent_output:1:1,v2xhub_map_msg_in:1:1,modified_spat:1:1,desired_phase_plan:1:1, tsc_config_state:1:1,phase_control_schedule:1:1,detections:1:1,sdsm_out:1:1"
+      KAFKA_CREATE_TOPICS: "\
+        v2xhub_scheduling_plan_sub:1:1,\
+        v2xhub_bsm_in:1:1,\
+        v2xhub_mobility_operation_in:1:1,\
+        v2xhub_mobility_path_in:1:1,\
+        vehicle_status_intent_output:1:1,\
+        v2xhub_map_msg_in:1:1,\
+        modified_spat:1:1,\
+        desired_phase_plan:1:1,\
+        tsc_config_state:1:1,\
+        v2xhub_sim_sensor_detected_object:1:1,\
+        v2xhub_sdsm_sub:1:1,\
+        desire_phase_plan:1:1,\
+        v2xhub_sdsm_tra:1:1,\
+        time_sync:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LOG_DIRS: "/kafka/kafka-logs"
     volumes:
@@ -38,7 +59,8 @@ services:
     restart: on-failure
     network_mode: host
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy  
     environment:
       CONFIG_FILEPATH: /etc/kowl/kowl.yaml
     volumes:
@@ -60,7 +82,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
       - mysql-datavolume:/var/lib/mysql
   php:
-    image: usdotfhwaops/php:latest
+    image: usdotfhwaops/php:7.6.0
     container_name: php
     network_mode: host
     depends_on:
@@ -69,7 +91,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhubamd:latest
+    image: usdotfhwaops/v2xhubamd:7.6.0
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -95,7 +117,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
-    image: usdotfhwastoldev/scheduling_service:develop
+    image: usdotfhwastol/scheduling_service:carma-system-4.5.0
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -103,10 +125,13 @@ services:
     container_name: scheduling_service
     restart: always
     network_mode: host
-    depends_on:  
-      - kafka
-      - intersection_model
-      - message_services
+    depends_on:
+      kafka:
+        condition: service_healthy  
+      intersection_model: 
+        condition: service_started
+      message_services: 
+        condition: service_started
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
@@ -120,15 +145,16 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastoldev/message_services:develop
+    image: usdotfhwastol/message_services:carma-system-4.5.0
     build: 
       context: .
       dockerfile: message_services/Dockerfile
     container_name: message_services
     restart: always
     network_mode: host
-    depends_on:  
-      - kafka
+    depends_on:
+      kafka:
+        condition: service_healthy  
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
@@ -138,7 +164,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastoldev/intersection_model:develop
+    image: usdotfhwastol/intersection_model:carma-system-4.5.0
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -146,7 +172,8 @@ services:
     restart: always
     network_mode: host
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy  
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
     volumes: 
@@ -156,7 +183,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   signal_opt_service:
-    image: usdotfhwastoldev/signal_opt_service:develop
+    image: usdotfhwastol/signal_opt_service:carma-system-4.5.0
     command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
     build: 
       context: .
@@ -165,11 +192,16 @@ services:
     restart: always
     network_mode: host
     depends_on:
-      - kafka
-      - intersection_model
-      - message_services
-      - scheduling_service 
-      - tsc_service   
+      kafka:
+        condition: service_healthy  
+      intersection_model:
+        condition: service_started
+      message_services:
+        condition: service_started
+      scheduling_service:
+        condition: service_started
+      tsc_service:
+        condition: service_started   
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
@@ -182,7 +214,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   tsc_service:
-    image: usdotfhwastoldev/tsc_service:develop
+    image: usdotfhwastol/tsc_service:carma-system-4.5.0
     command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
     build: 
       context: .
@@ -191,8 +223,10 @@ services:
     restart: always
     network_mode: host
     depends_on:
-      - kafka
-      - intersection_model
+      kafka:
+        condition: service_healthy  
+      intersection_model:
+        condition: service_started
     environment:
       DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
       WAIT_HOSTS: localhost:8080
@@ -209,7 +243,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   sensor_data_sharing_service:
-    image: usdotfhwastoldev/sensor_data_sharing_service:develop
+    image: usdotfhwastol/sensor_data_sharing_service:carma-system-4.5.0
     build: 
       context: .
       dockerfile: sensor_data_sharing_service/Dockerfile
@@ -217,7 +251,8 @@ services:
     restart: always
     network_mode: host
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy  
     environment:
       SIMULATION_MODE: FALSE
       CONFIG_FILE_PATH: /home/carma-streets/sensor_data_sharing_service/manifest.json

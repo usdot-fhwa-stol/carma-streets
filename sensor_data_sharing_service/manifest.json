@@ -4,13 +4,13 @@
     "configurations": [
         {
             "name": "sdsm_producer_topic",
-            "value": "sdsm",
+            "value": "v2xhub_sdsm_sub",
             "description": "Kafka topic to which the sensor data sharing service will produce SDSMs.",
             "type": "STRING"
         },
         {
             "name": "detection_consumer_topic",
-            "value": "detections",
+            "value": "v2xhub_sim_sensor_detected_object",
             "description":"Kafka topic from which the sensor data sharing service will consume Detected Objects.",
             "type": "STRING"
         },

@@ -104,11 +104,22 @@ namespace sensor_data_sharing_service {
                         SPDLOG_WARN("Skipping incoming detection at {0}ms is not current or has invalid timestamp of {1}ms!" , ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
                         continue;
                     }
-                    // if delay is negative, detection message was processed before time sync message. Wait on time sync message
-                    else if ( delay < 0 ) {
+                    // if delay is negative, and service is in simulation mode
+                    // the detection message was processed before time sync message. Wait on time sync message
+                    else if (is_simulation_mode() && delay < 0 ) {
                         SPDLOG_WARN("Current sim time {0} waiting for sim time {1}ms from detection ...",ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
                         ss::streets_clock_singleton::sleep_for(abs(delay));
                     }
+                    // If delay is negative and service is not in simulation mode
+                    // indicates sensor and service are not time sychronized.
+                    else if( delay < 0 ) {
+                        SPDLOG_WARN(
+                            R"(Current time is {0}ms and detection time stamp is {1}ms. Sensor Data Sharing Service and sensor producing detections to not appear to be time synchronized)",
+                            ss::streets_clock_singleton::time_in_ms(), 
+                            detected_object._timestamp );
+
+                    }
+
                     // Write Lock
                     std::unique_lock lock(detected_objects_lock);
                     detected_objects[detected_object._object_id] = detected_object;
@@ -173,7 +184,7 @@ namespace sensor_data_sharing_service {
         std::shared_lock lock(detected_objects_lock);
         for (const auto &[object_id, object] : detected_objects){
             auto ned_object = detected_object_enu_to_ned(object);
-            auto detected_object_data = to_detected_object_data(ned_object);
+            auto detected_object_data = to_detected_object_data(ned_object,timestamp);
             // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
             // This is a bug and needs to be addressed.
             msg._objects.push_back(detected_object_data);

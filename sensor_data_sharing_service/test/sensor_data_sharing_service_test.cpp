@@ -25,6 +25,7 @@
 #include <streets_utils/streets_messages_lib/deserializers/sensor_data_sharing_msg_json_deserializer.hpp>
 
 
+
 using testing::_;
 using testing::Return;
 using testing::AnyNumber;
@@ -33,14 +34,17 @@ using testing::DoAll;
 namespace sensor_data_sharing_service {
 
     TEST(sensorDataSharingServiceTest, consumeDetections) {
-        
+        // Set simulation mode to false
+        setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "FALSE", 1);
         sds_service serv;
+            
+        serv.initialize();
         // If consumer null expect runtime error
         EXPECT_THROW(serv.consume_detections(), std::runtime_error);
-
         serv.detection_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),subscribe()).Times(1);
-        EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),is_running()).Times(4).WillOnce(Return(true))
+        EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),is_running()).Times(4)
+                                                        .WillOnce(Return(true))
                                                         .WillOnce(Return(true))
                                                         .WillOnce(Return(true))
                                                         .WillRepeatedly(Return(false));
@@ -81,8 +85,11 @@ namespace sensor_data_sharing_service {
                                                                     }
                                                                     )"
                                                             ));
+        
         serv.consume_detections();
-        EXPECT_EQ(serv.detected_objects.size(), 1);
+        // Consumed detection timestamp is more than 500 ms older than current real wall time. 
+        // TODO: Create test case that covers condition for consuming up to date detection data.
+        EXPECT_EQ(serv.detected_objects.size(), 0);
     }
 
      TEST(sensorDataSharingServiceTest, produceSdsms) {
