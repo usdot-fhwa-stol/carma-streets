@@ -97,7 +97,7 @@ namespace sensor_data_sharing_service {
                 {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
                     // Get delay of detected object
-                    auto delay = static_cast<int>(ss::streets_clock_singleton::time_in_ms()) - static_cast<int>(detected_object._timestamp);
+                    auto delay = static_cast<int64_t>(ss::streets_clock_singleton::time_in_ms()) - static_cast<int64_t>(detected_object._timestamp);
                     SPDLOG_DEBUG("Detection Delay : {0}ms!", delay);
                     // if delay is greater than 500 ms skip detection to get more recent data
                     if ( delay >= 500 ) {
@@ -114,9 +114,11 @@ namespace sensor_data_sharing_service {
                     // indicates sensor and service are not time sychronized.
                     else if( delay < 0 ) {
                         SPDLOG_WARN(
-                            R"(Current time is {0}ms and detection time stamp is {1}ms. Sensor Data Sharing Service and sensor producing detections to not appear to be time synchronized)",
+                            R"(Skipping incoming detection. Current time is {0}ms and detection time stamp is {1}ms. 
+                                Sensor Data Sharing Service and sensor producing detections to not appear to be time synchronized.)",
                             ss::streets_clock_singleton::time_in_ms(), 
                             detected_object._timestamp );
+                        continue;
 
                     }
 
