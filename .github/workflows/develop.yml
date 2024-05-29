@@ -1,7 +1,7 @@
 name: develop
 on:
   push:
-    branches: [develop]
+    branches: [develop, fix-cpp-module]
 jobs:
   docker-build:
     strategy:
