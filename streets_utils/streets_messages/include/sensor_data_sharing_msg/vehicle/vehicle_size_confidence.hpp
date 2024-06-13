@@ -28,5 +28,7 @@ namespace streets_utils::messages::sdsm{
          * @brief Confidence in reported height
          */
         std::optional<size_value_confidence> _height_confidence;
+
+
     };
 }
