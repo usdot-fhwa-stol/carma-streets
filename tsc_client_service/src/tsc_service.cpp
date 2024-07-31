@@ -389,7 +389,7 @@ namespace traffic_signal_controller_service {
                     // Log command info sent
                     SPDLOG_INFO(command_to_execute.get_cmd_info());                
                     if ( enable_snmp_cmd_logging_ ){
-                        if(auto logger = spdlog::get("snmp_cmd_logger"); logger != nullptr ){
+                        if(auto logger = spdlog::get(SNMP_COMMAND_LOGGER_NAME); logger != nullptr ){
                             logger->info( command_to_execute.get_cmd_info());
                         }
                     }
