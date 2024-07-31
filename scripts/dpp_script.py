@@ -54,13 +54,13 @@ class SimulationHelper():
                 message["payload"] = consumed_msg.value
                 timestep = message["payload"]["timestep"]
                 print("Timestep {}", timestep)
-                if  timestep == 94300:
+                if  timestep == 78300:
                     desired_phase_plan_json = {
                         "timestamp" : timestep,
                         "desired_phase_plan": [
                             {
-                                "signal_groups": [4],
-                                "start_time": 93300,
+                                "signal_groups": [4,8],
+                                "start_time": 78300,
                                 "end_time": 98300
                             },
                             {
