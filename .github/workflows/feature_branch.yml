@@ -31,7 +31,7 @@ jobs:
         add-apt-repository -u ppa:git-core/ppa
         apt-get install -y git
     - name: Checkout ${{ github.event.repository.name }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3.3.0
       with:
         path: ${{ github.event.repository.name }}
         fetch-depth: 0
