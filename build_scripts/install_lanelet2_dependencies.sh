@@ -17,7 +17,7 @@ DEPENDENCIES=(
     libsqlite3-dev 
     libpugixml-dev 
     libgeographic-dev
-    ros-melodic-catkin
+    ros-noetic-catkin
     python-rospkg
     libeigen3-dev
     libtool
@@ -60,7 +60,7 @@ git checkout refactor_lanelet2_extension
 rm -r lanelet2/lanelet2_python
 rm -r lanelet2/lanelet2_examples
 cd /tmp/carma_lanelet2/
-source /opt/ros/melodic/setup.bash
+source /opt/ros/noetic/setup.bash
 ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/carma_lanelet2 -DCATKIN_DEVEL_PREFIX=/tmp/carma_lanelet2/src
 rm -r /tmp/carma_lanelet2
 
