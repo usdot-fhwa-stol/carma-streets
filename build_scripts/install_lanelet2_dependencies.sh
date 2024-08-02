@@ -18,7 +18,7 @@ DEPENDENCIES=(
     libpugixml-dev 
     libgeographic-dev
     ros-noetic-catkin
-    python-rospkg
+    python3-rospkg
     libeigen3-dev
     libtool
     libboost-all-dev
