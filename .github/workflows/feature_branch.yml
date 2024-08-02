@@ -7,14 +7,14 @@ jobs:
     strategy:
         matrix:
             include:
-             - ubuntu-codename: bionic
-               build_lanelet_aware: false
+            #  - ubuntu-codename: bionic
+            #    build_lanelet_aware: false
             # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: focal
                build_lanelet_aware: true
             # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
-             - ubuntu-codename: jammy
-               build_lanelet_aware: false
+            #  - ubuntu-codename: jammy
+            #    build_lanelet_aware: false
     runs-on: ubuntu-latest
     steps:
       - name: Log in to the Container registry
