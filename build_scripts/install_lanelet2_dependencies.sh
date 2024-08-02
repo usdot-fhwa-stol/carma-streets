@@ -23,6 +23,7 @@ DEPENDENCIES=(
     libtool
     libboost-all-dev
 )
+lsb_relase -a
 DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends --yes --quiet "${DEPENDENCIES[@]}"
 # Install PROJ, a package for coordinate transformations
 git clone https://github.com/OSGeo/PROJ.git /tmp/PROJ --branch 6.2.1 
