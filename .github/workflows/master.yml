@@ -7,11 +7,8 @@ jobs:
     strategy:
         matrix:
             include:
-             - ubuntu-codename: bionic
-               build_lanelet_aware: true
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: focal
-               build_lanelet_aware: false
+               build_lanelet_aware: true
             # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: jammy
                build_lanelet_aware: false
@@ -44,7 +41,7 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: usdotfhwastol/streets_service_base_lanelet_aware:bionic
+      image: usdotfhwastol/streets_service_base_lanelet_aware:focal
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
