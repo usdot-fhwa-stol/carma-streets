@@ -3,11 +3,6 @@ on:
   push:
     tags: 
       - "carma-system-*"
-# make GHA actions use node16 which still works with bionic
-# See https://github.blog/changelog/2024-03-07-github-actions-all-actions-will-run-on-node20-instead-of-node16-by-default/
-# Unclear how long this will work though. Remove after rebase carma-streets to newer Ubuntu release
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 jobs:
   docker-build:
     strategy:
@@ -15,7 +10,6 @@ jobs:
             include:
              - ubuntu-codename: focal
                build_lanelet_aware: true
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: jammy
                build_lanelet_aware: false
     runs-on: ubuntu-latest
