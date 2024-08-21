@@ -41,7 +41,7 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+      image: usdotfhwastoldev/streets_service_base_lanelet_aware:focal
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
