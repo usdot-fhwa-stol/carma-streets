@@ -2,9 +2,6 @@ name: feature_branch
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-# make GHA actions use node16 which still works with bionic
-# See https://github.blog/changelog/2024-03-07-github-actions-all-actions-will-run-on-node20-instead-of-node16-by-default/
-# Unclear how long this will work though. Remove after rebase carma-streets to newer Ubuntu release
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 jobs:       
