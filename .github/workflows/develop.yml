@@ -7,11 +7,8 @@ jobs:
     strategy:
         matrix:
             include:
-             - ubuntu-codename: bionic
-               build_lanelet_aware: true
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: focal
-               build_lanelet_aware: false
+               build_lanelet_aware: true
             # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: jammy
                build_lanelet_aware: false
@@ -28,14 +25,14 @@ jobs:
             push: true
             build-args: |
                 UBUNTU_CODENAME=${{ matrix.ubuntu-codename }}
-            tags: usdotfhwastol/streets_service_base:${{ matrix.ubuntu-codename }}
+            tags: usdotfhwastoldev/streets_service_base:${{ matrix.ubuntu-codename }}
             file: ./streets_service_base/Dockerfile
       - name: Docker Build Streets Service Base Lanelet Aware
         if: ${{ matrix.build_lanelet_aware }} 
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: usdotfhwastol/streets_service_base_lanelet_aware:${{ matrix.ubuntu-codename }}
+          tags: usdotfhwastoldev/streets_service_base_lanelet_aware:${{ matrix.ubuntu-codename }}
           file: ./streets_service_base_lanelet_aware/Dockerfile          
   build:
     needs: docker-build
@@ -51,16 +48,8 @@ jobs:
         TERM: xterm
       options: "--user root"
     steps:
-    # Bionic's git version is not sufficient for actions/checkout 0 fetch-depth,
-    # remove this step after rebasing carma-streets to newer Ubuntu release
-    - name: Install newer git for checkout
-      run: |
-        apt-get update
-        apt-get install -y software-properties-common
-        add-apt-repository -u ppa:git-core/ppa
-        apt-get install -y git
     - name: Checkout ${{ github.event.repository.name }}
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4
       with:
         path: ${{ github.event.repository.name }}
         fetch-depth: 0

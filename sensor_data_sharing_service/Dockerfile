@@ -1,4 +1,4 @@
-FROM usdotfhwastol/streets_service_base_lanelet_aware:carma-system-4.5.0-bionic
+FROM usdotfhwastoldev/streets_service_base_lanelet_aware:focal
 COPY ./sensor_data_sharing_service/ /home/carma-streets/sensor_data_sharing_service
 COPY ./streets_utils/ /home/carma-streets/streets_utils
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients

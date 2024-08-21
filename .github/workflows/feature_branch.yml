@@ -14,23 +14,15 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+      image: usdotfhwastoldev/streets_service_base_lanelet_aware:focal
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
         TERM: xterm
       options: "--user root"
     steps:
-    # Bionic's git version is not sufficient for actions/checkout 0 fetch-depth,
-    # remove this step after rebasing carma-streets to newer Ubuntu release
-    - name: Install newer git for checkout
-      run: |
-        apt-get update
-        apt-get install -y software-properties-common
-        add-apt-repository -u ppa:git-core/ppa
-        apt-get install -y git
     - name: Checkout ${{ github.event.repository.name }}
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4
       with:
         path: ${{ github.event.repository.name }}
         fetch-depth: 0
