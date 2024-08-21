@@ -16,12 +16,6 @@ jobs:
         TERM: xterm
       options: "--user root"
     steps:
-    - name: Install newer git for checkout
-      run: |
-        apt-get update
-        apt-get install -y software-properties-common
-        add-apt-repository -u ppa:git-core/ppa
-        apt-get install -y git
     - name: Checkout ${{ github.event.repository.name }}
       uses: actions/checkout@v4
       with:

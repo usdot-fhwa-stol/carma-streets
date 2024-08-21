@@ -29,7 +29,7 @@ jobs:
             file: ./streets_service_base/Dockerfile
       - name: Docker Build Streets Service Base Lanelet Aware
         if: ${{ matrix.build_lanelet_aware }} 
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: true
           tags: usdotfhwastol/streets_service_base_lanelet_aware:${{ matrix.ubuntu-codename }}
