@@ -37,6 +37,18 @@
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 
 namespace sensor_data_sharing_service{
+
+    enum class ReferenceType {
+        GEO_REF = 0,
+        CARTESIAN = 1,
+    };
+    struct SensorReference {
+        std::string sensorId = "";
+        std::string map_projection = "";
+        lanelet::BasicPoint3d location;
+        ReferenceType reference_type;
+    };
+
     /**
      * @brief Method to parse sensor configuration json file.
      * @param filepath absolute or relative file path.
@@ -44,4 +56,14 @@ namespace sensor_data_sharing_service{
      * @return cartesian location of sensor described in json configuration file.
      */
     lanelet::BasicPoint3d parse_sensor_location( const std::string &filepath, const std::string &sensor_id );
+
+     /**
+     * @brief Method to parse sensor configuration json file.
+     * @param filepath absolute or relative file path.
+     * @param sensor_id ID of sensor to get location from.
+     * @return cartesian location of sensor described in json configuration file.
+     */
+    SensorReference parse_sensor_ref( const std::string &filepath, const std::string &sensor_id );
+
+    
 }

@@ -39,17 +39,21 @@ namespace sensor_data_sharing_service {
             return false;
         }
         SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
-        const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
-        if (!read_lanelet_map(lanlet2_map)){
-            SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);
-            return false;
-        }
+       
         // Read sensor configuration file and get WSG84 location/origin reference frame.
         const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
         const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
-        const lanelet::BasicPoint3d pose = parse_sensor_location(sensor_config_file, sensor_id);
-        this->sdsm_reference_point =  this->map_projector->reverse(pose);
+        auto sensor_ref = parse_sensor_ref(sensor_config_file, sensor_id);
+        if ( sensor_ref.reference_type == ReferenceType::CARTESIAN ) {
+            const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+            if (!read_lanelet_map(lanlet2_map)){
+                SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);
+                return false;
+            }
+        } else {
+            this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(sensor_ref.map_projection);
 
+        }
         // Initialize SDSM Kafka producer
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
         const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");

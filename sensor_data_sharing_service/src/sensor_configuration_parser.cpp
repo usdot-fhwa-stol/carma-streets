@@ -42,4 +42,43 @@ namespace sensor_data_sharing_service {
         }
         return sensor_location;
     }
+
+    SensorReference parse_sensor_ref( const std::string &filepath , const std::string &sensor_id ){
+        // Parse JSON configuration file
+        SensorReference sensor_ref;
+        auto doc = streets_utils::json_utils::parse_json_file(filepath);
+        if (!doc.IsArray()) {
+            throw streets_utils::json_utils::json_parse_exception("Invadid format for sensor configuration file "  + filepath 
+                + ". Sensor configuration file should contain an array of json sensor configurations!");
+        }
+        bool found = false;
+        for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
+            // Access the data in the object
+            auto sensor_config_id = streets_utils::json_utils::parse_string_member("sensorId",  itr->GetObject(), true ).value();
+            if ( sensor_config_id == sensor_id ) {
+                found = true; 
+                auto ref = streets_utils::json_utils::parse_object_member("ref",  itr->GetObject(), true ).value();
+                auto ref_type = streets_utils::json_utils::parse_string_member("type", ref, true).value();
+                if ( ref_type == "CARTESIAN") {
+                    sensor_ref.reference_type = ReferenceType::CARTESIAN;
+
+                    auto location = streets_utils::json_utils::parse_object_member("location",  ref, true ).value();
+                    sensor_ref.location = lanelet::BasicPoint3d{
+                        streets_utils::json_utils::parse_double_member("x",  location, true ).value(),
+                        streets_utils::json_utils::parse_double_member("y",  location, true ).value(),
+                        streets_utils::json_utils::parse_double_member("z",  location, true ).value()
+                        };
+                }
+                else { 
+                    sensor_ref.reference_type = ReferenceType::GEO_REF;
+                    sensor_ref.map_projection = streets_utils::json_utils::parse_string_member("georef", ref, true).value();
+                }
+            }
+        }
+        if (!found) {
+            throw streets_utils::json_utils::json_parse_exception("Did not find sensor with id " + sensor_id + " in sensor configuration file " + filepath + "!");
+        }
+        return sensor_ref;
+    }
+
 }

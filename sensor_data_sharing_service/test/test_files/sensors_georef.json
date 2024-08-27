@@ -1,0 +1,10 @@
+[
+  {
+    "sensorId": "sensor_1",
+    "type": "SemanticLidar",
+    "ref": {
+      "type": "GEOREF",
+      "georef": "+proj=tmerc +lat_0=0 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs"
+    }
+  } 
+]
