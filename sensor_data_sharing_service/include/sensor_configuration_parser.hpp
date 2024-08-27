@@ -49,13 +49,6 @@ namespace sensor_data_sharing_service{
         ReferenceType reference_type;
     };
 
-    /**
-     * @brief Method to parse sensor configuration json file.
-     * @param filepath absolute or relative file path.
-     * @param sensor_id ID of sensor to get location from.
-     * @return cartesian location of sensor described in json configuration file.
-     */
-    lanelet::BasicPoint3d parse_sensor_location( const std::string &filepath, const std::string &sensor_id );
 
      /**
      * @brief Method to parse sensor configuration json file.

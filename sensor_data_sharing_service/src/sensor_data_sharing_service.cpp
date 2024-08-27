@@ -53,7 +53,7 @@ namespace sensor_data_sharing_service {
         } else {
             this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(sensor_ref.map_projection.c_str());
         }
-        this->sdsm_reference_point =  this->map_projector->reverse(pose);
+        this->sdsm_reference_point =  this->map_projector->reverse(sensor_ref.location);
 
         // Initialize SDSM Kafka producer
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
