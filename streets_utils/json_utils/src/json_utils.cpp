@@ -83,7 +83,7 @@ namespace streets_utils::json_utils {
 
     std::optional<double> parse_double_member(const std::string &member_name, const rapidjson::Value &obj, bool required) {
         std::optional<double> member;
-        if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsDouble())
+        if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsNumber())
         {
             member = obj[member_name.c_str()].GetDouble();
         }

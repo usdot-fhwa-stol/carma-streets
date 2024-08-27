@@ -26,7 +26,7 @@ int main(int argc, char **argv)
             service.start();
         }
         else {
-            SPDLOG_ERROR("TSC Service Initialization failed!");
+            SPDLOG_ERROR("Sensor data sharing Service Initialization failed!");
         }
     }
     catch ( const std::exception &e) {
