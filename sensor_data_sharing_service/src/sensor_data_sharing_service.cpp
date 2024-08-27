@@ -51,13 +51,12 @@ namespace sensor_data_sharing_service {
                 return false;
             }
         } else {
-            this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(sensor_ref.map_projection);
+            this->map_projector = std::make_unique<lanelet::projection::LocalFrameProjector>(sensor_ref.map_projection.c_str());
 
         }
         // Initialize SDSM Kafka producer
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
         const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
-        const std::string sdsm_geo_reference = ss::streets_configuration::get_string_config("sdsm_geo_reference");
         // Get Infrastructure ID for SDSM messages
         this->_infrastructure_id =  streets_service::get_system_config("INFRASTRUCTURE_ID", "");
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
