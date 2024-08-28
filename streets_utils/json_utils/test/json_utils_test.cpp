@@ -157,7 +157,7 @@ TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyIntegerType){
 
 TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyWrongType){
     // Test with required property present with wrong type
-    std::string valid_json = "{ \"some_property\": '1a34'}";
+    std::string valid_json = "{ \"some_property\": \"1a34\"}";
     auto parsed_doc = parse_json(valid_json);
     EXPECT_THROW(parse_double_member("some_property", parsed_doc, true), json_parse_exception);
 }
