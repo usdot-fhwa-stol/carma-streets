@@ -149,7 +149,7 @@ TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyNotPresent){
     EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
-TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyWrongType){
+TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyIntegerType){
     std::string valid_json = "{ \"some_property\": 1234}";
     auto parsed_doc = parse_json(valid_json);
     EXPECT_EQ(1234,  parse_double_member("some_property", parsed_doc, true));
