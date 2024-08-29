@@ -57,7 +57,7 @@ namespace streets_utils::messages::detected_objects_msg {
             msg._size = parse_size(size_obj.value());
         }
         
-        msg._timestamp = streets_utils::json_utils::parse_uint_member("timestamp", document, true).value();
+        msg._timestamp = streets_utils::json_utils::parse_long_member("timestamp", document, true).value();
 
 
         return msg;
