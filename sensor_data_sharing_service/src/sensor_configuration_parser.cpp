@@ -43,9 +43,9 @@ namespace sensor_data_sharing_service {
                 else { 
                     sensor_ref.reference_type = LocationDataType::WGS84;
                     sensor_ref.wgs84_location = lanelet::GPSPoint{
-                        streets_utils::json_utils::parse_double_member("lat", location, true).value(),
-                        streets_utils::json_utils::parse_double_member("lon", location, true).value(),
-                        streets_utils::json_utils::parse_double_member("elevation", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("latitude", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("longitude", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("altitude", location, true).value(),
 
                     };
                 }

@@ -54,9 +54,9 @@ or
     "ref": {
       "type": "WGS84",
       "location": {
-        "lat": 38.9549716548523, /* in degrees */
-        "lon": -77.14935313519123, /* in degrees */
-        "elevation": 5.5 /* in meters */
+        "latitude": 38.9549716548523, /* in degrees */
+        "longitude": -77.14935313519123, /* in degrees */
+        "altitude": 5.5 /* in meters */
       }
     }
   } 
