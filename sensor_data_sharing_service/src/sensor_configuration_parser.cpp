@@ -31,10 +31,9 @@ namespace sensor_data_sharing_service {
                 found = true; 
                 auto ref = streets_utils::json_utils::parse_object_member("ref",  itr->GetObject(), true ).value();
                 auto ref_type = streets_utils::json_utils::parse_string_member("type", ref, true).value();
+                auto location = streets_utils::json_utils::parse_object_member("location",  ref, true ).value();
                 if ( ref_type == "CARTESIAN") {
-                    sensor_ref.reference_type = ReferenceType::CARTESIAN;
-
-                    auto location = streets_utils::json_utils::parse_object_member("location",  ref, true ).value();
+                    sensor_ref.reference_type = LocationDataType::CARTESIAN;
                     sensor_ref.cartesian_location = lanelet::BasicPoint3d{
                         streets_utils::json_utils::parse_double_member("x",  location, true ).value(),
                         streets_utils::json_utils::parse_double_member("y",  location, true ).value(),
@@ -42,11 +41,11 @@ namespace sensor_data_sharing_service {
                         };
                 }
                 else { 
-                    sensor_ref.reference_type = ReferenceType::WGS84;
+                    sensor_ref.reference_type = LocationDataType::WGS84;
                     sensor_ref.wgs84_location = lanelet::GPSPoint{
-                        streets_utils::json_utils::parse_double_member("lat", ref, true).value(),
-                        streets_utils::json_utils::parse_double_member("lon", ref, true).value(),
-                        streets_utils::json_utils::parse_double_member("elevation", ref, true).value(),
+                        streets_utils::json_utils::parse_double_member("lat", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("lon", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("elevation", location, true).value(),
 
                     };
                 }

@@ -44,7 +44,12 @@ namespace sensor_data_sharing_service {
         const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
         const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
         auto sensor_ref = parse_sensor_ref(sensor_config_file, sensor_id);
-        if ( sensor_ref.reference_type == ReferenceType::CARTESIAN ) {
+        if ( sensor_ref.reference_type == LocationDataType::CARTESIAN ) {
+            SPDLOG_DEBUG("Reading CARTESIAN sensor location offset from lanelet2 osm map.");
+            if (!streets_service::is_simulation_mode())
+            {
+                SPDLOG_WARN("CARTESIAN sensor location should only be used for simulation. Please use WGS84 location data!");
+            }
             const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
             if (!read_lanelet_map(lanlet2_map)){
                 SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);

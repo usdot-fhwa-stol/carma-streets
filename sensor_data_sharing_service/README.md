@@ -53,9 +53,11 @@ or
     "type": "SemanticLidar",
     "ref": {
       "type": "WGS84",
-      "lat": 38.9549716548523, /* in degrees */
-      "lon": -77.14935313519123, /* in degrees */
-      "elevation": 5.5 /* in meters */
+      "location": {
+        "lat": 38.9549716548523, /* in degrees */
+        "lon": -77.14935313519123, /* in degrees */
+        "elevation": 5.5 /* in meters */
+      }
     }
   } 
 ]

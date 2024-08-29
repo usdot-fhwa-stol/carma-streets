@@ -37,16 +37,32 @@
 #include <streets_utils/json_utils_lib/json_utils.hpp>
 
 namespace sensor_data_sharing_service{
-
-    enum class ReferenceType {
+    /**
+     * @brief Enumeration to describe location data type (CARTESIAN or WGS84). NOTE: only use CARTESIAN in simulation enviroments. 
+     */
+    enum class LocationDataType {
         WGS84 = 0,
         CARTESIAN = 1,
     };
+    
+    /**
+     * @brief Describes sensor reference location to intepret detection data.
+     */
     struct SensorReference {
         std::string sensorId = "";
+        /**
+         * @brief Enumeration to describe location data type (CARTESIAN or WGS84). NOTE: only use CARTESIAN in simulation enviroments. 
+         */
+        LocationDataType reference_type;
+        /**
+         * @brief WGS84 reference location for sensor. Only read when reference type is WGS84
+         */
         lanelet::GPSPoint wgs84_location;
+        /**
+         * @brief Cartesian reference location for sensor. Interpreted from lanet2 osm map. Only read when reference type is CARTESIAN
+         * NOTE: only use in simuatlion enviroment.
+         */
         lanelet::BasicPoint3d cartesian_location;
-        ReferenceType reference_type;
     };
 
 
@@ -54,7 +70,8 @@ namespace sensor_data_sharing_service{
      * @brief Method to parse sensor configuration json file.
      * @param filepath absolute or relative file path.
      * @param sensor_id ID of sensor to get location from.
-     * @return cartesian location of sensor described in json configuration file.
+     * @return SensorReference of sensor described in json configuration file.
+     * @throws streets_utils::json_utils::json_parse_exception if JSON file is malformed or sensor id is not found in file.
      */
     SensorReference parse_sensor_ref( const std::string &filepath, const std::string &sensor_id );
 
