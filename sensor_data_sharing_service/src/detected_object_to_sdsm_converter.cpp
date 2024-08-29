@@ -120,7 +120,7 @@ namespace sensor_data_sharing_service{
         // Adding and subtracting two standard deviations from mean to achieve 95% confidence interval.
         // TODO: If position variance x is different from y how do we handle this? For now assuming X variance is the same as Y and justing using 
         // X
-        //According to 68-95-99.7 rule, two standard deviations to get 95% confidence interval for normal distribution
+        //Two standard deviations to get 95% confidence interval for normal distribution
         auto xy_accuracy = sqrt(x_variance) * 2 ; 
         auto z_accuracy = sqrt(z_variance) * 2;
         streets_utils::messages::sdsm::position_confidence_set position_confidence_set;
