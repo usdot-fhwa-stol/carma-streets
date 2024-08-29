@@ -15,31 +15,46 @@
 
 namespace sensor_data_sharing_service {
 
-    lanelet::BasicPoint3d parse_sensor_location( const std::string &filepath , const std::string &sensor_id ){
+    SensorReference parse_sensor_ref( const std::string &filepath , const std::string &sensor_id ){
         // Parse JSON configuration file
+        SensorReference sensor_ref;
         auto doc = streets_utils::json_utils::parse_json_file(filepath);
         if (!doc.IsArray()) {
             throw streets_utils::json_utils::json_parse_exception("Invadid format for sensor configuration file "  + filepath 
                 + ". Sensor configuration file should contain an array of json sensor configurations!");
         }
         bool found = false;
-        lanelet::BasicPoint3d sensor_location;
         for (auto itr = doc.Begin(); itr != doc.End(); ++itr) {
             // Access the data in the object
             auto sensor_config_id = streets_utils::json_utils::parse_string_member("sensorId",  itr->GetObject(), true ).value();
             if ( sensor_config_id == sensor_id ) {
-                found = true;
-                auto location = streets_utils::json_utils::parse_object_member("location",  itr->GetObject(), true ).value();
-                sensor_location = lanelet::BasicPoint3d{
-                    streets_utils::json_utils::parse_double_member("x",  location, true ).value(),
-                    streets_utils::json_utils::parse_double_member("y",  location, true ).value(),
-                    streets_utils::json_utils::parse_double_member("z",  location, true ).value()
+                found = true; 
+                auto ref = streets_utils::json_utils::parse_object_member("ref",  itr->GetObject(), true ).value();
+                auto ref_type = streets_utils::json_utils::parse_string_member("type", ref, true).value();
+                auto location = streets_utils::json_utils::parse_object_member("location",  ref, true ).value();
+                if ( ref_type == "CARTESIAN") {
+                    sensor_ref.reference_type = LocationDataType::CARTESIAN;
+                    sensor_ref.cartesian_location = lanelet::BasicPoint3d{
+                        streets_utils::json_utils::parse_double_member("x",  location, true ).value(),
+                        streets_utils::json_utils::parse_double_member("y",  location, true ).value(),
+                        streets_utils::json_utils::parse_double_member("z",  location, true ).value()
+                        };
+                }
+                else { 
+                    sensor_ref.reference_type = LocationDataType::WGS84;
+                    sensor_ref.wgs84_location = lanelet::GPSPoint{
+                        streets_utils::json_utils::parse_double_member("latitude", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("longitude", location, true).value(),
+                        streets_utils::json_utils::parse_double_member("altitude", location, true).value(),
+
                     };
+                }
             }
         }
         if (!found) {
             throw streets_utils::json_utils::json_parse_exception("Did not find sensor with id " + sensor_id + " in sensor configuration file " + filepath + "!");
         }
-        return sensor_location;
+        return sensor_ref;
     }
+
 }
