@@ -92,12 +92,12 @@ namespace sensor_data_sharing_service{
         // Possible approximation is velocity covariance since we are using that currently
         // Currently hard coding value
         detected_object._detected_object_common_data._heading_confidence = streets_utils::messages::sdsm::heading_confidence::PREC_0_1_deg;
-        if(msg._angular_velocity){
+        if(msg._angular_velocity.has_value()){
             // Yaw rate OPTIONAL
             detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = to_yaw_rate(msg._angular_velocity.value()._z);
         }
 
-        if(msg._angular_velocity_covariance){
+        if(msg._angular_velocity_covariance.has_value()){
             // Yaw rate confidence OPTIONAL
             detected_object._detected_object_common_data._yaw_rate_confidence = to_yaw_rate_confidence(msg._angular_velocity_covariance.value());
         }
