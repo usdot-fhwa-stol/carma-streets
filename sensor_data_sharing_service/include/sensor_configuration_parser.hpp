@@ -39,13 +39,13 @@
 namespace sensor_data_sharing_service{
 
     enum class ReferenceType {
-        GEO_REF = 0,
+        WGS84 = 0,
         CARTESIAN = 1,
     };
     struct SensorReference {
         std::string sensorId = "";
-        std::string map_projection = "";
-        lanelet::BasicPoint3d location;
+        lanelet::GPSPoint wgs84_location;
+        lanelet::BasicPoint3d cartesian_location;
         ReferenceType reference_type;
     };
 

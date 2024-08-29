@@ -35,15 +35,20 @@ namespace sensor_data_sharing_service {
                     sensor_ref.reference_type = ReferenceType::CARTESIAN;
 
                     auto location = streets_utils::json_utils::parse_object_member("location",  ref, true ).value();
-                    sensor_ref.location = lanelet::BasicPoint3d{
+                    sensor_ref.cartesian_location = lanelet::BasicPoint3d{
                         streets_utils::json_utils::parse_double_member("x",  location, true ).value(),
                         streets_utils::json_utils::parse_double_member("y",  location, true ).value(),
                         streets_utils::json_utils::parse_double_member("z",  location, true ).value()
                         };
                 }
                 else { 
-                    sensor_ref.reference_type = ReferenceType::GEO_REF;
-                    sensor_ref.map_projection = streets_utils::json_utils::parse_string_member("georef", ref, true).value();
+                    sensor_ref.reference_type = ReferenceType::WGS84;
+                    sensor_ref.wgs84_location = lanelet::GPSPoint{
+                        streets_utils::json_utils::parse_double_member("lat", ref, true).value(),
+                        streets_utils::json_utils::parse_double_member("lon", ref, true).value(),
+                        streets_utils::json_utils::parse_double_member("elevation", ref, true).value(),
+
+                    };
                 }
             }
         }

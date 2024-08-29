@@ -19,22 +19,20 @@ namespace sensor_data_sharing_service {
 
     TEST(sensor_configuration_parser_test, parse_sensor_cartesian_test) {
         auto ref = parse_sensor_ref("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_cartesian.json", "sensor_1"); 
-        EXPECT_EQ(ref.map_projection, "" );
         EXPECT_EQ(ref.reference_type, ReferenceType::CARTESIAN);
-        EXPECT_NEAR(ref.location.x(), 1.0 , 0.01 );
-        EXPECT_NEAR(ref.location.y(), 2.0 , 0.01 );
-        EXPECT_NEAR(ref.location.z(), -3.2 , 0.01 );
+        EXPECT_NEAR(ref.cartesian_location.x(), 1.0 , 0.01 );
+        EXPECT_NEAR(ref.cartesian_location.y(), 2.0 , 0.01 );
+        EXPECT_NEAR(ref.cartesian_location.z(), -3.2 , 0.01 );
 
     }
 
     TEST(sensor_configuration_parser_test, parse_sensor_georef_test) {
-        auto ref = parse_sensor_ref("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_georef.json", "sensor_1");
+        auto ref = parse_sensor_ref("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_wgs84.json", "sensor_1");
 
-        EXPECT_EQ(ref.map_projection, "+proj=tmerc +lat_0=0 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs" );
-        EXPECT_EQ(ref.reference_type, ReferenceType::GEO_REF);
-        EXPECT_NEAR(ref.location.x(), 0.0 , 0.01 );
-        EXPECT_NEAR(ref.location.y(), 0.0 , 0.01 );
-        EXPECT_NEAR(ref.location.z(), 0.0 , 0.01 );
+        EXPECT_EQ(ref.reference_type, ReferenceType::WGS84);
+        EXPECT_NEAR(ref.wgs84_location.lon,-77.14935313519123  , 0.000000001 );
+        EXPECT_NEAR(ref.wgs84_location.lat, 38.9549716548523 ,0.000000001  );
+        EXPECT_NEAR(ref.wgs84_location.ele, 5.5, 0.01 );
 
 
     }

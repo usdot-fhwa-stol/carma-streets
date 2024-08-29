@@ -16,8 +16,10 @@ The **Sensor Data Sharing Service** uses the following environment variables to 
 
 **SENSOR_JSON_FILE_PATH**: Path to a sensor configuration file with the following format. Used for retrieving a reference location and projection for received cartesian detection data
 > [!NOTE]
-> Sensor reference or "ref" can either be defined as a "CARTESIAN" offset from a provided lanelet2 osm map (first example) or a "GEOREF" projection string (second example). The "CARTESIAN" offset is only recommended for simulation testing as it adds a dependency on a lanelet2 map. For real-world deployments it is recommended that the "GEOREF" reference is provided.
- 
+> Sensor reference or "ref" can either be defined as a "CARTESIAN" offset from a provided lanelet2 osm map (first example) or a "WGS84" location (second example). The "CARTESIAN" offset is only recommended for simulation testing as it adds a dependency on a lanelet2 map. For real-world deployments it is recommended that the "WGS84" location is provided.
+
+**CARTESIAN**:
+
 ```json
 [
   {
@@ -26,15 +28,10 @@ The **Sensor Data Sharing Service** uses the following environment variables to 
     "ref": {
       "type": "CARTESIAN",
       "location": {
-        "x": 1.0,
-        "y": 2.0,
-        "z": -3.2
-      },
-      "orientation": {
-        "yaw": 0.0,
-        "pitch": 0.0,
-        "roll": 0.0
-        }
+        "x": 1.0, /* in meters */
+        "y": 2.0, /* in meters */
+        "z": -3.2 /* in meters */
+      }
     }
   } 
 ]
@@ -42,14 +39,18 @@ The **Sensor Data Sharing Service** uses the following environment variables to 
 
 or
 
+**WGS84**:
+
 ```json
 [
   {
     "sensorId": "sensor_1",
     "type": "SemanticLidar",
     "ref": {
-      "type": "GEOREF",
-      "georef": "+proj=tmerc +lat_0=0 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs"
+      "type": "WGS84",
+      "lat": 38.9549716548523, /* in degrees */
+      "lon": -77.14935313519123, /* in degrees */
+      "elevation": 5.5 /* in meters */
     }
   } 
 ]
