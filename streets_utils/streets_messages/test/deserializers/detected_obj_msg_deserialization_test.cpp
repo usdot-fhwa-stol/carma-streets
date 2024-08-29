@@ -86,16 +86,16 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
         }
 
     }
-    EXPECT_NEAR(msg._angular_velocity._x,0.1, 0.001);
-    EXPECT_NEAR(msg._angular_velocity._y,0.2, 0.001);
-    EXPECT_NEAR(msg._angular_velocity._z,0.3, 0.001);
+    EXPECT_NEAR(msg._angular_velocity.value()._x,0.1, 0.001);
+    EXPECT_NEAR(msg._angular_velocity.value()._y,0.2, 0.001);
+    EXPECT_NEAR(msg._angular_velocity.value()._z,0.3, 0.001);
     // AngularVelocity Covariance
     std::vector<std::vector<double>> ang_vel_cov = {{1,0,0},{1,0,0},{1,0,0}};
-        for (size_t i = 0 ; i < msg._angular_velocity_covariance.size();i++)
+        for (size_t i = 0 ; i < msg._angular_velocity_covariance.value().size();i++)
     {
-        for (size_t j=0; j< msg._angular_velocity_covariance[i].size();j++)
+        for (size_t j=0; j< msg._angular_velocity_covariance.value()[i].size();j++)
         {
-            EXPECT_NEAR(msg._angular_velocity_covariance[i][j], ang_vel_cov[i][j], 0.001);
+            EXPECT_NEAR(msg._angular_velocity_covariance.value()[i][j], ang_vel_cov[i][j], 0.001);
         }
 
     }

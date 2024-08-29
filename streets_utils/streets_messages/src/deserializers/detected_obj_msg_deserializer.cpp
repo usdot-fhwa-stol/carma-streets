@@ -41,14 +41,22 @@ namespace streets_utils::messages::detected_objects_msg {
         auto velocity_cov_obj = streets_utils::json_utils::parse_array_member("velocityCovariance", document, true).value();
         msg._velocity_covariance = parse_covariance(velocity_cov_obj);
 
-        auto angular_velocity_obj = streets_utils::json_utils::parse_object_member("angularVelocity", document, true).value();
-        msg._angular_velocity = parse_vector3d(angular_velocity_obj);
+        auto angular_velocity_obj = streets_utils::json_utils::parse_object_member("angularVelocity", document, false);
+        if(angular_velocity_obj.has_value()){
+            msg._angular_velocity = parse_vector3d(angular_velocity_obj.value());
+        }
+        
 
-        auto angular_velocity_cov_obj = streets_utils::json_utils::parse_array_member("angularVelocityCovariance", document, true).value();
-        msg._angular_velocity_covariance = parse_covariance(angular_velocity_cov_obj);
+        auto angular_velocity_cov_obj = streets_utils::json_utils::parse_array_member("angularVelocityCovariance", document, false);
+        if(angular_velocity_cov_obj.has_value()){
+            msg._angular_velocity_covariance = parse_covariance(angular_velocity_cov_obj.value());
+        }
 
-        auto size_obj = streets_utils::json_utils::parse_object_member("size", document, true).value();
-        msg._size = parse_size(size_obj);
+        auto size_obj = streets_utils::json_utils::parse_object_member("size", document, false);
+        if(size_obj.has_value()){
+            msg._size = parse_size(size_obj.value());
+        }
+        
         msg._timestamp = streets_utils::json_utils::parse_uint_member("timestamp", document, true).value();
 
 

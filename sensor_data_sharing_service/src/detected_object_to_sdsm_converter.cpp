@@ -92,11 +92,15 @@ namespace sensor_data_sharing_service{
         // Possible approximation is velocity covariance since we are using that currently
         // Currently hard coding value
         detected_object._detected_object_common_data._heading_confidence = streets_utils::messages::sdsm::heading_confidence::PREC_0_1_deg;
-        // Yaw rate
-        detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = to_yaw_rate(msg._angular_velocity._z);
-        // Yaw rate confidence
-        detected_object._detected_object_common_data._yaw_rate_confidence = to_yaw_rate_confidence(msg._angular_velocity_covariance);
+        if(msg._angular_velocity.has_value()){
+            // Yaw rate OPTIONAL
+            detected_object._detected_object_common_data._acceleration_4_way->_yaw_rate = to_yaw_rate(msg._angular_velocity.value()._z);
+        }
 
+        if(msg._angular_velocity_covariance.has_value()){
+            // Yaw rate confidence OPTIONAL
+            detected_object._detected_object_common_data._yaw_rate_confidence = to_yaw_rate_confidence(msg._angular_velocity_covariance.value());
+        }
 
         return detected_object;
     }
@@ -113,10 +117,10 @@ namespace sensor_data_sharing_service{
         auto y_variance = _position_covariance[1][1];
         auto z_variance = _position_covariance[2][2];
         // Assuming normal distribution and 95 % confidence interval (From J3224 Specification documentation of all accuracy/confidence measures)
-        // +/- 2*variance to achieve 95% confidence interval.
+        // Adding and subtracting two standard deviations from mean to achieve 95% confidence interval.
         // TODO: If position variance x is different from y how do we handle this? For now assuming X variance is the same as Y and justing using 
         // X
-        // Multiply variance by 2 get 95% confidence interval for normal distribution
+        //Two standard deviations to get 95% confidence interval for normal distribution
         auto xy_accuracy = sqrt(x_variance) * 2 ; 
         auto z_accuracy = sqrt(z_variance) * 2;
         streets_utils::messages::sdsm::position_confidence_set position_confidence_set;
