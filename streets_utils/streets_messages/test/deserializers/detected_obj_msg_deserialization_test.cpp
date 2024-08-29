@@ -50,7 +50,7 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
                 "height":1.0,
                 "width":0.5
             },
-            "timestamp":1702335309
+            "timestamp":1702335309000
         }
         )";
 
@@ -102,6 +102,6 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
     EXPECT_NEAR(msg._size._length,2.0, 0.001);
     EXPECT_NEAR(msg._size._height,1.0, 0.001);
     EXPECT_NEAR(msg._size._width,0.5, 0.001);
-    EXPECT_EQ(msg._timestamp, 1702335309);
+    EXPECT_EQ(msg._timestamp, 1702335309000);
 
 }

@@ -43,7 +43,20 @@ namespace streets_utils::json_utils {
     }
 
     std::optional<unsigned int> parse_uint_member(const std::string &member_name,  const rapidjson::Value &obj, bool required ) {
-        std::optional<u_int64_t> member;
+        std::optional<unsigned int> member;
+        if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsUint64())
+        {
+            member = obj[member_name.c_str()].GetUint64();
+        }
+        else if (required)
+        {
+            throw json_parse_exception("Missing or incorrect type for required member " + member_name + "!");
+        }
+        return member;
+    };
+
+     std::optional<long> parse_long_member(const std::string &member_name,  const rapidjson::Value &obj, bool required ) {
+        std::optional<long> member;
         if (obj.HasMember(member_name.c_str()) && obj.FindMember(member_name.c_str())->value.IsUint64())
         {
             member = obj[member_name.c_str()].GetUint64();
