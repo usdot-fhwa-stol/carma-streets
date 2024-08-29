@@ -31,7 +31,12 @@ The **Sensor Data Sharing Service** uses the following environment variables to 
         "x": 1.0, /* in meters */
         "y": 2.0, /* in meters */
         "z": -3.2 /* in meters */
-      }
+      },
+       "orientation": { 
+        "yaw": 0.0,
+        "pitch": 0.0,
+        "roll": 0.0
+        }
     }
   } 
 ]
