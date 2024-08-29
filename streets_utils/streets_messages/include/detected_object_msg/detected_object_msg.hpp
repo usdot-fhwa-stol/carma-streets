@@ -37,8 +37,8 @@ namespace streets_utils::messages::detected_objects_msg {
         std::vector<std::vector<double>> _position_covariance;
         vector_3d _velocity;
         std::vector<std::vector<double>> _velocity_covariance;
-        vector_3d _angular_velocity;
-        std::vector<std::vector<double>> _angular_velocity_covariance;
+        std::optional<vector_3d> _angular_velocity;
+        std::optional<std::vector<std::vector<double>>> _angular_velocity_covariance;
         size _size;
         uint64_t _timestamp;
 
