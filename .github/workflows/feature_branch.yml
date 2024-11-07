@@ -80,7 +80,7 @@ jobs:
         ldconfig
         ./coverage.sh
     - name: Archive test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results
         path: /home/carma-streets/test_results

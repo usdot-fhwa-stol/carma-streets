@@ -19,7 +19,7 @@ jobs:
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker Build Streets Service Base
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
             push: true
             build-args: |
@@ -28,7 +28,7 @@ jobs:
             file: ./streets_service_base/Dockerfile
       - name: Docker Build Streets Service Base Lanelet Aware
         if: ${{ matrix.build_lanelet_aware }} 
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: true
           tags: usdotfhwastol/streets_service_base_lanelet_aware:${{ matrix.ubuntu-codename }}
@@ -111,7 +111,7 @@ jobs:
         ldconfig
         ./coverage.sh
     - name: Archive test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results
         path: /home/carma-streets/test_results
