@@ -39,7 +39,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt install graphviz && sudo dot -c
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     # Doxygen action for documentation of carma-platform source code by using mattnotmitt github actions workflow
     - name: Doxygen Action
       uses: mattnotmitt/doxygen-action@v1.9.4
