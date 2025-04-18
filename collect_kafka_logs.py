@@ -44,7 +44,7 @@ def store_kafka_topic(container_name ,topic, dir, timeout, start_time, end_time)
         while line_count < num_msgs:
             line = process.stdout.readline()
             if line == '' and process.poll() is not None:
-                print(f'got {line_count} messages from {topic}')
+                print(f'got {line_count} messages from {container_name}:{topic}')
                 return 0
             # We have a valid line of output, find timestamp
             match = re.search(timestamp_regex, line)
