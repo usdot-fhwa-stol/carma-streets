@@ -55,7 +55,7 @@ def store_kafka_topic(container_name ,topic, dir, timeout, start_time, end_time)
                         or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in':
                     outfile.write(line)
                 else:
-                    print(f'got {line_count} messages from {topic}')
+                    print(f'got {line_count} messages from {container_name}:{topic}')
                     print('no timestamp, exiting')
                     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
                     return 1
@@ -64,13 +64,13 @@ def store_kafka_topic(container_name ,topic, dir, timeout, start_time, end_time)
                 # If we receive a message past the end time, we are done
                 if timestamp > end_time:
                     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-                    print(f'got {line_count} messages from {topic}')
+                    print(f'got {line_count} messages from {container_name}:{topic}')
                     return 0
                 # If we receive a message between the start and end times, store it
                 if timestamp > start_time:
                     outfile.write(line)
                     line_count += 1
-        print(f'got all {num_msgs} expected messages from {topic}:{container_name}')
+        print(f'got all {num_msgs} expected messages from {container_name}:{topic}')
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         return 0
 def main():
