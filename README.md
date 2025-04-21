@@ -40,17 +40,15 @@ github organization. Documentation on how the carma-streets  functions, how it w
 ### Collect Kafka Logs
 This script uses `docker exec` to ssh into a running kafka container. Then using kafka container scripts to read all kafka data from a list of provided topics. 
 ```
-usage: collect_kafka_logs.py [-h] [--start_timestamp START_TIMESTAMP] [--end_timestamp END_TIMESTAMP] [--start_hours_ago START_HOURS_AGO] [--end_hours_ago END_HOURS_AGO]
-                             [--topics TOPICS [TOPICS ...]] [--timeout TIMEOUT] [--zip ZIP]
-                             outdir
+usage: collect_kafka_logs.py [-h] [--outdir OUTDIR] [--start_timestamp START_TIMESTAMP] [--end_timestamp END_TIMESTAMP] [--start_hours_ago START_HOURS_AGO]
+                             [--end_hours_ago END_HOURS_AGO] [--topics TOPICS [TOPICS ...]] [--timeout TIMEOUT] [--zip ZIP]
+                             [--container_names CONTAINER_NAMES [CONTAINER_NAMES ...]]
 
 Script to grab data from kafka
 
-positional arguments:
-  outdir                Folder name for the resulting folder logs are placed in
-
 options:
   -h, --help            show this help message and exit
+  --outdir OUTDIR       Folder name for the resulting folder logs are placed in
   --start_timestamp START_TIMESTAMP
                         Unix timestamp (seconds) for the first message to grab. Exclusive with start_hours_ago.
   --end_timestamp END_TIMESTAMP
@@ -63,6 +61,8 @@ options:
                         list of topics to grab data from
   --timeout TIMEOUT     timeout for receiving messages on a topic, default is 5 seconds
   --zip ZIP             bool flag. When set to true, folder is compressed into a zip file.
+  --container_names CONTAINER_NAMES [CONTAINER_NAMES ...]
+                        list of kafka containers to grab data from
 ```
 ### Collection Service Logs
 This script collects all **CARMA Streets** service log files, adds them to a zip file.
