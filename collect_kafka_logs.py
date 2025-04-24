@@ -52,7 +52,8 @@ def store_kafka_topic(container_name ,topic, dir, timeout, start_time, end_time)
                 # Some topics have multiple lines. For those, store each line that doesn't have a timestamp,
                 # and therefore is part of the 'current' message
                 if topic == 'v2xhub_map_msg_in' or topic == 'v2xhub_bsm_in' \
-                        or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in':
+                        or topic == 'v2xhub_mobility_operation_in' or topic == 'v2xhub_mobility_path_in' \
+                        or topic ==  'v2xhub_srm_in' or topic == 'v2xhub_ssm_sub':
                     outfile.write(line)
                 else:
                     print(f'got {line_count} messages from {container_name}:{topic}')
@@ -77,7 +78,7 @@ def main():
     # Default list of topics, aka all topics from https://usdot-carma.atlassian.net/wiki/spaces/CRMSRT/pages/2317549999/CARMA-Streets+Messaging
     topics = ['v2xhub_scheduling_plan_sub' ,'v2xhub_bsm_in', 'v2xhub_mobility_operation_in', 'v2xhub_mobility_path_in',
               'vehicle_status_intent_output', 'v2xhub_map_msg_in', 'modified_spat', 'tsc_config_state', 'desired_phase_plan',
-              'v2xhub_sdsm_sub', 'v2xhub_sim_sensor_detected_object', 'v2xhub_sdsm_tra', 'desire_phase_plan', 'time_sync']
+              'v2xhub_sdsm_sub', 'v2xhub_sim_sensor_detected_object', 'v2xhub_srm_in', 'v2xhub_ssm_sub','v2xhub_sdsm_tra', 'desire_phase_plan', 'time_sync']
     timeout = 5
     # Get arguments
     # The idea here was to give the user the bare minimum options, and make the default condition the most used.
