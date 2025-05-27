@@ -26,7 +26,7 @@ Docker is the primary deployment mechanism to containerize one or more services.
 - Docker 
 - Docker Compose
 
-To deploy CARMA Streets we currently use Docker Compose, whic is a container orchestration tool for defining and running multi-container appilcations. For instruction on installing Docker Compose please refer to their [installation guide](https://docs.docker.com/compose/install/).
+To deploy CARMA Streets we currently use Docker Compose, which is a container orchestration tool for defining and running multi-container appilcations. For instruction on installing Docker Compose please refer to their [installation guide](https://docs.docker.com/compose/install/).
 
 ### Install Images
 To download and install all relevant images simply use the Docker Compose CLI. The `pull` command below will pull all images defined in the docker compose file by default but can also be provided a list of services from the `docker-compose.yml` file to pull a subset.
