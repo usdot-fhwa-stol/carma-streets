@@ -22,7 +22,39 @@ CARMA Streets is a component of CARMA ecosystem, which enables such a coordinati
 CARMA Streets architecture is based on a scalable services and layered architecture pattern that allows for easy deployment.  Service components are packaged to contain one or more modules (classes) that represent a specific reusable function (e.g., decode a particular ASN.1 message) or an independently deployable business function (e.g., control interface to a signal controller). Services interact with each other via lightweight messaging service (e.g., Kafka) which allows for them be deployed either together or distributed for scalability and performance. A high-level abstract view of the architecture to communicate the design pattern is shown in Upcoming Figure. A more detailed Unified Modeling Language class and packaging diagrams to define the interfaces between services and layers and their interactions will be developed and documented here during implementation following an Agile Development Methodology.
 
 ## Deployment
-Docker is the primary deployment mechanism to containerize one or more services. The CARMA Streets application and other major frameworks such as Kafka will run in their own separate containers. This document will be updated with a detailed Docker deployment strategy during later design phases.
+Docker is the primary deployment mechanism to containerize one or more services. The CARMA Streets application and other major frameworks such as Kafka will run in their own separate containers. The following are required for deployment of CARMA Streets.
+- Docker 
+- Docker Compose
+
+To deploy CARMA Streets we currently use Docker Compose, which is a container orchestration tool for defining and running multi-container appilcations. For instruction on installing Docker Compose please refer to their [installation guide](https://docs.docker.com/compose/install/).
+
+### Install Images
+To download and install all relevant images simply use the Docker Compose CLI. The `pull` command below will pull all images defined in the docker compose file by default but can also be provided a list of services from the `docker-compose.yml` file to pull a subset.
+
+```
+docker compose pull <optionally specify service names>
+```
+
+### Run CARMA Streets
+After pulling the images, simply use the `up` command to run all or a selected subset of services.
+
+```
+docker compose up -d <optionally specify service names>
+```
+THe `-d` parameter allows you to run the containers in `detached mode`. This will run the containers in the background and not pipe the container output to the terminal.
+
+### V2X Hub
+Included as part of the CARMA Streets deployment is V2X Hub. V2X Hub is the hardware interface to an RSU (Road Side Unit) and enables CARMA Streets to have V2X (Vehicle to Everything) communication via the J2735 Message Set and CV2X radio communication. Once running V2X Hub needs to be configured to do the following in order for CARMA Streets to have V2X communication cababilites:
+- Connect to RSU
+- Connect to CARMA Streets
+For information V2X Hub including configuration information please visit [V2X Hub GitHub Repository](https://github.com/usdot-fhwa-OPS/V2X-Hub/blob/develop/README.md)
+
+### Version Control
+By default our Docker Compose deployment configuration will pull down develop images for both V2X Hub and CARMA Streets. To configure Docker Compose deployment, use the `streets.env` file and modify variables defined there. This `streets.env` file defines variables referenced in the `docker-compose.yml` deployment file and can either be passed to Docker compose commands via the `docker compose --env-file=streets.env` parameter or can be renamed to `.env` which docker compose will use by default. Below is a list of variables currently defined in this file and their functionality
+
+**DOCKER_HOST_IP**: The IP of the device hosting the containers (default: 127.0.0.1)
+**OPS_TAG**: The version of V2X Hub to deploy (default: develop)
+**STOL_ORG** & **STOL_TAG** : The version of CARMA Streets to deploy (default: usdotfhwastoldev/<image_name>:develop). To use a release update `STOL_ORG=usdotfhwastol` and `STOL_TAG=<release-version>`.
 
 ## Development
 This repository includes configurations for [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) VSCode extension. This extension allows us to standup a containerized development environment. More information about the CARMA Streets Dev Container Setup can be found [here](.devcontainer/README.md).

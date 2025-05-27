@@ -81,7 +81,7 @@ services:
       - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
       - mysql-datavolume:/var/lib/mysql
   php:
-    image: usdotfhwaops/php:7.6.0
+    image: usdotfhwaops/php:${OPS_TAG:-develop}
     container_name: php
     network_mode: host
     depends_on:
@@ -90,7 +90,7 @@ services:
     tty: true
 
   v2xhub:
-    image: usdotfhwaops/v2xhub:7.6.0
+    image: usdotfhwaops/v2xhub:${OPS_TAG:-develop}
     container_name: v2xhub
     network_mode: host
     restart: always
@@ -116,7 +116,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
-    image: usdotfhwastol/scheduling_service:carma-system-4.5.0
+    image: ${STOL_ORG:-usdotfhwastoldev}/scheduling_service:${STOL_TAG:-develop}
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
     build: 
       context: .
@@ -144,7 +144,7 @@ services:
       - /etc/timezone:/etc/timezone:ro     
 
   message_services:
-    image: usdotfhwastol/message_services:carma-system-4.5.0
+    image: ${STOL_ORG:-usdotfhwastoldev}/message_services:${STOL_TAG:-develop}
     build: 
       context: .
       dockerfile: message_services/Dockerfile
@@ -163,7 +163,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   intersection_model:
-    image: usdotfhwastol/intersection_model:carma-system-4.5.0
+    image: ${STOL_ORG:-usdotfhwastoldev}/intersection_model:${STOL_TAG:-develop}
     build: 
       context: .
       dockerfile: intersection_model/Dockerfile
@@ -182,7 +182,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   signal_opt_service:
-    image: usdotfhwastol/signal_opt_service:carma-system-4.5.0
+    image: ${STOL_ORG:-usdotfhwastoldev}/signal_opt_service:${STOL_TAG:-develop}
     command: sh -c "/wait && /home/carma-streets/signal_opt_service/build/signal_opt_service"
     build: 
       context: .
@@ -213,7 +213,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   tsc_service:
-    image: usdotfhwastol/tsc_service:carma-system-4.5.0
+    image: ${STOL_ORG:-usdotfhwastoldev}/tsc_service:${STOL_TAG:-develop}
     command: sh -c "/wait && /home/carma-streets/tsc_client_service/build/traffic_signal_controller_service"
     build: 
       context: .
@@ -242,7 +242,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
   sensor_data_sharing_service:
-    image: usdotfhwastol/sensor_data_sharing_service:carma-system-4.5.0
+    image: ${STOL_ORG:-usdotfhwastoldev}/sensor_data_sharing_service:${STOL_TAG:-develop}
     build: 
       context: .
       dockerfile: sensor_data_sharing_service/Dockerfile
