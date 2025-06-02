@@ -105,3 +105,45 @@ TEST(detected_obj_msg_deserializer_test, deserialize)
     EXPECT_EQ(msg._timestamp, 1702335309000);
 
 }
+
+
+TEST(detected_obj_msg_deserializer_test, deserializeInvalidCovariance)
+{
+    std::string json_prediction = R"(
+        {
+            "type":"CAR",
+            "confidence":0.7,
+            "sensorId":"sensor1",
+            "projString":"projectionString2",
+            "objectId":27,
+            "position":{
+                "x":-1.1,
+                "y":-2.0,
+                "z":-3.2
+            },
+            "positionCovariance":[["7.1231e-15",0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "velocity":{
+                "x":1.0,
+                "y":1.0,
+                "z":1.0
+            },
+            "velocityCovariance":[["null",0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "angularVelocity":{
+                "x":0.1,
+                "y":0.2,
+                "z":0.3
+            },
+            "angularVelocityCovariance":[[1.0,0.0,0.0],[1.0,0.0,0.0],[1.0,0.0,0.0]],
+            "size":{
+                "length":2.0,
+                "height":1.0,
+                "width":0.5
+            },
+            "timestamp":1702335309000
+        }
+        )";
+
+    EXPECT_THROW(streets_utils::messages::detected_objects_msg::from_json(json_prediction), streets_utils::json_utils::json_parse_exception);
+   
+
+}
