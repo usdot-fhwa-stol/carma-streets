@@ -107,7 +107,7 @@ namespace streets_utils::messages::detected_objects_msg {
                 if ( val[i][j].IsNull() || !val[i][j].IsNumber())
                 {
                     std::string value = val[i][j].IsNull() ? "null" : val[i][j].GetString();
-                    throw streets_utils::json_utils::json_parse_exception("Covariance matrix contains invalid value" + value + "at position [" + std::to_string(i) + "][" + std::to_string(j) + "]");
+                    throw streets_utils::json_utils::json_parse_exception("Covariance matrix contains invalid value " + value + " at position [" + std::to_string(i) + "][" + std::to_string(j) + "]");
                 }
                 val_row.push_back(val[i][j].GetDouble());
             }
