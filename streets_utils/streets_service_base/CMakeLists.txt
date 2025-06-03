@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(streets_service_base)
+# Required for inline variable initialization
+set(CMAKE_CXX_STANDARD 17)
 
 ########################################################
 # Find Dependent Packages and set configurations
