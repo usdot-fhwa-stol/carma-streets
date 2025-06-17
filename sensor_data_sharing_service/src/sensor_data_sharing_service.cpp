@@ -160,7 +160,7 @@ namespace sensor_data_sharing_service {
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
                     // Message Count max is 127, reset after max value
-                    if ( this->_message_count <= 127) {
+                    if ( this->_message_count < 127) {
                         this->_message_count++;
                     }else {
                         this->_message_count = 0;
