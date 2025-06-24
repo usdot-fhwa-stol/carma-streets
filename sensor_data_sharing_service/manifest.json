@@ -31,6 +31,12 @@
             "value": "sensor_1",
             "description": "Unique id of sensor for which to publish SDSMS",
             "type": "STRING"
+        },
+        {
+            "name": "record_detection_metrics",
+            "value": true,
+            "description": "Bool flag to indicate whether to record detection metrics for the sensor data sharing service.",
+            "type": "BOOL"
         }
     ]
 }

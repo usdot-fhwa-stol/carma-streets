@@ -66,6 +66,24 @@ namespace sensor_data_sharing_service {
         const std::string detection_topic = ss::streets_configuration::get_string_config("detection_consumer_topic");
         // Get Infrastructure ID for SDSM messages
         this->_infrastructure_id =  streets_service::get_system_config("INFRASTRUCTURE_ID", "");
+
+        this->_record_detection_metrics = ss::streets_configuration::get_boolean_config("record_detection_metrics");
+        if ( this->_record_detection_metrics ) {
+            SPDLOG_INFO("Record detection metrics enabled.");
+            this->_detection_metrics_logger = create_daily_logger("detection_metrics", ".csv");
+            this->_detection_metrics_logger->set_pattern("%v");
+            // Write header to detection metrics logger
+            this->_detection_metrics_logger->info("{0}, {1}, {2}, {3}",
+                 DETECTION_METRICS_HEADER[0], 
+                 DETECTION_METRICS_HEADER[1], 
+                 DETECTION_METRICS_HEADER[2], 
+                 DETECTION_METRICS_HEADER[3]);
+            
+        } else {
+            SPDLOG_INFO("Record detection metrics disabled.");
+        }
+
+
         return initialize_kafka_producer(sdsm_topic, sdsm_producer) && initialize_kafka_consumer(detection_topic, detection_consumer);
     }
 
@@ -108,10 +126,20 @@ namespace sensor_data_sharing_service {
                     auto detected_object = streets_utils::messages::detected_objects_msg::from_json(payload);
                     // Get delay of detected object
                     auto delay = static_cast<int64_t>(ss::streets_clock_singleton::time_in_ms()) - static_cast<int64_t>(detected_object._timestamp);
-                    SPDLOG_DEBUG("Detection Delay : {0}ms!", delay);
+                   
+                    if ( this->_record_detection_metrics) {
+                         _detection_delay_queue.push_back(delay);
+                        if (_detection_delay_queue.size() > 50) {
+                            _detection_delay_queue.pop_front();
+                        }
+                        calculate_detection_delay(_detection_delay_queue, _detection_metrics, DETECTION_METRICS_HEADER[2], _detection_metrics_lock);
+                    }
                     // if delay is greater than 500 ms skip detection to get more recent data
                     if ( delay >= 500 ) {
                         SPDLOG_WARN("Skipping incoming detection at {0}ms is not current or has invalid timestamp of {1}ms!" , ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
+                        if (this->_record_detection_metrics) {
+                           increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1],  _detection_metrics_lock);
+                        }
                         continue;
                     }
                     // if delay is negative, and service is in simulation mode
@@ -128,6 +156,9 @@ namespace sensor_data_sharing_service {
                                 Sensor Data Sharing Service and sensor producing detections to not appear to be time synchronized.)",
                             ss::streets_clock_singleton::time_in_ms(), 
                             detected_object._timestamp );
+                        if (this->_record_detection_metrics) {
+                            increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
+                        }
                         continue;
 
                     }
@@ -140,20 +171,28 @@ namespace sensor_data_sharing_service {
                 }
             }
             catch (const streets_utils::json_utils::json_parse_exception &e) {
-                SPDLOG_ERROR("Exception occured consuming detection message : {0}", e.what());
-            }
+                SPDLOG_ERROR("Exception occurred consuming detection message : {0}", e.what());
+                if (this->_record_detection_metrics) {
+                    increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
+                }
         }
         SPDLOG_ERROR("Something went wrong, no longer consuming detections." );
+    }
 
     }
+    
 
     void sds_service::produce_sdsms() {
         if ( !sdsm_producer )  {
             throw std::runtime_error("SDSM consumer is null!");
         }
         SPDLOG_INFO("Starting SDSM Producer!");
+        unsigned int  _interation =0;
         while ( sdsm_producer->is_running() ) {
             try{
+                if (this->_record_detection_metrics && _interation % 10 == 0) {
+                    write_detection_metrics(_detection_metrics_logger, _detection_metrics, DETECTION_METRICS_HEADER, _detection_metrics_lock);
+                }
                 if ( !detected_objects.empty() ) {
                     streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm();
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
@@ -173,7 +212,11 @@ namespace sensor_data_sharing_service {
             }
             catch( const streets_utils::json_utils::json_parse_exception &e) {
                 SPDLOG_ERROR("Exception occurred producing SDSM : {0}", e.what());
+                if (this->_record_detection_metrics) {
+                    increment_sdsm_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[3], _detection_metrics_lock);
+                }
             }         
+            _interation++;
             ss::streets_clock_singleton::sleep_for(100); // Sleep for 100 ms between publish  
         }
         SPDLOG_CRITICAL("SDSM Producers no longer running.");
@@ -224,4 +267,37 @@ namespace sensor_data_sharing_service {
         return position;
 
     }
+
+    void calculate_detection_delay(const std::deque<double> &detection_delay_queue, std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
+        std::lock_guard<std::mutex> lock(detection_metrics_lock);
+        if (!detection_delay_queue.empty()) {
+            double sum = std::accumulate(detection_delay_queue.begin(), detection_delay_queue.end(), 0.0);
+            detection_metrics[metrics_name] = sum / detection_delay_queue.size();
+        }
+        else {
+            detection_metrics[metrics_name] = 0.0; // No detections, set to 0
+        }
+    }
+
+    void increment_detection_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
+        std::lock_guard<std::mutex> lock(detection_metrics_lock);
+        detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
+    }
+
+    void increment_sdsm_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
+        std::lock_guard<std::mutex> lock(detection_metrics_lock);
+        detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
+    }
+
+    void write_detection_metrics(const std::shared_ptr<spdlog::logger> &logger, const std::map<std::string, double> &detection_metrics, const std::vector<std::string> &metrics_header, std::mutex &detection_metrics_lock) {
+        if (logger) {
+            std::lock_guard<std::mutex> lock(detection_metrics_lock);
+            logger->info("{0}, {1}, {2}, {3}",
+                 ss::streets_clock_singleton::time_in_ms(),
+                 detection_metrics.at(metrics_header[1]),
+                 detection_metrics.at(metrics_header[2]),
+                 detection_metrics.at(metrics_header[3]));
+        }
+    }
+
 }

@@ -41,6 +41,8 @@
 #include <lanelet2_projection/UTM.h>
 #include <map>
 #include <shared_mutex>
+#include <deque>
+#include <vector>
 
 
 #include "sensor_configuration_parser.hpp"
@@ -79,6 +81,17 @@ namespace sensor_data_sharing_service {
             std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
 
             /**
+             * @brief WSG84 projection from RSU location
+             */
+            std::unique_ptr<lanelet::projection::LocalFrameProjector> rsu_projector;
+
+            /**
+             * @brief Map of sensor projectors. The key is the sensor id and the value is 
+             * the projector.
+             */
+            std::map<std::string, lanelet::projection::LocalFrameProjector> sensor_projectors;
+
+            /**
              * @brief Location of sensor.This is also the sensor's coordinate frame orignin meaning all offsets 
              * are interpreted relative to this location.
              */
@@ -93,6 +106,29 @@ namespace sensor_data_sharing_service {
              * @brief Message count for SDSM
              */
             uint8_t _message_count = 0;
+            /**
+             * @brief Flag to indicate whether to record detection metrics
+             */
+            bool _record_detection_metrics = false;
+            /**
+             * @brief Logger for detection metrics
+             */
+            std::shared_ptr<spdlog::logger> _detection_metrics_logger;
+            /**
+             * @brief A map of detection metrics. The key is the metric name and the value is the current metric value.
+             */
+            std::map<std::string, double> _detection_metrics;
+            static const inline  std::vector<std::string> DETECTION_METRICS_HEADER =
+                { 
+                    "Timestamp (ms)",
+                    "Detection Drop Count",
+                    "Detection Latency (Rolling average in ms over 50 detection)",
+                    "SDSM Drop Count"
+                };
+            std::mutex _detection_metrics_lock;
+
+            
+            std::deque<double> _detection_delay_queue;
 
             /**
              * @brief Initialize Kafka consumers and producers for sensor data sharing service.
@@ -152,4 +188,13 @@ namespace sensor_data_sharing_service {
     };
     streets_utils::messages::sdsm::position_3d to_position_3d(const lanelet::GPSPoint &ref_position);
 
+   
+    void calculate_detection_delay(const std::deque<double> &detection_delay_queue, std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock);
+
+
+    void increment_detection_drop_metric( std::map<std::string, double> &detection_metrics,const std::string &metrics_name, std::mutex &detection_metrics_lock);
+
+    void increment_sdsm_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock);
+
+    void write_detection_metrics(const std::shared_ptr<spdlog::logger> &logger, const std::map<std::string, double> &detection_metrics, const std::vector<std::string> &metrics_header, std::mutex &detection_metrics_lock);
 }

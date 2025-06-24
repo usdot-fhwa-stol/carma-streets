@@ -4,7 +4,7 @@
 namespace streets_service {
 
     streets_service::~streets_service() {
-        SPDLOG_INFO("Destructor called for streets service {0}!", _service_name);
+        SPDLOG_TRACE("Destructor called for streets service {0}!", _service_name);
         if ( _time_consumer ) {
             _time_consumer->stop();
         }
