@@ -78,6 +78,11 @@ namespace sensor_data_sharing_service {
                  DETECTION_METRICS_HEADER[1], 
                  DETECTION_METRICS_HEADER[2], 
                  DETECTION_METRICS_HEADER[3]);
+            // Initialize detection metrics
+            this->_detection_metrics[DETECTION_METRICS_HEADER[1]] = 0;
+            this->_detection_metrics[DETECTION_METRICS_HEADER[2]] = 0;
+            this->_detection_metrics[DETECTION_METRICS_HEADER[3]] = 0;
+
             
         } else {
             SPDLOG_INFO("Record detection metrics disabled.");
@@ -175,10 +180,9 @@ namespace sensor_data_sharing_service {
                 if (this->_record_detection_metrics) {
                     increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
                 }
+            }
         }
-        SPDLOG_ERROR("Something went wrong, no longer consuming detections." );
-    }
-
+    SPDLOG_ERROR("Something went wrong, no longer consuming detections." );
     }
     
 
@@ -269,6 +273,7 @@ namespace sensor_data_sharing_service {
     }
 
     void calculate_detection_delay(const std::deque<double> &detection_delay_queue, std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
+        SPDLOG_DEBUG("Calculating detection delay for metric: {0}", metrics_name);
         std::lock_guard<std::mutex> lock(detection_metrics_lock);
         if (!detection_delay_queue.empty()) {
             double sum = std::accumulate(detection_delay_queue.begin(), detection_delay_queue.end(), 0.0);
@@ -277,26 +282,35 @@ namespace sensor_data_sharing_service {
         else {
             detection_metrics[metrics_name] = 0.0; // No detections, set to 0
         }
+        SPDLOG_DEBUG("Detection delay calculated: {0} ms", detection_metrics[metrics_name]);
     }
 
     void increment_detection_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
         std::lock_guard<std::mutex> lock(detection_metrics_lock);
         detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
+        SPDLOG_DEBUG("Incrementing detection drop metric: {0}", detection_metrics[metrics_name]);
     }
 
     void increment_sdsm_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
         std::lock_guard<std::mutex> lock(detection_metrics_lock);
         detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
+        SPDLOG_DEBUG("Incrementing SDSM drop metric: {0}", detection_metrics[metrics_name]);
     }
 
+
     void write_detection_metrics(const std::shared_ptr<spdlog::logger> &logger, const std::map<std::string, double> &detection_metrics, const std::vector<std::string> &metrics_header, std::mutex &detection_metrics_lock) {
-        if (logger) {
+        // header includes timestamp so metrics size should be header size - 1
+        if (logger && detection_metrics.size() == metrics_header.size() - 1)  
+        {
             std::lock_guard<std::mutex> lock(detection_metrics_lock);
             logger->info("{0}, {1}, {2}, {3}",
                  ss::streets_clock_singleton::time_in_ms(),
                  detection_metrics.at(metrics_header[1]),
                  detection_metrics.at(metrics_header[2]),
                  detection_metrics.at(metrics_header[3]));
+        }
+        else {
+            SPDLOG_WARN("Logger is null or detection metrics {0} does not match header size {1} - 1", detection_metrics.size(), metrics_header.size());
         }
     }
 
