@@ -186,5 +186,39 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(10, position._elevation);
     }
 
+    TEST(sensorDataSharingServiceTest, calculateDetectionDelay) {
+        std::deque<double> detection_delay_queue = {100.0, 200.0, 300.0};
+        std::map<std::string, double> detection_metrics;
+        std::mutex detection_metrics_lock;
+        calculate_detection_delay(detection_delay_queue, detection_metrics, "detection_delay", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["detection_delay"], 200.0);
+    }
+
+    TEST(sensorDataSharingServiceTest, testIncrementSDSMMessageDrop) {
+        sds_service serv;
+        
+        std::map<std::string, double> detection_metrics;
+        std::mutex detection_metrics_lock;
+        // Initialize drop metrics
+        detection_metrics["SDSM Drop Count"] = 0.0;
+        detection_metrics["Detection Drop"] = 0.0;
+
+        increment_drop_metric(detection_metrics, "SDSM Drop Count", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 1.0);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 0.0);
+        increment_drop_metric(detection_metrics, "SDSM Drop Count", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 2.0);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 0.0);
+        
+        increment_drop_metric(detection_metrics, "Detection Drop", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 1.0);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 2.0);
+        increment_drop_metric(detection_metrics, "Detection Drop", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 2.0);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 2.0);
+
+    }
+
+
 
 }

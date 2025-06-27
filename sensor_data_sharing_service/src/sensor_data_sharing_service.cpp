@@ -141,7 +141,7 @@ namespace sensor_data_sharing_service {
                     if ( delay >= 500 ) {
                         SPDLOG_WARN("Skipping incoming detection at {0}ms is not current or has invalid timestamp of {1}ms!" , ss::streets_clock_singleton::time_in_ms(), detected_object._timestamp );
                         if (this->_record_detection_metrics) {
-                           increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1],  _detection_metrics_lock);
+                           increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1],  _detection_metrics_lock);
                         }
                         continue;
                     }
@@ -160,7 +160,7 @@ namespace sensor_data_sharing_service {
                             ss::streets_clock_singleton::time_in_ms(), 
                             detected_object._timestamp );
                         if (this->_record_detection_metrics) {
-                            increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
+                            increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
                         }
                         continue;
 
@@ -176,7 +176,7 @@ namespace sensor_data_sharing_service {
             catch (const streets_utils::json_utils::json_parse_exception &e) {
                 SPDLOG_ERROR("Exception occurred consuming detection message : {0}", e.what());
                 if (this->_record_detection_metrics) {
-                    increment_detection_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
+                    increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
                 }
             }
         }
@@ -215,7 +215,7 @@ namespace sensor_data_sharing_service {
             catch( const streets_utils::json_utils::json_parse_exception &e) {
                 SPDLOG_ERROR("Exception occurred producing SDSM : {0}", e.what());
                 if (this->_record_detection_metrics) {
-                    increment_sdsm_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[3], _detection_metrics_lock);
+                    increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[3], _detection_metrics_lock);
                 }
             }         
             _interation++;
@@ -283,17 +283,12 @@ namespace sensor_data_sharing_service {
         SPDLOG_DEBUG("Detection delay calculated: {0} ms", detection_metrics[metrics_name]);
     }
 
-    void increment_detection_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
+    void increment_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
         std::lock_guard<std::mutex> lock(detection_metrics_lock);
         detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
-        SPDLOG_DEBUG("Incrementing detection drop metric: {0}", detection_metrics[metrics_name]);
+        SPDLOG_TRACE("Incrementing drop metric: {0} to {1}", metrics_name, detection_metrics[metrics_name]);
     }
 
-    void increment_sdsm_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
-        std::lock_guard<std::mutex> lock(detection_metrics_lock);
-        detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
-        SPDLOG_DEBUG("Incrementing SDSM drop metric: {0}", detection_metrics[metrics_name]);
-    }
 
 
     void write_detection_metrics(const std::shared_ptr<spdlog::logger> &logger, const std::map<std::string, double> &detection_metrics, const std::vector<std::string> &metrics_header, std::mutex &detection_metrics_lock) {

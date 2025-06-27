@@ -192,9 +192,7 @@ namespace sensor_data_sharing_service {
     void calculate_detection_delay(const std::deque<double> &detection_delay_queue, std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock);
 
 
-    void increment_detection_drop_metric( std::map<std::string, double> &detection_metrics,const std::string &metrics_name, std::mutex &detection_metrics_lock);
-
-    void increment_sdsm_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock);
+    void increment_drop_metric( std::map<std::string, double> &detection_metrics,const std::string &metrics_name, std::mutex &detection_metrics_lock);
 
     void write_detection_metrics(const std::shared_ptr<spdlog::logger> &logger, const std::map<std::string, double> &detection_metrics, const std::vector<std::string> &metrics_header, std::mutex &detection_metrics_lock);
 }
