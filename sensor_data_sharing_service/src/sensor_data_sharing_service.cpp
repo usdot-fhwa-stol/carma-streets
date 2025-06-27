@@ -272,7 +272,7 @@ namespace sensor_data_sharing_service {
 
     void calculate_detection_delay(const std::deque<double> &detection_delay_queue, std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
         SPDLOG_DEBUG("Calculating detection delay for metric: {0}", metrics_name);
-        std::lock_guard<std::mutex> lock(detection_metrics_lock);
+        std::scoped_lock lock{detection_metrics_lock};
         if (!detection_delay_queue.empty()) {
             double sum = std::accumulate(detection_delay_queue.begin(), detection_delay_queue.end(), 0.0);
             detection_metrics[metrics_name] = sum / detection_delay_queue.size();
@@ -284,7 +284,7 @@ namespace sensor_data_sharing_service {
     }
 
     void increment_drop_metric( std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock) {
-        std::lock_guard<std::mutex> lock(detection_metrics_lock);
+        std::scoped_lock lock{detection_metrics_lock};
         detection_metrics[metrics_name] = detection_metrics[metrics_name] + 1;
         SPDLOG_TRACE("Incrementing drop metric: {0} to {1}", metrics_name, detection_metrics[metrics_name]);
     }
@@ -295,7 +295,7 @@ namespace sensor_data_sharing_service {
         // header includes timestamp so metrics size should be header size - 1
         if (logger && detection_metrics.size() == metrics_header.size() - 1)  
         {
-            std::lock_guard<std::mutex> lock(detection_metrics_lock);
+            std::scoped_lock lock{detection_metrics_lock};
             logger->info("{0}, {1}, {2}, {3}",
                  ss::streets_clock_singleton::time_in_ms(),
                  detection_metrics.at(metrics_header[1]),
