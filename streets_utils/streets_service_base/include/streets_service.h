@@ -105,7 +105,14 @@ namespace streets_service {
              */
             std::shared_ptr<spdlog::logger> create_daily_logger(const std::string &name, const std::string &extension = ".log", const std::string &pattern = "[%Y-%m-%d %H:%M:%S.%e] %v", 
                                 const spdlog::level::level_enum &level = spdlog::level::info ) const;
-
+            /**
+             * @brief Method to create SPDLOG Daily rotating file logger for logging metrics in csv format. The logger is accessible by calling spdlog::get(name). The log
+             * files created by this logger will include data and time in name and will be stored in the LOGS_DIRECTORY set path.
+             * The first line of the log file will contain the header provided in the header parameter.
+             * @param name Name of the logger 
+             * @param header Header to write to the first line of the log file. This should be a comma separated string of column names.
+             * @return std::shared_ptr<spdlog::logger> shared pointer to the created logger.
+             */
             std::shared_ptr<spdlog::logger> create_daily_metrics_logger(const std::string &name, const std::string &header ) const;
             
 

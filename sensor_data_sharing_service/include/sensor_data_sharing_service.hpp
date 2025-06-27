@@ -177,11 +177,29 @@ namespace sensor_data_sharing_service {
     };
     streets_utils::messages::sdsm::position_3d to_position_3d(const lanelet::GPSPoint &ref_position);
 
-   
+    /**
+     * @brief Calculate the detection delay from a deque of detection delays and store the result in the detection metrics map.
+     * @param detection_delay_queue A deque containing the detection delays.
+     * @param detection_metrics A map to store the calculated detection delay.
+     * @param metrics_name The name of the metric to store the calculated detection delay.
+     * @param detection_metrics_lock A mutex to ensure thread safety while accessing the detection metrics map
+     */
     void calculate_detection_delay(const std::deque<double> &detection_delay_queue, std::map<std::string, double> &detection_metrics, const std::string &metrics_name, std::mutex &detection_metrics_lock);
 
-
+    /**
+     * @brief Increment the drop metric in the detection metrics map.
+     * @param detection_metrics A map to store the detection metrics.
+     * @param metrics_name The name of the metric to increment.
+     * @param detection_metrics_lock A mutex to ensure thread safety while accessing the detection metrics map
+     */
     void increment_drop_metric( std::map<std::string, double> &detection_metrics,const std::string &metrics_name, std::mutex &detection_metrics_lock);
 
+    /**
+     * @brief Write detection metrics to the logger.
+     * @param logger A shared pointer to the spdlog logger.
+     * @param detection_metrics A map containing the detection metrics.
+     * @param metrics_header A vector containing the header for the metrics.
+     * @param detection_metrics_lock A mutex to ensure thread safety while accessing the detection metrics map
+     */
     void write_detection_metrics(const std::shared_ptr<spdlog::logger> &logger, const std::map<std::string, double> &detection_metrics, const std::vector<std::string> &metrics_header, std::mutex &detection_metrics_lock);
 }
