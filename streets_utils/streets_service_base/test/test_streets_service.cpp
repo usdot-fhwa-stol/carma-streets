@@ -96,6 +96,22 @@ namespace streets_service{
         log_file.close();
         
     }
+    TEST_F(test_streets_service, test_create_daily_metrics_logger) {
+        serv.initialize();
+        auto logger = serv.create_daily_metrics_logger("Test_metrics_log", "header1,header2,header3");
+        EXPECT_EQ(spdlog::level::info, logger->level());
+        EXPECT_EQ("Test_metrics_log", logger->name());
+        std::fstream log_file;
+        std::string content;
+        std::time_t t = std::time(nullptr);
+        std::tm* now = std::localtime(&t);
+        char buffer[128];
+        strftime(buffer, sizeof(buffer), "_%Y-%m-%d", now);        
+        std::string file_path_string = "../logs/" + logger->name()+ buffer + ".csv";
+        log_file.open(file_path_string, std::ios::out);
+        EXPECT_TRUE(log_file.good());
+        log_file.close();
+    }
 
     TEST_F(test_streets_service, test_create_daily_logger_default) {
         serv.initialize();
