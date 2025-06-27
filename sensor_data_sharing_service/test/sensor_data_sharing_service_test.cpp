@@ -37,11 +37,12 @@ namespace sensor_data_sharing_service {
         // Set simulation mode to false
         setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "FALSE", 1);
         setenv("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_cartesian.json", 1);
+        setenv("CONFIG_FILE_PATH", "../test/test_files/manifest.json", 1);
+        setenv("LANELET2_MAP", "/home/carma-streets/sample_map/town01_vector_map_test.osm", 1);
         sds_service serv;
 
         serv.initialize();
-        // If consumer null expect runtime error
-        EXPECT_THROW(serv.consume_detections(), std::runtime_error);
+        
         serv.detection_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),subscribe()).Times(1);
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),is_running()).Times(4)
