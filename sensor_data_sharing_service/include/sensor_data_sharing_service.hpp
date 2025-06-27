@@ -42,7 +42,6 @@
 #include <map>
 #include <shared_mutex>
 #include <deque>
-#include <vector>
 
 
 #include "sensor_configuration_parser.hpp"
@@ -79,17 +78,6 @@ namespace sensor_data_sharing_service {
              * @brief WSG84 Map projection
              */
             std::unique_ptr<lanelet::projection::LocalFrameProjector> map_projector;
-
-            /**
-             * @brief WSG84 projection from RSU location
-             */
-            std::unique_ptr<lanelet::projection::LocalFrameProjector> rsu_projector;
-
-            /**
-             * @brief Map of sensor projectors. The key is the sensor id and the value is 
-             * the projector.
-             */
-            std::map<std::string, lanelet::projection::LocalFrameProjector> sensor_projectors;
 
             /**
              * @brief Location of sensor.This is also the sensor's coordinate frame orignin meaning all offsets 
