@@ -173,6 +173,7 @@ namespace sensor_data_sharing_service {
             FRIEND_TEST(sensorDataSharingServiceTest, consumeDetections);
             FRIEND_TEST(sensorDataSharingServiceTest, produceSdsms);
             FRIEND_TEST(sensorDataSharingServiceTest, readLanelet2Map);
+            FRIEND_TEST(sensorDataSharingServiceTest, writeDetectionMetrics);
     };
     streets_utils::messages::sdsm::position_3d to_position_3d(const lanelet::GPSPoint &ref_position);
 

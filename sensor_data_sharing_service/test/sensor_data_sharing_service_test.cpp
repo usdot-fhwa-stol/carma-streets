@@ -220,6 +220,19 @@ namespace sensor_data_sharing_service {
 
     }
 
+    TEST(sensorDataSharingServiceTest, writeDetectionMetrics) {
+        sds_service serv;
+        std::map<std::string, double> detection_metrics;
+        std::mutex detection_metrics_lock;
+        detection_metrics["Timestamp (ms)"] = 1000.0;
+        detection_metrics["Detection Drop Count"] = 2.0;
+        detection_metrics["Detection Latency (Rolling average in ms over 50 detection)"] = 150.0;
+        detection_metrics["SDSM Drop Count"] = 1.0;
+
+        auto logger = spdlog::stdout_color_mt("test_logger");
+        write_detection_metrics(logger, detection_metrics, serv.DETECTION_METRICS_HEADER, detection_metrics_lock);
+    }
+
 
 
 }
