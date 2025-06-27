@@ -69,15 +69,13 @@ namespace sensor_data_sharing_service {
 
         this->_record_detection_metrics = ss::streets_configuration::get_boolean_config("record_detection_metrics");
         if ( this->_record_detection_metrics ) {
-            SPDLOG_INFO("Record detection metrics enabled.");
-            this->_detection_metrics_logger = create_daily_logger("detection_metrics", ".csv");
-            this->_detection_metrics_logger->set_pattern("%v");
-            // Write header to detection metrics logger
-            this->_detection_metrics_logger->info("{0}, {1}, {2}, {3}",
-                 DETECTION_METRICS_HEADER[0], 
-                 DETECTION_METRICS_HEADER[1], 
-                 DETECTION_METRICS_HEADER[2], 
-                 DETECTION_METRICS_HEADER[3]);
+            std::string header = 
+                DETECTION_METRICS_HEADER[0] + "," + 
+                DETECTION_METRICS_HEADER[1] + "," + 
+                DETECTION_METRICS_HEADER[2] + "," + 
+                DETECTION_METRICS_HEADER[3];
+            SPDLOG_INFO("Record detection metrics enabled. Recording metrics {0} ", header);
+            this->_detection_metrics_logger = create_daily_metrics_logger("detection_metrics", header);
             // Initialize detection metrics
             this->_detection_metrics[DETECTION_METRICS_HEADER[1]] = 0;
             this->_detection_metrics[DETECTION_METRICS_HEADER[2]] = 0;

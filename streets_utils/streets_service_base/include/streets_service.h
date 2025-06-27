@@ -105,6 +105,8 @@ namespace streets_service {
              */
             std::shared_ptr<spdlog::logger> create_daily_logger(const std::string &name, const std::string &extension = ".log", const std::string &pattern = "[%Y-%m-%d %H:%M:%S.%e] %v", 
                                 const spdlog::level::level_enum &level = spdlog::level::info ) const;
+
+            std::shared_ptr<spdlog::logger> create_daily_metrics_logger(const std::string &name, const std::string &header ) const;
             
 
         private:
