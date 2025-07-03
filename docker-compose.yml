@@ -94,6 +94,12 @@ services:
     container_name: v2xhub
     network_mode: host
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     depends_on:
       - db
     environment:
@@ -123,6 +129,12 @@ services:
       dockerfile: scheduling_service/Dockerfile
     container_name: scheduling_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     depends_on:
       kafka:
@@ -150,6 +162,12 @@ services:
       dockerfile: message_services/Dockerfile
     container_name: message_services
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     depends_on:
       kafka:
@@ -169,6 +187,12 @@ services:
       dockerfile: intersection_model/Dockerfile
     container_name: intersection_model
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     depends_on:
       kafka:
@@ -189,6 +213,12 @@ services:
       dockerfile: signal_opt_service/Dockerfile
     container_name: signal_opt_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     depends_on:
       kafka:
@@ -220,6 +250,12 @@ services:
       dockerfile: tsc_client_service/Dockerfile
     container_name: tsc_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     depends_on:
       kafka:
@@ -248,6 +284,12 @@ services:
       dockerfile: sensor_data_sharing_service/Dockerfile
     container_name: sensor_data_sharing_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     depends_on:
       kafka:
