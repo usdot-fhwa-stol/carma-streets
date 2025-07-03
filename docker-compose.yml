@@ -57,6 +57,7 @@ services:
     container_name: kowl
     restart: on-failure
     network_mode: host
+    profiles: ["debug"]
     depends_on:
       kafka:
         condition: service_healthy  
@@ -78,7 +79,7 @@ services:
       - mysql_password
       - mysql_root_password
     volumes:
-      - ./mysql/localhost.sql:/docker-entrypoint-initdb.d/localhost.sql
+      - ./mysql/:/docker-entrypoint-initdb.d/
       - mysql-datavolume:/var/lib/mysql
   php:
     image: usdotfhwaops/php:${OPS_TAG:-develop}
@@ -124,6 +125,7 @@ services:
     container_name: scheduling_service
     restart: always
     network_mode: host
+    profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
         condition: service_healthy  
@@ -151,6 +153,7 @@ services:
     container_name: message_services
     restart: always
     network_mode: host
+    profiles : ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
         condition: service_healthy  
@@ -170,6 +173,7 @@ services:
     container_name: intersection_model
     restart: always
     network_mode: host
+    profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
         condition: service_healthy  
@@ -190,6 +194,7 @@ services:
     container_name: signal_opt_service
     restart: always
     network_mode: host
+    profiles: ["signal_optimization"]
     depends_on:
       kafka:
         condition: service_healthy  
@@ -221,6 +226,7 @@ services:
     container_name: tsc_service
     restart: always
     network_mode: host
+    profiles: ["signal_optimization", "vehicle_scheduling"]
     depends_on:
       kafka:
         condition: service_healthy  
@@ -249,6 +255,7 @@ services:
     container_name: sensor_data_sharing_service
     restart: always
     network_mode: host
+    profiles : ["cooperative_perception"]
     depends_on:
       kafka:
         condition: service_healthy  
