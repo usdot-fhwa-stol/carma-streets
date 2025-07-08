@@ -59,8 +59,14 @@ if [[ "$INSTALL_V2XHUB" == "TRUE" ]]; then
     fi
     
     cd V2X-Hub/configuration/
-    # Initialize V2X Hub
-    ./initialization.sh
+    # Initialize V2X Hub Docker environment
+    echo "Initializing V2X Hub Docker environment..."
+    ./initialize_docker_environment.sh
+    ./initialize_secrets.sh
+    echo "V2X Hub Docker environment initialized successfully."
+    echo "Pulling V2X Hub Docker images..."
+    docker compose pull
+    echo "V2X Hub Docker images pulled successfully."
     cd ../../carma-streets/
     echo "V2X Hub installed and deployed successfully."
 else
@@ -115,3 +121,10 @@ fi
 
 docker compose pull
 docker compose up -d
+
+if [[ "$INSTALL_V2XHUB" == "TRUE" ]]; then
+    cd V2X-Hub/configuration/
+    echo "Adding V2X Hub user ..."
+    ./add_v2x_hub_user.sh
+    echo "V2X Hub user added successfully."
+fi
