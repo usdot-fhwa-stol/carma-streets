@@ -1,3 +1,6 @@
+include:
+  # TODO Include V2X Hub docker compose as an OCI (Open Container Initiative) artifact
+  - path: ../V2X-Hub/configuration/docker-compose.yml
 services:
   zookeeper:
     image: wurstmeister/zookeeper
@@ -23,8 +26,8 @@ services:
       timeout: 10s
       retries: 10
     environment:
-      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
-      KAFKA_ADVERTISED_HOST_NAME:  ${DOCKER_HOST_IP}
+      DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
+      KAFKA_ADVERTISED_HOST_NAME:  ${INFRASTRUCTURE_IP:-127.0.0.1}
       KAFKA_CREATE_TOPICS: "\
         v2xhub_scheduling_plan_sub:1:1,\
         v2xhub_bsm_in:1:1,\
@@ -65,57 +68,6 @@ services:
       CONFIG_FILEPATH: /etc/kowl/kowl.yaml
     volumes:
       - ./performance/kowl.yaml:/etc/kowl/kowl.yaml
-  db:
-    image: mysql:8.0
-    container_name: mysql
-    restart: always
-    environment:
-      - MYSQL_DATABASE=IVP
-      - MYSQL_USER=IVP
-      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
-    network_mode: host
-    secrets:
-      - mysql_password
-      - mysql_root_password
-    volumes:
-      - ./mysql/:/docker-entrypoint-initdb.d/
-      - mysql-datavolume:/var/lib/mysql
-  php:
-    image: usdotfhwaops/php:${OPS_TAG:-develop}
-    container_name: php
-    network_mode: host
-    depends_on:
-      - v2xhub
-    stdin_open: true
-    tty: true
-
-  v2xhub:
-    image: usdotfhwaops/v2xhub:${OPS_TAG:-develop}
-    container_name: v2xhub
-    network_mode: host
-    restart: always
-    depends_on:
-      - db
-    environment:
-      - MYSQL_PASSWORD=/run/secrets/mysql_password
-      - SIMULATION_MODE=FALSE
-      - SIMULATION_IP=127.0.0.1
-      - SIMULATION_REGISTRATION_PORT=1615
-      - LOCAL_IP=127.0.0.1
-      - TIME_SYNC_TOPIC=time_sync
-      - TIME_SYNC_PORT=7575
-      - SIM_V2X_PORT=5757
-      - V2X_PORT=8686
-      - INFRASTRUCTURE_ID=rsu_123
-      - KAFKA_BROKER_ADDRESS=127.0.0.1:9092
-    secrets:
-      - mysql_password
-    volumes:
-      - ./logs:/var/log/tmx
-      - ./MAP:/var/www/plugins/MAP
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro    
   scheduling_service:
     image: ${STOL_ORG:-usdotfhwastoldev}/scheduling_service:${STOL_TAG:-develop}
     command: sh -c "/wait && /home/carma-streets/scheduling_service/build/scheduling_service"
@@ -133,12 +85,6 @@ services:
         condition: service_started
       message_services: 
         condition: service_started
-    environment:
-      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
-      WAIT_HOSTS: localhost:8080
-      WAIT_HOSTS_TIMEOUT: 300
-      WAIT_SLEEP_INTERVAL: 30
-      WAIT_HOST_CONNECT_TIMEOUT: 30
     volumes: 
       - ./scheduling_service/manifest.json:/home/carma-streets/scheduling_service/manifest.json
       - ./scheduling_service/logs/:/home/carma-streets/scheduling_service/logs/
@@ -158,7 +104,7 @@ services:
       kafka:
         condition: service_healthy  
     environment:
-      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
     volumes: 
       - ./message_services/manifest.json:/home/carma-streets/message_services/manifest.json
       - ./MAP/:/home/carma-streets/message_services/MAP/
@@ -178,7 +124,8 @@ services:
       kafka:
         condition: service_healthy  
     environment:
-      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
+      DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
+
     volumes: 
       - ./intersection_model/manifest.json:/home/carma-streets/intersection_model/manifest.json
       - ./MAP/:/home/carma-streets/intersection_model/MAP/
@@ -206,12 +153,6 @@ services:
         condition: service_started
       tsc_service:
         condition: service_started   
-    environment:
-      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
-      WAIT_HOSTS: localhost:8080
-      WAIT_HOSTS_TIMEOUT: 300
-      WAIT_SLEEP_INTERVAL: 30
-      WAIT_HOST_CONNECT_TIMEOUT: 30
     volumes: 
       - ./signal_opt_service/manifest.json:/home/carma-streets/signal_opt_service/manifest.json
       - ./signal_opt_service/logs/:/home/carma-streets/signal_opt_service/logs/
@@ -233,12 +174,8 @@ services:
       intersection_model:
         condition: service_started
     environment:
-      DOCKER_HOST_IP:  ${DOCKER_HOST_IP}
-      WAIT_HOSTS: localhost:8080
-      WAIT_HOSTS_TIMEOUT: 300
-      WAIT_SLEEP_INTERVAL: 30
-      WAIT_HOST_CONNECT_TIMEOUT: 30
-      SIMULATION_MODE: FALSE
+      DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
+      SIMULATION_MODE: ${SIMULATION_MODE:-FALSE}
       CONFIG_FILE_PATH: ../manifest.json
       TIME_SYNC_TOPIC: time_sync
       LOGS_DIRECTORY: /home/carma-streets/tsc_client_service/logs/
@@ -260,13 +197,15 @@ services:
       kafka:
         condition: service_healthy  
     environment:
-      SIMULATION_MODE: FALSE
+      SIMULATION_MODE: ${SIMULATION_MODE:-FALSE}
       CONFIG_FILE_PATH: /home/carma-streets/sensor_data_sharing_service/manifest.json
       TIME_SYNC_TOPIC: time_sync
-      LOGS_DIRECTORY: /home/carma-streets/sensor_data_sharing_service/logs/
-      LANELET2_MAP: /home/carma-streets/MAP/Intersection.osm
-      INFRASTRUCTURE_ID: "rsu_123"
-      SENSOR_JSON_FILE_PATH: /home/carma-streets/sensor_configurations/sensors.json
+      LOGS_DIRECTORY: home/carma-streets/sensor_data_sharing_service/logs/
+      LANELET2_MAP: ${LANELET2_MAP:-/home/carma-streets/intersection_model/MAP/lanelet2_map.osm}
+      INFRASTRUCTURE_ID: ${INFRASTRUCTURE_ID:-rsu_1234}
+      INFRASTRUCTURE_NAME: ${INFRASTRUCTURE_NAME:-East Intersection}
+      INFRASTRUCTURE_IP: ${INFRASTRUCTURE_IP:-127.0.0}
+      SENSOR_JSON_FILE_PATH: ${SENSOR_JSON_FILE_PATH:-/home/carma-streets/sensor_configurations/sensors.json}
 
     volumes: 
       - ./sensor_data_sharing_service/manifest.json:/home/carma-streets/sensor_data_sharing_service/manifest.json
@@ -275,12 +214,6 @@ services:
       - ./sensor_configurations/:/home/carma-streets/sensor_configurations/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-secrets:
-    mysql_password:
-        file: ./secrets/mysql_password.txt
-    mysql_root_password:
-        file: ./secrets/mysql_root_password.txt
 volumes:
-    mysql-datavolume:
     kafka-datavolume:
     zookeeper-datavolume:
