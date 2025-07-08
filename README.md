@@ -28,33 +28,53 @@ Docker is the primary deployment mechanism to containerize one or more services.
 
 To deploy CARMA Streets we currently use Docker Compose, which is a container orchestration tool for defining and running multi-container appilcations. For instruction on installing Docker Compose please refer to their [installation guide](https://docs.docker.com/compose/install/).
 
-### Install Images
-To download and install all relevant images simply use the Docker Compose CLI. The `pull` command below will pull all images defined in the docker compose file by default but can also be provided a list of services from the `docker-compose.yml` file to pull a subset.
+### Initialization Script
 
-```
-docker compose pull <optionally specify service names>
-```
+For those less familiar with Docker, Docker Compose and their CLIs (Command Line Interfaces) we have provided a script, which does the following:
+- Install V2X Hub
+  - Setup V2X Hub Docker Environment
+  - Pull V2X Hub Docker Images
+- Install CARMA Streets
+  - Setup CARMA Streets Docker Environment
+  - Pull CARMA Streets Docker Images
+- Deploy CARMA Streets
+  - Add V2X Hub Admin Portal user
+  - Run Docker Compose 
 
-### Run CARMA Streets
-After pulling the images, simply use the `up` command to run all or a selected subset of services.
+Simply run `./initialization.sh` and answer the prompts to deploy CARMA Streets.
 
-```
-docker compose up -d <optionally specify service names>
-```
-THe `-d` parameter allows you to run the containers in `detached mode`. This will run the containers in the background and not pipe the container output to the terminal.
+> [!NOTE]  
+> While this script is the preferred method for deploying CARMA Streets, especially from scratch, for those more experience with Docker, Docker Compose, V2X Hub and CARMA Streets, CARMA Streets can also be deployed directly using the Docker Compose CLI.
 
-### V2X Hub
+
+#### V2X Hub
 Included as part of the CARMA Streets deployment is V2X Hub. V2X Hub is the hardware interface to an RSU (Road Side Unit) and enables CARMA Streets to have V2X (Vehicle to Everything) communication via the J2735 Message Set and CV2X radio communication. Once running V2X Hub needs to be configured to do the following in order for CARMA Streets to have V2X communication cababilites:
 - Connect to RSU
 - Connect to CARMA Streets
 For information V2X Hub including configuration information please visit [V2X Hub GitHub Repository](https://github.com/usdot-fhwa-OPS/V2X-Hub/blob/develop/README.md)
 
-### Version Control
-By default our Docker Compose deployment configuration will pull down develop images for both V2X Hub and CARMA Streets. To configure Docker Compose deployment, use the `streets.env` file and modify variables defined there. This `streets.env` file defines variables referenced in the `docker-compose.yml` deployment file and can either be passed to Docker compose commands via the `docker compose --env-file=streets.env` parameter or can be renamed to `.env` which docker compose will use by default. Below is a list of variables currently defined in this file and their functionality
+#### Docker Environment
 
-**DOCKER_HOST_IP**: The IP of the device hosting the containers (default: 127.0.0.1)
+CARMA Streets Docker Compose deployment heavily relies on (Docker Compose Environment Variables)[https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/]. We use these for the following:
+- Setting Software Version
+- Setting functionality to deploy
+- Setting Deployment Specific Configurations
+
+
+##### Setting Software Version
+
+By default our Docker Compose deployment configuration will pull down develop images for both V2X Hub and CARMA Streets. The `initialization.sh` script will prompted the user to select a version of CARMA Streets to Deploy, which will override the default value by creating and populating a `.env` file, used by Docker Compose. To modify this value either edit the `.env` file directly or run the script. Below is a list of version specific environment variables and descriptions:
+
 **OPS_TAG**: The version of V2X Hub to deploy (default: develop)
 **STOL_ORG** & **STOL_TAG** : The version of CARMA Streets to deploy (default: usdotfhwastoldev/<image_name>:develop). To use a release update `STOL_ORG=usdotfhwastol` and `STOL_TAG=<release-version>`.
+
+##### Setting Functionality to Deploy
+
+TODO
+
+##### Setting Deployment Specific Configurations
+
+TODO
 
 ## Development
 This repository includes configurations for [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) VSCode extension. This extension allows us to standup a containerized development environment. More information about the CARMA Streets Dev Container Setup can be found [here](.devcontainer/README.md).
