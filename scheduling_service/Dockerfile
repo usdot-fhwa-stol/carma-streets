@@ -3,6 +3,7 @@ ARG STOL_ORG=usdotfhwastoldev
 
 FROM $STOL_ORG/streets_service_base:$UBUNTU_VERSION
 
+RUN apt install libssl-dev qtbase5-dev
 
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
