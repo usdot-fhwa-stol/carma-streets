@@ -3,6 +3,8 @@ ARG STOL_ORG=usdotfhwastoldev
 
 FROM $STOL_ORG/streets_service_base:$UBUNTU_VERSION
 
+SHELL ["/bin/bash", "-c"]
+RUN apt install -y libssl-dev qtbase5-dev
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
@@ -118,10 +120,5 @@ LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/
 LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets"
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
-
-# Add docker-compose-wait tool -------------------
-ENV WAIT_VERSION 2.7.2
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
-RUN chmod +x /wait
 
 CMD ["/home/carma-streets/signal_opt_service/build/signal_opt_service"]
