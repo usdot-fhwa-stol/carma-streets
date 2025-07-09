@@ -2,7 +2,8 @@ ARG UBUNTU_VERSION=jammy
 ARG STOL_ORG=usdotfhwastoldev
 
 FROM $STOL_ORG/streets_service_base:$UBUNTU_VERSION
-
+# Set bash as the default shell for subsequent RUN commands
+SHELL ["/bin/bash", "-c"]
 RUN apt install libssl-dev qtbase5-dev
 
 # Install kafka-clients
