@@ -70,11 +70,22 @@ By default our Docker Compose deployment configuration will pull down develop im
 
 ##### Setting Functionality to Deploy
 
-TODO
+CARMA Streets consists of a set of microservices, each responsible for executing a specific function that may be linked to one or more use cases CARMA Streets supports. To allow configuration of what use case functionality is deployed we use [DOcker Compose Profiles](https://docs.docker.com/compose/how-tos/profiles/) to set in our `.env` (variable name **COMPOSE_PROFILES**) a list of functionality to deploy. These profiles control, which microservices will be deployed. Below is a table containing the profiles, the services required for the profile and the use case functionality it supports. This relationship can also be inspected in the `docker-compose.yml` file. Any services that do not include a profile are always deployed as they are required for any CARMA Streets functionality. Lastly there is an additional profile called **debug**, which will launch additional tools for debugging functionality, not intended for real-world deployment.
 
+| Profile    | Services | Use Cases |
+| -------- | ------- | ------- |
+| cooperative_perception | sensor_data_sharing_service | Cooperative Perception |
+| vehicle_scheduling | message_service, intersection_model, scheduling_service | Vehicle Scheduling Through Stop Controlled Intersection |
+| signal_optimization    |  message_service, intersection_model, scheduling_service, signal_opt_service  | Signal Optimization for Traffic Signal Controlled Intersection   |
 ##### Setting Deployment Specific Configurations
 
-TODO
+In addition to version and functionality, we use [Docker Environment Variables](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/) to set deployment specific configurations. Below is a table listing the current deployment specific variables supported, their default values and descriptions.
+
+| Docker Environment Variable | Default Value | Description |
+| -------- | ------- | ------- |
+| INFRASTRUCTURE_ID | rsu_1234 | Unique numeric 4 digit identifier with rsu prefix used to identify origin of some V2X messages like SDSM |
+| INFRASTRUCTURE_NAME | East Intersection | Unique string optional identifier used in some V2X messages to identify origin like SPAT |
+| SIMULATION_MODE   |  False | Boolean flag to identify whether CARMA Streets is deployed in a simulation environment (True if deployed in simulation) |
 
 ## Development
 This repository includes configurations for [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) VSCode extension. This extension allows us to standup a containerized development environment. More information about the CARMA Streets Dev Container Setup can be found [here](.devcontainer/README.md).
