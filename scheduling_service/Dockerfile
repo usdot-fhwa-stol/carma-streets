@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=jammy
 ARG STOL_ORG=usdotfhwastoldev
 
-FROM $STOL_ORG:$UBUNTU_VERSION
+FROM $STOL_ORG/streets_service_base:$UBUNTU_VERSION
 
 
 # Install kafka-clients
