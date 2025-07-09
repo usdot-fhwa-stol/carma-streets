@@ -76,6 +76,12 @@ services:
       dockerfile: scheduling_service/Dockerfile
     container_name: scheduling_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
@@ -98,6 +104,12 @@ services:
       dockerfile: message_services/Dockerfile
     container_name: message_services
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     profiles : ["vehicle_scheduling", "signal_optimization"]
     depends_on:
@@ -118,6 +130,12 @@ services:
       dockerfile: intersection_model/Dockerfile
     container_name: intersection_model
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
@@ -140,6 +158,12 @@ services:
       dockerfile: signal_opt_service/Dockerfile
     container_name: signal_opt_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     profiles: ["signal_optimization"]
     depends_on:
@@ -166,6 +190,12 @@ services:
       dockerfile: tsc_client_service/Dockerfile
     container_name: tsc_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     profiles: ["signal_optimization", "vehicle_scheduling"]
     depends_on:
@@ -191,6 +221,12 @@ services:
       dockerfile: sensor_data_sharing_service/Dockerfile
     container_name: sensor_data_sharing_service
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
     network_mode: host
     profiles : ["cooperative_perception"]
     depends_on:
