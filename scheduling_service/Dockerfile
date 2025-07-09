@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=jammy
-ARG STOL_ORG=usdotfhwastoldev
+ARG DOCKER_ORG=usdot-fhwa-stol
 
-FROM $STOL_ORG/streets_service_base:$UBUNTU_VERSION
+FROM $DOCKER_ORG/streets_service_base:$UBUNTU_VERSION
 # Set bash as the default shell for subsequent RUN commands
 SHELL ["/bin/bash", "-c"]
 RUN apt install -y libssl-dev qtbase5-dev
@@ -114,10 +114,5 @@ LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/
 LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets"
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
-
-# Add docker-compose-wait tool -------------------
-ENV WAIT_VERSION 2.7.2
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
-RUN chmod +x /wait
 
 CMD ["/home/carma-streets/scheduling_service/build/scheduling_service"]
