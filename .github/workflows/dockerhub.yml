@@ -27,6 +27,15 @@ jobs:
       runner: ubuntu-latest-16-cores
       file: message_services/Dockerfile
       image_name: message_services
+  tsc_client_service:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      runner: ubuntu-latest-16-cores
+      file: tsc_client_service/Dockerfile
+      image_name: tsc_service
   scheduling_service:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:

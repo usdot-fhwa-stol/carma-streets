@@ -19,3 +19,11 @@ jobs:
     uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@main
     with:
         file: signal_opt_service/Dockerfile
+  sensor_data_sharing_service:
+    uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@main
+    with:
+        file: sensor_data_sharing_service/Dockerfile
+  tsc_client_service:
+    uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@main
+    with:
+        file: tsc_client_service/Dockerfile
