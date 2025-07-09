@@ -241,13 +241,13 @@ services:
       INFRASTRUCTURE_ID: ${INFRASTRUCTURE_ID:-rsu_1234}
       INFRASTRUCTURE_NAME: ${INFRASTRUCTURE_NAME:-East Intersection}
       INFRASTRUCTURE_IP: ${INFRASTRUCTURE_IP:-127.0.0}
-      SENSOR_JSON_FILE_PATH: ${SENSOR_JSON_FILE_PATH:-/home/carma-streets/sensor_configurations/sensors.json}
+      SENSOR_JSON_FILE_PATH: home/carma-streets/sensor_configurations/sensors.json
 
     volumes: 
       - ./sensor_data_sharing_service/manifest.json:/home/carma-streets/sensor_data_sharing_service/manifest.json
       - ./sensor_data_sharing_service/logs/:/home/carma-streets/sensor_data_sharing_service/logs/
       - ./MAP/:/home/carma-streets/intersection_model/MAP/
-      - ./sensor_configurations/:/home/carma-streets/sensor_configurations/
+      - ${SENSOR_JSON_DIR-./sensor_configurations/}:/home/carma-streets/sensor_configurations/
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 volumes:

@@ -38,7 +38,13 @@ CARMA_STREETS_COMPOSE_PROFILES_DEFAULT="cooperative_perception,debug"
 INFRASTRUCTURE_ID_DEFAULT="rsu_1234"
 INFRASTRUCTURE_NAME_DEFAULT="East Intersection"
 INFRASTRUCTURE_IP_DEFAULT="127.0.0.1"
+SENSOR_JSON_DIR_DEFAULT="./sensor_configuration"
+SIMULATION_MODE_DEFAULT="FALSE"
+CARMA_STREETS_VERSION="develop"
+CARMA_STREETS_VERSION_TYPE="develop"
+CARMA_STREETS_ORG="usdotfhwastoldev"
 reconfigure_choice="N"
+
 
 ## Check for existing .env file
 if [ -f .env ]; then
@@ -54,31 +60,47 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
 
     echo "Setting up the environment..."
 
-    # Repository URL
-    repo_url_latest="https://api.github.com/repos/usdot-fhwa-stol/carma-streets/releases/latest"
+    # Prompt user whether they want to deploy a release,release candidate or development version of CARMA Streets
+    read -r -p "Do you want to deploy a release, release candidate or development version of CARMA Streets? (release/release_candidate/development, or press Enter to use default as release): " CARMA_STREETS_VERSION_TYPE
+    CARMA_STREETS_VERSION_TYPE=${CARMA_STREETS_VERSION_TYPE:-release}
+    echo "Selected CARMA Streets Version Type: $CARMA_STREETS_VERSION_TYPE"
+    if [[ "$CARMA_STREETS_VERSION_TYPE" == "release" ]]; then
+        # Repository URL
+        repo_url_latest="https://api.github.com/repos/usdot-fhwa-stol/carma-streets/releases/latest"
 
-    # Getting the latest release information using curl
-    release_info=$(curl -sSL $repo_url_latest)
+        # Getting the latest release information using curl
+        release_info=$(curl -sSL $repo_url_latest)
 
-    # Parsing the JSON response to get the tag_name (version) of the latest release
-    latest_version=$(echo "$release_info" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+        # Parsing the JSON response to get the tag_name (version) of the latest release
+        latest_version=$(echo "$release_info" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
 
-    # Fetching all tags from Git repository
-    tags=$(git ls-remote --tags https://github.com/usdot-fhwa-stol/carma-streets.git | awk -F/ '{print $3}' | sort -V)
+        # Fetching all tags from Git repository
+        tags=$(git ls-remote --tags https://github.com/usdot-fhwa-stol/carma-streets.git | awk -F/ '{print $3}' | sort -V)
 
-    # Remove curly braces, Properties found, duplicate entries, and show only versions above 7.0
-    updated_tags=$(echo "$tags" | sed 's/\^{}//;s/^v//' | grep -v '^Properties_Found$' | awk '!seen[$0]++ && $1 >= "7.0"')
-    # Add develop
-    updated_tags+=$'\n'"develop"
-    # Displaying all available versions
-    echo "Available versions:"
-    echo "$updated_tags"
+        # Remove curly braces, Properties found, duplicate entries, and show only versions above 7.0
+        updated_tags=$(echo "$tags" | sed 's/\^{}//;s/^v//' | grep -v '^Properties_Found$' | awk '!seen[$0]++ && $1 >= "7.0"')
+        # Displaying all available versions
+        echo "Available versions:"
+        echo "$updated_tags"
 
-    # select a version or accept the latest version as default
-    read -r -p "Enter CARMA Streets Version (choose from the above, or press Enter to use the latest version $latest_version): " chosen_version
-    CARMA_STREETS_VERSION=${chosen_version:-$latest_version}
-    echo "Selected CARMA Streets Version: $CARMA_STREETS_VERSION"
-
+        # select a version or accept the latest version as default
+        read -r -p "Enter CARMA Streets Version (choose from the above, or press Enter to use the latest version $latest_version): " chosen_version
+        CARMA_STREETS_VERSION=${chosen_version:-$latest_version}
+        CARMA_STREETS_ORG="usdotfhwastol"
+    elif [[ "$CARMA_STREETS_VERSION_TYPE" == "release_candidate" ]]; then
+        echo "Retrieving available Release Candidates':"
+        RELEASE_CANDIDATES= git branch -r | grep 'origin/release/' | sed 's|origin/release/||'
+        echo "Available Release Candidates:"
+        echo "$RELEASE_CANDIDATES"
+        # select a version or accept the latest version as default
+        read -r -p "Enter CARMA Streets Release Candidate Version (choose from the above): " chosen_version
+        CARMA_STREETS_VERSION=${chosen_version}
+        CARMA_STREETS_ORG="usdotfhwastolcandidate"
+    else
+        echo "Seeting CARMA Streets Version to develop ..."
+        CARMA_STREETS_VERSION="develop"
+        CARMA_STREETS_ORG="usdotfhwastoldev"
+    fi
     read -r -p "Install V2X Hub (TRUE/FALSE, or press Enter to use default as $INSTALL_V2XHUB): " INSTALL_V2XHUB
     echo "Install V2X Hub: $INSTALL_V2XHUB"
 
@@ -123,8 +145,8 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     SIMULATION_MODE=${SIMULATION_MODE:-$SIMULATION_MODE_DEFAULT}
 
     # Sensor Configuration File Path
-    read -r -p "Enter Sensor Configuration File Path (or press Enter to use default as $SENSOR_JSON_FILE_PATH_DEFAULT): " SENSOR_JSON_FILE_PATH
-    SENSOR_JSON_FILE_PATH=${SENSOR_JSON_FILE_PATH:-$SENSOR_JSON_FILE_PATH_DEFAULT}
+    read -r -p "Enter Sensor Configuration Directory Path (or press Enter to use default as $SENSOR_JSON_DIR_DEFAULT): " SENSOR_JSON_DIR
+    SENSOR_JSON_DIR=${SENSOR_JSON_DIR:-$SENSOR_JSON_DIR_DEFAULT}
 
     # Available CARMA Streets Profiles
     echo "Avaible CARMA Streets Profiles:"
@@ -138,14 +160,14 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
 
     # Write to .env file
     cat <<EOF > .env
-    INFRASTRUCTURE_ID=$INFRASTRUCTURE_ID
-    INFRASTRUCTURE_NAME=$INFRASTRUCTURE_NAME
-    INFRASTRUCTURE_IP=$INFRASTRUCTURE_IP
-    SENSOR_JSON_FILE_PATH=$SENSOR_JSON_FILE_PATH
-    COMPOSE_PROFILES=$CARMA_STREETS_COMPOSE_PROFILES
+    INFRASTRUCTURE_ID="$INFRASTRUCTURE_ID"
+    INFRASTRUCTURE_NAME="$INFRASTRUCTURE_NAME"
+    INFRASTRUCTURE_IP="$INFRASTRUCTURE_IP"
+    SENSOR_JSON_DIR="$SENSOR_JSON_DIR"
+    COMPOSE_PROFILES="$CARMA_STREETS_COMPOSE_PROFILES"
     SIMULATION_MODE=$SIMULATION_MODE
-    STOL_ORG=usdotfhwastoldev
-    STOL_TAG=$CARMA_STREETS_VERSION
+    STOL_ORG="$CARMA_STREETS_ORG"
+    STOL_TAG="$CARMA_STREETS_VERSION"
 EOF
     echo ".env file created successfully."
 
