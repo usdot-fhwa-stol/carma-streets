@@ -1,5 +1,5 @@
 ARG UBUNTU_VERSION=jammy
-ARG DOCKER_ORG=usdot-fhwa-stol
+ARG DOCKER_ORG=usdotfhwastoldev
 
 FROM $DOCKER_ORG/streets_service_base:$UBUNTU_VERSION
 # Set bash as the default shell for subsequent RUN commands
