@@ -93,7 +93,7 @@ def main():
     parser.add_argument('--topics', type=str, nargs='+', help='list of topics to grab data from')
     parser.add_argument('--timeout', type=float, help='timeout for receiving messages on a topic, default is 5 seconds')
     parser.add_argument('--zip', type=bool,help='bool flag. When set to true, folder is compressed into a zip file.', default=False)
-    parser.add_argument('--container_names', type=str, nargs='+', help='list of kafka containers to grab data from', default='kafka')
+    parser.add_argument('--container_names', type=str, nargs='+', help='list of kafka containers to grab data from', default=['kafka'])
     args = parser.parse_args()
     # Correct and validate outfile name
     if args.outdir[-4:] == '.zip':

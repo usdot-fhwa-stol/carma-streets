@@ -38,7 +38,7 @@ CARMA_STREETS_COMPOSE_PROFILES_DEFAULT="cooperative_perception,debug"
 INFRASTRUCTURE_ID_DEFAULT="rsu_1234"
 INFRASTRUCTURE_NAME_DEFAULT="East Intersection"
 INFRASTRUCTURE_IP_DEFAULT="127.0.0.1"
-SENSOR_JSON_DIR_DEFAULT="./sensor_configuration"
+SENSOR_JSON_DIR_DEFAULT="./sensor_configurations"
 SIMULATION_MODE_DEFAULT="FALSE"
 CARMA_STREETS_VERSION="develop"
 CARMA_STREETS_VERSION_TYPE="develop"
@@ -101,10 +101,11 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
         CARMA_STREETS_VERSION="develop"
         CARMA_STREETS_ORG="usdotfhwastoldev"
     fi
-    read -r -p "Install V2X Hub (TRUE/FALSE, or press Enter to use default as $INSTALL_V2XHUB): " INSTALL_V2XHUB
+    read -r -p "Install V2X Hub (Y/N, or press Enter to use default as Y): " INSTALL_V2XHUB
+    INSTALL_V2XHUB=${INSTALL_V2XHUB:-Y}
     echo "Install V2X Hub: $INSTALL_V2XHUB"
 
-    if [[ "$INSTALL_V2XHUB" == "TRUE" ]]; then
+    if [[ "$INSTALL_V2XHUB" =~ [yY](es)*  ]]; then
         # clone the V2X Hub repository
         cd ..
         if [ -d "V2X-Hub" ]; then
@@ -150,12 +151,14 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
 
     # Available CARMA Streets Profiles
     echo "Avaible CARMA Streets Profiles:"
+    # Convert the string to an array by splitting on commas
+    IFS=',' read -r -a profiles_array <<< "$CARMA_STREETS_COMPOSE_PROFILES_AVAILABLE"
     # Loop through the string, which will now be split by commas
-    for item in $CARMA_STREETS_COMPOSE_PROFILES_AVAILABLE; do
-    echo "Profile: $item"
+    for item in "${profiles_array[@]}"; do
+        echo "$item"
     done
 
-    read -r -p "Enter comma separated list of Profiles to activate IP (or press Enter to use default as $CARMA_STREETS_COMPOSE_PROFILES_DEFAULT): " CARMA_STREETS_COMPOSE_PROFILES
+    read -r -p "Enter comma separated list of Profiles to activate: (or press Enter to use default as $CARMA_STREETS_COMPOSE_PROFILES_DEFAULT): " CARMA_STREETS_COMPOSE_PROFILES
     CARMA_STREETS_COMPOSE_PROFILES=${CARMA_STREETS_COMPOSE_PROFILES:-$CARMA_STREETS_COMPOSE_PROFILES_DEFAULT}
 
     # Write to .env file
@@ -175,17 +178,17 @@ fi
 # Load environment variables from .env file whether it was created or already exists
 source .env
 
-# If COMPOSE_PROFILES includes cooperative_perception, check if sensor_configuration/sensor.json exists
+# If COMPOSE_PROFILES includes cooperative_perception, check if sensor_configurations/sensors.json exists
 echo "Active Compose Profiles: $COMPOSE_PROFILES"
 if [[ "$COMPOSE_PROFILES" == *"cooperative_perception"* ]]; then
-    if [ ! -f "sensor_configuration/sensor.json" ]; then
-        echo "sensor_configuration/sensor.json file does not exist. Cooperative Perception requires a sensor configuration file. Creating Sensor Configuration file..."
+    if [ ! -f "sensor_configurations/sensors.json" ]; then
+        echo "sensor_configurations/sensors.json file does not exist. Cooperative Perception requires a sensor configuration file. Creating Sensor Configuration file..."
         # Check if jq is installed
         if ! command -v jq &> /dev/null; then
             echo "jq is not installed. Installing jq to create sensor configuration json ..."
             sudo apt-get update && sudo apt-get install -y jq
         fi        
-        mkdir -p sensor_configuration
+        mkdir -p sensor_configurations
 
         read -p "Enter Latitude (WGS84, e.g., 40.7128): " LATITUDE
         while ! validate_coordinate "$LATITUDE" "latitude"; do
@@ -222,11 +225,11 @@ if [[ "$COMPOSE_PROFILES" == *"cooperative_perception"* ]]; then
                     }
                 } 
                 ]')
-        # Write JSON to sensor.json
-        echo "$JSON_OUTPUT" > sensor_configuration/sensor.json
-        echo "Sensor configuration file created successfully at sensor_configuration/sensor.json"
+        # Write JSON to sensors.json
+        echo "$JSON_OUTPUT" > sensor_configurations/sensors.json
+        echo "Sensor configuration file created successfully at sensor_configurations/sensor.json"
     else
-        echo "sensor_configuration/sensor.json file exists."
+        echo "sensor_configurations/sensors.json file exists."
     fi
 fi
 docker compose pull
@@ -238,12 +241,15 @@ if [[ "$deploy_choice" =~ [yY](es)* ]]; then
     echo "Deploying CARMA Streets with active profiles..."
     docker compose up -d
     echo "CARMA Streets deployed successfully with active profiles: $COMPOSE_PROFILES"
-    if [[ "$INSTALL_V2XHUB" == "TRUE" ]]; then
-    cd V2X-Hub/configuration/
-    echo "Adding V2X Hub user ..."
-    ./add_v2x_hub_user.sh
-    echo "V2X Hub user added successfully."
-fi
+    # Prompt user to ask if they want to add V2X Hub user (yes/no)
+    read -r -p "Do you want to add a V2X Hub user? (Y/N, or press Enter to use default as Y): " add_v2x_hub_user
+    add_v2x_hub_user=${add_v2x_hub_user:-Y}
+    if [[ "$add_v2x_hub_user" =~ [yY](es)* ]]; then
+        cd ../V2X-Hub/configuration/
+        echo "Adding V2X Hub user ..."
+        ./add_v2xhub_user.sh
+        echo "V2X Hub user added successfully."
+    fi
 
 else
     echo "Skipping CARMA Streets deployment."

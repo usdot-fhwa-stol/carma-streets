@@ -236,12 +236,12 @@ services:
       SIMULATION_MODE: ${SIMULATION_MODE:-FALSE}
       CONFIG_FILE_PATH: /home/carma-streets/sensor_data_sharing_service/manifest.json
       TIME_SYNC_TOPIC: time_sync
-      LOGS_DIRECTORY: home/carma-streets/sensor_data_sharing_service/logs/
+      LOGS_DIRECTORY: /home/carma-streets/sensor_data_sharing_service/logs/
       LANELET2_MAP: ${LANELET2_MAP:-/home/carma-streets/intersection_model/MAP/lanelet2_map.osm}
       INFRASTRUCTURE_ID: ${INFRASTRUCTURE_ID:-rsu_1234}
       INFRASTRUCTURE_NAME: ${INFRASTRUCTURE_NAME:-East Intersection}
       INFRASTRUCTURE_IP: ${INFRASTRUCTURE_IP:-127.0.0}
-      SENSOR_JSON_FILE_PATH: home/carma-streets/sensor_configurations/sensors.json
+      SENSOR_JSON_FILE_PATH: /home/carma-streets/sensor_configurations/sensors.json
 
     volumes: 
       - ./sensor_data_sharing_service/manifest.json:/home/carma-streets/sensor_data_sharing_service/manifest.json
