@@ -1,33 +1,10 @@
-ARG UBUNTU_VERSION=jammy-20230126
+ARG UBUNTU_VERSION=jammy
+ARG DOCKER_ORG=usdotfhwastoldev
 
-FROM ubuntu:$UBUNTU_VERSION
-
-COPY ./build_scripts /home/carma-streets/build_scripts
-WORKDIR /home/carma-streets/build_scripts
-RUN ./install_dependencies.sh
-
-RUN mkdir -p /home/carma-streets/
-
-
-# Install librdkafka
-RUN echo " ------> Install librdkafka..."
-WORKDIR /home/carma-streets/ext
-RUN git clone https://github.com/confluentinc/librdkafka.git -b v2.2.0
-WORKDIR /home/carma-streets/ext/librdkafka/
-RUN cmake -H. -B_cmake_build
-RUN cmake --build _cmake_build
-RUN cmake --build _cmake_build --target install
-
-# Install rapidjson
-RUN echo " ------> Install rapidjson..."
-WORKDIR /home/carma-streets/ext
-RUN git clone  https://github.com/Tencent/rapidjson
-WORKDIR /home/carma-streets/ext/rapidjson/
-RUN git checkout a95e013b97ca6523f32da23f5095fcc9dd6067e5
-RUN mkdir build
-WORKDIR /home/carma-streets/ext/rapidjson/build
-RUN cmake .. && make -j
-RUN make install
+FROM $DOCKER_ORG/streets_service_base:$UBUNTU_VERSION
+# Set bash as the default shell for subsequent RUN commands
+SHELL ["/bin/bash", "-c"]
+RUN apt install -y libssl-dev qtbase5-dev
 
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
@@ -137,10 +114,5 @@ LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/
 LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets"
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
-
-# Add docker-compose-wait tool -------------------
-ENV WAIT_VERSION 2.7.2
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
-RUN chmod +x /wait
 
 CMD ["/home/carma-streets/scheduling_service/build/scheduling_service"]
