@@ -89,7 +89,7 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
         CARMA_STREETS_ORG="usdotfhwastol"
     elif [[ "$CARMA_STREETS_VERSION_TYPE" == "release_candidate" ]]; then
         echo "Retrieving available Release Candidates':"
-        RELEASE_CANDIDATES= git branch -r | grep 'origin/release/' | sed 's|origin/release/||'
+        RELEASE_CANDIDATES=git branch -r | grep 'origin/release/' | sed 's|origin/release/||'
         echo "Available Release Candidates:"
         echo "$RELEASE_CANDIDATES"
         # select a version or accept the latest version as default
@@ -110,13 +110,13 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
         cd ..
         if [ -d "V2X-Hub" ]; then
             echo "V2X Hub directory already exists. Skipping cloning."
-            cd V2X-Hub/configuration/
         else
             echo "Cloning V2X Hub repository on path $(pwd)..."
             git clone https://github.com/usdot-fhwa-OPS/V2X-Hub.git
         fi
         
-        cd V2X-Hub/configuration/
+        cd V2X-Hub/configuration/ || exit
+
         # Initialize V2X Hub Docker environment
         echo "Initializing V2X Hub Docker environment..."
         ./initialize_docker_environment.sh
@@ -125,7 +125,7 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
         echo "Pulling V2X Hub Docker images..."
         docker compose pull
         echo "V2X Hub Docker images pulled successfully."
-        cd ../../carma-streets/
+        cd ../../carma-streets/ || exit
         echo "V2X Hub installed and deployed successfully."
     else
         echo "Skipping V2X Hub installation. NOTE: To interface with an RSU or CDASim, V2X Hub is required!"
@@ -139,7 +139,7 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     INFRASTRUCTURE_NAME=${INFRASTRUCTURE_NAME:-$INFRASTRUCTURE_NAME_DEFAULT}
 
     # INFRASTRUCTURE IP
-    read -r -p "Enter INFRASTRUCTURE IP (or press Enter to use default as $INFRASTRUCTURE_IP_DEFAULT): " V2XHUB_IP
+    read -r -p "Enter INFRASTRUCTURE IP (or press Enter to use default as $INFRASTRUCTURE_IP_DEFAULT): " INFRASTRUCTURE_IP
     INFRASTRUCTURE_IP=${INFRASTRUCTURE_IP:-$INFRASTRUCTURE_IP_DEFAULT}
 
     read -r -p "Simulation Mode (TRUE/FALSE, or press Enter to use default as $SIMULATION_MODE_DEFAULT): " SIMULATION_MODE
@@ -227,7 +227,7 @@ if [[ "$COMPOSE_PROFILES" == *"cooperative_perception"* ]]; then
                 ]')
         # Write JSON to sensors.json
         echo "$JSON_OUTPUT" > sensor_configurations/sensors.json
-        echo "Sensor configuration file created successfully at sensor_configurations/sensor.json"
+        echo "Sensor configuration file created successfully at sensor_configurations/sensors.json"
     else
         echo "sensor_configurations/sensors.json file exists."
     fi
@@ -245,7 +245,7 @@ if [[ "$deploy_choice" =~ [yY](es)* ]]; then
     read -r -p "Do you want to add a V2X Hub user? (Y/N, or press Enter to use default as Y): " add_v2x_hub_user
     add_v2x_hub_user=${add_v2x_hub_user:-Y}
     if [[ "$add_v2x_hub_user" =~ [yY](es)* ]]; then
-        cd ../V2X-Hub/configuration/
+        cd ../V2X-Hub/configuration/ || exit
         echo "Adding V2X Hub user ..."
         ./add_v2xhub_user.sh
         echo "V2X Hub user added successfully."
