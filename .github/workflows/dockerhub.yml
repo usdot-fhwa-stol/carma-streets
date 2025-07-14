@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - develop
-      - fix_ci_builds
       - master
       - "release/*"
     tags:
@@ -11,7 +10,7 @@ on:
 
 jobs:
   build_base_jammy:
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -25,7 +24,7 @@ jobs:
         UBUNTU_VERSION=jammy
 
   build_base_focal:
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -40,7 +39,7 @@ jobs:
 
   intersection_model:
     needs: [build_base_jammy, build_base_focal]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -50,7 +49,7 @@ jobs:
       image_name: intersection_model
   message_services:
     needs: [build_base_jammy, build_base_focal]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -60,7 +59,7 @@ jobs:
       image_name: message_services
   tsc_client_service:
     needs: [build_base_jammy, build_base_focal]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -73,7 +72,7 @@ jobs:
 
   scheduling_service:
     needs: [build_base_jammy, build_base_focal]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -86,7 +85,7 @@ jobs:
 
   signal_opt_service:
     needs: [build_base_jammy, build_base_focal]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -99,7 +98,7 @@ jobs:
 
   sensor_data_sharing_service:
     needs: [build_base_jammy, build_base_focal]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
