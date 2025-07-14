@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - develop
+      - fix_ci_builds
       - master
       - "release/*"
     tags:
