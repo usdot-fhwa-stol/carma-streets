@@ -28,7 +28,7 @@ jobs:
       file: message_services/Dockerfile
       image_name: message_services
   tsc_client_service:
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -36,8 +36,12 @@ jobs:
       runner: ubuntu-latest-16-cores
       file: tsc_client_service/Dockerfile
       image_name: tsc_service
+      additional_build_args: |
+        UBUNTU_VERSION=jammy
+        DOCKER_ORG=usdotfhwastolcandidate      
+
   scheduling_service:
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -45,8 +49,11 @@ jobs:
       runner: ubuntu-latest-16-cores
       file: scheduling_service/Dockerfile
       image_name: scheduling_service
+      additional_build_args: |
+        UBUNTU_VERSION=jammy
+        DOCKER_ORG=usdotfhwastolcandidate           
   signal_opt_service:
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -54,6 +61,9 @@ jobs:
       runner: ubuntu-latest-16-cores
       file: signal_opt_service/Dockerfile
       image_name: signal_opt_service
+      additional_build_args: |
+        UBUNTU_VERSION=jammy
+        DOCKER_ORG=usdotfhwastolcandidate           
   sensor_data_sharing_service:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
