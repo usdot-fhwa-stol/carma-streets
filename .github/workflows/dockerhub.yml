@@ -18,7 +18,7 @@ jobs:
     with:
       runner: ubuntu-latest-16-cores
       context: .
-      file: docker/streets_service_base/Dockerfile
+      file: streets_service_base/Dockerfile
       image_name: streets_service_base
       additional_build_args: |
         UBUNTU_VERSION=jammy
@@ -31,7 +31,7 @@ jobs:
     with:
       runner: ubuntu-latest-16-cores
       context: .
-      file: docker/streets_service_base/Dockerfile
+      file: streets_service_base_lanelet_aware/Dockerfile
       image_name: streets_service_base
       additional_build_args: |
         UBUNTU_VERSION=focal
