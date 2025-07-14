@@ -10,7 +10,34 @@ on:
       - "carma-system-*"
 
 jobs:
+  build_base_jammy:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      runner: ubuntu-latest-16-cores
+      context: .
+      file: docker/streets_service_base/Dockerfile
+      image_name: streets_service_base
+      additional_build_args: |
+        UBUNTU_VERSION=jammy
+
+  build_base_focal:
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      runner: ubuntu-latest-16-cores
+      context: .
+      file: docker/streets_service_base/Dockerfile
+      image_name: streets_service_base
+      additional_build_args: |
+        UBUNTU_VERSION=focal
+
   intersection_model:
+    needs: [build_base_jammy, build_base_focal]
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -20,6 +47,7 @@ jobs:
       file: intersection_model/Dockerfile
       image_name: intersection_model
   message_services:
+    needs: [build_base_jammy, build_base_focal]
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -29,6 +57,7 @@ jobs:
       file: message_services/Dockerfile
       image_name: message_services
   tsc_client_service:
+    needs: [build_base_jammy, build_base_focal]
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -39,9 +68,9 @@ jobs:
       image_name: tsc_service
       additional_build_args: |
         UBUNTU_VERSION=jammy
-        DOCKER_ORG=usdotfhwastolcandidate      
 
   scheduling_service:
+    needs: [build_base_jammy, build_base_focal]
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -52,8 +81,9 @@ jobs:
       image_name: scheduling_service
       additional_build_args: |
         UBUNTU_VERSION=jammy
-        DOCKER_ORG=usdotfhwastolcandidate           
+
   signal_opt_service:
+    needs: [build_base_jammy, build_base_focal]
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -64,8 +94,9 @@ jobs:
       image_name: signal_opt_service
       additional_build_args: |
         UBUNTU_VERSION=jammy
-        DOCKER_ORG=usdotfhwastolcandidate           
+
   sensor_data_sharing_service:
+    needs: [build_base_jammy, build_base_focal]
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -74,4 +105,3 @@ jobs:
       runner: ubuntu-latest-16-cores
       file: sensor_data_sharing_service/Dockerfile
       image_name: sensor_data_sharing_service
-    
