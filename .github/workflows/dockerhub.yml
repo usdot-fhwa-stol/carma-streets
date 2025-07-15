@@ -19,7 +19,7 @@ jobs:
       context: .
       file: streets_service_base/Dockerfile
       image_name: streets_service_base
-      override_tag: jammy  
+      tag_name_suffix: jammy
       additional_build_args: |
         UBUNTU_VERSION=jammy
 
@@ -33,7 +33,7 @@ jobs:
       context: .
       file: streets_service_base_lanelet_aware/Dockerfile
       image_name: streets_service_base
-      override_tag: focal
+      tag_name_suffix: focal
       additional_build_args: |
         UBUNTU_VERSION=focal
 
