@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         UBUNTU_CODENAME: [ focal, jammy ]
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -27,7 +27,7 @@ jobs:
         UBUNTU_CODENAME=${{ matrix.UBUNTU_CODENAME }}
   streets_service_base_lanelet_aware:
     needs: streets_service_base
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature/dockerhub_extra_build_args
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
