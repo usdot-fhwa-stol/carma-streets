@@ -2,10 +2,6 @@ name: feature_branch
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  workflow_run:
-    workflows: ["Docker build"]
-    types: 
-      - completed
 jobs:       
   build:
     defaults:
