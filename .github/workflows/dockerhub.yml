@@ -36,7 +36,7 @@ jobs:
       file: streets_service_base_lanelet_aware/Dockerfile
       image_name: streets_service_base_lanelet_aware
       tag_name_suffix: focal
-      dditional_build_args: |
+      additional_build_args: |
         UBUNTU_CODENAME=focal
   intersection_model:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
