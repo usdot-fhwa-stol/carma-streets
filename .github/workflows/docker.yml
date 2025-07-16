@@ -11,6 +11,7 @@ jobs:
 
     with:
       file: streets_service_base/Dockerfile
+      tag_name_suffix: focal
       additional_build_args: |
         UBUNTU_CODENAME=${{ matrix.UBUNTU_CODENAME }}
   streets_service_base_lanelet_aware:
@@ -18,6 +19,7 @@ jobs:
     uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@main
     with:
       file: streets_service_base_lanelet_aware/Dockerfile
+      tag_name_suffix: focal
       additional_build_args: |
         UBUNTU_CODENAME=focal
   message_services:
