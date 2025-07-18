@@ -89,7 +89,7 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
         CARMA_STREETS_ORG="usdotfhwastol"
     elif [[ "$CARMA_STREETS_VERSION_TYPE" == "release_candidate" ]]; then
         echo "Retrieving available Release Candidates':"
-        RELEASE_CANDIDATES=git branch -r | grep 'origin/release/' | sed 's|origin/release/||'
+        RELEASE_CANDIDATES=$(git branch -r | grep 'origin/release/' | sed 's|origin/release/||')
         echo "Available Release Candidates:"
         echo "$RELEASE_CANDIDATES"
         # select a version or accept the latest version as default
