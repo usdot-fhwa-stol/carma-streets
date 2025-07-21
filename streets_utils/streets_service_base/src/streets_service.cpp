@@ -71,8 +71,8 @@ namespace streets_service {
         auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
                 name,  // logger name
                 _logs_directory +name + ".csv",  // log file name and path
-                23, // hours to rotate
-                59, // minutes to rotate
+                1, // hours to rotate
+                0, // minutes to rotate
                 false, // truncate file
                 0, // Max files
                 handlers

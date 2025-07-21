@@ -184,7 +184,7 @@ namespace streets_service {
     void streets_configuration::create_default_logger(const std::string &service_name ) const{
         try {
             // Create logger thread pool
-            spdlog::init_thread_pool(8192, 1);
+            spdlog::init_thread_pool(8192, 2);
             // Create logger file and stdout sinks
             // Rotate files at 11:59 PM
             auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("../logs/" + service_name, 23, 59, false, 3);

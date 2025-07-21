@@ -75,7 +75,9 @@ namespace sensor_data_sharing_service {
                 DETECTION_METRICS_HEADER[2] + "," + 
                 DETECTION_METRICS_HEADER[3];
             SPDLOG_INFO("Record detection metrics enabled. Recording metrics {0} ", header);
-            this->_detection_metrics_logger = create_daily_metrics_logger("detection_metrics", header);
+            this->_detection_metrics_logger = create_daily_metrics_logger(
+                "detection_metrics_", 
+                header);
             // Initialize detection metrics
             this->_detection_metrics[DETECTION_METRICS_HEADER[1]] = 0;
             this->_detection_metrics[DETECTION_METRICS_HEADER[2]] = 0;
