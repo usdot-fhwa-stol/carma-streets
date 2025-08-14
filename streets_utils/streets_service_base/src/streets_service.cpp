@@ -4,7 +4,7 @@
 namespace streets_service {
 
     streets_service::~streets_service() {
-        SPDLOG_INFO("Destructor called for streets service {0}!", _service_name);
+        SPDLOG_TRACE("Destructor called for streets service {0}!", _service_name);
         if ( _time_consumer ) {
             _time_consumer->stop();
         }
@@ -51,6 +51,36 @@ namespace streets_service {
         logger->set_pattern(pattern);
         logger->set_level(level);
         logger->flush_on(level);
+        return logger;
+    }
+
+    std::shared_ptr<spdlog::logger> streets_service::create_daily_metrics_logger(const std::string &name, const std::string &header) const
+    {
+        // Define file event handlers to write the header after opening the file
+        spdlog::file_event_handlers handlers;
+        handlers.after_open = [&](spdlog::filename_t, std::FILE* fstream) {
+            // Check if the file is empty before writing the header to avoid duplicates
+            // if the file already exists and contains data.
+            // This simple check works for new files or empty files.
+            // For more robust checks, you might need to read a small part of the file.
+            fseek(fstream, 0, SEEK_END);
+            if (ftell(fstream) == 0) {
+                std::fputs((header + "\n").c_str(), fstream);
+            }
+        };
+        auto logger  = spdlog::daily_logger_mt<spdlog::async_factory>(
+                name,  // logger name
+                _logs_directory +name + ".csv",  // log file name and path
+                23, // hours to rotate
+                59, // minutes to rotate
+                false, // truncate file
+                0, // Max files
+                handlers
+            );
+        // Only log log statement content
+        logger->set_pattern("%v");
+        logger->set_level(spdlog::level::info);
+        logger->flush_on(spdlog::level::info);
         return logger;
     }
     bool streets_service::initialize_kafka_producer( const std::string &producer_topic, std::shared_ptr<kafka_clients::kafka_producer_worker> &producer ) {

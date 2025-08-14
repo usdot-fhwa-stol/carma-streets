@@ -149,11 +149,17 @@ TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyNotPresent){
     EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
-TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyWrongType){
-    // Test with required property present with wrong type
+TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyIntegerType){
     std::string valid_json = "{ \"some_property\": 1234}";
     auto parsed_doc = parse_json(valid_json);
-    EXPECT_THROW( parse_double_member("some_property", parsed_doc, true), json_parse_exception);
+    EXPECT_EQ(1234,  parse_double_member("some_property", parsed_doc, true));
+}
+
+TEST(JsonUtilsTest, testGetJsonDoubleRequiredPropertyWrongType){
+    // Test with required property present with wrong type
+    std::string valid_json = "{ \"some_property\": \"1a34\"}";
+    auto parsed_doc = parse_json(valid_json);
+    EXPECT_THROW(parse_double_member("some_property", parsed_doc, true), json_parse_exception);
 }
 
 TEST(JsonUtilsTest, testGetJsonDoubleOptionalPropertyMissing) {

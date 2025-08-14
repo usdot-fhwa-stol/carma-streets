@@ -3,33 +3,24 @@ on:
   push:
     tags: 
       - "carma-system-*"
-# make GHA actions use node16 which still works with bionic
-# See https://github.blog/changelog/2024-03-07-github-actions-all-actions-will-run-on-node20-instead-of-node16-by-default/
-# Unclear how long this will work though. Remove after rebase carma-streets to newer Ubuntu release
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 jobs:
   docker-build:
     strategy:
         matrix:
             include:
-             - ubuntu-codename: bionic
-               build_lanelet_aware: true
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
              - ubuntu-codename: focal
-               build_lanelet_aware: false
-            # Currently install_lanelet2_dependencies.sh script only works for bionic. Disabled lanelet_aware build on newer distributions pending script updates.
+               build_lanelet_aware: true
              - ubuntu-codename: jammy
                build_lanelet_aware: false
     runs-on: ubuntu-latest
     steps:
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker Build Streets Service Base
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
             push: true
             build-args: |
@@ -38,7 +29,7 @@ jobs:
             file: ./streets_service_base/Dockerfile
       - name: Docker Build Streets Service Base Lanelet Aware
         if: ${{ matrix.build_lanelet_aware }} 
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           push: true
           tags: usdotfhwastol/streets_service_base_lanelet_aware:${{ github.ref_name	}}-${{ matrix.ubuntu-codename }}
@@ -50,23 +41,15 @@ jobs:
         shell: bash
     runs-on: ubuntu-latest-8-cores
     container:
-      image: usdotfhwastol/streets_service_base_lanelet_aware:${{ github.ref_name	}}-bionic
+      image: usdotfhwastol/streets_service_base_lanelet_aware:${{ github.ref_name	}}-focal
       env:
         DEBIAN_FRONTEND: noninteractive
         SONAR_SCANNER_VERSION: "5.0.1.3006"
         TERM: xterm
       options: "--user root"
     steps:
-    # Bionic's git version is not sufficient for actions/checkout 0 fetch-depth,
-    # remove this step after rebasing carma-streets to newer Ubuntu release
-    - name: Install newer git for checkout
-      run: |
-        apt-get update
-        apt-get install -y software-properties-common
-        add-apt-repository -u ppa:git-core/ppa
-        apt-get install -y git
     - name: Checkout ${{ github.event.repository.name }}
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4
       with:
         path: ${{ github.event.repository.name }}
         fetch-depth: 0
@@ -89,7 +72,7 @@ jobs:
         make -j
         make install
     - name: Set up JDK 17
-      uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
+      uses: actions/setup-java@v4 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
         java-version: 17
         distribution: "temurin"        
@@ -129,7 +112,7 @@ jobs:
         ldconfig
         ./coverage.sh
     - name: Archive test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results
         path: /home/carma-streets/test_results

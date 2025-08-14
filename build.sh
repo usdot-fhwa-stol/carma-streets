@@ -17,7 +17,7 @@
 # wrapped by the sonarcloud build-wrapper
 set -e
 # For lanelet aware streets services like message_services and intersection_model
-source /opt/ros/melodic/setup.bash
+source /opt/ros/noetic/setup.bash
 source /opt/carma_lanelet2/setup.bash
 
 COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"

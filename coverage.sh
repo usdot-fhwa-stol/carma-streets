@@ -17,7 +17,7 @@
 # easily accessible to sonar. Test names should follow convention run<pluginName>Tests
 set -e
 # For lanelet aware streets services like message_services and intersection_model
-source /opt/ros/melodic/setup.bash
+source /opt/ros/noetic/setup.bash
 source /opt/carma_lanelet2/setup.bash
 
 cd /home/carma-streets

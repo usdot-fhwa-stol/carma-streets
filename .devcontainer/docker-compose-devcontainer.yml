@@ -2,21 +2,21 @@ version: '3.7'
 services:
   # Uncomment for streets service base dev environment
   streets_service_base:
-    # Replace bionic with distro of choice
-    image: usdotfhwastoldev/streets_service_base:bionic
+    # Replace focal with distro of choice
+    image: usdotfhwastoldev/streets_service_base:focal
     # Remove build parameter to force pull from dockerhub
     build:
       context: .
       dockerfile: ./streets_service_base/Dockerfile
       args:
-        UBUNTU_CODENAME: bionic
+        UBUNTU_CODENAME: focal
     network_mode: host
     command: /bin/sh -c "while sleep 1000; do :; done"
 
 
   # Uncomment for streets service base lanelet aware dev environment
   streets_service_base_lanelet_aware:
-    image: usdotfhwastoldev/streets_service_base_lanelet_aware:bionic
+    image: usdotfhwastoldev/streets_service_base_lanelet_aware:focal
     # Remove build parameter to force pull from dockerhub
     build:
       context: .

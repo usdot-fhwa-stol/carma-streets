@@ -36,11 +36,13 @@ namespace sensor_data_sharing_service {
     TEST(sensorDataSharingServiceTest, consumeDetections) {
         // Set simulation mode to false
         setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "FALSE", 1);
+        setenv("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_cartesian.json", 1);
+        setenv("CONFIG_FILE_PATH", "../test/test_files/manifest.json", 1);
+        setenv("LANELET2_MAP", "/home/carma-streets/sample_map/town01_vector_map_test.osm", 1);
         sds_service serv;
-            
+
         serv.initialize();
-        // If consumer null expect runtime error
-        EXPECT_THROW(serv.consume_detections(), std::runtime_error);
+        
         serv.detection_consumer =  std::make_shared<kafka_clients::mock_kafka_consumer_worker>();
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),subscribe()).Times(1);
         EXPECT_CALL(dynamic_cast<kafka_clients::mock_kafka_consumer_worker&>(*serv.detection_consumer),is_running()).Times(4)
@@ -184,6 +186,53 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(-771470156, position._longitude);
         EXPECT_EQ(10, position._elevation);
     }
+
+    TEST(sensorDataSharingServiceTest, calculateDetectionDelay) {
+        std::deque<double> detection_delay_queue = {100.0, 200.0, 300.0};
+        std::map<std::string, double> detection_metrics;
+        std::mutex detection_metrics_lock;
+        calculate_detection_delay(detection_delay_queue, detection_metrics, "detection_delay", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["detection_delay"], 200.0);
+    }
+
+    TEST(sensorDataSharingServiceTest, testIncrementSDSMMessageDrop) {
+        sds_service serv;
+        
+        std::map<std::string, double> detection_metrics;
+        std::mutex detection_metrics_lock;
+        // Initialize drop metrics
+        detection_metrics["SDSM Drop Count"] = 0.0;
+        detection_metrics["Detection Drop"] = 0.0;
+
+        increment_drop_metric(detection_metrics, "SDSM Drop Count", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 1.0);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 0.0);
+        increment_drop_metric(detection_metrics, "SDSM Drop Count", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 2.0);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 0.0);
+        
+        increment_drop_metric(detection_metrics, "Detection Drop", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 1.0);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 2.0);
+        increment_drop_metric(detection_metrics, "Detection Drop", detection_metrics_lock);
+        EXPECT_EQ(detection_metrics["Detection Drop"], 2.0);
+        EXPECT_EQ(detection_metrics["SDSM Drop Count"], 2.0);
+
+    }
+
+    TEST(sensorDataSharingServiceTest, writeDetectionMetrics) {
+        sds_service serv;
+        std::map<std::string, double> detection_metrics;
+        std::mutex detection_metrics_lock;
+        detection_metrics["Timestamp (ms)"] = 1000.0;
+        detection_metrics["Detection Drop Count"] = 2.0;
+        detection_metrics["Detection Latency (Rolling average in ms over 50 detection)"] = 150.0;
+        detection_metrics["SDSM Drop Count"] = 1.0;
+
+        auto logger = spdlog::stdout_color_mt("test_logger");
+        write_detection_metrics(logger, detection_metrics, serv.DETECTION_METRICS_HEADER, detection_metrics_lock);
+    }
+
 
 
 }

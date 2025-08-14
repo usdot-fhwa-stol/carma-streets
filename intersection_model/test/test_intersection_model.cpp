@@ -119,7 +119,7 @@ public:
 TEST(intersection_model_test, file_not_found_map) {
     intersection_model::intersection_model model;
 
-    ASSERT_EXIT( model.read_lanelet2_map("../../sample_map/wrong_file.osm"), ::testing::ExitedWithCode(1),"" );
+    ASSERT_THROW( model.read_lanelet2_map("../../sample_map/wrong_file.osm"), lanelet::InvalidInputError );
 }
 
 TEST(intersection_model_test, read_lanelet2_map)

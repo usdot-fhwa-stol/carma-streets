@@ -17,12 +17,13 @@ DEPENDENCIES=(
     libsqlite3-dev 
     libpugixml-dev 
     libgeographic-dev
-    ros-melodic-catkin
-    python-rospkg
+    ros-noetic-catkin
+    python3-rospkg
     libeigen3-dev
     libtool
     libboost-all-dev
 )
+
 DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends --yes --quiet "${DEPENDENCIES[@]}"
 # Install PROJ, a package for coordinate transformations
 git clone https://github.com/OSGeo/PROJ.git /tmp/PROJ --branch 6.2.1 
@@ -60,7 +61,7 @@ git checkout refactor_lanelet2_extension
 rm -r lanelet2/lanelet2_python
 rm -r lanelet2/lanelet2_examples
 cd /tmp/carma_lanelet2/
-source /opt/ros/melodic/setup.bash
+source /opt/ros/noetic/setup.bash
 ROS_VERSION=1 LANELET2_EXTENSION_LOGGER_TYPE=1 catkin_make install -DCMAKE_INSTALL_PREFIX=/opt/carma_lanelet2 -DCATKIN_DEVEL_PREFIX=/tmp/carma_lanelet2/src
 rm -r /tmp/carma_lanelet2
 

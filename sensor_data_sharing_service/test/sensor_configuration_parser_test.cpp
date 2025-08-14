@@ -16,11 +16,24 @@
 
 
 namespace sensor_data_sharing_service {
-    TEST(sensor_configuration_parser_test, parse_sensor_location_test) {
-        auto pose = parse_sensor_location("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors.json", "sensor_1"); 
-        EXPECT_NEAR(pose.x(), 1.0 , 0.01 );
-        EXPECT_NEAR(pose.y(), 2.0 , 0.01 );
-        EXPECT_NEAR(pose.z(), -3.2 , 0.01 );
+
+    TEST(sensor_configuration_parser_test, parse_sensor_cartesian_test) {
+        auto ref = parse_sensor_ref("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_cartesian.json", "sensor_1"); 
+        EXPECT_EQ(ref.reference_type, LocationDataType::CARTESIAN);
+        EXPECT_NEAR(ref.cartesian_location.x(), 1.0 , 0.01 );
+        EXPECT_NEAR(ref.cartesian_location.y(), 2.0 , 0.01 );
+        EXPECT_NEAR(ref.cartesian_location.z(), -3.2 , 0.01 );
+
+    }
+
+    TEST(sensor_configuration_parser_test, parse_sensor_georef_test) {
+        auto ref = parse_sensor_ref("/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_wgs84.json", "sensor_1");
+
+        EXPECT_EQ(ref.reference_type, LocationDataType::WGS84);
+        EXPECT_NEAR(ref.wgs84_location.lon,-77.14935313519123  , 0.000000001 );
+        EXPECT_NEAR(ref.wgs84_location.lat, 38.9549716548523 ,0.000000001  );
+        EXPECT_NEAR(ref.wgs84_location.ele, 5.5, 0.01 );
+
 
     }
 }
