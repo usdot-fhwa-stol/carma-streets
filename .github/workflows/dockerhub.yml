@@ -5,10 +5,39 @@ on:
       - develop
       - master
       - "release/*"
+      - "feature/*"
     tags:
       - "carma-system-*"
 
 jobs:
+  streets_service_base:
+    strategy:
+      matrix:
+        UBUNTU_CODENAME: [ focal, jammy ]
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      runner: ubuntu-latest-16-cores
+      file: streets_service_base/Dockerfile
+      image_name: streets_service_base
+      tag_name_suffix: ${{ matrix.UBUNTU_CODENAME }}
+      additional_build_args: |
+        UBUNTU_CODENAME=${{ matrix.UBUNTU_CODENAME }}
+  streets_service_base_lanelet_aware:
+    needs: streets_service_base
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    with:
+      runner: ubuntu-latest-16-cores
+      file: streets_service_base_lanelet_aware/Dockerfile
+      image_name: streets_service_base_lanelet_aware
+      tag_name_suffix: focal
+      additional_build_args: |
+        UBUNTU_CODENAME=focal
   intersection_model:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
@@ -28,6 +57,7 @@ jobs:
       file: message_services/Dockerfile
       image_name: message_services
   tsc_client_service:
+    needs: streets_service_base
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -37,6 +67,7 @@ jobs:
       file: tsc_client_service/Dockerfile
       image_name: tsc_service
   scheduling_service:
+    needs: streets_service_base
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -46,6 +77,7 @@ jobs:
       file: scheduling_service/Dockerfile
       image_name: scheduling_service
   signal_opt_service:
+    needs: streets_service_base
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -55,6 +87,7 @@ jobs:
       file: signal_opt_service/Dockerfile
       image_name: signal_opt_service
   sensor_data_sharing_service:
+    needs: streets_service_base_lanelet_aware
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

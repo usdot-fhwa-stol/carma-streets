@@ -1,7 +1,8 @@
 ARG UBUNTU_VERSION=jammy
 ARG DOCKER_ORG=usdotfhwastoldev
+ARG DOCKER_TAG=develop
 
-FROM $DOCKER_ORG/streets_service_base:$UBUNTU_VERSION
+FROM ${DOCKER_ORG}/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}
 
 SHELL ["/bin/bash", "-c"]
 RUN apt install -y libssl-dev qtbase5-dev

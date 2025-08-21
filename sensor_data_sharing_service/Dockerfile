@@ -1,4 +1,7 @@
-FROM usdotfhwastoldev/streets_service_base_lanelet_aware:focal
+ARG UBUNTU_VERSION=focal
+ARG DOCKER_ORG=usdotfhwastoldev
+ARG DOCKER_TAG=develop
+FROM ${DOCKER_ORG}/streets_service_base_lanelet_aware:${DOCKER_TAG}-${UBUNTU_VERSION}
 COPY ./sensor_data_sharing_service/ /home/carma-streets/sensor_data_sharing_service
 COPY ./streets_utils/ /home/carma-streets/streets_utils
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
