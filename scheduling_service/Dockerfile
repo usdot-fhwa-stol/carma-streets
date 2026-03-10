@@ -5,7 +5,16 @@ ARG DOCKER_TAG=develop
 FROM ${DOCKER_ORG}/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}
 # Set bash as the default shell for subsequent RUN commands
 SHELL ["/bin/bash", "-c"]
-RUN apt install -y libssl-dev qtbase5-dev
+
+ARG VERSION
+ARG VCS_REF
+ARG BUILD_DATE
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libssl-dev \
+        qtbase5-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
