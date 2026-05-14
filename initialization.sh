@@ -5,7 +5,7 @@
 # - Installing V2X Hub and required runtime dependencies
 # - Setting up V2X Hub environment variables for docker compose deployment
 
-
+V2XHUB_VERSION="develop"
 # Function to validate latitude and longitude
 validate_coordinate() {
   local coord="$1"
@@ -29,6 +29,35 @@ validate_coordinate() {
     fi
   fi
   return 0
+}
+
+select_v2xhub_version() {
+    release_candidates=$(git branch -r | grep 'origin/release/' | sed 's|origin/||' | sed 's/release\//release-/g')
+    echo "Available Release Candidates (Only intended for use during release-testing):"
+    echo "$release_candidates"
+    # Repository URL
+    repo_url_latest="https://api.github.com/repos/usdot-fhwa-OPS/V2X-Hub/releases/latest"
+
+    # Getting the latest release information using curl
+    release_info=$(curl -sSL $repo_url_latest)
+
+    # Parsing the JSON response to get the tag_name (version) of the latest release
+    latest_version=$(echo "$release_info" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+
+    # Fetching all tags from Git repository
+    tags=$(git ls-remote --tags https://github.com/usdot-fhwa-OPS/V2X-Hub.git | awk -F/ '{ printf "  %s\n", $3 }' | sort -V)
+    # Remove curly braces, Properties found, duplicate entries, and tag that starts with v. and show only versions above 7.0
+    updated_tags=$(echo "$tags" | sed 's/\^{}//;s/^v//' | grep -vE 'Properties_Found|v.*'  | awk '!seen[$0]++ && $1 >= "7.0"')
+
+
+    # Displaying all available versions
+    echo "Note: V2X-Hub multi architecture deployments only work for the versions 7.0 and above."
+    echo "Available Release versions:"
+    echo "$updated_tags"
+
+    # select a version or accept the latest version as default
+    read -r -p "Enter V2X-Hub Version (choose from the above, or press Enter to use the latest version $latest_version): " chosen_version
+    V2XHUB_VERSION=${chosen_version:-$latest_version}
 }
 # Default values
 INSTALL_V2XHUB="FALSE"
@@ -108,19 +137,24 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     if [[ "$INSTALL_V2XHUB" =~ [yY](es)*  ]]; then
         # clone the V2X Hub repository
         cd ..
+        select_v2xhub_version
         if [ -d "V2X-Hub" ]; then
             echo "V2X Hub directory already exists. Skipping cloning."
         else
             echo "Cloning V2X Hub repository on path $(pwd)..."
             git clone https://github.com/usdot-fhwa-OPS/V2X-Hub.git
         fi
-        
+      
         cd V2X-Hub/configuration/ || exit
+        #Checking out correct repo version
+        echo "Installing V2X Hub Version: $V2XHUB_VERSION"
+        git checkout $V2XHUB_VERSION
+        git pull
 
         # Initialize V2X Hub Docker environment
         echo "Initializing V2X Hub Docker environment..."
         ./initialize_docker_environment.sh
-        ./initialize_secrets.sh
+        #./initialize_secrets.sh
         echo "V2X Hub Docker environment initialized successfully."
         echo "Pulling V2X Hub Docker images..."
         docker compose pull
@@ -247,7 +281,7 @@ if [[ "$deploy_choice" =~ [yY](es)* ]]; then
     if [[ "$add_v2x_hub_user" =~ [yY](es)* ]]; then
         cd ../V2X-Hub/configuration/ || exit
         echo "Adding V2X Hub user ..."
-        ./add_v2xhub_user.sh
+        #./add_v2xhub_user.sh
         echo "V2X Hub user added successfully."
     fi
 
@@ -255,5 +289,3 @@ else
     echo "Skipping CARMA Streets deployment."
     exit 0
 fi
-
-
