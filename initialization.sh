@@ -154,7 +154,6 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
         # Initialize V2X Hub Docker environment
         echo "Initializing V2X Hub Docker environment..."
         ./initialize_docker_environment.sh
-        #./initialize_secrets.sh
         echo "V2X Hub Docker environment initialized successfully."
         echo "Pulling V2X Hub Docker images..."
         docker compose pull
@@ -278,13 +277,6 @@ if [[ "$deploy_choice" =~ [yY](es)* ]]; then
     # Prompt user to ask if they want to add V2X Hub user (yes/no)
     read -r -p "Do you want to add a V2X Hub user? (Y/N, or press Enter to use default as Y): " add_v2x_hub_user
     add_v2x_hub_user=${add_v2x_hub_user:-Y}
-    if [[ "$add_v2x_hub_user" =~ [yY](es)* ]]; then
-        cd ../V2X-Hub/configuration/ || exit
-        echo "Adding V2X Hub user ..."
-        #./add_v2xhub_user.sh
-        echo "V2X Hub user added successfully."
-    fi
-
 else
     echo "Skipping CARMA Streets deployment."
     exit 0
