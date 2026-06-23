@@ -6,10 +6,6 @@ FROM ${DOCKER_ORG}/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}
 # Set bash as the default shell for subsequent RUN commands
 SHELL ["/bin/bash", "-c"]
 
-ARG VERSION
-ARG VCS_REF
-ARG BUILD_DATE
-
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         libssl-dev \
@@ -113,16 +109,20 @@ RUN ldconfig
 
 WORKDIR  /home/carma-streets/scheduling_service/build/
 
+# Build args for Open Containers Annotations (https://specs.opencontainers.org/image-spec/annotations/)
+ARG VERSION
+ARG VCS_REF
+ARG BUILD_DATE
+
 # Set metadata labels
-RUN echo "------> Setting metadata labels..."
-LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="scheduling_service"
-LABEL org.label-schema.description="Base image for scheduling_service"
-LABEL org.label-schema.vendor="Leidos"
-LABEL org.label-schema.version="${VERSION}"
-LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/operations"
-LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets"
-LABEL org.label-schema.vcs-ref=${VCS_REF}
-LABEL org.label-schema.build-date=${BUILD_DATE}
+LABEL org.opencontainers.image.title="scheduling_service"
+LABEL org.opencontainers.image.description="Base image for scheduling_service"
+LABEL org.opencontainers.image.vendor="Leidos"
+LABEL org.opencontainers.image.version=${VERSION}
+LABEL org.opencontainers.image.url="https://highways.dot.gov/research/research-programs/operations"
+LABEL org.opencontainers.image.source="https://github.com/usdot-fhwa-stol/carma-streets"
+LABEL org.opencontainers.image.revision=${VCS_REF}
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.base.name="docker.io/usdotfhwastoldev/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}"
 
 CMD ["/home/carma-streets/scheduling_service/build/scheduling_service"]
