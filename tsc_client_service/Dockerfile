@@ -4,7 +4,7 @@ ARG DOCKER_TAG=develop
 FROM ${DOCKER_ORG}/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}
 # Set bash as the default shell for subsequent RUN commands
 SHELL ["/bin/bash", "-c"]
-
+RUN apt install -y libssl-dev qtbase5-dev
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
@@ -35,7 +35,7 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN make install
 
-# Install intersection_client_api
+# Install intersection_client_api 
 RUN echo " ------> Install intersection client library from streets_utils..."
 WORKDIR  /home/carma-streets/streets_utils/streets_api/intersection_client_api
 RUN mkdir build
@@ -92,7 +92,7 @@ RUN make install
 # Install net-snmp
 WORKDIR /home/carma-streets/ext/
 RUN apt-get update  && apt-get install -y wget libperl-dev
-RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz
+RUN wget http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
 RUN tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
 WORKDIR /home/carma-streets/ext/net-snmp-5.9.1/
 RUN ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"

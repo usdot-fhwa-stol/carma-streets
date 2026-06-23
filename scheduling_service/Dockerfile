@@ -6,6 +6,8 @@ FROM ${DOCKER_ORG}/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}
 # Set bash as the default shell for subsequent RUN commands
 SHELL ["/bin/bash", "-c"]
 
+RUN apt install -y libssl-dev qtbase5-dev
+
 # Install kafka-clients
 RUN echo " ------> Install kafka-clients..."
 COPY ./kafka_clients/ /home/carma-streets/kafka_clients
