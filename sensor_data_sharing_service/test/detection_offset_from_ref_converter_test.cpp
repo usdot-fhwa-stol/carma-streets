@@ -49,7 +49,7 @@ namespace sensor_data_sharing_service {
         EXPECT_DOUBLE_EQ(updated_detection._velocity._z, vel_z);
     }
 
-    TEST(DetectionOffsetFromRefConverterTest, TestSmallOffset) {
+    TEST(DetectionOffsetFromRefConverterTest, TestSmallDistance) {
         // Values pulled from known GNSS vehicle data
         streets_utils::messages::detected_objects_msg::detected_objects_msg detection;
         
@@ -69,7 +69,31 @@ namespace sensor_data_sharing_service {
         // x = -0.12576974393503
         // y = -0.79408763431725
         EXPECT_THAT(updated_detection._position._x, DoubleNear(-0.1258, 0.001));
-        EXPECT_THAT(updated_detection._position._y, DoubleNear(-0.7941, 0.001));
+        EXPECT_THAT(updated_detection._position._y, DoubleNear(0.7941, 0.001));
+    
+    }
+
+    TEST(DetectionOffsetFromRefConverterTest, TestSmallDistanceWithOffset) {
+        // Values pulled from known GNSS vehicle data
+        streets_utils::messages::detected_objects_msg::detected_objects_msg detection;
+        
+        std::string ref_string = "+proj=tmerc +lat_0=38.95508624257387 +lon_0=-77.14738744642074 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs";
+
+        auto pos_x =  5.0;
+        auto pos_y = 10.0;
+        auto pos_z =  0.0;
+
+        detection._position._x = pos_x;
+        detection._position._y = pos_y;
+        detection._position._z = pos_z;
+        detection._proj_string = "+proj=tmerc +lat_0=38.95509339558609 +lon_0=-77.14738889727099 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs";
+
+        auto updated_detection = detected_object_local_to_ref(detection, ref_string);
+        // Cartesian delta actuals:
+        // x = -0.12576974393503
+        // y = 0.79408763431725
+        EXPECT_THAT(updated_detection._position._x, DoubleNear(4.8742, 0.001));
+        EXPECT_THAT(updated_detection._position._y, DoubleNear(10.7941, 0.001));
     
     }
 }

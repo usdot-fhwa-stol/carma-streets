@@ -32,7 +32,7 @@ namespace sensor_data_sharing_service {
         const char* reference_proj = reference_proj_string.c_str();
 
         // Creation of proj transformation object between the two proj strings
-        PJ *detection_to_ref = proj_create_crs_to_crs(ctx, reference_proj, detection_proj, NULL);
+        PJ *detection_to_ref = proj_create_crs_to_crs(ctx, detection_proj, reference_proj, NULL);
         if(!detection_to_ref){
             proj_context_destroy(ctx);
             ref_detection._position._x = 0.0;
@@ -41,23 +41,14 @@ namespace sensor_data_sharing_service {
         }
 
         // Relate values to PJ_COORD in cartesian
-        PJ_COORD ref_cartesian = proj_coord(0.0, 0.0, 0.0, 0.0);
         PJ_COORD detection_cartesian = proj_coord(msg._position._x, msg._position._y, 0.0, 0.0);
 
         // Transform cartesian points into the shared reference crs
-        PJ_COORD ref_transformed = proj_trans(detection_to_ref, PJ_FWD, ref_cartesian);
         PJ_COORD detection_transformed = proj_trans(detection_to_ref, PJ_FWD, detection_cartesian);
 
         // Calculate cartesian offset
-        // Check for zero vals to prevent equivalent transforms cancelling out with ref_cartesian
-        if(msg._position._x == 0.0 && msg._position._y == 0.0){
-            ref_detection._position._x = detection_transformed.xy.x;
-            ref_detection._position._y = detection_transformed.xy.y;
-        }
-        else{
-            ref_detection._position._x = detection_transformed.xy.x - ref_transformed.xy.x;
-            ref_detection._position._y = detection_transformed.xy.y - ref_transformed.xy.y;
-        }
+        ref_detection._position._x = detection_transformed.xy.x;
+        ref_detection._position._y = detection_transformed.xy.y;
 
         // Update the detection to use the reference proj string
         ref_detection._proj_string = reference_proj_string;
