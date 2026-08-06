@@ -13,10 +13,30 @@
 // limitations under the License.
 #include "detection_offset_from_ref_converter.hpp"
 
-#include <iostream>
-
 namespace sensor_data_sharing_service {
-    streets_utils::messages::detected_objects_msg::detected_objects_msg detected_object_local_to_ref(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg, const std::string reference_proj_string) {
+    std::unordered_map<std::string, std::string> parse_proj_string(const std::string& proj_str) {
+        std::unordered_map<std::string, std::string> params;
+        std::stringstream ss(proj_str);
+        std::string token;
+
+        while (ss >> token) {
+            if (!token.empty() && token[0] == '+') {
+                token = token.substr(1);
+            }
+
+            size_t eq = token.find('=');
+            if (eq != std::string::npos) {
+                std::string key = token.substr(0, eq);
+                std::string val = token.substr(eq + 1);
+                params[key] = val;
+            } else {
+                params[token] = "";
+            }
+        }
+        return params;
+    }
+
+    streets_utils::messages::detected_objects_msg::detected_objects_msg detected_object_local_to_ref(const streets_utils::messages::detected_objects_msg::detected_objects_msg &msg, const std::string &reference_proj_string) {
         
         streets_utils::messages::detected_objects_msg::detected_objects_msg ref_detection(msg);
 
