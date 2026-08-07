@@ -67,7 +67,6 @@ CARMA_STREETS_COMPOSE_PROFILES_DEFAULT="cooperative_perception,debug"
 INFRASTRUCTURE_ID_DEFAULT="rsu_1234"
 INFRASTRUCTURE_NAME_DEFAULT="East Intersection"
 INFRASTRUCTURE_IP_DEFAULT="127.0.0.1"
-SENSOR_JSON_DIR_DEFAULT="./sensor_configurations"
 SIMULATION_MODE_DEFAULT="FALSE"
 CARMA_STREETS_VERSION="develop"
 CARMA_STREETS_VERSION_TYPE="develop"
@@ -178,10 +177,6 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     read -r -p "Simulation Mode (TRUE/FALSE, or press Enter to use default as $SIMULATION_MODE_DEFAULT): " SIMULATION_MODE
     SIMULATION_MODE=${SIMULATION_MODE:-$SIMULATION_MODE_DEFAULT}
 
-    # Sensor Configuration File Path
-    read -r -p "Enter Sensor Configuration Directory Path (or press Enter to use default as $SENSOR_JSON_DIR_DEFAULT): " SENSOR_JSON_DIR
-    SENSOR_JSON_DIR=${SENSOR_JSON_DIR:-$SENSOR_JSON_DIR_DEFAULT}
-
     # Available CARMA Streets Profiles
     echo "Avaible CARMA Streets Profiles:"
     # Convert the string to an array by splitting on commas
@@ -199,7 +194,6 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     INFRASTRUCTURE_ID="$INFRASTRUCTURE_ID"
     INFRASTRUCTURE_NAME="$INFRASTRUCTURE_NAME"
     INFRASTRUCTURE_IP="$INFRASTRUCTURE_IP"
-    SENSOR_JSON_DIR="$SENSOR_JSON_DIR"
     COMPOSE_PROFILES="$CARMA_STREETS_COMPOSE_PROFILES"
     SIMULATION_MODE=$SIMULATION_MODE
     STOL_ORG="$CARMA_STREETS_ORG"

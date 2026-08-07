@@ -38,28 +38,35 @@ namespace sensor_data_sharing_service {
             SPDLOG_ERROR("Failed to initialize streets service base!");
             return false;
         }
-        SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
+        SPDLOG_DEBUG("Initializing Sensor Data Sharing Service");
        
         // Read sensor configuration file and get WSG84 location/origin reference frame.
-        const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
         const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
-        auto sensor_ref = parse_sensor_ref(sensor_config_file, sensor_id);
-        if ( sensor_ref.reference_type == LocationDataType::CARTESIAN ) {
-            SPDLOG_DEBUG("Reading CARTESIAN sensor location offset from lanelet2 osm map.");
-            if (!streets_service::is_simulation_mode())
-            {
-                SPDLOG_WARN("CARTESIAN sensor location should only be used for simulation. Please use WGS84 location data!");
-            }
-            const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
-            if (!read_lanelet_map(lanlet2_map)){
-                SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);
-                return false;
-            }
-            this->sdsm_reference_point =  this->map_projector->reverse(sensor_ref.cartesian_location);
+        const std::string ref_proj_string = ss::streets_configuration::get_string_config("reference_proj_string");
 
-        } else {
-            this->sdsm_reference_point = sensor_ref.wgs84_location;
+        std::unordered_map<std::string, std::string> proj_string_pairs = parse_proj_string(ref_proj_string);
+        lanelet::GPSPoint ref_proj_gps;
+
+        if (proj_string_pairs.count("lat_0")){
+            ref_proj_gps.lat = std::stod(proj_string_pairs["lat_0"]);
         }
+        else{
+            SPDLOG_WARN("No latitude value found in reference proj string.");
+        }
+        if (proj_string_pairs.count("lon_0")){
+            ref_proj_gps.lon = std::stod(proj_string_pairs["lon_0"]);
+        }
+        else{
+            SPDLOG_WARN("No longitude value found in reference proj string.");
+        }
+
+        const std::string lanelet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+        if (!read_lanelet_map(lanelet2_map)){
+            SPDLOG_ERROR("Failed to read lanelet2 map {0} !", lanelet2_map);
+            return false;
+        }
+
+        this->sdsm_reference_point = ref_proj_gps;
 
         // Initialize SDSM Kafka producer
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
@@ -226,6 +233,7 @@ namespace sensor_data_sharing_service {
     }
 
     streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
+        const std::string ref_proj_string = ss::streets_configuration::get_string_config("reference_proj_string");
         streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
         // Read lock
         uint64_t timestamp = ss::streets_clock_singleton::time_in_ms();
@@ -234,17 +242,25 @@ namespace sensor_data_sharing_service {
         msg._msg_count = this->_message_count;
         // Populate with infrastructure id
         msg._source_id = this->_infrastructure_id;
-        // Populate equipement type
+        // Populate equipment type
         msg._equipment_type = sdsm::equipment_type::RSU;
-        // Polulate ref position
+        // Populate ref position
         msg._ref_positon = to_position_3d(this->sdsm_reference_point);
         std::shared_lock lock(detected_objects_lock);
         for (const auto &[object_id, object] : detected_objects){
-            auto ned_object = detected_object_enu_to_ned(object);
-            auto detected_object_data = to_detected_object_data(ned_object,timestamp);
-            // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
-            // This is a bug and needs to be addressed.
-            msg._objects.push_back(detected_object_data);
+            try {
+                auto transformed_object_data = detected_object_local_to_ref(object, ref_proj_string);
+                auto ned_object = detected_object_enu_to_ned(transformed_object_data);
+                auto detected_object_data = to_detected_object_data(ned_object, timestamp);
+                // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
+                // This is a bug and needs to be addressed.
+                msg._objects.push_back(detected_object_data);
+            }
+            catch(const std::exception &e) {
+                SPDLOG_ERROR("Exception: Failed to configure detected object data.", e.what());
+                continue;
+            }
+
         }
         return msg;
     }
