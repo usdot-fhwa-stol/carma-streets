@@ -35,7 +35,7 @@
         {
             "name": "reference_proj_string",
             "value": "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs",
-            "description": "Positional Proj string that describes the WGS84 reference location of the infrastructure.",
+            "description": "Geospatial Proj string that describes the WGS84 reference location of the infrastructure to be used in creation of SDSMs. Detections will use a cartesian offset from this reference location.",
             "type": "STRING"
         }
     ]
