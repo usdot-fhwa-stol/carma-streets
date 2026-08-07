@@ -41,7 +41,6 @@ namespace sensor_data_sharing_service {
         SPDLOG_DEBUG("Initializing Sensor Data Sharing Service");
        
         // Read sensor configuration file and get WSG84 location/origin reference frame.
-        const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
         const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
         const std::string ref_proj_string = ss::streets_configuration::get_string_config("reference_proj_string");
 

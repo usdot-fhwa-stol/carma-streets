@@ -44,7 +44,6 @@ set(SERVICE_NAME ${PROJECT_NAME})
 
 add_library(${LIBRARY_NAME} 
     src/sensor_data_sharing_service.cpp 
-    src/sensor_configuration_parser.cpp 
     src/detected_object_to_sdsm_converter.cpp
     src/detected_object_enu_to_ned_converter.cpp
     src/detection_offset_from_ref_converter.cpp)

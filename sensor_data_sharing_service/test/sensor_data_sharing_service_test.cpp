@@ -36,7 +36,6 @@ namespace sensor_data_sharing_service {
     TEST(sensorDataSharingServiceTest, consumeDetections) {
         // Set simulation mode to false
         setenv(streets_service::SIMULATION_MODE_ENV.c_str(), "FALSE", 1);
-        setenv("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_data_sharing_service/test/test_files/sensors_cartesian.json", 1);
         setenv("CONFIG_FILE_PATH", "../test/test_files/manifest.json", 1);
         setenv("LANELET2_MAP", "/home/carma-streets/sample_map/town01_vector_map_test.osm", 1);
         sds_service serv;
