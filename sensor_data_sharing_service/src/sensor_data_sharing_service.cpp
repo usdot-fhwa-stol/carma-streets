@@ -172,6 +172,21 @@ namespace sensor_data_sharing_service {
                         continue;
 
                     }
+                    auto sensor_projector = sensor_projectors.find(detected_object._sensor_id);
+                    // If no projection exists yet
+                    if ( sensor_projector == sensor_projectors.end() ) {
+                        sensor_projector = lanelet::projection::LocalFrameProjector(detected_object._proj_string);
+                        sensor_projectors.insert({detected_object._sensor_id, sensor_projector});
+                    }
+                    // Project detected object to RSU coordinate frame
+                    auto gps_detection_position = sensor_projector->reverse(lanelet::BasicPoint3d(
+                        detected_object._position._x,
+                        detected_object._position._y,
+                        detected_object._position._z));
+                    auto rsu_detection_offset = this->map_projector->forward(gps_detection_position);
+                    detected_object._position._x = rsu_detection_offset.x();
+                    detected_object._position._y = rsu_detection_offset.y();
+                    detected_object._position._z = rsu_detection_offset.z();
 
                     // Write Lock
                     std::unique_lock lock(detected_objects_lock);
