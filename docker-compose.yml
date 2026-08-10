@@ -1,6 +1,5 @@
 include:
-  # TODO Include V2X Hub docker compose as an OCI (Open Container Initiative) artifact
-  - path: ../V2X-Hub/configuration/docker-compose.yml
+  - oci://usdotfhwaops/v2xhub-application:${V2XHUB_VERSION:-develop}
 services:
   zookeeper:
     image: wurstmeister/zookeeper
