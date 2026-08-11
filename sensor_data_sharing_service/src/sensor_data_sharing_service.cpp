@@ -60,10 +60,12 @@ namespace sensor_data_sharing_service {
             SPDLOG_WARN("No longitude value found in reference proj string.");
         }
 
-        const std::string lanelet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
-        if (!read_lanelet_map(lanelet2_map)){
-            SPDLOG_ERROR("Failed to read lanelet2 map {0} !", lanelet2_map);
-            return false;
+        if(is_simulation_mode()){
+            const std::string lanelet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+            if (!read_lanelet_map(lanelet2_map)){
+                SPDLOG_ERROR("Failed to read lanelet2 map {0} !", lanelet2_map);
+                return false;
+            }
         }
 
         this->sdsm_reference_point = ref_proj_gps;
