@@ -1,6 +1,6 @@
-include:
-  # TODO Include V2X Hub docker compose as an OCI (Open Container Initiative) artifact
-  - path: ../V2X-Hub/configuration/docker-compose.yml
+# include:
+#   # TODO Include V2X Hub docker compose as an OCI (Open Container Initiative) artifact
+#   - path: ../V2X-Hub/configuration/docker-compose.yml
 services:
   zookeeper:
     image: wurstmeister/zookeeper
@@ -27,7 +27,12 @@ services:
       retries: 10
     environment:
       DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
-      KAFKA_ADVERTISED_HOST_NAME:  ${INFRASTRUCTURE_IP:-127.0.0.1}
+      # Advertise a DNS name, not an address. Containers on carma_streets_net
+      # resolve it via Docker's embedded DNS; host-network services resolve it
+      # through their extra_hosts entry. Nothing here depends on the host's LAN
+      # address or on Docker's dynamically allocated bridge subnets, both of
+      # which change when the machine switches networks or a project is renamed.
+      KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_CREATE_TOPICS: "\
         v2xhub_scheduling_plan_sub:1:1,\
         v2xhub_bsm_in:1:1,\
@@ -60,6 +65,10 @@ services:
     container_name: kowl
     restart: on-failure
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["debug"]
     depends_on:
       kafka:
@@ -83,6 +92,10 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
@@ -111,6 +124,10 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles : ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
@@ -137,6 +154,10 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
@@ -165,6 +186,10 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["signal_optimization"]
     depends_on:
       kafka:
@@ -197,6 +222,10 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["signal_optimization", "vehicle_scheduling"]
     depends_on:
       kafka:
@@ -228,6 +257,10 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    # Host-network services share the host's netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles : ["cooperative_perception"]
     depends_on:
       kafka:
@@ -251,3 +284,9 @@ services:
 volumes:
     kafka-datavolume:
     zookeeper-datavolume:
+networks:
+  # Pin the default network's name so it does not follow the compose project
+  # name. External stacks (V2X Hub) attach to it by this fixed name to reach
+  # the broker by DNS.
+  default:
+    name: carma_streets_net
