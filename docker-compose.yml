@@ -1,6 +1,6 @@
-include:
-  # TODO Include V2X Hub docker compose as an OCI (Open Container Initiative) artifact
-  - path: ../V2X-Hub/configuration/docker-compose.yml
+# include:
+#   # TODO Include V2X Hub docker compose as an OCI (Open Container Initiative) artifact
+#   - path: ../V2X-Hub/configuration/docker-compose.yml
 services:
   zookeeper:
     image: wurstmeister/zookeeper
@@ -27,7 +27,12 @@ services:
       retries: 10
     environment:
       DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
-      KAFKA_ADVERTISED_HOST_NAME:  ${INFRASTRUCTURE_IP:-127.0.0.1}
+      # Advertise a DNS name rather than an address: containers on the compose
+      # network resolve it via Docker DNS, host-network services via their
+      # extra_hosts entry. Nothing depends on the host's LAN address.
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_PORT: "9092"
+      KAFKA_ADVERTISED_PORT: "9092"
       KAFKA_CREATE_TOPICS: "\
         v2xhub_scheduling_plan_sub:1:1,\
         v2xhub_bsm_in:1:1,\
@@ -60,6 +65,10 @@ services:
     container_name: kowl
     restart: on-failure
     network_mode: host
+    # Host-network services share the host netns; resolve the broker's
+    # advertised name to loopback, where its published port lives.
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["debug"]
     depends_on:
       kafka:
@@ -83,6 +92,8 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
@@ -111,6 +122,8 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles : ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
@@ -137,6 +150,8 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["vehicle_scheduling", "signal_optimization"]
     depends_on:
       kafka:
@@ -165,6 +180,8 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["signal_optimization"]
     depends_on:
       kafka:
@@ -197,6 +214,8 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles: ["signal_optimization", "vehicle_scheduling"]
     depends_on:
       kafka:
@@ -228,6 +247,8 @@ services:
         reservations:
           memory: 1g
     network_mode: host
+    extra_hosts:
+      - "kafka:127.0.0.1"
     profiles : ["cooperative_perception"]
     depends_on:
       kafka:
