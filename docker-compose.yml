@@ -272,3 +272,9 @@ services:
 volumes:
     kafka-datavolume:
     zookeeper-datavolume:
+networks:
+  # Pin the default network's name so it does not follow the compose project
+  # name. External stacks (V2X Hub) attach to it by this fixed name to reach
+  # the broker by DNS.
+  default:
+    name: carma_streets_net
