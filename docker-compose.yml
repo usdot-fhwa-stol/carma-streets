@@ -27,12 +27,12 @@ services:
       retries: 10
     environment:
       DOCKER_HOST_IP:  ${INFRASTRUCTURE_IP:-127.0.0.1}
-      # Advertise a DNS name, not an address. Containers on carma_streets_net
-      # resolve it via Docker's embedded DNS; host-network services resolve it
-      # through their extra_hosts entry. Nothing here depends on the host's LAN
-      # address or on Docker's dynamically allocated bridge subnets, both of
-      # which change when the machine switches networks or a project is renamed.
+      # Advertise a DNS name rather than an address: containers on the compose
+      # network resolve it via Docker DNS, host-network services via their
+      # extra_hosts entry. Nothing depends on the host's LAN address.
       KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_PORT: "9092"
+      KAFKA_ADVERTISED_PORT: "9092"
       KAFKA_CREATE_TOPICS: "\
         v2xhub_scheduling_plan_sub:1:1,\
         v2xhub_bsm_in:1:1,\
@@ -65,7 +65,7 @@ services:
     container_name: kowl
     restart: on-failure
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
+    # Host-network services share the host netns; resolve the broker's
     # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
@@ -92,8 +92,6 @@ services:
         reservations:
           memory: 1g
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
-    # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
     profiles: ["vehicle_scheduling", "signal_optimization"]
@@ -124,8 +122,6 @@ services:
         reservations:
           memory: 1g
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
-    # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
     profiles : ["vehicle_scheduling", "signal_optimization"]
@@ -154,8 +150,6 @@ services:
         reservations:
           memory: 1g
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
-    # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
     profiles: ["vehicle_scheduling", "signal_optimization"]
@@ -186,8 +180,6 @@ services:
         reservations:
           memory: 1g
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
-    # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
     profiles: ["signal_optimization"]
@@ -222,8 +214,6 @@ services:
         reservations:
           memory: 1g
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
-    # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
     profiles: ["signal_optimization", "vehicle_scheduling"]
@@ -257,8 +247,6 @@ services:
         reservations:
           memory: 1g
     network_mode: host
-    # Host-network services share the host's netns; resolve the broker's
-    # advertised name to loopback, where its published port lives.
     extra_hosts:
       - "kafka:127.0.0.1"
     profiles : ["cooperative_perception"]
