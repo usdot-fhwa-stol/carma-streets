@@ -2,6 +2,7 @@
 #define KAFKA_CONSUMER_WORKER_H
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <cstdlib>
 #include <cstdio>
@@ -133,7 +134,7 @@ namespace kafka_clients
             bool _run = false;
             consumer_event_cb _consumer_event_cb;
             consumer_rebalance_cb _consumer_rebalance_cb;
-            const char* msg_consume(RdKafka::Message *message, void *opaque);
+            std::string msg_consume(RdKafka::Message *message, void *opaque);
 
         public:
             /**
@@ -157,9 +158,9 @@ namespace kafka_clients
              * @brief Consume from topic.
              * 
              * @param timeout_ms timeout in milliseconds to wait before failing.;
-             * @return const char* of payload consumed.
+             * @return std::string payload consumed. Empty if nothing was consumed.
              */
-            virtual const char* consume(int timeout_ms);
+            virtual std::string consume(int timeout_ms);
             /**
              * @brief Subscribe consumer to topic
              */
