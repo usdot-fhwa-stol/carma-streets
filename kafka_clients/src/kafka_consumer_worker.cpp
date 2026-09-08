@@ -116,12 +116,10 @@ namespace kafka_clients
         }
     }
 
-    const char *kafka_consumer_worker::consume(int timeout_ms)
+    std::string kafka_consumer_worker::consume(int timeout_ms)
     {
-        RdKafka::Message *msg = nullptr;
-        msg = _consumer->consume(timeout_ms);
-        const char *msg_str = msg_consume(msg, nullptr);
-        return msg_str;
+        std::unique_ptr<RdKafka::Message> msg(_consumer->consume(timeout_ms));
+        return msg_consume(msg.get());
     }
 
     bool kafka_consumer_worker::is_running() const
@@ -134,18 +132,20 @@ namespace kafka_clients
                      (_broker_str.empty() ? "UNKNOWN" : _broker_str), (_topics_str.empty() ? "UNKNOWN" : _topics_str), _partition, (_group_id_str.empty() ? "UNKNOWN" : _group_id_str));
     }
 
-    const char *kafka_consumer_worker::msg_consume(RdKafka::Message *message, void *opaque)
+    std::string kafka_consumer_worker::msg_consume(const RdKafka::Message *message)
     {
-        const char *return_msg_str = "";
+        std::string return_msg_str;
         switch (message->err())
         {
         case RdKafka::ERR__TIMED_OUT:
             break;
         case RdKafka::ERR_NO_ERROR:
             SPDLOG_TRACE(" {0} Read message at offset {1} ", _consumer->name(), message->offset());
-            SPDLOG_TRACE(" {0} Message Consumed: {1}   bytes ):  {2}", _consumer->name(), static_cast<int>(message->len()), static_cast<const char *>(message->payload()));
+            // The librdkafka payload is not null terminated, so it has to be sized with
+            // message->len(). Treating it as a C string reads past the end of the buffer.
+            return_msg_str.assign(static_cast<const char *>(message->payload()), message->len());
+            SPDLOG_TRACE(" {0} Message Consumed: {1}   bytes ):  {2}", _consumer->name(), static_cast<int>(message->len()), return_msg_str);
             _last_offset = message->offset();
-            return_msg_str = static_cast<const char *>(message->payload());
             break;
         case RdKafka::ERR__PARTITION_EOF:
             SPDLOG_TRACE("{0} Reached the end of the queue, offset : {1}", _consumer->name(), _last_offset);
