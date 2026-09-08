@@ -28,10 +28,10 @@ void call_consumer_thread()
         
         while (consumer_worker->is_running()) 
         {
-            const std::string paylod = consumer_worker->consume(1000);
-            if(!paylod.empty())
+            const std::string payload = consumer_worker->consume(1000);
+            if(!payload.empty())
             {
-                spdlog::info("Consumed message payload: {0}", paylod );
+                spdlog::info("Consumed message payload: {0}", payload );
             }
         }
         
