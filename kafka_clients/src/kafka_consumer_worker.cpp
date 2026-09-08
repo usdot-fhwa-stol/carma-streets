@@ -119,7 +119,7 @@ namespace kafka_clients
     std::string kafka_consumer_worker::consume(int timeout_ms)
     {
         std::unique_ptr<RdKafka::Message> msg(_consumer->consume(timeout_ms));
-        return msg_consume(msg.get(), nullptr);
+        return msg_consume(msg.get());
     }
 
     bool kafka_consumer_worker::is_running() const
@@ -132,7 +132,7 @@ namespace kafka_clients
                      (_broker_str.empty() ? "UNKNOWN" : _broker_str), (_topics_str.empty() ? "UNKNOWN" : _topics_str), _partition, (_group_id_str.empty() ? "UNKNOWN" : _group_id_str));
     }
 
-    std::string kafka_consumer_worker::msg_consume(RdKafka::Message *message, void *opaque)
+    std::string kafka_consumer_worker::msg_consume(const RdKafka::Message *message)
     {
         std::string return_msg_str;
         switch (message->err())

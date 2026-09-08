@@ -134,7 +134,7 @@ namespace kafka_clients
             bool _run = false;
             consumer_event_cb _consumer_event_cb;
             consumer_rebalance_cb _consumer_rebalance_cb;
-            std::string msg_consume(RdKafka::Message *message, void *opaque);
+            std::string msg_consume(const RdKafka::Message *message);
 
         public:
             /**
