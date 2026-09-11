@@ -41,6 +41,8 @@
 #include <lanelet2_projection/UTM.h>
 #include <map>
 #include <shared_mutex>
+#include <condition_variable>
+#include <chrono>
 #include <deque>
 
 #include "detected_object_to_sdsm_converter.hpp"
@@ -49,6 +51,17 @@
 
 
 namespace sensor_data_sharing_service {
+
+    /**
+     * @brief Minimum time in milliseconds between SDSMs (SDSMs are published at up to 10 Hz). Detections are
+     * published as soon as they arrive if the last SDSM was at least this long ago; detections that arrive sooner
+     * are held and published together when the period ends.
+     */
+    inline constexpr uint64_t SDSM_PUBLISH_PERIOD_MS = 100;
+    /**
+     * @brief Time in milliseconds between detection metrics writes.
+     */
+    inline constexpr uint64_t DETECTION_METRICS_WRITE_PERIOD_MS = 1000;
 
     class sds_service : public streets_service::streets_service {
         private:
@@ -68,6 +81,15 @@ namespace sensor_data_sharing_service {
              * @brief Mutex for thread safe operations on detected objects map.
              */
             std::shared_mutex detected_objects_lock;
+            /**
+             * @brief Notified by the detection consumer when a detection is added to detected_objects, so the SDSM
+             * producer can publish it without waiting for a fixed loop period.
+             */
+            std::condition_variable_any detections_available;
+            /**
+             * @brief Time in milliseconds the last SDSM was published.
+             */
+            uint64_t _last_sdsm_publish_ms = 0;
             /**
              * @brief Lanelet2 Map pointer
              */
@@ -130,8 +152,9 @@ namespace sensor_data_sharing_service {
              */
             void consume_detections();
             /**
-             * @brief Loop to produce sensor data sharing messages from detected_objects. Loop will populate sensor data sharing message with 
-             * most recent detection information, publish message and clear detected object map. Will terminate if kafka producer is no longer
+             * @brief Loop to produce sensor data sharing messages from detected_objects. Waits for detections and publishes
+             * them in an SDSM (the most recent detection of each object), at most once per SDSM_PUBLISH_PERIOD_MS: immediately if
+             * the period since the last SDSM has ended, otherwise when it ends. Will terminate if kafka producer is no longer
              * running.
              * 
              * @throws std::runtime exception if sdsm_producer == nullptr
@@ -146,9 +169,11 @@ namespace sensor_data_sharing_service {
             
             /**
              * @brief Method to create SDSM from detected objects.
+             * @param objects Detected objects to include in the SDSM, by object id.
              * @return sensor_data_sharing_msg created from detected objects.
              */
-            streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm();
+            streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm(
+                const std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> &objects);
 
 
         public:
@@ -171,6 +196,9 @@ namespace sensor_data_sharing_service {
 
             FRIEND_TEST(sensorDataSharingServiceTest, consumeDetections);
             FRIEND_TEST(sensorDataSharingServiceTest, produceSdsms);
+            FRIEND_TEST(sensorDataSharingServiceTest, produceSdsmsKeepsDetectionConsumedDuringSend);
+            FRIEND_TEST(sensorDataSharingServiceTest, produceSdsmsPublishesImmediatelyAfterPeriod);
+            FRIEND_TEST(sensorDataSharingServiceTest, produceSdsmsHoldsDetectionsWithinPeriod);
             FRIEND_TEST(sensorDataSharingServiceTest, readLanelet2Map);
             FRIEND_TEST(sensorDataSharingServiceTest, writeDetectionMetrics);
     };
