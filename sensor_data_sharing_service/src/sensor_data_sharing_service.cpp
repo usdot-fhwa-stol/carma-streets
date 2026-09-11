@@ -173,11 +173,18 @@ namespace sensor_data_sharing_service {
 
                     }
 
-                    // Write Lock
-                    std::unique_lock lock(detected_objects_lock);
-                    detected_objects[detected_object._object_id] = detected_object;
-                    SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
-                    
+                    {
+                        // Write Lock
+                        std::unique_lock lock(detected_objects_lock);
+                        // A newer detection of an object replaces one still waiting to be published
+                        if (this->_record_detection_metrics && detected_objects.count(detected_object._object_id)) {
+                            increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
+                        }
+                        detected_objects[detected_object._object_id] = detected_object;
+                        SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
+                    }
+                    detections_available.notify_one();
+
                 }
             }
             catch (const streets_utils::json_utils::json_parse_exception &e) {
@@ -196,19 +203,37 @@ namespace sensor_data_sharing_service {
             throw std::runtime_error("SDSM consumer is null!");
         }
         SPDLOG_INFO("Starting SDSM Producer!");
-        unsigned int  _interation =0;
-        uint64_t next_cycle_ms = ss::streets_clock_singleton::time_in_ms();
+        uint64_t last_metrics_write_ms = 0;
         while ( sdsm_producer->is_running() ) {
             try{
-                if (this->_record_detection_metrics && _interation % DETECTION_METRICS_WRITE_CYCLES == 0) {
+                if (this->_record_detection_metrics
+                        && ss::streets_clock_singleton::time_in_ms() >= last_metrics_write_ms + DETECTION_METRICS_WRITE_PERIOD_MS) {
                     write_detection_metrics(_detection_metrics_logger, _detection_metrics, DETECTION_METRICS_HEADER, _detection_metrics_lock);
+                    last_metrics_write_ms = ss::streets_clock_singleton::time_in_ms();
                 }
-                // Take all detections consumed since the last cycle in one locked step. A detection consumed while
-                // this SDSM is built and sent stays in detected_objects for the next cycle instead of being cleared unsent.
                 std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> objects;
                 {
                     std::unique_lock lock(detected_objects_lock);
-                    objects.swap(detected_objects);
+                    // Wait for a detection. The wait is bounded so is_running() and the metrics are still checked
+                    // when no detections arrive.
+                    detections_available.wait_for(lock, std::chrono::milliseconds(SDSM_PUBLISH_PERIOD_MS),
+                        [this]{ return !detected_objects.empty(); });
+                    if ( !detected_objects.empty() ) {
+                        // Publish at most once per period. A detection that arrives after the period has ended is
+                        // published immediately; one that arrives within it is held until the period ends, together
+                        // with any detections that arrive meanwhile (a newer detection of an object replaces its
+                        // older one). The wait uses the streets clock so it also follows simulation time.
+                        const uint64_t earliest_publish_ms = _last_sdsm_publish_ms + SDSM_PUBLISH_PERIOD_MS;
+                        if ( ss::streets_clock_singleton::time_in_ms() < earliest_publish_ms ) {
+                            lock.unlock();
+                            ss::streets_clock_singleton::sleep_until(earliest_publish_ms);
+                            lock.lock();
+                        }
+                        // Take all waiting detections in one locked step, so a detection consumed while this SDSM is
+                        // built and sent stays in detected_objects for the next SDSM instead of being cleared unsent.
+                        objects.swap(detected_objects);
+                        _last_sdsm_publish_ms = ss::streets_clock_singleton::time_in_ms();
+                    }
                 }
                 if ( !objects.empty() ) {
                     streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm(objects);
@@ -229,16 +254,6 @@ namespace sensor_data_sharing_service {
                     increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[3], _detection_metrics_lock);
                 }
             }
-            _interation++;
-            // Fixed-rate loop: sleep until the next cycle's start, not a fixed time after this cycle's work, so the
-            // loop doesn't drift slower than its period. If a cycle overran, restart the schedule from now rather
-            // than running back-to-back cycles to catch up.
-            next_cycle_ms += SDSM_PRODUCER_PERIOD_MS;
-            const uint64_t now_ms = ss::streets_clock_singleton::time_in_ms();
-            if ( next_cycle_ms < now_ms ) {
-                next_cycle_ms = now_ms;
-            }
-            ss::streets_clock_singleton::sleep_until(next_cycle_ms);
         }
         SPDLOG_CRITICAL("SDSM Producers no longer running.");
        

@@ -172,10 +172,7 @@ namespace sensor_data_sharing_service {
         EXPECT_NEAR( msg._objects[0]._detected_object_common_data._heading, 7200, 2);
     }
 
-    TEST(sensorDataSharingServiceTest, produceSdsmsKeepsDetectionConsumedDuringSend) {
-        sds_service serv;
-        serv._infrastructure_id = "rsu_1234";
-        streets_service::streets_clock_singleton::create(false);
+    streets_utils::messages::detected_objects_msg::detected_objects_msg detection_for_test(int object_id) {
         const std::string detected_object_json =
             R"(
                 {
@@ -194,9 +191,17 @@ namespace sensor_data_sharing_service {
                     "timestamp":41343
                 }
             )";
-        auto first_detection = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
-        auto second_detection = first_detection;
-        second_detection._object_id = 223;
+        auto detection = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
+        detection._object_id = object_id;
+        return detection;
+    }
+
+    TEST(sensorDataSharingServiceTest, produceSdsmsKeepsDetectionConsumedDuringSend) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        const auto first_detection = detection_for_test(222);
+        const auto second_detection = detection_for_test(223);
         serv.detected_objects[first_detection._object_id] = first_detection;
 
         serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
@@ -206,15 +211,21 @@ namespace sensor_data_sharing_service {
                                                     .WillOnce(Return(true))
                                                     .WillRepeatedly(Return(false));
         // The second detection is consumed while the first SDSM is being sent. It must be sent in the next SDSM,
-        // not cleared along with the detections of the SDSM that was just sent.
+        // not cleared along with the detections of the SDSM that was just sent, and no sooner than one period later.
         std::string first_sdsm_json;
         std::string second_sdsm_json;
+        uint64_t first_publish_ms = 0;
+        uint64_t second_publish_ms = 0;
         EXPECT_CALL(producer, send(_)).Times(2)
             .WillOnce(testing::Invoke([&](const std::string &msg) {
                 first_sdsm_json = msg;
+                first_publish_ms = serv._last_sdsm_publish_ms;
                 serv.detected_objects[second_detection._object_id] = second_detection;
             }))
-            .WillOnce(SaveArg<0>(&second_sdsm_json));
+            .WillOnce(testing::Invoke([&](const std::string &msg) {
+                second_sdsm_json = msg;
+                second_publish_ms = serv._last_sdsm_publish_ms;
+            }));
         serv.produce_sdsms();
 
         auto first_sdsm = streets_utils::messages::sdsm::from_json(first_sdsm_json);
@@ -223,6 +234,46 @@ namespace sensor_data_sharing_service {
         EXPECT_EQ(222, first_sdsm._objects[0]._detected_object_common_data._object_id);
         ASSERT_EQ(1, second_sdsm._objects.size());
         EXPECT_EQ(223, second_sdsm._objects[0]._detected_object_common_data._object_id);
+        EXPECT_GE(second_publish_ms - first_publish_ms, SDSM_PUBLISH_PERIOD_MS);
+        EXPECT_EQ(serv.detected_objects.size(), 0);
+    }
+
+    TEST(sensorDataSharingServiceTest, produceSdsmsPublishesImmediatelyAfterPeriod) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        // Last SDSM was longer than one period ago, so a new detection must not wait for a loop period
+        serv._last_sdsm_publish_ms = streets_service::streets_clock_singleton::time_in_ms() - 5 * SDSM_PUBLISH_PERIOD_MS;
+        serv.detected_objects[222] = detection_for_test(222);
+
+        serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        auto &producer = dynamic_cast<kafka_clients::mock_kafka_producer_worker&>(*serv.sdsm_producer);
+        EXPECT_CALL(producer, is_running()).Times(2).WillOnce(Return(true)).WillRepeatedly(Return(false));
+        EXPECT_CALL(producer, send(_)).Times(1);
+        const auto start = std::chrono::steady_clock::now();
+        serv.produce_sdsms();
+        const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+
+        EXPECT_LT(elapsed_ms, static_cast<int64_t>(SDSM_PUBLISH_PERIOD_MS / 2));
+        EXPECT_EQ(serv.detected_objects.size(), 0);
+    }
+
+    TEST(sensorDataSharingServiceTest, produceSdsmsHoldsDetectionsWithinPeriod) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        // An SDSM was just published, so a new detection must be held until the period ends
+        const uint64_t previous_publish_ms = streets_service::streets_clock_singleton::time_in_ms();
+        serv._last_sdsm_publish_ms = previous_publish_ms;
+        serv.detected_objects[222] = detection_for_test(222);
+
+        serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        auto &producer = dynamic_cast<kafka_clients::mock_kafka_producer_worker&>(*serv.sdsm_producer);
+        EXPECT_CALL(producer, is_running()).Times(2).WillOnce(Return(true)).WillRepeatedly(Return(false));
+        EXPECT_CALL(producer, send(_)).Times(1);
+        serv.produce_sdsms();
+
+        EXPECT_GE(serv._last_sdsm_publish_ms - previous_publish_ms, SDSM_PUBLISH_PERIOD_MS);
         EXPECT_EQ(serv.detected_objects.size(), 0);
     }
 
