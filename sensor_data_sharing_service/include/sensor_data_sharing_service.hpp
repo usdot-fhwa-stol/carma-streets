@@ -50,6 +50,18 @@
 
 namespace sensor_data_sharing_service {
 
+    /**
+     * @brief Period in milliseconds of the SDSM producer loop. An SDSM is only sent in a cycle that has new detections,
+     * so with a 10 Hz sensor SDSMs are still produced at 10 Hz. Checking at twice the sensor rate makes sure every
+     * detection gets its own cycle despite detection arrival jitter; a 10 Hz loop running alongside a 10 Hz sensor
+     * sometimes finds no new detection in one cycle and two in the next, and drops the older one.
+     */
+    inline constexpr uint64_t SDSM_PRODUCER_PERIOD_MS = 50;
+    /**
+     * @brief Number of SDSM producer cycles between detection metrics writes (once per second).
+     */
+    inline constexpr unsigned int DETECTION_METRICS_WRITE_CYCLES = 1000 / SDSM_PRODUCER_PERIOD_MS;
+
     class sds_service : public streets_service::streets_service {
         private:
             /**
@@ -146,9 +158,11 @@ namespace sensor_data_sharing_service {
             
             /**
              * @brief Method to create SDSM from detected objects.
+             * @param objects Detected objects to include in the SDSM, by object id.
              * @return sensor_data_sharing_msg created from detected objects.
              */
-            streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm();
+            streets_utils::messages::sdsm::sensor_data_sharing_msg create_sdsm(
+                const std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> &objects);
 
 
         public:
@@ -171,6 +185,7 @@ namespace sensor_data_sharing_service {
 
             FRIEND_TEST(sensorDataSharingServiceTest, consumeDetections);
             FRIEND_TEST(sensorDataSharingServiceTest, produceSdsms);
+            FRIEND_TEST(sensorDataSharingServiceTest, produceSdsmsKeepsDetectionConsumedDuringSend);
             FRIEND_TEST(sensorDataSharingServiceTest, readLanelet2Map);
             FRIEND_TEST(sensorDataSharingServiceTest, writeDetectionMetrics);
     };

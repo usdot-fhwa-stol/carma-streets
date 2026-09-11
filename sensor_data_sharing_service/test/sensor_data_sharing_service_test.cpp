@@ -172,6 +172,60 @@ namespace sensor_data_sharing_service {
         EXPECT_NEAR( msg._objects[0]._detected_object_common_data._heading, 7200, 2);
     }
 
+    TEST(sensorDataSharingServiceTest, produceSdsmsKeepsDetectionConsumedDuringSend) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        const std::string detected_object_json =
+            R"(
+                {
+                    "type":"TRUCK",
+                    "confidence":1.0,
+                    "sensorId":"IntersectionLidar",
+                    "projString":"+proj=tmerc +lat_0=0 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs",
+                    "objectId":222,
+                    "position":{"x":-23.7,"y":-4.5,"z":-9.9},
+                    "positionCovariance":[[0.04,0.0,0.0],[0.0,0.04,0.0],[0.0,0.0,0.04]],
+                    "velocity":{"x":1.0,"y":0.0,"z":0.0},
+                    "velocityCovariance":[[0.04,0.0,0.0],[0.0,0.04,0.0],[0.0,0.0,0.04]],
+                    "angularVelocity":{"x":0.0,"y":0.0,"z":0.0},
+                    "angularVelocityCovariance":[[0.01,0.0,0.0],[0.0,0.01,0.0],[0.0,0.0,0.01]],
+                    "size":{"length":2.6,"height":1.3,"width":1.2},
+                    "timestamp":41343
+                }
+            )";
+        auto first_detection = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
+        auto second_detection = first_detection;
+        second_detection._object_id = 223;
+        serv.detected_objects[first_detection._object_id] = first_detection;
+
+        serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        auto &producer = dynamic_cast<kafka_clients::mock_kafka_producer_worker&>(*serv.sdsm_producer);
+        EXPECT_CALL(producer, is_running()).Times(4).WillOnce(Return(true))
+                                                    .WillOnce(Return(true))
+                                                    .WillOnce(Return(true))
+                                                    .WillRepeatedly(Return(false));
+        // The second detection is consumed while the first SDSM is being sent. It must be sent in the next SDSM,
+        // not cleared along with the detections of the SDSM that was just sent.
+        std::string first_sdsm_json;
+        std::string second_sdsm_json;
+        EXPECT_CALL(producer, send(_)).Times(2)
+            .WillOnce(testing::Invoke([&](const std::string &msg) {
+                first_sdsm_json = msg;
+                serv.detected_objects[second_detection._object_id] = second_detection;
+            }))
+            .WillOnce(SaveArg<0>(&second_sdsm_json));
+        serv.produce_sdsms();
+
+        auto first_sdsm = streets_utils::messages::sdsm::from_json(first_sdsm_json);
+        auto second_sdsm = streets_utils::messages::sdsm::from_json(second_sdsm_json);
+        ASSERT_EQ(1, first_sdsm._objects.size());
+        EXPECT_EQ(222, first_sdsm._objects[0]._detected_object_common_data._object_id);
+        ASSERT_EQ(1, second_sdsm._objects.size());
+        EXPECT_EQ(223, second_sdsm._objects[0]._detected_object_common_data._object_id);
+        EXPECT_EQ(serv.detected_objects.size(), 0);
+    }
+
     TEST(sensorDataSharingServiceTest,readLanelet2Map) {
         sds_service serv;
         EXPECT_TRUE(serv.read_lanelet_map("/home/carma-streets/sample_map/town01_vector_map_test.osm"));

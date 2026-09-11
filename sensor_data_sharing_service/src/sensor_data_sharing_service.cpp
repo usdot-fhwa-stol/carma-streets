@@ -197,13 +197,21 @@ namespace sensor_data_sharing_service {
         }
         SPDLOG_INFO("Starting SDSM Producer!");
         unsigned int  _interation =0;
+        uint64_t next_cycle_ms = ss::streets_clock_singleton::time_in_ms();
         while ( sdsm_producer->is_running() ) {
             try{
-                if (this->_record_detection_metrics && _interation % 10 == 0) {
+                if (this->_record_detection_metrics && _interation % DETECTION_METRICS_WRITE_CYCLES == 0) {
                     write_detection_metrics(_detection_metrics_logger, _detection_metrics, DETECTION_METRICS_HEADER, _detection_metrics_lock);
                 }
-                if ( !detected_objects.empty() ) {
-                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm();
+                // Take all detections consumed since the last cycle in one locked step. A detection consumed while
+                // this SDSM is built and sent stays in detected_objects for the next cycle instead of being cleared unsent.
+                std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> objects;
+                {
+                    std::unique_lock lock(detected_objects_lock);
+                    objects.swap(detected_objects);
+                }
+                if ( !objects.empty() ) {
+                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm(objects);
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
@@ -213,10 +221,6 @@ namespace sensor_data_sharing_service {
                     }else {
                         this->_message_count = 0;
                     }
-                    // Write Lock 
-                    std::unique_lock lock(detected_objects_lock);
-                    // Clear detected object
-                    detected_objects.clear();
                 }
             }
             catch( const streets_utils::json_utils::json_parse_exception &e) {
@@ -224,18 +228,26 @@ namespace sensor_data_sharing_service {
                 if (this->_record_detection_metrics) {
                     increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[3], _detection_metrics_lock);
                 }
-            }         
+            }
             _interation++;
-            ss::streets_clock_singleton::sleep_for(100); // Sleep for 100 ms between publish  
+            // Fixed-rate loop: sleep until the next cycle's start, not a fixed time after this cycle's work, so the
+            // loop doesn't drift slower than its period. If a cycle overran, restart the schedule from now rather
+            // than running back-to-back cycles to catch up.
+            next_cycle_ms += SDSM_PRODUCER_PERIOD_MS;
+            const uint64_t now_ms = ss::streets_clock_singleton::time_in_ms();
+            if ( next_cycle_ms < now_ms ) {
+                next_cycle_ms = now_ms;
+            }
+            ss::streets_clock_singleton::sleep_until(next_cycle_ms);
         }
         SPDLOG_CRITICAL("SDSM Producers no longer running.");
        
     }
 
-    streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
+    streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm(
+        const std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> &objects) {
         const std::string ref_proj_string = ss::streets_configuration::get_string_config("reference_proj_string");
         streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
-        // Read lock
         uint64_t timestamp = ss::streets_clock_singleton::time_in_ms();
         msg._time_stamp = to_sdsm_timestamp(timestamp);
         // Populate with rolling counter
@@ -246,8 +258,7 @@ namespace sensor_data_sharing_service {
         msg._equipment_type = sdsm::equipment_type::RSU;
         // Populate ref position
         msg._ref_positon = to_position_3d(this->sdsm_reference_point);
-        std::shared_lock lock(detected_objects_lock);
-        for (const auto &[object_id, object] : detected_objects){
+        for (const auto &[object_id, object] : objects){
             try {
                 auto transformed_object_data = detected_object_local_to_ref(object, ref_proj_string);
                 auto ned_object = detected_object_enu_to_ned(transformed_object_data);
