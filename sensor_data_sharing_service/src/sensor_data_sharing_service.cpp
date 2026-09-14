@@ -223,16 +223,23 @@ namespace sensor_data_sharing_service {
                         // published immediately; one that arrives within it is held until the period ends, together
                         // with any detections that arrive meanwhile (a newer detection of an object replaces its
                         // older one). The wait uses the streets clock so it also follows simulation time.
-                        const uint64_t earliest_publish_ms = _last_sdsm_publish_ms + SDSM_PUBLISH_PERIOD_MS;
-                        if ( ss::streets_clock_singleton::time_in_ms() < earliest_publish_ms ) {
-                            lock.unlock();
-                            ss::streets_clock_singleton::sleep_until(earliest_publish_ms);
-                            lock.lock();
+                        if(auto curr_ms = ss::streets_clock_singleton::time_in_ms(); curr_ms > _last_sdsm_publish_ms + DETECTION_ALIGN_PERIOD_MS || _last_sdsm_publish_ms == 0){
+                            objects.swap(detected_objects);  // first detection in the period, publish immediately
+                            _last_sdsm_publish_ms = curr_ms;
                         }
-                        // Take all waiting detections in one locked step, so a detection consumed while this SDSM is
-                        // built and sent stays in detected_objects for the next SDSM instead of being cleared unsent.
-                        objects.swap(detected_objects);
-                        _last_sdsm_publish_ms = ss::streets_clock_singleton::time_in_ms();
+                        else {  // within the same period, publish according to the timer
+                            const uint64_t earliest_publish_ms = _last_sdsm_publish_ms + SDSM_PUBLISH_PERIOD_MS;
+                            if ( ss::streets_clock_singleton::time_in_ms() < earliest_publish_ms ) {
+                                lock.unlock();
+                                ss::streets_clock_singleton::sleep_until(earliest_publish_ms);
+                                lock.lock();
+                            }
+                            // Take all waiting detections in one locked step, so a detection consumed while this SDSM is
+                            // built and sent stays in detected_objects for the next SDSM instead of being cleared unsent.
+                            objects.swap(detected_objects);
+                            _last_sdsm_publish_ms = ss::streets_clock_singleton::time_in_ms();
+                        }
+                        
                     }
                 }
                 if ( !objects.empty() ) {
