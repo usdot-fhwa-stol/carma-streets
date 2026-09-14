@@ -63,6 +63,8 @@ namespace sensor_data_sharing_service {
      */
     inline constexpr uint64_t DETECTION_METRICS_WRITE_PERIOD_MS = 1000;
 
+    inline constexpr uint64_t DETECTION_ALIGN_PERIOD_MS = 10000;
+
     class sds_service : public streets_service::streets_service {
         private:
             /**
