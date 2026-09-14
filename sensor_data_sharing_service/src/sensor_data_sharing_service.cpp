@@ -216,23 +216,9 @@ namespace sensor_data_sharing_service {
                     std::unique_lock lock(detected_objects_lock);
                     // Wait for a detection. The wait is bounded so is_running() and the metrics are still checked
                     // when no detections arrive.
-                    detections_available.wait_for(lock, std::chrono::milliseconds(SDSM_PUBLISH_PERIOD_MS),
-                        [this]{ return !detected_objects.empty(); });
+                    detections_available.wait_for(lock, [this]{ return !detected_objects.empty(); });
                     if ( !detected_objects.empty() ) {
-                        // Publish at most once per period. A detection that arrives after the period has ended is
-                        // published immediately; one that arrives within it is held until the period ends, together
-                        // with any detections that arrive meanwhile (a newer detection of an object replaces its
-                        // older one). The wait uses the streets clock so it also follows simulation time.
-                        const uint64_t earliest_publish_ms = _last_sdsm_publish_ms + SDSM_PUBLISH_PERIOD_MS;
-                        if ( ss::streets_clock_singleton::time_in_ms() < earliest_publish_ms ) {
-                            lock.unlock();
-                            ss::streets_clock_singleton::sleep_until(earliest_publish_ms);
-                            lock.lock();
-                        }
-                        // Take all waiting detections in one locked step, so a detection consumed while this SDSM is
-                        // built and sent stays in detected_objects for the next SDSM instead of being cleared unsent.
                         objects.swap(detected_objects);
-                        _last_sdsm_publish_ms = ss::streets_clock_singleton::time_in_ms();
                     }
                 }
                 if ( !objects.empty() ) {

@@ -53,12 +53,6 @@
 namespace sensor_data_sharing_service {
 
     /**
-     * @brief Minimum time in milliseconds between SDSMs (SDSMs are published at up to 10 Hz). Detections are
-     * published as soon as they arrive if the last SDSM was at least this long ago; detections that arrive sooner
-     * are held and published together when the period ends.
-     */
-    inline constexpr uint64_t SDSM_PUBLISH_PERIOD_MS = 100;
-    /**
      * @brief Time in milliseconds between detection metrics writes.
      */
     inline constexpr uint64_t DETECTION_METRICS_WRITE_PERIOD_MS = 1000;
@@ -86,10 +80,7 @@ namespace sensor_data_sharing_service {
              * producer can publish it without waiting for a fixed loop period.
              */
             std::condition_variable_any detections_available;
-            /**
-             * @brief Time in milliseconds the last SDSM was published.
-             */
-            uint64_t _last_sdsm_publish_ms = 0;
+
             /**
              * @brief Lanelet2 Map pointer
              */
