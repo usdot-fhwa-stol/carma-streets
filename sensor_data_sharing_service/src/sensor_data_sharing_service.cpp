@@ -216,7 +216,7 @@ namespace sensor_data_sharing_service {
                     std::unique_lock lock(detected_objects_lock);
                     // Wait for a detection. The wait is bounded so is_running() and the metrics are still checked
                     // when no detections arrive.
-                    detections_available.wait_for(lock, [this]{ return !detected_objects.empty(); });
+                    detections_available.wait_for(lock, std::chrono::milliseconds(10) , [this]{ return !detected_objects.empty(); });
                     if ( !detected_objects.empty() ) {
                         objects.swap(detected_objects);
                     }
