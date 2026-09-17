@@ -99,8 +99,7 @@ RUN cmake -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAG
 RUN make
 RUN make install
 
-
-RUN echo " ------> compile siganl-optimization-service..."
+RUN echo " ------> compile signal-optimization-service..."
 COPY ./signal_opt_service/ /home/carma-streets/signal_opt_service/
 WORKDIR  /home/carma-streets/signal_opt_service
 RUN mkdir build
@@ -109,17 +108,20 @@ RUN cmake -DCMAKE_BUILD_TYPE="Debug" ..
 RUN make
 RUN ldconfig
 
+# Build args for Open Containers Annotations (https://specs.opencontainers.org/image-spec/annotations/)
+ARG VERSION
+ARG VCS_REF
+ARG BUILD_DATE
 
 # Set metadata labels
-RUN echo "------> Setting metadata labels..."
-LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="signal_opt_service"
-LABEL org.label-schema.description="Base image for signal_opt_service"
-LABEL org.label-schema.vendor="Leidos"
-LABEL org.label-schema.version="${VERSION}"
-LABEL org.label-schema.url="https://highways.dot.gov/research/research-programs/operations"
-LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/carma-streets"
-LABEL org.label-schema.vcs-ref=${VCS_REF}
-LABEL org.label-schema.build-date=${BUILD_DATE}
+LABEL org.opencontainers.image.title="signal_opt_service"
+LABEL org.opencontainers.image.description="Base image for signal_opt_service"
+LABEL org.opencontainers.image.vendor="Leidos"
+LABEL org.opencontainers.image.version=${VERSION}
+LABEL org.opencontainers.image.url="https://highways.dot.gov/research/research-programs/operations"
+LABEL org.opencontainers.image.source="https://github.com/usdot-fhwa-stol/carma-streets"
+LABEL org.opencontainers.image.revision=${VCS_REF}
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.base.name="docker.io/usdotfhwastoldev/streets_service_base:${DOCKER_TAG}-${UBUNTU_VERSION}"
 
 CMD ["/home/carma-streets/signal_opt_service/build/signal_opt_service"]
