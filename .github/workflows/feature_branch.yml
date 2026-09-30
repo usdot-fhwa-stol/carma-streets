@@ -2,7 +2,7 @@ name: feature_branch
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-jobs:       
+jobs:
   build:
     defaults:
       run:
@@ -17,7 +17,7 @@ jobs:
       options: "--user root"
     steps:
     - name: Checkout ${{ github.event.repository.name }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         path: ${{ github.event.repository.name }}
         fetch-depth: 0
@@ -33,7 +33,7 @@ jobs:
       run: |
         cd /home/carma-streets/ext/
         apt-get install -y libperl-dev curl
-        curl -k -L -O http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz 
+        curl -k -L -O http://sourceforge.net/projects/net-snmp/files/net-snmp/5.9.1/net-snmp-5.9.1.tar.gz
         tar -xvzf /home/carma-streets/ext/net-snmp-5.9.1.tar.gz
         cd net-snmp-5.9.1/
         ./configure --with-default-snmp-version="1" --with-sys-contact="@@no.where" --with-sys-location="Unknown" --with-logfile="/var/log/snmpd.log" --with-persistent-directory="/var/net-snmp"
@@ -43,7 +43,7 @@ jobs:
       uses: actions/setup-java@v4 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
         java-version: 17
-        distribution: "temurin"        
+        distribution: "temurin"
     - name: Install Sonar
       run: |
         SONAR_DIR=/opt/sonarqube
@@ -69,7 +69,7 @@ jobs:
     - name: Check Java Version
       run: |
         java -version
-        echo $JAVA_HOME         
+        echo $JAVA_HOME
     - name: Build
       run: |
         cd /home/carma-streets/

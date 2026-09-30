@@ -5,7 +5,7 @@
 # - Installing V2X Hub and required runtime dependencies
 # - Setting up V2X Hub environment variables for docker compose deployment
 
-
+V2XHUB_VERSION="develop"
 # Function to validate latitude and longitude
 validate_coordinate() {
   local coord="$1"
@@ -30,6 +30,35 @@ validate_coordinate() {
   fi
   return 0
 }
+
+select_v2xhub_version() {
+    release_candidates=$(git branch -r | grep 'origin/release/' | sed 's|origin/||' | sed 's/release\//release-/g')
+    echo "Available Release Candidates (Only intended for use during release-testing):"
+    echo "$release_candidates"
+    # Repository URL
+    repo_url_latest="https://api.github.com/repos/usdot-fhwa-OPS/V2X-Hub/releases/latest"
+
+    # Getting the latest release information using curl
+    release_info=$(curl -sSL $repo_url_latest)
+
+    # Parsing the JSON response to get the tag_name (version) of the latest release
+    latest_version=$(echo "$release_info" | grep -o '"tag_name": *"[^"]*"' | cut -d '"' -f 4)
+
+    # Fetching all tags from Git repository
+    tags=$(git ls-remote --tags https://github.com/usdot-fhwa-OPS/V2X-Hub.git | awk -F/ '{ printf "  %s\n", $3 }' | sort -V)
+    # Remove curly braces, Properties found, duplicate entries, and tag that starts with v. and show only versions above 7.0
+    updated_tags=$(echo "$tags" | sed 's/\^{}//;s/^v//' | grep -vE 'Properties_Found|v.*'  | awk '!seen[$0]++ && $1 >= "7.0"')
+
+
+    # Displaying all available versions
+    echo "Note: V2X-Hub multi architecture deployments only work for the versions 7.0 and above."
+    echo "Available Release versions:"
+    echo "$updated_tags"
+
+    # select a version or accept the latest version as default
+    read -r -p "Enter V2X-Hub Version (choose from the above, or press Enter to use the latest version $latest_version): " chosen_version
+    V2XHUB_VERSION=${chosen_version:-$latest_version}
+}
 # Default values
 INSTALL_V2XHUB="FALSE"
 CARMA_STREETS_COMPOSE_PROFILES=""
@@ -38,7 +67,6 @@ CARMA_STREETS_COMPOSE_PROFILES_DEFAULT="cooperative_perception,debug"
 INFRASTRUCTURE_ID_DEFAULT="rsu_1234"
 INFRASTRUCTURE_NAME_DEFAULT="East Intersection"
 INFRASTRUCTURE_IP_DEFAULT="127.0.0.1"
-SENSOR_JSON_DIR_DEFAULT="./sensor_configurations"
 SIMULATION_MODE_DEFAULT="FALSE"
 CARMA_STREETS_VERSION="develop"
 CARMA_STREETS_VERSION_TYPE="develop"
@@ -108,19 +136,23 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     if [[ "$INSTALL_V2XHUB" =~ [yY](es)*  ]]; then
         # clone the V2X Hub repository
         cd ..
+        select_v2xhub_version
         if [ -d "V2X-Hub" ]; then
             echo "V2X Hub directory already exists. Skipping cloning."
         else
             echo "Cloning V2X Hub repository on path $(pwd)..."
             git clone https://github.com/usdot-fhwa-OPS/V2X-Hub.git
         fi
-        
+      
         cd V2X-Hub/configuration/ || exit
+        #Checking out correct repo version
+        echo "Installing V2X Hub Version: $V2XHUB_VERSION"
+        git checkout $V2XHUB_VERSION
+        git pull
 
         # Initialize V2X Hub Docker environment
         echo "Initializing V2X Hub Docker environment..."
         ./initialize_docker_environment.sh
-        ./initialize_secrets.sh
         echo "V2X Hub Docker environment initialized successfully."
         echo "Pulling V2X Hub Docker images..."
         docker compose pull
@@ -145,10 +177,6 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     read -r -p "Simulation Mode (TRUE/FALSE, or press Enter to use default as $SIMULATION_MODE_DEFAULT): " SIMULATION_MODE
     SIMULATION_MODE=${SIMULATION_MODE:-$SIMULATION_MODE_DEFAULT}
 
-    # Sensor Configuration File Path
-    read -r -p "Enter Sensor Configuration Directory Path (or press Enter to use default as $SENSOR_JSON_DIR_DEFAULT): " SENSOR_JSON_DIR
-    SENSOR_JSON_DIR=${SENSOR_JSON_DIR:-$SENSOR_JSON_DIR_DEFAULT}
-
     # Available CARMA Streets Profiles
     echo "Avaible CARMA Streets Profiles:"
     # Convert the string to an array by splitting on commas
@@ -166,7 +194,6 @@ if [[ "$reconfigure_choice" =~ [yY](es)* ]] || [ ! -f .env ]; then
     INFRASTRUCTURE_ID="$INFRASTRUCTURE_ID"
     INFRASTRUCTURE_NAME="$INFRASTRUCTURE_NAME"
     INFRASTRUCTURE_IP="$INFRASTRUCTURE_IP"
-    SENSOR_JSON_DIR="$SENSOR_JSON_DIR"
     COMPOSE_PROFILES="$CARMA_STREETS_COMPOSE_PROFILES"
     SIMULATION_MODE=$SIMULATION_MODE
     STOL_ORG="$CARMA_STREETS_ORG"
@@ -244,16 +271,7 @@ if [[ "$deploy_choice" =~ [yY](es)* ]]; then
     # Prompt user to ask if they want to add V2X Hub user (yes/no)
     read -r -p "Do you want to add a V2X Hub user? (Y/N, or press Enter to use default as Y): " add_v2x_hub_user
     add_v2x_hub_user=${add_v2x_hub_user:-Y}
-    if [[ "$add_v2x_hub_user" =~ [yY](es)* ]]; then
-        cd ../V2X-Hub/configuration/ || exit
-        echo "Adding V2X Hub user ..."
-        ./add_v2xhub_user.sh
-        echo "V2X Hub user added successfully."
-    fi
-
 else
     echo "Skipping CARMA Streets deployment."
     exit 0
 fi
-
-

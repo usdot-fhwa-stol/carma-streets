@@ -30,7 +30,7 @@ namespace kafka_clients {
             ~mock_kafka_consumer_worker() = default;
 
             MOCK_METHOD(bool, init,(),(override));
-            MOCK_METHOD(const char*, consume, (int timeout_ms), (override));
+            MOCK_METHOD(std::string, consume, (int timeout_ms), (override));
             MOCK_METHOD(void, subscribe, (), (override));
             MOCK_METHOD(void, stop, (), (override));
             MOCK_METHOD(void, printCurrConf, (), (override));

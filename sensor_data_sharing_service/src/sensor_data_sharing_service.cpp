@@ -38,28 +38,35 @@ namespace sensor_data_sharing_service {
             SPDLOG_ERROR("Failed to initialize streets service base!");
             return false;
         }
-        SPDLOG_DEBUG("Intializing Sensor Data Sharing Service");
+        SPDLOG_DEBUG("Initializing Sensor Data Sharing Service");
        
         // Read sensor configuration file and get WSG84 location/origin reference frame.
-        const std::string sensor_config_file = streets_service::get_system_config("SENSOR_JSON_FILE_PATH", "/home/carma-streets/sensor_configurations/sensors.json");
         const std::string sensor_id = ss::streets_configuration::get_string_config("sensor_id");
-        auto sensor_ref = parse_sensor_ref(sensor_config_file, sensor_id);
-        if ( sensor_ref.reference_type == LocationDataType::CARTESIAN ) {
-            SPDLOG_DEBUG("Reading CARTESIAN sensor location offset from lanelet2 osm map.");
-            if (!streets_service::is_simulation_mode())
-            {
-                SPDLOG_WARN("CARTESIAN sensor location should only be used for simulation. Please use WGS84 location data!");
-            }
-            const std::string lanlet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
-            if (!read_lanelet_map(lanlet2_map)){
-                SPDLOG_ERROR("Failed to read lanlet2 map {0} !", lanlet2_map);
-                return false;
-            }
-            this->sdsm_reference_point =  this->map_projector->reverse(sensor_ref.cartesian_location);
+        const std::string ref_proj_string = ss::streets_configuration::get_string_config("reference_proj_string");
 
-        } else {
-            this->sdsm_reference_point = sensor_ref.wgs84_location;
+        std::unordered_map<std::string, std::string> proj_string_pairs = parse_proj_string(ref_proj_string);
+        lanelet::GPSPoint ref_proj_gps;
+
+        if (proj_string_pairs.count("lat_0")){
+            ref_proj_gps.lat = std::stod(proj_string_pairs["lat_0"]);
         }
+        else{
+            SPDLOG_WARN("No latitude value found in reference proj string.");
+        }
+        if (proj_string_pairs.count("lon_0")){
+            ref_proj_gps.lon = std::stod(proj_string_pairs["lon_0"]);
+        }
+        else{
+            SPDLOG_WARN("No longitude value found in reference proj string.");
+        }
+
+        const std::string lanelet2_map =  streets_service::get_system_config("LANELET2_MAP", "/home/carma-streets/MAP/Intersection.osm");
+        if (!read_lanelet_map(lanelet2_map)){
+            SPDLOG_ERROR("Failed to read lanelet2 map {0} !", lanelet2_map);
+            return false;
+        }
+
+        this->sdsm_reference_point = ref_proj_gps;
 
         // Initialize SDSM Kafka producer
         const std::string sdsm_topic = ss::streets_configuration::get_string_config("sdsm_producer_topic");
@@ -166,11 +173,18 @@ namespace sensor_data_sharing_service {
 
                     }
 
-                    // Write Lock
-                    std::unique_lock lock(detected_objects_lock);
-                    detected_objects[detected_object._object_id] = detected_object;
-                    SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
-                    
+                    {
+                        // Write Lock
+                        std::unique_lock lock(detected_objects_lock);
+                        // A newer detection of an object replaces one still waiting to be published
+                        if (this->_record_detection_metrics && detected_objects.count(detected_object._object_id)) {
+                            increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[1], _detection_metrics_lock);
+                        }
+                        detected_objects[detected_object._object_id] = detected_object;
+                        SPDLOG_DEBUG("Detected Object List Size {0} after consumed: {1}", detected_objects.size(), payload);
+                    }
+                    detections_available.notify_one();
+
                 }
             }
             catch (const streets_utils::json_utils::json_parse_exception &e) {
@@ -189,14 +203,40 @@ namespace sensor_data_sharing_service {
             throw std::runtime_error("SDSM consumer is null!");
         }
         SPDLOG_INFO("Starting SDSM Producer!");
-        unsigned int  _interation =0;
+        uint64_t last_metrics_write_ms = 0;
         while ( sdsm_producer->is_running() ) {
             try{
-                if (this->_record_detection_metrics && _interation % 10 == 0) {
+                if (this->_record_detection_metrics
+                        && ss::streets_clock_singleton::time_in_ms() >= last_metrics_write_ms + DETECTION_METRICS_WRITE_PERIOD_MS) {
                     write_detection_metrics(_detection_metrics_logger, _detection_metrics, DETECTION_METRICS_HEADER, _detection_metrics_lock);
+                    last_metrics_write_ms = ss::streets_clock_singleton::time_in_ms();
                 }
-                if ( !detected_objects.empty() ) {
-                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm();
+                std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> objects;
+                {
+                    std::unique_lock lock(detected_objects_lock);
+                    // Wait for a detection. The wait is bounded so is_running() and the metrics are still checked
+                    // when no detections arrive.
+                    detections_available.wait_for(lock, std::chrono::milliseconds(SDSM_PUBLISH_PERIOD_MS),
+                        [this]{ return !detected_objects.empty(); });
+                    if ( !detected_objects.empty() ) {
+                        // Publish at most once per period. A detection that arrives after the period has ended is
+                        // published immediately; one that arrives within it is held until the period ends, together
+                        // with any detections that arrive meanwhile (a newer detection of an object replaces its
+                        // older one). The wait uses the streets clock so it also follows simulation time.
+                        const uint64_t earliest_publish_ms = _last_sdsm_publish_ms + SDSM_PUBLISH_PERIOD_MS;
+                        if ( ss::streets_clock_singleton::time_in_ms() < earliest_publish_ms ) {
+                            lock.unlock();
+                            ss::streets_clock_singleton::sleep_until(earliest_publish_ms);
+                            lock.lock();
+                        }
+                        // Take all waiting detections in one locked step, so a detection consumed while this SDSM is
+                        // built and sent stays in detected_objects for the next SDSM instead of being cleared unsent.
+                        objects.swap(detected_objects);
+                        _last_sdsm_publish_ms = ss::streets_clock_singleton::time_in_ms();
+                    }
+                }
+                if ( !objects.empty() ) {
+                    streets_utils::messages::sdsm::sensor_data_sharing_msg msg = create_sdsm(objects);
                     const std::string json_msg = streets_utils::messages::sdsm::to_json(msg);
                     SPDLOG_DEBUG("Sending SDSM : {0}", json_msg);
                     sdsm_producer->send(json_msg);
@@ -206,10 +246,6 @@ namespace sensor_data_sharing_service {
                     }else {
                         this->_message_count = 0;
                     }
-                    // Write Lock 
-                    std::unique_lock lock(detected_objects_lock);
-                    // Clear detected object
-                    detected_objects.clear();
                 }
             }
             catch( const streets_utils::json_utils::json_parse_exception &e) {
@@ -217,34 +253,40 @@ namespace sensor_data_sharing_service {
                 if (this->_record_detection_metrics) {
                     increment_drop_metric(_detection_metrics, DETECTION_METRICS_HEADER[3], _detection_metrics_lock);
                 }
-            }         
-            _interation++;
-            ss::streets_clock_singleton::sleep_for(100); // Sleep for 100 ms between publish  
+            }
         }
         SPDLOG_CRITICAL("SDSM Producers no longer running.");
        
     }
 
-    streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm() {
+    streets_utils::messages::sdsm::sensor_data_sharing_msg sds_service::create_sdsm(
+        const std::map<int,streets_utils::messages::detected_objects_msg::detected_objects_msg> &objects) {
+        const std::string ref_proj_string = ss::streets_configuration::get_string_config("reference_proj_string");
         streets_utils::messages::sdsm::sensor_data_sharing_msg msg;
-        // Read lock
         uint64_t timestamp = ss::streets_clock_singleton::time_in_ms();
         msg._time_stamp = to_sdsm_timestamp(timestamp);
         // Populate with rolling counter
         msg._msg_count = this->_message_count;
         // Populate with infrastructure id
         msg._source_id = this->_infrastructure_id;
-        // Populate equipement type
+        // Populate equipment type
         msg._equipment_type = sdsm::equipment_type::RSU;
-        // Polulate ref position
+        // Populate ref position
         msg._ref_positon = to_position_3d(this->sdsm_reference_point);
-        std::shared_lock lock(detected_objects_lock);
-        for (const auto &[object_id, object] : detected_objects){
-            auto ned_object = detected_object_enu_to_ned(object);
-            auto detected_object_data = to_detected_object_data(ned_object,timestamp);
-            // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
-            // This is a bug and needs to be addressed.
-            msg._objects.push_back(detected_object_data);
+        for (const auto &[object_id, object] : objects){
+            try {
+                auto transformed_object_data = detected_object_local_to_ref(object, ref_proj_string);
+                auto ned_object = detected_object_enu_to_ned(transformed_object_data);
+                auto detected_object_data = to_detected_object_data(ned_object, timestamp);
+                // TODO: Update time offset. Currently CARMA-Streets detected object message does not support timestamp
+                // This is a bug and needs to be addressed.
+                msg._objects.push_back(detected_object_data);
+            }
+            catch(const std::exception &e) {
+                SPDLOG_ERROR("Exception: Failed to configure detected object data.", e.what());
+                continue;
+            }
+
         }
         return msg;
     }
