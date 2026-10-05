@@ -172,6 +172,111 @@ namespace sensor_data_sharing_service {
         EXPECT_NEAR( msg._objects[0]._detected_object_common_data._heading, 7200, 2);
     }
 
+    streets_utils::messages::detected_objects_msg::detected_objects_msg detection_for_test(int object_id) {
+        const std::string detected_object_json =
+            R"(
+                {
+                    "type":"TRUCK",
+                    "confidence":1.0,
+                    "sensorId":"IntersectionLidar",
+                    "projString":"+proj=tmerc +lat_0=0 +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +geoidgrids=egm96_15.gtx +vunits=m +no_defs",
+                    "objectId":222,
+                    "position":{"x":-23.7,"y":-4.5,"z":-9.9},
+                    "positionCovariance":[[0.04,0.0,0.0],[0.0,0.04,0.0],[0.0,0.0,0.04]],
+                    "velocity":{"x":1.0,"y":0.0,"z":0.0},
+                    "velocityCovariance":[[0.04,0.0,0.0],[0.0,0.04,0.0],[0.0,0.0,0.04]],
+                    "angularVelocity":{"x":0.0,"y":0.0,"z":0.0},
+                    "angularVelocityCovariance":[[0.01,0.0,0.0],[0.0,0.01,0.0],[0.0,0.0,0.01]],
+                    "size":{"length":2.6,"height":1.3,"width":1.2},
+                    "timestamp":41343
+                }
+            )";
+        auto detection = streets_utils::messages::detected_objects_msg::from_json(detected_object_json);
+        detection._object_id = object_id;
+        return detection;
+    }
+
+    TEST(sensorDataSharingServiceTest, produceSdsmsKeepsDetectionConsumedDuringSend) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        const auto first_detection = detection_for_test(222);
+        const auto second_detection = detection_for_test(223);
+        serv.detected_objects[first_detection._object_id] = first_detection;
+
+        serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        auto &producer = dynamic_cast<kafka_clients::mock_kafka_producer_worker&>(*serv.sdsm_producer);
+        EXPECT_CALL(producer, is_running()).Times(4).WillOnce(Return(true))
+                                                    .WillOnce(Return(true))
+                                                    .WillOnce(Return(true))
+                                                    .WillRepeatedly(Return(false));
+        // The second detection is consumed while the first SDSM is being sent. It must be sent in the next SDSM,
+        // not cleared along with the detections of the SDSM that was just sent, and no sooner than one period later.
+        std::string first_sdsm_json;
+        std::string second_sdsm_json;
+        uint64_t first_publish_ms = 0;
+        uint64_t second_publish_ms = 0;
+        EXPECT_CALL(producer, send(_)).Times(2)
+            .WillOnce(testing::Invoke([&](const std::string &msg) {
+                first_sdsm_json = msg;
+                first_publish_ms = serv._last_sdsm_publish_ms;
+                serv.detected_objects[second_detection._object_id] = second_detection;
+            }))
+            .WillOnce(testing::Invoke([&](const std::string &msg) {
+                second_sdsm_json = msg;
+                second_publish_ms = serv._last_sdsm_publish_ms;
+            }));
+        serv.produce_sdsms();
+
+        auto first_sdsm = streets_utils::messages::sdsm::from_json(first_sdsm_json);
+        auto second_sdsm = streets_utils::messages::sdsm::from_json(second_sdsm_json);
+        ASSERT_EQ(1, first_sdsm._objects.size());
+        EXPECT_EQ(222, first_sdsm._objects[0]._detected_object_common_data._object_id);
+        ASSERT_EQ(1, second_sdsm._objects.size());
+        EXPECT_EQ(223, second_sdsm._objects[0]._detected_object_common_data._object_id);
+        EXPECT_GE(second_publish_ms - first_publish_ms, SDSM_PUBLISH_PERIOD_MS);
+        EXPECT_EQ(serv.detected_objects.size(), 0);
+    }
+
+    TEST(sensorDataSharingServiceTest, produceSdsmsPublishesImmediatelyAfterPeriod) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        // Last SDSM was longer than one period ago, so a new detection must not wait for a loop period
+        serv._last_sdsm_publish_ms = streets_service::streets_clock_singleton::time_in_ms() - 5 * SDSM_PUBLISH_PERIOD_MS;
+        serv.detected_objects[222] = detection_for_test(222);
+
+        serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        auto &producer = dynamic_cast<kafka_clients::mock_kafka_producer_worker&>(*serv.sdsm_producer);
+        EXPECT_CALL(producer, is_running()).Times(2).WillOnce(Return(true)).WillRepeatedly(Return(false));
+        EXPECT_CALL(producer, send(_)).Times(1);
+        const auto start = std::chrono::steady_clock::now();
+        serv.produce_sdsms();
+        const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+
+        EXPECT_LT(elapsed_ms, static_cast<int64_t>(SDSM_PUBLISH_PERIOD_MS / 2));
+        EXPECT_EQ(serv.detected_objects.size(), 0);
+    }
+
+    TEST(sensorDataSharingServiceTest, produceSdsmsHoldsDetectionsWithinPeriod) {
+        sds_service serv;
+        serv._infrastructure_id = "rsu_1234";
+        streets_service::streets_clock_singleton::create(false);
+        // An SDSM was just published, so a new detection must be held until the period ends
+        const uint64_t previous_publish_ms = streets_service::streets_clock_singleton::time_in_ms();
+        serv._last_sdsm_publish_ms = previous_publish_ms;
+        serv.detected_objects[222] = detection_for_test(222);
+
+        serv.sdsm_producer = std::make_shared<kafka_clients::mock_kafka_producer_worker>();
+        auto &producer = dynamic_cast<kafka_clients::mock_kafka_producer_worker&>(*serv.sdsm_producer);
+        EXPECT_CALL(producer, is_running()).Times(2).WillOnce(Return(true)).WillRepeatedly(Return(false));
+        EXPECT_CALL(producer, send(_)).Times(1);
+        serv.produce_sdsms();
+
+        EXPECT_GE(serv._last_sdsm_publish_ms - previous_publish_ms, SDSM_PUBLISH_PERIOD_MS);
+        EXPECT_EQ(serv.detected_objects.size(), 0);
+    }
+
     TEST(sensorDataSharingServiceTest,readLanelet2Map) {
         sds_service serv;
         EXPECT_TRUE(serv.read_lanelet_map("/home/carma-streets/sample_map/town01_vector_map_test.osm"));
