@@ -261,7 +261,7 @@ services:
       LANELET2_MAP: ${LANELET2_MAP:-/home/carma-streets/intersection_model/MAP/lanelet2_map.osm}
       INFRASTRUCTURE_ID: ${INFRASTRUCTURE_ID:-rsu_1234}
       INFRASTRUCTURE_NAME: ${INFRASTRUCTURE_NAME:-East Intersection}
-      INFRASTRUCTURE_IP: ${INFRASTRUCTURE_IP:-127.0.0}
+      INFRASTRUCTURE_IP: ${INFRASTRUCTURE_IP:-127.0.0.1}
 
     volumes: 
       - ./sensor_data_sharing_service/manifest.json:/home/carma-streets/sensor_data_sharing_service/manifest.json
@@ -272,9 +272,3 @@ services:
 volumes:
     kafka-datavolume:
     zookeeper-datavolume:
-networks:
-  # Pin the default network's name so it does not follow the compose project
-  # name. External stacks (V2X Hub) attach to it by this fixed name to reach
-  # the broker by DNS.
-  default:
-    name: carma_streets_net
